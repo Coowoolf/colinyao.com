@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import RulerFig from "@/components/RulerFig";
+import Motif from "@/components/Motifs";
 import { site } from "@/content/site";
 import { ideas } from "@/content/ideas";
 import { talks, upcoming } from "@/content/talks";
@@ -53,17 +54,20 @@ export default function Home() {
             <div className="stat">
               <span className="l flow" style={s(0)}>TALKS · SINCE 2024</span>
               <span className="n settle" style={s(1)}>15<em>+</em></span>
-              <span className="d flow" style={s(2)}>场公开演讲，从 RTE 大会到 AWS 中国峰会</span>
+              <div className="stat-motif flow" style={s(2)}><Motif kind="sota" /></div>
+              <span className="d flow" style={s(3)}>场公开演讲，从 RTE 大会到 AWS 中国峰会</span>
             </div>
             <div className="stat">
               <span className="l flow" style={s(2)}>HEMISPHERES</span>
               <span className="n settle" style={s(3)}>2</span>
-              <span className="d flow" style={s(4)}>个半球：被记住的消费级 × 被托付的企业级</span>
+              <div className="stat-motif flow" style={s(4)}><Motif kind="hemis" /></div>
+              <span className="d flow" style={s(5)}>个半球：被记住的消费级 × 被托付的企业级</span>
             </div>
             <div className="stat">
               <span className="l flow" style={s(4)}>RULER</span>
               <span className="n settle" style={s(5)}>1</span>
-              <span className="d flow" style={s(6)}>把尺子：向外叫 Eval，向内叫内观</span>
+              <div className="stat-motif flow" style={s(6)}><Motif kind="ruler" /></div>
+              <span className="d flow" style={s(7)}>把尺子：向外叫 Eval，向内叫内观</span>
             </div>
           </div>
         </div>
@@ -83,6 +87,7 @@ export default function Home() {
             {featured.map((idea, i) => (
               <Link key={idea.id} href={`/ideas#${idea.id}`} className={`idea-card flow ${idea.accent ?? ""}`} style={s(i * 2)}>
                 <span className="idx"><span>{idea.index}</span><span>{idea.since}</span></span>
+                <div className="idea-motif"><Motif kind={idea.motif} /></div>
                 <span className="zh">{idea.zh}</span>
                 <span className="en">{idea.en}</span>
                 <span className="def">{preview(idea.def)}</span>

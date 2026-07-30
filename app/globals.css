@@ -168,6 +168,15 @@ main{position:relative;z-index:1;}
 .trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
 @keyframes trace{to{stroke-dashoffset:-1200;}}
 
+/* 母题图持续动效：一段光沿线流动 + 关键点呼吸 */
+@keyframes mtrace{to{stroke-dashoffset:-440;}}
+.mlive{stroke-dasharray:8 102;animation:mtrace 6.5s linear infinite;}
+.mlive.slow{animation-duration:10s;}
+@keyframes dbreathe{0%,100%{opacity:.45;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+.dlive{animation:dbreathe 3.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box;}
+.stat-motif{height:44px;display:flex;align-items:flex-end;opacity:.9;}
+.stat-motif svg{width:150px;height:40px;overflow:visible;}
+
 /* 金句短线 0 → 76px */
 .js .mq-line{width:0;transition:width 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
 .js .rv.visible .mq-line{width:76px;}
@@ -406,7 +415,7 @@ h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
     stroke-dashoffset:0 !important;transition:none !important;width:auto;
   }
   .js .mq-line{width:76px !important;}
-  .site-flow path,.site-flow g,.trace,.hero-scroll,.upnext .tag::before{animation:none !important;}
+  .site-flow path,.site-flow g,.trace,.mlive,.dlive,.hero-scroll,.upnext .tag::before{animation:none !important;}
   html{scroll-behavior:auto;}
 }
 @media print{

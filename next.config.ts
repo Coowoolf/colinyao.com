@@ -7,12 +7,13 @@ const nextConfig: NextConfig = {
     return [
       { source: "/newcollege", destination: "/decks/newcollege.html" },
       { source: "/3years", destination: "/decks/3years.html" },
+      { source: "/trust", destination: "/decks/trust.html" },
     ];
   },
   async headers() {
     return [
       {
-        source: "/(newcollege|3years|decks/:path*)",
+        source: "/(newcollege|3years|trust|decks/:path*)",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ];

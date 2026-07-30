@@ -5,6 +5,9 @@ export default function RulerFig() {
       {/* 主尺 */}
       <path className="dw" style={{ ["--len" as string]: 660, ["--i" as string]: 4 } as React.CSSProperties}
         d="M30 70 H650" stroke="var(--hair-strong)" strokeWidth="1.5" />
+      {/* 持续流动的光：从原点分别流向 Eval 与内观 */}
+      <path className="mlive slow" d="M340 70 H650" stroke="var(--coral)" strokeWidth="1.6" opacity=".75" />
+      <path className="mlive slow" d="M340 70 H30" stroke="var(--amber)" strokeWidth="1.6" opacity=".75" />
       {/* 刻度（两段错峰） */}
       <path className="dw" style={{ ["--len" as string]: 320, ["--i" as string]: 6 } as React.CSSProperties}
         d="M70 70 v-12 M110 70 v-8 M150 70 v-8 M190 70 v-12 M230 70 v-8 M270 70 v-8 M310 70 v-12"
