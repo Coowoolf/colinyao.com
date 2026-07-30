@@ -1,0 +1,55 @@
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+import FlowField from "@/components/FlowField";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import { site } from "@/content/site";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  title: {
+    default: site.title,
+    template: "%s · Colin Yao",
+  },
+  description: site.description,
+  keywords: ["姚光华", "Colin Yao", "对话式AI", "Voice Agent", "活人感", "ConvoAI", "Eval", "对话式智能体"],
+  openGraph: {
+    title: site.title,
+    description: site.description,
+    url: site.url,
+    siteName: "colinyao.com",
+    locale: "zh_CN",
+    type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: site.title,
+    description: site.description,
+    images: ["/og.png"],
+  },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f0e17",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="zh-CN">
+      <head>
+        {/* 有 JS 才启用入场初态；无 JS / 爬虫直接看到完整内容 */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
+      <body>
+        <FlowField />
+        <Nav />
+        <main>{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
