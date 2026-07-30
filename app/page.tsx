@@ -54,19 +54,19 @@ export default function Home() {
             <div className="stat">
               <span className="l flow" style={s(0)}>TALKS · SINCE 2024</span>
               <span className="n settle" style={s(1)}>15<em>+</em></span>
-              <div className="stat-motif flow" style={s(2)}><Motif kind="sota" /></div>
+              <div className="stat-motif flow" style={s(2)}><Motif kind="sota" plain /></div>
               <span className="d flow" style={s(3)}>场公开演讲，从 RTE 大会到 AWS 中国峰会</span>
             </div>
             <div className="stat">
               <span className="l flow" style={s(2)}>HEMISPHERES</span>
               <span className="n settle" style={s(3)}>2</span>
-              <div className="stat-motif flow" style={s(4)}><Motif kind="hemis" /></div>
+              <div className="stat-motif flow" style={s(4)}><Motif kind="hemis" plain /></div>
               <span className="d flow" style={s(5)}>个半球：被记住的消费级 × 被托付的企业级</span>
             </div>
             <div className="stat">
               <span className="l flow" style={s(4)}>RULER</span>
               <span className="n settle" style={s(5)}>1</span>
-              <div className="stat-motif flow" style={s(6)}><Motif kind="ruler" /></div>
+              <div className="stat-motif flow" style={s(6)}><Motif kind="ruler" plain /></div>
               <span className="d flow" style={s(7)}>把尺子：向外叫 Eval，向内叫内观</span>
             </div>
           </div>
