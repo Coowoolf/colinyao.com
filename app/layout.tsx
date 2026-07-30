@@ -41,12 +41,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN">
       <head>
-        {/* 有 JS 才启用入场初态；无 JS / 爬虫直接看到完整内容。
+        {/* 首帧主题引导（防闪烁）+ 有 JS 才启用入场初态；
             兜底：2.6s 内动效系统未唤醒（弱网 hydration 慢）则强制显示全部内容 */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "document.documentElement.classList.add('js');setTimeout(function(){if(!document.querySelector('.rv.visible'))document.documentElement.classList.add('anim-fallback')},2600);",
+              "try{if(localStorage.getItem('colin-theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}document.documentElement.classList.add('js');setTimeout(function(){if(!document.querySelector('.rv.visible'))document.documentElement.classList.add('anim-fallback')},2600);",
           }}
         />
       </head>

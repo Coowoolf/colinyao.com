@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>带一个新同事上班 · 如何让你的 Agent 产生恒动复利</title>
@@ -13,42 +14,42 @@
 <style>
 /* ===== THEME ===== */
 /* ===========================================
-   THEME · colin-deck-dark
-   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   THEME · colin-deck-light
+   浅灰白 #eff0f3 + 近黑 #0d0d0d + 暖橙 #ff8e3c
    =========================================== */
 :root{
-  --stage-bg:#07070b;
-  --slide-bg:#0f0e17;
-  --card-bg:#16151f;
-  --card-bg-2:#1c1b26;
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
   --cardw-bg:#fffffe;
-  --cardw-ink:#0f0e17;
-  --cardw-ink2:#3d3d4e;
-  --cardw-tag:#8a8aa0;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
   --cardw-am:#c2410c;
-  --cardw-co:#d1392a;
-  --file-bg:#0a0910;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
 
-  --hair:rgba(255,255,254,.10);
-  --hair-soft:rgba(255,255,254,.055);
-  --hair-strong:rgba(255,255,254,.20);
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
 
-  --ink:#fffffe;
-  --ink-2:#a7a9be;
-  --ink-3:#6f7186;
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
 
-  --amber:#ff8906;
-  --coral:#f25f4c;
-  --magenta:#e53170;
-  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
-  --mq-2:#ff8906;
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;              /* 金句主色（浅底用暖橙，按 skill 规范） */
+  --mq-2:#d9376e;
 
-  --flow-line:rgba(255,137,6,.30);
-  --flow-line-2:rgba(255,255,254,.16);
-  --flow-op:.42;
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
 
-  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
-  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
 }
 
 /* ===== CORE ===== */
@@ -3291,10 +3292,10 @@ document.addEventListener('keydown',e=>{
 .deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
 @media print{.deck-swap{display:none!important;}}
 </style>
-<a class="deck-swap" id="deckSwap" href="/newcollege-light">浅底</a>
+<a class="deck-swap" id="deckSwap" href="/newcollege">暗底</a>
 <script>
 (function(){
-  var OTHER='/newcollege-light', MINE='dark';
+  var OTHER='/newcollege', MINE='light';
   try{
     var want=localStorage.getItem('colin-theme')||'dark';
     if(want!==MINE){location.replace(OTHER+(location.hash||''));return;}

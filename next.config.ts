@@ -6,14 +6,16 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/newcollege", destination: "/decks/newcollege.html" },
+      { source: "/newcollege-light", destination: "/decks/newcollege-light.html" },
       { source: "/3years", destination: "/decks/3years.html" },
       { source: "/trust", destination: "/decks/trust.html" },
+      { source: "/trust-light", destination: "/decks/trust-light.html" },
     ];
   },
   async headers() {
     return [
       {
-        source: "/(newcollege|3years|trust|decks/:path*)",
+        source: "/(newcollege|newcollege-light|3years|trust|trust-light|decks/:path*)",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ];

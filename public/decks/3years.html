@@ -53,6 +53,34 @@
   --on-bg:linear-gradient(180deg,rgba(229,49,112,.09),rgba(229,49,112,.02));
   --warn-bg:linear-gradient(180deg,rgba(255,176,32,.09),rgba(255,176,32,.02));
 }
+
+/* ===== LIGHT · V7B 浅底（colin-deck-light 家族：#eff0f3 / 近黑 / 品红 / 暖金深化） ===== */
+html[data-theme="light"]{
+  --stage-bg:#dfe0e4;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.78);
+  --card-bg-2:#fffffe;
+  --file-bg:#fffffe;
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.07);
+  --hair-strong:rgba(13,13,13,.30);
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#6f6f78;
+  --purple:#d9376e;
+  --gold:#b45309;
+  --link-w:#3a3745;
+  --amber:var(--gold);
+  --coral:var(--purple);
+  --magenta:#d9376e;
+  --mq:#0d0d0d;
+  --mq-2:var(--gold);
+  --flow-line:rgba(217,55,110,.28);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.4;
+  --on-bg:linear-gradient(180deg,rgba(217,55,110,.08),rgba(217,55,110,.02));
+  --warn-bg:linear-gradient(180deg,rgba(180,83,9,.09),rgba(180,83,9,.02));
+}
 </style>
 <style>
 /* =========================================================
@@ -635,7 +663,7 @@ em{color:var(--gold);}
           </g>
           <path class="dw" style="--len:1300;--i:5" d="M260 120 C 520 120, 620 120, 1440 120" stroke="url(#g1)" stroke-width="2.4"/>
           <defs><linearGradient id="g1" x1="260" x2="1440" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#ffb020"/><stop offset=".55" stop-color="#efeaf7"/><stop offset="1" stop-color="#e53170"/>
+            <stop style="stop-color:var(--gold)"/><stop offset=".55" style="stop-color:var(--link-w)"/><stop offset="1" style="stop-color:var(--purple)"/>
           </linearGradient></defs>
           <path class="dw" style="--len:60;--i:6" d="M420 100 V140" stroke="var(--gold)" stroke-width="2"/>
           <path class="dw" style="--len:60;--i:7" d="M860 100 V140" stroke="var(--link-w)" stroke-width="2"/>
@@ -2098,6 +2126,33 @@ em{color:var(--gold);}
 <div class="deck-steps" id="deckSteps"></div>
 <div class="edit-hotzone"></div>
 <button class="edit-toggle" id="editToggle">EDIT · E</button>
+<style>
+.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
+  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
+  background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
+</style>
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  var b=document.getElementById('deckSwap');
+  function apply(t){
+    if(t==='light'){document.documentElement.dataset.theme='light';b.textContent='暗底';}
+    else{delete document.documentElement.dataset.theme;b.textContent='浅底';}
+  }
+  var cur='dark';
+  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){
+    cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}
+    apply(cur);
+  });
+})();
+</script>
 <script>
 /* ===========================================
    固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
