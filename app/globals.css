@@ -388,6 +388,16 @@ h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
   .hero{min-height:92svh;}
 }
 
+/* ---------- 弱网兜底：hydration 未醒时强制显示全部内容 ---------- */
+.js.anim-fallback .flow,.js.anim-fallback .rise,.js.anim-fallback .spread,
+.js.anim-fallback .settle,.js.anim-fallback .pop,.js.anim-fallback .ink,
+.js.anim-fallback .dw,.js.anim-fallback .mq-line{
+  opacity:1 !important;transform:none !important;filter:none !important;
+  clip-path:none !important;-webkit-mask-image:none !important;mask-image:none !important;
+  stroke-dashoffset:0 !important;
+}
+.js.anim-fallback .mq-line{width:76px !important;}
+
 /* ---------- Reduced motion / no-JS / print ---------- */
 @media (prefers-reduced-motion:reduce){
   .js .flow,.js .rise,.js .spread,.js .settle,.js .pop,.js .ink,.js .dw,.js .mq-line{
