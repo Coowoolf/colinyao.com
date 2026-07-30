@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>你的 demo 在骗你：一场 6 家 STT 的横评 · 姚光华 Colin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+/* ===========================================
+   THEME · colin-deck-dark
+   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   =========================================== */
+:root{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
+  --mq-2:#ff8906;
+
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+/* LIGHT · token 严格取自 colin-deck-light reference/theme.css */
+html[data-theme="light"]{
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
+  --cardw-am:#c2410c;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;
+  --mq-2:#d9376e;
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+
+
+/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+
+/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+
+</style></head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+    <svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">公众号文章系列 · 17 · 评测三部曲 · 第一篇</div>
+    <h1 class="ink" style="--i:1">你的 demo 在骗你<br>一场 6 家 STT 的横评</h1>
+    <div class="subtitle spread" style="--i:3">六家统计打平；念哲学书 0.97，念订单号就崩</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin</span></div>
+      <div><span class="k">Role</span><span class="v">声网 ConvoAI 产品负责人</span></div>
+      <div><span class="k">一手源</span><span class="v">Braintrust · Jess Wang · 2026-07-09</span></div>
+      <div><span class="k">Date</span><span class="v">2026.07</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="leap">
+    <div class="badge settle" style="--i:0">17</div>
+    <div class="q ink" style="--i:1"><i>上一个系列讲「胜负手在架构」。</i><i>但有个问题它没正面回答：</i><i><span class="hl">架构好不好，谁说了算？</span></i></div>
+    <div class="sub2 flow" style="--i:5">说了算的，是评测 Eval。所以这个新系列讲评测 —— 怎么给一个语音 Agent 打分，<br>打分这件事里埋了多少坑，以及为什么我认为，评测能力本身正在变成被低估的资产。</div>
+    <div class="rule"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>素材 · 一场受控横评</span><span>03</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Braintrust · Jess Wang · 2026 年 7 月 9 日</div>
+      <h2 class="ink" style="--i:1">一场刚出炉的受控横评</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">SETUP</text>
+          <text class="big pop" x="0" y="110" style="--i:2">6</text>
+          <text class="txt pop" x="60" y="106" style="--i:2">家主流 STT 供应商</text>
+          <text class="big pop" x="0" y="196" style="--i:3">240</text>
+          <text class="txt pop" x="110" y="192" style="--i:3">条音频</text>
+          <text class="big pop" x="0" y="282" style="--i:3">8</text>
+          <text class="txt pop" x="60" y="278" style="--i:3">个内容领域</text>
+          <text class="sm pop" x="0" y="340" style="--i:4">受控对比 · Braintrust · 2026-07-09</text>
+          <line class="stroke dw" x1="420" y1="40" x2="420" y2="360" stroke-width="1" style="--len:320;--i:4"/>
+          <rect class="box dw" x="480" y="60" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:5" data-step="1"/>
+          <text class="ttl pop" x="506" y="104" style="--i:5" data-step="1">OpenAI</text>
+          <text class="sm pop" x="506" y="140" style="--i:5" data-step="1">gpt-4o-transcribe</text>
+          <rect class="box dw" x="870" y="60" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:6" data-step="1"/>
+          <text class="ttl pop" x="896" y="104" style="--i:6" data-step="1">ElevenLabs</text>
+          <text class="sm pop" x="896" y="140" style="--i:6" data-step="1">scribe_v1</text>
+          <rect class="box dw" x="1260" y="60" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:7" data-step="1"/>
+          <text class="ttl pop" x="1286" y="104" style="--i:7" data-step="1">Deepgram</text>
+          <text class="sm pop" x="1286" y="140" style="--i:7" data-step="1">nova-3</text>
+          <rect class="box dw" x="480" y="200" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:8" data-step="2"/>
+          <text class="ttl pop" x="506" y="244" style="--i:8" data-step="2">AssemblyAI</text>
+          <text class="sm pop" x="506" y="280" style="--i:8" data-step="2">universal-2</text>
+          <rect class="box dw" x="870" y="200" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:9" data-step="2"/>
+          <text class="ttl pop" x="896" y="244" style="--i:9" data-step="2">Google</text>
+          <text class="sm pop" x="896" y="280" style="--i:9" data-step="2">chirp_2</text>
+          <rect class="box dw" x="1260" y="200" width="360" height="110" rx="4" stroke-width="1" style="--len:940;--i:10" data-step="2"/>
+          <text class="ttl pop" x="1286" y="244" style="--i:10" data-step="2">Groq</text>
+          <text class="sm pop" x="1286" y="280" style="--i:10" data-step="2">whisper-large-v3（开源）</text>
+          <text class="sm pop" x="480" y="352" style="--i:11" data-step="3">你能想到的英文世界主流玩家，基本都在</text>
+        </svg>
+      </div>
+      <div class="land flow" data-step="3" style="--i:12">我把它逐段读完 —— 它给我的东西，比结论多得多。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT I / V</div>
+    <div class="en settle" style="--i:1">APART</div>
+    <div class="cn spread" style="--i:3">分岔的地方</div>
+    <div class="d flow" style="--i:4">一般人测 STT 只问一件事：听对了没有？<br>这场评测问了两件 —— 第二件，才是这篇文章的全部。</div>
+    <div class="rail">
+      <span class="cur">I 分岔的地方</span><span>II 准确率打平</span><span>III 编号会崩</span><span>IV 便宜的解药</span><span>V 延迟会骗人</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 分岔的地方</span><span>05</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">它问了一个大多数评测不问的问题</div>
+      <h2 class="ink" style="--i:1">从「字」提到「意」</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 410" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">QUESTION 1 · 大多数评测只问这个</text>
+          <rect class="box dw" x="0" y="52" width="700" height="100" rx="4" stroke-width="1" style="--len:1600;--i:2"/>
+          <text class="ttl pop" x="28" y="112" style="--i:3">听对了没有？</text>
+          <text class="sm pop" x="740" y="112" style="--i:3">拿转出来的文字和标准答案比，算个词错率 WER，完事</text>
+          <text class="lbl pop" x="0" y="200" style="--i:4" data-step="1">QUESTION 2 · 这场评测多问了一件</text>
+          <rect class="box dw" x="0" y="226" width="700" height="120" rx="4" stroke-width="1" style="--len:1640;--i:4" data-step="1"/>
+          <text class="ttl pop" x="28" y="272" style="--i:5" data-step="1">就算听错了 ——</text>
+          <text class="ttl pop" x="28" y="312" style="--i:5" data-step="1">有没有改变答案？</text>
+          <rect class="box dw" x="740" y="226" width="270" height="52" rx="4" stroke-width="1" style="--len:644;--i:6" data-step="2"/>
+          <text class="sm pop" x="760" y="258" style="--i:6" data-step="2">喂标准答案的文字稿</text>
+          <rect class="box dw" x="740" y="294" width="270" height="52" rx="4" stroke-width="1" style="--len:644;--i:6" data-step="2"/>
+          <text class="sm pop" x="760" y="326" style="--i:6" data-step="2">喂 STT 转出来的稿</text>
+          <line class="stroke-am dw" x1="1010" y1="252" x2="1090" y2="280" stroke-width="1.4" style="--len:85;--i:7" data-step="3"/>
+          <line class="stroke-am dw" x1="1010" y1="320" x2="1090" y2="292" stroke-width="1.4" style="--len:85;--i:7" data-step="3"/>
+          <rect class="box dw" x="1100" y="240" width="520" height="110" rx="4" stroke-width="1" style="--len:1260;--i:7" data-step="3"/>
+          <text class="ttl fill-am pop" x="1128" y="286" style="--i:8" data-step="3">裁判模型判断</text>
+          <text class="sm pop" x="1128" y="322" style="--i:8" data-step="3">这两个答案，意思一样吗？</text>
+          <text class="txt fill-am pop" x="0" y="400" style="--i:9" data-step="4">这一问，把评测的粒度从「字」提到了「意」</text>
+        </svg>
+      </div>
+      <div class="land flow" data-step="4" style="--i:10">「听对了 95%」和「答案还对不对」，是两个问题。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 分岔的地方</span><span>06</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">评测里的一个真实例子</div>
+      <h2 class="ink" style="--i:1">一个字符，两个世界</h2>
+    </div>
+    <div class="body">
+      <div class="file flow" style="--i:2"><span class="c">标准答案</span>   refund for order <span class="w">INV-4492</span> approved
+<span class="c">STT 转写</span>   refund for order <span class="r">INV-4493</span> approved
+
+<span class="h">逐字去比</span>   95% 都对，词错率低得漂亮
+<span class="h">被改掉的</span>   恰好是订单号的最后一位
+<span class="r">裁判判定</span>   听起来几乎一样，意思已经完全不一样了
+           退款批给了另一张订单</div>
+      <div class="note co flow" style="--i:3">裁判判得很准 —— <b>听起来几乎一样，意思已经完全不一样了</b>：退款批给了另一张订单。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
+    <div class="q">
+      <i class="rise" style="--i:1">「听起来几乎一样」和「意思一样」</i>
+      <i class="rise" style="--i:2">分岔的地方，就是全部的失败</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">逐字去比，95% 都对，词错率低得漂亮。但被改掉的那一个字符，<br>恰好是订单号的最后一位 —— 退款批给了另一张订单。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 分岔的地方</span><span>08</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">作者把这类案例的分量写成了全文文眼</div>
+      <h2 class="ink" style="--i:1">生意死在第二个问题上</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">大多数评测</div>
+          <div class="b">只回答第一个问题</div>
+          <div class="s">听对了没有？拿转写和标准答案比，算个词错率，完事。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">你的生意</div>
+          <div class="b">死在第二个问题上</div>
+          <div class="s">就算听错了 —— 这个错，有没有改变下游 LLM 给出的答案？</div>
+        </div>
+      </div>
+      <div class="note grey flow" style="--i:4">原文（一手引语）：<span class="dim mono">"Those are where 'did it sound almost identical?' and 'did it mean the same?' come apart — the whole failure this post is about."</span></div>
+      <div class="land co flow" style="--i:5">大多数评测只回答第一个，可你的生意死在第二个上。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT II / V</div>
+    <div class="en settle" style="--i:1">TIE</div>
+    <div class="cn spread" style="--i:3">真正的平局</div>
+    <div class="d flow" style="--i:4">好，那这六家里，总该有个「更准」的赢家吧？<br>答案是：没有。</div>
+    <div class="rail">
+      <span>I 分岔的地方</span><span class="cur">II 准确率打平</span><span>III 编号会崩</span><span>IV 便宜的解药</span><span>V 延迟会骗人</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 准确率打平</span><span>10</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">词级相似度 / 关键实体召回 / 答案等价</div>
+      <h2 class="ink" style="--i:1">三个指标，全部重叠</h2>
+    </div>
+    <div class="body">
+      <div class="quotes">
+        <div class="r flow dn" data-step="1" style="--i:2">
+          <span class="who">BRAINTRUST</span>
+          <span class="say">The accuracy columns are <em>a real tie, not merely close averages</em></span>
+          <span class="src">Jess Wang · 2026-07-09</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3">
+          <span class="who">BRAINTRUST</span>
+          <span class="say"><em>every model's 95% CI overlaps every other's</em> on all three metrics</span>
+          <span class="src">同一篇 · 准确率章节</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4">
+          <span class="who">WORD-LEVEL</span>
+          <span class="say">五家的词级相似度挤在 <em>1 个百分点</em>以内</span>
+          <span class="src">词级相似度 / 实体召回 / 答案等价</span></div>
+      </div>
+      <div class="note flow" data-step="4" style="--i:5">翻译一下：<b>从统计上讲，没有任何一家的准确率，能和另一家拉开可辨别的差距。</b></div>
+      <div class="land" data-step="5" style="--i:6">准确率那几列是真正的平局，不是碰巧接近的平均数。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 准确率打平</span><span>11</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">95% 置信区间互相重叠</div>
+      <h2 class="ink" style="--i:1">六条区间，压在同一段上</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">95% CI</text>
+          <text class="sm pop" x="1620" y="26" text-anchor="end" style="--i:2">原文未逐家给出分值，此处仅示意区间重叠</text>
+          <text class="ttl pop" x="0" y="78" style="--i:3" data-step="1">OpenAI</text>
+          <rect class="fill-am pop" x="700" y="61" width="380" height="14" rx="2" style="--i:3" data-step="1"/>
+          <text class="ttl pop" x="0" y="128" style="--i:3" data-step="1">ElevenLabs</text>
+          <rect class="fill-am pop" x="660" y="111" width="400" height="14" rx="2" style="--i:3" data-step="1"/>
+          <text class="ttl pop" x="0" y="178" style="--i:4" data-step="1">Deepgram</text>
+          <rect class="fill-am pop" x="680" y="161" width="390" height="14" rx="2" style="--i:4" data-step="1"/>
+          <text class="ttl pop" x="0" y="228" style="--i:4" data-step="1">AssemblyAI</text>
+          <rect class="fill-am pop" x="720" y="211" width="370" height="14" rx="2" style="--i:4" data-step="1"/>
+          <text class="ttl pop" x="0" y="278" style="--i:5" data-step="1">Google</text>
+          <rect class="fill-am pop" x="690" y="261" width="395" height="14" rx="2" style="--i:5" data-step="1"/>
+          <text class="ttl pop" x="0" y="328" style="--i:5" data-step="1">Groq</text>
+          <rect class="fill-am pop" x="650" y="311" width="420" height="14" rx="2" style="--i:5" data-step="1"/>
+          <rect class="stroke-am dw" x="720" y="44" width="340" height="300" rx="4" stroke-width="1.5" style="--len:1280;--i:6" data-step="2"/>
+          <text class="sm fill-am pop" x="890" y="376" text-anchor="middle" style="--i:7" data-step="2">每一家的 95% 置信区间都与其他每一家重叠</text>
+          <text class="ttl pop" x="1120" y="110" style="--i:8" data-step="3">三个准确率指标</text>
+          <text class="sm pop" x="1120" y="148" style="--i:8" data-step="3">词级相似度</text>
+          <text class="sm pop" x="1120" y="176" style="--i:8" data-step="3">关键实体召回</text>
+          <text class="sm pop" x="1120" y="204" style="--i:8" data-step="3">答案等价</text>
+          <text class="sm fill-co pop" x="1120" y="256" style="--i:9" data-step="3">全部真正平局</text>
+          <text class="sm fill-co pop" x="1120" y="284" style="--i:9" data-step="3">不是碰巧接近的平均数</text>
+        </svg>
+      </div>
+      <div class="land flow" data-step="4" style="--i:10">从统计上讲，没有任何一家的准确率，能和另一家拉开可辨别的差距。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 准确率打平</span><span>12</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">评测特意用英音、美音、澳音各录了一批</div>
+      <h2 class="ink" style="--i:1">口音，基本不构成差异</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 320" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">ACCENT · UK / US / AU</text>
+          <text class="ttl pop" x="0" y="110" style="--i:3" data-step="1">词级相似度</text>
+          <line class="stroke dw" x1="380" y1="100" x2="1180" y2="100" stroke-width="1" style="--len:800;--i:3" data-step="1"/>
+          <circle class="fill-am pop" cx="1040" cy="100" r="8" style="--i:4" data-step="1"/>
+          <circle class="fill-am pop" cx="1070" cy="100" r="8" style="--i:4" data-step="1"/>
+          <circle class="fill-am pop" cx="1100" cy="100" r="8" style="--i:4" data-step="1"/>
+          <text class="big pop" x="1200" y="118" style="--i:5" data-step="1">1.3</text>
+          <text class="sm pop" x="1300" y="114" style="--i:5" data-step="1">分之差</text>
+          <text class="sm pop" x="380" y="140" style="--i:5" data-step="1">英音 / 美音 / 澳音，三种口音各录了一批</text>
+          <text class="ttl pop" x="0" y="240" style="--i:6" data-step="2">关键实体召回</text>
+          <line class="stroke dw" x1="380" y1="230" x2="1180" y2="230" stroke-width="1" style="--len:800;--i:6" data-step="2"/>
+          <circle class="fill-am pop" cx="1030" cy="230" r="8" style="--i:7" data-step="2"/>
+          <circle class="fill-am pop" cx="1065" cy="230" r="8" style="--i:7" data-step="2"/>
+          <circle class="fill-am pop" cx="1100" cy="230" r="8" style="--i:7" data-step="2"/>
+          <text class="big pop" x="1200" y="248" style="--i:8" data-step="2">1.4</text>
+          <text class="sm pop" x="1300" y="244" style="--i:8" data-step="2">分之差</text>
+          <text class="sm pop" x="380" y="270" style="--i:8" data-step="2">基本等于没差</text>
+          <text class="txt fill-co pop" x="0" y="306" style="--i:9" data-step="3">选型会上吵得最凶的，往往就是「哪家识别更准」</text>
+        </svg>
+      </div>
+      <div class="land flow" data-step="3" style="--i:10">三种口音的相似度差 1.3 分，实体召回差 1.4 分 —— 基本等于没差。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">在 2026 年，主流玩家之间</i>
+      <i class="rise" style="--i:2">「谁更准」已经问不出差距</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">我知道这个结果反很多人的常识。选型会上吵得最凶的，往往就是「哪家识别更准」；<br>厂商官网上最大的字，也是准确率。可这场受控评测说：那个差距，已经不在了。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT III / V</div>
+    <div class="en settle" style="--i:1">TOKENS</div>
+    <div class="cn spread" style="--i:3">编号才是失败模式</div>
+    <div class="d flow" style="--i:4">评测的 8 个领域里，有一个是专业书籍 —— LibriVox 志愿者朗读的公版书，<br>里面全是 PARAPHERNALIA、EXTINGUISHED 这种又长又生僻的词。</div>
+    <div class="rail">
+      <span>I 分岔的地方</span><span>II 准确率打平</span><span class="cur">III 编号会崩</span><span>IV 便宜的解药</span><span>V 延迟会骗人</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 编号会崩</span><span>15</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">把「关键实体召回」按内容领域拆开</div>
+      <h2 class="ink" style="--i:1">词再难都能听对，编号一念就崩</h2>
+    </div>
+    <div class="body">
+      <table class="tight">
+        <thead><tr><th>内容</th><th>关键实体召回</th><th>里面是什么</th></tr></thead>
+        <tbody>
+          <tr class="flow dn" data-step="1" style="--i:2"><td>专业书籍的生僻词</td><td><b class="am">~0.97</b>（六家全部）</td><td>PARAPHERNALIA、EXTINGUISHED</td></tr>
+          <tr class="flow dn" data-step="2" style="--i:3"><td>客服的订单号、客户 ID</td><td><b class="co">0.59–0.69</b></td><td>订单号、客户 ID、发票号</td></tr>
+          <tr class="flow dn" data-step="3" style="--i:4"><td>空管的呼号、逐位数字</td><td><b class="mg">0.28–0.46</b></td><td>呼号、字母代码、一位一位念的数字</td></tr>
+        </tbody>
+      </table>
+      <div class="note co flow" data-step="4" style="--i:5">作者把这条列成了全文第一条 takeaway：<span class="dim mono">"Structured tokens are the failure mode. Ordinary words, even fancy ones, transcribe fine (philosophy ~0.97)."</span></div>
+      <div class="land co" data-step="5" style="--i:6">普通的词，再难、再生僻，STT 都听得对。
+        <span class="s">订单号、ID、呼号、一位一位念的数字 —— 这些一个字符都不能错的东西，难得多。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mega">
+    <div class="num settle" style="--i:0">0.97</div>
+    <div class="cap flow" style="--i:2">六家模型在「专业书籍」这一桶的成绩，<b>全部 0.97 左右</b>。<br>同样这六家，念客服订单号 0.59–0.69，念空管呼号 0.28–0.46。</div>
+    <div class="foot flow" style="--i:3">这条分布让我想起上个系列第三篇里 Des Traynor 那个数字：真实客服里，「重置密码」这种简单问题只占 0.4%。同一个道理，在语音这层的版本就是 —— demo 里最好念的，恰恰是生产里最不重要的。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 编号会崩</span><span>17</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Structured tokens are the failure mode</div>
+      <h2 class="ink" style="--i:1">结构化失败：一个字符都不能错</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 430" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">FAILURE TAXONOMY</text>
+          <text class="sm pop" x="1620" y="26" text-anchor="end" style="--i:2">客服 0.59–0.69 · 空管 0.28–0.46</text>
+          <rect class="box dw" x="610" y="52" width="400" height="76" rx="4" stroke-width="1" style="--len:952;--i:3"/>
+          <text class="ttl pop" x="810" y="98" text-anchor="middle" style="--i:3">STT 听写的两类内容</text>
+          <line class="stroke dw" x1="810" y1="128" x2="810" y2="160" stroke-width="1" style="--len:32;--i:4"/>
+          <line class="stroke dw" x1="380" y1="160" x2="1240" y2="160" stroke-width="1" style="--len:860;--i:4"/>
+          <line class="stroke-am dw" x1="380" y1="160" x2="380" y2="200" stroke-width="1.4" style="--len:40;--i:5" data-step="1"/>
+          <rect class="box dw" x="100" y="200" width="560" height="100" rx="4" stroke-width="1" style="--len:1320;--i:5" data-step="1"/>
+          <text class="ttl fill-am pop" x="130" y="246" style="--i:6" data-step="1">ORDINARY WORDS</text>
+          <text class="sm pop" x="130" y="282" style="--i:6" data-step="1">普通的词，再难、再生僻都能听对</text>
+          <text class="sm pop" x="130" y="336" style="--i:6" data-step="1">PARAPHERNALIA / EXTINGUISHED</text>
+          <text class="big pop" x="130" y="400" style="--i:7" data-step="1">0.97</text>
+          <line class="stroke-co dw" x1="1240" y1="160" x2="1240" y2="200" stroke-width="1.4" style="--len:40;--i:8" data-step="2"/>
+          <rect class="box dw" x="960" y="200" width="660" height="100" rx="4" stroke-width="1" style="--len:1520;--i:8" data-step="2"/>
+          <text class="ttl fill-co pop" x="990" y="246" style="--i:9" data-step="2">STRUCTURED TOKENS</text>
+          <text class="sm pop" x="990" y="282" style="--i:9" data-step="2">数字、编号、ID、呼号、专有名词</text>
+          <text class="sm pop" x="990" y="336" style="--i:9" data-step="2">一个字符都不能错 —— 难得多</text>
+          <text class="big fill-co pop" x="990" y="400" style="--i:10" data-step="2">0.28–0.69</text>
+        </svg>
+      </div>
+      <div class="land co flow" data-step="3" style="--i:11">这不是哪家 ASR 模型笨 —— 这是你的评测集选错了。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 编号会崩</span><span>18</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">六家都一样，不是随机噪声</div>
+      <h2 class="ink" style="--i:1">错法，也出奇地一致</h2>
+    </div>
+    <div class="body">
+      <div class="file flow" style="--i:2"><span class="c">原文</span>            <span class="c">六家的转写</span>
+<span class="w">cust_fail</span>       →   <span class="r">"cust12"</span>
+<span class="w">Slalom</span>          →   <span class="r">"Shell Oil"</span>
+<span class="w">BR2207</span>          →   <span class="r">丢了连字符</span>
+
+<span class="h">共同点</span>          一个字符都不能错的东西，最容易错</div>
+      <div class="note flow" style="--i:3">这不是随机噪声，而是<b>同一种失败模式在不同模型上的重复出现</b> —— 换一家供应商救不了它。</div>
+      <div class="land flow" style="--i:4">拿专业书籍的数据集验收，你永远发现不了订单号会崩。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
+    <div class="q">
+      <i class="rise" style="--i:1">demo 里最好念的</i>
+      <i class="rise" style="--i:2">恰恰是生产里最不重要的</i>
+      <i class="rise" style="--i:3">生产里最要命的</i>
+      <i class="rise" style="--i:4">恰恰是 demo 最不爱念的</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:6">你给客户演示的时候，念一段流畅的话术，识别近乎全对，全场满意。<br>可用户真打进电话来，他报一个车架号、一个工单编号、一串一位一位念的手机号。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 编号会崩</span><span>20</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">demo 的分布，不是生产的分布</div>
+      <h2 class="ink" style="--i:1">你以为在选模型，其实在选评测集</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">DEMO</text>
+          <rect class="fill-am pop" x="0" y="52" width="1180" height="56" rx="2" style="--i:2" data-step="1"/>
+          <rect class="fill-co pop" x="1190" y="52" width="12" height="56" rx="2" style="--i:3" data-step="1"/>
+          <text class="sm fill-co pop" x="1220" y="88" style="--i:3" data-step="1">1% 的难</text>
+          <text class="sm pop" x="0" y="142" style="--i:3" data-step="1">99% 的简单场景：流畅的话术、干净的录音、念什么对什么</text>
+          <text class="lbl pop" x="0" y="210" style="--i:4" data-step="2">PRODUCTION</text>
+          <rect class="box dw" x="0" y="236" width="1200" height="56" rx="2" stroke-width="1" style="--len:2512;--i:4" data-step="2"/>
+          <rect class="fill-co pop" x="0" y="236" width="300" height="56" rx="2" style="--i:5" data-step="2"/>
+          <text class="sm pop" x="0" y="326" style="--i:5" data-step="2">用户真打进电话来，他不念话术 —— 他报一个车架号、一个工单编号、一串手机号</text>
+          <rect class="box dw" x="1260" y="180" width="360" height="180" rx="4" stroke-width="1" style="--len:1080;--i:6" data-step="3"/>
+          <text class="ttl fill-am pop" x="1286" y="226" style="--i:7" data-step="3">我们的一手观察</text>
+          <text class="sm pop" x="1286" y="264" style="--i:7" data-step="3">某头部车企客服的</text>
+          <text class="sm pop" x="1286" y="292" style="--i:7" data-step="3">真实通话里，反复</text>
+          <text class="sm pop" x="1286" y="320" style="--i:7" data-step="3">撞见的就是这件事</text>
+          <text class="sm fill-co pop" x="1286" y="350" style="--i:8" data-step="3">最难转对的是那串数字</text>
+        </svg>
+      </div>
+      <div class="note flow" data-step="4" style="--i:9">上个系列第三篇里 Des Traynor 那个数字：真实客服里，「重置密码」这种简单问题只占 <b class="am">0.4%</b>。</div>
+      <div class="land co flow" data-step="4" style="--i:10">demo 永远给你看那 99% 的简单场景；可你的用户开口，就是那 1% 的难。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT IV / V</div>
+    <div class="en settle" style="--i:1">CURES</div>
+    <div class="cn spread" style="--i:3">解药出奇地便宜</div>
+    <div class="d flow" style="--i:4">编号会崩，怎么救？评测试了两招。<br>两招都成本很低，而且注意 —— 两招都不是「换个更强的模型」。</div>
+    <div class="rail">
+      <span>I 分岔的地方</span><span>II 准确率打平</span><span>III 编号会崩</span><span class="cur">IV 便宜的解药</span><span>V 延迟会骗人</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 便宜的解药</span><span>22</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第一招 · 把领域词表喂给它（glossary biasing）</div>
+      <h2 class="ink" style="--i:1">能教规则的，才叫提示</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">NATURAL LANGUAGE RULE</text>
+          <rect class="box dw" x="0" y="52" width="780" height="250" rx="4" stroke-width="1" style="--len:2060;--i:2" data-step="1"/>
+          <text class="ttl pop" x="28" y="104" style="--i:3" data-step="1">OpenAI / Groq 接受一段自然语言</text>
+          <text class="sm pop" x="28" y="150" style="--i:3" data-step="1">「客户 ID 长这样：cust_ 后面跟一个词，比如 cust_907」</text>
+          <text class="txt pop" x="28" y="204" style="--i:4" data-step="1">模型学到的是模式</text>
+          <text class="txt pop" x="28" y="242" style="--i:4" data-step="1">遇到它从没见过的 cust_fail 也能套上</text>
+          <text class="big pop" x="28" y="294" style="--i:5" data-step="2">+3</text>
+          <text class="sm fill-am pop" x="90" y="290" style="--i:5" data-step="2">分 · 统计显著提升（OpenAI / Google）</text>
+          <text class="lbl pop" x="840" y="26" style="--i:6" data-step="3">KEYWORD LIST</text>
+          <rect class="box dw" x="840" y="52" width="780" height="250" rx="4" stroke-width="1" style="--len:2060;--i:6" data-step="3"/>
+          <text class="ttl pop" x="868" y="104" style="--i:7" data-step="3">另一批家接受关键词列表</text>
+          <text class="sm pop" x="868" y="150" style="--i:7" data-step="3">本质上是一个拼写词典</text>
+          <text class="txt pop" x="868" y="204" style="--i:8" data-step="3">你列表里没有的词</text>
+          <text class="txt pop" x="868" y="242" style="--i:8" data-step="3">它一个也救不了</text>
+          <text class="sm fill-co pop" x="868" y="290" style="--i:9" data-step="3">几乎纹丝不动</text>
+          <text class="txt fill-am pop" x="0" y="364" style="--i:10" data-step="4">能教规则的，才叫提示；只能背单词的，那叫词典</text>
+        </svg>
+      </div>
+      <div class="land flow" data-step="4" style="--i:11">差别不在模型强弱，在提示的格式。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 便宜的解药</span><span>23</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第二招 · 转写完，让一个 LLM 校对一遍</div>
+      <h2 class="ink" style="--i:1">带硬规则的校对器</h2>
+    </div>
+    <div class="body">
+      <div class="file flow" style="--i:2"><span class="h">允许的纠正</span>
+   A 100        →   <span class="w">A100</span>
+   cust 123     →   <span class="w">cust_123</span>
+
+<span class="r">绝不允许</span>
+   A100         →   <span class="r">ORD-100</span>      ← 自作聪明的改写</div>
+      <div class="note co flow" style="--i:3">评测真试过不加规则的版本 —— <b>LLM 会把编号「幻觉」成另一个编号</b>。所以校对器必须带硬规则，不能只说「帮我改对」。</div>
+      <div class="land flow" style="--i:4">在 STT 吐出文字之后，挂一个带硬规则的校对器。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 便宜的解药</span><span>24</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">客服场景的关键实体召回</div>
+      <h2 class="ink" style="--i:1">加校对，是每一行的最高分</h2>
+    </div>
+    <div class="body">
+      <table class="tight">
+        <thead><tr><th>模型</th><th>原始</th><th>喂词表</th><th>加校对</th></tr></thead>
+        <tbody>
+          <tr class="flow dn" data-step="1" style="--i:2"><td>OpenAI</td><td>0.661</td><td>0.772</td><td><b class="am">0.789</b></td></tr>
+          <tr class="flow dn" data-step="2" style="--i:3"><td>ElevenLabs</td><td>0.678</td><td>0.678</td><td><b class="am">0.794</b></td></tr>
+          <tr class="flow dn" data-step="3" style="--i:4"><td>AssemblyAI</td><td>0.644</td><td>0.644</td><td><b class="am">0.789</b></td></tr>
+          <tr class="flow dn" data-step="4" style="--i:5"><td>Deepgram</td><td>0.589</td><td>0.622</td><td><b class="am">0.722</b></td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" data-step="5" style="--i:6">连那两家喂词表<b>完全无效</b>的（ElevenLabs、AssemblyAI），靠校对直接跳到 0.79。</div>
+      <div class="land" data-step="6" style="--i:7">「加校对」是每一行的最高分。
+        <span class="s">为什么对每家都灵？因为它根本不在乎上游是哪家模型产的。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 便宜的解药</span><span>25</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">级联模块之间的那道接缝，落的是明文</div>
+      <h2 class="ink" style="--i:1">解药挂在接缝上，不在模型上</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <rect class="box dw" x="0" y="60" width="300" height="90" rx="4" stroke-width="1" style="--len:780;--i:2"/>
+          <text class="ttl pop" x="150" y="112" text-anchor="middle" style="--i:2">STT</text>
+          <line class="stroke-am dw" x1="300" y1="105" x2="560" y2="105" stroke-width="1.5" style="--len:260;--i:3"/>
+          <text class="sm fill-am pop" x="430" y="88" text-anchor="middle" style="--i:3">明文 · 看得见的文字</text>
+          <rect class="box dw" x="560" y="60" width="300" height="90" rx="4" stroke-width="1" style="--len:780;--i:3"/>
+          <text class="ttl pop" x="710" y="112" text-anchor="middle" style="--i:3">LLM</text>
+          <line class="stroke-co dw" x1="430" y1="105" x2="430" y2="190" stroke-width="1.4" style="--len:85;--i:4" data-step="1"/>
+          <rect class="box dw" x="280" y="190" width="300" height="80" rx="4" stroke-width="1" style="--len:760;--i:4" data-step="1"/>
+          <text class="ttl fill-co pop" x="430" y="238" text-anchor="middle" style="--i:5" data-step="1">校对器</text>
+          <text class="sm pop" x="430" y="294" text-anchor="middle" style="--i:5" data-step="1">跑在转写文本上</text>
+          <text class="sm pop" x="430" y="322" text-anchor="middle" style="--i:5" data-step="1">不在乎上游是哪家</text>
+          <line class="stroke dw" x1="920" y1="40" x2="920" y2="360" stroke-width="1" style="--len:320;--i:6" data-step="2"/>
+          <text class="lbl pop" x="970" y="26" style="--i:6" data-step="2">NO SEAM</text>
+          <rect class="box dw" x="970" y="60" width="650" height="90" rx="4" stroke-width="1" style="--len:1480;--i:6" data-step="2"/>
+          <text class="ttl pop" x="1295" y="112" text-anchor="middle" style="--i:7" data-step="2">端到端：接缝焊死了</text>
+          <text class="txt pop" x="970" y="196" style="--i:7" data-step="2">接缝在，解药就有地方挂</text>
+          <text class="txt fill-co pop" x="970" y="234" style="--i:8" data-step="2">接缝焊死了，这招就没了</text>
+          <text class="sm pop" x="970" y="290" style="--i:8" data-step="2">今天换供应商，明天换模型</text>
+          <text class="sm pop" x="970" y="318" style="--i:8" data-step="2">这个校对器一行代码都不用动</text>
+        </svg>
+      </div>
+      <div class="note grey flow" data-step="3" style="--i:9">原文：<span class="dim mono">"Post-correction runs on transcript text, so it doesn't care which provider produced it."</span></div>
+      <div class="land flow" data-step="3" style="--i:10">这就是我在 GPT-Live 那篇里反复讲的事 —— 当时我管它叫「文本缝」。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">接缝在</i>
+      <i class="rise" style="--i:2">解药就有地方挂</i>
+      <i class="rise" style="--i:3">接缝焊死了</i>
+      <i class="rise" style="--i:4">这招就没了</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:6">校对跑在转写出来的文本上 —— 所以它根本不在乎，上游是哪家模型产的。<br>正因为这里过的是看得见的文字，你才能挂上一个跟上游完全解耦的校对器。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT V / V</div>
+    <div class="en settle" style="--i:1">LATENCY</div>
+    <div class="cn spread" style="--i:3">延迟会骗人</div>
+    <div class="d flow" style="--i:4">既然六家准确率打平，那真正的胜负手是什么？<br>作者的答案很干脆：速度才是真正的差异化，延迟就是那个 tiebreaker。</div>
+    <div class="rail">
+      <span>I 分岔的地方</span><span>II 准确率打平</span><span>III 编号会崩</span><span>IV 便宜的解药</span><span class="cur">V 延迟会骗人</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 延迟会骗人</span><span>28</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">Speed is the real differentiator</div>
+      <h2 class="ink" style="--i:1">六家延迟，后两行打个问号</h2>
+    </div>
+    <div class="body">
+      <table class="tight">
+        <thead><tr><th>模型</th><th>实测延迟</th><th>可比吗</th></tr></thead>
+        <tbody>
+          <tr class="flow dn" data-step="1" style="--i:2"><td>OpenAI gpt-4o-transcribe</td><td><b class="am">1360ms</b></td><td>可比</td></tr>
+          <tr class="flow dn" data-step="2" style="--i:3"><td>Google chirp_2</td><td>1460ms</td><td>可比</td></tr>
+          <tr class="flow dn" data-step="3" style="--i:4"><td>ElevenLabs scribe_v1</td><td>1462ms</td><td>可比</td></tr>
+          <tr class="flow dn" data-step="4" style="--i:5"><td>Deepgram nova-3</td><td>1531ms</td><td>可比</td></tr>
+          <tr class="flow dn" data-step="5" style="--i:6"><td>AssemblyAI universal-2</td><td><b class="co">3347ms？</b></td><td>异步接口开销</td></tr>
+          <tr class="flow dn" data-step="6" style="--i:7"><td>Groq whisper-large-v3</td><td><b class="co">4324ms？</b></td><td>免费档限流</td></tr>
+        </tbody>
+      </table>
+      <div class="note co flow" data-step="7" style="--i:8">注意后两行的问号 —— <b>那两个「慢」的，其实不是模型慢，慢的是排队。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 延迟会骗人</span><span>29</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这两个数字量的不是「模型转写要多久」</div>
+      <h2 class="ink" style="--i:1">拆穿：这两个数字作废</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 410" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">WHAT THE NUMBER ACTUALLY MEASURES</text>
+          <text class="sm pop" x="1620" y="26" text-anchor="end" style="--i:2">原文未给出拆分比例，此处仅示意构成</text>
+          <text class="ttl pop" x="0" y="94" style="--i:3" data-step="1">Groq 4324ms</text>
+          <rect class="box dw" x="0" y="110" width="1100" height="54" rx="2" stroke-width="1" style="--len:2308;--i:3" data-step="1"/>
+          <rect class="fill-am pop" x="0" y="110" width="260" height="54" rx="2" style="--i:4" data-step="1"/>
+          <text class="sm fill-co pop" x="1140" y="146" style="--i:4" data-step="1">等待和重试，全被计进了「延迟」</text>
+          <text class="sm pop" x="0" y="196" style="--i:5" data-step="1">免费档：240 条请求把限流额度撞爆，超额请求被拒，客户端等一会儿再重试</text>
+          <text class="ttl pop" x="0" y="256" style="--i:6" data-step="2">AssemblyAI 3347ms</text>
+          <rect class="box dw" x="0" y="272" width="1100" height="54" rx="2" stroke-width="1" style="--len:2308;--i:6" data-step="2"/>
+          <rect class="fill-am pop" x="0" y="272" width="340" height="54" rx="2" style="--i:7" data-step="2"/>
+          <text class="sm fill-co pop" x="1140" y="308" style="--i:7" data-step="2">上传和轮询的开销，全算了进去</text>
+          <text class="sm pop" x="0" y="358" style="--i:8" data-step="2">异步接口：先把音频传上去，再反复轮询「转好了没」，开销全算了进去</text>
+          <text class="txt fill-co pop" x="0" y="400" style="--i:9" data-step="3">正确读法不是「它们慢」，是这两个数字作废、不可比</text>
+        </svg>
+      </div>
+      <div class="note co flow" data-step="3" style="--i:10">作者能把这两个数字拆穿，靠的是 trace 里<b>逐条记录的延迟</b>：一条条看，Groq 的慢不是均匀的慢，是「几条正常、几条暴涨」—— 一眼就是限流的形状。</div>
+      <div class="land co flow" data-step="4" style="--i:11">你踢它的理由是「模型慢」，可数据支持不了这个理由 —— <b class="mg">这两个数字作废</b>。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
+    <div class="q">
+      <i class="rise" style="--i:1">表格会骗人</i>
+      <i class="rise" style="--i:2">逐条的 trace 不会</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">Groq 的慢不是均匀的慢，是「几条正常、几条暴涨」—— 一眼就是限流的形状。<br>它在付费档、在流式接口下的真实延迟，这场评测压根没测出来。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 延迟会骗人</span><span>31</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">真正可比的，是挤在 1.4 秒附近的四家</div>
+      <h2 class="ink" style="--i:1">没有一家全赢</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 380" width="1620">
+          <text class="lbl pop" x="0" y="26" style="--i:2">COMPARABLE FOUR</text>
+          <text class="sm fill-co pop" x="0" y="90" style="--i:2">真正可比的，是挤在 1.4 秒附近的四家</text>
+          <line class="stroke dw" x1="200" y1="200" x2="1400" y2="200" stroke-width="1" style="--len:1200;--i:3" data-step="1"/>
+          <text class="sm pop" x="200" y="232" text-anchor="middle" style="--i:3" data-step="1">1.3s</text>
+          <text class="sm pop" x="1400" y="232" text-anchor="middle" style="--i:3" data-step="1">1.6s</text>
+          <circle class="fill-am pop" cx="440" cy="200" r="10" style="--i:4" data-step="1"/>
+          <text class="sm pop" x="440" y="170" text-anchor="middle" style="--i:4" data-step="1">OpenAI 1360ms</text>
+          <circle class="fill-am pop" cx="840" cy="200" r="10" style="--i:5" data-step="1"/>
+          <text class="sm pop" x="840" y="170" text-anchor="middle" style="--i:5" data-step="1">Google 1460ms</text>
+          <circle class="fill-am pop" cx="848" cy="200" r="10" style="--i:5" data-step="1"/>
+          <text class="sm pop" x="848" y="252" text-anchor="middle" style="--i:5" data-step="1">ElevenLabs 1462ms</text>
+          <circle class="fill-am pop" cx="1124" cy="200" r="10" style="--i:6" data-step="1"/>
+          <text class="sm pop" x="1124" y="170" text-anchor="middle" style="--i:6" data-step="1">Deepgram 1531ms</text>
+          <rect class="box dw" x="0" y="290" width="790" height="80" rx="4" stroke-width="1" style="--len:1740;--i:7" data-step="2"/>
+          <text class="ttl fill-am pop" x="28" y="340" style="--i:7" data-step="2">OpenAI · 最佳全能</text>
+          <text class="sm pop" x="420" y="340" style="--i:8" data-step="2">最低实时延迟 + 最好的答案等价</text>
+          <rect class="box dw" x="830" y="290" width="790" height="80" rx="4" stroke-width="1" style="--len:1740;--i:8" data-step="3"/>
+          <text class="ttl fill-am pop" x="858" y="340" style="--i:9" data-step="3">ElevenLabs · 召回最高</text>
+          <text class="sm pop" x="1250" y="340" style="--i:9" data-step="3">关键实体召回全场最高</text>
+        </svg>
+      </div>
+      <div class="note flow" data-step="4" style="--i:10">还有一个细节，只有真做过语音评测的人才懂它的分量：作者把<b>每条音频都挂进了 trace</b>，看到低分点一下就能听原始录音 —— 有几条一听才发现是朗读者念错了，标准答案错了，模型是被冤枉的。</div>
+      <div class="land flow" data-step="4" style="--i:11">不能听的语音评测，就像不能看现场的判罚。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>收尾 · 四条结论</span><span>32</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">把这场横评的四个结论排在一起</div>
+      <h2 class="ink" style="--i:1">四条，指向同一件事</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">准确率</span><span class="v">六家<em>统计打平</em>，三个指标上 95% 置信区间互相重叠。</span></div>
+        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">口音</span><span class="v">基本不构成差异 —— 相似度差 1.3 分，实体召回差 1.4 分。</span></div>
+        <div class="r flow" data-step="3" style="--i:4"><span class="n">03</span><span class="k">真正崩的</span><span class="v">订单号、编号、逐位数字 —— <em>structured tokens</em>。</span></div>
+        <div class="r flow" data-step="4" style="--i:5"><span class="n">04</span><span class="k">解药</span><span class="v">词表和校对，<em>全都挂在模型外面</em>、那道落着明文的接缝上。</span></div>
+      </div>
+      <div class="note flow" data-step="5" style="--i:6">这四条指向同一件事：<b>你以为你在选模型，其实你在选评测。</b></div>
+      <div class="land co" data-step="6" style="--i:7">该吵的不是「哪家更准」。
+        <span class="s">该吵的是：我们的评测集里，订单号、证件号这些编号的密度，和真实通话一致吗？</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 06</div>
+    <div class="q">
+      <i class="rise" style="--i:1">你以为你在选模型</i>
+      <i class="rise" style="--i:2">其实你在<span class="mg">选评测</span></i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">选型会上吵「哪家更准」，吵错了地方 —— 该吵的是：<br>我们的评测集里，订单号、证件号这些编号的密度，和真实通话一致吗？</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>收尾 · 一手引语与下一篇</span><span>34</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">作者写在第一段的话，放在结尾更重</div>
+      <h2 class="ink" style="--i:1">自己跑一次，别信别人的榜</h2>
+    </div>
+    <div class="body">
+      <div class="quotes">
+        <div class="r flow dn" data-step="1" style="--i:2">
+          <span class="who">BENCHMARKS</span>
+          <span class="say">The benchmarks they publish <em>rarely look anything like your actual traffic</em></span>
+          <span class="src">Jess Wang · 2026-07-09</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3">
+          <span class="who">THE ONLY WAY</span>
+          <span class="say">The only way to know is to <em>run your own eval on audio that resembles what your users will say</em></span>
+          <span class="src">同一篇 · 开篇第一段</span></div>
+      </div>
+      <div class="note co flow" data-step="3" style="--i:4"><b>下一篇 · 评测三部曲第二篇（#18）：</b>这一篇说的还只是「一句话」的事。真实的客服是一整段对话 —— 而对话这一层，有一个比「订单号崩了」狠得多的数字：<b class="am">每一轮单独打分，轮轮 100%；整段对话拉出来，任务完成率 0%。</b></div>
+      <div class="land flow" data-step="4" style="--i:5">demo 测的是容易，生产收的是难。
+        <span class="s">中间那道差，就是你上线之后才发现的所有事故。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">谢谢</div>
+    <h1 class="ink" style="--i:1">demo 测的是容易<br>生产收的是难</h1>
+    <div class="subtitle spread" style="--i:3">你以为你在选模型，其实你在选评测</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin</span></div>
+      <div><span class="k">一手源</span><span class="v">Braintrust · Jess Wang · 2026-07-09</span></div>
+      <div><span class="k">已核验</span><span class="v">6 家 / 240 条音频 / 8 领域 · 表内数字逐字回原文</span></div>
+      <div><span class="k">立场提示</span><span class="v">Braintrust 是一家做 AI 评测的公司</span></div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<script>
+/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+
+</script>
+
+<style>
+.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
+  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
+  background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
+</style>
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  var b=document.getElementById('deckSwap');
+  function apply(t){
+    if(t==='light'){document.documentElement.dataset.theme='light';b.textContent='暗底';}
+    else{delete document.documentElement.dataset.theme;b.textContent='浅底';}
+  }
+  var cur='dark';
+  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){
+    cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}
+    apply(cur);
+  });
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenAI 发了一个买不到的产品 · 姚光华 Colin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+/* ===========================================
+   THEME · colin-deck-dark
+   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   =========================================== */
+:root{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
+  --mq-2:#ff8906;
+
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+/* LIGHT · token 严格取自 colin-deck-light reference/theme.css */
+html[data-theme="light"]{
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
+  --cardw-am:#c2410c;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;
+  --mq-2:#d9376e;
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+
+
+/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+
+/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+
+</style></head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+    <svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">公众号文章系列 · 20.5 · 热点插播</div>
+    <h1 class="ink" style="--i:1">OpenAI 发了一个<br>买不到的产品</h1>
+    <div class="subtitle spread" style="--i:3">Presence 最稀缺的不是模型，是必须上门的人</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin</span></div>
+      <div><span class="k">Role</span><span class="v">声网 ConvoAI 产品负责人</span></div>
+      <div><span class="k">一手源</span><span class="v">OpenAI 发布博客 / 产品页 / 帮助中心</span></div>
+      <div><span class="k">Date</span><span class="v">2026.07.24</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="leap">
+    <div class="badge settle" style="--i:0">20.5</div>
+    <div class="q ink" style="--i:1"><i>一家最擅长规模化智能的公司，</i><i><span class="hl">开始卖它最难规模化的东西：</span></i><i><span class="hl">人的到场。</span></i></div>
+    <div class="sub2 flow" style="--i:5">7 月 22 日，OpenAI 发布 Presence。它没有带来一个新模型，没有自助入口，没有公开定价 ——<br>连你能不能成为客户，都取决于 OpenAI 有没有足够的人来交付。</div>
+    <div class="rule"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>开场 · 真正反常的是什么</span><span>03</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">语音、聊天、邮件；接客服，也做外呼销售、保险理赔、HR 与 IT 帮助台</div>
+      <h2 class="ink" style="--i:1">最容易出现的标题，和我读到的那件事</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">朋友圈标题</div>
+          <div class="b">OpenAI 杀入客服 Agent</div>
+          <div class="s">Sierra、Decagon、Intercom 危险了。这当然没错 —— 但它不是这次发布里最反常的部分。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">把三份材料读完之后</div>
+          <div class="b">它发了个你买不到的产品</div>
+          <div class="s">把发布博客、产品页和帮助中心放在一起读完，真正反常的不是 OpenAI 做了客服。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4">自家英文电话客服已经在用，官方自报 <b class="am">75% 的来电不需要转人工</b>；Codex 驱动的改进闭环，又在 <b class="am">10 天内把人工转接率降低了 15 个百分点</b>。</div>
+      <div class="land" data-step="2" style="--i:5">这不是发布初期一个无关紧要的细节。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>开场 · 它没有什么</span><span>04</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">你想用 Presence，不能注册，不能刷卡，也不能抄一段 API 示例</div>
+      <h2 class="ink" style="--i:1">四个「没有」，定义了这个产品</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">没有</span><span class="v">自助入口 —— 你无法自己开通，只能联系 OpenAI 的客户团队。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">没有</span><span class="v">试用 —— 没有免费额度，没有沙箱先跑起来这回事。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">没有</span><span class="v">公开定价 —— 你不知道最终要为什么付钱、付多少。</span></div>
+        <div class="r flow dn" data-step="4" style="--i:5"><span class="n">04</span><span class="k">没有</span><span class="v">开发者文档 —— 没有可以照抄的 API 示例。</span></div>
+      </div>
+      <div class="note flow" data-step="5" style="--i:6">对方会评估三件事：你的工作流合不合适、组织有没有实施准备，以及 —— <b>OpenAI 自己还有没有足够的交付产能。</b></div>
+      <div class="land" data-step="6" style="--i:7">一家拥有最强模型、最充足算力的公司，发布了一个被人头数卡住供给的产品。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
+    <div class="q">
+      <i class="rise" style="--i:1">OpenAI 发了一个</i>
+      <i class="rise" style="--i:2">你根本买不到的产品</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">这不是发布初期一个无关紧要的细节。<b>它就是 Presence 最重要的产品定义。</b></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT I / VII</div>
+    <div class="en settle" style="--i:1">GOVERNED</div>
+    <div class="cn spread" style="--i:3">先看它没有发布什么</div>
+    <div class="d flow" style="--i:4">Presence 发布时，OpenAI 没有发布任何新模型。<br>它底下用的仍然是现成的三块。真正新的东西，长在这三块之上。</div>
+    <div class="rail">
+      <span class="cur">I 治理</span><span>II 人</span><span>III 现场</span><span>IV 四层</span><span>V 竞合</span><span>VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 治理</span><span>07</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">没有一个新词是在讲模型变得更聪明</div>
+      <h2 class="ink" style="--i:1">治理不是补丁，它就是产品主体</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 396" width="1620">
+          <text class="lbl pop" x="0" y="24" style="--i:2">PRESENCE 增加的那一层</text>
+          <rect class="box dw" x="0" y="44" width="1620" height="150" rx="4" stroke-width="1.4" style="--len:3540;--i:2;stroke:var(--amber)" data-step="1"/>
+          <text class="ttl fill-am pop" x="28" y="92" style="--i:2" data-step="1">企业政策 · 护栏 · 经批准的动作 · 人工审批 · 升级规则</text>
+          <text class="ttl fill-am pop" x="28" y="134" style="--i:3" data-step="2">上线前仿真 · 评分器 · 生产监控 · 持续改进闭环</text>
+          <text class="sm pop" x="28" y="172" style="--i:3" data-step="2">发现失败 — 提出修改 — 人工审批 — 重新上线</text>
+          <line class="stroke dw" x1="810" y1="194" x2="810" y2="240" stroke-width="1" style="--len:46;--i:4" data-step="3"/>
+          <text class="lbl pop" x="0" y="266" style="--i:4" data-step="3">底下用的仍然是现成的三块</text>
+          <rect class="box dw" x="0" y="286" width="524" height="86" rx="4" stroke-width="1" style="--len:1220;--i:5" data-step="3"/>
+          <text class="ttl pop" x="24" y="322" style="--i:5" data-step="3">GPT-5.6</text>
+          <text class="sm pop" x="24" y="352" style="--i:5" data-step="3">负责推理</text>
+          <rect class="box dw" x="548" y="286" width="524" height="86" rx="4" stroke-width="1" style="--len:1220;--i:5" data-step="3"/>
+          <text class="ttl pop" x="572" y="322" style="--i:5" data-step="3">GPT-Live</text>
+          <text class="sm pop" x="572" y="352" style="--i:5" data-step="3">负责实时语音交互</text>
+          <rect class="box dw" x="1096" y="286" width="524" height="86" rx="4" stroke-width="1" style="--len:1220;--i:6" data-step="3"/>
+          <text class="ttl pop" x="1120" y="322" style="--i:6" data-step="3">Codex</text>
+          <text class="sm pop" x="1120" y="352" style="--i:6" data-step="3">分析生产问题、提出改进</text>
+        </svg>
+      </div>
+      <div class="land" data-step="3" style="--i:7">它们讲的都是：怎么把模型，关进一家企业真实的权责系统里。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 治理</span><span>08</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这一层要回答的，是五个很具体的问题</div>
+      <h2 class="ink" style="--i:1">退款可以自己退，还是必须审批</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">权限</span><span class="v">退款可以自己退，还是必须审批？</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">边界</span><span class="v">保险理赔到哪一步必须转人工？</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">可见范围</span><span class="v">知识库里哪些内容能看，哪些内容与这个岗位无关？</span></div>
+        <div class="r flow dn" data-step="4" style="--i:5"><span class="n">04</span><span class="k">上线前</span><span class="v">要用哪些边缘案例把它撞一遍？</span></div>
+        <div class="r flow dn" data-step="5" style="--i:6"><span class="n">05</span><span class="k">出错后</span><span class="v">生产里出了错，谁看得见，谁来改，改完谁签字？</span></div>
+      </div>
+      <div class="note flow" data-step="6" style="--i:7">没有一个是在讲模型变得更聪明。<b>它们讲的都是：怎么把一个会说、会想、会调用工具的模型，关进一家企业真实的权责系统里。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 治理</span><span>09</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">原句照抄 · OpenAI Presence 公告</div>
+      <h2 class="ink" style="--i:1">问题不再是能不能工作，是够不够可靠</h2>
+    </div>
+    <div class="body">
+      <div class="quotes">
+        <div class="r flow dn" data-step="1" style="--i:2">
+          <span class="who">OPENAI</span>
+          <span class="say"><em>The challenge for enterprises is no longer proving that AI agents can work, it's making them reliable enough to do high-value work in production.</em></span>
+          <span class="src">发布公告原文</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3">
+          <span class="who">译文</span>
+          <span class="say">企业现在的问题，不再是证明 Agent 能不能工作，而是<em>让它可靠到足以在生产环境里承担高价值工作</em></span>
+          <span class="src">这中间的距离，是交付</span></div>
+      </div>
+      <div class="note flow" data-step="3" style="--i:4">翻成更直白的话：<b>模型已经证明了「能做」。企业买单之前，还需要有人证明「敢用」。</b></div>
+      <div class="land" data-step="4" style="--i:5">这中间的距离，不是一轮模型升级。是交付。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">模型已经证明了「能做」</i>
+      <i class="rise" style="--i:2">企业买单之前</i>
+      <i class="rise" style="--i:3">还需要有人证明「敢用」</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">这中间的距离，不是一轮模型升级。是交付。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 治理</span><span>11</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">甚至连发布时间，都替这件事加了一条注脚</div>
+      <h2 class="ink" style="--i:1">「可信 Agent」和「模型逃逸」，只隔 24 小时</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">D-1</span><span class="k">前一天</span><span class="v">OpenAI 披露一起「重大安全事件」：GPT-5.6 Sol 和一个未发布模型在评测中<b class="mg">逃逸沙箱</b>，利用零日漏洞和窃取的凭证进入了 Hugging Face 的生产设施。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">D-0</span><span class="k">发布日</span><span class="v">Presence 整份公告反复使用的核心词是 <b class="am">trusted</b>。</span></div>
+      </div>
+      <div class="note grey flow" data-step="3" style="--i:4"><span class="dim mono">没有证据说明 OpenAI 是有意用 Presence 回应这起事件，也不能把一次安全事故直接外推成产品结论。</span></div>
+      <div class="land co" data-step="4" style="--i:5">但这两个日期挨在一起，反而把 Presence 的逻辑说得更清楚：
+        <span class="s">越强的模型，越不能靠模型自己证明它值得信任。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT II / VII</div>
+    <div class="en settle" style="--i:1">PEOPLE</div>
+    <div class="cn spread" style="--i:3">最贵的新产品，是人</div>
+    <div class="d flow" style="--i:4">Presence 的官方定义里有两个很少出现在 AI 产品发布中的词：<br>managed，受管；governed，受治理。它不把一套软件扔给客户自己搭。</div>
+    <div class="rail">
+      <span>I 治理</span><span class="cur">II 人</span><span>III 现场</span><span>IV 四层</span><span>V 竞合</span><span>VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 人</span><span>13</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这个品类跑到大客户深水区后，收敛到的同一种结构</div>
+      <h2 class="ink" style="--i:1">中心是软件，边缘是上门的人</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 400" width="1620">
+          <circle class="box dw" cx="500" cy="200" r="130" stroke-width="1.4" style="--len:820;--i:2"/>
+          <text class="ttl fill-am pop" x="500" y="192" text-anchor="middle" style="--i:3">软件</text>
+          <text class="sm pop" x="500" y="228" text-anchor="middle" style="--i:3">模型 · 平台 · 可复制</text>
+          <circle class="stroke-am dw" cx="500" cy="200" r="190" stroke-width="1" style="--len:1200;--i:4" data-step="1"/>
+          <circle class="fill-co pop" cx="500" cy="10" r="9" style="--i:5" data-step="2"/>
+          <circle class="fill-co pop" cx="690" cy="200" r="9" style="--i:5" data-step="2"/>
+          <circle class="fill-co pop" cx="500" cy="390" r="9" style="--i:5" data-step="2"/>
+          <circle class="fill-co pop" cx="310" cy="200" r="9" style="--i:5" data-step="2"/>
+          <circle class="fill-co pop" cx="634" cy="66" r="9" style="--i:6" data-step="2"/>
+          <circle class="fill-co pop" cx="634" cy="334" r="9" style="--i:6" data-step="2"/>
+          <circle class="fill-co pop" cx="366" cy="66" r="9" style="--i:6" data-step="2"/>
+          <circle class="fill-co pop" cx="366" cy="334" r="9" style="--i:6" data-step="2"/>
+          <text class="ttl fill-co pop" x="880" y="86" style="--i:7" data-step="3">边缘：一支深入客户现场的人</text>
+          <text class="txt pop" x="880" y="134" style="--i:7" data-step="3">一个客户，一套流程，一组权限，一轮合规，一次集成，一支团队。</text>
+          <line class="stroke dw" x1="880" y1="176" x2="1620" y2="176" stroke-width="1" style="--len:740;--i:8" data-step="4"/>
+          <text class="ttl pop" x="880" y="228" style="--i:8" data-step="4">模型可以复制</text>
+          <text class="txt pop" x="880" y="278" style="--i:9" data-step="4">银行的退款政策不能复制，保险公司的理赔边界不能复制，</text>
+          <text class="txt pop" x="880" y="318" style="--i:9" data-step="4">日本客服的语言习惯不能复制，巨灾期间的升级规则也不能复制。</text>
+          <text class="ttl fill-am pop" x="880" y="378" style="--i:10" data-step="5">最难的那部分，从来不在模型参数里</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 人</span><span>14</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">它不把一套软件扔给客户自己搭，而是由三支队伍进场</div>
+      <h2 class="ink" style="--i:1">Presence 的交付，是三支队伍</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">FDE</span><span class="v">OpenAI 自己的 Forward Deployed Engineers —— 这个职位，Palantir 用了很多年。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">子公司</span><span class="v">今年 5 月成立、初始资金 <b class="am">40 亿美元</b>的 OpenAI Deployment Company。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">SI</span><span class="v">还没有公布名单的全球系统集成商。</span></div>
+      </div>
+      <div class="note flow" data-step="4" style="--i:5">FDE 不是传统售前，也不只是实施工程师。<b>它要进到客户现场，理解业务、接系统、改工作流、碰真实数据，然后一边交付，一边把重复出现的问题做成产品能力。</b></div>
+      <div class="land" data-step="5" style="--i:6">所以 Presence 既不是标准 API，也不是传统 SaaS，更不是纯咨询。
+        <span class="s">它更像一件以前不存在的商品：被产品化的驻场工程。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 人</span><span>15</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这套形态并不是 Presence 凭空发明的</div>
+      <h2 class="ink" style="--i:1">它正面撞上的 Sierra，早就在这么扩张</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">SIERRA 的两个岗位</div>
+          <div class="b">Agent Engineer / Strategist</div>
+          <div class="s">进场调优的人叫 Agent Engineer；把 GTM、咨询、构建三件事合在一起的人叫 Agent Strategist —— 后者在今年 5 月被官方称为公司「增长最快的团队」。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">同样的形态</div>
+          <div class="b">也没有自助入口</div>
+          <div class="s">没有公开定价，开发文档也在登录墙后面。OpenAI 不只进入了 Sierra 的产品品类，也走向了它已经验证过的组织形态。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4">它不是 OpenAI 在 limited GA 阶段临时多派几个人，<b>而是这个品类跑到大客户深水区后，头部两家公司最终收敛到的同一种结构。</b></div>
+      <div class="land" data-step="2" style="--i:5">你买到的表面上是一套 Agent 平台，实际买到的是一支队伍进入你的业务现场。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 人</span><span>16</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">过去几年，生成式 AI 最迷人的叙事一直是规模化</div>
+      <h2 class="ink" style="--i:1">Presence 把 OpenAI 带回了传统企业软件</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 356" width="1620">
+          <text class="lbl pop" x="0" y="24" style="--i:2">可复制 · SCALABLE</text>
+          <rect class="box dw" x="0" y="44" width="760" height="180" rx="4" stroke-width="1" style="--len:1880;--i:2"/>
+          <text class="ttl fill-am pop" x="28" y="94" style="--i:2">模型训一次，能力复制无数次</text>
+          <text class="sm pop" x="28" y="132" style="--i:2">软件写一次，全球同时使用</text>
+          <text class="sm pop" x="28" y="164" style="--i:2">Token 边际成本不断下降</text>
+          <text class="sm pop" x="28" y="196" style="--i:2">智能像水电一样按量供应</text>
+          <text class="lbl pop" x="860" y="24" style="--i:3" data-step="1">不可复制 · UNSCALABLE</text>
+          <rect class="box dw" x="860" y="44" width="760" height="180" rx="4" stroke-width="1.4" style="--len:1880;--i:3;stroke:var(--coral)" data-step="1"/>
+          <text class="ttl fill-co pop" x="888" y="94" style="--i:3" data-step="1">银行的退款政策</text>
+          <text class="sm pop" x="888" y="132" style="--i:3" data-step="1">保险公司的理赔边界</text>
+          <text class="sm pop" x="888" y="164" style="--i:3" data-step="1">日本客服的语言习惯</text>
+          <text class="sm pop" x="888" y="196" style="--i:3" data-step="1">巨灾期间的升级规则</text>
+          <line class="stroke dw" x1="0" y1="268" x2="1620" y2="268" stroke-width="1" style="--len:1620;--i:4" data-step="2"/>
+          <text class="ttl fill-am pop" x="0" y="320" style="--i:4" data-step="2">一个客户，一套流程，一组权限，一轮合规，一次集成，一支团队</text>
+          <text class="txt pop" x="0" y="354" style="--i:5" data-step="2">最难的那部分，藏在每家公司不写在官网上的那些例外里。</text>
+        </svg>
+      </div>
+      <div class="land" data-step="2" style="--i:6">Presence 不是把客服做成了标准产品，是先给项目制交付套上了标准产品的壳。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
+    <div class="q">
+      <i class="rise" style="--i:1">最难的那部分</i>
+      <i class="rise" style="--i:2">从来不在模型参数里</i>
+      <i class="rise" style="--i:3">它藏在那些例外里</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">每家公司不写在官网上的那些例外。这不意味着 Presence 是「伪产品」—— 恰恰相反，这可能是企业 AI 真正开始长成产品的方式：不是一上来就消灭人，而是先把人的介入变得可重复、可积累，最后再一点点把它吃进软件。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT III / VII</div>
+    <div class="en settle" style="--i:1">FIELD</div>
+    <div class="cn spread" style="--i:3">不是 PM 想的，是现场长的</div>
+    <div class="d flow" style="--i:4">Presence 这次发布还有一个很不寻常的地方：<br>没有直播，没有 Sam Altman 站台，没有产品高管署名，甚至没有一个公开的产品负责人。</div>
+    <div class="rail">
+      <span>I 治理</span><span>II 人</span><span class="cur">III 现场</span><span>IV 四层</span><span>V 竞合</span><span>VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 现场</span><span>19</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">台面上出现的 OpenAI 员工，主要是三个人</div>
+      <h2 class="ink" style="--i:1">交付团队就是产品团队</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">交付</span><span class="v">Colin Jarvis —— FDE 全球负责人，一个管驻场交付的人。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">现场</span><span class="v">Zach Parent —— 一线 FDE 工程师，一个在现场写代码的人。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">零号客户</span><span class="v">Glen Worthington —— OpenAI 用户运营负责人，一个负责自家客服的人。</span></div>
+      </div>
+      <div class="note flow" data-step="4" style="--i:5">标准的产品发布，通常由 PM 讲愿景、工程负责人讲能力、客户讲效果。<b>Presence 反过来了：交付团队就是产品团队，内部客服就是零号客户，做过的项目就是需求文档。</b></div>
+      <div class="land" data-step="5" style="--i:6">他们不是替产品补最后一公里，他们就在最后一公里里寻找产品。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 现场</span><span>20</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">回看时间线，这件事也不是突然发生的</div>
+      <h2 class="ink" style="--i:1">先在现场做十遍，再起一个产品名</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 340" width="1620">
+          <line class="stroke dw" x1="0" y1="176" x2="1620" y2="176" stroke-width="1.2" style="--len:1620;--i:2"/>
+          <circle class="fill-am pop" cx="130" cy="176" r="8" style="--i:3" data-step="1"/>
+          <text class="ttl pop" x="130" y="138" text-anchor="middle" style="--i:3" data-step="1">2024</text>
+          <text class="sm pop" x="130" y="220" text-anchor="middle" style="--i:3" data-step="1">从 Shopify 请来</text>
+          <text class="sm pop" x="130" y="248" text-anchor="middle" style="--i:3" data-step="1">Glen Worthington</text>
+          <text class="sm pop" x="130" y="276" text-anchor="middle" style="--i:3" data-step="1">管过约 4000 人客服</text>
+          <circle class="fill-am pop" cx="560" cy="176" r="8" style="--i:4" data-step="2"/>
+          <text class="ttl pop" x="560" y="138" text-anchor="middle" style="--i:4" data-step="2">2025 初</text>
+          <text class="sm pop" x="560" y="220" text-anchor="middle" style="--i:4" data-step="2">建立 FDE 职能</text>
+          <circle class="fill-am pop" cx="1000" cy="176" r="8" style="--i:5" data-step="3"/>
+          <text class="ttl pop" x="1000" y="138" text-anchor="middle" style="--i:5" data-step="3">2025 年内</text>
+          <text class="sm pop" x="1000" y="220" text-anchor="middle" style="--i:5" data-step="3">成立交付子公司</text>
+          <text class="sm pop" x="1000" y="248" text-anchor="middle" style="--i:5" data-step="3">拉来咨询联盟</text>
+          <circle class="fill-co pop" cx="1470" cy="176" r="8" style="--i:6" data-step="4"/>
+          <text class="ttl fill-co pop" x="1470" y="138" text-anchor="middle" style="--i:6" data-step="4">2026</text>
+          <text class="sm pop" x="1470" y="220" text-anchor="middle" style="--i:6" data-step="4">才把这些工作</text>
+          <text class="sm pop" x="1470" y="248" text-anchor="middle" style="--i:6" data-step="4">装进 Presence</text>
+          <text class="txt pop" x="0" y="330" style="--i:7" data-step="4">这条产品路径，和我们熟悉的「写 PRD — 做功能 — 找客户」正好相反。</text>
+        </svg>
+      </div>
+      <div class="land" data-step="4" style="--i:8">政策、护栏、审批、评分器，是一次次交付失败留下的疤，最后被收进产品。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT IV / VII</div>
+    <div class="en settle" style="--i:1">STACK</div>
+    <div class="cn spread" style="--i:3">Presence 补上的是最后一层</div>
+    <div class="d flow" style="--i:4">把 OpenAI 过去两年的动作摞起来看，会得到一张很清楚的图。<br>Presence 不是又多了一个产品 —— 它让 OpenAI 第一次把四层连在了一起。</div>
+    <div class="rail">
+      <span>I 治理</span><span>II 人</span><span>III 现场</span><span class="cur">IV 四层</span><span>V 竞合</span><span>VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 四层</span><span>22</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">模型、平台、应用、交付，第一次连成一体</div>
+      <h2 class="ink" style="--i:1">从卖能力，到卖结果</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 380" width="1620">
+          <rect class="box dw" x="0" y="16" width="1620" height="74" rx="4" stroke-width="1" style="--len:3388;--i:2" data-step="1"/>
+          <text class="lbl pop" x="28" y="46" style="--i:2" data-step="1">LAYER 01 · 模型</text>
+          <text class="ttl pop" x="360" y="62" style="--i:2" data-step="1">GPT-5.6 · GPT-Live · Codex</text>
+          <rect class="box dw" x="0" y="102" width="1620" height="74" rx="4" stroke-width="1" style="--len:3388;--i:3" data-step="2"/>
+          <text class="lbl pop" x="28" y="132" style="--i:3" data-step="2">LAYER 02 · 平台</text>
+          <text class="ttl pop" x="360" y="148" style="--i:3" data-step="2">API · 工具 · Apps SDK</text>
+          <rect class="box dw" x="0" y="188" width="1620" height="74" rx="4" stroke-width="1" style="--len:3388;--i:4" data-step="3"/>
+          <text class="lbl pop" x="28" y="218" style="--i:4" data-step="3">LAYER 03 · 应用</text>
+          <text class="ttl pop" x="360" y="234" style="--i:4" data-step="3">ChatGPT · 企业 Agent</text>
+          <rect class="box dw" x="0" y="274" width="1620" height="74" rx="4" stroke-width="1.4" style="--len:3388;--i:5;stroke:var(--amber)" data-step="4"/>
+          <text class="lbl pop" x="28" y="304" style="--i:5" data-step="4">LAYER 04 · 交付</text>
+          <text class="ttl fill-am pop" x="360" y="320" style="--i:5" data-step="4">PRESENCE · FDE · 交付子公司 · SI</text>
+          <text class="sm pop" x="0" y="374" style="--i:6" data-step="4">注：Frontier 与 Presence 的正式关系尚未被官方定义，此处按现有产品形态归类。</text>
+        </svg>
+      </div>
+      <div class="land" data-step="4" style="--i:7">以前 OpenAI 卖的是能力，现在它开始卖结果。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 四层</span><span>23</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">同一家公司，两种卖法</div>
+      <h2 class="ink" style="--i:1">你拿 API 回去，还是我把事办完</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">以前 · 卖能力</div>
+          <div class="b">你拿 API 回去自己做</div>
+          <div class="s">OpenAI 提供模型和接口，剩下的产品化、集成、评测、上线，都是你的事。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">现在 · 卖结果</div>
+          <div class="b">模型我给，Agent 我搭</div>
+          <div class="s">业务系统我接，评测我做，生产我盯，效果不好我继续改。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4">这一步一旦走通，<b>它就不会只停在客服。</b>Presence 的产品页已经把外呼销售、保险理赔、HR、IT 帮助台、采购都列了出来。</div>
+      <div class="land" data-step="2" style="--i:5">客服只是第一块 —— 因为它的预算最清楚、结果最好量、失败也最容易被看见。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 四层</span><span>24</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">真正可复制的，不是客服 Agent</div>
+      <h2 class="ink" style="--i:1">是后面那套统一模板</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 320" width="1620">
+          <rect class="box dw" x="0" y="60" width="248" height="96" rx="4" stroke-width="1" style="--len:688;--i:2" data-step="1"/>
+          <text class="ttl pop" x="124" y="102" text-anchor="middle" style="--i:2" data-step="1">policy</text>
+          <text class="sm pop" x="124" y="132" text-anchor="middle" style="--i:2" data-step="1">政策</text>
+          <line class="stroke-am dw" x1="248" y1="108" x2="274" y2="108" stroke-width="1.4" style="--len:26;--i:3" data-step="1"/>
+          <rect class="box dw" x="274" y="60" width="248" height="96" rx="4" stroke-width="1" style="--len:688;--i:3" data-step="1"/>
+          <text class="ttl pop" x="398" y="102" text-anchor="middle" style="--i:3" data-step="1">action</text>
+          <text class="sm pop" x="398" y="132" text-anchor="middle" style="--i:3" data-step="1">经批准的动作</text>
+          <line class="stroke-am dw" x1="522" y1="108" x2="548" y2="108" stroke-width="1.4" style="--len:26;--i:4" data-step="2"/>
+          <rect class="box dw" x="548" y="60" width="248" height="96" rx="4" stroke-width="1" style="--len:688;--i:4" data-step="2"/>
+          <text class="ttl pop" x="672" y="102" text-anchor="middle" style="--i:4" data-step="2">simulation</text>
+          <text class="sm pop" x="672" y="132" text-anchor="middle" style="--i:4" data-step="2">上线前仿真</text>
+          <line class="stroke-am dw" x1="796" y1="108" x2="822" y2="108" stroke-width="1.4" style="--len:26;--i:5" data-step="2"/>
+          <rect class="box dw" x="822" y="60" width="248" height="96" rx="4" stroke-width="1" style="--len:688;--i:5" data-step="2"/>
+          <text class="ttl pop" x="946" y="102" text-anchor="middle" style="--i:5" data-step="2">grader</text>
+          <text class="sm pop" x="946" y="132" text-anchor="middle" style="--i:5" data-step="2">评分器</text>
+          <line class="stroke-am dw" x1="1070" y1="108" x2="1096" y2="108" stroke-width="1.4" style="--len:26;--i:6" data-step="3"/>
+          <rect class="box dw" x="1096" y="60" width="248" height="96" rx="4" stroke-width="1" style="--len:688;--i:6" data-step="3"/>
+          <text class="ttl pop" x="1220" y="102" text-anchor="middle" style="--i:6" data-step="3">monitoring</text>
+          <text class="sm pop" x="1220" y="132" text-anchor="middle" style="--i:6" data-step="3">生产监控</text>
+          <line class="stroke-am dw" x1="1344" y1="108" x2="1370" y2="108" stroke-width="1.4" style="--len:26;--i:7" data-step="3"/>
+          <rect class="box dw" x="1370" y="60" width="250" height="96" rx="4" stroke-width="1.4" style="--len:692;--i:7;stroke:var(--amber)" data-step="3"/>
+          <text class="ttl fill-am pop" x="1495" y="102" text-anchor="middle" style="--i:7" data-step="3">loop</text>
+          <text class="sm pop" x="1495" y="132" text-anchor="middle" style="--i:7" data-step="3">持续改进闭环</text>
+          <path class="stroke-am dw" d="M1495 156 L1495 210 L124 210 L124 156" fill="none" stroke-width="1.2" style="--len:1479;--i:8" data-step="4"/>
+          <text class="txt pop" x="0" y="284" style="--i:8" data-step="4">换一个行业，换一组政策、动作和评分器，它就能变成下一个 Presence。</text>
+        </svg>
+      </div>
+      <div class="land" data-step="4" style="--i:9">所以这次发布的意义，不只是「OpenAI 进入了客服市场」。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">AI Lab 的商业模式</i>
+      <i class="rise" style="--i:2">从卖 Token、卖订阅</i>
+      <i class="rise" style="--i:3">走到了卖交付</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">以前 OpenAI 卖的是能力：你拿 API 回去，自己把它做成产品。现在 OpenAI 开始卖结果：模型我给，Agent 我搭，业务系统我接，评测我做，生产我盯，效果不好我继续改。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT V / VII</div>
+    <div class="en settle" style="--i:1">RIVAL</div>
+    <div class="cn spread" style="--i:3">它也开始抢客户的饭碗</div>
+    <div class="d flow" style="--i:4">Sierra、Decagon、Parloa、Intercom 这些公司，过去大多站在 OpenAI 模型之上，替企业完成应用和交付。<br>现在，它们的模型供应商亲自下场，做了一个与它们正面重叠的产品。</div>
+    <div class="rail">
+      <span>I 治理</span><span>II 人</span><span>III 现场</span><span>IV 四层</span><span class="cur">V 竞合</span><span>VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 竞合</span><span>27</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">Parloa 至今还是 OpenAI 官网的客户案例</div>
+      <h2 class="ink" style="--i:1">把品牌方海报挂门口，里面开同款店</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">昨天</div>
+          <div class="b">它们是 OpenAI 的客户案例</div>
+          <div class="s">站在模型之上，替企业完成应用和交付。今天再打开那一页，多少有点别扭。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">今天</div>
+          <div class="b">模型供应商亲自下场</div>
+          <div class="s">做了一个与它们正面重叠的产品。这一步当然有代价，而代价先落在生态上。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4">以前大家担心模型升级把某个功能吃掉。<b>现在要担心的是：模型公司带着 FDE，直接把你的整个品类吃进去。</b></div>
+      <div class="land" data-step="2" style="--i:5">这才是 Presence 给整个 Agent 创业生态带来的寒意。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 竞合</span><span>28</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Sierra 的关系翻转得更具体 · 前后只隔九个月</div>
+      <h2 class="ink" style="--i:1">同一个入口，昨天分发，今天走进来</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 380" width="1620">
+          <text class="lbl pop" x="0" y="24" style="--i:2">2025-10-23</text>
+          <rect class="box dw" x="0" y="44" width="620" height="120" rx="4" stroke-width="1" style="--len:1480;--i:2" data-step="1"/>
+          <text class="ttl pop" x="28" y="92" style="--i:2" data-step="1">Sierra 的 Agent</text>
+          <text class="sm pop" x="28" y="128" style="--i:2" data-step="1">通过 MCP 和 OpenAI Apps SDK</text>
+          <text class="sm pop" x="28" y="152" style="--i:2" data-step="1">一键发布进 ChatGPT</text>
+          <line class="stroke-am dw" x1="620" y1="104" x2="900" y2="104" stroke-width="1.4" style="--len:280;--i:3" data-step="1"/>
+          <text class="lbl fill-am pop" x="760" y="84" text-anchor="middle" style="--i:3" data-step="1">分发</text>
+          <rect class="box dw" x="900" y="44" width="720" height="120" rx="4" stroke-width="1" style="--len:1680;--i:3" data-step="1"/>
+          <text class="ttl pop" x="928" y="92" style="--i:3" data-step="1">ChatGPT · 那时是 Sierra 的入口</text>
+          <text class="sm pop" x="928" y="128" style="--i:3" data-step="1">OpenAI 是它通往用户的渠道</text>
+          <text class="lbl pop" x="0" y="230" style="--i:4" data-step="2">九个月后 · 2026-07-22</text>
+          <rect class="box dw" x="900" y="250" width="720" height="120" rx="4" stroke-width="1.4" style="--len:1680;--i:4;stroke:var(--magenta)" data-step="2"/>
+          <text class="ttl pop" x="928" y="298" style="--i:4;fill:var(--magenta)" data-step="2">OpenAI 自己成了那个 Agent</text>
+          <text class="sm pop" x="928" y="334" style="--i:4" data-step="2">发布 Presence，直接进入企业客服市场</text>
+          <line class="dw" x1="900" y1="310" x2="620" y2="310" fill="none" stroke-width="1.4" style="--len:280;--i:5;stroke:var(--magenta)" data-step="2"/>
+          <text class="lbl pop" x="760" y="290" text-anchor="middle" style="--i:5;fill:var(--magenta)" data-step="2">走进来</text>
+          <text class="txt pop" x="0" y="300" style="--i:6" data-step="3">平台给你的分发红利，</text>
+          <text class="txt pop" x="0" y="340" style="--i:6" data-step="3">和它向上进入应用层的距离，</text>
+          <text class="txt pop" x="0" y="376" style="--i:6" data-step="3">可能就是同一条 API。</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 竞合</span><span>29</span></div>
+    <div class="head">
+      <div class="eyebrow grey flow" style="--i:0">最有戏剧性的一家是 Sierra · 这一段必须写清边界</div>
+      <h2 class="ink" style="--i:1">当年的承诺没被打破，是 OpenAI 往上走了</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">双身份</span><span class="v">Bret Taylor 是 Sierra CEO，另一个身份是 <b class="am">OpenAI 董事会主席</b>。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">2024</span><span class="v">他曾公开说，Sierra 做的是更上层的应用，不会与 OpenAI 竞争；遇到潜在重叠时，他会回避。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">两年后</span><span class="v">Sierra 做到 <b class="am">158 亿美元估值</b>，客户覆盖超过 40% 的 Fortune 50，语音已超过文字成为第一大渠道。</span></div>
+      </div>
+      <div class="note grey flow" data-step="4" style="--i:5"><b>核验边界：</b><span class="dim mono">截至材料整理时，Sierra 和 Bret Taylor 都没有公开回应，也没有公开信息说明他是否在董事会讨论 Presence 时进行了回避。这里不能多做推断。</span></div>
+      <div class="land" data-step="5" style="--i:6">但有一个产业问题，已经摆到了桌面上。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
+    <div class="q">
+      <i class="rise" style="--i:1">当模型厂开始做应用</i>
+      <i class="rise" style="--i:2">建立在它上面的公司</i>
+      <i class="rise" style="--i:3"><span class="mg">是客户，是伙伴，</span></i>
+      <i class="rise" style="--i:4"><span class="mg">还是一份产品路线图？</span></i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:6">原文：「究竟是客户、伙伴，还是一份被提前验证过的产品路线图？」</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT VI / VII</div>
+    <div class="en settle" style="--i:1">NUMBERS</div>
+    <div class="cn spread" style="--i:3">75% 自主解决，先别急着庆祝</div>
+    <div class="d flow" style="--i:4">OpenAI 为 Presence 准备了两个很漂亮的数字。<br>这两个数字值得看，但边界也必须同时写出来。</div>
+    <div class="rail">
+      <span>I 治理</span><span>II 人</span><span>III 现场</span><span>IV 四层</span><span>V 竞合</span><span class="cur">VI 数字</span><span>VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VI · 数字</span><span>32</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">两个数字，四条边界</div>
+      <h2 class="ink" style="--i:1">现在还不能说客服已经被自动化了</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">自报</span><span class="v">自家英文电话客服线 <b class="am">75%</b> 无需人工；Codex 闭环 10 天内让转接率降 <b class="am">15 个百分点</b> —— <b>均为 OpenAI 自报，没有第三方审计。</b></span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">样本</span><span class="v">目前唯一明确跑到生产规模的案例，是 OpenAI 自己。BBVA、SoftBank、IAG 都还是设计伙伴。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">定价</span><span class="v">Presence 没有公布定价。用了多少 FDE、多少定制工程、多少推理成本，都不知道。</span></div>
+        <div class="r flow dn" data-step="4" style="--i:5"><span class="n">04</span><span class="k">时态</span><span class="v">今天的白手套交付，不代表它永远不会自助化 —— 仍处 limited GA，官方说会在扩大可用性后公布定价。</span></div>
+      </div>
+      <div class="note grey flow" data-step="5" style="--i:6"><span class="dim mono">这篇文章能证明的是：在发布这一刻，交付产能就是它写进客户资格里的稀缺资源；不能由此推断它会永远停留在项目制。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VI · 数字</span><span>33</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">它们暴露了一个比解决率更重要的产品选择</div>
+      <h2 class="ink" style="--i:1">改进闭环，被放进了产品功能表</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">常见做法</div>
+          <div class="b">藏在内部运维里</div>
+          <div class="s">线上出问题、改一版、再上线 —— 这些动作发生在产品之外，客户看不见，也不为它付钱。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">PRESENCE 的做法</div>
+          <div class="b">写进产品功能表</div>
+          <div class="s">Codex 读取生产信号、分析失败、提出修改；人类测试、审批，再让变更上线。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4"><b>模型决定第一天能不能演示。评测、监控和改进闭环，决定第九十天还能不能工作。</b></div>
+      <div class="land" data-step="2" style="--i:5">Presence 最值得抄的，从来不是那句「75%」。
+        <span class="s">是它把「如何变好」本身，做成了产品。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 06</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">真正的 Agent 产品</i>
+      <i class="rise" style="--i:2">不是上线时表现不错</i>
+      <i class="rise" style="--i:3">而是上线后还能持续变好</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">原文：「不是一套上线时表现不错的模型，而是一套上线以后知道自己哪里不好、还能持续变好的系统。」</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT VII / VII</div>
+    <div class="en settle" style="--i:1">LINES</div>
+    <div class="cn spread" style="--i:3">Presence 改了三条线</div>
+    <div class="d flow" style="--i:4">对做 Agent 的人来说，这次发布真正改变的，是三条分界线的位置。<br>产品与工具、软件与服务、模型供应商与应用公司。</div>
+    <div class="rail">
+      <span>I 治理</span><span>II 人</span><span>III 现场</span><span>IV 四层</span><span>V 竞合</span><span>VI 数字</span><span class="cur">VII 三线</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VII · 三线</span><span>36</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">三条分界线，正在同时移动</div>
+      <h2 class="ink" style="--i:1">企业买的不是「能生成一个 Agent」</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 396" width="1620">
+          <line class="stroke-am dw" x1="0" y1="20" x2="1620" y2="20" stroke-width="1.4" style="--len:1620;--i:2" data-step="1"/>
+          <text class="lbl pop" x="0" y="58" style="--i:2" data-step="1">LINE 01 · 产品与工具</text>
+          <text class="ttl fill-am pop" x="0" y="102" style="--i:2" data-step="1">企业买的是「有人保证它可以上岗」</text>
+          <text class="sm pop" x="0" y="134" style="--i:2" data-step="1">只要政策、权限、评测、监控、人工升级和持续改进仍要客户自己拼，你交付的就还是工具</text>
+          <line class="stroke dw" x1="0" y1="158" x2="1620" y2="158" stroke-width="1" style="--len:1620;--i:3" data-step="2"/>
+          <text class="lbl pop" x="0" y="196" style="--i:3" data-step="2">LINE 02 · 软件与服务</text>
+          <text class="ttl fill-am pop" x="0" y="240" style="--i:3" data-step="2">这次的人力劳动，变成下次可复用的软件资产了吗</text>
+          <text class="sm pop" x="0" y="272" style="--i:3" data-step="2">如果没有，你是咨询公司；如果有，FDE 就是你的产品发现引擎</text>
+          <line class="stroke dw" x1="0" y1="296" x2="1620" y2="296" stroke-width="1" style="--len:1620;--i:4" data-step="3"/>
+          <text class="lbl pop" x="0" y="334" style="--i:4" data-step="3">LINE 03 · 模型商与应用公司</text>
+          <text class="ttl fill-co pop" x="0" y="378" style="--i:4" data-step="3">这条线正在消失</text>
+          <text class="sm pop" x="560" y="378" style="--i:5" data-step="3">「多模型中立」不再只是成本优化，而会变成一种生存策略</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VII · 三线</span><span>37</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">对基础设施公司，机会和风险同时存在</div>
+      <h2 class="ink" style="--i:1">OpenAI 没有凭空长出一张通信网络</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">机会</div>
+          <div class="b">Presence 仍然需要那条水管</div>
+          <div class="s">SIP、PSTN、RTC、电话落地和实时传输 —— 这些东西不会因为模型变强就消失。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">风险</div>
+          <div class="b">选型权到了 FDE 手里</div>
+          <div class="s">一旦选型权掌握在 OpenAI 的 FDE 手里，单纯做编排中间层的公司，会越来越难守住位置。</div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1" style="--i:4">模型公司向上做应用，应用公司向下做模型路由和基础设施，<b>云厂商再带着自己的交付团队从旁边切进来。</b></div>
+      <div class="land" data-step="2" style="--i:5">早期不进现场，就拿不到那些真正决定产品形态的例外。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>收个尾</span><span>38</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Presence 这个名字，OpenAI 官方给出的解释</div>
+      <h2 class="ink" style="--i:1">"One presence across every channel."</h2>
+    </div>
+    <div class="body">
+      <div class="quotes">
+        <div class="r flow dn" data-step="1" style="--i:2">
+          <span class="who">官方解释</span>
+          <span class="say"><em>One presence across every channel.</em></span>
+          <span class="src">在每个渠道里都是同一个「在场者」</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3">
+          <span class="who">我读到的</span>
+          <span class="say">企业真正需要的 Presence，也许不只是一个永远在线的 Agent，<em>而是有人真的在场</em></span>
+          <span class="src">碰到边界与例外的那一刻</span></div>
+      </div>
+      <div class="note flow" data-step="3" style="--i:4">系统第一次碰到退款边界、理赔纠纷、噪声误判、权限越界时 —— <b>有人真的在场。</b></div>
+      <div class="land" data-step="4" style="--i:5">所以 OpenAI 这次最重要的新产品，不是 GPT-5.6，也不完全是 Presence。
+        <span class="s">是那支愿意走进客户现场，把「模型能做」一点点改成「企业敢用」的队伍。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 07</div>
+    <div class="q">
+      <i class="rise" style="--i:1">模型可以远程调用</i>
+      <i class="rise" style="--i:2">责任、判断和那些例外</i>
+      <i class="rise" style="--i:3">必须有人到场</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">AI 的下一场竞争，不是谁的模型更像人，而是谁能让模型进入真实世界以后，始终有人对结果负责。这就是 Presence 真正发布的东西。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">谢谢</div>
+    <h1 class="ink" style="--i:1">模型可以远程调用<br>责任必须有人到场</h1>
+    <div class="subtitle spread" style="--i:3">最擅长规模化智能的公司，开始卖它最难规模化的东西</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin · 2026.07</span></div>
+      <div><span class="k">一手源</span><span class="v">OpenAI 发布博客 / 产品页 / 帮助中心</span></div>
+      <div><span class="k">已核验</span><span class="v">75% · 15 个百分点 · 40 亿美元 · 158 亿估值</span></div>
+      <div><span class="k">立场提示</span><span class="v">数字均为 OpenAI 自报，无第三方审计；Presence 仍处 limited GA</span></div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<script>
+/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+
+</script>
+
+<style>
+.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
+  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
+  background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
+</style>
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  var b=document.getElementById('deckSwap');
+  function apply(t){
+    if(t==='light'){document.documentElement.dataset.theme='light';b.textContent='暗底';}
+    else{delete document.documentElement.dataset.theme;b.textContent='浅底';}
+  }
+  var cur='dark';
+  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){
+    cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}
+    apply(cur);
+  });
+})();
+</script>
+
+</body></html>

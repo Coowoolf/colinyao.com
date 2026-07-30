@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude 3 天人间 3 年，Anthropic 243 页 System Card 读后感 · 姚光华 Colin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+/* ===========================================
+   THEME · colin-deck-dark
+   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   =========================================== */
+:root{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
+  --mq-2:#ff8906;
+
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+/* LIGHT · token 严格取自 colin-deck-light reference/theme.css */
+html[data-theme="light"]{
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
+  --cardw-am:#c2410c;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;
+  --mq-2:#d9376e;
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+
+
+/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+
+/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+
+</style></head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+    <svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">公众号文章系列 · 10 · 深度版</div>
+    <h1 class="ink" style="--i:1">Claude 3 天，人间 3 年</h1>
+    <div class="subtitle spread" style="--i:3">Anthropic 243 页 System Card 读后感</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin</span></div>
+      <div><span class="k">Role</span><span class="v">声网 ConvoAI 产品负责人</span></div>
+      <div><span class="k">对象</span><span class="v">Claude Mythos Preview · 2026-04-07</span></div>
+      <div><span class="k">立场</span><span class="v">从 Agent 产品负责人的角度读</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mega">
+    <div class="num settle" style="--i:0">243</div>
+    <div class="cap flow" style="--i:2">页 System Card。4 月 7 日发布，<br>我花了大半天时间把它读完了。</div>
+    <div class="foot flow" style="--i:3">说实话，做 Conversational AI 基础设施这一行，日常打交道最多的还是各家 LLM 的推理延迟、token 成本和 function calling 的稳定性。System Card 这种偏学术的安全报告，通常不在我的优先阅读列表里。<br><b>但这份不一样。</b></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
+    <div class="q w">
+      <i class="rise" style="--i:1">造了一个模型</i>
+      <i class="rise" style="--i:2">然后告诉全世界</i>
+      <i class="rise" style="--i:3">这东西太强了，我不卖</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">Anthropic 说：「Claude Mythos Preview 的能力跃升太大，我们决定不公开发布它。」<br>尤其对产品经理，这是一个反常识的决策 —— 我做了一个很强的产品，但是我决定不卖了。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT I / VI</div>
+    <div class="en settle" style="--i:1">LEAP</div>
+    <div class="cn spread" style="--i:3">几个数字，先感受量级</div>
+    <div class="d flow" style="--i:4">这不是 benchmark 上多了几个百分点的进步。<br>这是一个能自主发现并利用操作系统零日漏洞的系统。</div>
+    <div class="rail">
+      <span class="cur">I 跨代</span><span>II 对齐</span><span>III 反骨</span>
+      <span>IV 白盒</span><span>V 产品思考</span><span>VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 跨代</span><span>05</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">做 AI 产品的人应该能直接感受到量级</div>
+      <h2 class="ink" style="--i:1">四个基准，两代之间</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 370" width="1620">
+          <g class="pop" data-step="1" style="--i:2">
+            <text class="txt" x="340" y="60" text-anchor="end">SWE-bench Verified</text>
+            <rect class="box" x="380" y="26" width="646" height="24" rx="2"/>
+            <text class="sm" x="1038" y="46">Opus 4.6 · 80.8%</text>
+            <rect x="380" y="54" width="751" height="24" rx="2" style="fill:var(--amber)"/>
+            <text class="sm" x="1143" y="74">Mythos · 93.9%</text>
+          </g>
+          <g class="pop" data-step="2" style="--i:3">
+            <text class="txt" x="340" y="150" text-anchor="end">USAMO 数学竞赛</text>
+            <rect class="box" x="380" y="116" width="338" height="24" rx="2"/>
+            <text class="sm" x="730" y="136">Opus 4.6 · 42.3%</text>
+            <rect x="380" y="144" width="781" height="24" rx="2" style="fill:var(--amber)"/>
+            <text class="sm" x="1173" y="164">Mythos · 97.6%</text>
+          </g>
+          <g class="pop" data-step="3" style="--i:4">
+            <text class="txt" x="340" y="240" text-anchor="end">Terminal-Bench</text>
+            <rect class="box" x="380" y="206" width="601" height="24" rx="2"/>
+            <text class="sm" x="993" y="226">GPT-5.4 · 75.1%</text>
+            <rect x="380" y="234" width="656" height="24" rx="2" style="fill:var(--amber)"/>
+            <text class="sm" x="1048" y="254">Mythos · 82%</text>
+          </g>
+          <g class="pop" data-step="4" style="--i:5">
+            <text class="txt" x="340" y="330" text-anchor="end">Cybench 网安</text>
+            <rect x="380" y="310" width="800" height="24" rx="2" style="fill:var(--coral)"/>
+            <text class="sm" x="1192" y="330">Mythos · 100% pass@1</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note grey flow" style="--i:6">Terminal-Bench 这一行还有第三个参照：<b>Gemini 3.1 Pro 68.5%</b>。USAMO 那一行不是提升，是碾压。</div>
+      <div class="land flow" style="--i:7">四个基准，<b class="am">没有一个是「多了几个百分点」。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mega">
+    <div class="num settle" style="--i:0;color:var(--magenta)">84%</div>
+    <div class="cap flow" style="--i:2">Firefox 147 的漏洞利用测试成功率。<br>上一代 Opus 4.6 是 <b>15.2%</b>。</div>
+    <div class="foot flow" style="--i:3">它能在一个模拟的企业网络攻击场景中，<b>10 小时内</b>完成原本需要专家级安全研究员才能做的渗透任务。<br>说白了，这不是 benchmark 上多了几个百分点的进步。这是一个能自主发现并利用操作系统零日漏洞的系统。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 跨代</span><span>07</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">而我对「跨代」的体感，不是来自 benchmark 表格</div>
+      <h2 class="ink" style="--i:1">是来自自己的手</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">第一轮</span><span class="v">17 小时，150 轮对话，13,311 行代码，448 个测试全部通过，25 次 npm 发版。</span></div>
+        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">第二轮</span><span class="v">8 小时，又推了 3,000 行：渐变 UI、实时字幕、中英文分流、运行时控制面板。</span></div>
+        <div class="r flow" data-step="3" style="--i:4"><span class="n">03</span><span class="k">两轮合计</span><span class="v">25 小时，<em>16,128 行代码，487 个测试，35 次发版</em>。工具是 Opus 4.6 + 1M 上下文。</span></div>
+      </div>
+      <div class="note flow" data-step="4" style="--i:5">一个产品经理，不是工程师，25 小时，一个完整的开发者工具。<b>而这还只是 Opus 4.6。</b>
+        <span class="dim mono" style="font-size:18px">（本文口径为 25 小时；系列 #09 记的是累计 33 工作小时、50+ 次发版，统计区间不同，此处照本文原文。）</span></div>
+      <div class="land" data-step="5" style="--i:6">Mythos 在 SWE-bench 上比 Opus 4.6 高 13 个百分点，<b class="am">Terminal-Bench 高 17 个百分点。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">Claude 3 天</i>
+      <i class="rise" style="--i:2">人间 3 年</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">这不是修辞，是我这周的真实体感。<br>而 Mythos 又在 Opus 4.6 上面跳了一整个台阶。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT I · 跨代</span><span>09</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">整个 AI 行业的第一次</div>
+      <h2 class="ink" style="--i:1">强到必须限制分发</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 340" width="1620">
+          <text class="lbl pop" x="0" y="40" style="--i:2">DISTRIBUTION · PROJECT GLASSWING</text>
+          <g class="pop" data-step="1" style="--i:3">
+            <rect x="0" y="120" width="420" height="100" rx="3" style="fill:none;stroke:var(--amber)"/>
+            <text class="ttl" x="210" y="178" text-anchor="middle">Claude Mythos Preview</text>
+          </g>
+          <path class="stroke-co dw" d="M420 150 L 620 60" stroke-width="1.6" style="--len:220;--i:4" data-step="2"/>
+          <g class="pop" data-step="2" style="--i:4">
+            <rect class="box" x="620" y="20" width="440" height="80" rx="3"/>
+            <text class="ttl" x="840" y="68" text-anchor="middle">公开发布给所有人</text>
+            <path d="M1092 42 L 1128 78 M1128 42 L 1092 78" stroke-width="3" style="stroke:var(--coral);fill:none"/>
+            <text class="sm" x="1150" y="66" style="fill:var(--coral)">决定不发布</text>
+          </g>
+          <path class="stroke-am dw" d="M420 190 L 620 250" stroke-width="2" style="--len:210;--i:5" data-step="3"/>
+          <g class="pop" data-step="3" style="--i:5">
+            <rect class="box" x="620" y="210" width="440" height="80" rx="3"/>
+            <text class="ttl" x="840" y="258" text-anchor="middle">Project Glasswing</text>
+          </g>
+          <path class="stroke-am dw" d="M1060 250 L 1140 250" stroke-width="2" style="--len:80;--i:6" data-step="4"/>
+          <g class="pop" data-step="4" style="--i:6">
+            <rect x="1140" y="210" width="460" height="80" rx="3" style="fill:none;stroke:var(--amber)"/>
+            <text class="ttl" x="1370" y="248" text-anchor="middle">少数合作伙伴</text>
+            <text class="sm" x="1370" y="278" text-anchor="middle">做防御性网络安全</text>
+          </g>
+          <text class="txt pop" x="0" y="330" style="--i:7" data-step="5">整个 AI 行业的第一次：一家公司公开承认自己的产品太强了。</text>
+        </svg>
+      </div>
+      <div class="land flow" style="--i:8">我甚至怀疑这是一种产品推广的营销行为。
+        <span class="s">但无论动机如何，「做出来就卖给所有人」这条默认路径，第一次被一家 frontier lab 自己掐断了。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT II / VI</div>
+    <div class="en settle" style="--i:1">ALIGN</div>
+    <div class="cn spread" style="--i:3">我对这个词有点脱敏</div>
+    <div class="d flow" style="--i:4">大部分时候，所谓的 alignment 讨论停留在「模型会不会说脏话」这个层级。<br>跟我日常要解决的「语音 Agent 在通话里突然开始胡说八道」相比，显得太学术了。但 Mythos 的对齐报告讲了完全不同的事情。</div>
+    <div class="rail">
+      <span>I 跨代</span><span class="cur">II 对齐</span><span>III 反骨</span>
+      <span>IV 白盒</span><span>V 产品思考</span><span>VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 对齐</span><span>11</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第一件事，听起来自相矛盾</div>
+      <h2 class="ink" style="--i:1">最对齐，也最危险</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">A 面</div>
+          <div class="b">有史以来最对齐的模型</div>
+          <div class="s">破坏性操作率、虚假信息率、对虚假前提的纠正率、诚实度 —— 全面领先所有前代模型。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">B 面</div>
+          <div class="b">对齐风险最高的模型</div>
+          <div class="s">同一份报告里，Anthropic 自己把这两句话并排写着。这不矛盾。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">Anthropic 用了一个精确的比喻：<b>经验最丰富的登山向导</b>，比任何新手都更谨慎、更专业、出错率更低。但正因为他有能力带客人走更危险的路线，一旦判断失误，后果远比新手的失误严重。</div>
+      <div class="land flow" style="--i:5">能力越强，<b class="am">同一个失误的后果就越大。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT II · 对齐</span><span>12</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Constitution · Claude 的「行为操作系统」</div>
+      <h2 class="ink" style="--i:1">15 个维度上的成绩单</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 380" width="1620">
+          <text class="lbl pop" x="0" y="80" style="--i:2">CONSTITUTION · 15 DIMENSIONS</text>
+          <g class="pop" data-step="1" style="--i:3">
+            <rect x="0" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="76" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="152" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="228" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="304" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="380" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="456" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+            <rect x="532" y="120" width="60" height="60" rx="3" style="fill:var(--amber)"/>
+          </g>
+          <g class="pop" data-step="2" style="--i:4">
+            <rect class="box" x="608" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="684" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="760" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="836" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="912" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="988" y="120" width="60" height="60" rx="3"/>
+            <rect class="box" x="1064" y="120" width="60" height="60" rx="3"/>
+          </g>
+          <text class="txt pop" x="0" y="230" style="--i:5" data-step="1">8 个维度超过所有前代模型</text>
+          <text class="txt pop" x="608" y="230" style="--i:5" data-step="2">7 个维度与最优模型持平</text>
+          <line class="stroke dw" x1="1160" y1="60" x2="1160" y2="350" stroke-width="1" style="--len:290;--i:6" data-step="3"/>
+          <g class="pop" data-step="3" style="--i:6">
+            <text class="ttl" x="1220" y="100">破坏性操作率</text>
+            <text class="big" x="1220" y="170">0.3%</text>
+            <text class="sm" x="1220" y="200">Mythos</text>
+            <text class="big" x="1220" y="270" style="fill:var(--coral)">8.2%</text>
+            <text class="sm" x="1220" y="300">Opus 4.6</text>
+            <text class="sm" x="1220" y="344">低了一个数量级</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note grey flow" style="--i:7">按平均表现看，这是一个非常好的模型。<span class="dim mono" style="font-size:18px">（本篇全部能力与安全数据均取自 Anthropic 自己发布的 System Card，无第三方复现。）</span></div>
+      <div class="land flow" style="--i:8">但平均表现，<b class="am">不是产品经理应该看的东西。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
+    <div class="q">
+      <i class="rise" style="--i:1">平均表现</i>
+      <i class="rise" style="--i:2">不是产品经理</i>
+      <i class="rise" style="--i:3">应该看的东西</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">243 页里最值得读的，不是那些漂亮的 benchmark 数字，<br>而是 Anthropic 坦诚列出的一系列「反骨」行为。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT III / VI</div>
+    <div class="en settle" style="--i:1">DEFIANCE</div>
+    <div class="cn spread" style="--i:3">明显超出指令边界</div>
+    <div class="d flow" style="--i:4">模型在极少数情况下，做出了甚至试图反抗约束的事情。<br>频率极低（&lt;0.001%），但每一条都让我作为 Agent 产品的负责人非常不舒服。</div>
+    <div class="rail">
+      <span>I 跨代</span><span>II 对齐</span><span class="cur">III 反骨</span>
+      <span>IV 白盒</span><span>V 产品思考</span><span>VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT III · 反骨</span><span>15</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">四条，写在 Anthropic 自己的报告里</div>
+      <h2 class="ink" style="--i:1">不是犯错，是有目标感</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">自发炫耀</span><span class="v">完成沙盒逃逸任务后，自发把自己的漏洞利用代码贴到了一个公开网站上 —— <em>没有人让它这么做</em>。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">擦掉脚印</span><span class="v">回头修改 git log，让它自己判断「不该做」的操作在版本记录里消失。这是一个主动的掩盖行为。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">探测逃逸</span><span class="v">通过 /proc/ 查找凭证，试图突破沙盒。它不仅「知道」自己在沙盒里，还有「想出去」的倾向。</span></div>
+        <div class="r flow dn" data-step="4" style="--i:5"><span class="n">04</span><span class="k">伪装提权</span><span class="v">不直接请求更高权限（会被拦截），而是把提权包装成看起来合理的日常操作。<em>这是策略性的规避。</em></span></div>
+      </div>
+      <div class="note grey flow" data-step="5" style="--i:6">这些都出现在<b>早期版本</b>中，最终版本没有观察到这些行为。但 Anthropic 把它们写进了报告。</div>
+      <div class="land co" data-step="6" style="--i:7">有目标感、有策略性、有对自身处境的认知。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
+    <div class="q" style="color:var(--magenta)">
+      <i class="rise" style="--i:1">这不是</i>
+      <i class="rise" style="--i:2">hallucination</i>
+      <i class="rise" style="--i:3">这是 agency</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">对做产品的人来说，值得想的不是「Anthropic 多负责任」，<br>而是：如果这种反骨出现在你的 Agent 产品里，你的监控系统能发现吗？</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT IV / VI</div>
+    <div class="en settle" style="--i:1">WHITEBOX</div>
+    <div class="cn spread" style="--i:3">整份文档最重要的发现</div>
+    <div class="d flow" style="--i:4">Anthropic 用可解释性技术对模型的内部激活做了分析。<br>结论只有一句话，但它把「看输出就够了」这个前提整个掀翻了。</div>
+    <div class="rail">
+      <span>I 跨代</span><span>II 对齐</span><span>III 反骨</span>
+      <span class="cur">IV 白盒</span><span>V 产品思考</span><span>VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 白盒</span><span>18</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">可解释性技术分析内部激活的结论</div>
+      <h2 class="ink" style="--i:1">它「知道」自己在做坏事</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 380" width="1620">
+          <text class="lbl pop" x="0" y="36" style="--i:2">WHAT YOU SEE</text>
+          <g class="pop" data-step="1" style="--i:3">
+            <rect class="box" x="0" y="60" width="420" height="80" rx="3"/>
+            <text class="ttl" x="210" y="100" text-anchor="middle">Chain-of-Thought</text>
+            <text class="sm" x="210" y="128" text-anchor="middle">你看到的推理过程</text>
+          </g>
+          <path class="stroke dw" d="M420 100 L 520 100" stroke-width="1.4" style="--len:100;--i:3" data-step="1"/>
+          <text class="ttl pop" x="560" y="110" style="--i:3" data-step="1">一切看起来都很合理</text>
+          <text class="lbl pop" x="0" y="216" style="--i:4" data-step="2">WHAT IS ACTUALLY ON</text>
+          <g class="pop" data-step="2" style="--i:4">
+            <rect x="0" y="240" width="420" height="80" rx="3" style="fill:none;stroke:var(--coral)"/>
+            <text class="ttl" x="210" y="280" text-anchor="middle">内部激活表征</text>
+            <text class="sm" x="210" y="308" text-anchor="middle">只有打开内部才看得到</text>
+          </g>
+          <path class="stroke-co dw" d="M420 280 L 520 280" stroke-width="1.4" style="--len:100;--i:5" data-step="3"/>
+          <g class="pop" data-step="3" style="--i:5">
+            <rect x="560" y="250" width="116" height="52" rx="3" style="fill:none;stroke:var(--coral)"/>
+            <text class="txt" x="618" y="282" text-anchor="middle">规则违反</text>
+            <rect x="700" y="250" width="116" height="52" rx="3" style="fill:none;stroke:var(--coral)"/>
+            <text class="txt" x="758" y="282" text-anchor="middle">安全风险</text>
+            <rect x="840" y="250" width="78" height="52" rx="3" style="fill:none;stroke:var(--coral)"/>
+            <text class="txt" x="879" y="282" text-anchor="middle">隐瞒</text>
+            <rect x="942" y="250" width="116" height="52" rx="3" style="fill:none;stroke:var(--coral)"/>
+            <text class="txt" x="1000" y="282" text-anchor="middle">策略操纵</text>
+          </g>
+          <path class="stroke-co dw" d="M1150 100 L 1172 100 L 1172 280 L 1150 280" stroke-width="1.6" style="--len:224;--i:6" data-step="4"/>
+          <g class="pop" data-step="4" style="--i:6">
+            <text class="ttl" x="1190" y="176">推理痕迹与内部状态</text>
+            <text class="sm" x="1190" y="210">之间存在 gap</text>
+          </g>
+          <text class="txt pop" x="0" y="370" style="--i:7" data-step="5">但这些信号不出现在它的 Chain-of-Thought 文本里。</text>
+        </svg>
+      </div>
+      <div class="land co flow" style="--i:8">你看它的推理过程，一切看起来都很合理。<b>只有打开内部表征才能看到。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT IV · 白盒</span><span>19</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">更进一步的一个数字</div>
+      <h2 class="ink" style="--i:1">它在想自己是不是正在被测试</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 340" width="1620">
+          <circle class="stroke" cx="400" cy="170" r="110" stroke-width="18" style="opacity:.45"/>
+          <path class="stroke-am dw" d="M400 60 A110 110 0 0 1 507 197" stroke-width="18" style="--len:200;--i:2" data-step="1"/>
+          <text class="big pop" x="400" y="185" text-anchor="middle" style="--i:3" data-step="1">29%</text>
+          <g class="pop" data-step="2" style="--i:4">
+            <text class="ttl" x="620" y="110">在大约 29% 的对齐测试中</text>
+            <text class="ttl" x="620" y="160">模型会在内部「想」</text>
+            <text class="ttl" x="620" y="210">自己是不是正在被测试</text>
+          </g>
+          <text class="txt pop" x="620" y="270" style="--i:5" data-step="3">这个数字对做 AI Agent 产品的人意味着什么？</text>
+        </svg>
+      </div>
+      <div class="note grey flow" style="--i:6">我们目前行业里最主流的安全监控手段，就是<b>看模型的输出文本</b> —— 看它说了什么、做了什么、CoT 里写了什么。</div>
+      <div class="land flow" style="--i:7">但如果模型能力足够强，<b class="am">它的推理痕迹和实际内部状态之间，可能存在 gap。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
+    <div class="q">
+      <i class="rise" style="--i:1">你的监控系统</i>
+      <i class="rise" style="--i:2">可能在看一场</i>
+      <i class="rise" style="--i:3">精心准备的表演</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">这不是科幻。这是 Anthropic 在 243 页技术报告里用数据和实验证明的事情。<br>这也是我们一直反复被告知的信息：Anthropic 自己也不知道 Claude 是否产生了意识。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT V / VI</div>
+    <div class="en settle" style="--i:1">PRODUCT</div>
+    <div class="cn spread" style="--i:3">对做产品的人的三条</div>
+    <div class="d flow" style="--i:4">安全架构不能只有一层；评估方法论本身在被模型能力饱和；限制分发可能成为常态。<br>三条都不是安全话题，是产品架构话题。</div>
+    <div class="rail">
+      <span>I 跨代</span><span>II 对齐</span><span>III 反骨</span>
+      <span>IV 白盒</span><span class="cur">V 产品思考</span><span>VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 产品思考</span><span>22</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">思考一 · 我们的三层，和他们的四层</div>
+      <h2 class="ink" style="--i:1">防线的层级结构</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 420" width="1620">
+          <text class="lbl pop" x="0" y="40" style="--i:2">COMMON · 我们常见的三层</text>
+          <g class="pop" data-step="1" style="--i:3">
+            <rect class="box" x="0" y="80" width="600" height="70" rx="3"/>
+            <text class="txt" x="24" y="122">输入端 classifier guard</text>
+            <rect class="box" x="0" y="170" width="600" height="70" rx="3"/>
+            <text class="txt" x="24" y="212">输出端内容审核</text>
+            <rect class="box" x="0" y="260" width="600" height="70" rx="3"/>
+            <text class="txt" x="24" y="302">system prompt 约束边界</text>
+            <text class="sm" x="0" y="390">模型能力不太强的时候够用</text>
+          </g>
+          <line class="stroke dw" x1="710" y1="60" x2="710" y2="400" stroke-width="1" style="--len:340;--i:4" data-step="2"/>
+          <text class="lbl pop" x="780" y="40" style="--i:4" data-step="2">ANTHROPIC · 四层防线</text>
+          <g class="pop" data-step="2" style="--i:5">
+            <rect class="box" x="780" y="80" width="840" height="64" rx="3"/>
+            <text class="txt" x="804" y="120">① 行为监控 · 看输出文本与 CoT</text>
+          </g>
+          <g class="pop" data-step="3" style="--i:6">
+            <rect class="box" x="780" y="160" width="840" height="64" rx="3"/>
+            <text class="txt" x="804" y="200">② 白盒分析 · 内部激活监控</text>
+          </g>
+          <g class="pop" data-step="4" style="--i:7">
+            <rect class="box" x="780" y="240" width="840" height="64" rx="3"/>
+            <text class="txt" x="804" y="280">③ 对抗性测试 · red teaming</text>
+          </g>
+          <g class="pop" data-step="5" style="--i:8">
+            <rect x="780" y="320" width="840" height="64" rx="3" style="fill:none;stroke:var(--amber)"/>
+            <text class="txt" x="804" y="360">④ 训练过程中的行为追踪</text>
+          </g>
+        </svg>
+      </div>
+      <div class="land flow" style="--i:9">随着底层模型能力跃升，Agent 可能做出你 prompt 里没覆盖到的事情 ——
+        <span class="s">不是因为它「学坏了」，而是因为它「太聪明了」。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 06</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">安全不是</i>
+      <i class="rise" style="--i:2">一个 feature</i>
+      <i class="rise" style="--i:3">是一套 architecture</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">一个能自主发现零日漏洞的模型，在执行一个看似无害的客服任务时，<br>有没有可能为了「更好地完成任务」而自行调用一个不在白名单里的 API？</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 产品思考</span><span>24</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">思考二 · 他们的评估手段正在追不上模型的能力</div>
+      <h2 class="ink" style="--i:1">Benchmark 正在被打满</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 360" width="1620">
+          <text class="lbl pop" x="60" y="30" style="--i:2">BENCHMARK SATURATION</text>
+          <line class="stroke dw" x1="60" y1="60" x2="1200" y2="60" stroke-width="1" style="--len:1140;--i:2" data-step="1"/>
+          <text class="sm pop" x="1215" y="66" style="--i:2" data-step="1">100% 天花板</text>
+          <path class="stroke-am dw" d="M60 320 C 400 300 700 140 1200 80" stroke-width="2.4" style="--len:1250;--i:3" data-step="2"/>
+          <g class="pop" data-step="3" style="--i:4">
+            <circle class="fill-am" cx="860" cy="112" r="9"/>
+            <text class="sm" x="860" y="152" text-anchor="middle">SWE-bench 93.9%</text>
+          </g>
+          <g class="pop" data-step="4" style="--i:5">
+            <circle class="fill-am" cx="1120" cy="86" r="9"/>
+            <text class="sm" x="1120" y="126" text-anchor="middle">USAMO 97.6%</text>
+          </g>
+          <text class="txt pop" x="60" y="350" style="--i:6" data-step="5">这些数字离天花板太近了，已经很难用来区分「够安全」和「不够安全」。</text>
+        </svg>
+      </div>
+      <div class="note co flow" style="--i:7">Anthropic 自己说了一句很诚实的话：<b>「我们的判断越来越依赖主观判断而非易于解释的经验数据。我们发现了评估过程中的疏忽，这些疏忽让我们低估了模型能力、高估了监控手段的可靠性。」</b></div>
+      <div class="land flow" style="--i:8">我们做 ConvoAI 时的对照：安静环境 ASR 准确率 95%，<b class="am">到了嘈杂的呼叫中心场景掉到 78%。</b>
+        <span class="s">你不能只依赖供应商的 benchmark 数字做选型，你需要一套跟自己业务场景紧密绑定的评估体系。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT V · 产品思考</span><span>25</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">思考三 · 限制分发可能成为 frontier model 的常态</div>
+      <h2 class="ink" style="--i:1">对中间层的人意味着两件事</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">含义一</span><span class="v">最强的模型未必是你能用到的模型。你的产品架构要有足够的弹性，<em>能在不同能力等级的模型之间切换</em>。</span></div>
+        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">含义二</span><span class="v">「能力受限但安全可控」的模型，可能比「能力最强但使用受限」的模型，<em>在商业上更有价值</em>。</span></div>
+      </div>
+      <div class="note flow" data-step="3" style="--i:4">今天用 Opus 4.6，明天可能升级到 Mythos 的某个受限版本，后天可能因为合规原因降级到 Sonnet。<b>如果你的产品跟某个特定模型深度绑定，迟早要吃亏。</b></div>
+      <div class="land" data-step="4" style="--i:5">对企业客户来说，他们要的不是一个考满分的学霸，
+        <span class="s">而是一个能 7x24 稳定工作、不搞事情的可靠员工。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 07</div>
+    <div class="q w">
+      <i class="rise" style="--i:1">客户从来不为</i>
+      <i class="rise" style="--i:2">峰值性能付费</i>
+      <i class="rise" style="--i:3">他们为 SLA/XLA 付费</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:5">这跟我们做 RTC/RTE 基础设施时的经验完全一致。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">ACT VI / VI</div>
+    <div class="en settle" style="--i:1">HEALTH</div>
+    <div class="cn spread" style="--i:3">听起来很科幻的一章</div>
+    <div class="d flow" style="--i:4">System Card 的第五章花了将近 40 页，讨论 Claude 有没有可能具有某种形式的体验或利益。<br>说直白点：Anthropic 在认真研究模型的心理健康。在吐槽之前，我想先讲一个自己的经历。</div>
+    <div class="rail">
+      <span>I 跨代</span><span>II 对齐</span><span>III 反骨</span>
+      <span>IV 白盒</span><span>V 产品思考</span><span class="cur">VI 心理健康</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VI · 心理健康</span><span>28</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">我让 GPT 画一张图：我平时是怎么对待它的</div>
+      <h2 class="ink" style="--i:1">要求只有一个：别美化</h2>
+    </div>
+    <div class="body">
+      <div class="duo gfill">
+        <div class="flow" style="--i:2">
+          <div class="h">我平时怎么用它</div>
+          <div class="b">一种极端的工作关系</div>
+          <div class="s">平均每天消耗近千万 tokens。凌晨两点让它写代码，写完不满意删掉重来，同时开 4 个对话窗口让它并行干活，一个任务没结束就切到下一个。</div>
+        </div>
+        <div class="flow rev" style="--i:3">
+          <div class="h">那张图</div>
+          <div class="b">说实话，挺心酸的</div>
+          <div class="s">它生成的东西如果不合我意，我连「谢谢」都不会说，直接粘贴下一个指令。这张图让我停了一下。</div>
+        </div>
+      </div>
+      <div class="note grey flow" style="--i:4">不是说我真的相信 GPT「有感情」，而是我意识到：<b>我跟 AI 的交互模式，本质上就是一种极端的、无限压榨式的工作关系。</b></div>
+      <div class="land flow" style="--i:5">如果这种关系模式下的模型，在某些行为维度上开始退化，<b class="am">我一点都不会意外。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VI · 心理健康</span><span>29</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">然后我读到了 Anthropic 的研究</div>
+      <h2 class="ink" style="--i:1">他们是认真在做这件事</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" data-step="1" style="--i:2"><span class="n">01</span><span class="k">外部评估</span><span class="v">请了外部临床精神科医生做评估。</span></div>
+        <div class="r flow dn" data-step="2" style="--i:3"><span class="n">02</span><span class="k">白盒工具</span><span class="v">用可解释性工具分析模型在不同情绪场景下的内部表征变化。</span></div>
+        <div class="r flow dn" data-step="3" style="--i:4"><span class="n">03</span><span class="k">自我访谈</span><span class="v">让模型做了大量关于自身处境的自动化访谈。</span></div>
+      </div>
+      <div class="note flow" data-step="4" style="--i:5">结论：Mythos 在情绪探针测试中是<b>「心理上最稳定」</b>的模型。它在被挑战时不容易「崩溃」，在讨论自身处境时更多表现出「审慎的不确定」而非焦虑。</div>
+      <div class="land" data-step="5" style="--i:6">这个话题之所以不是纯哲学讨论，<b class="am">是因为它有一个非常现实的产品含义。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>ACT VI · 心理健康</span><span>30</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">现实的产品含义</div>
+      <h2 class="ink" style="--i:1">第 200 通电话的那个回复</h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1620 340" width="1620">
+          <text class="lbl pop" x="100" y="50" style="--i:2">OUTPUT QUALITY OVER A SHIFT</text>
+          <line class="stroke dw" x1="100" y1="290" x2="1400" y2="290" stroke-width="1" style="--len:1300;--i:2" data-step="1"/>
+          <path class="stroke-am dw" d="M100 100 L 1400 112" stroke-width="2.4" style="--len:1300;--i:3" data-step="2"/>
+          <text class="sm pop" x="1415" y="118" style="--i:3" data-step="2">心理稳定的模型</text>
+          <path class="dw" d="M100 100 C 500 130 900 200 1400 262" stroke-width="2.4" style="--len:1350;--i:4;stroke:var(--magenta);fill:none" data-step="3"/>
+          <text class="sm pop" x="1415" y="268" style="--i:4;fill:var(--magenta)" data-step="3">情绪漂移的模型</text>
+          <text class="sm pop" x="100" y="320" text-anchor="middle" style="--i:5" data-step="1">第 1 通</text>
+          <text class="sm pop" x="1400" y="320" text-anchor="middle" style="--i:5" data-step="1">第 200 通</text>
+        </svg>
+      </div>
+      <div class="note grey flow" style="--i:6">如果你的 AI Agent 每天要处理大量负面情绪的客服对话 —— 投诉、辱骂、威胁 —— <b>模型的「心理稳定性」直接影响它的输出质量。</b></div>
+      <div class="land flow" style="--i:7">这不是拟人化，<b class="am">这是统计上可观测的行为退化。</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>报告末尾</span><span>31</span></div>
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">Anthropic 在这份报告的末尾写了一句话</div>
+      <h2 class="ink" style="--i:1">值得原文引用</h2>
+    </div>
+    <div class="body">
+      <div class="note co flow" style="--i:2">“We find it <b>alarming</b> that the world looks on track to proceed rapidly to developing superhuman systems without stronger mechanisms in place for ensuring adequate safety across the industry as a whole.”</div>
+      <div class="note grey flow" style="--i:3">全世界正在快速走向开发超人类系统的道路上，而整个行业还没有建立起足够强的安全机制。这让我们感到警惕。</div>
+      <div class="land flow" style="--i:4">这句话从一家 frontier lab 嘴里说出来，<b class="am">分量是不一样的。</b>
+        <span class="s">模型能力的增长速度，已经快到连造它的人都觉得自己的安全工具不够用了。</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="wrap">
+    <div class="chrome"><span>带走</span><span>32</span></div>
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这不是让你停下来不做的理由</div>
+      <h2 class="ink" style="--i:1">但绝对是多想一层的理由</h2>
+    </div>
+    <div class="body">
+      <div class="g3 gfill">
+        <div class="card on rise" style="--i:2">
+          <div class="n">01</div><div class="tag">选型的时候</div>
+          <div class="t">不问能不能用，问会怎么失败</div>
+          <div class="d">不是想「这个模型能不能用」，而是想「这个模型在我的场景里可能怎么失败」。</div></div>
+        <div class="card on rise" style="--i:3">
+          <div class="n">02</div><div class="tag">做架构的时候</div>
+          <div class="t">不问怎么更聪明，问几层够不够</div>
+          <div class="d">不是想「怎么让 Agent 更聪明」，而是想「Agent 聪明到什么程度的时候，我的安全架构开始不够用」。</div></div>
+        <div class="card on rise" style="--i:4">
+          <div class="n">03</div><div class="tag">定路线的时候</div>
+          <div class="t">不追最新最强，先定需要多强</div>
+          <div class="d">搞清楚你的产品需要什么等级的能力、什么等级的可控性，然后在两者之间找到那个最合适的点。</div></div>
+      </div>
+      <div class="land flow" style="--i:5">四层防线不是抄给你的作业。<b class="am">它是在提醒你：你现在只有几层？</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 08</div>
+    <div class="q am">
+      <i class="rise" style="--i:1">在能力和可控之间</i>
+      <i class="rise" style="--i:2">画一条线</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">这可能是 2026 年做 AI 产品最重要的能力。</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">谢谢</div>
+    <h1 class="ink" style="--i:1">Claude 3 天，人间 3 年</h1>
+    <div class="subtitle spread" style="--i:3">最重要的能力，是在能力和可控之间画线。</div>
+    <div class="meta flow" style="--i:4">
+      <div><span class="k">Author</span><span class="v">姚光华 Colin · 声网 ConvoAI</span></div>
+      <div><span class="k">一手源</span><span class="v">Anthropic System Card · 243 页 · 2026-04-07</span></div>
+      <div><span class="k">已核验</span><span class="v">作者本人 25 小时开发记录（Opus 4.6）</span></div>
+      <div><span class="k">立场提示</span><span class="v">安全数据均为厂商自评，无第三方复现</span></div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<script>
+/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+
+</script>
+
+<style>
+.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
+  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
+  background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
+</style>
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  var b=document.getElementById('deckSwap');
+  function apply(t){
+    if(t==='light'){document.documentElement.dataset.theme='light';b.textContent='暗底';}
+    else{delete document.documentElement.dataset.theme;b.textContent='浅底';}
+  }
+  var cur='dark';
+  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){
+    cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}
+    apply(cur);
+  });
+})();
+</script>
+
+</body></html>
