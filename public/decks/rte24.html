@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark"><head>
+<meta name="robots" content="noindex, nofollow"><script>try{if(localStorage.getItem('colin-theme')==='light')document.documentElement.removeAttribute('data-theme')}catch(e){}</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生成式 AI 驱动实时互动 · RTE 2024 AI 专场 · 姚光华 Colin</title>
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+/* ===========================================
+   THEME · colin-deck-light
+   浅灰白 #eff0f3 + 近黑 #0d0d0d + 暖橙 #ff8e3c
+   =========================================== */
+:root{
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
+  --cardw-am:#c2410c;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
+
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
+
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
+
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;              /* 金句主色（浅底用暖橙，按 skill 规范） */
+  --mq-2:#d9376e;
+
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
+
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+/* DARK · token 严格取自 colin-deck-dark reference/theme.css */
+html[data-theme="dark"]{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;
+  --mq-2:#ff8906;
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+
+
+/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+
+/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+
+</style></head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+    <svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<!-- ===== P1 封面 ===== -->
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">RTE 2024 · 声网年度大会 · AI 专场</div>
+    <h1 class="ink" style="--i:1">生成式 AI 驱动实时互动</h1>
+    <div class="subtitle spread" style="--i:3">技术变革与体验革新</div>
+    <div class="flow" style="--i:4;font-family:var(--f-mono);font-size:23px;letter-spacing:.24em;color:var(--ink-3);text-transform:uppercase;margin:-26px 0 42px">Generative AI × Real-Time Engagement</div>
+    <div class="meta rise" style="--i:5">
+      <div><span class="k">Venue</span><span class="v">RTE 2024 · AI 专场</span></div>
+      <div><span class="k">Date</span><span class="v">2024.10.25</span></div>
+      <div><span class="k">Speaker</span><span class="v">姚光华 Colin · 声网 AI RTE 产品线负责人</span></div>
+      <div><span class="k">Deck</span><span class="v">4 幕 · 31 页</span></div>
+    </div>
+    <svg class="glyph pop" style="--i:7" width="300" height="300" viewBox="0 0 300 300" fill="none">
+      <circle cx="150" cy="150" r="147" class="stroke" stroke-opacity=".26" stroke-width="1"/>
+      <circle cx="150" cy="150" r="104" class="stroke" stroke-opacity=".26" stroke-width="1"/>
+      <circle cx="150" cy="150" r="61" class="stroke" stroke-opacity=".26" stroke-width="1"/>
+      <path class="dw" style="--len:400;--i:8" d="M150 3 A147 147 0 0 1 297 150" stroke="var(--amber)" stroke-width="1.6" fill="none" opacity=".45"/>
+      <path class="dw" style="--len:290;--i:9" d="M150 46 A104 104 0 0 1 254 150" stroke="var(--amber)" stroke-width="2.2" fill="none" opacity=".75"/>
+      <path class="dw" style="--len:170;--i:10" d="M150 89 A61 61 0 0 1 211 150" stroke="var(--coral)" stroke-width="3.2" fill="none"/>
+      <circle cx="150" cy="150" r="6" fill="var(--amber)" class="pop" style="--i:11"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== P2 本场提要 ===== -->
+<section class="slide">
+  <div class="chrome"><span>提要 · OVERVIEW</span><span>02</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这场在讲什么</div>
+      <h2 class="ink" style="--i:1">四个部分，一条线：RTE 到底在为谁设计</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="250" viewBox="0 0 1620 250">
+          <path class="dw" style="--len:1500;--i:2" d="M60 132 H1560" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
+          <g data-step="1">
+            <circle class="pop" style="--i:0" cx="200" cy="132" r="10" fill="var(--amber)"/>
+            <text class="lbl pop" style="--i:0" x="200" y="96" text-anchor="middle">PART 1</text>
+            <text class="ttl pop" style="--i:0" x="200" y="182" text-anchor="middle">体验的十年</text>
+            <text class="sm pop" style="--i:0" x="200" y="212" text-anchor="middle">RTE 是干什么的</text>
+          </g>
+          <g data-step="1">
+            <circle class="pop" style="--i:1" cx="640" cy="132" r="8" fill="var(--hair-strong)"/>
+            <text class="lbl pop" style="--i:1" x="640" y="96" text-anchor="middle">PART 2</text>
+            <text class="ttl pop" style="--i:1" x="640" y="182" text-anchor="middle">产品矩阵变迁</text>
+            <text class="sm pop" style="--i:1" x="640" y="212" text-anchor="middle">新增了什么产品</text>
+          </g>
+          <g data-step="2">
+            <circle class="pop" style="--i:0" cx="1080" cy="132" r="8" fill="var(--hair-strong)"/>
+            <text class="lbl pop" style="--i:0" x="1080" y="96" text-anchor="middle">PART 3</text>
+            <text class="ttl pop" style="--i:0" x="1080" y="182" text-anchor="middle">接入架构拆解</text>
+            <text class="sm pop" style="--i:0" x="1080" y="212" text-anchor="middle">怎么把模型接进来</text>
+          </g>
+          <g data-step="2">
+            <circle class="pop" style="--i:1" cx="1500" cy="132" r="13" fill="var(--amber)"/>
+            <text class="lbl pop" style="--i:1" x="1500" y="96" text-anchor="middle">PART 4</text>
+            <text class="ttl pop" style="--i:1" x="1500" y="182" text-anchor="middle">为模型设计</text>
+            <text class="sm pop" style="--i:1" x="1500" y="212" text-anchor="middle">今天只讲一件事</text>
+          </g>
+        </svg>
+      </div>
+      <div class="land flow" style="--i:3">今年是声网成立第十年。<span class="am">从 Day 1 谈 QoS，到 2019-2020 谈 QoE，再到今天谈 AI QoE。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P3 ACT 1 ===== -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART 1</div>
+    <div class="en settle" style="--i:1">DECADE</div>
+    <div class="cn spread" style="--i:3">体验的十年 2014 – 2024</div>
+    <div class="d flow" style="--i:4">先把 RTE 这十年抽象成一条线：QoS 保证传得到，QoE 保证用得爽，AI QoE 开始为模型设计。</div>
+    <div class="rail">
+      <span class="cur">01 体验的十年</span>
+      <span>02 产品矩阵变迁</span>
+      <span>03 接入架构拆解</span>
+      <span>04 为模型设计</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P4 三段阶梯（中轴） ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · 体验的十年</span><span>04</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">一张图看完十年</div>
+      <h2 class="ink" style="--i:1">同一件事被问了三遍：这个体验，是为谁设计的</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="430" viewBox="0 0 1620 430">
+          <path class="dw" style="--len:1560;--i:1" d="M40 402 H1580" stroke="var(--hair)" stroke-width="1" fill="none"/>
+          <g data-step="1">
+            <path class="dw" style="--len:540;--i:0" d="M100 402 V320 H540" stroke="var(--hair-strong)" stroke-width="2.5" fill="none"/>
+            <text class="big pop" style="--i:1;fill:var(--ink)" x="112" y="300" text-anchor="start">QoS</text>
+            <text class="lbl pop" style="--i:1" x="114" y="352" text-anchor="start">2014 – 2019 · SLA</text>
+            <text class="txt pop" style="--i:2" x="114" y="256" text-anchor="start">为硬件与网络设计</text>
+          </g>
+          <g data-step="2">
+            <path class="dw" style="--len:560;--i:0" d="M560 402 V222 H1020" stroke="var(--hair-strong)" stroke-width="2.5" fill="none"/>
+            <text class="big pop" style="--i:1;fill:var(--ink)" x="572" y="202" text-anchor="start">QoE</text>
+            <text class="lbl pop" style="--i:1" x="574" y="254" text-anchor="start">2020 – 至今 · XLA</text>
+            <text class="txt pop" style="--i:2" x="574" y="158" text-anchor="start">为人设计</text>
+          </g>
+          <g data-step="3">
+            <path class="dw" style="--len:660;--i:0" d="M1040 402 V118 H1580" stroke="var(--amber)" stroke-width="3" fill="none"/>
+            <text class="big pop" style="--i:1" x="1052" y="98" text-anchor="start">AI QoE</text>
+            <text class="lbl pop" style="--i:1" x="1054" y="150" text-anchor="start">2024 – · 跨模态</text>
+            <text class="txt pop" style="--i:2" x="1054" y="54" text-anchor="start">为人和模型设计</text>
+          </g>
+          <text class="lbl pop" style="--i:4" x="40" y="426" text-anchor="start">RTC</text>
+          <text class="lbl pop" style="--i:4" x="560" y="426" text-anchor="start">RTE</text>
+          <text class="lbl pop" style="--i:4" x="1040" y="426" text-anchor="start">AI RTE</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:4">十年里产品形态换了两次名字：<b>RTC → RTE → AI RTE</b>。真正变的不是名字，是<b class="am">「体验为谁而设计」</b>这个答案。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P5 QoS ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · QoS</span><span>05</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">2014 – 2019 · SLA 时代</div>
+      <h2 class="ink" style="--i:1">QoS：先把 100 分的内容，原样送到对面</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" style="--i:2"><span class="n">01</span><span class="k">产品形态</span><span class="v">RTC（Real-Time Communication）—— 实时通话场景下的服务质量保证</span></div>
+        <div class="r flow dn" style="--i:3"><span class="n">02</span><span class="k">关键词</span><span class="v">高保真、传输。确保音视频数据包的无损、无中断，减少丢包、延迟与抖动</span></div>
+        <div class="r flow dn" style="--i:4"><span class="n">03</span><span class="k">衡量方式</span><span class="v">SLA 服务水平协议：服务时长每五分钟切片，登录成功率低于 99% 即判定这 5 分钟不可用；不可用时长 ÷ 总服务时长 = 可用性</span></div>
+      </div>
+      <div class="land flow" style="--i:5">这个时代衡量的是「技术够不够强」。<span class="s">关键词是可用——登录得上、传得过去、还原得回来。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P6 QoE ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · QoE</span><span>06</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">2020 – 至今 · XLA 时代</div>
+      <h2 class="ink" style="--i:1">QoE：登录得上，不等于用得爽</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" style="--i:2"><span class="n">01</span><span class="k">产品形态</span><span class="v">RTE（Real-Time Engagement），涵盖 RTC、RTM、RTSC 等核心产品</span></div>
+        <div class="r flow dn" style="--i:3"><span class="n">02</span><span class="k">关键词</span><span class="v">终端用户体验、前后处理算法</span></div>
+        <div class="r flow dn" style="--i:4"><span class="n">03</span><span class="k">标志事件</span><span class="v">2020 年声网提出 XLA（体验等级协议）</span></div>
+        <div class="r flow dn" style="--i:5"><span class="n">04</span><span class="k">衡量方式</span><span class="v">不再只看登录成功率，扩展到 400ms 端到端延迟达标率、音频卡顿率、视频卡顿率等体验指标</span></div>
+      </div>
+      <div class="land flow" style="--i:6">这个时代衡量的是「用户用着好不好」。<span class="s">从 SLA 到 XLA，衡量对象从系统换成了人。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P7 100 / 99.99 / 120 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · QoS vs QoE</span><span>07</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">同一条链路，两种目标</div>
+      <h2 class="ink" style="--i:1">一个无限逼近 100 分，一个要做到 120 分</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="340" viewBox="0 0 1620 340">
+          <text class="lbl pop" style="--i:0" x="40" y="34" text-anchor="start">QOS · 高保真传输</text>
+          <rect class="box" x="40" y="70" width="230" height="120" rx="4" stroke-width="1.5"/>
+          <text class="big pop" style="--i:1;fill:var(--ink)" x="155" y="128" text-anchor="middle">100</text>
+          <text class="sm pop" style="--i:1" x="155" y="162" text-anchor="middle">发送端</text>
+          <path class="dw" style="--len:280;--i:2" d="M290 130 H500" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <text class="sm pop" style="--i:2" x="395" y="110" text-anchor="middle">无损传输</text>
+          <rect class="box" x="520" y="70" width="230" height="120" rx="4" stroke-width="1.5"/>
+          <text class="big pop" style="--i:3;fill:var(--ink)" x="635" y="128" text-anchor="middle">99.99</text>
+          <text class="sm pop" style="--i:3" x="635" y="162" text-anchor="middle">接收端</text>
+          <text class="txt pop" style="--i:4" x="40" y="240" text-anchor="start">音频进音频出，视频进视频出，文本进文本出</text>
+          <text class="sm pop" style="--i:4" x="40" y="274" text-anchor="start">模态不发生变化，追求的是无限逼近发送端</text>
+          <path class="dw" style="--len:300;--i:5" d="M800 40 V300" stroke="var(--hair)" stroke-width="1" fill="none"/>
+          <text class="lbl pop" style="--i:6" x="860" y="34" text-anchor="start">QOE · 前后处理算法</text>
+          <rect class="box" x="860" y="70" width="230" height="120" rx="4" stroke-width="1.5"/>
+          <text class="big pop" style="--i:7;fill:var(--ink)" x="975" y="128" text-anchor="middle">100</text>
+          <text class="sm pop" style="--i:7" x="975" y="162" text-anchor="middle">采集内容</text>
+          <path class="dw" style="--len:280;--i:8" d="M1110 130 H1320" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+          <text class="sm pop" style="--i:8" x="1215" y="110" text-anchor="middle">RTC Pipeline</text>
+          <rect class="box" x="1340" y="70" width="230" height="120" rx="4" stroke="var(--amber)" stroke-width="2"/>
+          <text class="big pop" style="--i:9" x="1455" y="128" text-anchor="middle">120</text>
+          <text class="sm pop" style="--i:9" x="1455" y="162" text-anchor="middle">超越预期 WOW</text>
+          <text class="txt pop" style="--i:10" x="860" y="240" text-anchor="start">不只是「技术不错」，而是「体验很好」</text>
+          <text class="sm pop" style="--i:10" x="860" y="274" text-anchor="start">高级前后处理算法把原本 100 分的内容做到 120 分</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P8 金句 1 ===== -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
+    <div class="q"><i class="rise" style="--i:1">QoS 是为硬件和网络设计的，</i><i class="rise" style="--i:2">QoE 是为人设计的。</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:4">前者关键是可用，后者关键是用户用着好。这句话决定了后面十年所有产品的重心往哪边挪。</div>
+  </div>
+</section>
+
+<!-- ===== P9 跨模态 AI QoE ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · AI QoE</span><span>09</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">2024 – · 跨模态 / 多模态</div>
+      <h2 class="ink" style="--i:1">音频进文本出，已经不是可能性，是既定事实</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="360" viewBox="0 0 1620 360">
+          <text class="lbl pop" style="--i:0" x="150" y="34" text-anchor="middle">INPUT</text>
+          <rect class="box" x="40" y="60" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:1" x="150" y="106" text-anchor="middle">音频</text>
+          <rect class="box" x="40" y="152" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:1" x="150" y="198" text-anchor="middle">视频</text>
+          <rect class="box" x="40" y="244" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:1" x="150" y="290" text-anchor="middle">文本</text>
+          <path class="dw" style="--len:520;--i:2" d="M270 96 L680 188" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
+          <path class="dw" style="--len:480;--i:2" d="M270 188 L680 188" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
+          <path class="dw" style="--len:520;--i:2" d="M270 280 L680 188" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
+          <rect x="690" y="120" width="240" height="136" rx="6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+          <text class="ttl pop" style="--i:3" x="810" y="178" text-anchor="middle">生成式 AI</text>
+          <text class="sm pop" style="--i:3" x="810" y="212" text-anchor="middle">跨模态转换</text>
+          <path class="dw" style="--len:520;--i:4" d="M940 188 L1350 96" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <path class="dw" style="--len:480;--i:4" d="M940 188 L1350 188" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <path class="dw" style="--len:520;--i:4" d="M940 188 L1350 280" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <text class="lbl pop" style="--i:5" x="1470" y="34" text-anchor="middle">OUTPUT</text>
+          <rect class="box" x="1360" y="60" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:5" x="1470" y="106" text-anchor="middle">音频</text>
+          <rect class="box" x="1360" y="152" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:5" x="1470" y="198" text-anchor="middle">视频</text>
+          <rect class="box" x="1360" y="244" width="220" height="72" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:5" x="1470" y="290" text-anchor="middle">文本</text>
+          <text class="lbl pop" style="--i:6" x="810" y="326" text-anchor="middle">100 分 进 · ？分 出</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:3">内容质量已经不再受控于采集、编码、传输、解码这条传统 Pipeline——<b>模型本身重度参与并决定了体验水平</b>。所以 AI RTE 的规划重心必须从<b>为人设计</b>转为<b class="am">为人和模型设计</b>。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P10 三阶段总表 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 1 · 小结</span><span>10</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">十年三段，一张表收</div>
+      <h2 class="ink" style="--i:1">同模态 QoS → 同模态 QoE → 跨模态 AI QoE</h2>
+    </div>
+    <div class="body">
+      <table>
+        <thead><tr><th>时代</th><th>IN</th><th>聚焦</th><th>OUT</th><th>为谁设计</th></tr></thead>
+        <tbody>
+          <tr class="flow dn" style="--i:2"><td>同模态 QoS</td><td>音频 / 视频 / 文本</td><td>无损、无中断、高保真传输</td><td>同模态原样输出</td><td>硬件与网络</td></tr>
+          <tr class="flow dn" style="--i:3"><td>同模态 QoE</td><td>音频 / 视频 / 文本</td><td>端到端延迟、卡顿率等用户体验</td><td>同模态原样输出</td><td>人类</td></tr>
+          <tr class="flow dn" style="--i:4"><td>跨模态 AI QoE</td><td>音频 / 视频 / 文本</td><td>多模态交互、跨模态转换</td><td>任意模态自由组合</td><td>人类和模型</td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:5">输入是音频，输出可以是文本；输入是视频，输出可以是音频。<b>模态的边界，第一次被打开。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P11 ACT 2 ===== -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART 2</div>
+    <div class="en settle" style="--i:1">MATRIX</div>
+    <div class="cn spread" style="--i:3">AI RTE 产品矩阵变迁</div>
+    <div class="d flow" style="--i:4">十年沉淀出的那张产品矩阵图，在生成式 AI 面前被改了两次。改的地方，就是我们对未来的判断。</div>
+    <div class="rail">
+      <span>01 体验的十年</span>
+      <span class="cur">02 产品矩阵变迁</span>
+      <span>03 接入架构拆解</span>
+      <span>04 为模型设计</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P12 RTE Standalone ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 2 · 起点</span><span>12</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow grey flow" style="--i:0">RTE Standalone · 2024 年之前</div>
+      <h2 class="ink" style="--i:1">十年沉淀，长成这样一张五层矩阵</h2>
+    </div>
+    <div class="body">
+      <div class="layer flow dn" style="--i:2"><span class="idx">05</span><span class="nm">方案层</span><span class="ds">社交娱乐 / 在线教育 / 智能硬件 / 数字化转型 / 直播电商 / 出海</span><span class="fr">Solution</span></div>
+      <div class="layer flow dn" style="--i:3"><span class="idx">04</span><span class="nm">工具层</span><span class="ds">灵动课堂 / 声动互娱 / 灵隼物联网云平台 / 会议 aPaaS / UIKit</span><span class="fr">Tools</span></div>
+      <div class="layer flow dn" style="--i:4"><span class="idx">03</span><span class="nm">扩展层</span><span class="ds">录制、转码等围绕核心能力的扩展模块</span><span class="fr">Extension</span></div>
+      <div class="layer flow dn" style="--i:5"><span class="idx">02</span><span class="nm">核心层</span><span class="ds">音频通话 / 视频通话 / 互动直播 / 极速直播 / 融合 CDN 直播 / RTM 云信令</span><span class="fr">Core</span></div>
+      <div class="layer flow dn" style="--i:6"><span class="idx">01</span><span class="nm">基建层</span><span class="ds">SD-RTN™ 软件定义实时网（公有云 / 私有云 / 混合云）</span><span class="fr">Infra</span></div>
+      <div class="note grey flow" style="--i:7">这张图能解释「RTE 是干什么的」，但它解释不了下一年涌进来的新需求。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P13 AI RTE v1 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 2 · 第一次改图</span><span>13</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">AI RTE Prototype Draft v1.0</div>
+      <h2 class="ink" style="--i:1">GPT 发布之后，四层同时长出新东西</h2>
+    </div>
+    <div class="body">
+      <div class="g4">
+        <div class="card rise" style="--i:2"><div class="tag">Infrastructure</div><div class="t">基建层</div><div class="d">开始出现 Storage / Dataset、GPU 与 CPU 资源</div></div>
+        <div class="card rise" style="--i:3"><div class="tag">Core</div><div class="t">核心层</div><div class="d">出现只有生成式 AI 才会有的模块：Function Call、RAG、Reviser</div></div>
+        <div class="card rise" style="--i:4"><div class="tag">Tools</div><div class="t">工具层</div><div class="d">涌现出一批 Agent 编排工具，如 Graph Designer</div></div>
+        <div class="card on rise" style="--i:5"><div class="tag am">Solutions</div><div class="t">方案层</div><div class="d">不再拘泥于语聊、直播：AI 会议纪要、口语老师、AI Bot</div></div>
+      </div>
+      <div class="land flow" style="--i:6">新增需求已经从 RTE 变成 AI RTE。<span class="s">问题不是「AI 能不能增强 QoE」，而是「AI 要不要重新定义这张图」。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P14 AI RTE v8 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 2 · 今天的形态</span><span>14</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">AI RTE Prototype v8.0</div>
+      <h2 class="ink" style="--i:1">三个新产品，撑起「为模型设计」这件事</h2>
+    </div>
+    <div class="body">
+      <div class="g3">
+        <div class="card on rise" style="--i:2"><div class="n">01</div><div class="t">AI Streaming Service</div><div class="d">面向大模型厂商的协议与格式转换服务，把 RTE 的流送进 WebSocket 世界</div></div>
+        <div class="card on rise" style="--i:3"><div class="n">02</div><div class="t">Linux Server SDK for AI</div><div class="d">为服务端而生的低阶 SDK，让客户集群直接推拉流，天然带 RTE 的 QoE 保证</div></div>
+        <div class="card on rise" style="--i:4"><div class="n">03</div><div class="t">AI-AED</div><div class="d">AI 声学事件检测。本场最后一部分，它会变成第一个为模型设计的核心算法</div></div>
+      </div>
+      <div class="note flow" style="--i:5">分层上，AI RTE 已经具备 AI 时代所需要的<b>基建 / 核心产品 / 核心服务 / 对外 API</b>，底座换成 Serverless GPU Infra for AI。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P15 金句 2 ===== -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
+    <div class="q"><i class="rise" style="--i:1">AI 不再只是 QoE 的增强器，</i><i class="rise" style="--i:2">它开始重新定义整张产品矩阵。</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:4">从「把 AI 用在前后处理算法里」，到「AI 成为实时互动产品矩阵的核心构成」——这是两件不同量级的事。</div>
+  </div>
+</section>
+
+<!-- ===== P16 ACT 3 ===== -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART 3</div>
+    <div class="en settle" style="--i:1">ACCESS</div>
+    <div class="cn spread" style="--i:3">AI RTE 接入架构拆解</div>
+    <div class="d flow" style="--i:4">最佳实践只有两类：客户自有大模型走架构 A，大模型厂商的 To B 平台走架构 B。</div>
+    <div class="rail">
+      <span>01 体验的十年</span>
+      <span>02 产品矩阵变迁</span>
+      <span class="cur">03 接入架构拆解</span>
+      <span>04 为模型设计</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P17 架构 A ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 3 · 接入架构 A</span><span>17</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">面向自有大模型的 To C 应用开发企业</div>
+      <h2 class="ink" style="--i:1">端侧 SDK + Linux Server SDK for AI</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="300" viewBox="0 0 1620 300">
+          <rect class="box" x="30" y="80" width="300" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:0" x="180" y="140" text-anchor="middle">终端 App</text>
+          <text class="sm pop" style="--i:0" x="180" y="176" text-anchor="middle">iOS / Android / Flutter</text>
+          <text class="lbl pop" style="--i:0" x="180" y="252" text-anchor="middle">CLIENT SDK</text>
+          <path class="dw" style="--len:130;--i:1" d="M340 150 H460" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <rect class="box" x="470" y="80" width="280" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:2" x="610" y="140" text-anchor="middle">SD-RTN™</text>
+          <text class="sm pop" style="--i:2" x="610" y="176" text-anchor="middle">音视频流与信令</text>
+          <text class="lbl pop" style="--i:2" x="610" y="252" text-anchor="middle">REAL-TIME NETWORK</text>
+          <path class="dw" style="--len:130;--i:3" d="M760 150 H880" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <rect x="890" y="80" width="360" height="140" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+          <text class="ttl pop" style="--i:4" x="1070" y="140" text-anchor="middle">客户业务集群</text>
+          <text class="sm pop" style="--i:4" x="1070" y="176" text-anchor="middle">Linux Server SDK for AI</text>
+          <text class="lbl pop" style="--i:4" x="1070" y="252" text-anchor="middle">PULL &amp; PUSH</text>
+          <path class="dw" style="--len:130;--i:5" d="M1260 150 H1370" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <rect class="box" x="1380" y="80" width="210" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:6" x="1485" y="140" text-anchor="middle">自有大模型</text>
+          <text class="sm pop" style="--i:6" x="1485" y="176" text-anchor="middle">LLM Cluster</text>
+          <text class="lbl pop" style="--i:6" x="1485" y="252" text-anchor="middle">CUSTOMER OWNED</text>
+          <text class="lbl pop" style="--i:7" x="30" y="34" text-anchor="start">接入架构 A · 通过 PULL-PUSH 机制连接模型与用户</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:3">Linux SDK 从多年前就坚持是<b>为服务端而生</b>的：保持 Low Level API 面向开发者，可以灵活部署成内部 Service。<b class="am">所以产品名一直叫 Linux Server SDK，而不是 Linux Client SDK。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P18 三层 API ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 3 · SDK 分层</span><span>18</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Linux Server SDK for AI · Cores</div>
+      <h2 class="ink" style="--i:1">把 RTE 的能力，拆成模型开发者会用的三层</h2>
+    </div>
+    <div class="body">
+      <div class="steps">
+        <div class="s flow" style="--i:2"><span class="i">LAYER 3</span><span class="t">Scenario API</span><span class="d">针对 AI RTE 场景做特化：AI Scenario API (Python / Go / Rust)，让后端开发者更快接进自己的服务</span></div>
+        <div class="s flow" style="--i:3"><span class="i">LAYER 2</span><span class="t">Language Binding API</span><span class="d">适配模型开发、生产、运营环节最广泛使用的语言：Python、Go、Rust、Java</span></div>
+        <div class="s flow" style="--i:4"><span class="i">LAYER 1</span><span class="t">Low-Level API</span><span class="d">C / C++ API 与算法接口层，保持简洁、功能明确，面向底层开发者</span></div>
+      </div>
+      <div class="land flow" style="--i:5">分层的本质，是把 RTE 的功能和算法翻译成模型世界的语言。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P19 架构 B ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 3 · 接入架构 B</span><span>19</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">面向大模型厂商的 To B 平台</div>
+      <h2 class="ink" style="--i:1">AI Streaming Service：做 RTC 与 WebSocket 的翻译</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="300" viewBox="0 0 1620 300">
+          <rect class="box" x="30" y="80" width="280" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:0" x="170" y="140" text-anchor="middle">终端 App</text>
+          <text class="sm pop" style="--i:0" x="170" y="176" text-anchor="middle">音频 / 视频 / 信令</text>
+          <path class="dw" style="--len:120;--i:1" d="M320 150 H430" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <rect class="box" x="440" y="80" width="260" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:2" x="570" y="140" text-anchor="middle">SD-RTN™</text>
+          <text class="sm pop" style="--i:2" x="570" y="176" text-anchor="middle">AUT 传输</text>
+          <path class="dw" style="--len:120;--i:3" d="M710 150 H820" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <rect x="830" y="60" width="400" height="180" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+          <text class="ttl pop" style="--i:4" x="1030" y="120" text-anchor="middle">AI Streaming Service</text>
+          <text class="txt pop" style="--i:4" x="1030" y="158" text-anchor="middle">Message Converter</text>
+          <text class="txt pop" style="--i:4" x="1030" y="192" text-anchor="middle">WebSocket Service</text>
+          <text class="lbl pop" style="--i:5" x="1030" y="272" text-anchor="middle">全球就近部署 · 高可用</text>
+          <path class="dw" style="--len:130;--i:6" d="M1240 150 H1360" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <text class="sm pop" style="--i:6" x="1300" y="128" text-anchor="middle">WebSocket</text>
+          <rect class="box" x="1370" y="80" width="220" height="140" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:7" x="1480" y="140" text-anchor="middle">大模型平台</text>
+          <text class="sm pop" style="--i:7" x="1480" y="176" text-anchor="middle">LLMs Cluster</text>
+          <text class="lbl pop" style="--i:8" x="30" y="34" text-anchor="start">接入架构 B · 内容不变，只换协议</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:3">开发者不再需要在服务端集成 Linux Server SDK。<b>本质是内容不变、协议转换</b>——因为大部分大模型公司用的是 WebSocket，而实时对话的采集播放全链路，RTC 方案最优。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P20 金句 3 ===== -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
+    <div class="q"><i class="rise" style="--i:1">这其实是过渡期的方案，</i><i class="rise" style="--i:2">因为标准还没有被定义。</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:4">针对人与模型实时互动的场景，会迈向新的协议、新的接口、新的标准。声网希望和行业一起定义它。</div>
+  </div>
+</section>
+
+<!-- ===== P21 ACT 4 ===== -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART 4</div>
+    <div class="en settle" style="--i:1">INTENTION</div>
+    <div class="cn spread" style="--i:3">体验的十年 2024 –</div>
+    <div class="d flow" style="--i:4">如果今天我只讲一件事，可能就是这件事：声网为模型设计的第一个产品，是什么。</div>
+    <div class="rail">
+      <span>01 体验的十年</span>
+      <span>02 产品矩阵变迁</span>
+      <span>03 接入架构拆解</span>
+      <span class="cur">04 为模型设计</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P22 级联架构 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · Conversational AI Agent</span><span>22</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">先讲「快」</div>
+      <h2 class="ink" style="--i:1">级联大模型时代：ASR + LLM + TTS 编排出对话</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="290" viewBox="0 0 1620 290">
+          <rect class="box" x="25" y="70" width="220" height="110" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:0" x="135" y="118" text-anchor="middle">端侧采集</text>
+          <text class="sm pop" style="--i:0" x="135" y="150" text-anchor="middle">前处理 · 编码</text>
+          <rect class="box" x="295" y="70" width="220" height="110" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:1" x="405" y="118" text-anchor="middle">SD-RTN™</text>
+          <text class="sm pop" style="--i:1" x="405" y="150" text-anchor="middle">智能路由 · 抗弱网</text>
+          <rect x="565" y="70" width="220" height="110" rx="4" fill="none" stroke="var(--amber)" stroke-width="2"/>
+          <text class="ttl pop" style="--i:2" x="675" y="118" text-anchor="middle">ASR</text>
+          <text class="sm pop" style="--i:2" x="675" y="150" text-anchor="middle">语音转文本</text>
+          <rect x="835" y="70" width="220" height="110" rx="4" fill="none" stroke="var(--amber)" stroke-width="2"/>
+          <text class="ttl pop" style="--i:3" x="945" y="118" text-anchor="middle">LLM</text>
+          <text class="sm pop" style="--i:3" x="945" y="150" text-anchor="middle">内容生成</text>
+          <rect x="1105" y="70" width="220" height="110" rx="4" fill="none" stroke="var(--amber)" stroke-width="2"/>
+          <text class="ttl pop" style="--i:4" x="1215" y="118" text-anchor="middle">TTS</text>
+          <text class="sm pop" style="--i:4" x="1215" y="150" text-anchor="middle">文本转语音</text>
+          <rect class="box" x="1375" y="70" width="220" height="110" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:5" x="1485" y="118" text-anchor="middle">端侧播放</text>
+          <text class="sm pop" style="--i:5" x="1485" y="150" text-anchor="middle">解码 · 渲染</text>
+          <path class="dw" style="--len:1560;--i:6" d="M25 40 H1595" stroke="var(--hair)" stroke-width="1" fill="none"/>
+          <path class="dw" style="--len:1560;--i:7" d="M25 230 H1595" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
+          <text class="lbl pop" style="--i:8" x="405" y="266" text-anchor="middle">RTC 链路 115.25ms</text>
+          <text class="lbl pop" style="--i:8" x="945" y="266" text-anchor="middle">级联模型约 440ms</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:3">这样的产品，核心体验是<b>又快又好</b>。目前大部分场景下延迟已经压缩到<b class="am">平均 700ms、最低近 500ms</b>。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P23 延迟拆解 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · E2E 延迟</span><span>23</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">iOS 极限方案 · 全链路分段拆解</div>
+      <h2 class="ink" style="--i:1">RTE 只占 115.25ms，剩下的都在模型里</h2>
+    </div>
+    <div class="body">
+      <div class="g3">
+        <div class="stat flow" style="--i:2"><span class="v w">555.25</span><span class="u">MS · iOS 最低 E2E</span><span class="l">从录音输入到扬声器输出的完整链路</span></div>
+        <div class="stat flow" style="--i:3"><span class="v">115.25</span><span class="u">MS · RTC 全链路</span><span class="l">含采集、3A、编解码、传输、Jitter Buffer、播放</span></div>
+        <div class="stat flow" style="--i:4"><span class="v co">440</span><span class="u">MS · 级联模型环节</span><span class="l">STT 180~250ms + 句子聚合 150ms + TTS 40~110ms</span></div>
+      </div>
+      <div class="note flow" style="--i:5">网络传输本身只有 <b>10ms</b>（全球 70ms），Opus 编码 6.25ms、解码 1ms，Jitter Buffer 20ms。<b class="am">声网还在继续压这个数字，让均值稳定到 500ms 的水平。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P24 打断两难 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · 再讲「好」</span><span>24</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">加上 VAD 之后，新问题来了</div>
+      <h2 class="ink" style="--i:1">人能打断模型之后，模型开始疯狂打断人</h2>
+    </div>
+    <div class="body">
+      <div class="duo">
+        <div class="flow" style="--i:2"><span class="h">没有 VAD</span><span class="b">模型说完你才能说</span><span class="s">业内很多对话式智能助手不能自然打断，只能一问一答，轮流讲话。</span></div>
+        <div class="flow rev" style="--i:3"><span class="h">加了 VAD</span><span class="b">人可以随时打断模型</span><span class="s">但模型不知道人什么时候把话讲完——在超低延迟的自由对话里，它会疯狂打断人类。</span></div>
+      </div>
+      <div class="card warn flow" style="--i:4">
+        <div class="tag">问题的本质</div>
+        <div class="d" style="font-size:23px">人人对话时，为了把一件事讲清楚，通常会有铺垫。<b>只有 VAD 是完全不够的</b>——模型需要从「听得懂内容」进一步变成「在倾听这个人」，才谈得上交流和共鸣。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P25 金句 4 ===== -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
+    <div class="q"><i class="rise" style="--i:1">自然打断，</i><i class="rise" style="--i:2">自如对话。</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:4">我说「有事等我一下」，它安静下来；我「嘘」一声，它立刻停；我说 OK，它立刻接上。这是人模对话中最重要的那条 QoE。</div>
+  </div>
+</section>
+
+<!-- ===== P26 AI-AED 来历 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · AI-AED</span><span>26</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">回到 2022 Q4 的那张规划</div>
+      <h2 class="ink" style="--i:1">「如果只做一件事，做哪件？」——声学事件检测</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow dn" style="--i:2"><span class="n">01</span><span class="k">当时的判断</span><span class="v">降噪已经是既定的三年战略路线；声学事件检测是产品角度的第一优先级，要在 2023 年交付</span></div>
+        <div class="r flow dn" style="--i:3"><span class="n">02</span><span class="k">当时的思路</span><span class="v">视频算法已经有动捕、面捕，开始转向内容检测；而音频还没有类似的算法</span></div>
+        <div class="r flow dn" style="--i:4"><span class="n">03</span><span class="k">当时的定位</span><span class="v">AI-VAD + AI-MD 作为 AI-NS、AI-AEC 的增强器，从 Input 开始为降噪做筛选和分类</span></div>
+        <div class="r flow dn" style="--i:5"><span class="n">04</span><span class="k">端侧链路</span><span class="v">ADC 输入 → AED 事件识别与分类 → 3A 降噪回声消除增益 → 虚拟声卡（AI 调音器）→ 网络与上报 → App</span></div>
+      </div>
+      <div class="land flow" style="--i:6">诞生之初，AI-AED 只是一个「让声音听得清」的端侧功能。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P27 HIP ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · HIP</span><span>27</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">把 AI-AED 搬到服务端之后</div>
+      <h2 class="ink" style="--i:1">HIP：第一个为模型设计的核心算法</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="330" viewBox="0 0 1620 330">
+          <rect class="box" x="30" y="60" width="330" height="170" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:0" x="195" y="116" text-anchor="middle">AI-AED</text>
+          <text class="txt pop" style="--i:0" x="195" y="152" text-anchor="middle">声学事件检测</text>
+          <text class="sm pop" style="--i:0" x="195" y="186" text-anchor="middle">AI-VAD · AI-MD · AI-ANS</text>
+          <text class="lbl pop" style="--i:0" x="195" y="268" text-anchor="middle">DETECTION</text>
+          <text class="big pop" style="--i:1;fill:var(--hair-strong)" x="420" y="162" text-anchor="middle">+</text>
+          <rect class="box" x="480" y="60" width="330" height="170" rx="4" stroke-width="1.5"/>
+          <text class="ttl pop" style="--i:2" x="645" y="116" text-anchor="middle">MSU</text>
+          <text class="txt pop" style="--i:2" x="645" y="152" text-anchor="middle">多模态语音理解</text>
+          <text class="sm pop" style="--i:2" x="645" y="186" text-anchor="middle">Multi-Modal Speech Understanding</text>
+          <text class="lbl pop" style="--i:2" x="645" y="268" text-anchor="middle">UNDERSTANDING</text>
+          <path class="dw" style="--len:120;--i:3" d="M820 145 H930" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+          <rect x="940" y="40" width="380" height="210" rx="6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+          <text class="big pop" style="--i:4" x="1130" y="120" text-anchor="middle">HIP</text>
+          <text class="txt pop" style="--i:4" x="1130" y="162" text-anchor="middle">Human Intention Prediction</text>
+          <text class="sm pop" style="--i:4" x="1130" y="200" text-anchor="middle">对人类实时意图的预测</text>
+          <text class="lbl pop" style="--i:4" x="1130" y="288" text-anchor="middle">PREDICTION</text>
+          <path class="dw" style="--len:130;--i:5" d="M1330 145 H1450" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+          <text class="ttl pop" style="--i:6" x="1530" y="126" text-anchor="middle">模型</text>
+          <text class="sm pop" style="--i:6" x="1530" y="160" text-anchor="middle">何时该听</text>
+          <text class="sm pop" style="--i:6" x="1530" y="188" text-anchor="middle">何时该说</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:3">通过 AED 的 Detection，加上 MSU 的 Understanding，最终变成 HIP 的 Prediction。<b class="am">模型可以根据这份预测，自己决定什么时候保持倾听、什么时候开口。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P28 四阶段 ===== -->
+<section class="slide">
+  <div class="chrome"><span>PART 4 · 切题</span><span>28</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">技术变革 × 体验革新</div>
+      <h2 class="ink" style="--i:1">听得到 → 听得清 → 听得懂 → 听「得心」</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="400" viewBox="0 0 1620 400">
+          <path class="dw" style="--len:1540;--i:1" d="M40 200 H1580" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
+          <g data-step="1">
+            <circle class="pop" style="--i:0" cx="200" cy="200" r="9" fill="var(--hair-strong)"/>
+            <text class="ttl pop" style="--i:0" x="200" y="150" text-anchor="middle">听得到</text>
+            <text class="sm pop" style="--i:0" x="200" y="118" text-anchor="middle">Hearing</text>
+            <text class="txt pop" style="--i:0" x="200" y="250" text-anchor="middle">QoS</text>
+            <text class="sm pop" style="--i:0" x="200" y="284" text-anchor="middle">VAD</text>
+          </g>
+          <g data-step="2">
+            <circle class="pop" style="--i:0" cx="620" cy="200" r="9" fill="var(--hair-strong)"/>
+            <text class="ttl pop" style="--i:0" x="620" y="150" text-anchor="middle">听得清</text>
+            <text class="sm pop" style="--i:0" x="620" y="118" text-anchor="middle">Hearing Clearly</text>
+            <text class="txt pop" style="--i:0" x="620" y="250" text-anchor="middle">QoE</text>
+            <text class="sm pop" style="--i:0" x="620" y="284" text-anchor="middle">AI-VAD</text>
+          </g>
+          <g data-step="3">
+            <circle class="pop" style="--i:0" cx="1040" cy="200" r="9" fill="var(--amber)"/>
+            <text class="ttl pop" style="--i:0" x="1040" y="150" text-anchor="middle">听得懂</text>
+            <text class="sm pop" style="--i:0" x="1040" y="118" text-anchor="middle">Fully Understanding</text>
+            <text class="txt pop" style="--i:0" x="1040" y="250" text-anchor="middle">QoE + ASR</text>
+            <text class="sm pop" style="--i:0" x="1040" y="284" text-anchor="middle">AI-AED</text>
+          </g>
+          <g data-step="4">
+            <circle class="pop" style="--i:0" cx="1460" cy="200" r="14" fill="var(--amber)"/>
+            <text class="big pop" style="--i:0" x="1460" y="146" text-anchor="middle">听得心</text>
+            <text class="sm pop" style="--i:0" x="1460" y="110" text-anchor="middle">Understanding Thoroughly</text>
+            <text class="txt pop" style="--i:0" x="1460" y="250" text-anchor="middle">QoE + HIP + LLM</text>
+            <text class="sm pop" style="--i:0" x="1460" y="284" text-anchor="middle">HIP · 今天发布</text>
+          </g>
+          <text class="lbl pop" style="--i:5" x="40" y="106" text-anchor="start">体验革新</text>
+          <text class="lbl pop" style="--i:5" x="40" y="290" text-anchor="start">技术变革</text>
+          <text class="txt pop" style="--i:6" x="40" y="370" text-anchor="start">人人对话从听得到走到听得清；人模对话直接从听得懂起步——模型 Day 1 就具备了听得到和听得清</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P29 金句 5 ===== -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
+    <div class="q"><i class="rise" style="--i:1">有些话，讲给朋友和讲给大模型，</i><i class="rise" style="--i:2">一定是不一样的。</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:4">因为你已经预设了对面不是人，而是工具，就无法发自肺腑地铺垫和陈述。模型要从理解内容，变成理解心理与情绪，最终理解人类意图。</div>
+  </div>
+</section>
+
+<!-- ===== P30 带走页 ===== -->
+<section class="slide">
+  <div class="chrome"><span>带走 · TAKEAWAYS</span><span>30</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">今天能带走的三件事</div>
+      <h2 class="ink" style="--i:1">如果只记三句</h2>
+    </div>
+    <div class="body">
+      <div class="g3">
+        <div class="card rise" style="--i:2"><div class="n">01</div><div class="t">先问「为谁设计」</div><div class="d">QoS 为硬件和网络，QoE 为人，AI QoE 为人和模型。判断一个 AI 实时产品好不好，先问它把谁当用户。</div></div>
+        <div class="card rise" style="--i:3"><div class="n">02</div><div class="t">延迟的账要拆开算</div><div class="d">iOS 最低 555.25ms 里，RTC 只占 115.25ms。优化对象在哪一段，决定了你该找谁。</div></div>
+        <div class="card on rise" style="--i:4"><div class="n">03</div><div class="t">VAD 远远不够</div><div class="d">自然打断只是起点。让模型知道人什么时候讲完，需要 AED 的检测 + MSU 的理解 = HIP 的预测。</div></div>
+      </div>
+      <div class="land flow" style="--i:5">在生成式 AI 的推动下，实时互动体验正迈向一个全新的高度。<span class="s">我们不只在提升技术性能，更是在重塑人与技术的沟通方式。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== P31 末页 ===== -->
+<section class="slide">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">RTE 2024 · AI 专场 · 演讲结束</div>
+    <h1 class="ink" style="--i:1">携手，见证无限可能</h1>
+    <div class="subtitle spread" style="--i:3">生成式 AI 驱动的实时互动</div>
+    <div class="meta rise" style="--i:4">
+      <div><span class="k">Venue</span><span class="v">RTE 2024 · 声网年度大会 AI 专场</span></div>
+      <div><span class="k">Date</span><span class="v">2024.10.25</span></div>
+      <div><span class="k">Archive</span><span class="v">演讲档案 01 · 原稿 33 页</span></div>
+      <div><span class="k">Note</span><span class="v">本 deck 已剔除视频页与空页，按主线重排</span></div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<script>
+/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+
+</script>
+
+<style>
+.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
+  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
+  background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
+</style>
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  var b=document.getElementById('deckSwap');
+  function apply(t){
+    if(t==='light'){document.documentElement.removeAttribute('data-theme');b.textContent='暗底';}
+    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}
+  }
+  var cur='dark';
+  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){
+    cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}
+    apply(cur);
+  });
+})();
+</script>
+</body></html>

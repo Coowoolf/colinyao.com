@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head>
-<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<html lang="zh-CN" data-theme="dark"><head>
+<meta name="robots" content="noindex, nofollow"><script>try{if(localStorage.getItem('colin-theme')==='light')document.documentElement.removeAttribute('data-theme')}catch(e){}</script><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>一通客服结束 72 小时后，AI 才决定这笔钱能不能收 · 姚光华 Colin</title>
+<title>Production-Ready 对话式 AI 产品全栈发布 · ConvoAI &amp; RTE 2025 · 姚光华 Colin</title>
 <style>
 @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
 @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
@@ -11,45 +11,10 @@
 </style>
 <style>
 /* ===========================================
-   THEME · colin-deck-dark
-   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   THEME · colin-deck-light
+   浅灰白 #eff0f3 + 近黑 #0d0d0d + 暖橙 #ff8e3c
    =========================================== */
 :root{
-  --stage-bg:#07070b;
-  --slide-bg:#0f0e17;
-  --card-bg:#16151f;
-  --card-bg-2:#1c1b26;
-  --cardw-bg:#fffffe;
-  --cardw-ink:#0f0e17;
-  --cardw-ink2:#3d3d4e;
-  --cardw-tag:#8a8aa0;
-  --cardw-am:#c2410c;
-  --cardw-co:#d1392a;
-  --file-bg:#0a0910;
-
-  --hair:rgba(255,255,254,.10);
-  --hair-soft:rgba(255,255,254,.055);
-  --hair-strong:rgba(255,255,254,.20);
-
-  --ink:#fffffe;
-  --ink-2:#a7a9be;
-  --ink-3:#6f7186;
-
-  --amber:#ff8906;
-  --coral:#f25f4c;
-  --magenta:#e53170;
-  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
-  --mq-2:#ff8906;
-
-  --flow-line:rgba(255,137,6,.30);
-  --flow-line-2:rgba(255,255,254,.16);
-  --flow-op:.42;
-
-  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
-  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
-}
-/* LIGHT · token 严格取自 colin-deck-light reference/theme.css */
-html[data-theme="light"]{
   --stage-bg:#e2e3e8;
   --slide-bg:#eff0f3;
   --card-bg:rgba(255,255,254,.72);
@@ -61,22 +26,57 @@ html[data-theme="light"]{
   --cardw-am:#c2410c;
   --cardw-co:#b8215a;
   --file-bg:#fffffe;
+
   --hair:rgba(13,13,13,.16);
   --hair-soft:rgba(13,13,13,.075);
   --hair-strong:rgba(13,13,13,.30);
+
   --ink:#0d0d0d;
   --ink-2:#2a2a2a;
   --ink-3:#7a7a83;
+
   --amber:#ff8e3c;
   --coral:#d9376e;
   --magenta:#d9376e;
-  --mq:#ff8e3c;
+  --mq:#ff8e3c;              /* 金句主色（浅底用暖橙，按 skill 规范） */
   --mq-2:#d9376e;
+
   --flow-line:rgba(255,142,60,.42);
   --flow-line-2:rgba(13,13,13,.13);
   --flow-op:.40;
+
   --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
   --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+/* DARK · token 严格取自 colin-deck-dark reference/theme.css */
+html[data-theme="dark"]{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;
+  --mq-2:#ff8906;
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
 }
 
 
@@ -562,129 +562,162 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
 </svg>
 <section class="slide">
   <div class="cover">
-    <div class="kicker flow" style="--i:0">公众号文章系列 · 23</div>
-    <h1 class="ink" style="--i:1">一通客服结束 72 小时后<br>AI 才决定这笔钱能不能收</h1>
-    <div class="subtitle spread" style="--i:3">评测系统，正在变成计费基础设施</div>
-    <div class="meta flow" style="--i:4">
-      <div><span class="k">Speaker</span><span class="v">姚光华 Colin</span></div>
-      <div><span class="k">Role</span><span class="v">声网 ConvoAI 产品负责人</span></div>
-      <div><span class="k">Sources</span><span class="v">Cheeky Pint #27 / #11 · Zendesk 官方文档与公告</span></div>
-      <div><span class="k">Date</span><span class="v">2026.07</span></div>
+    <div class="kicker flow" style="--i:0">ConvoAI &amp; RTE 2025 · 2025.10.31</div>
+    <h1 class="ink" style="--i:1">Production-Ready</h1>
+    <div class="subtitle spread" style="--i:3">对话式 AI 产品全栈发布</div>
+    <div class="meta">
+      <div class="rise" style="--i:4"><span class="k">场合</span><span class="v">RTE &amp; 对话式 AI 产品专场</span></div>
+      <div class="rise" style="--i:5"><span class="k">日期</span><span class="v">2025.10.31</span></div>
+      <div class="rise" style="--i:6"><span class="k">讲者</span><span class="v">姚光华 Colin</span></div>
+      <div class="rise" style="--i:7"><span class="k">形式</span><span class="v">产品发布主题演讲</span></div>
     </div>
   </div>
 </section>
 
 <section class="slide">
-  <div class="leap">
-    <div class="badge settle" style="--i:0">00</div>
-    <div class="q ink" style="--i:1"><i>一通客服结束了。</i><i>按过去的口径，</i><i>这已经<span class="hl">算一次自动解决</span>。</i></div>
-    <div class="sub2 flow" style="--i:5">Agent 没有转人工，客户也没再追问。<br>Zendesk 现在还不认。</div>
-    <div class="rule"></div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="mega">
-    <div class="num settle" style="--i:0">72 小时</div>
-    <div class="cap flow" style="--i:2">它会再等 72 小时，然后让一个 LLM 读完整段对话，确认客户的问题是否被满意地解决。</div>
-    <div class="foot flow" style="--i:3">通过，才进入 <b class="am">Verified Resolution</b>；没有通过，只能算 <b>Contained Resolution</b>。两者看起来只差一个名字，账单上的待遇却完全不同 ——
-      <b class="am">Zendesk 只对 Verified Resolution 收费。</b>
-      <span class="dim mono" style="font-size:18px">（Zendesk 于 2026 年 5 月调整 Automated Resolution 口径。）</span></div>
+  <div class="chrome"><span>全场主线 · THE ARC</span><span>02</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这场在讲什么</div>
+      <h2 class="ink" style="--i:1">一个词，和支撑它的三块产品。</h2>
+    </div>
+    <div class="body">
+      <div class="rows flow dn" style="--i:2">
+        <div class="r"><span class="n">01</span><span class="k">这个词</span><span class="v">Production-Ready ——「生产级可用」。它不是形容词，是一条可以被验收的线</span></div>
+        <div class="r"><span class="n">02</span><span class="k">缺口</span><span class="v">一个 Agent 要走完选型、原型、迭代、发布。我们过去只管住了头和尾</span></div>
+        <div class="r"><span class="n">03</span><span class="k">今天</span><span class="v">Engine 2.0、模型评测平台 3.0、Studio 1.0，同一天发布</span></div>
+      </div>
+      <div class="land flow" style="--i:3">从 RTE 到 Convo AI，<br>开启「人与万物」的互动跃迁之路。</div>
+    </div>
   </div>
 </section>
 
 <section class="slide">
   <div class="act">
-    <div class="num flow" style="--i:0">ACT I / IV</div>
-    <div class="en settle" style="--i:1">VERDICT</div>
-    <div class="cn spread" style="--i:3">一个 AI 判另一个 AI</div>
-    <div class="d flow" style="--i:4">一个 AI 完成工作，另一个 AI 决定这份工作能不能收钱。<br>走到这一步，eval 已经不是发布前的一张质量报表了。</div>
+    <div class="num flow" style="--i:0">ACT 01</div>
+    <div class="en settle" style="--i:1">READY</div>
+    <div class="cn spread" style="--i:3">生产级可用</div>
+    <div class="d flow" style="--i:4">先把这个词说清楚。Production-Ready 到底比 Demo 多了什么。</div>
     <div class="rail">
-      <span class="cur">I 一次判定</span><span>II 同一个单位</span><span>III 什么叫解决</span><span>IV 进入账单</span>
+      <span class="cur">01 生产级可用</span>
+      <span>02 一生缺一块</span>
+      <span>03 今天发布</span>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>什么叫 READY · THE BAR</span><span>04</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT I · 一次判定</span><span>05</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">Automated Resolution 的新口径</div>
-      <h2 class="ink" style="--i:1">不再把「没有转人工」一概算作成功</h2>
+      <div class="eyebrow flow" style="--i:0">Production-Ready 意味着什么</div>
+      <h2 class="ink" style="--i:1">三条线，一条不过就不算。</h2>
     </div>
     <div class="body">
-      <div class="rows">
-        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">协助升级</span><span class="v"><b>Assisted Escalation</b> —— Agent 做了一部分工作，最终由人工解决。<em>不收。</em></span></div>
-        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">仅是收敛</span><span class="v"><b>Contained Resolution</b> —— 客户没有继续追问，但评测没有确认问题已解决。<em>不收。</em></span></div>
-        <div class="r flow hot" data-step="3" style="--i:4"><span class="n">03</span><span class="k">已验证</span><span class="v"><b>Verified Resolution</b> —— 72 小时内没有追问，且 LLM 确认问题得到满意解决。<em>收。</em></span></div>
+      <div class="rows flow dn" style="--i:2">
+        <div class="r"><span class="n">01</span><span class="k">稳定可用</span><span class="v">已经在真实生产环境里跑通，不是在受控条件下演示一次就算数</span></div>
+        <div class="r"><span class="n">02</span><span class="k">规模可控</span><span class="v">并发上去、成本可算、出问题能定位，才谈得上规模化</span></div>
+        <div class="r hot"><span class="n">03</span><span class="k">客户可付钱</span><span class="v">最硬的一条，也是唯一不可让渡的一条：有人愿意为它签合同，而不是只愿意试用</span></div>
       </div>
-      <div class="note flow" data-step="4" style="--i:5">这张表最重要的不是三档，而是<b>中间那一档</b>。过去很多客服机器人把 containment 当成绩：客户没有转人工、没有继续发消息，指标就算漂亮。</div>
+      <div class="land flow" style="--i:3">Demo 只要成功一次，<br>生产要求的是每一次都成功。</div>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>里程碑 · MILESTONES</span><span>05</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT I · 一次判定</span><span>06</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">这条时序，决定账单上有没有这一笔</div>
-      <h2 class="ink" style="--i:1">通话结束 → 等 72 小时 → 判定 → 计费</h2>
+      <div class="eyebrow flow" style="--i:0">对话式 AI 里程碑</div>
+      <h2 class="ink" style="--i:1">从一篇论文到一个 GA 产品，十四个月。</h2>
     </div>
     <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 380" width="1620">
-          <line class="stroke dw" x1="0" y1="150" x2="1560" y2="150" stroke-width="1" data-step="1" style="--len:1560;--i:2"/>
-          <g class="pop" data-step="1" style="--i:3">
-            <circle class="fill-am" cx="80" cy="150" r="10"/>
-            <text class="lbl" x="80" y="112" text-anchor="middle">T0</text>
-            <text class="ttl" x="80" y="204" text-anchor="middle">通话结束</text>
-            <text class="sm" x="80" y="238" text-anchor="middle">没转人工</text></g>
-          <line class="stroke-am dw" x1="80" y1="150" x2="700" y2="150" stroke-width="3" data-step="2" style="--len:620;--i:4"/>
-          <text class="ttl pop" x="390" y="112" text-anchor="middle" data-step="2" style="--i:4;fill:var(--amber)">等待 72 小时</text>
-          <text class="sm pop" x="390" y="204" text-anchor="middle" data-step="2" style="--i:4">客户有没有再追问</text>
-          <g class="pop" data-step="3" style="--i:5">
-            <circle class="fill-am" cx="700" cy="150" r="10"/>
-            <text class="lbl" x="700" y="112" text-anchor="middle">T+72H</text>
-            <text class="ttl" x="700" y="204" text-anchor="middle">LLM 读完整段对话</text>
-            <text class="sm" x="700" y="238" text-anchor="middle">另一个 AI 判断，不是执行的那个</text></g>
-          <path class="stroke-am dw" d="M700 150 L1000 150 L1000 66 L1300 66" stroke-width="3" data-step="4" style="--len:700;--i:6"/>
-          <g class="pop" data-step="4" style="--i:6">
-            <rect class="box" x="1300" y="26" width="290" height="80" rx="4" stroke-width="2" style="stroke:var(--amber)"/>
-            <text class="ttl" x="1445" y="62" text-anchor="middle">Verified Resolution</text>
-            <text class="sm" x="1445" y="90" text-anchor="middle" style="fill:var(--amber)">收费</text></g>
-          <path class="stroke dw" d="M700 150 L1000 150 L1000 246 L1300 246" stroke-width="3" data-step="5" style="--len:700;--i:7"/>
-          <g class="pop" data-step="5" style="--i:7">
-            <rect class="box" x="1300" y="206" width="290" height="80" rx="4"/>
-            <text class="ttl" x="1445" y="242" text-anchor="middle">Contained Resolution</text>
-            <text class="sm" x="1445" y="270" text-anchor="middle">不收费</text></g>
-          <text class="sm pop" x="0" y="336" data-step="6" style="--i:8">同一通电话，唯一的差别是那一次判定 —— 一个 AI 完成工作，另一个 AI 决定这份工作能不能收钱。</text>
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="300" viewBox="0 0 1620 300">
+          <path class="dw" style="--len:1560;--i:0" d="M30 168 H1590" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:1">
+            <circle cx="150" cy="168" r="6" class="fill-ink"/>
+            <text class="lbl" x="150" y="122" text-anchor="middle">2024.01.25</text>
+            <text class="txt" x="150" y="212" text-anchor="middle">Agent AI 论文</text>
+            <text class="sm" x="150" y="244" text-anchor="middle">对话式 AI 首次被提及</text>
+          </g>
+          <g class="pop" style="--i:2">
+            <circle cx="580" cy="168" r="6" class="fill-ink"/>
+            <text class="lbl" x="580" y="122" text-anchor="middle">2024.05.13</text>
+            <text class="txt" x="580" y="212" text-anchor="middle">GPT-4o</text>
+            <text class="sm" x="580" y="244" text-anchor="middle">「听、说、看」多模态交互</text>
+          </g>
+          <g class="pop" style="--i:3">
+            <circle cx="1010" cy="168" r="6" class="fill-ink"/>
+            <text class="lbl" x="1010" y="122" text-anchor="middle">2024.10</text>
+            <text class="txt" x="1010" y="212" text-anchor="middle">Realtime API</text>
+            <text class="sm" x="1010" y="244" text-anchor="middle">全球首个 · 国内首个</text>
+          </g>
+          <g class="pop" style="--i:4">
+            <circle cx="1440" cy="168" r="9" class="fill-am"/>
+            <text class="lbl" x="1440" y="122" text-anchor="middle" fill="var(--amber)">2025.03.06</text>
+            <text class="ttl" x="1440" y="214" text-anchor="middle" fill="var(--amber)">引擎 1.0 GA</text>
+            <text class="sm" x="1440" y="246" text-anchor="middle">多、快、好、省</text>
+          </g>
         </svg>
       </div>
+      <div class="land flow" style="--i:5">GA 那天交付的是承诺。<br>今天要交付的，是承诺兑现之后的东西。</div>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>GA · THE PROMISE</span><span>06</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT I · 一次判定</span><span>07</span></div>
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">客户不再说话，有两种可能</div>
-      <h2 class="ink" style="--i:1">沉默不是一种答案</h2>
+      <div class="eyebrow flow" style="--i:0">2025.3.6 · 对话式 AI 引擎 GA</div>
+      <h2 class="ink" style="--i:1">多、快、好、省。</h2>
     </div>
     <div class="body">
-      <div class="duo gfill">
-        <div class="flow" style="--i:2">
-          <div class="h">可能一</div>
-          <div class="b">问题解决了</div>
-          <div class="s">这是所有 containment 指标默认的假设，也是过去客服行业常用的口径。</div>
-        </div>
-        <div class="flow rev" style="--i:3">
-          <div class="h">可能二</div>
-          <div class="b">他放弃了</div>
-          <div class="s">同样表现为不再追问、不再转人工。指标漂亮，问题还在。</div>
-        </div>
+      <div class="g4 rise" style="--i:2">
+        <div class="card sm"><div class="tag">多</div><div class="t">模型都能选</div><div class="d">语种多、音色多</div></div>
+        <div class="card sm on"><div class="tag am">快</div><div class="t">响应快 650ms</div><div class="d">打断快 340ms</div></div>
+        <div class="card sm"><div class="tag">好</div><div class="t">情商高、真拟人</div><div class="d">无惧噪声弱网</div></div>
+        <div class="card sm"><div class="tag">省</div><div class="t">开发省心</div><div class="d">一分钟不到一毛钱</div></div>
       </div>
-      <div class="note flow" style="--i:4">Zendesk 没有假装自己能直接读懂客户的沉默。它只是增加了一道判断：<b>等待 72 小时，再由评测模型检查对话内容。</b>这不是第三方审计 —— 裁判仍由 Zendesk 提供。</div>
+      <div class="land flow" style="--i:3">这四个字回答的是「好不好用」。<br>它还没有回答「敢不敢上线」。</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="chrome"><span>九次迭代 · THE GRIND</span><span>07</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">2025.3 — 2025.10 · 对话式 AI 引擎 v1.0 – v2.0</div>
+      <h2 class="ink" style="--i:1">九次迭代，换来四个字。</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="300" viewBox="0 0 1620 300">
+          <path class="dw" style="--len:1500;--i:0" d="M40 200 H1560" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:1">
+            <rect x="40" y="80" width="420" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="lbl" x="64" y="118">V1.0 · 2025.03</text>
+            <text class="ttl" x="64" y="156">能说会道</text>
+          </g>
+          <path class="dw" style="--len:80;--i:2" d="M470 130 H550" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:3">
+            <rect x="560" y="80" width="460" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="lbl" x="584" y="118">V1.7 · 2025.07</text>
+            <text class="ttl" x="584" y="156">有形象、能专注、会观察</text>
+          </g>
+          <path class="dw" style="--len:90;--i:4" d="M1030 130 H1110" stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <g class="pop" style="--i:5">
+            <rect x="1120" y="64" width="440" height="132" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl" x="1144" y="106" fill="var(--amber)">V2.0 · 2025.10</text>
+            <text class="ttl" x="1144" y="146" fill="var(--amber)">生产级可用</text>
+            <text class="txt" x="1144" y="180" fill="var(--amber)">Production-Ready</text>
+          </g>
+          <text class="lbl pop" style="--i:6" x="40" y="250">9 次产品迭代 · 7 个月</text>
+          <text class="txt pop" style="--i:6" x="40" y="286">从「能演示」到「敢上线」，中间隔的就是这九次。</text>
+        </svg>
+      </div>
     </div>
   </div>
 </section>
@@ -693,105 +726,99 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
   <div class="mq">
     <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
     <div class="q">
-      <i class="rise" style="--i:1">响应结束</i>
-      <i class="rise" style="--i:2">不等于问题解决</i>
-      <i class="rise" style="--i:3">自动化完成</i>
-      <i class="rise" style="--i:4">也不等于可以收费</i>
+      <i class="rise" style="--i:1">9 次产品迭代，</i>
+      <i class="rise" style="--i:3">换来四个字：</i>
+      <i class="rise" style="--i:4">生产级可用。</i>
     </div>
     <div class="rule"></div>
-    <div class="s rise" style="--i:6">它至少把这件事，写进了产品机制。</div>
+    <div class="s rise" style="--i:6">从能说会道，到有形象、能专注、会观察，再到 Production-Ready。</div>
   </div>
 </section>
 
 <section class="slide">
   <div class="act">
-    <div class="num flow" style="--i:0">ACT II / IV</div>
-    <div class="en settle" style="--i:1">CONVERGE</div>
-    <div class="cn spread" style="--i:3">三家公司，同一个计价单位</div>
-    <div class="d flow" style="--i:4">它们原本可以继续卖席位、卖套餐、卖调用量，<br>却都把 resolution 推到了价格表的中心。</div>
+    <div class="num flow" style="--i:0">ACT 02</div>
+    <div class="en settle" style="--i:1">LIFECYCLE</div>
+    <div class="cn spread" style="--i:3">Agent 的一生</div>
+    <div class="d flow" style="--i:4">选型、原型、迭代、发布。引擎只管得住最后一步，前面那几步一直是空的。</div>
     <div class="rail">
-      <span>I 一次判定</span><span class="cur">II 同一个单位</span><span>III 什么叫解决</span><span>IV 进入账单</span>
+      <span>01 生产级可用</span>
+      <span class="cur">02 一生缺一块</span>
+      <span>03 今天发布</span>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>生命周期 · THE GAP</span><span>10</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT II · 同一个单位</span><span>10</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">三段原话</div>
-      <h2 class="ink" style="--i:1">办成了才收钱，说法几乎一样</h2>
+      <div class="eyebrow coral flow" style="--i:0">对话式 AI Agent 产品生命周期</div>
+      <h2 class="ink" style="--i:1">头尾都有产品，中间那段一直是空的。</h2>
     </div>
     <div class="body">
-      <div class="quotes">
-        <div class="r flow dn" style="--i:2">
-          <span class="who">Bret · Sierra</span>
-          <span class="say">“If the AI agent <em>resolves the case</em>, no human intervention, there’s a pre-negotiated rate for that. If we do have to escalate to a person, <em>that’s free</em>.”</span>
-          <span class="src">Cheeky Pint #27</span></div>
-        <div class="r flow dn" style="--i:3">
-          <span class="who">Des · Intercom</span>
-          <span class="say">“<em>Every time we do work, we charge them.</em> When we don’t, we don’t.”</span>
-          <span class="src">Cheeky Pint #11 · Fin 定价</span></div>
-        <div class="r flow dn" style="--i:4">
-          <span class="who">Zendesk · 官方</span>
-          <span class="say">每一笔收费的 resolution，都要由完成任务的 Agent 之外，<em>一个专门的 AI evaluation model</em> 再确认一次</span>
-          <span class="src">Zendesk 官方公告 · 2026-05</span></div>
-      </div>
-      <div class="note grey flow" style="--i:5">Sierra：Agent 独立解决就按约定费率收费，一旦转人工这次免费。Intercom：每办成一件事收一次钱，没办成就不收。
-        <b>三段均为公司方口径，不是独立审计结论。</b></div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT II · 同一个单位</span><span>11</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">起点完全不同</div>
-      <h2 class="ink" style="--i:1">三条路，收敛到同一个词</h2>
-    </div>
-    <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 360" width="1620">
-          <g class="pop" data-step="1" style="--i:2">
-            <text class="lbl" x="0" y="42">SIERRA</text>
-            <text class="ttl" x="0" y="80">高价值大企业，带队进场交付</text></g>
-          <path class="stroke-am dw" d="M480 68 C 760 68, 820 160, 1060 176" stroke-width="2" data-step="1" style="--len:640;--i:3"/>
-          <g class="pop" data-step="2" style="--i:4">
-            <text class="lbl" x="0" y="152">INTERCOM</text>
-            <text class="ttl" x="0" y="190">标准化客服 SaaS</text></g>
-          <path class="stroke-am dw" d="M480 178 L1060 178" stroke-width="2" data-step="2" style="--len:580;--i:5"/>
-          <g class="pop" data-step="3" style="--i:6">
-            <text class="lbl" x="0" y="262">ZENDESK</text>
-            <text class="ttl" x="0" y="300">成熟的坐席与工单生意</text></g>
-          <path class="stroke-am dw" d="M480 288 C 760 288, 820 196, 1060 180" stroke-width="2" data-step="3" style="--len:640;--i:7"/>
-          <g class="pop" data-step="4" style="--i:8">
-            <rect class="box" x="1080" y="128" width="380" height="104" rx="4" stroke-width="2" style="stroke:var(--amber)"/>
-            <text class="ttl" x="1270" y="172" text-anchor="middle">RESOLUTION</text>
-            <text class="sm" x="1270" y="206" text-anchor="middle">被推到价格表中心的单位</text></g>
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="400" viewBox="0 0 1620 400">
+          <g class="pop" style="--i:1">
+            <rect x="20" y="60" width="340" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="ttl" x="190" y="122" text-anchor="middle">选型</text>
+          </g>
+          <path class="dw" style="--len:60;--i:2" d="M368 110 H412" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:2">
+            <rect x="420" y="60" width="340" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="ttl" x="590" y="122" text-anchor="middle">原型</text>
+          </g>
+          <path class="dw" style="--len:60;--i:3" d="M768 110 H812" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:3">
+            <rect x="820" y="60" width="340" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="ttl" x="990" y="122" text-anchor="middle">迭代</text>
+          </g>
+          <path class="dw" style="--len:60;--i:4" d="M1168 110 H1212" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:4">
+            <rect x="1220" y="60" width="340" height="100" rx="3" class="box" stroke-width="1"/>
+            <text class="ttl" x="1390" y="122" text-anchor="middle">发布</text>
+          </g>
+          <path class="dw" style="--len:1500;--i:5" d="M1390 172 C 1390 226, 190 226, 190 172" stroke="var(--hair-strong)" stroke-width="1.2" stroke-dasharray="5 8" fill="none"/>
+          <g data-step="1">
+            <rect class="pop box" style="--i:0" x="20" y="266" width="340" height="110" rx="3" stroke-width="1"/>
+            <text class="lbl pop" style="--i:0" x="44" y="304">怎么选</text>
+            <text class="txt pop" style="--i:1" x="44" y="342">对话式 AI 模型评测平台</text>
+            <rect class="pop box" style="--i:0" x="1220" y="266" width="340" height="110" rx="3" stroke-width="1"/>
+            <text class="lbl pop" style="--i:0" x="1244" y="304">随时 GO</text>
+            <text class="txt pop" style="--i:1" x="1244" y="342">对话式 AI 引擎</text>
+          </g>
+          <g data-step="2">
+            <rect class="pop" style="--i:0" x="420" y="266" width="740" height="110" rx="3" fill="none" stroke="var(--coral)" stroke-width="2" stroke-dasharray="8 8"/>
+            <text class="lbl pop" style="--i:1" x="444" y="304" fill="var(--coral)">如何解决</text>
+            <text class="txt pop" style="--i:2" x="444" y="342" fill="var(--coral)">测试、搭建、发布 —— 这一段一直靠客户自己拼</text>
+          </g>
         </svg>
       </div>
-      <div class="land" data-step="5" style="--i:9">这不是因为「按结果收费」听起来更先进。<b class="am">是因为 Agent 正在替代一部分劳动。</b></div>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>怎么选 · BENCHMARK V1 V2</span><span>11</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT II · 同一个单位</span><span>12</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">它们原本可以卖别的</div>
-      <h2 class="ink" style="--i:1">三种旧计价单位，都被绕开了</h2>
+      <div class="eyebrow flow" style="--i:0">对话式 AI 模型评测平台</div>
+      <h2 class="ink" style="--i:1">先解决怎么选：从只看快，到也看好。</h2>
     </div>
     <div class="body">
-      <div class="rows">
-        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">席位</span><span class="v">按人头卖使用权 —— 卖的是「你有几个坐席」</span></div>
-        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">套餐</span><span class="v">按功能分层打包 —— 卖的是「你买了哪一档软件」</span></div>
-        <div class="r flow" data-step="3" style="--i:4"><span class="n">03</span><span class="k">调用量</span><span class="v">按 token 或消息条数 —— 卖的是「你消耗了多少」</span></div>
-        <div class="r flow hot" data-step="4" style="--i:5"><span class="n">04</span><span class="k">解决</span><span class="v">按 resolution —— 卖的是「这件事到底有没有办完」</span></div>
+      <div class="duo flow" style="--i:2">
+        <div>
+          <div class="h">V1.0 · 2025.07.01</div>
+          <div class="b">最快</div>
+          <div class="s">专为对话式场景定制实时排行榜，综合最优、速度最快一目了然。指标：TTLW、TTFT、TTFB。</div>
+        </div>
+        <div>
+          <div class="h">V2.0</div>
+          <div class="b">最好</div>
+          <div class="s">指标：WER for ASR &amp; TTS、AP for TTS。快不是全部，质量决定用户体验。</div>
+        </div>
       </div>
-      <div class="note flow" data-step="5" style="--i:6">Sierra 服务高价值的大企业客户，带着团队进场交付；Intercom 是标准化客服 SaaS；Zendesk 则背着一套成熟的坐席与工单生意。
-        <b>三家并不相同，价格表的中心却相同。</b></div>
+      <div class="land flow" style="--i:3">榜单如果只排延迟，<br>会把整个行业带到沟里去。</div>
     </div>
   </div>
 </section>
@@ -799,180 +826,119 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
 <section class="slide">
   <div class="mq">
     <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
-    <div class="q am" style="font-size:56px">
-      <i class="rise" style="--i:1">客户开始问的不再是</i>
-      <i class="rise" style="--i:2">「我用了多少软件」</i>
-      <i class="rise" style="--i:3">而是「这件事到底有没有办完」</i>
+    <div class="q">
+      <i class="rise" style="--i:1">快不是全部，</i>
+      <i class="rise" style="--i:3">质量决定用户体验。</i>
     </div>
     <div class="rule"></div>
-    <div class="s rise" style="--i:5">计价单位跟着这个问题一起换了。</div>
+    <div class="s rise" style="--i:5">这是评测平台从 v1.0 走到 v2.0 的全部理由。</div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>怎么选 · BENCHMARK V3</span><span>13</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT II · 同一个单位</span><span>14</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">Bret 在访谈里举的极端例子</div>
-      <h2 class="ink" style="--i:1">Token 是成本，不是客户买到的东西</h2>
+      <div class="eyebrow flow" style="--i:0">2025.7.1 – 2025.10.31 · 全新升级</div>
+      <h2 class="ink" style="--i:1">v3.0：物美还要价廉，开销全透明。</h2>
     </div>
     <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 340" width="1620">
-          <text class="lbl pop" x="0" y="34" data-step="1" style="--i:2">假设一个 AGENT 替 STRIPE 拉来新客户</text>
-          <line class="stroke dw" x1="0" y1="70" x2="1560" y2="70" stroke-width="1" data-step="1" style="--len:1560;--i:2"/>
-          <g class="pop" data-step="2" style="--i:3">
-            <text class="ttl" x="0" y="132">方案 A</text>
-            <text class="big" x="320" y="144" text-anchor="middle">1%</text>
-            <text class="sm" x="320" y="180" text-anchor="middle">TOKEN 消耗</text>
-            <text class="big" x="740" y="144" text-anchor="middle" style="fill:var(--coral)">1/10</text>
-            <text class="sm" x="740" y="180" text-anchor="middle">新增交易额</text>
-            <text class="txt" x="940" y="144">客户会因为它更省 token 而选 A 吗？不会。</text></g>
-          <line class="stroke dw" x1="0" y1="216" x2="1560" y2="216" stroke-width="1" data-step="3" style="--len:1560;--i:4"/>
-          <g class="pop" data-step="3" style="--i:5">
-            <text class="ttl" x="0" y="278">两种账</text>
-            <text class="txt" x="320" y="278">Token 决定供应商的成本</text>
-            <text class="txt" x="860" y="278" style="fill:var(--amber)">结果决定客户得到的价值</text>
-            <text class="sm" x="0" y="326">按结果收费时，模型多绕的那几步由供应商承担；要多挣钱，只能提高解决率，或者把同一个结果做得更便宜。</text></g>
-        </svg>
+      <div class="card on flow" style="--i:2">
+        <div class="tag am">V3.0 · AGENT 成本计算器</div>
+        <div class="t">消费一目了然</div>
+        <div class="d">选型这件事，最后一定会问「这套跑一年多少钱」。v3.0 把这个问题也放进了榜单。</div>
+      </div>
+      <div class="g5 rise" style="--i:3">
+        <div class="card sm on"><div class="tag am">模型</div><div class="n">89</div><div class="d">个模型</div></div>
+        <div class="card sm on"><div class="tag am">厂商</div><div class="n">28</div><div class="d">个主流厂商</div></div>
+        <div class="card sm"><div class="tag">地区</div><div class="n">11</div><div class="d">个地区</div></div>
+        <div class="card sm"><div class="tag">语言</div><div class="n">10</div><div class="d">种语言</div></div>
+        <div class="card sm"><div class="tag">更新</div><div class="t">小时级</div><div class="d">数据更新</div></div>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT II · 同一个单位</span><span>15</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">Bret Taylor 的原话</div>
-      <h2 class="ink" style="--i:1">省 token 是你的问题，不是客户的</h2>
-    </div>
-    <div class="body">
-      <div class="quotes">
-        <div class="r flow dn" style="--i:2">
-          <span class="who">Bret · Sierra</span>
-          <span class="say">“Reducing your token utilization for the same outcomes is <em>your problem, not your customer’s</em>.”</span>
-          <span class="src">Cheeky Pint #27</span></div>
-      </div>
-      <div class="duo gfill">
-        <div class="flow" style="--i:3">
-          <div class="h">按 token 收费</div>
-          <div class="b">模型多绕几步，客户多付几分钱</div>
-          <div class="s">供应商的成本波动，直接转嫁到客户账单上。</div>
-        </div>
-        <div class="flow rev" style="--i:4">
-          <div class="h">按结果收费</div>
-          <div class="b">多绕的那几步由供应商承担</div>
-          <div class="s">要多挣钱，只能提高解决率，或者把同一个结果做得更便宜。</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="mega">
-    <div class="num settle" style="--i:0">$0.99</div>
-    <div class="cap flow" style="--i:2">Fin 最早按每次解决 0.99 美元收费。有客户嫌贵。</div>
-    <div class="foot flow" style="--i:3">Des 追问之后发现，<b>很多人并不知道自己一次人工解决到底花多少钱。</b>按结果收费也在逼客户补一门课 ——
-      先算清楚现在这件事值多少钱，再判断 AI 的报价贵不贵。</div>
   </div>
 </section>
 
 <section class="slide">
   <div class="mq">
     <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
-    <div class="q w" style="font-size:56px">
-      <i class="rise" style="--i:1">先算清楚现在这件事值多少钱</i>
-      <i class="rise" style="--i:2">再判断 AI 的报价贵不贵</i>
+    <div class="q">
+      <i class="rise" style="--i:1">物美还要价廉。</i>
     </div>
     <div class="rule"></div>
-    <div class="s rise" style="--i:4">按结果收费，也在逼客户补一门课。</div>
+    <div class="s rise" style="--i:3">最多、最快、最好、最省——四个维度齐了，选型才是一件可以被验收的事。</div>
   </div>
 </section>
 
 <section class="slide">
   <div class="act">
-    <div class="num flow" style="--i:0">ACT III / IV</div>
-    <div class="en settle" style="--i:1">DEFINE</div>
-    <div class="cn spread" style="--i:3">什么才叫「解决了」</div>
-    <div class="d flow" style="--i:4">价格表可以一下午改完，<br>「什么叫解决」可能半年都定不下来。</div>
+    <div class="num flow" style="--i:0">ACT 03</div>
+    <div class="en settle" style="--i:1">RELEASE</div>
+    <div class="cn spread" style="--i:3">今天发布什么</div>
+    <div class="d flow" style="--i:4">中间那一块，今天补上。三个版本号，同一天落地。</div>
     <div class="rail">
-      <span>I 一次判定</span><span>II 同一个单位</span><span class="cur">III 什么叫解决</span><span>IV 进入账单</span>
+      <span>01 生产级可用</span>
+      <span>02 一生缺一块</span>
+      <span class="cur">03 今天发布</span>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>如何解决 · STUDIO</span><span>16</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT III · 什么叫解决</span><span>19</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">客服为什么最早采用这种模式</div>
-      <h2 class="ink" style="--i:1">因为它有几个容易观察的信号</h2>
+      <div class="eyebrow flow" style="--i:0">2025.10.31 · 对话式 AI Studio</div>
+      <h2 class="ink" style="--i:1">把测试、搭建、发布收进一个地方。</h2>
     </div>
     <div class="body">
-      <div class="rows">
-        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">转人工</span><span class="v">这通对话有没有被交给人</span></div>
-        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">工单</span><span class="v">工单有没有被重新打开</span></div>
-        <div class="r flow" data-step="3" style="--i:4"><span class="n">03</span><span class="k">追问</span><span class="v">客户有没有在短期内继续追问</span></div>
+      <div class="g3 rise" style="--i:2">
+        <div class="card on"><div class="tag am">上手</div><div class="t">2 行代码，15 分钟</div><div class="d">从 Console 到任意模型对你开口</div></div>
+        <div class="card on"><div class="tag am">搭建</div><div class="t">可视化编排</div><div class="d">把 ASR / LLM / TTS 的编排从代码里搬到画布上</div></div>
+        <div class="card on"><div class="tag am">发布</div><div class="t">生产级 Agent 模板</div><div class="d">提供多个场景的生产级 Agent 模板，一键发布</div></div>
       </div>
-      <div class="note co flow" data-step="4" style="--i:5">但这些都只是<b>代理指标</b>。Zendesk 的 72 小时窗口和 LLM 评测，比「没有追问就算解决」多走了一步，
-        仍然不是事实本身 —— 它只是一个更审慎的判断器。</div>
+      <div class="land flow" style="--i:3">「生产级模板」这四个字是重点：<br>模板本身就是 Production-Ready 的，不是一个起点示例。</div>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>模板 · TEMPLATES</span><span>17</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT III · 什么叫解决</span><span>20</span></div>
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">同一个信号，两种解释</div>
-      <h2 class="ink" style="--i:1">每条代理指标都会分叉</h2>
+      <div class="eyebrow flow" style="--i:0">对话式 AI Studio 生产级 Agent 模板</div>
+      <h2 class="ink" style="--i:1">从空白画布，到一键发布。</h2>
     </div>
     <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 380" width="1620">
-          <text class="ttl pop" x="0" y="64" data-step="1" style="--i:2">没有转人工</text>
-          <path class="stroke-am dw" d="M280 56 L440 20 M280 56 L440 92" stroke-width="2" data-step="1" style="--len:360;--i:2"/>
-          <text class="txt pop" x="470" y="28" data-step="1" style="--i:3">Agent 解决了问题</text>
-          <text class="txt pop" x="470" y="100" data-step="1" style="--i:3;fill:var(--coral)">转人工入口藏得太深</text>
-          <text class="ttl pop" x="0" y="192" data-step="2" style="--i:4">工单没重开</text>
-          <path class="stroke-am dw" d="M280 184 L440 148 M280 184 L440 220" stroke-width="2" data-step="2" style="--len:360;--i:4"/>
-          <text class="txt pop" x="470" y="156" data-step="2" style="--i:5">客户满意</text>
-          <text class="txt pop" x="470" y="228" data-step="2" style="--i:5;fill:var(--coral)">他换了一家公司</text>
-          <text class="ttl pop" x="0" y="320" data-step="3" style="--i:6">72 小时没追问</text>
-          <path class="stroke-am dw" d="M280 312 L440 276 M280 312 L440 348" stroke-width="2" data-step="3" style="--len:360;--i:6"/>
-          <text class="txt pop" x="470" y="284" data-step="3" style="--i:7">问题解决了</text>
-          <text class="txt pop" x="470" y="356" data-step="3" style="--i:7;fill:var(--coral)">他换渠道去投诉了</text>
-          <text class="ttl pop" x="900" y="176" data-step="4" style="--i:8">它们都只是代理指标</text>
-          <text class="sm pop" x="900" y="212" data-step="4" style="--i:8">更审慎的判断器，仍然不是事实本身</text>
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="300" viewBox="0 0 1620 300">
+          <path class="dw" style="--len:1300;--i:0" d="M350 140 H430 M780 140 H860 M1210 140 H1290" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g class="pop" style="--i:1" data-step="1">
+            <rect x="20" y="80" width="320" height="120" rx="3" class="box" stroke-width="1"/>
+            <text class="lbl" x="44" y="118">01</text>
+            <text class="ttl" x="44" y="156">挑一个场景模板</text>
+          </g>
+          <g class="pop" style="--i:2" data-step="2">
+            <rect x="440" y="80" width="330" height="120" rx="3" class="box" stroke-width="1"/>
+            <text class="lbl" x="464" y="118">02</text>
+            <text class="ttl" x="464" y="156">可视化编排</text>
+            <text class="sm" x="464" y="186">换模型、换音色、改流程</text>
+          </g>
+          <g class="pop" style="--i:3" data-step="3">
+            <rect x="870" y="80" width="330" height="120" rx="3" class="box" stroke-width="1"/>
+            <text class="lbl" x="894" y="118">03</text>
+            <text class="ttl" x="894" y="156">试跑与调试</text>
+            <text class="sm" x="894" y="186">延迟、打断、成本当场可见</text>
+          </g>
+          <g class="pop" style="--i:4" data-step="4">
+            <rect x="1300" y="64" width="300" height="152" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl" x="1324" y="106" fill="var(--amber)">04</text>
+            <text class="ttl" x="1324" y="146" fill="var(--amber)">一键发布</text>
+            <text class="sm" x="1324" y="180">直接进生产环境</text>
+          </g>
+          <text class="txt pop" style="--i:5" x="20" y="272">这四步过去要跨三个团队、若干周。现在在一个界面里走完。</text>
         </svg>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT III · 什么叫解决</span><span>21</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">Bret 自己也承认</div>
-      <h2 class="ink" style="--i:1">按结果收费不可能覆盖所有场景</h2>
-    </div>
-    <div class="body">
-      <div class="duo gfill">
-        <div class="flow" style="--i:2">
-          <div class="h">能结算的</div>
-          <div class="b">客服问题还能问「解决了没有」</div>
-          <div class="s">一次会话结束，就有可观察、可归因的落点。</div>
-        </div>
-        <div class="flow rev" style="--i:3">
-          <div class="h">结算不了的</div>
-          <div class="b">浏览房产网站，最后没买房</div>
-          <div class="s">他也许完成了研究、缩小了选择范围，甚至过几个月才成交。这样的价值很难在一次会话结束时结算。</div>
-        </div>
-      </div>
-      <div class="land flow" style="--i:4">缺一项，月底对账就会从商业合作<b class="co">变成辩论赛</b>。</div>
     </div>
   </div>
 </section>
@@ -980,211 +946,68 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
 <section class="slide">
   <div class="mq">
     <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
-    <div class="q" style="font-size:56px">
-      <i class="rise" style="--i:1">结果必须能被观察、被归因</i>
-      <i class="rise" style="--i:2">并且被买卖双方</i>
-      <i class="rise" style="--i:3">用同一套规则复核</i>
+    <div class="q">
+      <i class="rise" style="--i:1">2 行代码，</i>
+      <i class="rise" style="--i:3">15 分钟。</i>
     </div>
     <div class="rule"></div>
-    <div class="s rise" style="--i:5">这是 outcome-based pricing 一个很硬的前提。</div>
+    <div class="s rise" style="--i:5">上手成本决定了有多少人会真的开始，而不是只是围观。</div>
   </div>
 </section>
 
 <section class="slide">
-  <div class="act">
-    <div class="num flow" style="--i:0">ACT IV / IV</div>
-    <div class="en settle" style="--i:1">BILLING</div>
-    <div class="cn spread" style="--i:3">当分数进入账单</div>
-    <div class="d flow" style="--i:4">研发团队做 eval，允许它暂时不完美。<br>计费系统没有这么宽松。</div>
-    <div class="rail">
-      <span>I 一次判定</span><span>II 同一个单位</span><span>III 什么叫解决</span><span class="cur">IV 进入账单</span>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
+  <div class="chrome"><span>配套 · THE KIT</span><span>19</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>24</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">同一个 90%，两种命运</div>
-      <h2 class="ink" style="--i:1">研发的 eval，和计费的 eval</h2>
+      <div class="eyebrow flow" style="--i:0">对话式 AI 产品组合</div>
+      <h2 class="ink" style="--i:1">除了三个版本号，还有四件配套。</h2>
     </div>
     <div class="body">
-      <div class="duo gfill">
-        <div class="flow" style="--i:2">
-          <div class="h">在研发后台</div>
-          <div class="b">90% 一致率，够用了</div>
-          <div class="s">一个自动裁判和人工有 90% 的一致率，可以先用于版本对比；少量误判，后面再校准。</div>
-        </div>
-        <div class="flow rev" style="--i:3">
-          <div class="h">在计费系统</div>
-          <div class="b">那 10% 会变成钱</div>
-          <div class="s">以前只是看板上几个百分点的误差，现在会直接进入应收账款。</div>
-        </div>
+      <div class="g4 rise" style="--i:2">
+        <div class="card"><div class="tag">试</div><div class="t">对话式 AI 引擎 Demo</div><div class="d">不写代码先听一次效果</div></div>
+        <div class="card"><div class="tag">买</div><div class="t">云市场专区</div><div class="d">对话式 AI 产品专区，走已有采购通道</div></div>
+        <div class="card"><div class="tag">做硬件</div><div class="t">对话式 AI 开发套件</div><div class="d">让智能硬件快速开口说话</div></div>
+        <div class="card"><div class="tag">读</div><div class="t">对话式 AI 发展白皮书</div><div class="d">把行业判断和方法一起交出去</div></div>
       </div>
-      <div class="land flow" style="--i:4">评测集定义产品质量，<b class="am">评测规则开始定义收入。</b></div>
+      <div class="land flow" style="--i:3">发布产品是一件事，<br>让客户能试、能买、能落到硬件上，是另外三件。</div>
     </div>
   </div>
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>全栈 · FULL STACK</span><span>20</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>25</span></div>
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">两个方向都在流血</div>
-      <h2 class="ink" style="--i:1">误判不再是看板上的百分点</h2>
+      <div class="eyebrow flow" style="--i:0">2025.10.31 · 对话式 AI 产品全栈发布</div>
+      <h2 class="ink" style="--i:1">三个版本号，同一天落地。</h2>
     </div>
     <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 340" width="1620">
-          <g class="pop" data-step="1" style="--i:2">
-            <rect class="box" x="0" y="50" width="760" height="180" rx="4" stroke-width="2" style="stroke:var(--magenta)"/>
-            <text class="lbl" x="40" y="102" style="fill:var(--magenta)">FALSE POSITIVE · 假阳性</text>
-            <text class="ttl" x="40" y="150">对一件没办成的事收了钱</text>
-            <text class="sm" x="40" y="190">客户会在对账时把它翻出来</text></g>
-          <g class="pop" data-step="2" style="--i:3">
-            <rect class="box" x="820" y="50" width="740" height="180" rx="4" stroke-width="2"/>
-            <text class="lbl" x="860" y="102">FALSE NEGATIVE · 假阴性</text>
-            <text class="ttl" x="860" y="150">明明办成了，却拿不到收入</text>
-            <text class="sm" x="860" y="190">供应商自己吃掉，还不容易被发现</text></g>
-          <text class="ttl pop" x="0" y="292" data-step="3" style="--i:4">同一条评测规则，同时决定质量、账单和责任。</text>
-        </svg>
-      </div>
-      <div class="land co" data-step="4" style="--i:5">一个 scorer 不能只返回 0 或 1。
-        <span class="s">它还要留下证据：依据了哪段对话、用了哪版规则、置信度是多少、发生争议时能不能回放。</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>26</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">一条规则，三种责任</div>
-      <h2 class="ink" style="--i:1">同时面对三拨完全不同的人</h2>
-    </div>
-    <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 360" width="1620">
-          <g class="pop" data-step="1" style="--i:2">
-            <rect class="box" x="580" y="20" width="460" height="96" rx="4" stroke-width="2" style="stroke:var(--amber)"/>
-            <text class="ttl" x="810" y="62" text-anchor="middle">同一条评测规则</text>
-            <text class="sm" x="810" y="94" text-anchor="middle">一个 scorer，三种责任</text></g>
-          <path class="stroke dw" d="M700 116 L260 200" stroke-width="2" data-step="2" style="--len:450;--i:3"/>
-          <g class="pop" data-step="2" style="--i:3">
-            <rect class="box" x="60" y="200" width="400" height="130" rx="4"/>
-            <text class="ttl" x="260" y="252" text-anchor="middle">工程团队</text>
-            <text class="sm" x="260" y="290" text-anchor="middle">判断版本有没有变好</text></g>
-          <path class="stroke dw" d="M810 116 L810 200" stroke-width="2" data-step="3" style="--len:84;--i:4"/>
-          <g class="pop" data-step="3" style="--i:4">
-            <rect class="box" x="610" y="200" width="400" height="130" rx="4"/>
-            <text class="ttl" x="810" y="252" text-anchor="middle">客户</text>
-            <text class="sm" x="810" y="290" text-anchor="middle">确认自己为什么被收费</text></g>
-          <path class="stroke dw" d="M920 116 L1360 200" stroke-width="2" data-step="4" style="--len:450;--i:5"/>
-          <g class="pop" data-step="4" style="--i:5">
-            <rect class="box" x="1160" y="200" width="400" height="130" rx="4"/>
-            <text class="ttl" x="1360" y="252" text-anchor="middle">财务与法务</text>
-            <text class="sm" x="1360" y="290" text-anchor="middle">对账、争议与审计</text></g>
-        </svg>
-      </div>
-      <div class="land" data-step="5" style="--i:6">不是在发票旁边接一个模型，而是把一套原本服务研发的判断机制，升级到足以承受金钱和责任。</div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
-    <div class="q am">
-      <i class="rise" style="--i:1">评测集定义产品质量</i>
-      <i class="rise" style="--i:2">评测规则</i>
-      <i class="rise" style="--i:3">开始定义收入</i>
-    </div>
-    <div class="rule"></div>
-    <div class="s rise" style="--i:5">这就是「评测系统是计费基础设施」的准确含义。</div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>28</span></div>
-    <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">绕不过去的那个问题</div>
-      <h2 class="ink" style="--i:1">裁判和选手，属于同一家公司</h2>
-    </div>
-    <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 340" width="1620">
-          <rect class="dw" x="60" y="30" width="1000" height="250" rx="6" stroke-width="2" data-step="1" stroke="var(--magenta)" fill="none" style="--len:2500;--i:2"/>
-          <text class="lbl pop" x="90" y="76" data-step="1" style="--i:2;fill:var(--magenta)">同一家公司 · 收钱的那一方</text>
-          <g class="pop" data-step="2" style="--i:3">
-            <rect class="box" x="130" y="110" width="380" height="130" rx="4"/>
-            <text class="ttl" x="320" y="162" text-anchor="middle">执行 Agent</text>
-            <text class="sm" x="320" y="200" text-anchor="middle">完成这通客服</text></g>
-          <path class="stroke-am dw" d="M510 175 L610 175" stroke-width="2" data-step="3" style="--len:100;--i:4"/>
-          <g class="pop" data-step="3" style="--i:4">
-            <rect class="box" x="610" y="110" width="380" height="130" rx="4" stroke-width="2" style="stroke:var(--amber)"/>
-            <text class="ttl" x="800" y="162" text-anchor="middle">评测模型</text>
-            <text class="sm" x="800" y="200" text-anchor="middle">决定能不能收钱</text></g>
-          <g class="pop" data-step="4" style="--i:5">
-            <text class="ttl" x="1120" y="130">官方说 independently confirmed</text>
-            <text class="sm" x="1120" y="172">更准确的理解是：由区别于执行 Agent 的</text>
-            <text class="sm" x="1120" y="202">专用评测模型复核</text>
-            <text class="sm" x="1120" y="244" style="fill:var(--coral)">不是外部独立机构</text>
-            <text class="sm" x="1120" y="274" style="fill:var(--coral)">也不是双方共同控制的审计系统</text></g>
-        </svg>
-      </div>
-      <div class="note co" data-step="5" style="--i:6">这并不说明它有意放宽标准。但<b>只要一个指标开始决定收入，系统就会自然地向那个指标优化</b> ——
-        「没有转人工」可能被优化成让转人工更难；「评测模型判定满意」也可能把礼貌的错误答案判成成功。</div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>29</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">真正进入合同的 outcome metric</div>
-      <h2 class="ink" style="--i:1">至少需要这五样配套</h2>
-    </div>
-    <div class="body">
-      <div class="rows">
-        <div class="r flow" data-step="1" style="--i:2"><span class="n">01</span><span class="k">双方确认</span><span class="v">规则由双方确认，不能由供应商单方面改</span></div>
-        <div class="r flow" data-step="2" style="--i:3"><span class="n">02</span><span class="k">持续校准</span><span class="v">自动裁判持续和人工样本校准</span></div>
-        <div class="r flow" data-step="3" style="--i:4"><span class="n">03</span><span class="k">假阳性</span><span class="v">单独监控「看似解决、实际失败」的那一类</span></div>
-        <div class="r flow" data-step="4" style="--i:5"><span class="n">04</span><span class="k">留痕</span><span class="v">保留原始对话、评分理由和版本记录</span></div>
-        <div class="r flow" data-step="5" style="--i:6"><span class="n">05</span><span class="k">申诉</span><span class="v">给争议结果留下复核与申诉入口</span></div>
-      </div>
-      <div class="note co flow" data-step="6" style="--i:7">没有这些，按结果收费只是把过去的「账单争议」，换成了<b>更难解释的「模型争议」</b>。</div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>30</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">不是所有公司都适合按结果收费</div>
-      <h2 class="ink" style="--i:1">看得见结果，控制得了过程，扛得住失败</h2>
-    </div>
-    <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1620 360" width="1620">
-          <g class="pop" data-step="1" style="--i:2">
-            <rect class="box" x="0" y="60" width="700" height="230" rx="4" stroke-width="2" style="stroke:var(--amber)"/>
-            <text class="lbl" x="40" y="104" style="fill:var(--amber)">SIERRA · INTERCOM · ZENDESK</text>
-            <text class="ttl" x="40" y="156">直接站在客服任务这一层</text>
-            <text class="sm" x="40" y="196">看得见完整对话</text>
-            <text class="sm" x="40" y="226">决定 Agent 怎么回答、什么时候转人工</text>
-            <text class="sm" x="40" y="256">能把一次失败的成本留在自己账上</text></g>
-          <g class="pop" data-step="2" style="--i:3">
-            <rect class="box" x="860" y="60" width="700" height="230" rx="4" stroke-width="2"/>
-            <text class="lbl" x="900" y="104">INFRASTRUCTURE</text>
-            <text class="ttl" x="900" y="156">基础设施公司离结果更远</text>
-            <text class="sm" x="900" y="196">没听清 / 推理错了 / 客户的 CRM 超时</text>
-            <text class="sm" x="900" y="226">也可能是业务流程本身设计得有问题</text>
-            <text class="sm" x="900" y="256">大部分不在你的控制范围内</text></g>
-          <text class="ttl pop" x="0" y="336" data-step="3" style="--i:4;fill:var(--magenta)">定价边界应该和责任边界重合：你控制到哪一层，就为哪一层的结果负责</text>
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="330" viewBox="0 0 1620 330">
+          <path class="dw" style="--len:1560;--i:0" d="M30 60 H1590" stroke="var(--hair)" stroke-width="1" fill="none"/>
+          <text class="lbl pop" style="--i:1" x="30" y="44">2024.01.25 → 2025.10.31</text>
+          <g class="pop" style="--i:2">
+            <rect x="20" y="100" width="500" height="180" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl" x="44" y="142" fill="var(--amber)">ENGINE</text>
+            <text class="ttl" x="44" y="184" fill="var(--amber)">对话式 AI Engine 2.0</text>
+            <text class="txt" x="44" y="224">生产级可用</text>
+            <text class="sm" x="44" y="254">9 次迭代之后的那条线</text>
+          </g>
+          <g class="pop" style="--i:3">
+            <rect x="560" y="100" width="500" height="180" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl" x="584" y="142" fill="var(--amber)">BENCHMARK</text>
+            <text class="ttl" x="584" y="184" fill="var(--amber)">模型评测平台 3.0</text>
+            <text class="txt" x="584" y="224">最多、最快、最好、最省</text>
+            <text class="sm" x="584" y="254">89 个模型 · 28 个厂商</text>
+          </g>
+          <g class="pop" style="--i:4">
+            <rect x="1100" y="100" width="500" height="180" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl" x="1124" y="142" fill="var(--amber)">STUDIO</text>
+            <text class="ttl" x="1124" y="184" fill="var(--amber)">对话式 AI Studio 1.0</text>
+            <text class="txt" x="1124" y="224">可视化编排 + 生产级模板</text>
+            <text class="sm" x="1124" y="254">补上中间缺的那一段</text>
+          </g>
+          <text class="txt pop" style="--i:5" x="20" y="322">怎么选 → 如何解决 → 随时 GO。三段拼齐，Agent 的一生才有人管到底。</text>
         </svg>
       </div>
     </div>
@@ -1192,81 +1015,33 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
 </section>
 
 <section class="slide">
+  <div class="chrome"><span>带走 · TAKEAWAYS</span><span>21</span></div>
   <div class="wrap">
-    <div class="chrome"><span>ACT IV · 进入账单</span><span>31</span></div>
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">更现实的做法往往是混合</div>
-      <h2 class="ink" style="--i:1">哪一段按用量，哪一段按结果</h2>
+      <div class="eyebrow flow" style="--i:0">今天能带走的三条</div>
+      <h2 class="ink" style="--i:1">如果只记住三句话。</h2>
     </div>
     <div class="body">
-      <div class="duo gfill">
-        <div class="flow" style="--i:2">
-          <div class="h">按用量</div>
-          <div class="b">连接、容量和基础推理</div>
-          <div class="s">这些你控制得了，但离最终结果还隔着好几层。</div>
-        </div>
-        <div class="flow rev" style="--i:3">
-          <div class="h">按结果</div>
-          <div class="b">真正由产品控制、也能可靠归因的增量价值</div>
-          <div class="s">承诺你控制不到的结果并不勇敢，只是把无法定价的风险吞进自己肚子里。</div>
-        </div>
+      <div class="g3 rise" style="--i:2">
+        <div class="card on"><div class="n">01</div><div class="t">用三条线验收 Ready</div><div class="d">稳定可用、规模可控、客户可付钱。三条里少一条，就还停在 Demo。</div></div>
+        <div class="card on"><div class="n">02</div><div class="t">按生命周期查缺口</div><div class="d">选型、原型、迭代、发布。你的 Agent 卡在哪一段，就先补哪一段。</div></div>
+        <div class="card on"><div class="n">03</div><div class="t">选型别只看延迟</div><div class="d">最多、最快、最好、最省是四个维度，只优化一个会付出体验和成本的代价。</div></div>
       </div>
-      <div class="land flow" style="--i:4">这不是退而求其次。
-        <span class="s">再往外，是合作条款，不该靠一句「对齐客户价值」含混过去。</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 06</div>
-    <div class="q w">
-      <i class="rise" style="--i:1">你敢按什么收费</i>
-      <i class="rise" style="--i:2">取决于你敢为</i>
-      <i class="rise" style="--i:3">哪一个判断负责</i>
-    </div>
-    <div class="rule"></div>
-    <div class="s rise" style="--i:5">一张按结果收费的账单，不是从财务系统开始的。它从一条 eval case 开始。</div>
-  </div>
-</section>
-
-<section class="slide">
-  <div class="wrap">
-    <div class="chrome"><span>带走</span><span>33</span></div>
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">如果只带走三件事</div>
-      <h2 class="ink" style="--i:1">回去可以立刻检查的三件事</h2>
-    </div>
-    <div class="body">
-      <div class="g3 gfill">
-        <div class="card on rise" style="--i:2">
-          <div class="n">01</div><div class="tag">给定价</div>
-          <div class="t">先验三个前提</div>
-          <div class="d">结果能不能被观察、被归因、被买卖双方用同一套规则复核。缺一项就别谈按结果收费。</div></div>
-        <div class="card on rise" style="--i:3">
-          <div class="n">02</div><div class="tag">给评测</div>
-          <div class="t">让 scorer 留下证据</div>
-          <div class="d">依据哪段对话、用了哪版规则、置信度多少、争议时能不能回放。0 或 1 已经不够用。</div></div>
-        <div class="card on rise" style="--i:4">
-          <div class="n">03</div><div class="tag">给合同</div>
-          <div class="t">把两条边界对齐</div>
-          <div class="d">定价边界和责任边界必须重合。控制不到的那一层，写成合作条款，不写成承诺。</div></div>
-      </div>
-      <div class="land flow" style="--i:5">按席位卖使用权，按 token 卖消耗量，<b class="am">按结果卖的是一个判断。</b></div>
+      <div class="land flow" style="--i:3">今天开始能做的一件事：<br>去评测平台跑一遍你现在这套组合的成本账。</div>
     </div>
   </div>
 </section>
 
 <section class="slide">
   <div class="cover">
-    <div class="kicker flow" style="--i:0">谢谢 · 来源与证据边界</div>
-    <h1 class="ink" style="--i:1">一通客服结束 72 小时后<br>AI 才决定这笔钱能不能收</h1>
-    <div class="subtitle spread" style="--i:3">你敢按什么收费，取决于你敢为哪一个判断负责</div>
-    <div class="meta flow" style="--i:4">
-      <div><span class="k">Author</span><span class="v">姚光华 Colin · 2026.07</span></div>
-      <div><span class="k">一手源</span><span class="v">Zendesk 官方文档与 Relate 2026 公告 · Cheeky Pint #27 / #11</span></div>
-      <div><span class="k">已核验</span><span class="v">Automated Resolution 三档口径与 72 小时窗口来自 Zendesk 官方文档</span></div>
-      <div><span class="k">立场提示</span><span class="v">Sierra / Intercom / Zendesk 三段表述均为公司方口径，非独立审计结论</span></div>
+    <div class="kicker flow" style="--i:0">谢谢</div>
+    <h1 class="ink" style="--i:1">Production-Ready</h1>
+    <div class="subtitle spread" style="--i:3">对话式 AI 产品全栈发布</div>
+    <div class="meta">
+      <div class="rise" style="--i:4"><span class="k">场合</span><span class="v">ConvoAI &amp; RTE 2025</span></div>
+      <div class="rise" style="--i:5"><span class="k">日期</span><span class="v">2025.10.31</span></div>
+      <div class="rise" style="--i:6"><span class="k">相关档案</span><span class="v">演讲档案 07</span></div>
+      <div class="rise" style="--i:7"><span class="k">说明</span><span class="v">依原稿 18 页重构，已剔除空页与致谢页</span></div>
     </div>
   </div>
 </section>
@@ -1435,8 +1210,8 @@ document.addEventListener('keydown',e=>{
 (function(){
   var b=document.getElementById('deckSwap');
   function apply(t){
-    if(t==='light'){document.documentElement.dataset.theme='light';b.textContent='暗底';}
-    else{delete document.documentElement.dataset.theme;b.textContent='浅底';}
+    if(t==='light'){document.documentElement.removeAttribute('data-theme');b.textContent='暗底';}
+    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}
   }
   var cur='dark';
   try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
@@ -1448,5 +1223,4 @@ document.addEventListener('keydown',e=>{
   });
 })();
 </script>
-
 </body></html>

@@ -2,8 +2,10 @@ export type Deck = {
   slug: string;
   title: string;
   slides: number;
-  category: "演讲" | "公众号";
-  num?: string; // 公众号编号
+  category: "演讲" | "公众号" | "对外演讲";
+  num?: string; // 公众号编号 / 演讲编号
+  date?: string; // 对外演讲：日期
+  venue?: string; // 对外演讲：场合
   dual?: boolean; // true = 单文件双主题（左下角切换）；false = 双文件（-light 路由）
 };
 
@@ -12,6 +14,24 @@ export const speechDecks: Deck[] = [
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },
   { slug: "3years", title: "当智能体开始行动，人和组织怎样跟上 · 三年母版", slides: 48, category: "演讲", dual: true },
   { slug: "trust", title: "对话式智能体的信任进化 · V9.1", slides: 50, category: "演讲", dual: false },
+];
+
+/** 对外演讲全集 · 2024–2026 · 14 场（13 为圆桌主持无 deck）。合集索引页 /talkdecks。 */
+export const talkDecks: Deck[] = [
+  { slug: "aws26", num: "15", date: "2026.06", venue: "AWS 中国峰会", title: "被记住 · 被托付：对话式智能体的物种分化与同源进化", slides: 38, category: "对外演讲", dual: true },
+  { slug: "gcloud", num: "14", date: "2026.06", venue: "Google Cloud 开发者大会", title: "从对话式 AI 到企业级智能体", slides: 24, category: "对外演讲", dual: true },
+  { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 深圳", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 36, category: "对外演讲", dual: true },
+  { slug: "dual26", num: "11", date: "2026.04", venue: "中国网络视听大会", title: "RTE + AI 双引擎驱动视听全域商业增长", slides: 20, category: "对外演讲", dual: true },
+  { slug: "vibesota", num: "10", date: "2026.01", venue: "Voice Agent 闭门会", title: "Voice Agent 2026 · Vibe SOTA", slides: 28, category: "对外演讲", dual: true },
+  { slug: "vibecheck", num: "09", date: "2026 H1", venue: "First Prompt · Singapore", title: "No More Prompts — How Conversation Agents Pass the Vibe Check", slides: 21, category: "对外演讲", dual: true },
+  { slug: "pm25", num: "08", date: "2025.12", venue: "人人都是产品经理大会 2025", title: "从「活人感」缺失到体验基准打造", slides: 41, category: "对外演讲", dual: true },
+  { slug: "prodready", num: "07", date: "2025.10", venue: "ConvoAI & RTE 2025", title: "Production-Ready 对话式 AI 产品全栈发布", slides: 22, category: "对外演讲", dual: true },
+  { slug: "era3", num: "06", date: "2025.10", venue: "ConvoAI & RTE 2025", title: "Agent 交互核心引擎，重塑实时体验的第三纪元", slides: 39, category: "对外演讲", dual: true },
+  { slug: "engine25", num: "05", date: "2025.08", venue: "全球产品经理大会", title: "Agent 交互核心引擎，重构人机协同体验革命", slides: 39, category: "对外演讲", dual: true },
+  { slug: "audio25", num: "04", date: "2025.03", venue: "中国网络视听大会", title: "对话式 AI 驱动 AI 音频体验革新", slides: 24, category: "对外演讲", dual: true },
+  { slug: "convoai", num: "03", date: "2025.03", venue: "ConvoAI 产品发布会", title: "ConvoAI 对话式 AI 引擎 · 正式发布", slides: 27, category: "对外演讲", dual: true },
+  { slug: "pm24", num: "02", date: "2024.12", venue: "人人都是产品经理大会 2024", title: "生成式 AI 驱动实时互动的技术变革与体验革新", slides: 32, category: "对外演讲", dual: true },
+  { slug: "rte24", num: "01", date: "2024.10", venue: "RTE 2024 · 首次外部主旨", title: "生成式 AI 驱动实时互动的技术变革与体验革新", slides: 31, category: "对外演讲", dual: true },
 ];
 
 export const essayDecks: Deck[] = [
@@ -40,11 +60,12 @@ export const essayDecks: Deck[] = [
   { slug: "34days", num: "32", title: "改名 34 天后，它以 36 亿美元卖给 Salesforce", slides: 30, category: "公众号", dual: true },
 ];
 
-export const allDecks = [...speechDecks, ...essayDecks];
+export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks];
 
 /** 供 next.config 生成 rewrites/headers 的路由清单 */
 export const deckRoutes: { source: string; file: string }[] = [
   ...allDecks.map((d) => ({ source: `/${d.slug}`, file: `/decks/${d.slug}.html` })),
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   { source: "/trust-light", file: "/decks/trust-light.html" },
+  { source: "/talkdecks", file: "/decks/talkdecks.html" }, // 对外演讲合集索引页
 ];

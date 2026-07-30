@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Reveal from "@/components/Reveal";
-import { speechDecks, essayDecks } from "@/content/decks";
+import { speechDecks, talkDecks, essayDecks } from "@/content/decks";
 
 export const metadata: Metadata = {
   title: "Deck Index",
@@ -38,6 +38,33 @@ export default function DecksIndex() {
         </Reveal>
 
         <Reveal>
+          <h2 className="talk-year settle" style={s(0)}>对外演讲全集 · 2024–2026</h2>
+          <a href="/talkdecks" className="talk-row flow dn" style={s(1)}>
+            <div className="talk-meta">
+              <span className="date">/talkdecks</span>
+              <span className="venue">合集索引页</span>
+            </div>
+            <div className="talk-body">
+              <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>
+                两年十四场 · 卡片视图 <span className="am">→</span>
+              </h3>
+            </div>
+          </a>
+          {talkDecks.map((d, i) => (
+            <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(Math.min(i + 2, 10))}>
+              <div className="talk-meta">
+                <span className="date">/{d.slug}</span>
+                <span className="venue">{d.date} · {d.slides} SLIDES</span>
+              </div>
+              <div className="talk-body">
+                <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
+                <p className="talk-summary">{d.venue}</p>
+              </div>
+            </a>
+          ))}
+        </Reveal>
+
+        <Reveal>
           <h2 className="talk-year settle" style={s(0)}>公众号 · 文章 Deck</h2>
           {essayDecks.map((d, i) => (
             <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(Math.min(i + 1, 10))}>
@@ -55,7 +82,7 @@ export default function DecksIndex() {
         <Reveal className="mq-block">
           <p className="q spread" style={s(0)}>先在现场做十遍，<br />再给第十一次起一个产品名。</p>
           <div className="mq-line" style={s(2)} />
-          <p className="who pop" style={s(3)}>{speechDecks.length + essayDecks.length} DECKS · ALL DUAL-THEME</p>
+          <p className="who pop" style={s(3)}>{speechDecks.length + talkDecks.length + essayDecks.length} DECKS · ALL DUAL-THEME</p>
         </Reveal>
       </div>
     </section>
