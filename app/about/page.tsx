@@ -37,20 +37,27 @@ export default function AboutPage() {
               产品和人，进化机制是同一个——<b>更早发现错误，更快修正错误</b>。
             </p>
             <p className="flow" style={s(3)}>
-              演讲邀约、产品切磋、或者只是想聊聊 Voice Agent 的 vibe——写信给我。
+              想找我聊——小红书 / 微信公众号搜「<b>姚光华 Colin</b>」。
             </p>
           </Reveal>
 
           <Reveal className="about-aside">
             <div className="aside-block">
-              <span className="k flow" style={s(0)}>CONTACT</span>
-              {site.links.map((l, i) => (
-                <a key={l.name} href={l.href} className="link-row flow" style={s(i + 1)}
-                  target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
-                  <span className="n">{l.name}</span>
-                  <span className="v">{l.value}</span>
-                </a>
-              ))}
+              <span className="k flow" style={s(0)}>FIND ME</span>
+              {site.links.map((l, i) =>
+                l.href ? (
+                  <a key={l.name} href={l.href} className="link-row flow" style={s(i + 1)}
+                    target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                    <span className="n">{l.name}</span>
+                    <span className="v">{l.value}</span>
+                  </a>
+                ) : (
+                  <div key={l.name} className="link-row flow" style={s(i + 1)}>
+                    <span className="n">{l.name}</span>
+                    <span className="v">{l.value}</span>
+                  </div>
+                )
+              )}
             </div>
             <div className="aside-block">
               <span className="k flow" style={s(2)}>NOW · 2026</span>

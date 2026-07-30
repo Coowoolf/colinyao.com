@@ -182,8 +182,8 @@ main{position:relative;z-index:1;}
 .eyebrow .am{color:var(--amber);}
 h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
 .h-hero{
-  font-size:clamp(40px,7.4vw,96px);
-  line-height:1.14;letter-spacing:.005em;
+  font-size:clamp(44px,8.6vw,118px);
+  line-height:1.1;letter-spacing:.005em;
   font-weight:900;color:var(--mq);
   padding-right:.08em; /* 抵消末字右溢 */
 }
@@ -368,7 +368,7 @@ h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
 .footer .sig{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);line-height:2.2;}
 .footer .sig .co{color:var(--coral);}
 .footer-links{display:flex;gap:22px;flex-wrap:wrap;}
-.footer-links a{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-3);transition:color .3s;}
+.footer-links a,.footer-links .footer-plain{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-3);transition:color .3s;}
 .footer-links a:hover{color:var(--amber);}
 
 /* ---------- 页尾 CTA ---------- */

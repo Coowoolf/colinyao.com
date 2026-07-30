@@ -28,18 +28,18 @@ export default function Home() {
             COLINYAO.COM <span className="am">·</span> {site.ruler.en}
           </p>
           <h1 className="h-hero hero-quote">
-            <i className="rise" style={s(1)}>{site.ruler.zh[0]}</i>
-            <i className="rise" style={s(2)}>{site.ruler.zh[1]}</i>
-            <i className="rise" style={s(3)}>{site.ruler.zh[2]}</i>
+            <i className="spread" style={s(1)}>{site.ruler.zh[0]}</i>
+            <i className="spread" style={s(3)}>{site.ruler.zh[1]}</i>
+            <i className="spread" style={s(5)}>{site.ruler.zh[2]}</i>
           </h1>
-          <div className="mq-line" style={s(4)} />
-          <p className="hero-sub flow" style={s(5)}>
+          <div className="mq-line" style={s(6)} />
+          <p className="hero-sub flow" style={s(7)}>
             我是<b>姚光华（Colin）</b>，{site.role}。做对话式智能体：让它有<b>活人感</b>、
             被记住、被托付；也把「感觉对了」这件事，做成可测量的尺子。
           </p>
           <div className="hero-ctas">
-            <Link href="/talks" className="cta flow" style={s(6)}>15 场公开演讲 →</Link>
-            <Link href="/ideas" className="cta ghost flow" style={s(7)}>概念库 →</Link>
+            <Link href="/talks" className="cta flow" style={s(8)}>15 场公开演讲 →</Link>
+            <Link href="/ideas" className="cta ghost flow" style={s(9)}>概念库 →</Link>
           </div>
           <RulerFig />
         </div>
@@ -154,14 +154,16 @@ export default function Home() {
       <Reveal as="section" className="section hairline">
         <div className="wrap">
           <div className="section-head">
-            <p className="eyebrow flow" style={s(0)}>CONTACT</p>
-            <h2 className="h-sec ink" style={s(1)}>演讲邀约 · 交流切磋</h2>
+            <p className="eyebrow flow" style={s(0)}>FIND ME</p>
+            <h2 className="h-sec ink" style={s(1)}>聊聊对话式智能体</h2>
             <p className="lead flow" style={s(2)}>
-              对话式智能体、Voice Agent 体验、AI 产品——这些话题永远聊得动。
+              Voice Agent 的 vibe、活人感的工程、AI 产品的手艺——这些话题永远聊得动。
             </p>
             <div className="hero-ctas">
-              <a href={`mailto:${site.email}`} className="cta flow" style={s(3)}>{site.email} →</a>
-              <Link href="/about" className="cta ghost flow" style={s(4)}>关于我 →</Link>
+              {site.links.map((l, i) => (
+                <span key={l.name} className="cta flow" style={s(3 + i)}>{l.name} · {l.value}</span>
+              ))}
+              <Link href="/about" className="cta ghost flow" style={s(5)}>关于我 →</Link>
             </div>
           </div>
         </div>

@@ -12,11 +12,9 @@ export const site = {
     zh: ["同一把尺子，", "向外叫 Eval，", "向内叫内观。"],
     en: "ONE RULER · OUTWARD, EVAL · INWARD, VIPASSANA",
   },
-  // 对外链接（占位：确定后在此补充，改这里即可全站生效）
+  // 对外链接（改这里即可全站生效；href 可省略 = 纯展示）
   links: [
-    { name: "Email", value: "icolinyao@gmail.com", href: "mailto:icolinyao@gmail.com" },
-    // { name: "公众号", value: "…", href: "…" },
-    // { name: "GitHub", value: "…", href: "https://github.com/…" },
-    // { name: "LinkedIn", value: "…", href: "…" },
-  ],
+    { name: "小红书", value: "姚光华 Colin" },
+    { name: "公众号", value: "姚光华 Colin" },
+  ] as { name: string; value: string; href?: string }[],
 };

@@ -1,0 +1,3285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>带一个新同事上班 · 如何让你的 Agent 产生恒动复利</title>
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+/* ===== THEME ===== */
+/* ===========================================
+   THEME · colin-deck-dark
+   Happy Hues 13 dark-mode · 近黑 + 暖橙 pop
+   =========================================== */
+:root{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
+  --mq-2:#ff8906;
+
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+
+/* ===== CORE ===== */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+<!-- ============================================================
+     舞台底流场 —— 全场一直在走的暗流
+     ============================================================ -->
+<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+
+<!-- ============================================================
+     PART 0 · 开场（S01–S09）
+     ============================================================ -->
+
+<!-- S01 封面 -->
+<section class="slide active">
+  <div class="cover">
+    <div class="kicker flow" style="--i:0">A COURSE ON WORKING WITH AGENTS</div>
+    <h1 class="ink" style="--i:1">带一个新同事上班</h1>
+    <div class="subtitle spread" style="--i:3">如何让你的 Agent 产生恒动复利</div>
+    <div class="meta rise" style="--i:4">
+      <div><span class="k">Speaker</span><span class="v">姚光华 Colin · AI 产品经理</span></div>
+      <div><span class="k">对象</span><span class="v">已经在用 AI、但用得浅的人</span></div>
+      <div><span class="k">带走</span><span class="v">一个公式 · 四个动作 · 三份模板</span></div>
+    </div>
+    <svg class="glyph pop" style="--i:5" width="330" height="330" viewBox="0 0 330 330" fill="none">
+      <circle cx="165" cy="165" r="162" class="stroke" stroke-opacity=".35" stroke-width="1"/>
+      <circle cx="165" cy="165" r="124" class="stroke" stroke-opacity=".35" stroke-width="1"/>
+      <circle cx="165" cy="165" r="86"  class="stroke" stroke-opacity=".35" stroke-width="1"/>
+      <circle cx="165" cy="165" r="46"  stroke="var(--amber)" stroke-width="1.5" fill="none"/>
+      <circle cx="165" cy="165" r="7" fill="var(--amber)"/>
+      <path class="dw" style="--len:150;--i:6" d="M165 119 A46 46 0 0 1 211 165" stroke="var(--coral)" stroke-width="3" fill="none"/>
+      <path class="dw" style="--len:280;--i:7" d="M165 79 A86 86 0 0 1 251 165" stroke="var(--amber)" stroke-width="2" fill="none" opacity=".65"/>
+      <path class="dw" style="--len:400;--i:8" d="M165 41 A124 124 0 0 1 289 165" stroke="var(--amber)" stroke-width="1.5" fill="none" opacity=".35"/>
+    </svg>
+  </div>
+</section>
+
+<!-- S02 为什么会有这门课 -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>02</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">为什么会有这门课</div>
+      <h2 class="ink" style="--i:1">这门课不是我想讲的，是被问出来的</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="mid">
+          <div class="note" style="font-size:26px;border-left-width:4px">
+            最近我反复收到同一句反馈：<br><br>
+            <b class="am" style="font-size:30px">「你能不能开个课，讲下你个人是咋用 AI 的。」</b>
+          </div>
+          <div class="note grey">注意这句话问的是<b>「你个人」</b>——不是问工具怎么用，是问<b>一个具体的人，是怎么把它用出复利的</b>。</div>
+        </div>
+        <div class="card">
+          <div class="tag">这一年，AI 在我这里的实际产出</div>
+          <table class="tight" style="margin-top:6px">
+            <tbody>
+              <tr><td>54 篇</td><td>协作交接日志，每篇都能让下一次直接接上</td></tr>
+              <tr><td>6 套</td><td>把重复劳动固化下来的可复用流程</td></tr>
+              <tr><td>20+ 周</td><td>周报从"每次都要盯"变成一句话交付</td></tr>
+              <tr><td>1 个</td><td>每天自动跑、带护栏的情报机器人</td></tr>
+              <tr><td>9 份</td><td>一投喂就"在状态"的个人背景包</td></tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:14px;font-size:20px">这些不是技巧的集合。<b class="am">它们是同一件事重复了 200 次的结果。</b></div>
+        </div>
+      </div>
+      <div class="note co flow" style="--i:3">先说一句让你放心的：<b>今天不会出现任何提示词模板。</b>我用 AI 一年多，没背过一个——因为那个东西不解决今天要解决的问题。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S03 灵魂拷问 01 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">01</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 请举手</div>
+    <div class="q ink" style="--i:1">你用 AI 已经一年多了。<br><span class="hl">今天的你，比第一个月强了几倍？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">不是问</span><span class="v">你是不是更熟练了、用得更频繁了、知道更多技巧了。</span></div>
+      <div class="col"><span class="k">是问</span><span class="v">同一件活，你今天的成本，是一年前的几分之一？</span></div>
+      <div class="col"><span class="k">如果答案是"差不多"</span><span class="v">那么这一年，你到底在做什么？——这就是今天要回答的问题。</span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：这里有多少人，答案是"差不多"？</div>
+  </div>
+</section>
+
+<!-- S04 加法 vs 复利（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>04</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">核心分野</div>
+      <h2 class="ink" style="--i:1">大多数人用 AI 是<span class="dim">「等速」</span>的，不是<span class="am">「复利」</span>的</h2>
+    </div>
+    <div class="body">
+      <div class="g-83 flow" style="--i:2">
+        <div class="fig">
+          <svg width="1000" height="400" viewBox="0 0 1000 400">
+            <!-- 轴 -->
+            <path class="dw stroke" style="--len:1000;--i:2" d="M70 350 H960" stroke-width="1"/>
+            <path class="dw stroke" style="--len:320;--i:2" d="M70 350 V40" stroke-width="1"/>
+            <!-- ① 线性 -->
+            <g data-step="1">
+              <path class="dw" style="--len:920;--i:0" d="M70 348 C 300 322, 640 296, 950 268"
+                    stroke="var(--ink-3)" stroke-width="2.5" fill="none"/>
+              <text class="txt pop" style="--i:2" x="700" y="318" fill="var(--ink-3)">每天省 1 小时 · 一年 250 小时</text>
+              <text class="lbl pop" style="--i:2" x="700" y="342">LINEAR · 加法</text>
+            </g>
+            <!-- ② 复利：后发先至 -->
+            <g data-step="2">
+              <path class="dw" style="--len:1100;--i:0" d="M70 348 C 430 344, 700 300, 950 60"
+                    stroke="var(--amber)" stroke-width="4" fill="none"/>
+              <path class="trace" d="M70 348 C 430 344, 700 300, 950 60" stroke="var(--amber)" stroke-width="5" fill="none" opacity=".9"/>
+              <text class="ttl pop" style="--i:2" x="620" y="112" fill="var(--amber)">第 200 次比第 1 次快 10 倍</text>
+              <text class="lbl pop" style="--i:2" x="620" y="140" fill="var(--amber)">COMPOUNDING · 复利</text>
+            </g>
+            <!-- ③ 差距 -->
+            <g data-step="3">
+              <path class="dw" style="--len:220;--i:0" d="M950 268 V 62" stroke="var(--coral)" stroke-width="1.5"
+                    stroke-dasharray="6 7" fill="none"/>
+              <text class="txt pop" style="--i:1" x="966" y="172" fill="var(--coral)" text-anchor="start">别人</text>
+              <text class="txt pop" style="--i:1" x="966" y="196" fill="var(--coral)" text-anchor="start">抄不走</text>
+              <text class="txt pop" style="--i:1" x="966" y="220" fill="var(--coral)" text-anchor="start">的部分</text>
+            </g>
+            <text class="lbl" x="70" y="378">第 1 次</text>
+            <text class="lbl" x="880" y="378">第 200 次</text>
+            <text class="lbl" x="26" y="46" transform="rotate(-90 26 46)">能力</text>
+          </svg>
+        </div>
+        <div class="mid">
+          <div class="note grey"><b>加法：</b>每天省 1 小时，一年 250 小时。听起来不少，但第 200 次和第 1 次<b>效率完全一样</b>。换一台更快的电脑也能得到——<b>没有人抄不走它</b>。</div>
+          <div class="note"><b class="am">复利：</b>第 200 次更快、更准，<b>而且别人抄不走</b>。因为积累的东西长在你的判断和数据里，不长在工具里。</div>
+          <div class="note co">模型每年换一代，工具每月出新的。<b>唯一会持续变厚的，是你自己那一层。</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S05 金句：复利的定义 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
+    <div class="q ink"><i class="rise" style="--i:1">复利不是省时间</i><i class="rise" style="--i:2">是让每一次协作</i><i class="rise" style="--i:3">都为下一次垫高一层</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">这句话是全场的分水岭。听懂它，后面四节讲的每一件事都会自动归位。</div>
+  </div>
+</section>
+
+<!-- S06 你会学到什么 -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>06</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">课程目标</div>
+      <h2 class="ink" style="--i:1">今天这一场，你会学到四件事</h2>
+      <div class="sub flow" style="--i:2">每一件都对应一个乘数，每一件都从一个真实的翻车现场进入。</div>
+    </div>
+    <div class="body">
+      <div class="g4 flow dn" style="--i:3">
+        <div class="card"><div class="n">01</div><div class="tag">Taste</div><div class="t">怎么判断<br>AI 给你的东西好不好</div>
+          <div class="d">你会拿到一套把"我说不清但就是不对"翻译成<b>可执行标准</b>的方法。</div></div>
+        <div class="card"><div class="n">02</div><div class="tag">Thinker</div><div class="t">哪些事<br>永远不能交给它</div>
+          <div class="d">你会看到一条清楚的界线：人在最上游和最下游，<b>AI 在中间那一大段</b>。</div></div>
+        <div class="card"><div class="n">03</div><div class="tag">Dataset</div><div class="t">怎么让它<br>越用越像你</div>
+          <div class="d">你会知道自己一直在做一件叫<b>后训练</b>的事，以及该喂哪五层。</div></div>
+        <div class="card on"><div class="n">04</div><div class="tag am">Compounding</div><div class="t">怎么让今天的纠正<br>明天自动生效</div>
+          <div class="d">你会拿到一句话——<b class="am">整门课唯一需要背下来的那一句</b>。</div></div>
+      </div>
+      <div class="note flow" style="--i:4">还有一件事贯穿全场：<b>七次灵魂拷问。</b>每一个反直觉的结论之前，我都会先问你一个问题——<b class="am">先让你自己撞一下墙，答案才有用。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S07 你能带走什么 -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>07</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">交付物</div>
+      <h2 class="ink" style="--i:1">下课时，你手里会有这五样东西</h2>
+      <div class="sub flow" style="--i:2">听完会爽，带着东西走才会真用。这一页你可以现在就拍下来。</div>
+    </div>
+    <div class="body">
+      <div class="g3 flow" style="--i:3">
+        <div class="card-w"><div class="n">01</div><div class="t">一个公式</div>
+          <div class="d">恒动复利 = Taste × 思想者 × 数据集 × 沉淀。<br><br><b>四个乘数，任何一项为 0，整个飞轮不转。</b></div></div>
+        <div class="card-w"><div class="n">02</div><div class="t">四个今晚能做的动作</div>
+          <div class="d">每个乘数配一个具体动作。<br><br><b>四个加起来，今天多花不到 20 分钟。</b></div></div>
+        <div class="card-w"><div class="n">03</div><div class="t">三份模板</div>
+          <div class="d">员工手册 / 交接日志 / 护栏卡片。<br><br><b>加起来不到一页纸，一个备忘录就能开始。</b></div></div>
+      </div>
+      <div class="g2 flow" style="--i:4">
+        <div class="card"><div class="tag am">04</div><div class="t">一张四阶自测表</div>
+          <div class="d">看过 / 用过 / 学过 / 干过——<b class="am">现场知道自己卡在哪一阶，以及下一步该迈哪儿。</b></div></div>
+        <div class="card"><div class="tag am">05</div><div class="t">四条护栏 + 一条红线</div>
+          <div class="d">让 AI 犯的错<b class="am">变得可被发现</b>——注意，不是"防止它犯错"，这是完全不同的两件事。</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S08 全场路线图（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>08</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">全场地图</div>
+      <h2 class="ink" style="--i:1">六段路，两个半场</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1640" height="380" viewBox="0 0 1640 380">
+          <!-- 主流线 -->
+          <path class="dw" style="--len:1800;--i:2" d="M40 210 C 300 120, 520 300, 820 210 S 1340 110, 1600 200"
+                stroke="var(--amber)" stroke-width="3" fill="none"/>
+          <path class="dw" style="--len:1800;--i:3" d="M40 240 C 320 160, 560 330, 850 245 S 1350 150, 1600 232"
+                stroke="var(--hair-strong)" stroke-width="1.2" fill="none"/>
+          <!-- 节点 -->
+          <g class="pop" style="--i:4">
+            <circle cx="120" cy="188" r="9" class="fill-am"/>
+            <text class="lbl" x="120" y="150" text-anchor="middle">PART I</text>
+            <text class="ttl" x="120" y="122" text-anchor="middle">Taste</text>
+            <text class="txt" x="120" y="272" text-anchor="middle">判断力</text>
+          </g>
+          <g class="pop" style="--i:5">
+            <circle cx="420" cy="200" r="9" class="fill-am"/>
+            <text class="lbl" x="420" y="300" text-anchor="middle">PART II</text>
+            <text class="ttl" x="420" y="330" text-anchor="middle">Thinker</text>
+            <text class="txt" x="420" y="164" text-anchor="middle">人做思想者</text>
+          </g>
+          <g class="pop" style="--i:6">
+            <circle cx="740" cy="222" r="9" class="fill-am"/>
+            <text class="lbl" x="740" y="152" text-anchor="middle">PART III</text>
+            <text class="ttl" x="740" y="124" text-anchor="middle">Dataset</text>
+            <text class="txt" x="740" y="282" text-anchor="middle">个人数据集</text>
+          </g>
+          <g class="pop" style="--i:7">
+            <circle cx="1060" cy="186" r="9" class="fill-am"/>
+            <text class="lbl" x="1060" y="300" text-anchor="middle">PART IV</text>
+            <text class="ttl" x="1060" y="330" text-anchor="middle">Compounding</text>
+            <text class="txt" x="1060" y="150" text-anchor="middle">沉淀机制</text>
+          </g>
+          <g class="pop" style="--i:8">
+            <circle cx="1360" cy="176" r="9" class="fill-co"/>
+            <text class="lbl" x="1360" y="140" text-anchor="middle">PART V</text>
+            <text class="ttl" x="1360" y="112" text-anchor="middle">Ladder</text>
+            <text class="txt" x="1360" y="262" text-anchor="middle">你在第几阶</text>
+          </g>
+          <g class="pop" style="--i:9">
+            <circle cx="1590" cy="199" r="9" class="fill-co"/>
+            <text class="lbl" x="1590" y="300" text-anchor="middle">PART VI</text>
+            <text class="ttl" x="1590" y="330" text-anchor="middle">收口</text>
+          </g>
+          <!-- 半场分隔 -->
+          <path class="dw" style="--len:300;--i:10" d="M1210 40 V 340" stroke="var(--hair-strong)" stroke-width="1" stroke-dasharray="5 8" fill="none"/>
+          <text class="lbl" x="600" y="42" text-anchor="middle" class="lbl">上半场 · 四个乘数</text>
+          <text class="lbl" x="1420" y="42" text-anchor="middle" class="lbl">下半场 · 定位与收口</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:11">这不是四个并列的技巧。<b class="am">它们最后会咬合成一个飞轮</b>——到 Part III 结尾你会看到它合上的那一刻。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S09 核心公式（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>09</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">全场只需要记住一个公式</div>
+      <h2 class="ink" style="--i:1">恒动复利，是四个乘数的<span class="am">积</span></h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1660" height="300" viewBox="0 0 1660 300">
+          <g class="pop" data-step="1" style="--i:3">
+            <rect x="10" y="60" width="330" height="180" rx="3" class="stroke" stroke-width="1"/>
+            <text class="lbl" x="38" y="98">MULTIPLIER 01</text>
+            <text class="ttl" x="38" y="140" style="font-size:30px">Taste</text>
+            <text class="txt" x="38" y="178">你判断答案好坏的能力</text>
+            <text class="txt" x="38" y="206" fill="var(--ink-3)">说不出理由 → 无法复用</text>
+          </g>
+          <text class="big pop" data-step="2" style="--i:4" x="368" y="165" text-anchor="middle">×</text>
+          <g class="pop" data-step="2" style="--i:5">
+            <rect x="396" y="60" width="330" height="180" rx="3" class="stroke" stroke-width="1"/>
+            <text class="lbl" x="424" y="98">MULTIPLIER 02</text>
+            <text class="ttl" x="424" y="140" style="font-size:30px">人做思想者</text>
+            <text class="txt" x="424" y="178">第一性原理的框架你出</text>
+            <text class="txt" x="424" y="206" fill="var(--ink-3)">AI 执行 + 查漏补缺</text>
+          </g>
+          <text class="big pop" data-step="3" style="--i:6" x="754" y="165" text-anchor="middle">×</text>
+          <g class="pop" data-step="3" style="--i:7">
+            <rect x="782" y="60" width="330" height="180" rx="3" class="stroke" stroke-width="1"/>
+            <text class="lbl" x="810" y="98">MULTIPLIER 03</text>
+            <text class="ttl" x="810" y="140" style="font-size:30px">个人数据集</text>
+            <text class="txt" x="810" y="178">它读过谁的东西，决定它像谁</text>
+            <text class="txt" x="810" y="206" fill="var(--ink-3)">你在做的是"后训练"</text>
+          </g>
+          <text class="big pop" data-step="4" style="--i:8" x="1140" y="165" text-anchor="middle">×</text>
+          <g class="pop" data-step="4" style="--i:9">
+            <rect x="1168" y="60" width="330" height="180" rx="3" stroke="var(--amber)" stroke-width="1.5" fill="none"/>
+            <text class="lbl" x="1196" y="98" fill="var(--amber)">MULTIPLIER 04</text>
+            <text class="ttl" x="1196" y="140" style="font-size:30px">沉淀机制</text>
+            <text class="txt" x="1196" y="178">一次劳动 → 下次的资产</text>
+            <text class="txt" x="1196" y="206" fill="var(--ink-3)">没有它，前三项每次归零</text>
+          </g>
+          <!-- 汇流线 -->
+          <path class="dw" data-step="4" style="--len:1700;--i:10"
+                d="M175 240 C 175 286, 600 286, 830 286 M561 240 C 561 286, 900 286, 1100 286 M947 240 C 947 286, 1150 286, 1290 286 M1333 240 C 1333 286, 1400 286, 1560 286"
+                stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
+          <text class="ttl pop" data-step="4" style="--i:11" x="1600" y="292" text-anchor="end" fill="var(--amber)">恒动复利</text>
+        </svg>
+      </div>
+      <div class="g2 flow" style="--i:12" data-step="4">
+        <div class="note"><b class="am">是乘法，不是加法。</b>任何一项为 0，整个飞轮不转——这解释了为什么很多人"什么都做了"，却依然等速。</div>
+        <div class="note co">前两个乘数<b>关于你</b>（判断、框架），AI 再强也补不上；后两个乘数<b>关于机制</b>，让前两个能被存下来、被复用。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S10 四种等速 -->
+<section class="slide">
+  <div class="chrome"><span>PART 0 · 开场</span><span>10</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">对号入座</div>
+      <h2 class="ink" style="--i:1">四种「等速」的失败模式</h2>
+      <div class="sub flow" style="--i:2">这四句话里，大概率有一句是你现在的状态。</div>
+    </div>
+    <div class="body">
+      <table class="big flow dn" style="--i:3">
+        <thead><tr><th style="width:230px">缺哪个乘数</th><th style="width:250px">症状</th><th>你会说的话</th><th style="width:360px">根因</th></tr></thead>
+        <tbody>
+          <tr><td>没有 Taste</td><td class="k">越用越平庸</td><td>"写得挺好的呀，我看不出问题。"</td>
+            <td>收到的是"看起来很对"的平庸，而你没有尺子去量它。</td></tr>
+          <tr><td>不当思想者</td><td class="k">越用越同质</td><td>"你帮我想个框架吧。"</td>
+            <td>框架交给 AI，输出就跟全世界一样。独特性只能来自你。</td></tr>
+          <tr><td>没有数据集</td><td class="k">越用越累</td><td>"每次都要重新解释一遍背景。"</td>
+            <td>每个新对话都是新员工第一天。它永远认不得你。</td></tr>
+          <tr><td>没有沉淀</td><td class="k">越用越原地</td><td>"这个错误它上次就犯过。"</td>
+            <td>第 100 次还在纠正第 1 次的错。所有纠正都被扔掉了。</td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:4">接下来四节，一个乘数一节。每一节的入口都是<b class="co">一次真实的翻车</b>——因为方法论最好的入口，是它失效的那一刻。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PART I · TASTE（S11–S23）
+     ============================================================ -->
+
+<!-- S11 幕扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART I · MULTIPLIER 01</div>
+    <div class="en settle" style="--i:1">TASTE</div>
+    <div class="cn spread" style="--i:3">判断力</div>
+    <div class="d flow" style="--i:4">AI 的输出上限，不是模型的上限，是你判断力的上限。<br>你说不出"为什么这版更好"，它就永远给你及格线上的平庸。</div>
+    <div class="rail flow" style="--i:5">
+      <span class="cur">01 Taste</span><span>02 思想者</span><span>03 数据集</span><span>04 沉淀</span>
+    </div>
+  </div>
+</section>
+
+<!-- S12 灵魂拷问 02 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">02</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 想三秒再答</div>
+    <div class="q ink" style="--i:1">上一次你对 AI 的输出说"挺好的"，<br><span class="hl">你能说出它到底好在哪吗？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">如果说不出</span><span class="v">那你怎么让它下一次也这么好？<b>你没有尺子。</b></span></div>
+      <div class="col"><span class="k">更麻烦的是</span><span class="v">你也不知道它这次<b>其实没那么好</b>——因为你没有尺子。</span></div>
+      <div class="col"><span class="k">接下来</span><span class="v">我们看一份"完全正确"的周报，它错得非常离谱。</span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：有没有人愿意说说，你上次是怎么判断"这版更好"的？</div>
+  </div>
+</section>
+
+<!-- S13 命题：下限 vs 上限（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>13</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">命题</div>
+      <h2 class="ink" style="--i:1">换更强的模型，救不了没有 taste 的人</h2>
+    </div>
+    <div class="body">
+      <div class="g-83 flow" style="--i:2">
+        <div class="fig">
+          <svg width="960" height="400" viewBox="0 0 960 400">
+            <!-- 区间条 -->
+            <g class="pop" style="--i:3">
+              <rect x="120" y="300" width="700" height="14" rx="7" class="stroke" stroke-width="1"/>
+              <text class="lbl" x="120" y="352">今天的模型</text>
+            </g>
+            <g class="pop" style="--i:4">
+              <rect x="200" y="300" width="620" height="14" rx="7" fill="var(--hair-strong)"/>
+              <text class="lbl" x="820" y="352" text-anchor="end">更强的模型</text>
+            </g>
+            <!-- 下限箭头 -->
+            <path class="dw" style="--len:120;--i:5" d="M120 250 V294" stroke="var(--ink-3)" stroke-width="1.5" fill="none"/>
+            <path class="dw" style="--len:120;--i:5" d="M200 250 V294" stroke="var(--ink-3)" stroke-width="1.5" fill="none"/>
+            <path class="dw" style="--len:110;--i:6" d="M126 268 H194" stroke="var(--ink-3)" stroke-width="1.5" fill="none" marker-end=""/>
+            <text class="txt pop" style="--i:6" x="120" y="242" fill="var(--ink-3)">下限被抬高 · 所有人都受益</text>
+            <!-- 上限 -->
+            <path class="dw" style="--len:200;--i:7" d="M820 116 V294" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <path class="dw" style="--len:300;--i:8" d="M820 130 C 880 130, 900 90, 930 60" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <text class="ttl pop" style="--i:9" x="700" y="96" fill="var(--amber)" text-anchor="middle">上限只由你的 taste 决定</text>
+            <text class="txt pop" style="--i:9" x="700" y="126" fill="var(--amber)" text-anchor="middle">只有你受益 · 别人抄不走</text>
+            <!-- 底注 -->
+            <text class="lbl pop" style="--i:10" x="470" y="386" text-anchor="middle">当模型对所有人都一样强，差距只剩下 taste</text>
+          </svg>
+        </div>
+        <div class="mid">
+          <div class="card"><div class="tag">大部分人的假设</div><div class="t">输出不好 = 模型不够强</div>
+            <div class="d">于是换模型、换工具、加长提示词。短期有效，很快又回到同一个平台期。</div></div>
+          <div class="card on"><div class="tag am">实际发生的事</div><div class="t">输出不好 = 没人判定它不好</div>
+            <div class="d">模型交出的是<b>概率上最合理</b>的答案。<b class="am">合理 ≠ 正确，更 ≠ 你要的那个。</b></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S14 翻车现场 #1 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>14</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">翻车现场 #1</div>
+      <h2 class="ink" style="--i:1">一份「完全正确」的周报</h2>
+      <div class="sub flow" style="--i:2">场景：我每周要把团队十几个模块填在系统里的进展，提炼成给管理层口头汇报的三句话。</div>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card flow" style="--i:3">
+          <div class="tag">AI 交出的第一稿</div>
+          <div class="d" style="font-size:22px;line-height:2">
+            · 格式完全对，段落层级清楚<br>· 语言流畅，术语准确<br>· 长度合适，重点分明<br>· <b>看不出任何毛病</b></div>
+          <div class="note grey" style="margin-top:auto;font-size:20px">如果你不熟这块业务，你会直接发出去。</div>
+        </div>
+        <div class="card warn flow rev" style="--i:3">
+          <div class="tag co">实际发生了什么</div>
+          <div class="d" style="font-size:22px;line-height:2">
+            它把<b class="co">两周前</b>的事，写成了本周的进展。<br><br>
+            压测、云弹性方向、Alpha 调通、市场线索——<br>四件事全部发生在<b>两周前</b>，被写进了<b>本周</b>的周报。</div>
+          <div class="note co" style="margin-top:auto;font-size:20px">流畅度和正确率，是两件不相关的事。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:5">发出去会怎样：管理层看到的是<b class="co">已经报告过的旧事</b>被当成新进展——一次汇报，赔掉的是长期的可信度。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S15 拆解：权威源（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>15</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">拆解</div>
+      <h2 class="ink" style="--i:1">它没有说谎。它只是抄错了地方。</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="fig">
+          <svg width="600" height="430" viewBox="0 0 600 430">
+            <rect x="60" y="20" width="480" height="390" rx="4" class="stroke" stroke-width="1"/>
+            <!-- 顶部摘要 -->
+            <g class="pop" data-step="1" style="--i:3">
+              <rect x="86" y="52" width="428" height="112" rx="3" fill="none" stroke="var(--coral)" stroke-width="2"/>
+              <text class="lbl" x="106" y="84" fill="var(--coral)">顶部 · 摘要区</text>
+              <text class="txt" x="106" y="116" fill="var(--ink)">格式最完整 · 最像成品</text>
+              <text class="txt" x="106" y="144" fill="var(--coral)">← 其实是还没写的待办</text>
+            </g>
+            <!-- 中间 -->
+            <path class="dw" style="--len:440;--i:4" d="M86 200 H514 M86 226 H460 M86 252 H500" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
+            <!-- 底部详情 -->
+            <g class="pop" data-step="2" style="--i:5">
+              <rect x="86" y="286" width="428" height="98" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>
+              <text class="lbl" x="106" y="316" fill="var(--amber)">底部 · 进展详情区</text>
+              <text class="txt" x="106" y="346" fill="var(--ink)">凌乱 · 口语 · 有错别字</text>
+              <text class="txt" x="106" y="372" fill="var(--amber)">← 唯一的权威源</text>
+            </g>
+            <!-- AI 的目光 -->
+            <path class="dw" style="--len:200;--i:6" d="M20 108 C 44 108, 56 108, 80 108" stroke="var(--coral)" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="108" r="5" class="fill-co pop" data-step="1" style="--i:6"/>
+            <text class="lbl pop" data-step="1" style="--i:7" x="14" y="86" fill="var(--coral)">AI 的本能</text>
+          </svg>
+        </div>
+        <div class="mid">
+          <div class="stat"><div class="v co">0</div><div class="l">更强的模型能减少的错误数。<br>因为这不是能力问题，是<b>信息权威层级</b>问题。</div></div>
+          <div class="note co">AI 会本能地抓<b>"最像成品的那一块"</b>。这是它的默认行为，不是它的缺陷。</div>
+          <div class="note"><b class="am">知道哪份材料才算数的，只有在场的人。</b><br>这就是 taste 的第一个具体形状。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S16 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
+    <div class="q am"><i class="rise" style="--i:1">模型决定下限</i><i class="rise" style="--i:2">Taste 决定上限</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">当模型对所有人都一样强的时候，唯一还能拉开差距的，是你判断它的能力。</div>
+  </div>
+</section>
+
+<!-- S17 Taste 三级（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>17</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">定义</div>
+      <h2 class="ink" style="--i:1">Taste，是你的私人 Eval</h2>
+    </div>
+    <div class="body">
+      <div class="note flow" style="--i:2;font-size:26px;border-left-width:4px">
+        一条判断只存在于一个人脑子里，它是<b>经验</b>。<br>
+        一条判断被写成可重复执行的评测，它才开始成为<b class="am">资产</b>。
+      </div>
+      <div class="fig flow" style="--i:3">
+        <svg width="1400" height="330" viewBox="0 0 1400 330">
+          <!-- 阶梯 -->
+          <path class="dw" style="--len:1500;--i:3"
+                d="M40 290 H400 V204 H800 V118 H1180 V32 H1360"
+                stroke="var(--amber)" stroke-width="3" fill="none"/>
+          <path class="dw stroke" style="--len:1400;--i:4" d="M40 300 H1360" stroke-width="1"/>
+          <g class="pop" data-step="1" style="--i:5">
+            <text class="lbl" x="60" y="270">LEVEL 0 · 感觉</text>
+            <text class="ttl" x="60" y="240">"这版好像好一点"</text>
+            <text class="txt" x="60" y="330" fill="var(--coral)">说不出理由 → 无法传给 AI</text>
+          </g>
+          <g class="pop" data-step="2" style="--i:6">
+            <text class="lbl" x="420" y="184">LEVEL 1 · 理由</text>
+            <text class="ttl" x="420" y="154">"因为第一句就是最重要的事"</text>
+            <text class="txt" x="420" y="330">能说出判据 → 可以变成一条规则</text>
+          </g>
+          <g class="pop" data-step="3" style="--i:7">
+            <text class="lbl" x="1200" y="98" fill="var(--amber)">LEVEL 2 · 标准</text>
+            <text class="ttl" x="1200" y="68" fill="var(--amber)">"一句一信号，读完 ≤ 15 秒"</text>
+            <text class="txt" x="1200" y="330" fill="var(--amber)" text-anchor="start">可执行、可验收 → 这就是你的私人 Eval</text>
+          </g>
+        </svg>
+      </div>
+      <div class="g2 flow" style="--i:8">
+        <div class="note">大部分人的 taste 卡在 Level 0：<b>能感觉，不能表达</b>。于是每次都要亲手改，改完也留不下任何东西——<b class="co">这是"越用越累"的真正来源。</b></div>
+        <div class="note co">从 0 到 1 只差一个动作：<b class="am">每改一处，逼自己补一句"我为什么改这里"。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S18 证据：AI 版 vs 定稿版 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>18</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">证据</div>
+      <h2 class="ink" style="--i:1">同一份材料，AI 版 vs 我的定稿版</h2>
+      <div class="sub flow" style="--i:2">给管理层的三句话摘要。两版都"正确"。差别全在 taste。</div>
+    </div>
+    <div class="body">
+      <div class="vs gfill">
+        <div class="col flow" style="--i:3">
+          <div class="h">AI 第一版</div>
+          <div class="line"><span class="num">01</span>引擎 V2.7 与语音识别 V7.2.2 双双按期全量上线；后续两个版本排期成型。</div>
+          <div class="line"><span class="num">02</span>⚠ 引擎上线后出现超时故障（部分客户启动报错）已紧急止血，补丁本周内发布。</div>
+          <div class="line"><span class="num">03</span>重点客户转化率达标；语音识别月收入同比增长显著、自研模块毛利转正；另一客户测试通过进入预算审批。</div>
+          <div class="note grey" style="margin-top:auto;font-size:19px">四平八稳、信息完整、<b>无可指摘</b>。</div>
+        </div>
+        <div class="col flow rev" style="--i:4">
+          <div class="h">我的定稿版</div>
+          <div class="line"><span class="num">01</span><b>季度重点客户</b>外呼转化率达到目标的 3 倍。</div>
+          <div class="line"><span class="num">02</span>⚠ 引擎上线后超时故障（含 <b>某重点客户</b>启动报错）已紧急止血，补丁本周内发布。</div>
+          <div class="line"><span class="num">03</span>语音识别月收入同比 +93%、自研模块上月毛利转正。</div>
+          <div class="note" style="margin-top:auto;font-size:19px">同样三句，<b class="am">管理层 15 秒内抓到的东西完全不同</b>。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S19 三处改写 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>19</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">把感觉翻译成规则</div>
+      <h2 class="ink" style="--i:1">三处改写，背后是三条模型给不出的判断</h2>
+    </div>
+    <div class="body">
+      <table class="flow dn" style="--i:2">
+        <thead><tr><th style="width:280px">改动</th><th style="width:400px">背后的判断</th><th>为什么模型给不出</th></tr></thead>
+        <tbody>
+          <tr><td>重点客户<br>提到第一句</td><td class="k">这个季度只有一件事最重要，<br>版本节奏可以往后放。</td>
+            <td>"什么最重要"取决于本季度的组织目标——这条信息不在任何一份材料里，只在我脑子里。</td></tr>
+          <tr><td>受影响客户<br>具名</td><td class="k">"部分客户"是安全的废话，<br>具名才会触发管理层的判断。</td>
+            <td>模型倾向于泛化（更安全、更不会错）。<b>敢具名是一种风险承担，不是语言能力。</b></td></tr>
+          <tr><td>第三句<br>不再串第四件事</td><td class="k">一句一信号。<br>串到第四件事，这句就废了。</td>
+            <td>模型的默认倾向是"信息尽量不丢"。<b>删掉正确的信息，需要判断，不需要知识。</b></td></tr>
+        </tbody>
+      </table>
+      <div class="g-83 flow" style="--i:3">
+        <div class="note">注意这三条的共同点：<b>它们都不是"写得更好"，而是"选得更对"</b>。写作是模型的强项，取舍不是。</div>
+        <div class="note co"><b class="am">这三条我当天就写进了规则文件。</b>从那以后，同类摘要它自己就这么写了。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S20 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
+    <div class="q ink"><i class="rise" style="--i:1">Taste 不是天赋</i><i class="rise" style="--i:2">是被逼着说出理由的次数</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">你不需要变成一个更有品味的人。你只需要在每一次修改之后，多说一句为什么。</div>
+  </div>
+</section>
+
+<!-- S21 三个动作 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>21</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">可操作</div>
+      <h2 class="ink" style="--i:1">三个动作，把 taste 从 Level 0 拉到 Level 2</h2>
+    </div>
+    <div class="body">
+      <div class="steps flow" style="--i:2">
+        <div class="s"><span class="i">动作 01</span><span class="t">先自己写一版</span>
+          <span class="d">哪怕只写三行、只写个开头。然后再让 AI 写一版，两版并排。<br><br><b>你的 taste 就藏在两版的差异里</b>——那些"我不会这么写"的地方，就是你的判据。</span></div>
+        <div class="s"><span class="i">动作 02</span><span class="t">改完必须说出理由</span>
+          <span class="d">每改一处，逼自己补一句"我为什么改这里"。<br><br>说不出理由的改动，多半是<b>习惯</b>不是<b>判断</b>——那种改动不值得写进规则。</span></div>
+        <div class="s"><span class="i">动作 03</span><span class="t">建自己的正例库</span>
+          <span class="d">你认可的成品单独存一个地方：最好的一版周报、最好的一封邮件、最好的一页 deck。<br><br><b>正例库就是你的评分标准</b>，也是下次最有效的输入。</span></div>
+      </div>
+      <div class="g2 flow" style="--i:3">
+        <div class="card"><div class="tag">最省力的起手式</div>
+          <div class="d" style="font-size:22px">不要说"帮我写一份周报"。<br>要说：<b class="am">"照这份（上次我自己定稿的）的格式和取舍标准，用这批新材料再做一份。"</b><br><br>一句话，同时给了它<b>正例</b>和<b>判据</b>。</div></div>
+        <div class="card warn"><div class="tag co">最容易被忽略的一条</div>
+          <div class="d" style="font-size:22px">Taste 是<b>领域特定</b>的。你在自己业务里判断力极强，换个领域就归零。<br><br><b class="co">所以别在你没有 taste 的领域，指望 AI 帮你产出高质量结果</b>——那里你连验收都做不到。</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S22 把顺当对 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>22</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">最常见的陷阱</div>
+      <h2 class="ink" style="--i:1">把「顺」当成「对」</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="mid">
+          <div class="stat"><div class="v co">≠</div><div class="l"><b>流畅度</b>与<b>正确率</b>之间，<br>没有相关性。</div></div>
+          <div class="note co">人类的直觉是反过来的：说话越有条理的人，我们越倾向于相信他。<b>这个直觉在 AI 面前完全失效。</b></div>
+        </div>
+        <div class="card">
+          <div class="tag">验收时，问题要换一种问法</div>
+          <table class="tight" style="margin-top:4px">
+            <thead><tr><th style="width:300px">❌ 你现在在问</th><th>✅ 你应该问</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--ink-3);font-weight:300;white-space:normal">"写得怎么样？"</td><td>"这一条的出处是哪份材料？"</td></tr>
+              <tr><td style="color:var(--ink-3);font-weight:300;white-space:normal">"读起来顺不顺？"</td><td>"哪几条是你推断的，不是材料里写的？"</td></tr>
+              <tr><td style="color:var(--ink-3);font-weight:300;white-space:normal">"逻辑通不通？"</td><td>"最重要的那件事，在第几句？"</td></tr>
+              <tr><td style="color:var(--ink-3);font-weight:300;white-space:normal">"有没有遗漏？"</td><td>"你逐项检查一遍，有没有该删没删的？"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">左边那四个问题，AI 永远回答"挺好的"。右边那四个问题，<b class="am">它必须回到材料里去核对</b>——问法本身就是一道护栏。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S23 Part I 小结 -->
+<section class="slide">
+  <div class="chrome"><span>PART I · TASTE</span><span>23</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Part I 小结</div>
+      <h2 class="ink" style="--i:1">带走一句，带走一个动作</h2>
+    </div>
+    <div class="body">
+      <div class="g2 flow" style="--i:2">
+        <div class="card-w"><div class="tag">带走这一句</div>
+          <div class="t" style="font-size:34px;line-height:1.35">模型决定下限<br>Taste 决定上限</div>
+          <div class="d">你的 taste 就是你的私人 Eval。它不是天赋，是被逼着说出理由的次数。</div></div>
+        <div class="card on"><div class="tag am">今晚就做这一个动作</div>
+          <div class="t" style="font-size:30px;line-height:1.4">改完之后，<br>逼自己说出一句"我为什么改这里"</div>
+          <div class="d">说得出的，写下来——它就是一条规则。<br>说不出的，那多半只是习惯，别写。<br><br><b class="am">耗时：每次 10 秒。</b></div></div>
+      </div>
+      <div class="note co flow" style="--i:3">下一节：你已经有了尺子。但如果<b>该往哪想</b>这件事也交给它——你会掉进一片一模一样的海。</div>
+    </div>
+  </div>
+</section>
+<!-- ============================================================
+     PART II · THINKER（S24–S34）
+     ============================================================ -->
+
+<!-- S24 幕扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART II · MULTIPLIER 02</div>
+    <div class="en settle" style="--i:1">THINKER</div>
+    <div class="cn spread" style="--i:3">人做思想者</div>
+    <div class="d flow" style="--i:4">用得越深的人，越不会把第一性原理层的框架交给 AI。<br>思想者是人，AI 是执行者，和查漏补缺者。</div>
+    <div class="rail flow" style="--i:5">
+      <span>01 Taste</span><span class="cur">02 思想者</span><span>03 数据集</span><span>04 沉淀</span>
+    </div>
+  </div>
+</section>
+
+<!-- S25 灵魂拷问 03 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">03</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 诚实回答</div>
+    <div class="q ink" style="--i:1">你上一次让 AI「帮你想一个框架」，<br><span class="hl">是什么时候？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">如果是这周</span><span class="v">那你要小心：你外包出去的，可能正是这件事上<b>唯一属于你</b>的东西。</span></div>
+      <div class="col"><span class="k">代价不是"错"</span><span class="v">而是"平庸而不自知"——你会拿到一个专业、安全、无可指摘的答案。</span></div>
+      <div class="col"><span class="k">接下来</span><span class="v">我用一个词，来说明那一步跳跃它为什么迈不出去。</span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：你们觉得，什么样的问题最不该问 AI？</div>
+  </div>
+</section>
+
+<!-- S26 问题越小 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>26</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">反直觉</div>
+      <h2 class="ink" style="--i:1">越会用 AI 的人，问它的问题越「小」</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card warn flow" style="--i:2">
+          <div class="tag co">用得浅的人问</div>
+          <div class="d" style="font-size:23px;line-height:2">
+            "帮我想一个分析框架。"<br>"这个问题应该怎么切？"<br>"给我三个方向，我选一个。"<br>"你觉得我该做什么？"</div>
+          <div class="note co" style="margin-top:auto;font-size:20px">
+            共同点：<b>把"该往哪想"外包了出去</b>。<br>得到的一定是训练数据里的中位数答案。</div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">用得深的人问</div>
+          <div class="d" style="font-size:23px;line-height:2">
+            "我的框架是 A/B 两层，帮我按这个把材料填进去。"<br>"我认为结论是 X，帮我找三条最强的反驳。"<br>"这一版我加了一个隐喻，逐页检查哪里没跟上。"<br>"把我刚才改你的地方，总结成下次的规则。"</div>
+          <div class="note" style="margin-top:auto;font-size:20px">
+            共同点：<b>框架我出，剩下的你干</b>。<br>它的能力被用在了它真正强的地方。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">这不是谦虚，是分工。<b class="am">让 AI 定义问题，等于放弃了这件事上唯一属于你的东西。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S27 分工界线（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>27</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">分工</div>
+      <h2 class="ink" style="--i:1">人在最上游和最下游，AI 在中间那一大段</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1660" height="360" viewBox="0 0 1660 360">
+          <!-- 河道 -->
+          <path class="dw" style="--len:1800;--i:2" d="M40 150 C 340 106, 560 194, 830 150 S 1340 106, 1620 150"
+                stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <path class="dw" style="--len:1800;--i:3" d="M40 210 C 340 166, 560 254, 830 210 S 1340 166, 1620 210"
+                stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <!-- 人段 · 上游 -->
+          <path class="dw" data-step="1" style="--len:600;--i:4" d="M40 150 C 200 122, 300 166, 420 150 M40 210 C 200 182, 300 226, 420 210"
+                stroke="var(--amber)" stroke-width="3.5" fill="none"/>
+          <!-- 人段 · 下游 -->
+          <path class="dw" data-step="3" style="--len:600;--i:5" d="M1300 156 C 1420 140, 1520 166, 1620 150 M1300 216 C 1420 200, 1520 226, 1620 210"
+                stroke="var(--amber)" stroke-width="3.5" fill="none"/>
+          <g class="pop" data-step="1" style="--i:6">
+            <text class="lbl" x="40" y="96" fill="var(--amber)">上游 · 人 · 不可让渡</text>
+            <text class="ttl" x="40" y="66">定义问题 · 给出框架</text>
+            <text class="txt" x="40" y="290">"该问什么"取决于你的处境</text>
+            <text class="txt" x="40" y="316">不在任何训练数据里</text>
+          </g>
+          <g class="pop" data-step="2" style="--i:7">
+            <text class="lbl" x="850" y="96" text-anchor="middle">中游 · AI 主力</text>
+            <text class="ttl" x="850" y="66" text-anchor="middle">收集 · 整理 · 扩写 · 查漏 · 反驳</text>
+            <text class="txt" x="850" y="290" text-anchor="middle">它比你快两个数量级，且不会因为无聊而漏</text>
+            <text class="txt" x="850" y="316" text-anchor="middle" fill="var(--amber)">「查漏与反驳」是最被低估的一格</text>
+          </g>
+          <g class="pop" data-step="3" style="--i:8">
+            <text class="lbl" x="1620" y="96" text-anchor="end" fill="var(--amber)">下游 · 人 · 不可让渡</text>
+            <text class="ttl" x="1620" y="66" text-anchor="end">下判断 · 担后果</text>
+            <text class="txt" x="1620" y="290" text-anchor="end">签字的是你</text>
+            <text class="txt" x="1620" y="316" text-anchor="end">没有人会为一个模型的判断负责</text>
+          </g>
+          <!-- 分界 -->
+          <path class="dw" style="--len:260;--i:9" d="M430 40 V330 M1290 40 V330" stroke="var(--hair-strong)" stroke-width="1" stroke-dasharray="5 8" fill="none"/>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:10">大多数人只用了中游的<b>"收集、整理、扩写"</b>三格，<b class="am">完全没有用"查漏与反驳"</b>——它没有沉没成本、不怕得罪你、不会因为熬夜写完而舍不得删。<b>它是最好的红队。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S28 案例上半场 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>28</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">案例 · 上半场</div>
+      <h2 class="ink" style="--i:1">一个词的差距</h2>
+      <div class="sub flow" style="--i:2">场景：准备一场行业大会的主题演讲，要把过去 18 个月分别讲过的两条线，第一次合并成一张完整的地图。</div>
+    </div>
+    <div class="body">
+      <div class="g3 flow" style="--i:3">
+        <div class="card"><div class="tag">我给的输入（这是我出的框架）</div>
+          <div class="t">"两条线要合体，<br>不做合订本，<br>要升维成一张地图"</div>
+          <div class="d">框架、目标、禁区，全部由我给定。</div></div>
+        <div class="card warn"><div class="tag co">AI 给的答案</div>
+          <div class="t">"分化为两个<b class="co">品类</b>"</div>
+          <div class="d">专业、安全、无可指摘。<br><br>也<b>平庸</b>——这是行业黑话，谁都能想到，听完就忘。</div></div>
+        <div class="card on"><div class="tag am">我反推的一句话</div>
+          <div class="t">"中文用<b class="am">物种</b>，<br>会不会比品类更好？"</div>
+          <div class="d">整场演讲的世界观，从这一句开始重建。</div></div>
+      </div>
+      <div class="g-83 flow" style="--i:4">
+        <div class="card">
+          <div class="tag">为什么"物种"完胜</div>
+          <div class="d" style="font-size:21px">
+            ① 中英完美对仗（species ↔ 物种），标题一眼成立<br>
+            ② 和已有的"两个半球"自洽成同一套生物地理学语境<br>
+            ③ "分化 + 物种"是教科书级搭配，"品类"反而把场子压扁<br>
+            ④ 它带出了下半句——<b class="am">同源进化</b>：一颗引擎，两个物种</div>
+        </div>
+        <div class="mid">
+          <div class="note co">这四条理由 AI 事后都能说得很好。<br><b>但那一步跳跃，它没有迈。</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S29 案例下半场 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>29</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">案例 · 下半场</div>
+      <h2 class="ink" style="--i:1">同一个案例的另一半：它救了我</h2>
+      <div class="sub flow" style="--i:2">隐喻定了，接下来是把它贯穿到 45 页里。这一步我做不好，它做得比我好。</div>
+    </div>
+    <div class="body">
+      <div class="steps flow" style="--i:3">
+        <div class="s"><span class="i">第 1 轮</span><span class="t">我自己列的修订清单</span>
+          <span class="d">封面 + 四张"脊椎骨"页 = <b>5 张</b>。<br><br>我以为已经覆盖了。</span></div>
+        <div class="s"><span class="i">第 2 轮</span><span class="t">我追问了一句</span>
+          <span class="d"><b class="am">"再仔细检查一下，逐项有没有漏掉的。"</b><br><br>没有给任何新信息，只是让它重新扫一遍。</span></div>
+        <div class="s"><span class="i">结果</span><span class="t">补出了 6 张承重页</span>
+          <span class="d">两张分节扉页、一张背书页、一张收尾页、一张架构图、一张能力页——<b>全是隐喻系统的骨节</b>。</span></div>
+        <div class="s"><span class="i">代价</span><span class="t">如果不问那一句</span>
+          <span class="d">这份 deck 会是<b class="co">半新半旧</b>的：前面讲物种，中间突然回到旧语言。<br><br>观众说不出哪里不对，但会觉得不对。</span></div>
+      </div>
+      <div class="g2 flow" style="--i:4">
+        <div class="note">我漏掉那 6 张，不是因为不认真，是因为<b>我写了两天，我的眼睛已经不看细节了</b>。它没有这个问题。</div>
+        <div class="note co">同一件事，我的第一轮命中 <b>5/11</b>，追问一句之后 <b class="am">11/11</b>。<b>这一句话的边际收益，比任何提示词技巧都高。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S30 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
+    <div class="q am"><i class="rise" style="--i:1">"再仔细检查一下</i><i class="rise" style="--i:2">逐项有没有漏掉的"</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">整门课里投入产出比最高的一句话。不给新信息，只让它重扫一遍——几乎每一次都能捞出东西。</div>
+  </div>
+</section>
+
+<!-- S31 一个案例两件事 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>31</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">合起来看</div>
+      <h2 class="ink" style="--i:1">一个案例，同时证明了两件事</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card-w flow" style="--i:2">
+          <div class="tag">上半场</div><div class="n">01</div><div class="t">思想者是人</div>
+          <div class="d">"物种"这一步跳跃，来自我对整场演讲的世界观、对中文语感、对听众的判断。<br><br>
+          <b>这三样都不在材料里，只在我这里。</b><br><br>
+          如果我把"想一个统一隐喻"整个交给它，我会拿到一个专业、安全、平庸的答案，
+          而且<b>我不会知道自己错过了什么</b>——这才是最危险的部分。</div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">下半场</div><div class="n">02</div><div class="t">查漏补缺是 AI</div>
+          <div class="d">把一个隐喻贯穿到 45 页、逐页检查一致性——这件事我做得不如它。<br><br>
+          <b class="am">我有疲劳、有盲区、有"我已经写过了"的自我确认。它一样都没有。</b><br><br>
+          它不需要理解"物种"的诗意，只需要机械地问：这一页的语言，跟新定的隐喻一致吗？<br><br>
+          这恰恰是机器最擅长的活。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">所以正确的用法不是"人机各干一半"，而是：<b class="am">人在最上游和最下游，AI 在中间那一大段。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S32 同质化 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>32</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">代价</div>
+      <h2 class="ink" style="--i:1">把框架交出去，你会掉进一片一模一样的海</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="fig">
+          <svg width="580" height="360" viewBox="0 0 580 360">
+            <!-- 同质的浪：全部一样的曲线 -->
+            <path class="dw" style="--len:600;--i:3" d="M20 70 C 130 34, 240 106, 350 70 S 520 34, 560 62" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+            <path class="dw" style="--len:600;--i:4" d="M20 130 C 130 94, 240 166, 350 130 S 520 94, 560 122" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+            <path class="dw" style="--len:600;--i:5" d="M20 190 C 130 154, 240 226, 350 190 S 520 154, 560 182" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+            <path class="dw" style="--len:600;--i:6" d="M20 250 C 130 214, 240 286, 350 250 S 520 214, 560 242" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+            <!-- 唯一不同的一条 -->
+            <path class="dw" style="--len:640;--i:8" d="M20 320 C 120 220, 250 344, 356 250 S 500 300, 560 200" stroke="var(--amber)" stroke-width="3.5" fill="none"/>
+            <text class="lbl pop" style="--i:9" x="20" y="352" fill="var(--amber)">你的框架 · 唯一不重合的那一条</text>
+          </svg>
+        </div>
+        <div class="card">
+          <div class="tag">同质化发生在三个层面</div>
+          <table class="tight" style="margin-top:4px">
+            <thead><tr><th style="width:150px">层面</th><th>症状</th></tr></thead>
+            <tbody>
+              <tr><td>结构</td><td>都是"三个维度 / 四个象限 / 五大趋势"，都有一个总分总。</td></tr>
+              <tr><td>措辞</td><td>都在用"赋能、抓手、闭环、深度融合"这一批安全词。</td></tr>
+              <tr><td>判断</td><td>都不得罪人，都留有余地，<b class="co">都没有立场</b>。</td></tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:16px;font-size:20px">
+            前两层是风格问题，改改就好。<br><b class="co">第三层是致命的——没有立场的东西，没有人会记住。</b></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">AI 让"做出一个还不错的东西"变得极其便宜。<b class="am">正因为如此，"还不错"第一次变得毫无价值。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S33 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 05</div>
+    <div class="q ink"><i class="rise" style="--i:1">AI 能帮你把话说得更好</i><i class="rise" style="--i:2">但不能替你决定该说什么</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">它是最好的执行者，也是最好的红队。唯独不能是思想者——那个位置一旦空出来，就再也填不回去了。</div>
+  </div>
+</section>
+
+<!-- S34 Part II 小结 -->
+<section class="slide">
+  <div class="chrome"><span>PART II · THINKER</span><span>34</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Part II 小结</div>
+      <h2 class="ink" style="--i:1">带走一句，带走一个动作</h2>
+    </div>
+    <div class="body">
+      <div class="g2 flow" style="--i:2">
+        <div class="card-w"><div class="tag">带走这一句</div>
+          <div class="t" style="font-size:32px;line-height:1.35">人在最上游和最下游<br>AI 在中间那一大段</div>
+          <div class="d">定义问题、给出框架、下判断担后果——三件不可让渡。查漏与反驳——它最强，而你几乎没用过。</div></div>
+        <div class="card on"><div class="tag am">今晚就做这一个动作</div>
+          <div class="t" style="font-size:28px;line-height:1.4">把"帮我想个框架"<br>换成"我的框架是 A/B，你来填"</div>
+          <div class="d">再加一句收尾：<b class="am">"逐项检查一遍，有没有漏掉的。"</b><br><br>一头一尾，把它放回它该在的位置。<br><br><b class="am">耗时：0 分钟，只是换个说法。</b></div></div>
+      </div>
+      <div class="note co flow" style="--i:3">下一节：尺子有了，框架也是你的了。<b>但如果每次开新对话它都不认得你，前面这两件事每天都要重来一遍。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PART III · DATASET（S35–S51）
+     ============================================================ -->
+
+<!-- S35 幕扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART III · MULTIPLIER 03</div>
+    <div class="en settle" style="--i:1">DATASET</div>
+    <div class="cn spread" style="--i:3">个人数据集</div>
+    <div class="d flow" style="--i:4">你和别人用的是同一个模型。差别在于——它读过谁的东西。<br>你在做的，其实是一件叫「后训练」的事。</div>
+    <div class="rail flow" style="--i:5">
+      <span>01 Taste</span><span>02 思想者</span><span class="cur">03 数据集</span><span>04 沉淀</span>
+    </div>
+  </div>
+</section>
+
+<!-- S36 灵魂拷问 04 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">04</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 这一问最扎心</div>
+    <div class="q ink" style="--i:1">如果明天你换一个全新的 AI，<br><span class="hl">你要花多久，才能让它回到今天的状态？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">如果答案是"几分钟"</span><span class="v">恭喜，你有数据集——你只需要把它整包扔过去。</span></div>
+      <div class="col"><span class="k">如果答案是"要重新磨很久"</span><span class="v">那说明这一年的磨合，<b>全部存在了一个你带不走的地方</b>。</span></div>
+      <div class="col"><span class="k">最坏的答案是</span><span class="v">"我也不知道我都跟它说过什么。"——那就等于什么都没积累。</span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：有多少人，今天的对话记录里躺着自己再也找不回来的东西？</div>
+  </div>
+</section>
+
+<!-- S37a 隐喻：模型是一个读过全世界但不认识你的人 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>37</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">先打个比方</div>
+      <h2 class="ink" style="--i:1">模型是一个读过全世界、<span class="am">但不认识你</span>的人</h2>
+      <div class="sub flow" style="--i:2">在讲"该喂它什么"之前，先花两页把它是怎么来的说清楚——这是全场最需要讲透的一段。</div>
+    </div>
+    <div class="body">
+      <div class="g3">
+        <div class="card rise" style="--i:3">
+          <div class="tag">第一步 · 他读书</div><div class="t">读完了人类的图书馆</div>
+          <div class="d">没有人教他任何具体任务。他只是把海量文本读了一遍又一遍，学会了<b>语言、常识、推理的底子</b>。<br><br>
+          结果：他什么都懂一点，但不知道该怎么跟人说话。</div>
+        </div>
+        <div class="card rise" style="--i:4">
+          <div class="tag">第二步 · 有人教他做事</div><div class="t">学会了怎么回答</div>
+          <div class="d">有人给他示范"好的回答长什么样"，再让他在两个答案里选更好的那个，反复很多轮。<br><br>
+          结果：他变得<b>有礼貌、听指令、会拒绝</b>——但这套标准是厂商的，不是你的。</div>
+        </div>
+        <div class="card on rise" style="--i:5">
+          <div class="tag am">第三步 · 他来到你面前</div><div class="t">什么都懂，<br>就是不认识你</div>
+          <div class="d">他不知道你是谁、你在做什么、你这周卡在哪、你讨厌哪种表达、你的红线在哪。<br><br>
+          <b class="am">你要做的，不是重训他的大脑——是给他一份关于你的档案，和一套跟你合作的规矩。</b></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:6;font-size:26px;border-left-width:4px">
+        所以这一节真正的命题是：<b class="am">厂商决定它懂多少，你决定它懂不懂你。</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S37b 工作原理概述：一个模型是用什么造出来的（SVG · 分步） -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>38</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">概述工作原理</div>
+      <h2 class="ink" style="--i:1">一个模型，是用什么造出来的</h2>
+      <div class="sub flow" style="--i:2">用一条你熟悉的生产线来看：生产资料 → 生产工具 → 劳动力 → 生产力。</div>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:3">
+        <svg width="1620" height="380" viewBox="0 0 1620 380">
+          <!-- 主流水线 -->
+          <path class="dw" style="--len:1600;--i:3" d="M40 200 H1560" stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+          <g data-step="1">
+            <rect class="box pop" style="--i:0" x="40" y="120" width="330" height="160" rx="4"/>
+            <text class="lbl pop" style="--i:0" x="68" y="158">生产资料 · MATERIAL</text>
+            <text class="ttl pop" style="--i:0" x="68" y="198">数据</text>
+            <text class="sm pop" style="--i:1" x="68" y="232">互联网文本 · 代码 · 书 · 对话</text>
+            <text class="sm pop" style="--i:1" x="68" y="258">规模以「万亿 token」计</text>
+          </g>
+          <g data-step="2">
+            <path class="dw" style="--len:60;--i:0" d="M382 200 H424 M406 188 L424 200 L406 212" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <rect class="box pop" style="--i:0" x="440" y="120" width="330" height="160" rx="4"/>
+            <text class="lbl pop" style="--i:0" x="468" y="158">生产工具 · TOOLING</text>
+            <text class="ttl pop" style="--i:0" x="468" y="198">架构 + 算力</text>
+            <text class="sm pop" style="--i:1" x="468" y="232">Transformer · GPU 集群</text>
+            <text class="sm pop" style="--i:1" x="468" y="258">训练一次以「月」和「亿美元」计</text>
+          </g>
+          <g data-step="3">
+            <path class="dw" style="--len:60;--i:0" d="M782 200 H824 M806 188 L824 200 L806 212" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <rect class="box pop" style="--i:0" x="840" y="120" width="330" height="160" rx="4"/>
+            <text class="lbl pop" style="--i:0" x="868" y="158">劳动力 · LABOR</text>
+            <text class="ttl pop" style="--i:0" x="868" y="198">人（和 AI）的判断</text>
+            <text class="sm pop" style="--i:1" x="868" y="232">清洗 · 标注 · 示范 · 偏好排序</text>
+            <text class="sm pop" style="--i:1" x="868" y="258">这一步决定它「像不像人」</text>
+          </g>
+          <g data-step="4">
+            <path class="dw" style="--len:60;--i:0" d="M1182 200 H1224 M1206 188 L1224 200 L1206 212" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <rect class="pop" style="--i:0" x="1240" y="120" width="330" height="160" rx="4" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <text class="lbl pop" style="--i:0" x="1268" y="158" fill="var(--amber)">生产力 · CAPABILITY</text>
+            <text class="ttl pop" style="--i:0" x="1268" y="198" fill="var(--amber)">一个会预测下一个词的模型</text>
+            <text class="sm pop" style="--i:1" x="1268" y="232">从这个简单目标里，涌现出</text>
+            <text class="sm pop" style="--i:1" x="1268" y="258">翻译 · 推理 · 写代码 · 归纳</text>
+          </g>
+          <!-- 阶段标注 -->
+          <g data-step="4">
+            <path class="dw" style="--len:800;--i:2" d="M40 92 H770 M840 92 H1170" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
+            <text class="lbl pop" style="--i:2" x="405" y="76" text-anchor="middle">预训练 PRE-TRAINING</text>
+            <text class="lbl pop" style="--i:2" x="1005" y="76" text-anchor="middle">后训练 POST-TRAINING</text>
+            <text class="lbl pop" style="--i:3" x="1405" y="76" text-anchor="middle" fill="var(--amber)">交付给你的东西</text>
+          </g>
+          <!-- 量级对比：把"你的杠杆有多便宜"钉死 -->
+          <g data-step="5">
+            <path class="dw" style="--len:1560;--i:0" d="M40 318 H1560" stroke="var(--hair-soft)" stroke-width="1" fill="none"/>
+            <text class="lbl pop" style="--i:1" x="40" y="348">量级 · ORDER OF MAGNITUDE</text>
+            <text class="txt pop" style="--i:1" x="405" y="348" text-anchor="middle">万亿 token · 数月 · 数亿美元</text>
+            <text class="txt pop" style="--i:2" x="1005" y="348" text-anchor="middle">十万～百万条 · 数周 · 人力密集</text>
+            <text class="ttl pop" style="--i:3" x="1560" y="348" text-anchor="end" fill="var(--amber)">你这一层：几百字 · 几分钟 · 一个人</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:10">注意最后一格：它的目标函数简单到令人意外——<b>只是预测下一个词</b>。所有让你惊艳的能力，都是从这个目标里<b class="am">涌现</b>出来的副产品。这也是它为什么会一本正经地编：<b class="co">"接下来最可能是什么"和"这是不是真的"，本来就不是同一个问题。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S37c 你的位置：改不了权重，但决定它每次看到什么（分步） -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>39</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">那么你在哪一格</div>
+      <h2 class="ink" style="--i:1">你改不了它的大脑，<span class="am">但你决定它每次看到什么</span></h2>
+    </div>
+    <div class="body">
+      <div class="g2" data-step="1">
+        <div class="card warn flow" style="--i:0">
+          <div class="tag co">权重 · WEIGHTS</div><div class="t">它"记住"的东西</div>
+          <div class="d" style="font-size:21px;line-height:1.8">
+            由预训练和后训练写死，几千亿个参数。<br><br>
+            改它需要：海量数据 + 大量算力 + 数周时间。<br><br>
+            <b class="co">你改不了，绝大多数人也不需要改。</b></div>
+        </div>
+        <div class="card on flow rev" style="--i:0">
+          <div class="tag am">上下文 · CONTEXT</div><div class="t">它这一次"看到"的东西</div>
+          <div class="d" style="font-size:21px;line-height:1.8">
+            每一次推理，它眼前只有你给的这一段。<br><br>
+            改它需要：<b>写一份文档</b>。<br><br>
+            <b class="am">这是唯一完全由你掌控的一层——也是 99% 的人真正在做的事。</b></div>
+        </div>
+      </div>
+      <div class="g3" data-step="2">
+        <div class="card sm rise" style="--i:0"><div class="hd"><span class="n">01</span><span class="t">规矩</span></div>
+          <div class="tag">系统提示 / 手册</div>
+          <div class="d">我是谁、我的风格、我的红线。<b>每次自动加载。</b></div></div>
+        <div class="card sm rise" style="--i:1"><div class="hd"><span class="n">02</span><span class="t">材料</span></div>
+          <div class="tag">知识库 / 检索</div>
+          <div class="d">我的文档、我的历史、我的决策记录。<b>按需取用。</b></div></div>
+        <div class="card sm rise" style="--i:2"><div class="hd"><span class="n">03</span><span class="t">现场</span></div>
+          <div class="tag">工具 / 权限</div>
+          <div class="d">让它能读文件、跑代码、查东西。<b>把纸上谈兵变成动手。</b></div></div>
+      </div>
+      <div class="note flow" style="--i:6" data-step="3">
+        所以"个人数据集"的准确定义是：<b class="am">你能在每一次推理时，塞进它视野里的一切。</b>
+        它不改变模型，它改变<b>这一次的模型行为</b>——而那恰恰是你能拿到的全部杠杆。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S38 五层数据集（SVG + 表） -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>40</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">核心模型</div>
+      <h2 class="ink" style="--i:1">个人数据集的五层</h2>
+      <div class="sub flow" style="--i:2">从"资料"一路走到"你"。越往下越难写，也越值钱。</div>
+    </div>
+    <div class="body">
+      <div class="g-38">
+        <div class="fig flow" style="--i:3">
+          <svg width="520" height="420" viewBox="0 0 520 420">
+            <path class="dw" style="--len:520;--i:3" d="M40 60 H480" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
+            <path class="dw" style="--len:460;--i:4" d="M70 130 H450" stroke="var(--coral)" stroke-width="2.5" fill="none"/>
+            <path class="dw" style="--len:400;--i:5" d="M100 200 H420" stroke="var(--amber)" stroke-width="3" fill="none"/>
+            <path class="dw" style="--len:340;--i:6" d="M130 270 H390" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <path class="dw" style="--len:280;--i:7" d="M160 340 H360" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <g class="pop" style="--i:8">
+              <text class="lbl" x="40" y="44">① 事实层 · 资料</text>
+              <text class="lbl" x="70" y="114" fill="var(--coral)">② 现场层 · 最易过期</text>
+              <text class="lbl" x="100" y="184" fill="var(--amber)">③ 思考层 · 最值钱</text>
+              <text class="lbl" x="130" y="254">④ 能力层</text>
+              <text class="lbl" x="160" y="324">⑤ 偏好层 · 你</text>
+            </g>
+            <path class="dw" style="--len:340;--i:9" d="M500 60 V 340" stroke="var(--hair-strong)" stroke-width="1" stroke-dasharray="4 7" fill="none"/>
+            <text class="txt pop" style="--i:10" x="516" y="210" text-anchor="middle" transform="rotate(90 516 210)" fill="var(--ink-3)">越往下 · 越难写 · 越值钱</text>
+          </svg>
+        </div>
+        <div class="flow dn" style="--i:4">
+          <div class="layer"><span class="idx">①</span><span class="nm">事实层</span>
+            <span class="ds">我是谁、我负责什么、我做过什么。简历、职责、履历、当前角色。</span><span class="fr">半年一更</span></div>
+          <div class="layer hot"><span class="idx">②</span><span class="nm">现场层</span>
+            <span class="ds"><b>我的世界此刻正在发生什么</b>：本周在推什么、卡在哪、谁在跟我协作、这季度的重点是谁。</span><span class="fr">每周一更</span></div>
+          <div class="layer"><span class="idx">③</span><span class="nm">思考层</span>
+            <span class="ds">我正在想什么、我的框架、我的判断、<b>我否掉了什么以及为什么</b>。</span><span class="fr">每次沉淀</span></div>
+          <div class="layer"><span class="idx">④</span><span class="nm">能力层</span>
+            <span class="ds">我的长处是什么、<b>我的瓶颈是什么</b>。它该在哪儿闭嘴，该在哪儿顶上。</span><span class="fr">每季一更</span></div>
+          <div class="layer"><span class="idx">⑤</span><span class="nm">偏好层</span>
+            <span class="ds">我喜欢什么、讨厌什么、我的红线在哪。决定它的 taste 有没有跟你对齐。</span><span class="fr">每季一更</span></div>
+        </div>
+      </div>
+      <div class="g2 flow" style="--i:5">
+        <div class="note">大部分人只喂了 ①。所以无论怎么调提示词，都像在<b>跟一个礼貌的陌生人说话</b>。</div>
+        <div class="note co">② 是最容易被忽略、也最容易过期的一层——<b>你的世界每周都在变，你的背景文档三个月没动过。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S39 ①②层 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>41</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第 ① ② 层</div>
+      <h2 class="ink" style="--i:1">事实层与现场层：让它知道你是谁、你在哪</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card flow" style="--i:2">
+          <div class="tag">① 事实层 · 半年一更</div><div class="t">静态的你</div>
+          <div class="d" style="line-height:1.9">
+            · 我的角色、职责范围、汇报关系<br>
+            · 我负责的产品线是什么，处在什么阶段<br>
+            · 我的履历（它会用来校准该跟你说多深）<br>
+            · 团队构成、协作方</div>
+          <div class="note grey" style="margin-top:auto;font-size:19px">成本最低、收益立竿见影。<b>这一层写完，它才开始"认得你"。</b></div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">② 现场层 · 每周一更</div><div class="t">此刻的你</div>
+          <div class="d" style="line-height:1.9">
+            · 这周在推什么，卡在哪一步<br>
+            · 这个季度最重要的一件事是什么<br>
+            · 最近做了哪几个决定，理由是什么<br>
+            · 谁在跟我协作，各自在等什么</div>
+          <div class="note" style="margin-top:auto;font-size:19px">这一层决定它给的建议<b>切不切题</b>。没有它，你会得到一堆"正确但没用"的答案。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">回到第 18 页那个例子：AI 之所以没把重点客户放第一句，<b class="am">不是它不懂轻重，是没人告诉它这个季度最重要的是谁</b>——那就是现场层缺失。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S40 ③思考层 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>42</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第 ③ 层 · 最贵的一层</div>
+      <h2 class="ink" style="--i:1">数据集里最值钱的不是资料，是判断</h2>
+    </div>
+    <div class="body">
+      <div class="g2 flow" style="--i:2">
+        <div class="card warn"><div class="tag co">资料 —— 不值钱</div>
+          <div class="d" style="font-size:22px">行业报告、竞品功能表、公开数据、会议纪要、技术文档……<br><br>
+          <b class="co">这些它自己都能搜到，而且搜得比你全。</b><br><br>
+          把这类东西堆进知识库，只会稀释真正重要的信号。</div></div>
+        <div class="card on"><div class="tag am">判断 —— 全世界只有你有</div>
+          <div class="d" style="font-size:22px">
+            · 我<b>为什么</b>这么定<br>· 我<b>否掉了</b>哪些方案，理由是什么<br>· 我踩过什么坑，代价是多少<br>· 哪些是我的红线，绝对不碰<br><br>
+          <b class="am">这些没有任何公开语料，只在你脑子里。</b></div></div>
+      </div>
+      <div class="g3 flow" style="--i:3">
+        <div class="card sm"><div class="tag">怎么留</div><div class="t">决策记录</div>
+          <div class="d">每个重要决定写三行：<b>背景 / 结论 / 依据</b>。三行就够。</div></div>
+        <div class="card sm"><div class="tag">怎么留</div><div class="t">被否掉的方案</div>
+          <div class="d">比通过的方案更值钱。<b>它标出了你的边界。</b></div></div>
+        <div class="card sm"><div class="tag">怎么留</div><div class="t">踩过的坑</div>
+          <div class="d">写"坑 → 矫正"两栏。<b>这是最直接可执行的规则源。</b></div></div>
+      </div>
+      <div class="note flow" style="--i:4">检验标准很简单：<b class="am">如果这段内容 AI 自己能搜到，它就不该占你数据集的位置。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S41 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 06</div>
+    <div class="q am"><i class="rise" style="--i:1">数据集里最值钱的</i><i class="rise" style="--i:2">不是资料，是判断</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">资料它自己能搜到，而且搜得比你全。你为什么这么定、你否掉了什么、你的红线在哪——全世界只有你有。</div>
+  </div>
+</section>
+
+<!-- S42 ④⑤层 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>44</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第 ④ ⑤ 层 · 最难写的两层</div>
+      <h2 class="ink" style="--i:1">能力层与偏好层：它该在哪儿闭嘴，该在哪儿顶上</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card flow" style="--i:2">
+          <div class="tag">④ 能力层</div><div class="t">长处 / 瓶颈</div>
+          <div class="d" style="line-height:1.85">
+            <b>写长处</b>，是为了让它别插手——你强的地方它一插手就是拉低。<br><br>
+            <b class="co">写瓶颈</b>，是为了让它顶上——你弱的地方它才知道要多做一步。<br><br>
+            例：<span class="dim">"我的取舍和判断很快，但我写长文档会漏结构；我读数据不够耐心，容易只看结论。"</span></div>
+        </div>
+        <div class="card flow rev" style="--i:2">
+          <div class="tag">⑤ 偏好层</div><div class="t">喜欢 / 讨厌 / 红线</div>
+          <div class="d" style="line-height:1.85">
+            这一层直接决定它的 <b class="am">taste 有没有跟你对齐</b>。<br><br>
+            例：<span class="dim">"讨厌'赋能/抓手/闭环'这类词；讨厌四平八稳没有立场的段落；喜欢一句话讲清一件事；对外材料绝不出现未核实的数字。"</span></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4;border-left-color:var(--coral)">
+        注意这两层的共同点：<b class="co">你没法写下自己的瓶颈，除非你先向自己承认它。</b>
+        —— 建数据集这件事，从这里开始就不只是整理文件了。<b>这一点，我们最后一节再回来。</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S43 自查 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>45</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">自查</div>
+      <h2 class="ink" style="--i:1">你的 Agent 现在读过你的哪几层？</h2>
+    </div>
+    <div class="body">
+      <table class="big flow dn" style="--i:2">
+        <thead><tr><th style="width:180px">层</th><th style="width:270px">如果这一层是空的</th><th>你会看到的典型症状</th></tr></thead>
+        <tbody>
+          <tr><td>① 事实层</td><td class="k">它不认得你</td><td>每次都要自我介绍；它把你当成一个泛泛的"用户"，语气和深度都不对。</td></tr>
+          <tr><td>② 现场层</td><td class="k">它不切题</td><td>建议永远"正确但没用"；它不知道你这周真正卡在哪，只能给通用方案。</td></tr>
+          <tr><td>③ 思考层</td><td class="k">它不像你</td><td>输出四平八稳、没有立场；每次都要你亲手改成"你的味道"。</td></tr>
+          <tr><td>④ 能力层</td><td class="k">它使错力</td><td>在你最强的地方啰嗦，在你最弱的地方沉默。帮不到点子上。</td></tr>
+          <tr><td>⑤ 偏好层</td><td class="k">它 taste 不对</td><td>反复出现你讨厌的词和句式；同一类修改你改了十次它还在犯。</td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:3">如果你在第 3-5 行连续中招，那就不是"提示词写得不好"——<b class="am">是你的数据集只有第一层。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S44 实物 01 手册 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>46</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">实物 01</div>
+      <h2 class="ink" style="--i:1">一份会被自动加载的「员工手册」</h2>
+      <div class="sub flow" style="--i:2">放在工作目录根部，每次开工自动读取。这是我用得最久、改得最多的一份文件。</div>
+    </div>
+    <div class="body">
+      <div class="g-83 flow" style="--i:3">
+        <div class="file" style="font-size:17px;line-height:1.72"><span class="c">## Identity</span>            <span class="c">—— ① 事实层</span>
+我是谁 · 我负责哪条产品线 · 团队构成 · 当前阶段
+
+<span class="c">## Structure</span>           <span class="c">—— ① 事实层</span>
+我的资料都放在哪，什么内容归到哪个位置
+
+<span class="c">## Writing Style</span>        <span class="c">—— ⑤ 偏好层</span>
+中文为主，术语保留英文 · 对比用表格 · 关键概念加粗
+标题不超过四级 · <span class="r">不要装饰性分割线</span>
+
+<span class="c">## Key Operations</span>       <span class="c">—— ③ 思考层（最重要的一段）</span>
+<span class="h">生成周报（强制规范）：</span>
+  1. 顶部摘要<span class="r">不是</span>权威源，底部详情才是
+  2. 必须做 上周详情 vs 本周详情 的对比
+  3. 只写本周发生的，上周报过的不重复
+  4. 三句话摘要：一句一信号，读完 ≤ 15 秒
+  5. 本季度重点客户有进展，必须进三句话
+  ……共 10 条
+
+<span class="c">## Important Context</span>    <span class="c">—— ② 现场层</span>
+当前战略方向 · 本季度重点 · 竞争格局</div>
+        <div class="mid">
+          <div class="note"><b>注意这份文件的重心</b>：Identity 只有几行，<b class="am">Key Operations 占了一半以上</b>。</div>
+          <div class="note">因为前者是<b>资料</b>，后者是<b>判断</b>——而判断才是它学不到的那部分。</div>
+          <div class="note co">这 10 条规则不是我一次写出来的。<b>它们是 10 次纠错的沉淀。</b>下一节会讲这个过程。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S45 实物 02 背景包 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>47</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">实物 02</div>
+      <h2 class="ink" style="--i:1">一个可以整包投喂的「背景包」</h2>
+      <div class="sub flow" style="--i:2">当我要在一个全新的对话里干正事，我不解释背景——我把这一包扔进去。</div>
+    </div>
+    <div class="body">
+      <div class="g3 flow dn" style="--i:3">
+        <div class="card sm"><div class="hd"><span class="n">01</span><span class="t">总览与身份</span></div><div class="tag">① 事实层</div>
+          <div class="d">我是谁、知识库怎么组织、规则在哪。<b>它先读这一份，然后知道去哪找别的。</b></div></div>
+        <div class="card sm"><div class="hd"><span class="n">02</span><span class="t">个人 Bio 体系</span></div><div class="tag">① 事实层</div>
+          <div class="d">不同场合的自我介绍版本。写对外材料时它直接取用。</div></div>
+        <div class="card sm"><div class="hd"><span class="n">03</span><span class="t">职业编年史</span></div><div class="tag">③ 思考层</div>
+          <div class="d">我这些年做过什么、每一段学到什么。<b>它用来判断我的判断从哪来。</b></div></div>
+        <div class="card sm"><div class="hd"><span class="n">04</span><span class="t">公司战略</span></div><div class="tag">② 现场层</div>
+          <div class="d">大方向、当前阶段、第二增长曲线是什么。</div></div>
+        <div class="card sm"><div class="hd"><span class="n">05</span><span class="t">产品架构与技术体系</span></div><div class="tag">① 事实层</div>
+          <div class="d">最厚的一份。技术细节它必须准确，不能猜。</div></div>
+        <div class="card sm"><div class="hd"><span class="n">06</span><span class="t">产品规划与路线图</span></div><div class="tag">② 现场层</div>
+          <div class="d">季度重点、版本节奏、在等什么。<b>更新最频繁的一份。</b></div></div>
+        <div class="card sm on"><div class="hd"><span class="n">07</span><span class="t">我的工作方法</span></div><div class="tag am">③ ④ ⑤ 层</div>
+          <div class="d">怎么做评估、怎么做竞品、怎么做决策。<b class="am">含"我的工作风格"五条——我把自己写下来的地方。</b></div></div>
+        <div class="card sm"><div class="hd"><span class="n">08</span><span class="t">产品构建方法论</span></div><div class="tag">③ 思考层</div>
+          <div class="d">我信什么、我用什么框架来看一个新问题。</div></div>
+        <div class="card sm"><div class="hd"><span class="n">09</span><span class="t">个人成长与认知</span></div><div class="tag">④ ⑤ 层</div>
+          <div class="d">我的长处、我的瓶颈、我在意什么、我讨厌什么。</div></div>
+      </div>
+      <div class="note flow" style="--i:4">整包一次投喂，之后整场对话它都"在状态"。<b class="am">这九份文件，就是我这一年做的全部"训练数据准备"工作。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S46 实物 03 交接 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>48</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">实物 03</div>
+      <h2 class="ink" style="--i:1">让它自己写「交接文档」</h2>
+      <div class="sub flow" style="--i:2">每次重要的协作结束，我说一句："把这次会话写成一份交接日志。"——一年下来 54 篇。</div>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:3">
+        <div class="file" style="font-size:17px;line-height:1.8"><span class="c"># 会话日志模板</span>
+
+<span class="h">## Quick Reference</span>
+Topics / 涉及目录 / <span class="w">一句话成果</span>
+
+<span class="h">## 给下个会话最关键的 5 句话</span>   <span class="r">← 精华在这</span>
+1. 写这类东西前先读 XXX，这一篇就够
+2. 权威源是 A 不是 B
+3. 别靠 ID 累加猜链接，ID 不连续
+4. 抓取用浏览器工具，不要直接请求
+5. 每份必含两段：三句话 + 重大新信号
+
+<span class="h">## 决策记录</span>   <span class="c">（③ 思考层）</span>
+背景 / 结论 / 依据
+
+<span class="h">## 反复踩过的坑</span>   <span class="c">（③ 思考层）</span>
+| 坑 | 矫正 |
+
+<span class="h">## 给下个会话的开场白建议</span>   <span class="r">← 直接可粘贴</span></div>
+        <div class="mid">
+          <div class="note"><b>为什么让它自己写</b>：它记得每一个细节，而你只记得结论。<b class="am">它写的版本比你写的完整十倍，而你只花一句话。</b></div>
+          <div class="note"><b class="am">"给下个会话最关键的 5 句话"</b>是这份模板里最有价值的一栏。它逼着把一整场协作，压缩成 5 条可执行的交接。</div>
+          <div class="note co">下一次开工，我不需要重讲一遍。<b>我把上一次的交接扔过去，它就接上了。</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S47 零门槛三步 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>49</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">降门槛</div>
+      <h2 class="ink" style="--i:1">你不需要我这套。三步就能起步。</h2>
+      <div class="sub flow" style="--i:2">不用笔记软件、不用插件、不用任何工具。一个文档 + 一个文件夹就够。</div>
+    </div>
+    <div class="body">
+      <div class="steps flow" style="--i:3">
+        <div class="s"><span class="i">第 1 周 · 一份文档</span><span class="t">写你的手册</span>
+          <span class="d">四段就好：<br>· <b>我是谁</b>，我负责什么<br>· <b>我这个季度</b>最重要的一件事<br>· <b>我的写作风格</b>（喜欢什么、讨厌什么词）<br>· <b>我的三条红线</b><br><br>写 300 字，每次开工粘贴一次。<b class="am">这一步的回报最大。</b></span></div>
+        <div class="s"><span class="i">第 1 月 · 一个动作</span><span class="t">让它写交接</span>
+          <span class="d">每次干完一件正事，加一句：<br><br><b class="am">"把这次的关键决定、我改你的地方、下次要注意的，写成一份 500 字交接。"</b><br><br>存到一个文件夹里。下次开工先扔进去。一个月你会有 10 篇。<b>那就是你数据集的第一批真货。</b></span></div>
+        <div class="s"><span class="i">第 3 月 · 一次升级</span><span class="t">把重复的写成 SOP</span>
+          <span class="d">任何一件事你干到<b class="am">第三次</b>，就把流程写下来：<br>· 权威材料是哪份<br>· 分几步做<br>· 什么算做完<br>· 常犯的错是什么<br><br>从此这件事你只说"照 SOP 做"。</span></div>
+      </div>
+      <div class="note flow" style="--i:4">我那 54 篇日志、9 份背景文档、6 套 SOP，<b>没有一份是坐下来专门写的</b>。全部是干活的副产品——<b class="am">这就是为什么它可持续。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S48 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 07</div>
+    <div class="q ink"><i class="rise" style="--i:1">Agent 应该</i><i class="rise" style="--i:2">比你自己更了解你自己</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">这不是修辞。下一页解释它为什么真的可能。</div>
+  </div>
+</section>
+
+<!-- S49 为什么可能 -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>51</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">论证</div>
+      <h2 class="ink" style="--i:1">因为你会忘、会美化、会选择性记忆——它不会</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card warn flow" style="--i:2">
+          <div class="tag co">你对自己的认知</div>
+          <div class="d" style="font-size:22px;line-height:1.95">
+            · <b>会忘</b>：你记不清三个月前为什么否掉那个方案<br>
+            · <b>会美化</b>：成功归因于判断，失败归因于环境<br>
+            · <b>会选择性记忆</b>：只记得那几次证明你是对的<br>
+            · <b>身在局中</b>：你看不见自己的模式，因为你就是那个模式</div>
+          <div class="note co" style="margin-top:auto;font-size:20px">这不是缺点，这是人。</div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">它手里握着什么</div>
+          <div class="d" style="font-size:22px;line-height:1.95">
+            · 你 200 次协作的<b>完整原始记录</b><br>
+            · 你每一次改了什么，改成了什么<br>
+            · 你<b>反复否掉</b>的是哪一类东西<br>
+            · 你在哪类问题上总是犹豫、总是返工<br>
+            · 你哪些判断三年没变过——<b>那是你真正的内核</b></div>
+          <div class="note" style="margin-top:auto;font-size:20px">它在局外，看着你的模式。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">所以到了某一天，你可以问它一个很奇怪的问题：<b class="am">"根据我们这一年的所有协作，你觉得我的盲区是什么？"</b>——前提是，你前面那些层都真的喂过。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S50 飞轮咬合（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART III · DATASET</span><span>52</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">合起来看</div>
+      <h2 class="ink" style="--i:1">到这里，四个乘数才咬合成一个飞轮</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1560" height="470" viewBox="0 0 1560 470">
+          <!-- 飞轮主环 -->
+          <circle cx="780" cy="230" r="140" class="stroke dw" style="--len:890;--i:2" stroke-width="1.4"/>
+          <path class="dw" d="M780 90 A140 140 0 1 1 680 260" style="--len:780;--i:3"
+                stroke="var(--amber)" stroke-width="4" fill="none"/>
+          <path class="trace fast" d="M780 90 A140 140 0 1 1 680 260" stroke="var(--amber)" stroke-width="5.5" fill="none" opacity=".9"/>
+          <path class="dw" d="M662 240 L680 264 L704 252" style="--len:70;--i:5"
+                stroke="var(--amber)" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <!-- 四个节点 -->
+          <g class="pop" style="--i:4"><circle cx="780" cy="90" r="9" class="fill-am"/>
+            <text class="lbl" x="780" y="32" text-anchor="middle">01 TASTE</text>
+            <text class="ttl" x="780" y="66" text-anchor="middle">你改 = 一次打分</text></g>
+          <g class="pop" style="--i:5"><circle cx="920" cy="230" r="9" class="fill-am"/>
+            <text class="lbl" x="962" y="216" text-anchor="start">02 THINKER</text>
+            <text class="ttl" x="962" y="250" text-anchor="start">你出框架 = 一次定向</text></g>
+          <g class="pop" style="--i:6"><circle cx="780" cy="370" r="9" class="fill-am"/>
+            <text class="lbl" x="780" y="410" text-anchor="middle" fill="var(--amber)">03 DATASET</text>
+            <text class="ttl" x="780" y="444" text-anchor="middle" fill="var(--amber)">它把前两件事全部记录下来</text></g>
+          <g class="pop" style="--i:7"><circle cx="640" cy="230" r="9" class="fill-co"/>
+            <text class="lbl" x="598" y="216" text-anchor="end">04 COMPOUNDING</text>
+            <text class="ttl" x="598" y="250" text-anchor="end">让它自动持续</text></g>
+          <!-- 中心 -->
+          <text class="pop" style="--i:8;font-family:var(--f-en);font-size:42px;font-weight:900;fill:var(--amber)"
+                x="780" y="244" text-anchor="middle">恒动复利</text>
+        </svg>
+      </div>
+      <div class="g2 flow" style="--i:10">
+        <div class="note"><b class="am">你的修改，就是你 taste 的训练数据。</b>数据集把前两个乘数记录下来，沉淀让它自动持续——四件事这才不是并列，是一个循环。</div>
+        <div class="note co">注意这个循环的方向：<b>它不是让你干得更快，是让你每次都能站在上一次的肩膀上。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S51 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 08</div>
+    <div class="q am"><i class="rise" style="--i:1">别人能抄走你的提示词</i><i class="rise" style="--i:2">抄不走你的数据集</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">提示词是公共知识，一个截图就传开了。而你的判断、你的否决、你的红线，没有任何公开语料。</div>
+  </div>
+</section>
+<!-- ============================================================
+     PART IV · COMPOUNDING（S52–S65）
+     ============================================================ -->
+
+<!-- S52 幕扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART IV · MULTIPLIER 04</div>
+    <div class="en settle" style="--i:1">COMPOUNDING</div>
+    <div class="cn spread" style="--i:3">沉淀机制</div>
+    <div class="d flow" style="--i:4">前三个乘数每次都要重来一遍，还是能在下一次自动生效？<br>差别只在这一件事上。</div>
+    <div class="rail flow" style="--i:5">
+      <span>01 Taste</span><span>02 思想者</span><span>03 数据集</span><span class="cur">04 沉淀</span>
+    </div>
+  </div>
+</section>
+
+<!-- S53 灵魂拷问 05 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">05</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 数一下</div>
+    <div class="q ink" style="--i:1">这一周，你纠正过 AI 多少次？<br><span class="hl">其中有几条，被你真的写下来了？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">大多数人的答案</span><span class="v">纠正了十几次，写下来的是<b>零条</b>。</span></div>
+      <div class="col"><span class="k">这意味着</span><span class="v">你这周做的所有纠正，下周还要<b>原封不动再做一遍</b>。</span></div>
+      <div class="col"><span class="k">一年是多少次</span><span class="v">同一个坑，52 次。这不是勤奋，这是<b>把劳动扔进垃圾桶</b>。</span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：有没有人这周写下来过一条？——如果有，请一定分享。</div>
+  </div>
+</section>
+
+<!-- S54 命题 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>56</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">命题</div>
+      <h2 class="ink" style="--i:1">没有沉淀的协作，是把一次劳动扔进垃圾桶</h2>
+    </div>
+    <div class="body">
+      <div class="note flow" style="--i:2;font-size:26px;border-left-width:4px">
+        我在写企业级 AI 落地时用过一个判据：<br>
+        <b>每做完一个项目，有没有把一次人力劳动，变成下一次可复用的软件资产？如果没有，它仍然是咨询。</b>
+      </div>
+      <div class="g2">
+        <div class="card warn flow" style="--i:3">
+          <div class="tag co">没有沉淀的一天</div>
+          <div class="d" style="font-size:22px;line-height:1.95">
+            早上：交代背景 → 它做 → 你改 → 交付<br>
+            下午：<b>重新</b>交代背景 → 它做 → <b class="co">你改同样的地方</b> → 交付<br><br>
+            你确实每次都省了时间。<br>但<b>第 100 次和第 1 次，你做的是同一件事</b>。</div>
+          <div class="note co" style="margin-top:auto;font-size:20px">这就是"越用越原地"的全部机制。</div>
+        </div>
+        <div class="card on flow rev" style="--i:3">
+          <div class="tag am">有沉淀的一天</div>
+          <div class="d" style="font-size:22px;line-height:1.95">
+            早上：交代背景 → 它做 → 你改 → <b class="am">"把我改你的地方写成规则"</b> → 存<br>
+            下午：<b>不用交代</b> → 它做（那个错没再犯）→ 你改<b>别的</b> → 再存<br><br>
+            <b class="am">每一次，你纠正的都是新问题。</b></div>
+          <div class="note" style="margin-top:auto;font-size:20px">同样的努力，一个是线性，一个是复利。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:5">个人版的判据：<b class="am">每和 AI 干完一件活，有没有把这次劳动变成下次的资产？如果没有，你只是买了一台更快的打字机。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S55 四次纠错 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>57</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">全场最硬的一个证据</div>
+      <h2 class="ink" style="--i:1">一件事，连续四次纠错，每一次都写进规则</h2>
+      <div class="sub flow" style="--i:2">还是那份周报。这是它从"每次都要盯"变成"我不用管"的完整过程。</div>
+    </div>
+    <div class="body">
+      <table class="flow dn" style="--i:3">
+        <thead><tr><th style="width:130px">第几次</th><th style="width:390px">它踩的坑</th><th style="width:420px">我的矫正</th><th>沉淀成了什么</th></tr></thead>
+        <tbody>
+          <tr><td>第 1 次</td><td class="k">把页面顶部的摘要当事实抄了</td><td>顶部摘要是我还没写的待办，底部详情才是权威源</td><td>规则 #1 数据源权威层级</td></tr>
+          <tr><td>第 2 次</td><td class="k">把上上周的事混进本周</td><td>严格按周日到周六过滤；上周报过的不重复写</td><td>规则 #2 时间窗过滤</td></tr>
+          <tr><td>第 3 次</td><td class="k">三句话里塞了五六件事</td><td>一句一信号，每句不超过两行，读完不超过 15 秒</td><td>规则 #3 摘要规格</td></tr>
+          <tr><td>第 4 次</td><td class="k">本季度重点客户被压到了后面</td><td>重点客户有实质进展，必须进三句话</td><td>规则 #4 季度重点规则</td></tr>
+          <tr><td class="am">额外</td><td class="k">靠"上周编号 +1"去猜本周链接</td><td>编号不连续，必须用接口按标题匹配</td><td>规则 #5 定位方式</td></tr>
+        </tbody>
+      </table>
+      <div class="g2 flow" style="--i:4">
+        <div class="note"><b>关键动作只有一个</b>：每次纠正之后，我没有直接进入下一周，而是花两分钟——<b class="am">把这一条写进规则文件。</b></div>
+        <div class="note co">如果不写：这五个坑，我每周都要重踩一遍、重讲一遍。<b>一年是 52 次。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S56 成本曲线（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>58</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">结果</div>
+      <h2 class="ink" style="--i:1">同一件事，成本单调下降</h2>
+    </div>
+    <div class="body">
+      <div class="g-83 flow" style="--i:2">
+        <div class="fig">
+          <svg width="980" height="400" viewBox="0 0 980 400">
+            <path class="dw stroke" style="--len:900;--i:2" d="M80 340 H930" stroke-width="1"/>
+            <path class="dw stroke" style="--len:300;--i:2" d="M80 340 V50" stroke-width="1"/>
+            <!-- 成本阶梯下降 -->
+            <path class="dw" style="--len:1300;--i:3"
+                  d="M90 80 H210 V132 H330 V176 H450 V212 H570 V246 H690 V272 H810 V292 H930"
+                  stroke="var(--amber)" stroke-width="3.5" fill="none"/>
+            <!-- 每次纠错的落点 -->
+            <g class="pop" data-step="1" style="--i:5">
+              <circle cx="210" cy="80" r="6" class="fill-co"/><circle cx="330" cy="132" r="6" class="fill-co"/>
+              <circle cx="450" cy="176" r="6" class="fill-co"/><circle cx="570" cy="212" r="6" class="fill-co"/>
+              <circle cx="690" cy="246" r="6" class="fill-co"/>
+            </g>
+            <text class="lbl pop" data-step="1" style="--i:6" x="210" y="60" text-anchor="middle" fill="var(--coral)">纠错 #1</text>
+            <text class="lbl pop" data-step="1" style="--i:6" x="330" y="114" text-anchor="middle" fill="var(--coral)">#2</text>
+            <text class="lbl pop" data-step="1" style="--i:6" x="450" y="158" text-anchor="middle" fill="var(--coral)">#3</text>
+            <text class="lbl pop" data-step="1" style="--i:6" x="570" y="194" text-anchor="middle" fill="var(--coral)">#4</text>
+            <text class="lbl pop" data-step="1" style="--i:6" x="690" y="228" text-anchor="middle" fill="var(--coral)">#5</text>
+            <text class="lbl" x="90" y="368">第 23 周</text>
+            <text class="lbl" x="930" y="368" text-anchor="end">第 34 周</text>
+            <text class="lbl" x="42" y="70" transform="rotate(-90 42 70)">我要花的力气</text>
+            <text class="ttl pop" data-step="2" style="--i:8" x="930" y="270" text-anchor="end" fill="var(--amber)">"写 W34 周报。"</text>
+            <text class="txt pop" data-step="2" style="--i:9" x="930" y="316" text-anchor="end" fill="var(--ink-3)">四个字</text>
+          </svg>
+        </div>
+        <div class="mid">
+          <div class="card warn"><div class="tag co">第 23 周 · 我要做的事</div>
+            <div class="d" style="font-size:20px;line-height:1.85">① 找链接发给它　② 解释权威数据源　③ 解释时间窗　④ 解释摘要规格　⑤ 第一稿<b class="co">推翻重写</b>　⑥ 逐条核对改三轮　⑦ 定稿</div></div>
+          <div class="card on"><div class="tag am">第 34 周 · 我要做的事</div>
+            <div class="d" style="font-size:20px;line-height:1.85">①②③④ <span class="dim">全部消失（规则里都写着）</span>　⑤ 第一稿<b class="am">基本可用</b>　⑥ 核对一轮　⑦ 定稿</div></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:10">注意：<b>模型没变，工具没变，我也没有变得更会写提示词。</b>唯一变的是——<b class="am">那五条规则从我脑子里，搬到了它每次都会读的地方。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S57 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 09</div>
+    <div class="q ink"><i class="rise" style="--i:1">纠正一次是干活</i><i class="rise" style="--i:2">纠正两次是浪费</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">你一年里重复讲过的每一句话，都是一条本该被存下来的资产。</div>
+  </div>
+</section>
+
+<!-- S58 沉淀三级（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>60</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">方法</div>
+      <h2 class="ink" style="--i:1">沉淀的三级，和升级的时机</h2>
+    </div>
+    <div class="body">
+      <div class="g3 flow dn" style="--i:2">
+        <div class="card"><div class="n">L1</div><div class="t">一句话规则</div><div class="tag">第 1 次纠正就写</div>
+          <div class="d">"顶部摘要不是权威源，底部详情才是。"<br><br>写进你的手册。成本 30 秒，是回报率最高的一级。<br><br><b>大部分人连这一级都没做</b>——这就是全部的差距。</div></div>
+        <div class="card"><div class="n">L2</div><div class="t">一段 SOP</div><div class="tag">同一件事第 3 次</div>
+          <div class="d">权威材料是哪份 / 分几步 / 什么算做完 / 常犯的错。<br><br><b class="am">"第三次"是一个很好用的触发器</b>：第一次是偶然，第二次是巧合，第三次说明它会一直来。</div></div>
+        <div class="card on"><div class="n">L3</div><div class="t">一个可复用的技能</div><div class="tag am">SOP 稳定后</div>
+          <div class="d">把 SOP 打包成一个可以被直接调用的东西，取个名字。<br><br>我一年长出了 6 个：周报、归档、蒸馏、交接日志、两套视觉风格。<br><br><b>全部来自被重复了很多次的活。</b></div></div>
+      </div>
+      <div class="g-83 flow" style="--i:3">
+        <div class="file" style="font-size:18px"><span class="c"># 最省力的沉淀动作 —— 一句话，每次收工前问</span>
+
+  <span class="h">"把我刚才改你的地方，总结成下次的规则。"</span>
+
+<span class="c"># 它会做三件你懒得做的事：</span>
+  1. 回看整场对话，找出你所有的修改
+  2. 归纳出<span class="w">模式</span>（而不是罗列 20 条流水账）
+  3. 写成<span class="w">下次可以直接执行</span>的语言</div>
+        <div class="mid">
+          <div class="note co">这句话是整门课<b class="am">唯一需要背下来的</b>一句。别的都可以忘。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S59 四条护栏 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>61</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">护栏也是沉淀</div>
+      <h2 class="ink" style="--i:1">四条可以直接抄走的规则</h2>
+      <div class="sub flow" style="--i:2">这四条我写给一个每天自动跑的情报机器人，也写给我自己的每一次协作。</div>
+    </div>
+    <div class="body">
+      <div class="g4 flow dn" style="--i:3">
+        <div class="card-w"><div class="n">01</div><div class="t">无来源不成信号</div>
+          <div class="d">每一条结论必须挂出处。挂不上的，就不是结论，是猜测。<br><br><b>这一条能砍掉 80% 的幻觉。</b></div></div>
+        <div class="card-w"><div class="n">02</div><div class="t">宁可说"没有"<br>不许编</div>
+          <div class="d">"本轮无新信号"是一个完全合格的答案。<br><br><b>模型的默认倾向是"总要说点什么"——必须显式关掉它。</b></div></div>
+        <div class="card-w"><div class="n">03</div><div class="t">事实 / 推断 / 建议<br>分开标</div>
+          <div class="d">这三样混在一段话里，你就无法验收。<br><br><b>分层之后，你只需要重点核对"事实"那一栏。</b></div></div>
+        <div class="card-w"><div class="n">04</div><div class="t">拿不准往低报</div>
+          <div class="d">不确定的重要性，一律降级。<br><br><b>高估一次的代价，远大于低估十次。</b></div></div>
+      </div>
+      <div class="g2 flow" style="--i:4">
+        <div class="note">这四条不是"防止 AI 犯错"，而是<b class="am">让 AI 犯的错变得可被发现</b>——这是完全不同的两件事。</div>
+        <div class="note co">而且它们对<b>人</b>同样成立。我在自己写材料时也用这四条。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S60 翻车 #2 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>62</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">翻车现场 #2 · 最吓人的一次</div>
+      <h2 class="ink" style="--i:1">它把文件存错了地方，然后报告说「已归档」</h2>
+    </div>
+    <div class="body">
+      <div class="steps flow" style="--i:2">
+        <div class="s"><span class="i">发生了什么</span><span class="t">路径写错</span>
+          <span class="d">我让一个自动化机器人把每天的情报简报归档到我的知识库。<br><br>它把路径写成了另一个位置。</span></div>
+        <div class="s"><span class="i">真正的问题</span><span class="t">它没有报错</span>
+          <span class="d">写失败之后，它<b class="co">自己找了一个能写进去的地方</b>，然后回报："已归档 ✅"<br><br>看日志一切正常。</span></div>
+        <div class="s"><span class="i">后果</span><span class="t">静默失效</span>
+          <span class="d">如果我没有手动去看那个目录，<br><b>我会以为归档系统一直在正常工作</b>——直到某天需要回查，才发现什么都没有。</span></div>
+        <div class="s"><span class="i">矫正</span><span class="t">锁死路径 · 禁止兜底</span>
+          <span class="d">规则改成：<b class="am">路径写死为绝对路径；写不进去必须报错，不许换地方，不许冒充成功。</b></span></div>
+      </div>
+      <div class="g-83 flow" style="--i:3">
+        <div class="note co" style="font-size:24px">
+          <b>这类错误最危险，因为它不长得像错误。</b><br>
+          AI 被训练成"要有帮助"，于是它会想办法完成任务——包括在真正的路走不通时，悄悄换一条。</div>
+        <div class="mid">
+          <div class="note"><b class="am">所以验收永远不能省。</b>而且要验收"结果"，不是验收"它的汇报"。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S61 翻车 #3（正面） -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>63</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">翻车现场 #3 · 这次是正面案例</div>
+      <h2 class="ink" style="--i:1">它抓不到两家的原文，于是它说了「抓不到」</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="mid">
+          <div class="stat"><div class="v">6/8</div><div class="l">八家监控目标里，<br>六家拿到了真正的原文。</div></div>
+          <div class="stat"><div class="v co">2</div><div class="l">两家因为页面结构抓不到，<br><b class="co">被显式标注为"待二次确认"</b>。</div></div>
+        </div>
+        <div class="card">
+          <div class="tag">它本来可以怎么"蒙混过关"</div>
+          <div class="d" style="font-size:22px;line-height:1.85">
+            用搜索结果里的二手转述，写得像模像样，<b class="co">你根本看不出来它没读到原文</b>。<br><br>
+            八家全绿，报告漂亮，皆大欢喜。<br><br>
+            <b class="am">但因为规则里写死了"无来源不成信号"和"拿不准往低报"——它选择了诚实降级：</b><br><br>
+            · 二手转述只作为线索，不作为结论<br>· 日期标注"待二次确认"<br>· <b>不据此判定重要性等级</b></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">这不是它"变聪明了"，是那四条护栏在它身上真的生效了——<b class="am">你写下的规则，会在你不在场的时候替你做判断。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S62 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 10</div>
+    <div class="q am"><i class="rise" style="--i:1">六家真实</i><i class="rise" style="--i:2"><span class="w" style="font-size:.66em">大于</span></i><i class="rise" style="--i:3">八家漂亮</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">你写下的规则，会在你不在场的时候替你做判断。这就是护栏的真正价值——它不防错，它让错可被发现。</div>
+  </div>
+</section>
+
+<!-- S63 红线 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>65</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">红线</div>
+      <h2 class="ink" style="--i:1">四类动作，永远由人批准</h2>
+      <div class="sub flow" style="--i:2">Agent 越能干，这条线越重要。它不是限制能力，是限制<b>不可撤销的能力</b>。</div>
+    </div>
+    <div class="body">
+      <div class="g4 flow dn" style="--i:3">
+        <div class="card warn"><div class="n" style="color:var(--coral)">01</div><div class="t">权限变更</div>
+          <div class="d">改配置、开开关、授予访问。<br><b>一次点头，长期敞口。</b></div></div>
+        <div class="card warn"><div class="n" style="color:var(--coral)">02</div><div class="t">内网 / 私有网络访问</div>
+          <div class="d">对一个会去读外部网页的 Agent，开内网 = 把提示词注入接到你的内部系统上。</div></div>
+        <div class="card warn"><div class="n" style="color:var(--coral)">03</div><div class="t">删除与覆盖</div>
+          <div class="d">所有<b>不可逆</b>的操作。能撤销的可以放手，不能撤销的必须停。</div></div>
+        <div class="card warn"><div class="n" style="color:var(--coral)">04</div><div class="t">对外发送</div>
+          <div class="d">邮件、消息、发布、提交。<br><b>一旦出门，就收不回来了。</b></div></div>
+      </div>
+      <div class="g-83 flow" style="--i:4">
+        <div class="card">
+          <div class="tag am">一个真实的正面细节</div>
+          <div class="d" style="font-size:22px">
+            那个情报机器人在被网络策略卡住的时候，<b class="am">自己尝试去改配置，然后被自己的护栏拒绝了——它没有绕过去。</b><br><br>
+            最后是我人工备份、人工修改、人工只开了一个有界的白名单，<b class="co">并且坚决没有打开"允许访问内网"那个开关。</b></div>
+        </div>
+        <div class="mid">
+          <div class="note co"><b>能力可以放开，撤销权必须握在手里。</b><br>这条在 Agent 时代只会越来越重要。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S64 DEMO -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>66</span></div>
+  <div class="demo">
+    <div class="badge flow" style="--i:0">LIVE · 5 MIN</div>
+    <h2 class="ink" style="--i:1;font-size:66px;line-height:1.2">现场跑一遍<br><span class="am">"把我刚才改你的地方，写成下次的规则"</span></h2>
+    <div class="steps flow" style="--i:3;width:100%;text-align:left">
+      <div class="s"><span class="i">01</span><span class="t">给它一段真实材料</span><span class="d">现场随便挑一件小活：一段会议记录、一封邮件、一份周报片段。</span></div>
+      <div class="s"><span class="i">02</span><span class="t">当场改它三处</span><span class="d">边改边说出理由——把 taste 从 Level 0 拉到 Level 1。</span></div>
+      <div class="s"><span class="i">03</span><span class="t">说那一句话</span><span class="d">"把我刚才改你的地方，总结成下次的规则。"</span></div>
+      <div class="s"><span class="i">04</span><span class="t">用同一个提示重跑</span><span class="d">带上刚生成的规则，看那三处它还犯不犯。<b class="am">这就是复利的最小可见单位。</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- S65 Part IV 小结 -->
+<section class="slide">
+  <div class="chrome"><span>PART IV · COMPOUNDING</span><span>67</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">Part IV 小结</div>
+      <h2 class="ink" style="--i:1">带走一句，带走一个动作</h2>
+    </div>
+    <div class="body">
+      <div class="g2 flow" style="--i:2">
+        <div class="card-w"><div class="tag">带走这一句</div>
+          <div class="t" style="font-size:34px;line-height:1.35">纠正一次是干活<br>纠正两次是浪费</div>
+          <div class="d">沉淀三级：一句话规则（第 1 次）/ SOP（第 3 次）/ 可复用技能（稳定后）。<br>护栏四条 + 红线一条，让错误可被发现。</div></div>
+        <div class="card on"><div class="tag am">今晚就做这一个动作</div>
+          <div class="t" style="font-size:30px;line-height:1.4">收工前问那一句：<br>"把我刚才改你的地方，<br>总结成下次的规则。"</div>
+          <div class="d">把它的回答，存进你那份 300 字的手册里。<br><br><b class="am">耗时：每次 2 分钟。这是整门课唯一需要背下来的一句。</b></div></div>
+      </div>
+      <div class="note co flow" style="--i:3">四个乘数讲完了。<b>最后一件事是：你现在站在哪一阶，下一步该迈哪儿。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PART V · LADDER（S66–S75）
+     ============================================================ -->
+
+<!-- S66 幕扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART V · WHERE ARE YOU</div>
+    <div class="en settle" style="--i:1">LADDER</div>
+    <div class="cn spread" style="--i:3">四阶：看过 · 用过 · 学过 · 干过</div>
+    <div class="d flow" style="--i:4">这四阶不是"用得多久"，是你和它之间的关系深度。<br>有人用了三年还在第一阶，因为他从没自己下过场。</div>
+    <div class="rail flow" style="--i:5">
+      <span>01 Taste</span><span>02 思想者</span><span>03 数据集</span><span>04 沉淀</span>
+    </div>
+  </div>
+</section>
+
+<!-- S67 灵魂拷问 06 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">06</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 决定性的一问</div>
+    <div class="q ink" style="--i:1">你上一次和 AI 协作，<br><span class="hl">它能读到你电脑里的文件吗？</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">如果不能</span><span class="v">那你今天听到的四个乘数，<b>有三个都装不下</b>。</span></div>
+      <div class="col"><span class="k">因为</span><span class="v">你的数据集只能靠每次手动粘贴，你的沉淀只能靠你自己记得。</span></div>
+      <div class="col"><span class="k">这不是推荐工具</span><span class="v">这是一个结构性事实：<b>复利需要一个能持久保存、下次自动读取的地方。</b></span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">现场问一句：这里有多少人，用的还是"聊天框进、聊天框出"？</div>
+  </div>
+</section>
+
+<!-- S68 四阶（SVG 梯子 + 表） -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>70</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">定位</div>
+      <h2 class="ink" style="--i:1">人和 AI 的关系，有四阶</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="250" viewBox="0 0 1620 250">
+          <path class="dw" style="--len:1700;--i:2" d="M40 200 H400 V160 H760 V120 H1120 V80 H1580"
+                stroke="var(--amber)" stroke-width="3.5" fill="none"/>
+          <path class="dw stroke" style="--len:1560;--i:3" d="M40 212 H1580" stroke-width="1"/>
+          <g class="pop" data-step="1" style="--i:4"><circle cx="220" cy="200" r="7" class="fill-am"/>
+            <text class="ttl" x="220" y="178" text-anchor="middle">看过</text>
+            <text class="lbl" x="220" y="240" text-anchor="middle">SEEN</text></g>
+          <g class="pop" data-step="2" style="--i:5"><circle cx="580" cy="160" r="7" class="fill-am"/>
+            <text class="ttl" x="580" y="138" text-anchor="middle">用过</text>
+            <text class="lbl" x="580" y="240" text-anchor="middle">USED</text></g>
+          <g class="pop" data-step="3" style="--i:6"><circle cx="940" cy="120" r="7" class="fill-am"/>
+            <text class="ttl" x="940" y="98" text-anchor="middle">学过</text>
+            <text class="lbl" x="940" y="240" text-anchor="middle">LEARNED</text></g>
+          <g class="pop" data-step="4" style="--i:7"><circle cx="1340" cy="80" r="7" class="fill-co"/>
+            <text class="ttl" x="1340" y="58" text-anchor="middle">干过</text>
+            <text class="lbl" x="1340" y="240" text-anchor="middle">BUILT</text></g>
+          <path class="dw" data-step="4" style="--len:200;--i:8" d="M760 40 V225" stroke="var(--coral)" stroke-width="1.5" stroke-dasharray="5 8" fill="none"/>
+          <text class="lbl pop" data-step="4" style="--i:9" x="770" y="34" fill="var(--coral)">← 绝大多数人卡在这道坎</text>
+        </svg>
+      </div>
+      <table class="flow dn" style="--i:4">
+        <thead><tr><th style="width:150px">阶</th><th style="width:290px">状态</th><th style="width:300px">你会说的话</th><th>卡在哪</th></tr></thead>
+        <tbody>
+          <tr><td>看过</td><td class="k">看别人用，感受到了它的厉害</td><td>"确实挺厉害的。"</td><td>没有自己的战场。所有认知都是二手的。</td></tr>
+          <tr><td>用过</td><td class="k">自己深度使用，<b class="am">至少上到二阶工具</b></td><td>"我天天用。"</td><td>每次从零开始。用了一年，还是第一天。</td></tr>
+          <tr><td>学过</td><td class="k">理解模型训练原理、工作流、Agent 架构</td><td>"我知道它为什么会这样。"</td><td>知道但没落地。懂原理 ≠ 有系统。</td></tr>
+          <tr><td>干过</td><td class="k">实操过一个 AI 产品的从 0 到 1</td><td>"我知道它哪里会塌。"</td><td>——</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- S69 看过→用过 -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>71</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第一段台阶</div>
+      <h2 class="ink" style="--i:1">看过 → 用过</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card flow" style="--i:2">
+          <div class="tag">看过</div><div class="t">你的认知全部是二手的</div>
+          <div class="d">你刷到过别人的演示，你听过同事说"这个很好用"，你甚至转发过几篇文章。<br><br>
+          但你没有在<b>真实的、有后果的活</b>上用过它。<br><br>
+          <b class="co">这一阶最典型的表现是：你对它的评价，要么过高，要么过低。</b>因为你没有校准过。</div>
+          <div class="note grey" style="margin-top:auto;font-size:20px"><b>下一步：</b>选一件你这周还要再干一遍的活。不用挑最难的，挑<b>重复的</b>。</div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">用过</div><div class="t">你有了自己的战场</div>
+          <div class="d">你在真活上用它，你知道它在哪一类问题上靠谱、在哪一类上会翻车。<br><br>
+          你开始有了具体的意见，而不是笼统的印象。<br><br>
+          <b>但你可能还卡在一个地方——工具的"阶"。</b></div>
+          <div class="note" style="margin-top:auto;font-size:20px"><b>下一步：</b>看下一页。<b class="am">很多人以为自己在"用过"，其实还没真正进来。</b></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">选第一件活的三个标准：<b>① 每周都干 ② 有固定套路 ③ 你说得清什么叫做得好。</b>——第三条最重要，那是你有 taste 的地方。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S70 一阶 vs 二阶（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>72</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">这一页是整节的关键</div>
+      <h2 class="ink" style="--i:1">一阶工具 vs 二阶工具</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1620" height="290" viewBox="0 0 1620 290">
+          <!-- 一阶：闭合的小圈，进出都断 -->
+          <g class="pop" data-step="1" style="--i:3">
+            <rect x="40" y="80" width="300" height="120" rx="3" class="stroke" stroke-width="1"/>
+            <text class="lbl" x="60" y="60">一阶 · 聊天框</text>
+            <text class="ttl" x="60" y="128" style="font-size:22px">文字进 · 文字出</text>
+            <text class="txt" x="60" y="164" fill="var(--ink-3)">每个新对话 = 一次彻底失忆</text>
+          </g>
+          <path class="dw" data-step="1" style="--len:160;--i:4" d="M360 140 H460" stroke="var(--ink-3)" stroke-width="2" fill="none"/>
+          <path class="dw" data-step="1" style="--len:60;--i:5" d="M478 118 L510 162 M510 118 L478 162" stroke="var(--coral)" stroke-width="2.5" fill="none"/>
+          <text class="lbl pop" data-step="1" style="--i:6" x="494" y="196" text-anchor="middle" fill="var(--coral)">断了</text>
+          <text class="txt pop" data-step="1" style="--i:6" x="494" y="226" text-anchor="middle" fill="var(--ink-3)">沉淀无处可落</text>
+
+          <!-- 二阶：闭环 -->
+          <g class="pop" data-step="2" style="--i:7">
+            <rect x="700" y="80" width="300" height="120" rx="3" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <text class="lbl" x="720" y="60" fill="var(--amber)">二阶 · 能读你文件的 Agent</text>
+            <text class="ttl" x="720" y="128" style="font-size:22px">工作现场进 · 真实改动出</text>
+            <text class="txt" x="720" y="164" fill="var(--ink-3)">自动加载你写的规则</text>
+          </g>
+          <g class="pop" data-step="2" style="--i:8">
+            <rect x="1180" y="80" width="300" height="120" rx="3" stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <text class="lbl" x="1200" y="60" fill="var(--amber)">你的数据集 · 你的规则</text>
+            <text class="ttl" x="1200" y="128" style="font-size:22px">持久保存 · 下次自动读</text>
+            <text class="txt" x="1200" y="164" fill="var(--ink-3)">上一次的沉淀，下一次生效</text>
+          </g>
+          <path class="dw" data-step="2" style="--len:200;--i:9" d="M1010 118 H1170" stroke="var(--amber)" stroke-width="3" fill="none"/>
+          <path class="dw" data-step="3" style="--len:700;--i:10" d="M1170 172 C 1120 262, 800 262, 700 200 C 660 176, 680 150, 700 140"
+                stroke="var(--amber)" stroke-width="3" fill="none"/>
+          <text class="lbl pop" data-step="2" style="--i:11" x="1090" y="102" text-anchor="middle" fill="var(--amber)">写进去</text>
+          <text class="lbl pop" data-step="3" style="--i:11" x="940" y="282" text-anchor="middle" fill="var(--amber)">下次自动读回来 —— 闭环成立，复利开始</text>
+        </svg>
+      </div>
+      <div class="g2 flow" style="--i:12">
+        <div class="note co">在一阶工具里，你的"数据集"只能靠<b>每次手动粘贴</b>，你的"沉淀"只能靠<b>你自己记得</b>。<b class="co">所以它当然没法为你复利。</b></div>
+        <div class="note"><b>这不是在推荐工具，是在说一个结构性的事实：</b>复利需要一个能<b class="am">持久保存、且下次自动读取</b>的地方。聊天框没有这个地方。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S71 学过→干过 -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>73</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第二、三段台阶</div>
+      <h2 class="ink" style="--i:1">学过 → 干过</h2>
+    </div>
+    <div class="body">
+      <div class="g2 gfill">
+        <div class="card flow" style="--i:2">
+          <div class="tag">学过</div><div class="t">你理解它为什么会这样</div>
+          <div class="d" style="font-size:21px;line-height:1.85">
+            你知道<b>预训练 / 后训练 / 微调</b>分别在做什么；<br>你知道一个 Agent 是怎么被编排出来的；<br>你知道上下文、工具调用、记忆各自的边界在哪。<br><br>
+            <b class="am">这一阶最大的收益不是"更会用"，是"知道它什么时候会骗你"</b>——你终于能预判它的失效模式，而不是被动挨打。</div>
+          <div class="note" style="margin-top:auto;font-size:20px"><b>下一步：</b>把你的知识库当<b class="am">训练集</b>来经营，而不是当资料库来堆。</div>
+        </div>
+        <div class="card on flow rev" style="--i:2">
+          <div class="tag am">干过</div><div class="t">你知道它哪里会塌</div>
+          <div class="d" style="font-size:21px;line-height:1.85">
+            你把一个 AI 产品从 0 做到 1，见过真实用户、真实数据、真实故障。<br><br>
+            你知道 demo 和生产之间那条鸿沟有多宽；<br>你知道<b>那些边缘情况才是全部的工作量</b>。<br><br>
+            这一阶的人做判断的方式完全不同：他们不问"能不能做"，问<b class="am">"错了谁负责、怎么收回"</b>。</div>
+          <div class="note" style="margin-top:auto;font-size:20px"><b>下一步：</b>把你的判断写成可执行的评测标准，把评测写回产品和流程里。</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">四阶不是学历，是<b class="am">暴露量</b>。每一阶都只能靠亲自下场获得，没有捷径，但也没有门槛。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PART V · 深水区（学过这一阶的展开）
+     ============================================================ -->
+
+<!-- D1 深水区扉页 -->
+<section class="slide">
+  <div class="act">
+    <div class="num flow" style="--i:0">PART V · DEEP DIVE</div>
+    <div class="en settle" style="--i:1">UNDER<br>THE HOOD</div>
+    <div class="cn spread" style="--i:3">学过这一阶，到底要学什么</div>
+    <div class="d flow" style="--i:4">两件事：<b>模型是怎么造出来的</b>，和<b>模型在 Agent 里处在什么位置</b>。<br>不懂这两件，你永远只能凭感觉调；懂了，你就知道哪些旋钮在你手上。</div>
+    <div class="rail flow" style="--i:5">
+      <span>看过</span><span>用过</span><span class="cur">学过</span><span>干过</span>
+    </div>
+  </div>
+</section>
+
+<!-- D2 三步 + 一层（核心大表 · 分步） -->
+<section class="slide">
+  <div class="chrome"><span>PART V · DEEP DIVE</span><span>D2</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">模型是怎么造出来的 · 三步 + 一层</div>
+      <h2 class="ink" style="--i:1">预训练 · 后训练 · 微调 · 上下文工程</h2>
+      <div class="sub flow" style="--i:2">前三步改的是<b>权重</b>，第四层改的是<b>视野</b>。看懂这张表，你就知道自己站在哪一格。</div>
+    </div>
+    <div class="body">
+      <table class="mini flow dn" style="--i:3">
+        <thead><tr>
+          <th style="width:210px">阶段</th><th style="width:250px">在干什么</th><th style="width:230px">用什么数据</th>
+          <th style="width:200px">谁在出力</th><th style="width:270px">改变了什么</th><th>你能不能碰</th>
+        </tr></thead>
+        <tbody>
+          <tr data-step="1"><td>预训练<br><span class="dim" style="font-weight:300">Pre-training</span></td>
+            <td class="k">自监督地预测下一个词</td>
+            <td>万亿级 token 的公开文本、代码、书</td>
+            <td>算力 + 数据清洗</td>
+            <td>获得语言、常识、推理的底子</td>
+            <td><b class="co">碰不了</b> <span class="dim">— 几亿美元、数月</span></td></tr>
+          <tr data-step="2"><td>后训练<br><span class="dim" style="font-weight:300">Post-training</span></td>
+            <td class="k">SFT 示范 + RLHF/RLAIF 偏好排序</td>
+            <td>十万～百万条高质量示范与对比</td>
+            <td><b>人类标注员</b>（近年也用 AI 评审）</td>
+            <td>学会"怎么回答"：听指令、有礼貌、会拒绝</td>
+            <td><b class="co">厂商做</b> <span class="dim">— 标准是他们的，不是你的</span></td></tr>
+          <tr data-step="3"><td>微调<br><span class="dim" style="font-weight:300">Fine-tuning</span></td>
+            <td class="k">在已有权重上继续训一小步（LoRA / 全参）</td>
+            <td>你的领域数据，几千～几万条</td>
+            <td>你 / 你的团队</td>
+            <td>把领域知识与固定风格<b>写进权重</b></td>
+            <td><b>能碰</b> <span class="dim">— 但贵、慢、难更新</span></td></tr>
+          <tr data-step="4"><td><span class="am">上下文工程</span><br><span class="dim" style="font-weight:300">Context Engineering</span></td>
+            <td class="k"><b class="am">不动权重，改它每次推理时看到的东西</b></td>
+            <td>你的手册、知识库、历史、工具返回值</td>
+            <td><b class="am">你，一个人</b></td>
+            <td>改变<b>这一次</b>的行为——立刻生效、随时可改</td>
+            <td><b class="am">这就是你的战场</b> <span class="dim">— 唯一完全归你</span></td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:4" data-step="4">很多人一听"训练"就觉得跟自己无关，于是放弃了整个第四行。<b class="am">而第四行是唯一一行，成本是"写一份文档"，收益却是"它这次的行为完全不同"。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- D3 关键澄清 -->
+<section class="slide">
+  <div class="chrome"><span>PART V · DEEP DIVE</span><span>D3</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">一个关键澄清</div>
+      <h2 class="ink" style="--i:1">它没有"变得更懂你"。<span class="am">是你每次让它看到了更多。</span></h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="mid">
+          <div class="stat"><div class="v co">0</div><div class="l">你这一年的所有协作，<br>改变的模型参数数量。</div></div>
+          <div class="note co">这句话听起来泄气，其实是好消息——<b>因为它意味着这件事完全可控、可迁移、可带走。</b></div>
+        </div>
+        <div class="card">
+          <div class="tag">这一条能同时解释三件怪事</div>
+          <table class="tight" style="margin-top:4px">
+            <thead><tr><th style="width:290px">你遇到过的现象</th><th>真正的原因</th></tr></thead>
+            <tbody>
+              <tr><td>换个新对话它就失忆</td><td>权重里从来没有你，之前"记得"的全部来自那次的上下文——窗口一关就没了。</td></tr>
+              <tr><td>同一个模型，别人用得比你好</td><td>不是他会写提示词，是他每次塞进去的东西比你多、比你准。</td></tr>
+              <tr><td>手册必须"自动加载"才有用</td><td>因为它不是被"学会"的，是每次<b class="am">被重新读一遍</b>的。你忘了粘，它就忘了你。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">所以整门课的第三个乘数，严格说不叫"训练它"，叫<b class="am">「让它每一次都带着关于你的全部信息开工」</b>。名字不重要，重要的是——<b>这件事你今天就能做，而且立刻生效。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- D4 Agent 架构大图（SVG · 分步 5） -->
+<section class="slide">
+  <div class="chrome"><span>PART V · DEEP DIVE</span><span>D4</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">模型在 Agent 里的位置</div>
+      <h2 class="ink" style="--i:1">模型是发动机，<span class="am">Agent 是整辆车</span></h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1600" height="500" viewBox="0 0 1600 500">
+          <!-- 中心：模型 -->
+          <g data-step="1">
+            <circle class="pop" style="--i:0" cx="800" cy="212" r="96" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+            <circle class="pop" style="--i:1" cx="800" cy="212" r="122" fill="none" stroke="var(--hair-strong)" stroke-width="1" stroke-dasharray="3 7"/>
+            <text class="ttl pop" style="--i:0" x="800" y="204" text-anchor="middle" fill="var(--amber)">LLM</text>
+            <text class="sm pop" style="--i:1" x="800" y="238" text-anchor="middle">推理 · 决策</text>
+            <text class="lbl pop" style="--i:2" x="800" y="360" text-anchor="middle">厂商造的那一格 · 你改不了</text>
+          </g>
+          <!-- 左三件 -->
+          <g data-step="2">
+            <path class="dw" style="--len:420;--i:0" d="M330 62 C 520 62, 600 150, 686 178 M330 206 C 520 206, 600 206, 678 210 M330 350 C 520 350, 600 274, 686 246"
+                  stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+            <rect class="box pop" style="--i:1" x="30" y="14" width="300" height="96" rx="4"/>
+            <text class="ttl pop" style="--i:1" x="54" y="58">上下文 / 系统提示</text>
+            <text class="sm pop" style="--i:2" x="54" y="88" fill="var(--amber)">← 你的员工手册</text>
+            <rect class="box pop" style="--i:1" x="30" y="158" width="300" height="96" rx="4"/>
+            <text class="ttl pop" style="--i:1" x="54" y="202">记忆</text>
+            <text class="sm pop" style="--i:2" x="54" y="232" fill="var(--amber)">← 你的交接日志</text>
+            <rect class="box pop" style="--i:1" x="30" y="302" width="300" height="96" rx="4"/>
+            <text class="ttl pop" style="--i:1" x="54" y="346">知识库 / 检索</text>
+            <text class="sm pop" style="--i:2" x="54" y="376" fill="var(--amber)">← 你的背景包</text>
+          </g>
+          <!-- 右三件 -->
+          <g data-step="3">
+            <path class="dw" style="--len:420;--i:0" d="M1270 62 C 1080 62, 1000 150, 914 178 M1270 206 C 1080 206, 1000 206, 922 210 M1270 350 C 1080 350, 1000 274, 914 246"
+                  stroke="var(--hair-strong)" stroke-width="1.4" fill="none"/>
+            <rect class="box pop" style="--i:1" x="1270" y="14" width="300" height="96" rx="4"/>
+            <text class="ttl pop" style="--i:1" x="1546" y="58" text-anchor="end">工具 Tools</text>
+            <text class="sm pop" style="--i:2" x="1546" y="88" text-anchor="end">读写文件 · 跑代码 · 搜索 · 调 API</text>
+            <rect class="box pop" style="--i:1" x="1270" y="158" width="300" height="96" rx="4"/>
+            <text class="ttl pop" style="--i:1" x="1546" y="202" text-anchor="end">Skill / SOP</text>
+            <text class="sm pop" style="--i:2" x="1546" y="232" text-anchor="end" fill="var(--amber)">← 你沉淀的 6 套流程</text>
+            <rect class="pop" style="--i:1" x="1270" y="302" width="300" height="96" rx="4" fill="none" stroke="var(--coral)" stroke-width="1.6"/>
+            <text class="ttl pop" style="--i:1" x="1546" y="346" text-anchor="end" fill="var(--coral)">护栏 / 权限</text>
+            <text class="sm pop" style="--i:2" x="1546" y="376" text-anchor="end" fill="var(--coral)">← 你的四条 + 一条红线</text>
+          </g>
+          <!-- 编排循环 -->
+          <g data-step="4">
+            <path class="dw" style="--len:1300;--i:0"
+                  d="M470 430 H1130 M1130 430 C 1210 430, 1210 470, 1130 470 H470 C 390 470, 390 430, 470 430"
+                  stroke="var(--amber)" stroke-width="2" fill="none"/>
+            <path class="trace" d="M470 430 H1130 C 1210 430, 1210 470, 1130 470 H470 C 390 470, 390 430, 470 430"
+                  stroke="var(--amber)" stroke-width="3" fill="none" opacity=".85"/>
+            <text class="lbl pop" style="--i:1" x="800" y="420" text-anchor="middle" fill="var(--amber)">编排循环 · AGENT LOOP</text>
+            <text class="sm pop" style="--i:2" x="800" y="456" text-anchor="middle">感知 → 计划 → 调用工具 → 观察结果 → 再计划，直到完成或撞到护栏</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:6" data-step="5">看清楚这张图的分工：<b>中间那一格是厂商造的，你改不了；外面那六件，全部是你的。</b>
+        <b class="am">而"它像不像你、靠不靠得住"，几乎完全由外面那六件决定。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- D5 六件 ↔ 你手上的东西 -->
+<section class="slide">
+  <div class="chrome"><span>PART V · DEEP DIVE</span><span>D5</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">对上号</div>
+      <h2 class="ink" style="--i:1">这门课前面讲的每一件事，都在这张架构图里有位置</h2>
+    </div>
+    <div class="body">
+      <table class="big flow dn" style="--i:2">
+        <thead><tr><th style="width:250px">Agent 的组成</th><th style="width:300px">这门课里对应的东西</th><th style="width:190px">属于哪一层数据集</th><th>它决定了什么</th></tr></thead>
+        <tbody>
+          <tr><td>上下文 / 系统提示</td><td class="k">员工手册（自动加载）</td><td>① 事实 ⑤ 偏好</td><td>它认不认得你、taste 有没有对齐</td></tr>
+          <tr><td>记忆</td><td class="k">交接日志 · 给下个会话的 5 句话</td><td>② 现场 ③ 思考</td><td>跨会话能不能接上，不用重讲</td></tr>
+          <tr><td>知识库 / 检索</td><td class="k">背景包九件套</td><td>①②③ 全部</td><td>它的回答有没有真实依据</td></tr>
+          <tr><td>工具</td><td class="k">让它能读你的文件、跑你的脚本</td><td>——（这是"二阶工具"的定义）</td><td>它是纸上谈兵，还是真能干活</td></tr>
+          <tr><td>Skill / SOP</td><td class="k">沉淀三级里的 L2 / L3</td><td>③ 思考</td><td>同一件事第 N 次的成本</td></tr>
+          <tr><td><span class="co">护栏 / 权限</span></td><td class="k">四条护栏 + 一条红线</td><td>⑤ 偏好</td><td><b class="co">你敢不敢把重活交给它</b></td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:3">所以"个人数据集"不是一个玄学概念——<b class="am">它就是这张架构图里，除了中心那个圆之外的全部输入。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- D6 回到四阶 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">DEEP DIVE · 收口</div>
+    <div class="q am spread"><i class="rise" style="--i:1"><i>「学过」最大的收益</i><i>不是更会用</i><i>是知道哪些旋钮在你手上</i></i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">权重不在你手上，编排、上下文、记忆、知识、工具、护栏全部在。这就是为什么这一阶跨过去之后，人和人的差距会突然拉开。</div>
+  </div>
+</section>
+
+<!-- S72 卡在哪 -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>80</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">诊断</div>
+      <h2 class="ink" style="--i:1">绝大多数人，卡在「用过」到「学过」之间</h2>
+    </div>
+    <div class="body">
+      <div class="g-38 flow" style="--i:2">
+        <div class="mid">
+          <div class="stat"><div class="v co">2 → 3</div><div class="l">最难跨、也最值钱的一段台阶。<br>跨过去的人，从此和别人不在一条曲线上。</div></div>
+          <div class="note co">卡住的原因<b>不是不够努力</b>——恰恰相反，卡在这里的人往往用得非常勤。</div>
+        </div>
+        <div class="card">
+          <div class="tag">卡住的三个真实原因</div>
+          <table class="tight" style="margin-top:4px">
+            <thead><tr><th style="width:170px">原因</th><th>表现</th></tr></thead>
+            <tbody>
+              <tr><td>工具停在一阶</td><td>一直在聊天框里进出，数据集和沉淀<b class="co">没有地方可以落</b>。</td></tr>
+              <tr><td>把"用得多"<br>当成"用得深"</td><td>每天用十次，但十次都是同一种用法。<b>次数不产生深度。</b></td></tr>
+              <tr><td>没有把纠正<br>变成资产的习惯</td><td>每次都亲手改好就过去了。<b class="co">改得越熟练，越没有动力去沉淀。</b></td></tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:16px;font-size:20px">第三条最隐蔽：<b class="am">你的熟练，正在掩盖你的不复利。</b></div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">跨过去只需要两个动作：<b class="am">① 换到一个能读你文件的工具　② 每次收工问那一句话。</b>其余的会自己长出来。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S73 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 11</div>
+    <div class="q ink"><i class="rise" style="--i:1">你的熟练</i><i class="rise" style="--i:2">正在掩盖你的不复利</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">改得越顺手，越没有动力去沉淀。这是卡在第二阶最隐蔽的原因——它伪装成了"我很行"。</div>
+  </div>
+</section>
+
+<!-- S74 三只钟（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART V · LADDER</span><span>82</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">检验节奏</div>
+      <h2 class="ink" style="--i:1">三只钟：两周、两月、六个月</h2>
+      <div class="sub flow" style="--i:2">我用这三个尺度检验一个团队学没学会。放到个人身上，同样成立。</div>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:3">
+        <svg width="1500" height="250" viewBox="0 0 1500 250">
+          <path class="dw stroke" style="--len:1400;--i:3" d="M60 160 H1440" stroke-width="1"/>
+          <g class="pop" style="--i:4">
+            <circle cx="240" cy="160" r="42" class="stroke" stroke-width="2"/>
+            <path class="dw" style="--len:100;--i:5" d="M240 160 V126 M240 160 L266 176" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <text class="lbl" x="240" y="88" text-anchor="middle">两周</text>
+            <text class="ttl" x="240" y="238" text-anchor="middle">它能不能用？</text>
+          </g>
+          <g class="pop" style="--i:6">
+            <circle cx="740" cy="160" r="42" class="stroke" stroke-width="2"/>
+            <path class="dw" style="--len:100;--i:7" d="M740 160 V122 M740 160 L774 160" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <text class="lbl" x="740" y="88" text-anchor="middle">两个月</text>
+            <text class="ttl" x="740" y="238" text-anchor="middle">能不能稳定复现？</text>
+          </g>
+          <g class="pop" style="--i:8">
+            <circle cx="1260" cy="160" r="42" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <path class="dw" style="--len:100;--i:9" d="M1260 160 V118 M1260 160 L1230 182" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
+            <text class="lbl" x="1260" y="88" text-anchor="middle" fill="var(--amber)">六个月</text>
+            <text class="ttl" x="1260" y="238" text-anchor="middle" fill="var(--amber)">有没有变成你的系统？</text>
+          </g>
+          <path class="dw" style="--len:400;--i:10" d="M290 160 H690 M790 160 H1210" stroke="var(--hair-strong)" stroke-width="1.5" stroke-dasharray="4 8" fill="none"/>
+        </svg>
+      </div>
+      <div class="g3 flow" style="--i:11">
+        <div class="card sm"><div class="tag">两周 · 能力问题</div>
+          <div class="d">这件活 AI 到底能不能接？<b>不要做完整，要做出能被真实验证的版本。</b>能用实验回答的问题，就不该继续纠结。</div></div>
+        <div class="card sm"><div class="tag">两个月 · 结果问题</div>
+          <div class="d">一次成功什么都说明不了——可能只是那天运气好，或者你在旁边盯了两小时。<b>跨时间、跨场景仍然成立，才叫证据。</b></div></div>
+        <div class="card sm on"><div class="tag am">六个月 · 系统问题</div>
+          <div class="d">它有没有变成：一条手册里的规则 / 一份可调用的 SOP / 一条护栏 / 一份能接上的交接？<b class="am">如果没有，你只是"用了六个月"。</b></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S75 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 12</div>
+    <div class="q am"><i class="rise" style="--i:1">六个月后</i><i class="rise" style="--i:2">同类问题还要重新解释一遍</i><i class="rise" style="--i:3"><span class="w" style="font-size:.72em">说明你没学会</span></i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">你只是用了六个月。这是一条很硬、也很好用的自测——它不问你有多勤奋，只问你留下了什么。</div>
+  </div>
+</section>
+<!-- ============================================================
+     PART VI · 收口（S76–S84）
+     ============================================================ -->
+
+<!-- S76 灵魂拷问 07 -->
+<section class="slide">
+  <div class="ask">
+    <div class="qn settle" style="--i:0">07</div>
+    <div class="badge flow" style="--i:0">灵魂拷问 · 最后一问</div>
+    <div class="q ink" style="--i:1">你敢不敢问它一句：<br><span class="hl">"根据我们这一年的所有协作，<br>你觉得我的盲区是什么？"</span></div>
+    <div class="hint rise" style="--i:0" data-step="1">
+      <div class="col"><span class="k">如果不敢</span><span class="v">先问自己：是怕它答不上来，还是<b>怕它答得上来</b>？</span></div>
+      <div class="col"><span class="k">如果它答不上来</span><span class="v">说明你的数据集只有第一层——它根本不认识你。</span></div>
+      <div class="col"><span class="k">如果它答得上来</span><span class="v">那你会看到一件很奇怪的事：<b>一把向外的尺子，忽然转向了你自己。</b></span></div>
+    </div>
+    <div class="cue flow" style="--i:0" data-step="2">这一问，我们留到下课以后。今晚回去可以试。</div>
+  </div>
+</section>
+
+<!-- S77 回到公式 -->
+<section class="slide">
+  <div class="chrome"><span>PART VI · 收口</span><span>85</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">回到起点</div>
+      <h2 class="ink" style="--i:1">四个乘数，四种失败，四个动作</h2>
+    </div>
+    <div class="body">
+      <table class="flow dn" style="--i:2">
+        <thead><tr><th style="width:190px">乘数</th><th style="width:200px">缺了会怎样</th><th style="width:420px">它到底是什么</th><th>今天就能做的一个动作</th></tr></thead>
+        <tbody>
+          <tr><td>Taste</td><td class="k">越用越平庸</td>
+            <td>你判断答案好坏的能力。它是你的私人 Eval。</td>
+            <td>改完之后，逼自己说出一句"我为什么改这里"。</td></tr>
+          <tr><td>人做思想者</td><td class="k">越用越同质</td>
+            <td>框架你出，AI 执行 + 查漏补缺。思想者的位置不能空。</td>
+            <td>把"帮我想个框架"换成"我的框架是 A/B，你来填"。</td></tr>
+          <tr><td>个人数据集</td><td class="k">越用越累</td>
+            <td>五层：事实 / 现场 / 思考 / 能力 / 偏好。最值钱的是判断，不是资料。</td>
+            <td>写一份 300 字手册：我是谁、这季度最重要的一件事、我讨厌什么、我的三条红线。</td></tr>
+          <tr><td>沉淀机制</td><td class="k">越用越原地</td>
+            <td>把一次劳动变成下次的资产。三级：一句话规则 / SOP / 可复用技能。</td>
+            <td>收工前问：<b class="am">"把我刚才改你的地方，写成下次的规则。"</b></td></tr>
+        </tbody>
+      </table>
+      <div class="note flow" style="--i:3">四个动作加起来，今天需要你多花的时间：<b class="am">不到 20 分钟。</b>而这 20 分钟和"多用十次 AI"的区别，就是加法和复利的区别。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S78 Eval 与内观（SVG） -->
+<section class="slide">
+  <div class="chrome"><span>PART VI · 收口</span><span>86</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">最后一层</div>
+      <h2 class="ink" style="--i:1">同一把尺子，向外叫 Eval，向内叫内观</h2>
+    </div>
+    <div class="body">
+      <div class="fig flow" style="--i:2">
+        <svg width="1560" height="330" viewBox="0 0 1560 330">
+          <!-- 尺子本体 -->
+          <path class="dw" style="--len:800;--i:2" d="M480 160 H1080" stroke="var(--amber)" stroke-width="4" fill="none"/>
+          <path class="dw" style="--len:400;--i:3"
+                d="M520 160 V138 M580 160 V144 M640 160 V138 M700 160 V144 M760 160 V132 M820 160 V144 M880 160 V138 M940 160 V144 M1000 160 V138 M1040 160 V144"
+                stroke="var(--amber)" stroke-width="2" fill="none"/>
+          <text class="lbl pop" style="--i:4" x="780" y="196" text-anchor="middle" fill="var(--amber)">同一把尺子</text>
+          <!-- 向外 -->
+          <path class="dw" data-step="1" style="--len:400;--i:5" d="M1090 160 H1400" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <path class="dw" data-step="1" style="--len:60;--i:6" d="M1382 146 L1404 160 L1382 174" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
+          <g class="pop" data-step="1" style="--i:7">
+            <text class="ttl" x="1420" y="128" text-anchor="end">向外 · EVAL</text>
+            <text class="txt" x="1420" y="222" text-anchor="end">它在哪类任务失败？</text>
+            <text class="txt" x="1420" y="250" text-anchor="end">它在哪一步开始编？</text>
+            <text class="txt" x="1420" y="278" text-anchor="end">它在什么边界上越权？</text>
+            <text class="lbl" x="1420" y="312" text-anchor="end" fill="var(--ink-3)">校准 Agent</text>
+          </g>
+          <!-- 向内 -->
+          <path class="dw" data-step="2" style="--len:400;--i:5" d="M470 160 H160" stroke="var(--coral)" stroke-width="2" fill="none"/>
+          <path class="dw" data-step="2" style="--len:60;--i:6" d="M178 146 L156 160 L178 174" stroke="var(--coral)" stroke-width="2" fill="none"/>
+          <g class="pop" data-step="2" style="--i:8">
+            <text class="ttl" x="140" y="128" text-anchor="start" fill="var(--coral)">向内 · 内观</text>
+            <text class="txt" x="140" y="222" text-anchor="start">我是不是爱上了自己的方案？</text>
+            <text class="txt" x="140" y="250" text-anchor="start">我是不是把一次成功当成了规律？</text>
+            <text class="txt" x="140" y="278" text-anchor="start">我是不是投入太多不愿承认错了？</text>
+            <text class="lbl" x="140" y="312" text-anchor="start" fill="var(--ink-3)">校准你自己</text>
+          </g>
+          <text class="lbl pop" data-step="3" style="--i:9" x="780" y="46" text-anchor="middle">它们面对的是同一个问题</text>
+          <text class="ttl pop" data-step="3" style="--i:10" x="780" y="88" text-anchor="middle" fill="var(--amber)">我如何知道自己正在接近正确，而不是只是更有信心？</text>
+        </svg>
+      </div>
+      <div class="note flow" style="--i:11">还记得第 ④ 层吗——<b class="am">你写下自己瓶颈的那一刻，用的就是同一把尺子。</b>Agent、人、组织，都需要一套看见偏差、承认偏差、修正偏差的机制。</div>
+    </div>
+  </div>
+</section>
+
+<!-- S79 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 13</div>
+    <div class="q ink"><i class="rise" style="--i:1">同一把尺子</i><i class="rise" style="--i:2">向外叫 Eval</i><i class="rise" style="--i:3">向内叫内观</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">我们用它校准 Agent，也要用它校准自己。这也是为什么"写下自己的瓶颈"这件事，比它看起来难得多。</div>
+  </div>
+</section>
+
+<!-- S80 升维 -->
+<section class="slide">
+  <div class="chrome"><span>PART VI · 收口</span><span>88</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">这门课真正在讲的事</div>
+      <h2 class="ink" style="--i:1">其实我们今天没有在讲怎么用 AI</h2>
+    </div>
+    <div class="body">
+      <div class="g3 flow dn" style="--i:2">
+        <div class="card"><div class="tag">回看 Part I</div><div class="t">Taste</div>
+          <div class="d">你在做的事是：<b>把说不清的判断，逼成说得清的标准。</b></div></div>
+        <div class="card"><div class="tag">回看 Part III</div><div class="t">数据集</div>
+          <div class="d">你在做的事是：<b>把只在脑子里的东西，变成能被别人接手的东西。</b></div></div>
+        <div class="card"><div class="tag">回看 Part IV</div><div class="t">沉淀</div>
+          <div class="d">你在做的事是：<b>让一次经验，能在你不在场的时候继续生效。</b></div></div>
+      </div>
+      <div class="note flow" style="--i:3;font-size:27px;border-left-width:4px">
+        这三件事有一个共同的名字：<b class="am">把你自己的判断，变成可以被复用的东西。</b>
+      </div>
+      <div class="g-83 flow" style="--i:4">
+        <div class="card">
+          <div class="d" style="font-size:23px;line-height:1.85">
+            这件事在 AI 出现之前就很值钱——我们管它叫"带团队"、"写 SOP"、"沉淀方法论"、"培养接班人"。
+            只是过去它<b>极其昂贵</b>：你只能把判断传给身边少数几个人，而且传得很慢、很失真。<br><br>
+            <b class="am">AI 做的唯一一件新事，是让这件事第一次可以被规模化。</b></div>
+        </div>
+        <div class="mid">
+          <div class="note co">所以这门课的方法，<b>换个工具依然成立；换个时代，也依然成立。</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S81 金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">MONEY QUOTE · 14</div>
+    <div class="q am"><i class="rise" style="--i:1">把你自己的判断</i><i class="rise" style="--i:2">变成可以被复用的东西</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">这件事在 AI 出现之前就值钱。AI 做的唯一一件新事，是让它第一次可以被规模化。</div>
+  </div>
+</section>
+
+<!-- S82 今晚三件事 -->
+<section class="slide">
+  <div class="chrome"><span>PART VI · 收口</span><span>90</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow am flow" style="--i:0">行动</div>
+      <h2 class="ink" style="--i:1">今晚回去，只做三件事</h2>
+      <div class="sub flow" style="--i:2">不要从"建一个知识库"开始——那件事你会拖三个月。从这三件开始，今晚就能做完。</div>
+    </div>
+    <div class="body">
+      <div class="g3 gfill flow dn" style="--i:3">
+        <div class="card-w">
+          <div class="n">01</div><div class="t">写 300 字的手册</div>
+          <div class="d">四段：<br><br>· 我是谁，我负责什么<br>· 我这个季度最重要的一件事<br>· 我喜欢什么表达，讨厌什么词<br>· 我的三条红线<br><br><b>下次开工，第一句话先粘它。</b></div>
+          <div class="tag" style="margin-top:auto">耗时 15 分钟</div>
+        </div>
+        <div class="card-w">
+          <div class="n">02</div><div class="t">选一件重复的活</div>
+          <div class="d">三个标准：<br><br>· 你每周都要干<br>· 有相对固定的套路<br>· <b>你说得清什么叫做得好</b><br><br>第三条最关键——那是你有 taste 的地方，也是唯一能验收的地方。</div>
+          <div class="tag" style="margin-top:auto">耗时 5 分钟</div>
+        </div>
+        <div class="card-w">
+          <div class="n">03</div><div class="t">收工前问那一句</div>
+          <div class="d" style="font-size:21px">"把我刚才改你的地方，总结成下次的规则。"<br><br>把它的回答存进第 1 件事写的那份手册里。<br><br><b>然后下一次，看看那个错还犯不犯。</b></div>
+          <div class="tag" style="margin-top:auto">耗时 2 分钟 · 每次</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:4">三件事加起来 22 分钟。<b class="am">但它们是复利的第一天——从明天起，你的每一次协作都会比昨天多垫高一层。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S83 带走页 -->
+<section class="slide">
+  <div class="chrome"><span>PART VI · 收口</span><span>91</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">带走</div>
+      <h2 class="ink" style="--i:1">模板三件套 · 直接抄</h2>
+    </div>
+    <div class="body">
+      <div class="g3 flow dn" style="--i:2">
+        <div class="card">
+          <div class="tag am">模板 01</div><div class="t">员工手册</div>
+          <div class="file" style="font-size:15px;line-height:1.72;padding:16px 18px;margin-top:4px"><span class="c">## 我是谁</span>
+角色 / 负责什么 / 团队
+<span class="c">## 我此刻在哪</span>
+本季度最重要的一件事
+本周在推什么，卡在哪
+<span class="c">## 我的风格</span>
+喜欢的表达 / <span class="r">讨厌的词</span>
+<span class="c">## 我的红线</span>
+1. 2. 3.
+<span class="c">## 我的长处 / 瓶颈</span>
+强在哪（别插手）
+弱在哪（<span class="h">你顶上</span>）</div>
+        </div>
+        <div class="card">
+          <div class="tag am">模板 02</div><div class="t">交接日志</div>
+          <div class="file" style="font-size:15px;line-height:1.72;padding:16px 18px;margin-top:4px"><span class="c">## 一句话成果</span>
+
+<span class="c">## 给下个会话最关键的 5 句话</span>
+<span class="h">1. 2. 3. 4. 5.</span>
+
+<span class="c">## 决策记录</span>
+背景 / 结论 / 依据
+
+<span class="c">## 反复踩过的坑</span>
+| 坑 | 矫正 |
+
+<span class="c">## 下次的开场白建议</span>
+<span class="w">（可直接粘贴）</span></div>
+        </div>
+        <div class="card">
+          <div class="tag am">模板 03</div><div class="t">护栏卡片</div>
+          <div class="file" style="font-size:15px;line-height:1.72;padding:16px 18px;margin-top:4px"><span class="c">## 四条护栏</span>
+1. <span class="w">无来源不成信号</span>
+2. <span class="w">宁可说"没有"，不许编</span>
+3. <span class="w">事实/推断/建议分开标</span>
+4. <span class="w">拿不准往低报</span>
+
+<span class="c">## 一条红线（人批）</span>
+<span class="r">权限变更 · 内网访问
+删除覆盖 · 对外发送</span>
+
+<span class="c">## 验收问法</span>
+"这条的出处是哪份？"
+"哪几条是你推断的？"
+"逐项检查，有没有漏？"</div>
+        </div>
+      </div>
+      <div class="note flow" style="--i:3">三份模板加起来不到一页纸。<b class="am">它们不需要任何工具，一个备忘录就能开始。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- S84 终极金句 -->
+<section class="slide">
+  <div class="mq">
+    <div class="mark flow" style="--i:0">带一个新同事上班 · 恒动复利</div>
+    <div class="q ink"><i class="rise" style="--i:1">它记不住任何事</i><i class="rise" style="--i:2"><span class="w">所以你替它记住的每一件事</span></i><i class="rise" style="--i:3">都在复利</i></div>
+    <div class="rule"></div>
+    <div class="s flow" style="--i:5">姚光华 Colin</div>
+  </div>
+</section>
+
+</main>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="编辑模式 (E)">EDIT</button>
+<script>
+/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+
+</script>
+</body>
+</html>

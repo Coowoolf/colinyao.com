@@ -70,7 +70,7 @@ export default function TalksPage() {
         <Reveal className="mq-block">
           <p className="q spread" style={s(0)}>下一场，见。</p>
           <div className="mq-line" style={s(2)} />
-          <p className="who pop" style={s(3)}>演讲邀约 · ICOLINYAO@GMAIL.COM</p>
+          <p className="who pop" style={s(3)}>小红书 / 公众号 · 姚光华 COLIN</p>
         </Reveal>
       </div>
     </section>

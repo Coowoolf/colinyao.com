@@ -10,11 +10,17 @@ export default function Footer() {
           <span className="co">同一把尺子</span>，向外叫 EVAL，向内叫内观。
         </div>
         <div className="footer-links">
-          {site.links.map((l) => (
-            <a key={l.name} href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
-              {l.name.toUpperCase()}
-            </a>
-          ))}
+          {site.links.map((l) =>
+            l.href ? (
+              <a key={l.name} href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                {l.name} · {l.value}
+              </a>
+            ) : (
+              <span key={l.name} className="footer-plain">
+                {l.name} · {l.value}
+              </span>
+            )
+          )}
         </div>
       </div>
     </footer>
