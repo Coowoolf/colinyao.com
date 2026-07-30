@@ -1,13 +1,16 @@
 import { site } from "@/content/site";
+import { book } from "@/content/book";
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
         <div className="sig">
-          © 2026 COLIN YAO 姚光华
+          《{book.title}》· {book.author} 著
           <br />
-          <span className="co">同一把尺子</span>，向外叫 EVAL，向内叫内观。
+          <span className="co">向外叫 EVAL</span>，向内叫内观。
+          <br />
+          <span className="colophon">{book.edition} · © 2026 COLINYAO.COM</span>
         </div>
         <div className="footer-links">
           {site.links.map((l) =>

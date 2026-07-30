@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: site.title,
-    template: "%s · Colin Yao",
+    template: "%s ·《同一把尺子》",
   },
   description: site.description,
   keywords: ["姚光华", "Colin Yao", "对话式AI", "Voice Agent", "活人感", "ConvoAI", "Eval", "对话式智能体"],

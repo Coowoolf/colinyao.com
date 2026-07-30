@@ -241,7 +241,7 @@ h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
 .dim3{color:var(--ink-3);}
 
 /* ---------- Layout ---------- */
-.wrap{max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad);}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad);}
 .section{padding:clamp(72px,10vw,140px) 0;}
 .section-head{display:flex;flex-direction:column;gap:18px;margin-bottom:clamp(36px,5vw,64px);}
 .hairline{border-top:1px solid var(--hair);}
@@ -431,6 +431,132 @@ h1,h2,h3{line-height:1.18;letter-spacing:-.01em;font-weight:900;}
   .stats{grid-template-columns:1fr;}
   .stat{border-bottom:1px solid var(--hair-soft);}
   .hero{min-height:92svh;}
+}
+
+/* ==================================================================
+   《同一把尺子》· 成书体例
+   卷号大字 / 目录引线点 / 首字下沉 / 篇目行 / 页边码 / 翻页 CTA
+   ================================================================== */
+
+/* ----- 封面 ----- */
+.cover-sub{
+  font-size:clamp(19px,2.3vw,30px);font-weight:700;color:var(--ink);
+  letter-spacing:.01em;padding-right:.08em;
+}
+.cover-sub .am{color:var(--amber);}
+.cover-author{
+  font-family:var(--mono);font-size:12px;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--ink-2);
+}
+
+/* ----- 总目录（引线点） ----- */
+.toc{display:flex;flex-direction:column;}
+.toc-row{
+  display:flex;align-items:baseline;gap:16px;padding:20px 2px;
+  text-decoration:none;color:inherit;border-bottom:1px solid var(--hair-soft);
+  transition:background .4s var(--ease-flow),padding-left .4s var(--ease-flow);
+}
+a.toc-row:hover{background:color-mix(in srgb,var(--amber) 4%,transparent);padding-left:10px;}
+.toc-row .no{
+  font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--amber);
+  min-width:56px;flex:none;
+}
+.toc-row .name{font-size:clamp(19px,2.2vw,26px);font-weight:900;letter-spacing:.01em;flex:none;padding-right:.08em;}
+.toc-row .en{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-3);flex:none;text-transform:uppercase;}
+.toc-leader{flex:1;border-bottom:1px dotted var(--hair-strong);transform:translateY(-.35em);min-width:40px;}
+.toc-row .pg{font-family:var(--mono);font-size:12px;color:var(--ink-3);flex:none;letter-spacing:.08em;}
+.toc-row.appendix .name{font-size:clamp(16px,1.8vw,20px);font-weight:700;color:var(--ink-2);}
+.badge-serial{
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 55%,transparent);border-radius:2px;
+  padding:3px 8px;flex:none;text-transform:uppercase;
+  animation:serialPulse 2.6s ease-in-out infinite;
+}
+@keyframes serialPulse{0%,100%{opacity:.65;}50%{opacity:1;}}
+
+/* ----- 卷页 ----- */
+.voln{
+  position:absolute;top:-.28em;right:-.04em;z-index:-1;
+  font-size:clamp(180px,30vw,380px);font-weight:900;line-height:1;
+  color:var(--magenta);opacity:.10;pointer-events:none;user-select:none;
+}
+html[data-theme="light"] .voln{opacity:.08;}
+.vol-head{position:relative;}
+.vol-intro{
+  font-size:clamp(16px,1.7vw,19px);line-height:2.1;color:var(--ink-2);
+  max-width:720px;text-align:justify;
+}
+.vol-intro b{color:var(--ink);}
+.dropcap::first-letter{
+  float:left;font-size:3.1em;line-height:1;font-weight:900;
+  color:var(--amber);padding:4px 14px 0 0;
+}
+.term-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;}
+.term-chips .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--ink-3);align-self:center;text-transform:uppercase;}
+.term-chip{
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--ink-2);
+  border:1px solid var(--hair);border-radius:2px;padding:6px 12px;text-decoration:none;
+  transition:color .35s,border-color .35s;
+}
+.term-chip:hover{color:var(--amber);border-color:var(--amber);}
+
+/* ----- 篇目行 ----- */
+.piece-list{display:flex;flex-direction:column;margin-top:clamp(30px,4vw,48px);}
+.piece-row{
+  display:grid;grid-template-columns:132px 1fr auto;gap:8px 22px;align-items:baseline;
+  padding:22px 2px;border-bottom:1px solid var(--hair-soft);
+  text-decoration:none;color:inherit;position:relative;
+  transition:background .4s var(--ease-flow),padding-left .4s var(--ease-flow);
+}
+a.piece-row:hover{background:color-mix(in srgb,var(--amber) 4%,transparent);padding-left:12px;}
+a.piece-row:hover .piece-title{color:var(--amber);}
+.piece-no{font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--amber);}
+.piece-no small{display:block;font-size:10px;color:var(--ink-3);letter-spacing:.12em;margin-top:5px;}
+.piece-title{
+  font-size:clamp(16px,1.8vw,20px);font-weight:700;line-height:1.5;
+  transition:color .35s;padding-right:.08em;
+}
+.piece-src{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3);display:block;margin-top:7px;}
+.piece-pg{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.08em;white-space:nowrap;}
+.piece-row.locked{cursor:default;}
+.piece-row.locked .piece-title{color:var(--ink-3);}
+.piece-row.locked .piece-no{color:var(--ink-3);}
+.piece-lock{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--amber);
+  border:1px dashed color-mix(in srgb,var(--amber) 50%,transparent);border-radius:2px;
+  padding:3px 8px;margin-left:12px;white-space:nowrap;
+}
+
+/* ----- 卷尾翻页 ----- */
+.vol-nav{
+  display:flex;justify-content:space-between;gap:18px;
+  margin-top:clamp(48px,6vw,84px);padding-top:30px;border-top:1px solid var(--hair);
+}
+.vol-nav a{
+  display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;
+  max-width:46%;
+}
+.vol-nav a .k{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--ink-3);text-transform:uppercase;transition:color .35s;}
+.vol-nav a .t{font-size:clamp(16px,1.9vw,21px);font-weight:900;transition:color .35s;padding-right:.08em;}
+.vol-nav a:hover .k,.vol-nav a:hover .t{color:var(--amber);}
+.vol-nav a.next{text-align:right;margin-left:auto;}
+
+/* ----- 序页 ----- */
+.preface-body{display:flex;flex-direction:column;gap:26px;max-width:720px;}
+.preface-body p{font-size:clamp(16px,1.8vw,20px);line-height:2.15;color:var(--ink-2);text-align:justify;}
+.preface-body p b{color:var(--ink);}
+.preface-body p.last{font-weight:900;color:var(--ink);font-size:clamp(18px,2vw,23px);}
+
+/* ----- 版权页（footer 升级用） ----- */
+.colophon{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);}
+
+@media (max-width:720px){
+  .piece-row{grid-template-columns:1fr;gap:6px;}
+  .piece-pg{display:none;}
+  .toc-row{flex-wrap:wrap;gap:10px;}
+  .toc-row .en{display:none;}
+  .voln{font-size:clamp(140px,44vw,220px);opacity:.07;}
+  .mark-en{display:none;}
 }
 
 /* ---------- 弱网兜底：hydration 未醒时强制显示全部内容 ---------- */

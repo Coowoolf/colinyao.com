@@ -15,7 +15,7 @@ export default function AboutPage() {
     <section className="section" style={{ paddingTop: "clamp(120px,16vh,180px)" }}>
       <div className="wrap">
         <Reveal className="section-head">
-          <p className="eyebrow flow" style={s(0)}>ABOUT <span className="am">·</span> 关于</p>
+          <p className="eyebrow flow" style={s(0)}>COLOPHON <span className="am">·</span> 作者与版权页</p>
           <h1 className="h-sec ink" style={s(1)}>姚光华 · Colin Yao</h1>
         </Reveal>
 
@@ -33,8 +33,9 @@ export default function AboutPage() {
               「模型决定能力上限，引擎决定体验下限」。它们都收在<Link href="/ideas" className="am">概念库</Link>里。
             </p>
             <p className="flow" style={s(2)}>
-              这个网站叫「同一把尺子」：向外，用 Eval 度量系统哪里偏了；向内，用内观看见自己的判断哪里偏了。
-              产品和人，进化机制是同一个——<b>更早发现错误，更快修正错误</b>。
+              这个网站是一本正在写的书：<b>《同一把尺子》</b>——向外，用 Eval 度量系统哪里偏了；
+              向内，用内观看见自己的判断哪里偏了。产品和人，进化机制是同一个——
+              <b>更早发现错误，更快修正错误</b>。五卷四十篇，从<Link href="/preface" className="am">序</Link>读起。
             </p>
             <p className="flow" style={s(3)}>
               想找我聊——小红书 / 微信公众号搜「<b>姚光华 Colin</b>」。
@@ -75,14 +76,18 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="aside-block">
-              <span className="k flow" style={s(4)}>ELSEWHERE</span>
-              <Link href="/talks" className="link-row flow" style={s(5)}>
-                <span className="n">演讲档案</span>
-                <span className="v">15 TALKS →</span>
+              <span className="k flow" style={s(4)}>本书</span>
+              <Link href="/#toc" className="link-row flow" style={s(5)}>
+                <span className="n">总目录</span>
+                <span className="v">5 卷 · 40 篇 →</span>
               </Link>
-              <Link href="/ideas" className="link-row flow" style={s(6)}>
-                <span className="n">概念库</span>
-                <span className="v">8 IDEAS →</span>
+              <Link href="/talks" className="link-row flow" style={s(6)}>
+                <span className="n">附录 A</span>
+                <span className="v">演讲年表 →</span>
+              </Link>
+              <Link href="/ideas" className="link-row flow" style={s(7)}>
+                <span className="n">附录 B</span>
+                <span className="v">术语索引 →</span>
               </Link>
             </div>
           </Reveal>

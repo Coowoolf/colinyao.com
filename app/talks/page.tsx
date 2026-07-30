@@ -1,32 +1,34 @@
 import type { Metadata } from "next";
 import Reveal from "@/components/Reveal";
 import { talks, talkYears, upcoming } from "@/content/talks";
+import { pieceIndex, talkNumToSlug } from "@/content/book";
 
 export const metadata: Metadata = {
-  title: "Talks · 演讲档案",
+  title: "附录 A · 演讲年表",
   description:
-    "姚光华（Colin）2024 年以来的公开演讲档案：RTE 大会、AWS 中国峰会、Google Cloud 开发者大会、人人都是产品经理大会、First Prompt Singapore。",
+    "《同一把尺子》附录 A：姚光华（Colin）2024 年以来的公开演讲年表。正文按论证归卷，此处按时间检索：RTE 大会、AWS 中国峰会、Google Cloud 开发者大会、人人都是产品经理大会、First Prompt Singapore。",
 };
 
 const s = (i: number) => ({ ["--i" as string]: i } as React.CSSProperties);
+const CN = ["一", "二", "三", "四", "五"];
 
 export default function TalksPage() {
   return (
     <section className="section" style={{ paddingTop: "clamp(120px,16vh,180px)" }}>
       <div className="wrap">
         <Reveal className="section-head">
-          <p className="eyebrow flow" style={s(0)}>TALKS <span className="am">·</span> 2024–2026</p>
-          <h1 className="h-sec ink" style={s(1)}>演讲档案</h1>
+          <p className="eyebrow flow" style={s(0)}>附录 A <span className="am">·</span> APPENDIX A · 2024–2026</p>
+          <h1 className="h-sec ink" style={s(1)}>演讲年表</h1>
           <p className="lead flow" style={s(2)}>
-            15 场公开演讲，按时间倒序。这不是作品集——是一条能看见思想怎么长出来的演进线：
-            从三阶段框架，到活人感，到两个半球，到同一把尺子。★ 为代表作。
+            正文按论证归卷，年表按时间检索——15 场公开演讲倒序排列，每场标注了它在书中的篇号。
+            ★ 为代表作。
           </p>
         </Reveal>
 
         <Reveal>
           <div className="upnext flow" style={s(0)}>
             <div>
-              <p className="tag">UP NEXT</p>
+              <p className="tag">UP NEXT · 卷五 5.10</p>
               <p className="t">{upcoming.title}</p>
               <p className="d">{upcoming.venue} —— {upcoming.summary}</p>
             </div>
@@ -42,28 +44,37 @@ export default function TalksPage() {
             <h2 className="talk-year settle" style={s(0)}>{year}</h2>
             {talks
               .filter((t) => t.year === year)
-              .map((t, i) => (
-                <article key={t.num} className="talk-row flow dn" style={s(i + 1)} id={`t${t.num}`}>
-                  <div className="talk-meta">
-                    <span className="date">{t.date}</span>
-                    <span className="venue">{t.venue}</span>
-                    {t.role && <span className="chip">{t.role.toUpperCase()}</span>}
-                    {t.lang && <span className="chip">EN</span>}
-                  </div>
-                  <div className="talk-body">
-                    <h3 className="talk-title">
-                      {t.title}
-                      {t.star && <span className="star">{"★".repeat(t.star)}</span>}
-                    </h3>
-                    <p className="talk-summary">{t.summary}</p>
-                    <div className="talk-foot">
-                      <span>NO.{String(t.num).padStart(2, "0")}</span>
-                      {t.slides && <span>{t.slides} SLIDES</span>}
-                      {t.tags?.map((tag) => <span key={tag}>#{tag}</span>)}
+              .map((t, i) => {
+                const slug = talkNumToSlug[t.num];
+                const piece = slug ? pieceIndex.get(slug) : undefined;
+                return (
+                  <article key={t.num} className="talk-row flow dn" style={s(i + 1)} id={`t${t.num}`}>
+                    <div className="talk-meta">
+                      <span className="date">{t.date}</span>
+                      <span className="venue">{t.venue}</span>
+                      {t.role && <span className="chip">{t.role.toUpperCase()}</span>}
+                      {t.lang && <span className="chip">EN</span>}
                     </div>
-                  </div>
-                </article>
-              ))}
+                    <div className="talk-body">
+                      <h3 className="talk-title">
+                        {t.title}
+                        {t.star && <span className="star">{"★".repeat(t.star)}</span>}
+                      </h3>
+                      <p className="talk-summary">{t.summary}</p>
+                      <div className="talk-foot">
+                        <span>NO.{String(t.num).padStart(2, "0")}</span>
+                        {t.slides && <span>{t.slides} SLIDES</span>}
+                        {piece && !piece.locked && (
+                          <a href={`/${slug}`} className="am" style={{ textDecoration: "none" }}>
+                            卷{CN[piece.vol - 1]} · {piece.no} · 读此篇 →
+                          </a>
+                        )}
+                        {t.tags?.map((tag) => <span key={tag}>#{tag}</span>)}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
           </Reveal>
         ))}
 

@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const links = [
-  { href: "/talks", label: "TALKS" },
-  { href: "/ideas", label: "IDEAS" },
-  { href: "/about", label: "ABOUT" },
+  { href: "/#toc", label: "目录", match: /^\/(preface|vol\d)/ },
+  { href: "/talks", label: "年表", match: /^\/talks/ },
+  { href: "/ideas", label: "索引", match: /^\/ideas/ },
+  { href: "/about", label: "关于", match: /^\/about/ },
 ];
 
 export default function Nav() {
@@ -31,12 +32,12 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <Link href="/" className="nav-mark" aria-label="首页">
-          COLIN<span className="tick">·</span>YAO
+        <Link href="/" className="nav-mark" aria-label="封面">
+          同一把尺子<span className="mark-en"><span className="tick">·</span>COLIN YAO</span>
         </Link>
         <div className="nav-links" style={{ alignItems: "center" }}>
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className={pathname.startsWith(l.href) ? "active" : ""}>
+            <Link key={l.href} href={l.href} className={l.match.test(pathname) ? "active" : ""}>
               {l.label}
             </Link>
           ))}

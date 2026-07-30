@@ -3,44 +3,34 @@ import Reveal from "@/components/Reveal";
 import RulerFig from "@/components/RulerFig";
 import Motif from "@/components/Motifs";
 import { site } from "@/content/site";
-import { ideas } from "@/content/ideas";
-import { talks, upcoming } from "@/content/talks";
+import { book, boundVolumes, bookStats } from "@/content/book";
+import { upcoming } from "@/content/talks";
 
 const s = (i: number) => ({ ["--i" as string]: i } as React.CSSProperties);
 
-/** 卡片摘要：在 90 字以内的最后一个句读处截断 */
-function preview(def: string) {
-  if (def.length <= 90) return def;
-  const head = def.slice(0, 90);
-  const cut = Math.max(head.lastIndexOf("。"), head.lastIndexOf("；"), head.lastIndexOf("——"));
-  return cut > 30 ? head.slice(0, cut + 1) : head + "……";
-}
-
 export default function Home() {
-  const featured = ideas.slice(0, 4);
-  const latest = talks.slice(0, 3);
-
   return (
     <>
-      {/* ============ HERO · 钉子句 ============ */}
+      {/* ============ 封面 ============ */}
       <Reveal as="section" className="hero">
         <div className="wrap">
-          <p className="eyebrow flow" style={s(0)}>
-            COLINYAO.COM <span className="am">·</span> {site.ruler.en}
+          <p className="cover-author flow" style={s(0)}>
+            {book.author} 著 <span className="am">·</span> {book.en} <span className="am">·</span> 2024–2026 连载中
           </p>
           <h1 className="h-hero hero-quote">
-            <i className="spread" style={s(1)}>{site.ruler.zh[0]}</i>
-            <i className="spread" style={s(3)}>{site.ruler.zh[1]}</i>
-            <i className="spread" style={s(5)}>{site.ruler.zh[2]}</i>
+            <i className="spread" style={s(1)}>{book.title}</i>
           </h1>
-          <div className="mq-line" style={s(6)} />
-          <p className="hero-sub flow" style={s(7)}>
-            我是<b>姚光华（Colin）</b>，{site.role}。做对话式智能体：让它有<b>活人感</b>、
-            被记住、被托付；也把「感觉对了」这件事，做成可测量的尺子。
+          <div className="mq-line" style={s(4)} />
+          <p className="cover-sub flow" style={s(5)}>
+            向外叫 <span className="am">Eval</span>，向内叫<span className="am">内观</span>。
+          </p>
+          <p className="hero-sub flow" style={s(6)}>
+            一本正在写的书。两年、十五场演讲、二十三篇文章，按<b>论证的顺序</b>重新装订：
+            先铸尺，再量向外的两个半球，最后把尺子转向自己。
           </p>
           <div className="hero-ctas">
-            <Link href="/talks" className="cta flow" style={s(8)}>15 场公开演讲 →</Link>
-            <Link href="/ideas" className="cta ghost flow" style={s(9)}>概念库 →</Link>
+            <Link href="/preface" className="cta flow" style={s(7)}>从序开始读 →</Link>
+            <a href="#toc" className="cta ghost flow" style={s(8)}>目录 ↓</a>
           </div>
           <RulerFig />
         </div>
@@ -52,123 +42,121 @@ export default function Home() {
         <div className="wrap">
           <div className="stats">
             <div className="stat">
-              <span className="l flow" style={s(0)}>TALKS · SINCE 2024</span>
-              <span className="n settle" style={s(1)}>15<em>+</em></span>
-              <div className="stat-motif flow" style={s(2)}><Motif kind="sota" plain /></div>
-              <span className="d flow" style={s(3)}>场公开演讲，从 RTE 大会到 AWS 中国峰会</span>
+              <span className="l flow" style={s(0)}>VOLUMES</span>
+              <span className="n settle" style={s(1)}>{bookStats.volumes}</span>
+              <div className="stat-motif flow" style={s(2)}><Motif kind="steps" plain /></div>
+              <span className="d flow" style={s(3)}>卷：尺子 · 活人感 · 被托付 · 同源进化 · 内观</span>
             </div>
             <div className="stat">
-              <span className="l flow" style={s(2)}>HEMISPHERES</span>
-              <span className="n settle" style={s(3)}>2</span>
-              <div className="stat-motif flow" style={s(4)}><Motif kind="hemis" plain /></div>
-              <span className="d flow" style={s(5)}>个半球：被记住的消费级 × 被托付的企业级</span>
+              <span className="l flow" style={s(2)}>PIECES</span>
+              <span className="n settle" style={s(3)}>{bookStats.pieces}</span>
+              <div className="stat-motif flow" style={s(4)}><Motif kind="sota" plain /></div>
+              <span className="d flow" style={s(5)}>篇：演讲、文章与课程，每一篇都有归卷与页码</span>
             </div>
             <div className="stat">
-              <span className="l flow" style={s(4)}>RULER</span>
-              <span className="n settle" style={s(5)}>1</span>
-              <div className="stat-motif flow" style={s(6)}><Motif kind="ruler" plain /></div>
-              <span className="d flow" style={s(7)}>把尺子：向外叫 Eval，向内叫内观</span>
+              <span className="l flow" style={s(4)}>PAGES</span>
+              <span className="n settle" style={s(5)}>{bookStats.pages}</span>
+              <div className="stat-motif flow" style={s(6)}><Motif kind="tb" plain /></div>
+              <span className="d flow" style={s(7)}>页，页边码全书连续——还在往后长</span>
             </div>
           </div>
         </div>
       </Reveal>
 
-      {/* ============ IDEAS 精选 ============ */}
-      <section className="section">
+      {/* ============ 总目录 ============ */}
+      <section className="section" id="toc">
         <div className="wrap">
           <Reveal className="section-head">
-            <p className="eyebrow flow" style={s(0)}>IDEAS <span className="am">·</span> 概念库</p>
-            <h2 className="h-sec ink" style={s(1)}>用命名过的概念思考</h2>
+            <p className="eyebrow flow" style={s(0)}>CONTENTS <span className="am">·</span> 总目录</p>
+            <h2 className="h-sec ink" style={s(1)}>五卷，四十篇</h2>
             <p className="lead flow" style={s(2)}>
-              这些词是在 15 场演讲里一点点磨出来的。每个概念都有出处、有定义、有下文——这里是它们的官方档案。
+              组织原则只有一个：论证的顺序。读者从序进，按卷读；熟客直接翻附录检索。
             </p>
           </Reveal>
-          <Reveal className="ideas-grid">
-            {featured.map((idea, i) => (
-              <Link key={idea.id} href={`/ideas#${idea.id}`} className={`idea-card flow ${idea.accent ?? ""}`} style={s(i * 2)}>
-                <span className="idx"><span>{idea.index}</span><span>{idea.since}</span></span>
-                <div className="idea-motif"><Motif kind={idea.motif} /></div>
-                <span className="zh">{idea.zh}</span>
-                <span className="en">{idea.en}</span>
-                <span className="def">{preview(idea.def)}</span>
+          <Reveal className="toc">
+            <Link href="/preface" className="toc-row flow" style={s(0)}>
+              <span className="no">序</span>
+              <span className="name">同一把尺子</span>
+              <span className="en">PREFACE</span>
+              <span className="toc-leader" />
+              <span className="pg">卷首</span>
+            </Link>
+            {boundVolumes.map((v, i) => (
+              <Link key={v.id} href={`/${v.id}`} className="toc-row flow" style={s(i + 1)}>
+                <span className="no">卷{["一", "二", "三", "四", "五"][v.no - 1]}</span>
+                <span className="name">{v.zh}</span>
+                <span className="en">{v.en}</span>
+                {v.id === "vol5" && <span className="badge-serial">连载中</span>}
+                <span className="toc-leader" />
+                <span className="pg">{v.pieces.length} 篇 · 第 {v.folio} 页</span>
               </Link>
             ))}
-          </Reveal>
-          <Reveal className="end-cta">
-            <Link href="/ideas" className="cta flow" style={s(1)}>全部 {ideas.length} 个概念 →</Link>
+            <Link href="/talks" className="toc-row appendix flow" style={s(6)}>
+              <span className="no">附 A</span>
+              <span className="name">演讲年表</span>
+              <span className="en">APPENDIX A</span>
+              <span className="toc-leader" />
+              <span className="pg">2024–2026</span>
+            </Link>
+            <Link href="/ideas" className="toc-row appendix flow" style={s(7)}>
+              <span className="no">附 B</span>
+              <span className="name">术语索引</span>
+              <span className="en">APPENDIX B</span>
+              <span className="toc-leader" />
+              <span className="pg">8 条</span>
+            </Link>
           </Reveal>
         </div>
       </section>
 
-      {/* ============ 金句区块 ============ */}
+      {/* ============ 腰封金句 ============ */}
       <Reveal as="section" className="hairline">
         <div className="wrap mq-block">
-          <p className="eyebrow flow" style={s(0)}>MONEY QUOTE</p>
+          <p className="eyebrow flow" style={s(0)}>腰封 · MONEY QUOTE</p>
           <p className="q spread" style={s(1)}>
             模型决定能力上限，<br />引擎决定体验下限。
           </p>
           <div className="mq-line" style={s(3)} />
-          <p className="who pop" style={s(4)}>AWS 中国峰会 · 2026.06 · SLIDE 34</p>
+          <p className="who pop" style={s(4)}>卷四 · 同源进化 · AWS 中国峰会 2026</p>
         </div>
       </Reveal>
 
-      {/* ============ TALKS 最新 ============ */}
-      <section className="section hairline">
+      {/* ============ 正在写的一章 ============ */}
+      <Reveal as="section" className="section hairline">
         <div className="wrap">
-          <Reveal className="section-head">
-            <p className="eyebrow flow" style={s(0)}>TALKS <span className="am">·</span> 演讲档案</p>
-            <h2 className="h-sec ink" style={s(1)}>两年，十五场，一条思想演进线</h2>
-          </Reveal>
-          <Reveal>
-            <div className="upnext flow" style={s(0)}>
+          <div className="section-head">
+            <p className="eyebrow flow" style={s(0)}>NOW WRITING <span className="am">·</span> 正在写的一章</p>
+          </div>
+          <Link href="/vol5" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+            <div className="upnext flow" style={s(1)}>
               <div>
-                <p className="tag">UP NEXT</p>
+                <p className="tag">卷五 · 5.10</p>
                 <p className="t">{upcoming.title}</p>
                 <p className="d">{upcoming.venue} —— {upcoming.summary}</p>
               </div>
               <div className="when">
                 {upcoming.date}
-                <small>UPCOMING</small>
+                <small>首发后开放</small>
               </div>
             </div>
-          </Reveal>
-          <Reveal>
-            {latest.map((t, i) => (
-              <article key={t.num} className="talk-row flow dn" style={s(i * 2 + 2)}>
-                <div className="talk-meta">
-                  <span className="date">{t.date}</span>
-                  <span className="venue">{t.venue}</span>
-                </div>
-                <div className="talk-body">
-                  <h3 className="talk-title">
-                    {t.title}
-                    {t.star && <span className="star">{"★".repeat(t.star)}</span>}
-                  </h3>
-                  <p className="talk-summary">{t.summary}</p>
-                </div>
-              </article>
-            ))}
-          </Reveal>
-          <Reveal className="end-cta">
-            <Link href="/talks" className="cta flow" style={s(1)}>完整档案 · 2024–2026 →</Link>
-          </Reveal>
+          </Link>
         </div>
-      </section>
+      </Reveal>
 
-      {/* ============ 收尾 ============ */}
+      {/* ============ 版权页 CTA ============ */}
       <Reveal as="section" className="section hairline">
         <div className="wrap">
           <div className="section-head">
-            <p className="eyebrow flow" style={s(0)}>FIND ME</p>
-            <h2 className="h-sec ink" style={s(1)}>聊聊对话式智能体</h2>
+            <p className="eyebrow flow" style={s(0)}>COLOPHON</p>
+            <h2 className="h-sec ink" style={s(1)}>关于作者</h2>
             <p className="lead flow" style={s(2)}>
-              Voice Agent 的 vibe、活人感的工程、AI 产品的手艺——这些话题永远聊得动。
+              姚光华（Colin），{site.role}。这本书写对话式智能体，也写与 AI 共事的人。
             </p>
             <div className="hero-ctas">
               {site.links.map((l, i) => (
                 <span key={l.name} className="cta flow" style={s(3 + i)}>{l.name} · {l.value}</span>
               ))}
-              <Link href="/about" className="cta ghost flow" style={s(5)}>关于我 →</Link>
+              <Link href="/about" className="cta ghost flow" style={s(5)}>作者与版权页 →</Link>
             </div>
           </div>
         </div>
