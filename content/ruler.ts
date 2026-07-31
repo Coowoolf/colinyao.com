@@ -58,7 +58,7 @@ export const rays: Ray[] = [
     en: "OUTWARD",
     beyond: "下一把行业的尺子",
     intro: "Eval 的粒度：从一轮对话，到一段会话，到 72 小时后的结算，到一个基准，到行业标准。把「感觉对了」翻译成可以跑的评测——在 AI 时代，这是产品经理的手艺，也是这把尺子向外的全部刻度。",
-    terms: ["four-steps", "vibe-sota", "bounds"],
+    terms: ["four-steps", "vibe-sota", "bounds", "eval-prd", "turns-wrong", "gold-standard", "settle-72h", "not-the-model"],
     stations: [
       {
         id: "turn",
@@ -101,7 +101,7 @@ export const rays: Ray[] = [
         tick: "STANDARD",
         pins: [
           { slug: "vibesota", reading: "Vibe SOTA 2026" },
-          { slug: "gcloud", reading: "五维金标准" },
+          { slug: "inspire26", reading: "五维金标准" },
           { slug: "prodready", reading: "Production-Ready 分界线" },
         ],
       },
@@ -114,7 +114,7 @@ export const rays: Ray[] = [
     en: "TIME",
     beyond: "下一个纪元",
     intro: "手艺的毫秒和成长的年，落在同一把尺上。从 200ms 的自然打断，到人间 3 天 Claude 3 年，到 0.29TB 的一生，到忙不完的二十年产业——时间这把尺子，量手艺，也量人。",
-    terms: ["qoi", "tb"],
+    terms: ["qoi", "tb", "time-fx", "compounding"],
     stations: [
       {
         id: "ms",
@@ -167,7 +167,7 @@ export const rays: Ray[] = [
     en: "RELATIONS",
     beyond: "物种与文明",
     intro: "关系的半径，从一场一对一的对话，一路量到全人类。人与 Agent、人与人、人与组织、组织与组织——每放大一个数量级，「被记住」与「被托付」就换一种写法。",
-    terms: ["aliveness", "hemispheres"],
+    terms: ["aliveness", "hemispheres", "role-triad"],
     stations: [
       {
         id: "agent",
@@ -225,7 +225,7 @@ export const rays: Ray[] = [
     en: "INWARD",
     beyond: "21g 灵魂",
     intro: "向内的纵深：一次复盘、一个项目、一次跃迁、三年、一生。比 high agency 更稀缺的，是把自己也放上评测台的勇气——这把尺子还没量完，信任进化，八月上台。",
-    terms: ["ruler"],
+    terms: ["ruler", "agency-price", "cowork-next"],
     stations: [
       {
         id: "retro",

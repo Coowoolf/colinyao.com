@@ -4,9 +4,9 @@ export type Idea = {
   zh: string;
   en: string;
   def: string;
-  refs: { label: string; num?: number }[];
+  refs: { label: string; num?: number; href?: string }[];
   accent?: "coral" | "magenta";
-  motif: "ruler" | "wave" | "hemis" | "bounds" | "sota" | "qoi" | "steps" | "tb";
+  motif: string;
   since: string;
 };
 
@@ -44,7 +44,7 @@ export const ideas: Idea[] = [
     def: "对话式智能体分化成两个物种：消费级让 AI 像人，终局是被记住；企业级让 AI 像系统，终局是被托付。物种分化，同源进化——底层是同一段 DNA、同一颗引擎。",
     refs: [
       { label: "AWS 中国峰会", num: 15 },
-      { label: "Google Cloud", num: 14 },
+      { label: "INSPIRE 2026", num: 14 },
       { label: "RTE 春夏巡游", num: 12 },
     ],
     motif: "hemis",
@@ -116,6 +116,108 @@ export const ideas: Idea[] = [
       { label: "AWS 中国峰会", num: 15 },
     ],
     motif: "tb",
+    since: "2026",
+  },
+  {
+    id: "eval-prd",
+    index: "IDEA 09",
+    zh: "评测即 PRD",
+    en: "Eval Is the PRD",
+    def: "AI 时代，产品经理的交付物变了：不再是功能清单，而是一把别人可以复用的尺子。写好一份评测，就是写好一份 PRD——先定义什么叫「对」，再让系统朝着它进化。",
+    refs: [{ label: "公众号 NO.19 · 评测即 PRD", href: "/evalprd" }, { label: "体验基准", num: 8 }],
+    motif: "evalprd",
+    since: "2026",
+  },
+  {
+    id: "turns-wrong",
+    index: "IDEA 10",
+    zh: "每一轮都对，整段却错",
+    en: "Right Turns, Wrong Dialogue",
+    def: "客服 Agent 的四种死法长得一模一样：逐轮看每句都无可挑剔，整段对话却背离了目标。评测的粒度必须从一轮升到一段——正确性，不能从局部求和。",
+    refs: [{ label: "公众号 NO.18 · 四种死法", href: "/turns" }],
+    motif: "turnsx",
+    since: "2026",
+  },
+  {
+    id: "not-the-model",
+    index: "IDEA 11",
+    zh: "胜负手不在模型",
+    en: "Not the Model",
+    def: "从 Sierra 的六件事，到 ElevenLabs 押注级联：赢下场景的从来不是模型本身，而是模型外面那一整套架构、流程与工程。上限人人共享，下限各凭本事。",
+    refs: [{ label: "公众号 NO.12 · Sierra 六件事", href: "/csagent" }, { label: "NO.13 · 押注级联", href: "/arch" }],
+    accent: "magenta",
+    motif: "notmodel",
+    since: "2026",
+  },
+  {
+    id: "gold-standard",
+    index: "IDEA 12",
+    zh: "五维金标准",
+    en: "The Five-Bar Gold Standard",
+    def: "什么才算企业级智能体？五个维度一起达标才算——96.5% 的用户分辨不出 AI，只是入场券。金标准的意义，是把「可托付」从形容词变成可验收的清单。",
+    refs: [{ label: "INSPIRE 2026", num: 14 }],
+    motif: "gold5",
+    since: "2026",
+  },
+  {
+    id: "settle-72h",
+    index: "IDEA 13",
+    zh: "72 小时后才结算",
+    en: "Settled After 72 Hours",
+    def: "一通客服结束的那一刻，价值还没有发生：退款有没有再来、问题有没有复发，72 小时后才见分晓。把结算后置到效果出现之后，商业模式才终于和用户站在同一边。",
+    refs: [{ label: "公众号 NO.23 · Outcome", href: "/outcome" }],
+    motif: "settle72",
+    since: "2026",
+  },
+  {
+    id: "role-triad",
+    index: "IDEA 14",
+    zh: "角色三件套",
+    en: "The Role Triad",
+    def: "玩具与伙伴的分水岭不是智能，是角色：身份、关系、历史，三件套加一颗实时引擎。角色立住了，机器人才从被使用，走向被记住。",
+    refs: [{ label: "RTE 春夏巡游", num: 12 }],
+    motif: "triad",
+    since: "2026",
+  },
+  {
+    id: "agency-price",
+    index: "IDEA 15",
+    zh: "执行变便宜，人变贵",
+    en: "Cheap Execution, Expensive Agency",
+    def: "AI 把执行的价格打下来之后，人的价值迁移到 high agency：提出问题、下判断、担后果。比技能更稀缺的，是把自己也放上评测台的勇气。",
+    refs: [{ label: "公众号 NO.27 · High Agency", href: "/highagency" }],
+    motif: "agency",
+    since: "2026",
+  },
+  {
+    id: "compounding",
+    index: "IDEA 16",
+    zh: "Agent 恒动复利",
+    en: "Perpetual Compounding",
+    def: "Agent 和人最大的不同，是它不下班：任务在恒动中累积，理解在交接中沉淀。把 AI 当新同事带，复利从第一天开始滚。",
+    refs: [{ label: "课程 · 带一个新同事上班", href: "/newcollege" }],
+    motif: "compound",
+    since: "2026",
+  },
+  {
+    id: "time-fx",
+    index: "IDEA 17",
+    zh: "人间 3 天 · Claude 3 年",
+    en: "The Time Exchange Rate",
+    def: "人间只过了三天，模型像活过了三年。人与 AI 之间存在一条时间汇率——读懂它，才知道该在哪个时刻下注、按哪个刻度复盘。",
+    refs: [{ label: "公众号 NO.10 · System Card 读后感", href: "/systemcard" }],
+    motif: "timefx",
+    since: "2026",
+  },
+  {
+    id: "cowork-next",
+    index: "IDEA 18",
+    zh: "从被托付到共事",
+    en: "From Entrusted to Co-working",
+    def: "信任的下一跳：不再是单向的托付，而是双向的奔赴——人和智能体互相校准、互相担责。完整论证 2026.08 上台首发，此处先立一个刻度。",
+    refs: [{ label: "2026.08 AI 产品经理大会 · 连载中" }],
+    accent: "coral",
+    motif: "cowork",
     since: "2026",
   },
 ];

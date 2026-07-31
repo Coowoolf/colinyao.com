@@ -20,7 +20,7 @@ export const speechDecks: Deck[] = [
 /** 对外演讲全集 · 2024–2026 · 14 场（13 为圆桌主持无 deck）。合集索引页 /talkdecks。 */
 export const talkDecks: Deck[] = [
   { slug: "aws26", num: "15", date: "2026.06", venue: "AWS 中国峰会", title: "被记住 · 被托付：对话式智能体的物种分化与同源进化", slides: 38, category: "对外演讲", dual: true },
-  { slug: "gcloud", num: "14", date: "2026.06", venue: "Google Cloud 开发者大会", title: "从对话式 AI 到企业级智能体", slides: 24, category: "对外演讲", dual: true },
+  { slug: "inspire26", num: "14", date: "2026.06", venue: "INSPIRE 2026", title: "从对话式 AI 到企业级智能体", slides: 24, category: "对外演讲", dual: true },
   { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 深圳", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 36, category: "对外演讲", dual: true },
   { slug: "dual26", num: "11", date: "2026.04", venue: "中国网络视听大会", title: "RTE + AI 双引擎驱动视听全域商业增长", slides: 20, category: "对外演讲", dual: true },
   { slug: "vibesota", num: "10", date: "2026.01", venue: "Voice Agent 闭门会", title: "Voice Agent 2026 · Vibe SOTA", slides: 28, category: "对外演讲", dual: true },

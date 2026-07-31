@@ -189,7 +189,7 @@ export default function Home() {
                   {idea.refs.map((r, j) => (
                     <span key={j}>
                       {j > 0 && " · "}
-                      {r.num ? <a href={`#t${r.num}`}>{r.label}</a> : r.label}
+                      {r.href ? <a href={r.href}>{r.label}</a> : r.num ? <a href={`#t${r.num}`}>{r.label}</a> : r.label}
                     </span>
                   ))}
                 </span>
@@ -226,7 +226,7 @@ export default function Home() {
                 消费级让 AI 像人、<span className="am">被记住</span>；企业级让 AI 像系统、<span className="am">被托付</span>。
               </p>
               <p className="flow" style={s(1)}>
-                2024 年至今讲了 15 场公开演讲：RTE 大会、AWS 中国峰会、Google Cloud 开发者大会、
+                2024 年至今讲了 15 场公开演讲：RTE 大会、AWS 中国峰会、INSPIRE 2026、
                 全球产品经理大会、人人都是产品经理大会、First Prompt Singapore。
                 一路磨出了一套自己的概念工具：<b>活人感</b>、<b>体验基准</b>、<b>Vibe SOTA</b>、<b>QoI</b>、
                 「模型决定能力上限，引擎决定体验下限」。它们都收在<a href="#terms" className="am">术语总目</a>里。

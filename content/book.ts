@@ -59,7 +59,7 @@ export const volumes: Volume[] = [
     sub: "怎么测量「感觉对了」",
     intro:
       "所有人都在谈体验，没有人敢给体验一个刻度。二〇二四年十月，我在 RTE 大会上画下第一把尺子：QoS、QoE、AI QoE——网络的质量、人的感受、智能的分寸，三段刻度，一条直线。此后两年我做的所有事，不过是把这把尺子越磨越细：把「感觉对了」翻译成可以跑的评测，把 demo 的谎言摊在横评的日光下，把一整段对话的死法逐轮验尸。评测即 PRD——在 AI 时代，产品经理交付的不再是功能清单，而是一把别人可以复用的尺子。这一卷讲的就是铸尺的过程。",
-    concepts: ["four-steps", "vibe-sota"],
+    concepts: ["four-steps", "vibe-sota", "eval-prd", "turns-wrong"],
     pieces: [
       { slug: "rte24" },
       { slug: "pm24" },
@@ -81,7 +81,7 @@ export const volumes: Volume[] = [
     sub: "被记住的消费级半球",
     intro:
       "消费级的终局不是更聪明，是被记住。AI 对话产品的根本缺陷从来不在参数和榜单里，在「不像一个活人在跟你说话」：响应的节奏、打断的从容、情绪的呼应、记得你是谁。这一卷从「活人感」的命名开始，到角色三件套的工程框架，到 0.29TB——一个人生命上下文的物理上限，也是机器人成为伙伴的记忆配额。玩具与伙伴的分水岭不是智能，是角色；从被使用，到被记住。",
-    concepts: ["aliveness", "qoi", "tb"],
+    concepts: ["aliveness", "qoi", "tb", "role-triad"],
     pieces: [
       { slug: "pm25" },
       { slug: "tolan" },
@@ -102,9 +102,9 @@ export const volumes: Volume[] = [
     sub: "被信任的企业级半球",
     intro:
       "企业不为「像人」付费，企业为「可托付」付费。客服是第一个被真金白银验证的智能体场景：96.5% 的用户没有分辨出 AI，营销转化超过人类销冠——但数字只是入场券。真正的门槛是五维金标准，是一通电话结束 72 小时后才敢结算的 outcome，是把工程师送进客户现场的最后一公里。这一卷讲企业级半球：先让 AI 像系统一样可靠，然后才配像同事一样被托付。",
-    concepts: [],
+    concepts: ["gold-standard", "settle-72h", "not-the-model"],
     pieces: [
-      { slug: "gcloud" },
+      { slug: "inspire26" },
       { slug: "csagent" },
       { slug: "outcome" },
       { slug: "prodready" },
@@ -141,7 +141,7 @@ export const volumes: Volume[] = [
     sub: "向内的那把尺子 · 连载中",
     intro:
       "写到这里，尺子转了个方向。带一个 AI 新同事上班，17 小时 150 轮对话，一个 side project 的 77 天——AI 让执行变便宜，high agency 让人变贵，而比 high agency 更稀缺的，是把自己也放上评测台的勇气。向外我用 Eval 度量系统，向内我用内观度量自己：四次跃迁，每一次都是先承认上一版的自己错了。这一卷还没写完——信任进化，八月上台。",
-    concepts: ["ruler"],
+    concepts: ["ruler", "agency-price", "compounding", "time-fx", "cowork-next"],
     pieces: [
       { slug: "highagency" },
       { slug: "newcollege" },
@@ -230,5 +230,5 @@ export const pieceIndex = new Map<string, { vol: number; volZh: string; no: stri
 export const talkNumToSlug: Record<number, string> = {
   1: "rte24", 2: "pm24", 3: "convoai", 4: "audio25", 5: "engine25", 6: "era3",
   7: "prodready", 8: "pm25", 9: "vibecheck", 10: "vibesota", 11: "dual26",
-  12: "robot26", 14: "gcloud", 15: "aws26",
+  12: "robot26", 14: "inspire26", 15: "aws26",
 };

@@ -125,7 +125,140 @@ export default function Motif({ kind, plain = false }: { kind: string; plain?: b
           {T && <text className="pop" style={p(6)} x="182" y="128" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">一生的生命上下文 · 21G 灵魂</text>}
         </svg>
       );
+    case "evalprd":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <rect className="dw" style={v(300, 2)} x="36" y="30" width="110" height="100" rx="4" stroke="var(--ink-2)" strokeWidth="2" />
+          <path className="dw" style={v(160, 3)} d="M54 54 H128 M54 74 H128 M54 94 H108" stroke="var(--ink-3)" strokeWidth="2" />
+          <path className="dw" style={v(80, 4)} d="M176 80 H240 M228 68 L242 80 L228 92" stroke="var(--amber)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(180, 5)} d="M268 96 H428" stroke="var(--hair-strong)" strokeWidth="2" />
+          <path className="mlive slow" d="M268 96 H428" stroke="var(--amber)" strokeWidth="2" opacity=".8" />
+          <path className="dw" style={v(160, 6)} d="M292 96 v-16 M324 96 v-24 M356 96 v-16 M388 96 v-24 M416 96 v-16" stroke="var(--ink-2)" strokeWidth="2.2" />
+          <circle className="pop dlive" style={p(7)} cx="428" cy="96" r="5" fill="var(--amber)" />
+          {T && <text className="pop" style={p(6)} x="36" y="150" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">PRD</text>}
+          {T && <text className="pop" style={p(7)} x="428" y="150" fill="var(--amber)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">EVAL · 可复用的尺子</text>}
+        </svg>
+      );
+    case "turnsx":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(40, 2)} d="M48 62 L60 76 L84 48" stroke="var(--ink-2)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(40, 3)} d="M128 62 L140 76 L164 48" stroke="var(--ink-2)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(40, 4)} d="M208 62 L220 76 L244 48" stroke="var(--ink-2)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(40, 5)} d="M288 62 L300 76 L324 48" stroke="var(--ink-2)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(420, 6)} d="M40 112 C 140 96, 300 96, 372 108" stroke="var(--hair-strong)" strokeWidth="2" strokeDasharray="5 8" />
+          <path className="mlive" d="M40 112 C 140 96, 300 96, 372 108" stroke="var(--coral)" strokeWidth="2" opacity=".7" />
+          <path className="dw" style={v(70, 7)} d="M388 94 L424 130 M424 94 L388 130" stroke="var(--coral)" strokeWidth="3.4" strokeLinecap="round" />
+          {T && <text className="pop" style={p(7)} x="40" y="30" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">每一轮 · 对</text>}
+          {T && <text className="pop" style={p(8)} x="424" y="152" fill="var(--coral)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">整段 · 错</text>}
+        </svg>
+      );
+    case "notmodel":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <circle className="dw" style={v(160, 2)} cx="86" cy="72" r="26" stroke="var(--ink-3)" strokeWidth="2" strokeDasharray="4 7" />
+          <path className="dw" style={v(200, 3)} d="M124 72 H180 M180 30 V114 M180 30 H340 M180 114 H340" stroke="var(--ink-2)" strokeWidth="2" />
+          <path className="dw" style={v(220, 4)} d="M212 30 V114 M244 30 V114 M276 30 V114 M308 30 V114" stroke="var(--hair-strong)" strokeWidth="1.6" />
+          <path className="mlive slow" d="M124 72 H180 M180 72 H424" stroke="var(--magenta)" strokeWidth="2.2" opacity=".85" />
+          <path className="dw" style={v(120, 5)} d="M340 30 L388 72 L340 114" stroke="var(--magenta)" strokeWidth="2.4" strokeLinejoin="round" />
+          <circle className="pop dlive" style={p(6)} cx="424" cy="72" r="6" fill="var(--magenta)" />
+          {T && <text className="pop" style={p(6)} x="86" y="128" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="middle">MODEL</text>}
+          {T && <text className="pop" style={p(7)} x="424" y="128" fill="var(--magenta)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">架构 · 流程 · 工程</text>}
+        </svg>
+      );
+    case "gold5":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(360, 2)} d="M230 22 L296 66 L272 134 L188 134 L164 66 Z" stroke="var(--hair-strong)" strokeWidth="1.8" />
+          <path className="dw" style={v(300, 3)} d="M230 22 L230 84 M296 66 L230 84 M272 134 L230 84 M188 134 L230 84 M164 66 L230 84" stroke="var(--ink-3)" strokeWidth="1.4" />
+          <path className="dw" style={v(300, 4)} d="M230 40 L278 70 L260 122 L200 122 L182 70 Z" stroke="var(--amber)" strokeWidth="2.4" strokeLinejoin="round" />
+          <path className="mlive slow" d="M230 40 L278 70 L260 122 L200 122 L182 70 Z" stroke="var(--amber)" strokeWidth="2" opacity=".7" />
+          <circle className="pop dlive" style={p(5)} cx="230" cy="40" r="4.5" fill="var(--amber)" />
+          <circle className="pop dlive" style={p(6)} cx="278" cy="70" r="4.5" fill="var(--amber)" />
+          <circle className="pop dlive" style={p(7)} cx="182" cy="70" r="4.5" fill="var(--amber)" />
+          {T && <text className="pop" style={p(6)} x="330" y="60" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">5 BARS</text>}
+          {T && <text className="pop" style={p(7)} x="330" y="82" fill="var(--amber)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">一起达标</text>}
+        </svg>
+      );
+    case "settle72":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(420, 2)} d="M28 92 H432" stroke="var(--hair-strong)" strokeWidth="2" />
+          <path className="dw" style={v(120, 3)} d="M48 92 C 60 60, 74 60, 86 92 C 98 124, 112 124, 124 92" stroke="var(--ink-2)" strokeWidth="2.2" />
+          <path className="dw" style={v(200, 4)} d="M140 92 H360" stroke="var(--ink-3)" strokeWidth="2" strokeDasharray="4 10" />
+          <path className="mlive slow" d="M140 92 H396" stroke="var(--amber)" strokeWidth="2" opacity=".75" />
+          <path className="dw" style={v(40, 5)} d="M396 78 V106" stroke="var(--amber)" strokeWidth="2.6" />
+          <circle className="pop dlive" style={p(6)} cx="396" cy="92" r="7" fill="var(--amber)" />
+          {T && <text className="pop" style={p(6)} x="48" y="132" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">对话结束</text>}
+          {T && <text className="pop" style={p(7)} x="396" y="60" fill="var(--amber)" fontFamily="var(--mono)" fontSize="13" letterSpacing="2.5" textAnchor="middle">+72H · 结算</text>}
+        </svg>
+      );
+    case "triad":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <circle className="dw" style={v(260, 2)} cx="186" cy="62" r="40" stroke="var(--ink-2)" strokeWidth="2" />
+          <circle className="dw" style={v(260, 3)} cx="274" cy="62" r="40" stroke="var(--ink-2)" strokeWidth="2" />
+          <circle className="dw" style={v(260, 4)} cx="230" cy="112" r="40" stroke="var(--ink-2)" strokeWidth="2" />
+          <circle className="mlive slow" cx="230" cy="112" r="40" stroke="var(--amber)" strokeWidth="2" opacity=".7" />
+          <circle className="pop dlive" style={p(5)} cx="230" cy="78" r="7" fill="var(--amber)" />
+          {T && <text className="pop" style={p(6)} x="112" y="36" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">身份</text>}
+          {T && <text className="pop" style={p(6)} x="348" y="36" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">关系</text>}
+          {T && <text className="pop" style={p(7)} x="348" y="140" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">历史 + 实时引擎</text>}
+        </svg>
+      );
+    case "agency":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(380, 2)} d="M60 110 L400 66" stroke="var(--ink-2)" strokeWidth="2.4" />
+          <path className="dw" style={v(60, 3)} d="M230 132 L214 152 M230 132 L246 152 M230 88 V132" stroke="var(--ink-3)" strokeWidth="2.2" />
+          <circle className="pop" style={p(4)} cx="92" cy="120" r="5" fill="var(--ink-3)" />
+          <circle className="pop" style={p(5)} cx="116" cy="122" r="5" fill="var(--ink-3)" />
+          <circle className="pop" style={p(6)} cx="140" cy="118" r="5" fill="var(--ink-3)" />
+          <circle className="pop dlive" style={p(7)} cx="382" cy="52" r="10" fill="var(--amber)" />
+          <path className="mlive slow" d="M60 110 L400 66" stroke="var(--amber)" strokeWidth="1.8" opacity=".6" />
+          {T && <text className="pop" style={p(7)} x="60" y="150" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">执行 · 变便宜</text>}
+          {T && <text className="pop" style={p(8)} x="400" y="30" fill="var(--amber)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">HIGH AGENCY · 变贵</text>}
+        </svg>
+      );
+    case "compound":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(420, 2)} d="M36 132 H428 M36 132 V28" stroke="var(--hair-strong)" strokeWidth="1.8" />
+          <path className="dw" style={v(430, 3)} d="M36 128 C 140 126, 220 120, 280 100 C 340 80, 390 48, 424 26" stroke="var(--amber)" strokeWidth="2.6" strokeLinecap="round" />
+          <path className="mlive" d="M36 128 C 140 126, 220 120, 280 100 C 340 80, 390 48, 424 26" stroke="#fffffe" strokeWidth="1.8" opacity=".55" />
+          <path className="dw" style={v(120, 5)} d="M120 128 v6 M204 122 v6 M288 98 v6 M372 58 v6" stroke="var(--ink-3)" strokeWidth="2" />
+          <circle className="pop dlive" style={p(6)} cx="424" cy="26" r="6" fill="var(--amber)" />
+          {T && <text className="pop" style={p(6)} x="36" y="152" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">不下班 · 恒动</text>}
+          {T && <text className="pop" style={p(7)} x="424" y="52" fill="var(--amber)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">复利</text>}
+        </svg>
+      );
+    case "timefx":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(90, 2)} d="M60 46 H144" stroke="var(--ink-2)" strokeWidth="6" strokeLinecap="round" />
+          <path className="dw" style={v(360, 3)} d="M60 118 H420" stroke="var(--amber)" strokeWidth="6" strokeLinecap="round" />
+          <path className="mlive slow" d="M60 118 H420" stroke="#fffffe" strokeWidth="2" opacity=".5" />
+          <path className="dw" style={v(160, 4)} d="M64 54 L64 110 M104 54 L232 110 M144 54 L416 110" stroke="var(--hair-strong)" strokeWidth="1.4" strokeDasharray="3 7" />
+          <circle className="pop dlive" style={p(6)} cx="420" cy="118" r="6" fill="var(--amber)" />
+          {T && <text className="pop" style={p(5)} x="160" y="50" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">人间 · 3 天</text>}
+          {T && <text className="pop" style={p(7)} x="420" y="146" fill="var(--amber)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">CLAUDE · 3 年</text>}
+        </svg>
+      );
+    case "cowork":
+      return (
+        <svg viewBox="0 0 460 160" fill="none" aria-hidden="true">
+          <path className="dw" style={v(180, 2)} d="M48 80 H200 M184 64 L204 80 L184 96" stroke="var(--ink-2)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="dw" style={v(180, 3)} d="M412 80 H260 M276 64 L256 80 L276 96" stroke="var(--coral)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="mlive slow" d="M48 80 H204" stroke="var(--ink-2)" strokeWidth="1.8" opacity=".5" />
+          <path className="mlive slow" d="M412 80 H256" stroke="var(--coral)" strokeWidth="1.8" opacity=".7" />
+          <circle className="dw" style={v(140, 4)} cx="230" cy="80" r="20" stroke="var(--coral)" strokeWidth="2" strokeDasharray="4 6" />
+          <circle className="pop dlive" style={p(5)} cx="230" cy="80" r="5" fill="var(--coral)" />
+          {T && <text className="pop" style={p(6)} x="48" y="128" fill="var(--ink-3)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5">被托付 · 单向</text>}
+          {T && <text className="pop" style={p(7)} x="412" y="128" fill="var(--coral)" fontFamily="var(--mono)" fontSize="12" letterSpacing="2.5" textAnchor="end">共事 · 双向奔赴 · 2026.08</text>}
+        </svg>
+      );
     default:
       return null;
+
   }
 }

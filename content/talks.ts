@@ -37,7 +37,7 @@ export const talks: Talk[] = [
     num: 14,
     date: "2026.06.06",
     year: 2026,
-    venue: "Google Cloud 开发者大会",
+    venue: "INSPIRE 2026",
     title: "从对话式 AI 到企业级智能体",
     summary:
       "企业级半球的母本：客服是第一个被企业真金白银付费的智能体场景。用真实生产数据立论——96.5% 的用户没有分辨出 AI，营销转化 2× 超越人类销冠；再以「五维金标准」定义什么才算企业级。",

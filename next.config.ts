@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       { source: "/toc", destination: "/", permanent: true },
       { source: "/book", destination: "/", permanent: true },
       { source: "/about", destination: "/#about", permanent: true },
+      { source: "/gcloud", destination: "/inspire26", permanent: true },
     ];
   },
   async headers() {
