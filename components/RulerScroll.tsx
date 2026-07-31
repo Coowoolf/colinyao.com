@@ -106,7 +106,7 @@ export default function RulerScroll() {
 
         {/* 首焦标题（待机时可见） */}
         <div className={`rs-head ${atTop ? "on" : ""}`}>
-          <p className="eyebrow">活页 <span className="am">·</span> {rulerMeta.en}</p>
+          <p className="eyebrow">展开 <span className="am">·</span> {rulerMeta.en}</p>
           <h1 className="rs-title">{rulerMeta.title}</h1>
           <p className="rs-sub">
             <b>时</b>，从毫秒到纪元；<b>空</b>，从一场对话到全人类；<b>内</b>，内观的纵深；<b>外</b>，Eval 的粒度。

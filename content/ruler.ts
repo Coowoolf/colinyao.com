@@ -40,7 +40,6 @@ export type Ray = {
 export const rulerMeta = {
   title: "时空内外",
   subtitle: "四把尺子",
-  sub: "活页 · 展开于《同一把尺子》",
   en: "TIME · SPACE · INWARD · OUTWARD",
   origin: "人",
   originNote: "原点站着人 · 你在这里",

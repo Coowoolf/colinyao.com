@@ -15,7 +15,7 @@ export type Talk = {
 export const upcoming = {
   date: "2026.08",
   venue: "人人都是产品经理 · AI 产品经理大会",
-  title: "对话式智能体的信任进化",
+  title: "从「被托付」到「双向奔赴 · 共事」· 对话式智能体的信任进化",
   summary:
     "信任的尺子 × 四次 PM 跃迁。「同一把尺子，向外叫 Eval，向内叫内观」将在这场演讲首次上台——它已经先在这里落了户。",
 };
