@@ -7,7 +7,7 @@ const errs = [];
 p.on("pageerror", e => errs.push("PAGEERROR: " + e.message.slice(0, 160)));
 await p.goto("http://localhost:3000/cowork#1", { waitUntil: "networkidle" });
 await p.waitForTimeout(2200);
-const CHANGED = [42, 52, 53, 54];
+const CHANGED = [28, 29, 59, 63];
 const problems = [];
 const N = await p.evaluate(() => window.deck.slides.length);
 for (let n = 1; n <= N; n++) {
