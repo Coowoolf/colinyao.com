@@ -5,9 +5,9 @@ import RulerScroll from "@/components/RulerScroll";
 import { rays, rulerStats, bindPin } from "@/content/ruler";
 
 export const metadata: Metadata = {
-  title: "时空内外 · 四把尺子",
+  title: "时空内外",
   description:
-    "《同一把尺子》的活页：时空内外，四把尺子。时 · 从毫秒到纪元，空 · 从一场对话到全人类，内 · 内观的纵深，外 · Eval 的粒度——41 枚思想钉在各自的刻度上。合上是同一把，展开是时空内外。",
+    "《同一把尺子》的活页：时空内外。时 · 从毫秒到纪元，空 · 从一场对话到全人类，内 · 内观的纵深，外 · Eval 的粒度——41 枚思想钉在四个维度的刻度上；合上，是同一把尺子。",
 };
 
 const s = (i: number) => ({ ["--i" as string]: i } as React.CSSProperties);
@@ -23,7 +23,7 @@ export default function RulerPage() {
         <div className="wrap">
           <Reveal className="section-head">
             <p className="eyebrow flow" style={s(0)}>READINGS <span className="am">·</span> 逐格读数</p>
-            <h2 className="h-sec ink" style={s(1)}>四把尺子，{rulerStats.stations} 格刻度</h2>
+            <h2 className="h-sec ink" style={s(1)}>时空内外，{rulerStats.stations} 格刻度</h2>
             <p className="lead flow" style={s(2)}>
               站 = 论证对象所在的刻度；读数 = 那一篇的签名数字。每一枚钉都可展开成一份 deck。
             </p>

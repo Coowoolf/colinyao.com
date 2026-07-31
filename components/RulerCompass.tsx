@@ -153,14 +153,22 @@ export default function RulerCompass({
           </text>
         ))}
 
-        {/* ---- 度盘（双层反向慢转） ---- */}
-        <g className="bezel bezel-1">
-          <circle cx={C.x} cy={C.y} r={500} className="bz-ring" />
-          <BezelTicks r={500} count={144} majorEvery={12} len={8} majorLen={18} />
+        {/* ---- 度盘：四个维度四个环，由内而外 = 时 · 空 · 内 · 外 ---- */}
+        <g className="bezel bezel-1 bz-dim-time">
+          <circle cx={C.x} cy={C.y} r={424} className="bz-ring" />
+          <BezelTicks r={424} count={96} majorEvery={8} len={6} majorLen={13} />
         </g>
-        <g className="bezel bezel-2">
-          <circle cx={C.x} cy={C.y} r={452} className="bz-ring dashed" />
-          <BezelTicks r={452} count={72} majorEvery={18} len={6} majorLen={12} />
+        <g className="bezel bezel-2 bz-dim-space">
+          <circle cx={C.x} cy={C.y} r={458} className="bz-ring dashed" />
+          <BezelTicks r={458} count={120} majorEvery={10} len={6} majorLen={14} />
+        </g>
+        <g className="bezel bezel-3 bz-dim-inw">
+          <circle cx={C.x} cy={C.y} r={492} className="bz-ring" />
+          <BezelTicks r={492} count={72} majorEvery={6} len={7} majorLen={15} />
+        </g>
+        <g className="bezel bezel-4 bz-dim-out">
+          <circle cx={C.x} cy={C.y} r={526} className="bz-ring dashed" />
+          <BezelTicks r={526} count={144} majorEvery={12} len={8} majorLen={18} />
         </g>
 
         {/* ---- 格环 ---- */}

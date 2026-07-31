@@ -109,15 +109,16 @@ export default function RulerScroll() {
           <p className="eyebrow">活页 <span className="am">·</span> {rulerMeta.en}</p>
           <h1 className="rs-title">{rulerMeta.title}</h1>
           <p className="rs-sub">
-            {rulerMeta.subtitle}——合上是<b>同一把</b>，展开是<b>时空内外</b>。
+            <b>时</b>，从毫秒到纪元；<b>空</b>，从一场对话到全人类；<b>内</b>，内观的纵深；<b>外</b>，Eval 的粒度。
+            四个维度，合上是同一把尺子。
           </p>
-          <p className="rs-hint">↓ 向下滚动 · 逐把展开</p>
+          <p className="rs-hint">↓ 向下滚动 · 逐维展开</p>
         </div>
 
         {/* 维度卡（叙事段可见，钉可点） */}
         {activeRay && !atTop && (
           <aside className="dim-card" key={activeRay.id}>
-            <p className="dc-k">第 {dimOrder.indexOf(activeRay.id) + 1} 把 · {activeRay.name} · {activeRay.en}</p>
+            <p className="dc-k">第 {["一", "二", "三", "四"][dimOrder.indexOf(activeRay.id)]} 维 · {activeRay.name} · {activeRay.en}</p>
             <h2 className="dc-t">{CN[activeRay.id]}</h2>
             <ul className="dc-pins">
               {activeRay.stations.map((st) => (
@@ -147,12 +148,11 @@ export default function RulerScroll() {
           <div className="rs-allhint">全图 · 悬停读数 · 点击入篇 · 继续下滑看逐格清单 ↓</div>
         )}
 
-        {/* 进度侧轨：时空内外 */}
-        <div className="rs-rail" aria-hidden="true">
+        {/* 进度侧轨：时空内外（全图态 = 四字齐亮变大） */}
+        <div className={`rs-rail ${isAll ? "all" : ""}`} aria-hidden="true">
           {dimOrder.map((id) => (
             <span key={id} className={dim === id ? "on" : ""}>{CN[id]}</span>
           ))}
-          <span className={isAll ? "on" : ""}>全</span>
         </div>
 
         {/* 仪器读数栏 */}

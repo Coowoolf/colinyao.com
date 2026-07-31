@@ -85,8 +85,8 @@ export default function Home() {
             <Link href="/ruler" className="toc-row flow" style={s(1)}>
               <span className="no">活页</span>
               <span className="name">时空内外</span>
-              <span className="en">FOUR RULERS</span>
-              <span className="badge-serial">四把尺子</span>
+              <span className="en">TIME · SPACE · IN · OUT</span>
+              <span className="badge-serial">四个维度</span>
               <span className="toc-leader" />
               <span className="pg">41 钉 · 滚动展开</span>
             </Link>
