@@ -24,17 +24,29 @@ export default function DecksIndex() {
 
         <Reveal>
           <h2 className="talk-year settle" style={s(0)}>演讲 · 课程</h2>
-          {speechDecks.map((d, i) => (
-            <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(i + 1)}>
-              <div className="talk-meta">
-                <span className="date">/{d.slug}</span>
-                <span className="venue">{d.slides} SLIDES</span>
+          {speechDecks.map((d, i) =>
+            d.locked ? (
+              <div key={d.slug} className="talk-row flow dn" style={{ ...s(i + 1), opacity: 0.55 }}>
+                <div className="talk-meta">
+                  <span className="date">/{d.slug}</span>
+                  <span className="venue">{d.slides} SLIDES · 连载中</span>
+                </div>
+                <div className="talk-body">
+                  <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
+                </div>
               </div>
-              <div className="talk-body">
-                <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
-              </div>
-            </a>
-          ))}
+            ) : (
+              <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(i + 1)}>
+                <div className="talk-meta">
+                  <span className="date">/{d.slug}</span>
+                  <span className="venue">{d.slides} SLIDES</span>
+                </div>
+                <div className="talk-body">
+                  <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
+                </div>
+              </a>
+            )
+          )}
         </Reveal>
 
         <Reveal>
