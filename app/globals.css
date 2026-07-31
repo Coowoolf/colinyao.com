@@ -559,6 +559,171 @@ a.piece-row:hover .piece-title{color:var(--amber);}
   .mark-en{display:none;}
 }
 
+/* ==================================================================
+   活页 · 尺子（/ruler）—— 四向星盘
+   格环 / 射线 / 刻度站 / 钉图 / 主线导览 / 读数栏
+   ================================================================== */
+.ruler-wrap{position:relative;}
+.ruler-topbar{display:flex;justify-content:center;gap:12px;padding:4px 0 10px;}
+.rbtn{
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--ink-2);
+  border:1px solid var(--hair);border-radius:2px;padding:8px 16px;background:transparent;
+  cursor:pointer;transition:color .3s,border-color .3s,opacity .3s;
+}
+.rbtn:hover{color:var(--amber);border-color:var(--amber);}
+.rbtn.primary{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 55%,transparent);}
+.rbtn.ghost{color:var(--ink-3);}
+.rbtn:disabled{opacity:.3;cursor:default;}
+
+.ruler-stage{
+  position:relative;width:100%;height:clamp(540px,80vh,920px);
+  overflow:hidden;touch-action:none;
+}
+.ruler-stage.free{cursor:grab;}
+.ruler-stage.free:active{cursor:grabbing;}
+.ruler-stage svg{width:100%;height:100%;display:block;}
+.ruler-cam{transition:transform .95s var(--ease-flow);}
+.ruler-stage.free .ruler-cam{transition:transform .2s ease-out;}
+
+/* 格环 */
+.ring{fill:none;stroke:var(--ink-3);stroke-width:1;opacity:0;}
+.live .ring{animation:ringGrid 1s var(--ease-flow) calc(.2s + var(--k)*.14s) both;}
+@keyframes ringGrid{from{opacity:0;}to{opacity:.24;}}
+@keyframes ringIn{from{opacity:0;}to{opacity:1;}}
+
+/* 射线 */
+.ray-line{stroke:var(--hair-strong);stroke-width:1.4;stroke-dasharray:720;stroke-dashoffset:720;}
+.live .ray-line{animation:rayDraw 1.5s var(--ease-flow) .15s both;}
+@keyframes rayDraw{to{stroke-dashoffset:0;}}
+.ray-beyond{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:2 8;opacity:0;}
+.live .ray-beyond{animation:rayBeyondIn .8s var(--ease-flow) 1.5s both;}
+@keyframes rayBeyondIn{from{opacity:0;}to{opacity:.55;}}
+.ray-zh{font-size:46px;font-weight:900;fill:var(--ink);text-anchor:middle;font-family:var(--sans);}
+.ray-name{font-family:var(--mono);font-size:12px;letter-spacing:.22em;fill:var(--ink-3);text-anchor:middle;}
+.ray-far{font-family:var(--mono);font-size:11px;letter-spacing:.1em;fill:var(--ink-3);opacity:.75;}
+
+/* 刻度站 */
+.tickmark{stroke:var(--hair-strong);stroke-width:1.4;}
+.station{opacity:0;}
+.live .station{animation:ringIn .7s var(--ease-flow) calc(.5s + var(--i)*.13s) both;}
+.st-label{font-size:17px;font-weight:700;fill:var(--ink-2);font-family:var(--sans);}
+.st-tick{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;fill:var(--ink-3);}
+
+/* 钉图 */
+.pin-leader{stroke:var(--hair);stroke-width:1;}
+.pin{
+  fill:var(--pc);cursor:pointer;
+  transform-box:fill-box;transform-origin:center;transition:transform .3s var(--ease-flow);
+}
+.live .pin{animation:pinBreathe 3.6s ease-in-out infinite;}
+.pin:hover{transform:scale(1.7);animation-play-state:paused;}
+.pin.locked{fill:transparent;stroke:var(--pc);stroke-width:1.4;stroke-dasharray:2.5 3;cursor:default;}
+@keyframes pinBreathe{0%,100%{opacity:.78;}50%{opacity:1;}}
+
+/* 原点 · 人 */
+.origin-ring{fill:none;stroke:var(--amber);stroke-width:1.2;}
+.live .origin-ring{animation:originPulse 4.5s ease-in-out infinite;}
+@keyframes originPulse{0%,100%{opacity:.9;stroke-width:1.2;}50%{opacity:.45;stroke-width:2;}}
+.origin-core{fill:var(--amber);}
+.origin-zh{font-size:27px;font-weight:900;fill:var(--ink);text-anchor:middle;font-family:var(--sans);}
+.origin-note{font-family:var(--mono);font-size:11px;letter-spacing:.16em;fill:var(--ink-3);text-anchor:middle;}
+
+/* 悬停读数卡 */
+.ruler-tip{
+  position:absolute;z-index:20;pointer-events:none;
+  max-width:320px;padding:14px 16px;border:1px solid var(--hair);border-radius:3px;
+  background:var(--card-bg-2);display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 12px 40px rgba(0,0,0,.28);
+}
+.ruler-tip .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;}
+.ruler-tip .t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.5;}
+.ruler-tip .r{font-family:var(--mono);font-size:11px;color:var(--ink-2);letter-spacing:.06em;}
+.ruler-tip .a{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.1em;}
+
+/* 导览站卡 */
+.tour-card{
+  position:absolute;right:max(24px,4%);top:50%;transform:translateY(-50%);z-index:15;
+  width:min(380px,42%);padding:26px 28px;border:1px solid var(--hair);border-radius:4px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;gap:14px;
+  animation:tourIn .6s var(--ease-flow) both;
+}
+@keyframes tourIn{from{opacity:0;transform:translateY(calc(-50% + 18px));}to{opacity:1;transform:translateY(-50%);}}
+.tc-k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;}
+.tc-t{font-size:clamp(22px,2.4vw,30px);font-weight:900;color:var(--ink);padding-right:.08em;}
+.tc-t small{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.16em;color:var(--ink-3);margin-left:10px;}
+.tc-d{font-size:14.5px;line-height:1.95;color:var(--ink-2);}
+.tc-hint{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);}
+.tc-pins{list-style:none;display:flex;flex-direction:column;}
+.tc-pins li a,.tc-pins li>div{
+  display:flex;flex-direction:column;gap:4px;padding:11px 2px;text-decoration:none;
+  border-bottom:1px solid var(--hair-soft);transition:padding-left .35s var(--ease-flow);
+}
+.tc-pins li a:hover{padding-left:8px;}
+.tc-pins li a:hover b{color:var(--amber);}
+.tc-pins b{font-size:14px;font-weight:700;color:var(--ink);line-height:1.5;transition:color .3s;}
+.tc-pins span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;}
+.tc-pins .locked b{color:var(--ink-3);}
+.tc-ctas{display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+
+/* 缩放控件 */
+.ruler-zoom{position:absolute;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:10;}
+.ruler-zoom .rbtn{padding:6px 12px;}
+
+/* 读数栏 */
+.ruler-readout{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:6px auto 0;max-width:var(--maxw);
+  padding:14px var(--pad);border-top:1px solid var(--hair-soft);
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--ink-2);
+}
+.ruler-readout .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none;animation:pinBreathe 2.8s ease-in-out infinite;}
+
+/* 逐格读数清单 */
+.rlist-station{display:grid;grid-template-columns:190px 1fr;gap:10px 26px;padding:18px 2px;border-bottom:1px solid var(--hair-soft);}
+.rlist-head{display:flex;flex-direction:column;gap:6px;}
+.rlist-head .lab{font-size:17px;font-weight:900;color:var(--ink);padding-right:.08em;}
+.rlist-head .tick{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);}
+.rlist-pins{display:flex;flex-direction:column;}
+.rlist-pin{
+  display:flex;justify-content:space-between;gap:18px;align-items:baseline;
+  padding:9px 2px;text-decoration:none;border-bottom:1px dotted var(--hair-soft);
+  transition:padding-left .35s var(--ease-flow);
+}
+.rlist-pin:last-child{border-bottom:none;}
+a.rlist-pin:hover{padding-left:9px;}
+a.rlist-pin:hover b{color:var(--amber);}
+.rlist-pin b{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.55;transition:color .3s;}
+.rlist-pin span{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.05em;white-space:nowrap;}
+.rlist-pin.locked b{color:var(--ink-3);}
+.rlist-beyond{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);padding:14px 2px 34px;}
+
+@media (max-width:720px){
+  .ruler-stage{height:64vh;}
+  .tour-card{
+    right:12px;left:12px;top:auto;bottom:12px;transform:none;width:auto;
+    max-height:46%;overflow:auto;padding:18px 20px;
+  }
+  @keyframes tourIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .rlist-station{grid-template-columns:1fr;}
+  .rlist-pin span{white-space:normal;}
+  .ruler-zoom{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  .ray-line{stroke-dashoffset:0 !important;animation:none !important;}
+  .station{opacity:1 !important;animation:none !important;}
+  .ring{opacity:.24 !important;animation:none !important;}
+  .ray-beyond{opacity:.55 !important;animation:none !important;}
+  .pin,.origin-ring,.ruler-readout .dot{animation:none !important;}
+  .ruler-cam{transition:none !important;}
+}
+/* 弱网 / 无 JS：星盘直接完整可见（.live 未挂 or hydration 未醒） */
+html:not(.js) .ray-line,.js.anim-fallback .ray-line{stroke-dashoffset:0;animation:none;}
+html:not(.js) .station,.js.anim-fallback .station{opacity:1;animation:none;}
+html:not(.js) .ring,.js.anim-fallback .ring{opacity:.24;animation:none;}
+html:not(.js) .ray-beyond,.js.anim-fallback .ray-beyond{opacity:.55;animation:none;}
+
 /* ---------- 弱网兜底：hydration 未醒时强制显示全部内容 ---------- */
 .js.anim-fallback .flow,.js.anim-fallback .rise,.js.anim-fallback .spread,
 .js.anim-fallback .settle,.js.anim-fallback .pop,.js.anim-fallback .ink,

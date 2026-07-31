@@ -30,7 +30,8 @@ export default function Home() {
           </p>
           <div className="hero-ctas">
             <Link href="/preface" className="cta flow" style={s(7)}>从序开始读 →</Link>
-            <a href="#toc" className="cta ghost flow" style={s(8)}>目录 ↓</a>
+            <Link href="/ruler" className="cta flow" style={s(8)}>展开活页 · 尺子 ↗</Link>
+            <a href="#toc" className="cta ghost flow" style={s(9)}>目录 ↓</a>
           </div>
           <RulerFig />
         </div>
@@ -80,6 +81,14 @@ export default function Home() {
               <span className="en">PREFACE</span>
               <span className="toc-leader" />
               <span className="pg">卷首</span>
+            </Link>
+            <Link href="/ruler" className="toc-row flow" style={s(1)}>
+              <span className="no">活页</span>
+              <span className="name">尺子</span>
+              <span className="en">THE RULER, UNFOLDED</span>
+              <span className="badge-serial">四向星盘</span>
+              <span className="toc-leader" />
+              <span className="pg">41 钉 · 可展开</span>
             </Link>
             {boundVolumes.map((v, i) => (
               <Link key={v.id} href={`/${v.id}`} className="toc-row flow" style={s(i + 1)}>

@@ -3,7 +3,7 @@ import { chromium } from "playwright-core";
 import { execSync } from "child_process";
 
 const exe = execSync("find /opt/pw-browsers -name chrome -type f | head -1").toString().trim();
-const pages = ["/", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/talks", "/ideas", "/about"];
+const pages = ["/", "/preface", "/ruler", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/talks", "/ideas", "/about"];
 
 const browser = await chromium.launch({ executablePath: exe });
 const ctx = await browser.newContext({ viewport: { width: 1500, height: 950 } });
