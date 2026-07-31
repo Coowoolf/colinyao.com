@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import RulerMap from "@/components/RulerMap";
+import RulerScroll from "@/components/RulerScroll";
 import { rays, rulerStats, bindPin } from "@/content/ruler";
 
 export const metadata: Metadata = {
-  title: "活页 · 尺子",
+  title: "时空内外 · 四把尺子",
   description:
-    "《同一把尺子》的活页：一张四向星盘。外 · Eval，内 · 内观，时 · 从毫秒到纪元，空 · 从一场对话到全人类——40 篇思想钉在各自的刻度上，尽头伸进非人的尺度，刻度永远是人读的。",
+    "《同一把尺子》的活页：时空内外，四把尺子。时 · 从毫秒到纪元，空 · 从一场对话到全人类，内 · 内观的纵深，外 · Eval 的粒度——41 枚思想钉在各自的刻度上。合上是同一把，展开是时空内外。",
 };
 
 const s = (i: number) => ({ ["--i" as string]: i } as React.CSSProperties);
@@ -15,28 +15,15 @@ const s = (i: number) => ({ ["--i" as string]: i } as React.CSSProperties);
 export default function RulerPage() {
   return (
     <>
-      <section style={{ paddingTop: "clamp(96px,12vh,140px)" }}>
-        <div className="wrap">
-          <Reveal className="section-head" style={{ marginBottom: 12 }}>
-            <p className="eyebrow flow" style={s(0)}>
-              活页 <span className="am">·</span> THE RULER, UNFOLDED <span className="am">·</span> 夹于《同一把尺子》
-            </p>
-            <h1 className="h-sec ink" style={s(1)}>尺子</h1>
-            <p className="lead flow" style={s(2)}>
-              同一把尺子的展开图：中心站着人，四条射线量向四个维度，{rulerStats.pins} 枚思想钉在各自的刻度上。
-              沿主线走一遍，或自由游走——悬停读数，点击入篇。
-            </p>
-          </Reveal>
-        </div>
-        <RulerMap />
-      </section>
+      {/* 首焦即星盘：不滚自转循环，滚动逐把展开，滚完全图可点 */}
+      <RulerScroll />
 
-      {/* 读法 · 四射线清单（移动端主视图 / 无 JS 降级 / 检索） */}
+      {/* 读法 · 逐格清单（移动端主视图 / 无 JS 降级 / 检索） */}
       <section className="section hairline" id="list">
         <div className="wrap">
           <Reveal className="section-head">
             <p className="eyebrow flow" style={s(0)}>READINGS <span className="am">·</span> 逐格读数</p>
-            <h2 className="h-sec ink" style={s(1)}>四条射线，{rulerStats.stations} 格刻度</h2>
+            <h2 className="h-sec ink" style={s(1)}>四把尺子，{rulerStats.stations} 格刻度</h2>
             <p className="lead flow" style={s(2)}>
               站 = 论证对象所在的刻度；读数 = 那一篇的签名数字。每一枚钉都可展开成一份 deck。
             </p>

@@ -19,17 +19,17 @@ for (const theme of ["dark", "light"]) {
     await page.evaluate((t) => localStorage.setItem("colin-theme", t), theme);
     await page.reload({ waitUntil: "load" });
     await page.waitForTimeout(700);
-    // 滚到底触发全部 Reveal
+    // 滚到底触发全部 Reveal（instant 步进，避免 smooth 动画互相打断导致 IO 丢事件）
     await page.evaluate(async () => {
       await new Promise((res) => {
         let y = 0;
         const t = setInterval(() => {
-          y += 700; window.scrollTo(0, y);
+          y += 450; window.scrollTo({ top: y, behavior: "instant" });
           if (y >= document.body.scrollHeight) { clearInterval(t); res(null); }
-        }, 60);
+        }, 90);
       });
     });
-    await page.waitForTimeout(1700); // 等 stagger 入场（--i × 88ms + 0.9s）全部走完再采样
+    await page.waitForTimeout(2500); // 等 stagger 入场（--i × 88ms + 1.05s）全部走完再采样
     const r = await page.evaluate(() => ({
       attr: document.documentElement.getAttribute("data-theme"),
       hidden: [...document.querySelectorAll(".flow,.rise,.spread,.settle,.pop,.ink,.dw")].filter(

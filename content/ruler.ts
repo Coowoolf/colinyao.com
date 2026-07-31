@@ -34,13 +34,17 @@ export type Ray = {
 };
 
 export const rulerMeta = {
-  title: "尺子",
+  title: "时空内外",
+  subtitle: "四把尺子",
   sub: "活页 · 展开于《同一把尺子》",
-  en: "THE RULER, UNFOLDED",
+  en: "FOUR RULERS · TIME / SPACE / INWARD / OUTWARD",
   origin: "人",
   originNote: "原点站着人 · 你在这里",
-  legend: "站 = 论证对象的刻度 · 读数 = 签名数字 · 尽头伸进非人的尺度",
+  legend: "合上是同一把，展开是时空内外 · 站 = 论证对象的刻度 · 读数 = 签名数字",
 };
+
+/** 展开顺序（scroll 叙事与待机循环共用）：时 → 空 → 内 → 外 */
+export const dimOrder: Ray["id"][] = ["time", "space", "inw", "out"];
 
 export const rays: Ray[] = [
   {
