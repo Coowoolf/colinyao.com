@@ -30,12 +30,12 @@ export default function AboutPage() {
               2024 年至今讲了 15 场公开演讲：RTE 大会、AWS 中国峰会、Google Cloud 开发者大会、
               全球产品经理大会、人人都是产品经理大会、First Prompt Singapore。
               一路磨出了一套自己的概念工具：<b>活人感</b>、<b>体验基准</b>、<b>Vibe SOTA</b>、<b>QoI</b>、
-              「模型决定能力上限，引擎决定体验下限」。它们都收在<Link href="/ideas" className="am">概念库</Link>里。
+              「模型决定能力上限，引擎决定体验下限」。它们都收在<Link href="/toc#terms" className="am">术语总目</Link>里。
             </p>
             <p className="flow" style={s(2)}>
               这个网站是一本正在写的书：<b>《同一把尺子》</b>——向外，用 Eval 度量系统哪里偏了；
               向内，用内观看见自己的判断哪里偏了。产品和人，进化机制是同一个——
-              <b>更早发现错误，更快修正错误</b>。五卷四十篇，从<Link href="/preface" className="am">序</Link>读起。
+              <b>更早发现错误，更快修正错误</b>。五卷四十篇，从<Link href="/preface" className="am">序</Link>读起；展开，是<Link href="/" className="am">时空内外</Link>。
             </p>
             <p className="flow" style={s(3)}>
               想找我聊——小红书 / 微信公众号搜「<b>姚光华 Colin</b>」。
@@ -77,15 +77,15 @@ export default function AboutPage() {
             </div>
             <div className="aside-block">
               <span className="k flow" style={s(4)}>本书</span>
-              <Link href="/#toc" className="link-row flow" style={s(5)}>
+              <Link href="/book#toc" className="link-row flow" style={s(5)}>
                 <span className="n">总目录</span>
                 <span className="v">5 卷 · 40 篇 →</span>
               </Link>
-              <Link href="/talks" className="link-row flow" style={s(6)}>
+              <Link href="/toc#timeline" className="link-row flow" style={s(6)}>
                 <span className="n">附录 A</span>
                 <span className="v">演讲年表 →</span>
               </Link>
-              <Link href="/ideas" className="link-row flow" style={s(7)}>
+              <Link href="/toc#terms" className="link-row flow" style={s(7)}>
                 <span className="n">附录 B</span>
                 <span className="v">术语索引 →</span>
               </Link>

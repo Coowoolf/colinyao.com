@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+/** nav = 纯四维：时 空 内 外；字标「同一把尺子」= 合上 → 进书 */
 const links = [
-  { href: "/#toc", label: "目录", match: /^\/(preface|vol\d)/ },
-  { href: "/talks", label: "年表", match: /^\/talks/ },
-  { href: "/ideas", label: "索引", match: /^\/ideas/ },
-  { href: "/about", label: "关于", match: /^\/about/ },
+  { href: "/time", label: "时", match: /^\/time/ },
+  { href: "/space", label: "空", match: /^\/space/ },
+  { href: "/inward", label: "内", match: /^\/inward/ },
+  { href: "/outward", label: "外", match: /^\/outward/ },
 ];
 
 export default function Nav() {
@@ -32,7 +33,7 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <Link href="/" className="nav-mark" aria-label="封面">
+        <Link href="/book" className="nav-mark" aria-label="合上 · 进书" title="合上是同一把尺子">
           同一把尺子<span className="mark-en"><span className="tick">·</span>COLIN YAO</span>
         </Link>
         <div className="nav-links" style={{ alignItems: "center" }}>

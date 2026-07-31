@@ -36,9 +36,9 @@ export default function PrefacePage() {
         </Reveal>
 
         <Reveal className="vol-nav">
-          <Link href="/">
+          <Link href="/book">
             <span className="k">← 封面</span>
-            <span className="t">总目录</span>
+            <span className="t">《同一把尺子》</span>
           </Link>
           <Link href="/vol1" className="next">
             <span className="k">开始读 · 卷一 →</span>

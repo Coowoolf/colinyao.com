@@ -145,7 +145,7 @@ export default function RulerScroll() {
 
         {/* 全图提示（叙事终段） */}
         {isAll && !atTop && (
-          <div className="rs-allhint">全图 · 悬停读数 · 点击入篇 · 继续下滑看逐格清单 ↓</div>
+          <div className="rs-allhint">全图 · 悬停读数 · 点击入篇 · 导航四字进各维目录</div>
         )}
 
         {/* 进度侧轨：时空内外（全图态 = 四字齐亮变大） */}

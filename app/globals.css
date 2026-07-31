@@ -760,6 +760,16 @@ html[data-theme="light"] .rstage[data-dim="out"] .gzh-out{opacity:.055;}
 }
 .rs-readout .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none;animation:pinBreathe 2.8s ease-in-out infinite;}
 
+/* ----- 维度页（单尺活图 hero） ----- */
+.dimpage .rstage{position:relative;height:clamp(440px,66vh,760px);top:auto;}
+.dim-head{position:absolute;left:var(--pad);bottom:7%;z-index:5;display:flex;flex-direction:column;gap:10px;pointer-events:none;animation:dcInY 1s var(--ease-flow) .2s both;}
+@keyframes dcInY{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+.dim-title{font-size:clamp(72px,10vw,150px);font-weight:900;line-height:1;color:var(--ink);padding-right:.08em;}
+@media (max-width:760px){
+  .dimpage .rstage{height:56svh;}
+  .dim-title{font-size:clamp(56px,17vw,88px);}
+}
+
 /* ----- 悬停读数卡 ----- */
 .ruler-tip{
   position:absolute;z-index:20;pointer-events:none;
