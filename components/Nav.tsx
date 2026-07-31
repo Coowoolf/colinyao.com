@@ -33,7 +33,9 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <span aria-hidden="true" />
+        <Link href="/" className="nav-mark" aria-label="回到主页">
+          COLIN<span className="tick">·</span>YAO
+        </Link>
         <div className="nav-links" style={{ alignItems: "center" }}>
           {links.map((l) => (
             <Link key={l.href} href={l.href} className={l.match.test(pathname) ? "active" : ""}>
