@@ -91,7 +91,7 @@ export const talks: Talk[] = [
   },
   {
     num: 9,
-    date: "2026 H1",
+    date: "2026.01",
     year: 2026,
     venue: "First Prompt · Singapore",
     title: "No More Prompts — How Conversation Agents Pass the Vibe Check",
