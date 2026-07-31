@@ -33,9 +33,7 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <Link href="/book" className="nav-mark" aria-label="合上 · 进书" title="合上是同一把尺子">
-          同一把尺子<span className="mark-en"><span className="tick">·</span>COLIN YAO</span>
-        </Link>
+        <span aria-hidden="true" />
         <div className="nav-links" style={{ alignItems: "center" }}>
           {links.map((l) => (
             <Link key={l.href} href={l.href} className={l.match.test(pathname) ? "active" : ""}>

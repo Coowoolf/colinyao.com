@@ -185,13 +185,13 @@ export default function RulerCompass({
           const far = { x: C.x + dx * (last + (horiz ? 128 : 84)), y: C.y + dy * (last + (horiz ? 128 : 84)) };
           const zh = horiz
             ? { x: C.x + dx * (last + 118), y: C.y - 48, anchor: "middle" as const }
-            : { x: C.x + 56, y: far.y + (dy < 0 ? 6 : 2), anchor: "start" as const };
+            : { x: C.x + 56, y: dy < 0 ? Math.max(far.y + 6, 132) : far.y + 2, anchor: "start" as const };
           const nm = horiz
             ? { x: zh.x, y: C.y - 22, anchor: "middle" as const }
             : { x: C.x + 56, y: zh.y + 22, anchor: "start" as const };
           const fr = horiz
             ? { x: zh.x, y: C.y + 34, anchor: "middle" as const }
-            : { x: C.x - 56, y: far.y + (dy < 0 ? 12 : 8), anchor: "end" as const };
+            : { x: C.x - 56, y: dy < 0 ? Math.max(far.y + 12, 122) : far.y + 8, anchor: "end" as const };
           return (
             <g key={ray.id} className={`cray cray-${ray.id}`}>
               {/* 尺身：渐变主线 + 细齿 + 流光 */}

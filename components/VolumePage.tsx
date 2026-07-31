@@ -14,7 +14,7 @@ function neighbors(v: BoundVolume) {
       : { href: `/vol${v.no - 1}`, k: `上一卷 · 卷${CN[v.no - 2]}`, t: boundVolumes[v.no - 2].zh };
   const next =
     v.no === 5
-      ? { href: "/toc#timeline", k: "接下来 · 总目", t: "演讲年表 · 按时" }
+      ? { href: "/#timeline", k: "接下来 · 总目", t: "演讲年表 · 按时" }
       : { href: `/vol${v.no + 1}`, k: `下一卷 · 卷${CN[v.no]}`, t: boundVolumes[v.no].zh };
   return { prev, next };
 }

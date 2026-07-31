@@ -3,7 +3,7 @@ import { chromium } from "playwright-core";
 import { execSync } from "child_process";
 
 const exe = execSync("find /opt/pw-browsers -name chrome -type f | head -1").toString().trim();
-const pages = ["/", "/book", "/time", "/space", "/inward", "/outward", "/toc", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/about"];
+const pages = ["/", "/time", "/space", "/inward", "/outward", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5"];
 
 const browser = await chromium.launch({ executablePath: exe });
 const ctx = await browser.newContext({ viewport: { width: 1500, height: 950 } });
@@ -48,7 +48,7 @@ for (const theme of ["dark", "light"]) {
 }
 
 // 截图：封面/目录、序、卷一、卷五（锁定篇）双主题
-for (const [path, name] of [["/book", "cover"], ["/preface", "preface"], ["/vol1", "vol1"], ["/vol5", "vol5"]]) {
+for (const [path, name] of [["/preface", "preface"], ["/vol1", "vol1"], ["/vol5", "vol5"]]) {
   for (const theme of ["dark", "light"]) {
     await page.goto("http://localhost:3000" + path, { waitUntil: "load" });
     await page.evaluate((t) => localStorage.setItem("colin-theme", t), theme);
@@ -63,10 +63,10 @@ for (const [path, name] of [["/book", "cover"], ["/preface", "preface"], ["/vol1
   }
 }
 // 目录区块单独截一张（滚到 toc）
-await page.goto("http://localhost:3000/book#toc", { waitUntil: "load" });
+await page.goto("http://localhost:3000/#vols", { waitUntil: "load" });
 await page.evaluate(() => localStorage.removeItem("colin-theme"));
 await page.reload({ waitUntil: "load" });
-await page.evaluate(() => document.getElementById("toc")?.scrollIntoView());
+await page.evaluate(() => document.getElementById("vols")?.scrollIntoView());
 await page.waitForTimeout(1200);
 await page.screenshot({ path: "/tmp/book-toc-dark.png" });
 

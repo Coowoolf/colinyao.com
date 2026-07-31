@@ -10,9 +10,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/ruler", destination: "/", permanent: true },
-      { source: "/talks", destination: "/toc#timeline", permanent: true },
-      { source: "/ideas", destination: "/toc#terms", permanent: true },
-      { source: "/index", destination: "/toc", permanent: true },
+      { source: "/talks", destination: "/#timeline", permanent: true },
+      { source: "/ideas", destination: "/#terms", permanent: true },
+      { source: "/index", destination: "/", permanent: true },
+      { source: "/toc", destination: "/", permanent: true },
+      { source: "/book", destination: "/", permanent: true },
+      { source: "/about", destination: "/#about", permanent: true },
     ];
   },
   async headers() {

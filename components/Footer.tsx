@@ -13,17 +13,9 @@ export default function Footer() {
           <span className="colophon">{book.edition} · © 2026 COLINYAO.COM</span>
         </div>
         <div className="footer-links">
-          {site.links.map((l) =>
-            l.href ? (
-              <a key={l.name} href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
-                {l.name} · {l.value}
-              </a>
-            ) : (
-              <span key={l.name} className="footer-plain">
-                {l.name} · {l.value}
-              </span>
-            )
-          )}
+          <span className="footer-plain">
+            {site.links.map((l) => l.name).join(" / ")} · {site.links[0].value}
+          </span>
         </div>
       </div>
     </footer>

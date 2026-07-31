@@ -19,7 +19,7 @@ export default function DimensionPage({ id }: { id: Ray["id"] }) {
       : { href: ROUTE[dimOrder[k - 1]], k: `← 上一维 · ${CN[dimOrder[k - 1]]}`, t: rays.find((r) => r.id === dimOrder[k - 1])!.name };
   const next =
     k === 3
-      ? { href: "/book", k: "合上是同一把尺子 →", t: "《同一把尺子》· 书" }
+      ? { href: "/preface", k: "合上是同一把尺子 →", t: "从序开始读" }
       : { href: ROUTE[dimOrder[k + 1]], k: `下一维 · ${CN[dimOrder[k + 1]]} →`, t: rays.find((r) => r.id === dimOrder[k + 1])!.name };
   const terms = ray.terms.map((t) => ideas.find((i) => i.id === t)).filter(Boolean) as typeof ideas;
 
@@ -44,7 +44,7 @@ export default function DimensionPage({ id }: { id: Ray["id"] }) {
               <div className="term-chips flow" style={s(1)}>
                 <span className="k">本维术语</span>
                 {terms.map((t) => (
-                  <Link key={t.id} href={`/toc#${t.id}`} className="term-chip">{t.zh}</Link>
+                  <Link key={t.id} href={`/#${t.id}`} className="term-chip">{t.zh}</Link>
                 ))}
               </div>
             )}
