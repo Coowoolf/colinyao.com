@@ -24,7 +24,7 @@ export const talkDecks: Deck[] = [
   { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 深圳", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 36, category: "对外演讲", dual: true },
   { slug: "dual26", num: "11", date: "2026.04", venue: "中国网络视听大会", title: "RTE + AI 双引擎驱动视听全域商业增长", slides: 20, category: "对外演讲", dual: true },
   { slug: "vibesota", num: "10", date: "2026.01", venue: "Voice Agent 闭门会", title: "Voice Agent 2026 · Vibe SOTA", slides: 28, category: "对外演讲", dual: true },
-  { slug: "vibecheck", num: "09", date: "2026 H1", venue: "First Prompt · Singapore", title: "No More Prompts — How Conversation Agents Pass the Vibe Check", slides: 21, category: "对外演讲", dual: true },
+  { slug: "vibecheck", num: "09", date: "2026.01", venue: "First Prompt · Singapore", title: "No More Prompts — How Conversation Agents Pass the Vibe Check", slides: 21, category: "对外演讲", dual: true },
   { slug: "pm25", num: "08", date: "2025.12", venue: "人人都是产品经理大会 2025", title: "从「活人感」缺失到体验基准打造", slides: 41, category: "对外演讲", dual: true },
   { slug: "prodready", num: "07", date: "2025.10", venue: "ConvoAI & RTE 2025", title: "Production-Ready 对话式 AI 产品全栈发布", slides: 22, category: "对外演讲", dual: true },
   { slug: "era3", num: "06", date: "2025.10", venue: "ConvoAI & RTE 2025", title: "Agent 交互核心引擎，重塑实时体验的第三纪元", slides: 39, category: "对外演讲", dual: true },
