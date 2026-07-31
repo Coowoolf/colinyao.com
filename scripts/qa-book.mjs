@@ -35,13 +35,13 @@ for (const theme of ["dark", "light"]) {
       hidden: [...document.querySelectorAll(".flow,.rise,.spread,.settle,.pop,.ink,.dw")].filter(
         (el) => getComputedStyle(el).opacity === "0"
       ).length,
-      lockedLinks: [...document.querySelectorAll("a")].filter((a) => a.getAttribute("href") === "/trust").length,
+      lockedLinks: [...document.querySelectorAll("a")].filter((a) => a.getAttribute("href") === "/cowork").length,
     }));
     const problems = [];
     if (errs.length) problems.push("pageerror: " + errs[0].slice(0, 100));
     if (theme === "light" && r.attr !== "light") problems.push("light not applied");
     if (r.hidden > 0) problems.push(`${r.hidden} elements stuck hidden`);
-    if (r.lockedLinks > 0) problems.push("/trust is linked (must stay locked)");
+    if (r.lockedLinks > 0) problems.push("/cowork is linked (must stay locked)");
     if (problems.length) fails.push(`${theme}${path}: ${problems.join("; ")}`);
     else console.log(`${theme}${path} OK`);
   }

@@ -51,17 +51,6 @@ export default function DecksIndex() {
 
         <Reveal>
           <h2 className="talk-year settle" style={s(0)}>对外演讲全集 · 2024–2026</h2>
-          <a href="/talkdecks" className="talk-row flow dn" style={s(1)}>
-            <div className="talk-meta">
-              <span className="date">/talkdecks</span>
-              <span className="venue">合集索引页</span>
-            </div>
-            <div className="talk-body">
-              <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>
-                两年十四场 · 卡片视图 <span className="am">→</span>
-              </h3>
-            </div>
-          </a>
           {talkDecks.map((d, i) => (
             <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(Math.min(i + 2, 10))}>
               <div className="talk-meta">

@@ -15,10 +15,9 @@ export const speechDecks: Deck[] = [
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 63, category: "演讲", dual: true },
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },
   { slug: "3years", title: "当智能体开始行动，人和组织怎样跟上 · 三年母版", slides: 48, category: "演讲", dual: true },
-  { slug: "trust", title: "对话式智能体的信任进化 · V9.1", slides: 50, category: "演讲", dual: false, locked: true },
 ];
 
-/** 对外演讲全集 · 2024–2026 · 14 场（13 为圆桌主持无 deck）。合集索引页 /talkdecks。 */
+/** 对外演讲全集 · 2024–2026 · 14 场（13 为圆桌主持无 deck）。 */
 export const talkDecks: Deck[] = [
   { slug: "aws26", num: "15", date: "2026.06", venue: "AWS 中国峰会", title: "被记住 · 被托付：对话式智能体的物种分化与同源进化", slides: 38, category: "对外演讲", dual: true },
   { slug: "inspire26", num: "14", date: "2026.06", venue: "INSPIRE 2026", title: "从对话式 AI 到企业级智能体", slides: 24, category: "对外演讲", dual: true },
@@ -68,6 +67,4 @@ export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks];
 export const deckRoutes: { source: string; file: string }[] = [
   ...allDecks.map((d) => ({ source: `/${d.slug}`, file: `/decks/${d.slug}.html` })),
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
-  { source: "/trust-light", file: "/decks/trust-light.html" },
-  { source: "/talkdecks", file: "/decks/talkdecks.html" }, // 对外演讲合集索引页
 ];

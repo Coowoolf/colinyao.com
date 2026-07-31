@@ -7,18 +7,6 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return deckRoutes.map((r) => ({ source: r.source, destination: r.file }));
   },
-  async redirects() {
-    return [
-      { source: "/ruler", destination: "/", permanent: true },
-      { source: "/talks", destination: "/#timeline", permanent: true },
-      { source: "/ideas", destination: "/#terms", permanent: true },
-      { source: "/index", destination: "/", permanent: true },
-      { source: "/toc", destination: "/", permanent: true },
-      { source: "/book", destination: "/", permanent: true },
-      { source: "/about", destination: "/#about", permanent: true },
-      { source: "/gcloud", destination: "/inspire26", permanent: true },
-    ];
-  },
   async headers() {
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
     return [

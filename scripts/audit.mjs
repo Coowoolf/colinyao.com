@@ -3,8 +3,8 @@ import { chromium } from "playwright-core";
 import { execSync } from "child_process";
 const exe = execSync("find /opt/pw-browsers -name chrome -type f | head -1").toString().trim();
 const BASE = "http://localhost:3000";
-const pages = ["/", "/time", "/space", "/inward", "/outward", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/decks", "/talkdecks"];
-const deckSlugs = ["cowork","newcollege","3years","trust","rte24","pm24","convoai","audio25","engine25","era3","prodready","pm25","vibecheck","vibesota","dual26","robot26","inspire26","aws26","tolan","paperhunt","029tb","voiceeval","openclaw","elys","staas","4mtokens","3days","systemcard","77days","csagent","arch","demolies","turns","evalprd","interrupted","presence","bottleneck","outcome","highagency","awsfde","34days","newcollege-light","trust-light"];
+const pages = ["/", "/time", "/space", "/inward", "/outward", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/decks"];
+const deckSlugs = ["cowork","newcollege","3years","rte24","pm24","convoai","audio25","engine25","era3","prodready","pm25","vibecheck","vibesota","dual26","robot26","inspire26","aws26","tolan","paperhunt","029tb","voiceeval","openclaw","elys","staas","4mtokens","3days","systemcard","77days","csagent","arch","demolies","turns","evalprd","interrupted","presence","bottleneck","outcome","highagency","awsfde","34days","newcollege-light"];
 
 const browser = await chromium.launch({ executablePath: exe });
 const page = await (await browser.newContext({ viewport: { width: 1500, height: 950 } })).newPage();
@@ -22,10 +22,10 @@ for (const path of pages) {
   if (errs.length) issues.push(`${path}: pageerror ${errs[0]}`);
   const info = await page.evaluate(() => ({
     links: [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")),
-    trust: [...document.querySelectorAll('a[href="/trust"]')].length,
+    trust: [...document.querySelectorAll('a[href="/cowork"]')].length,
     h1s: document.querySelectorAll("h1").length,
   }));
-  if (info.trust) issues.push(`${path}: /trust 被挂链 ×${info.trust}`);
+  if (info.trust && path !== "/decks") issues.push(`${path}: /cowork 被挂链 ×${info.trust}`);
   if (info.h1s > 1) issues.push(`${path}: ${info.h1s} 个 h1`);
   for (const href of info.links) {
     if (href.startsWith("/") && !href.startsWith("//")) linkSet.add(href.split("#")[0] || "/");

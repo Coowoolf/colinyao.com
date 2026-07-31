@@ -43,7 +43,7 @@ export default function VolumePage({ no }: { no: number }) {
             <div className="term-chips flow" style={s(3)}>
               <span className="k">本卷术语</span>
               {terms.map((t) => (
-                <Link key={t.id} href={`/ideas#${t.id}`} className="term-chip">{t.zh}</Link>
+                <Link key={t.id} href={`/#${t.id}`} className="term-chip">{t.zh}</Link>
               ))}
             </div>
           )}

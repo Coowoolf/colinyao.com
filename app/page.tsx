@@ -10,7 +10,7 @@ import { ideas } from "@/content/ideas";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: { absolute: "时空内外 ·《同一把尺子》· 姚光华 Colin" },
+  title: { absolute: "COLINYAO" },
   description:
     "时空内外——姚光华（Colin）的思想星盘。时 · 从毫秒到纪元，空 · 从一场对话到全人类，内 · 内观的纵深，外 · Eval 的粒度；41 枚思想钉在四个维度的刻度上。展开是时空内外，合上是《同一把尺子》。",
 };

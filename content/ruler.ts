@@ -260,7 +260,7 @@ export const rays: Ray[] = [
         id: "trustlife",
         label: "信任",
         tick: "A LIFE",
-        pins: [{ slug: "trust", reading: "信任进化 · 2026.08 首发", locked: true }],
+        pins: [{ slug: "cowork", reading: "从被托付到双向奔赴 · 2026.08 首发", locked: true }],
       },
     ],
   },

@@ -152,7 +152,7 @@ export const volumes: Volume[] = [
       { slug: "paperhunt" },
       { slug: "77days" },
       { slug: "3years" },
-      { slug: "trust", locked: true, lockNote: "连载中 · 2026.08 首发后开放" },
+      { slug: "cowork", locked: true, lockNote: "连载中 · 2026.08 首发后开放" },
     ],
   },
 ];
@@ -185,7 +185,7 @@ function sourceOf(d: Deck): string {
   if (d.category === "对外演讲") return `演讲 · ${d.venue} · ${d.date}`;
   if (d.slug === "newcollege") return "课程 · 内部公开课";
   if (d.slug === "3years") return "母版 · 三年";
-  if (d.slug === "trust") return "演讲 · 2026.08 首发";
+  if (d.slug === "cowork") return "演讲 · 2026.08 首发";
   return "演讲";
 }
 
