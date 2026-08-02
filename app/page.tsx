@@ -7,6 +7,7 @@ import { rays, dimOrder, bindPin, rulerStats } from "@/content/ruler";
 import { boundVolumes, bookStats, pieceIndex, talkNumToSlug } from "@/content/book";
 import { talks, talkYears, upcoming } from "@/content/talks";
 import { ideas } from "@/content/ideas";
+import { works, stageNames } from "@/content/works";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -29,16 +30,17 @@ export default function Home() {
         <div className="wrap">
           <Reveal className="section-head">
             <p className="eyebrow flow" style={s(0)}>INDEX <span className="am">·</span> 总目</p>
-            <h2 className="h-sec ink" style={s(1)}>四种找法，一页收齐</h2>
+            <h2 className="h-sec ink" style={s(1)}>五种找法，一页收齐</h2>
             <p className="lead flow" style={s(2)}>
-              按维（{rulerStats.pins} 钉）、按卷（{bookStats.pieces} 篇）、按时（15 场）、按术语（{ideas.length} 条）。
-              同一批思想，四套坐标。
+              按维（{rulerStats.pins} 钉）、按卷（{bookStats.pieces} 篇）、按时（15 场）、按术语（{ideas.length} 条）、按物（{works.length} 件）。
+              同一批思想，五套坐标——最后一套，是它们跑起来的样子。
             </p>
             <div className="term-chips flow" style={s(3)}>
               <a href="#dims" className="term-chip">按维 · 时空内外</a>
               <a href="#vols" className="term-chip">按卷 · 五卷</a>
               <a href="#timeline" className="term-chip">按时 · 年表</a>
               <a href="#terms" className="term-chip">按术语 · {ideas.length} 条</a>
+              <a href="#works" className="term-chip">按物 · 作品</a>
             </div>
           </Reveal>
 
@@ -193,6 +195,50 @@ export default function Home() {
                     </span>
                   ))}
                 </span>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* ---- 按物 · WORKS ---- */}
+          <div id="works" />
+          <Reveal className="section-head" style={{ marginTop: 72 }}>
+            <h3 className="h-sub ink" style={s(0)}>按物 <span className="dim3">· {works.length} 件 · 尺子先量自己</span></h3>
+            <p className="lead flow" style={s(1)}>
+              写的会过时，讲的会散场，做出来的东西自己说话。每件作品用同一把尺子量过——
+              被使用 · 被记住 · 被托付 · 双向奔赴，走到哪格标哪格。公司作品只写公开口径。
+            </p>
+          </Reveal>
+          <div className="works-list">
+            {works.map((w, i) => (
+              <Reveal key={w.id} id={w.id} className={`work-row${w.featured ? " on" : ""}`} threshold={0.12}>
+                <div className="work-meta">
+                  <span className="kind flow" style={s(0)}>{w.kind}</span>
+                  <span className="wstage flow" style={s(1)} aria-label={`四阶第 ${w.stage} 格`}>
+                    {[1, 2, 3, 4].map((n) => <i key={n} className={n <= w.stage ? "on" : ""} />)}
+                  </span>
+                  <span className="wstage-k flow" style={s(2)}>
+                    第 {w.stage} 格 · {stageNames[w.stage - 1]}
+                  </span>
+                </div>
+                <div className="work-body">
+                  <h4 className="work-name ink" style={s(1)}>
+                    {w.name} <span className="en">{w.en}</span>
+                  </h4>
+                  <p className="work-tag flow" style={s(2)}>{w.tagline}</p>
+                  <p className="work-role flow" style={s(3)}>{w.role} <span className="dim3">—— {w.stageNote}</span></p>
+                  <ul className="work-ms">
+                    {w.milestones.map((m, j) => (
+                      <li key={j} className="flow" style={s(4 + j)}>{m}</li>
+                    ))}
+                  </ul>
+                  {w.links.length > 0 && (
+                    <p className="work-links flow" style={s(8)}>
+                      {w.links.map((l, j) => (
+                        <a key={j} href={l.href}>{l.label} ↗</a>
+                      ))}
+                    </p>
+                  )}
+                </div>
               </Reveal>
             ))}
           </div>
