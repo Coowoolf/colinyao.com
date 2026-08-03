@@ -243,7 +243,12 @@ rep1('<text class="lbl fill-am pop" style="--i:6" x="1545" y="312" text-anchor="
 rep1('<b>共事不是我挑的词，是四条线自己走到的。</b>',
      '<b>进化不是我挑的词，是四条线自己走出来的。</b>')
 
-# 11) 新页 · 临场感（Part 2 高光，插在关系档位页之后、那半秒之前）
+# 11) 新页 · 临场感（Part 2 高光 · R4：三块循环动效 SVG——均衡器 / 记忆星图 / 声呐回应）
+_EQH = [34,62,96,124,90,142,112,152,98,134,152,106,144,90,122,74,98,48]
+_EQ = ''.join(
+    f'<rect class="eqb" style="--d:{i*0.075:.2f}s" x="{14+i*25}" y="{196-h}" width="12" height="{h}" rx="2" '
+    f'fill="var(--{"coral" if i in (4,11) else "amber"})" opacity="{".95" if i in (4,11) else ".8"}"/>'
+    for i, h in enumerate(_EQH))
 PRESENCE = '''<section class="slide">
   <div class="chrome"><span>PART 2 · 被记住</span><span>22</span></div>
   <div class="wrap">
@@ -252,15 +257,103 @@ PRESENCE = '''<section class="slide">
       <h2 class="ink" style="--i:1">记忆之上，还有一层：<em>临场感</em></h2>
     </div>
     <div class="body">
-      <div class="pres">
-        <div class="pr flow" style="--i:2"><span class="pn">01<br>HEAR IT LIVE</span><span class="pc">实时<b>听见</b></span><span class="ps">不是录完转写再理解——声音进来的那一刻，它已经在听。</span></div>
-        <div class="pr flow" style="--i:4"><span class="pn">02<br>RECALL AT ONCE</span><span class="pc">立刻<b>想起</b></span><span class="ps">你提到上周的事，它不用去翻库——那段共同历史本来就在场。</span></div>
-        <div class="pr flow" style="--i:6"><span class="pn">03<br>RESPOND IN THE MOMENT</span><span class="pc">当下<b>回应</b></span><span class="ps">在这句话还热着的时候接住它——而不是三秒后给一个正确答案。</span></div>
+      <div class="prz3">
+        <div class="prz rise" style="--i:2">
+          <div class="pzk">01 · HEAR IT LIVE</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <line x1="10" y1="197" x2="450" y2="197" stroke="var(--hair)" stroke-width="1"/>
+            ''' + _EQ + '''
+          </svg>
+          <div class="pzt">实时<b>听见</b></div>
+          <div class="pzs">声音进来的那一刻，它已经在听——不是录完、转写完，再来理解。</div>
+        </div>
+        <div class="prz rise" style="--i:4">
+          <div class="pzk">02 · RECALL AT ONCE</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <g opacity=".28">
+              <path class="stroke" stroke-width="1.2" d="M60 196 L150 58"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L250 96"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L398 140"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L296 178"/>
+            </g>
+            <g opacity=".4">
+              <circle class="fill-ink" cx="150" cy="58" r="6"/>
+              <circle class="fill-ink" cx="250" cy="96" r="6"/>
+              <circle class="fill-ink" cx="398" cy="140" r="6"/>
+              <circle class="fill-ink" cx="296" cy="178" r="6"/>
+            </g>
+            <path class="stroke-am" stroke-width="1.6" opacity=".55" d="M60 196 C 160 150, 260 90, 352 44"/>
+            <path class="stroke-am pkt" style="--pl:24px;--p0:24px;--p1:-360px;--pt:2.2s" stroke-width="3.5" d="M60 196 C 160 150, 260 90, 352 44"/>
+            <circle class="fill-am" cx="60" cy="196" r="9"/>
+            <circle class="fill-co" cx="352" cy="44" r="7"/>
+            <circle class="mring" cx="352" cy="44" r="7" fill="none" stroke="var(--coral)" stroke-width="2"/>
+            <text class="lbl" x="60" y="228" text-anchor="middle" style="font-size:14px">这句话</text>
+            <text class="lbl fill-co" x="352" y="24" text-anchor="middle" style="font-size:14px">上周那件事</text>
+          </svg>
+          <div class="pzt">立刻<b>想起</b></div>
+          <div class="pzs">你提到上周的事，它不用去翻库——那段共同历史，本来就在场。</div>
+        </div>
+        <div class="prz rise" style="--i:6">
+          <div class="pzk">03 · RESPOND IN THE MOMENT</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <path class="stroke" stroke-width="2" opacity=".45" d="M14 120 C 56 96, 88 150, 126 120 C 152 100, 178 140, 212 122"/>
+            <circle class="fill-am" cx="234" cy="120" r="9"/>
+            <circle class="mring" cx="234" cy="120" r="8" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <circle class="mring" cx="234" cy="120" r="8" fill="none" stroke="var(--amber)" stroke-width="2" style="--d:.7s"/>
+            <path class="stroke-am" stroke-width="2" opacity=".7" d="M248 120 H436"/>
+            <path class="stroke-am pkt" style="--pl:20px;--p0:20px;--p1:-230px;--pt:1.3s" stroke-width="4.5" d="M248 120 H436"/>
+            <text class="lbl" x="80" y="88" style="font-size:14px">话音未落</text>
+            <text class="lbl fill-co" x="342" y="98" text-anchor="middle" style="font-size:14px">半秒之内</text>
+          </svg>
+          <div class="pzt">当下<b>回应</b></div>
+          <div class="pzs">在这句话还热着的时候接住它——而不是三秒后给一个正确答案。</div>
+        </div>
       </div>
       <div class="land flow rev" style="--i:8">三件事发生在同一秒里，才叫「在场」。<span class="s">记忆是资产，临场是引擎——下一页，讲那半秒。</span></div>
     </div>
   </div>
 </section>'''
+
+# ── 6.4-R4) 第四轮反馈（仅大会版） ──────────────────────────
+# 2) 反共识页 · 三卡改行业案例（电商投诉 / 金融 / 导购）
+rep1('''<div class="n">01</div>
+          <div class="tag">高情绪 · 投诉升级</div>
+          <div class="t">人要的不是方案<br>是有人认账</div>
+          <div class="d">这种时候，一个「完全理解您的心情」的机器，是在火上浇油。</div>''',
+     '''<div class="n">01</div>
+          <div class="tag">电商 · 大促投诉升级</div>
+          <div class="t">投诉的人要的不是方案<br>是有人认账</div>
+          <div class="d">大促售后炸线的那晚，一句「完全理解您的心情」的机器话术，是在火上浇油。</div>''')
+rep1('''<div class="n">02</div>
+          <div class="tag">高不可逆 · 涉钱涉命</div>
+          <div class="t">退款、退保<br>用药建议</div>
+          <div class="d">错一次赔不起。不可逆的动作，永远要有一个人按下最后那一下。</div>''',
+     '''<div class="n">02</div>
+          <div class="tag">金融 · 涉钱不可逆</div>
+          <div class="t">退保、赎回、调额<br>错一次赔不起</div>
+          <div class="d">资金动作不可逆，也是监管红线——永远要有一个人按下最后那一下。</div>''')
+rep1('''<div class="n">03</div>
+          <div class="tag">高模糊 · 需求没想清</div>
+          <div class="t">用户自己<br>都不知道要什么</div>
+          <div class="d">这时候 Agent 只会把他越绕越远——它太会顺着说了。</div>''',
+     '''<div class="n">03</div>
+          <div class="tag">导购 · 高客单高模糊</div>
+          <div class="t">客户自己<br>都没想清要买什么</div>
+          <div class="d">大额消费的犹豫期，Agent 太会顺着说——只会把他越绕越远，最后谁都不下单。</div>''')
+
+# 3) 灵魂拷问页 · 删左下角重复 cue（主问句已升为大标题）
+rep1('''
+    <div class="cue flow" style="--i:7">在座有多少人，亲手写过一份自己产品的评测集？</div>''', '')
+
+# 4) 对组织说 · 标题突出「放权」（链式：作用于 R2 改后的标题）
+rep1('<h2 class="ink" style="--i:1">对组织说：先分清哪些是<em>单向门</em>，哪些是<em>双向门</em></h2>',
+     '<h2 class="ink" style="--i:1">对组织说：<em>放权</em>，从分清单向门与双向门开始</h2>')
+
+# 5) 收束页 · 组织要的是放权，不是进化
+rep1('<span class="no">要的不是 AI 能力</span><em>进化</em>',
+     '<span class="no">要的不是 AI 能力</span><em>放权</em>')
+rep1('<div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过。组织真正的活，是让这两把梯子同步往上。</div>',
+     '<div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过——组织真正的活，是把权放到这两把梯子够得着的那一格。</div>')
 
 # f) 结构调整：删 P16；P45(三把尺子)挪到 P42(岗位)后；P50(时机)挪到「语音没有撤回键」前；
 #    终幕对调：先对个人(P57,P58)，再对产品经理(P56)
@@ -397,13 +490,24 @@ CONF_CSS = """
 @media print{.chrome::after,.confcover::after{opacity:1;}}
 /* 96.5% 页标题句 + 临场感高光页（内容试验层） */
 .mega .mh{font-size:46px;font-weight:900;color:var(--ink);letter-spacing:.01em;margin-bottom:-4px;}
-.pres{display:flex;flex-direction:column;margin-top:6px;}
-.pres .pr{display:grid;grid-template-columns:220px 400px 1fr;column-gap:32px;align-items:baseline;padding:37px 0;border-top:1px solid var(--hair);}
-.pres .pr:first-child{border-top:0;}
-.pres .pn{font-family:var(--f-mono);font-size:14px;line-height:2;letter-spacing:.18em;color:var(--ink-3);}
-.pres .pc{font-size:58px;font-weight:900;color:var(--ink);letter-spacing:.02em;}
-.pres .pc b{color:var(--amber);}
-.pres .ps{font-size:20px;line-height:1.75;color:var(--ink-2);font-weight:300;}
+.prz3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:34px;margin-top:6px;}
+.prz{border:1px solid var(--hair);border-radius:10px;padding:24px 26px 22px;background:var(--card-bg);display:flex;flex-direction:column;gap:12px;}
+.prz svg{width:100%;height:auto;display:block;}
+.pzk{font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);}
+.pzt{font-size:42px;font-weight:900;color:var(--ink);letter-spacing:.02em;}
+.pzt b{color:var(--amber);}
+.pzs{font-size:18px;line-height:1.7;color:var(--ink-2);font-weight:300;}
+.prz svg .lbl{font-family:var(--f-mono);letter-spacing:.12em;fill:var(--ink-3);}
+.prz svg .lbl.fill-co{fill:var(--coral);}
+.prz svg .fill-am{fill:var(--amber);}
+.prz svg .fill-co{fill:var(--coral);}
+.prz svg .fill-ink{fill:var(--ink);}
+.prz svg .stroke{stroke:var(--ink-2);fill:none;}
+.prz svg .stroke-am{stroke:var(--amber);fill:none;}
+@keyframes przeq{0%,100%{transform:scaleY(.16)}50%{transform:scaleY(1)}}
+.eqb{transform-box:fill-box;transform-origin:50% 100%;animation:przeq 1.25s cubic-bezier(.45,0,.55,1) infinite;animation-delay:var(--d,0s);}
+@keyframes przring{0%{r:8px;opacity:.9}75%{r:36px;opacity:0}100%{r:36px;opacity:0}}
+.mring{animation:przring 2.1s ease-out infinite;animation-delay:var(--d,0s);}
 /* 案例02 · 右侧 3.5% 拆解面板（内容试验层） */
 .m35{position:absolute;right:120px;top:256px;width:560px;display:flex;flex-direction:column;gap:16px;}
 .m35 .mk{font-family:var(--f-mono);font-size:14px;letter-spacing:.2em;color:var(--coral);margin-bottom:6px;}
