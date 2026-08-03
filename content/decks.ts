@@ -13,6 +13,7 @@ export type Deck = {
 /** 隐藏 deck 库：不进导航、不进 sitemap、全部 noindex。索引页 /decks 仅自己可知。 */
 export const speechDecks: Deck[] = [
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 65, category: "演讲", dual: true },
+  { slug: "cowork-conf", title: "从「被托付」到「双向奔赴 · 共事」· 2026 AI 产品大会视觉版", slides: 65, category: "演讲", dual: false, locked: true },
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },
   { slug: "3years", title: "当智能体开始行动，人和组织怎样跟上 · 三年母版", slides: 48, category: "演讲", dual: true },
 ];
