@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       ...deckRoutes.map((r) => ({ source: r.source, headers: noindex })),
       { source: "/decks", headers: noindex },
       { source: "/decks/:path*", headers: noindex },
+      { source: "/media/:path*", headers: noindex },
     ];
   },
 };

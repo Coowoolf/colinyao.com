@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """V10（浅底→暗底注入，/cowork）+ 三年母版 V7B 最新稿（紫→品红重上色 + 双主题，替换 /3years）
-   + 全站 deck title 体检：统一为 声网 AI 产品负责人（Head of AI Products, Agora）"""
+   + 全站 deck title 体检：统一为 声网 AI 产品线负责人（Head of AI Products, Agora）"""
 import re, glob, pathlib
 
 U = pathlib.Path("/mnt/user-data/uploads/Documents/Colin_Knowledge_Vault/07-个人品牌与成长/演讲档案")
@@ -9,10 +9,10 @@ OUT = pathlib.Path("public/decks")
 CJK = "-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei'"
 
 TITLE_FIXES = [
-    ("声网 AI RTE 产品线负责人", "声网 AI 产品负责人"),
-    ("AI RTE 产品线负责人", "AI 产品负责人"),
-    ("声网 AI 产品线负责人", "声网 AI 产品负责人"),
-    ("声网 ConvoAI 产品负责人", "声网 AI 产品负责人"),
+    ("声网 AI RTE 产品线负责人", "声网 AI 产品线负责人"),
+    ("AI RTE 产品线负责人", "AI 产品线负责人"),
+    ("声网 AI 产品负责人", "声网 AI 产品线负责人"),
+    ("声网 ConvoAI 产品负责人", "声网 AI 产品线负责人"),
 ]
 
 def fix_titles(s: str) -> tuple[str, int]:
