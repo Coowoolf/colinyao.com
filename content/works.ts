@@ -72,7 +72,7 @@ export const works: Work[] = [
   },
   {
     id: "stt",
-    name: "STT 实时转写",
+    name: "STT 实时转写与翻译",
     en: "REALTIME SPEECH-TO-TEXT",
     kind: "声网 · 产品线",
     tagline: "从「引擎的一个模块」长成一条独立产品线——为轮次判定提供毫秒级素材的那一层。",
