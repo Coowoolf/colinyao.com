@@ -752,7 +752,7 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
    再挂一条 4px 左边框会把重心拽回左侧，和收束的方向对着干。
    ⚠️ 修饰类名不能叫 .mid —— components.css:73 里 .mid 是全局的
       flex column 工具类（gap:22px），挂上去会把这块拆成两个 flex item。
-   max-width 1200 是防换行的护栏：主句 ≈652px、副句 ≈748px，都走单行。 */
+   max-width 1200 是防换行的围栏：主句 ≈652px、副句 ≈748px，都走单行。 */
 .land.ctr{border-left:none;padding:10px 0;text-align:center;
   max-width:1200px;margin:0 auto;}
 .land.ctr .s{margin-top:10px;}
@@ -800,7 +800,7 @@ h2 .pre{display:inline-block;}
     <div class="meta rise" style="--i:4">
       <div><span class="k">Speaker</span><span class="v">姚光华 Colin · 声网 AI 产品线负责人</span></div>
       <div><span class="k">Date</span><span class="v">2026.08</span></div>
-      <div><span class="k">Duration</span><span class="v">40 min · 65 slides</span></div>
+      <div><span class="k">Duration</span><span class="v">40 min · 62 slides</span></div>
     </div>
     <svg class="glyph" width="560" height="440" viewBox="0 0 560 440" fill="none">
       <circle class="pop" style="--i:5" cx="280" cy="190" r="176" stroke="var(--hair-strong)" stroke-opacity=".30" stroke-width="1" fill="none"/>
@@ -1392,6 +1392,11 @@ h2 .pre{display:inline-block;}
           <path class="stroke-co pop" style="--i:3" stroke-width="1.4" stroke-dasharray="6 8" d="M840 30 V296"/>
           <text class="lbl fill-co pop" style="--i:3" x="840" y="320" text-anchor="middle">分水岭 · The Divide</text>
           <circle class="fill-am pop" style="--i:4" cx="840" cy="150" r="9"/>
+          <circle class="fill-ink pop" style="--i:5" cx="1005" cy="102" r="9"/>
+          <g class="pop" style="--i:5"><text class="ttl" x="1005" y="64" text-anchor="middle" style="font-size:30px">熟人</text></g>
+          <text class="txt pop" style="--i:5" x="1005" y="146" text-anchor="middle">记得你是谁</text>
+          <circle class="stroke-co pop" style="--i:6" cx="1005" cy="102" r="18" stroke-width="2"/>
+          <text class="lbl fill-co pop" style="--i:6" x="1005" y="238" text-anchor="middle">九成产品卡在这一格</text>
 
           <!-- 换成角色尺：继续往上 -->
           <path class="stroke-am dw" style="--len:560;--i:4" stroke-width="3" d="M840 150 C 1060 120, 1180 76, 1360 62"/>
@@ -1431,68 +1436,8 @@ h2 .pre{display:inline-block;}
   <div class="chrome"><span>PART 2 · 被记住</span><span>16</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">给关系分级，才谈得上做关系</div>
-      <h2 class="ink" style="--i:1">工具之后，进化分成<em>两条路</em></h2>
-    </div>
-    <div class="body">
-      <div class="fig gfill">
-        <svg viewBox="0 0 1680 414" width="1680" aria-hidden="true">
-          <!-- 共同的根：工具 -->
-          <path class="stroke dw" style="--len:280;--i:2" stroke-width="2" d="M60 250 H300"/>
-          <circle class="fill-ink pop" style="--i:3" cx="160" cy="250" r="10"/>
-          <text class="lbl pop" style="--i:3" x="160" y="168" text-anchor="middle">Tool</text>
-          <g class="pop" style="--i:3"><text class="ttl" x="160" y="208" text-anchor="middle" style="font-size:32px">工具</text></g>
-          <text class="txt pop" style="--i:3" x="160" y="308" text-anchor="middle">用完就走</text>
-          <text class="sm pop" style="--i:3" x="160" y="340" text-anchor="middle">关系存续：一次会话</text>
-
-          <!-- 上支：消费级 · 陪伴 -->
-          <path class="stroke-am dw" style="--len:1450;--i:4" stroke-width="2.4" d="M300 250 C 380 250, 380 120, 460 120 H1620"/>
-          <circle class="fill-ink pop" style="--i:5" cx="760" cy="120" r="10"/>
-          <text class="lbl pop" style="--i:5" x="760" y="42" text-anchor="middle">Acquaintance</text>
-          <g class="pop" style="--i:5"><text class="ttl" x="760" y="82" text-anchor="middle" style="font-size:32px">熟人</text></g>
-          <text class="txt pop" style="--i:5" x="760" y="178" text-anchor="middle">记得你是谁</text>
-          <text class="sm pop" style="--i:5" x="760" y="210" text-anchor="middle">关系存续：跨会话</text>
-
-          <circle class="fill-am pop" style="--i:6" cx="1340" cy="120" r="13"/>
-          <text class="lbl pop" style="--i:6" x="1340" y="42" text-anchor="middle">Companion</text>
-          <g class="pop" style="--i:6"><text class="ttl fill-am" x="1340" y="82" text-anchor="middle" style="font-size:32px">伙伴</text></g>
-          <text class="txt pop" style="--i:6" x="1340" y="178" text-anchor="middle">在乎你怎么样</text>
-          <text class="sm pop" style="--i:6" x="1340" y="210" text-anchor="middle">关系存续：跨月</text>
-          <text class="lbl pop" style="--i:6" x="1620" y="82" text-anchor="end">消费级 · 陪伴</text>
-
-          <!-- 卡点 -->
-          <circle class="stroke-co pop" style="--i:7" cx="760" cy="120" r="17" stroke-width="2"/>
-          <path class="stroke-co dw" style="--len:170;--i:7" stroke-width="2" d="M690 232 H830"/>
-          <text class="lbl fill-co pop" style="--i:7" x="760" y="264" text-anchor="middle">九成产品卡在这一格</text>
-
-          <!-- 下支：企业级 · 干活（第三幕才走，先给个影子） -->
-          <g class="pop" style="--i:8">
-            <g opacity=".44">
-              <path class="stroke" stroke-width="2" stroke-dasharray="7 12" d="M300 250 C 380 250, 380 400, 460 400 H1620"/>
-              <circle class="fill-ink" cx="620" cy="400" r="8"/>
-              <circle class="fill-ink" cx="866" cy="400" r="8"/>
-              <circle class="fill-ink" cx="1112" cy="400" r="8"/>
-              <circle class="fill-ink" cx="1360" cy="400" r="8"/>
-              <text class="ttl" x="620" y="358" text-anchor="middle" style="font-size:26px">实习生</text>
-              <text class="ttl" x="866" y="358" text-anchor="middle" style="font-size:26px">外包</text>
-              <text class="ttl" x="1112" y="358" text-anchor="middle" style="font-size:26px">专家</text>
-              <text class="ttl" x="1360" y="358" text-anchor="middle" style="font-size:26px">合伙人</text>
-              <text class="lbl" x="1620" y="358" text-anchor="end">企业级 · 干活 · 下一幕</text>
-            </g>
-          </g>
-        </svg>
-      </div>
-      <div class="note"><span class="flow" style="--i:9">陪着你的，和替你干活的，<b>不是一条梯子上的两级</b>——是工具之后分岔出去的两个终点。一个越走越像「一个谁」，一个越走越能「担一件事」。</span></div>
-      <div class="land flow rev" style="--i:10">这一幕，我们走上面这条 —— 怎么让它像一个「谁」。<span class="s">下一幕换到下面那条：怎么让它担得起一件事。注意，那条路的第一级，也叫工具。</span></div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>17</span></div>
-  <div class="wrap">
-    <div class="head">
       <div class="eyebrow coral flow" style="--i:0">用户不会用你的术语投诉</div>
-      <h2 class="ink" style="--i:1">「它变了个人」背后的四种失败</h2>
+      <h2 class="ink" style="--i:1">这四种失败，让它变不成<em>伙伴</em></h2>
     </div>
     <div class="body">
       <div class="g4 gfill">
@@ -1526,38 +1471,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住 · CASE</span><span>18</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">案例 01 · 一个情感陪伴产品的前三个月</div>
-      <h2 class="ink" style="--i:1">最响的那个坑，叫「自问自答」</h2>
-    </div>
-    <div class="body g-38 gfill">
-      <div class="fig">
-        <svg viewBox="0 0 640 400" width="640" aria-hidden="true">
-          <circle class="stroke-co dw" style="--len:817;--i:2" cx="320" cy="200" r="130" stroke-width="2"/>
-          <path class="fill-co pop" style="--i:3" d="M450 190 L462 200 L450 210 Z"/>
-          <path class="fill-co pop" style="--i:3" d="M190 210 L178 200 L190 190 Z"/>
-          <text class="lbl pop" style="--i:4" x="320" y="42" text-anchor="middle">① Agent 提问</text>
-          <text class="lbl pop" style="--i:5" x="486" y="206" text-anchor="start">② 用户沉默 0.6 秒</text>
-          <text class="lbl pop" style="--i:6" x="320" y="378" text-anchor="middle">③ Agent 自己接话</text>
-          <text class="lbl pop" style="--i:7" x="154" y="206" text-anchor="end">④ Agent 换个问题</text>
-          <g class="pop" style="--i:8"><text class="ttl fill-co" x="320" y="194" text-anchor="middle" style="font-size:30px">自问自答</text></g>
-          <text class="sm pop" style="--i:9" x="320" y="230" text-anchor="middle">用户不在这个环里</text>
-        </svg>
-      </div>
-      <div class="mid">
-        <div class="note co flow" style="--i:3"><b>坑一 · 沉默即失败。</b>端上判静音 600ms 就认定「说完了」，于是抢答。可人在想事情的时候，恰好是不出声的。</div>
-        <div class="note co flow" style="--i:4"><b>坑二 · 越安慰越假。</b>识别到「难过」就回一句安慰模板。第三次之后，用户知道那是个开关，不是一个反应。</div>
-        <div class="note co flow" style="--i:5"><b>坑三 · 记忆只记事实。</b>记住了名字和生日，忘了上次为什么哭。事实好存，但决定关系的是事件。</div>
-        <div class="note co flow" style="--i:6"><b>坑四 · 永远不结束。</b>它没有「今天先到这儿吧」的能力，只有「还有什么可以帮您」。</div>
-        <div class="foot flow rev" style="--i:7">这四个坑后来去了哪里 —— 留到第五幕，我告诉你它们变成了什么。</div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>19</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>17</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">拆成可以排期的东西</div>
@@ -1628,7 +1542,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>20</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>18</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">资产一 · 身份</div>
@@ -1653,7 +1567,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>21</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>19</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">资产二、三 · 关系与历史</div>
@@ -1717,7 +1631,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>22</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>20</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">关系的档位 · 与遗忘</div>
@@ -1756,7 +1670,71 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>23</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>21</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第二幕的高光 · PRESENCE</div>
+      <h2 class="ink" style="--i:1">记忆之上，还有一层：<em>临场感</em></h2>
+    </div>
+    <div class="body">
+      <div class="prz3">
+        <div class="prz rise" style="--i:2">
+          <div class="pzk">01 · HEAR IT LIVE</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <line x1="10" y1="197" x2="450" y2="197" stroke="var(--hair)" stroke-width="1"/>
+            <rect class="eqb" style="--d:0.00s" x="14" y="162" width="12" height="34" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.07s" x="39" y="134" width="12" height="62" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.15s" x="64" y="100" width="12" height="96" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.22s" x="89" y="72" width="12" height="124" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.30s" x="114" y="106" width="12" height="90" rx="2" fill="var(--coral)" opacity=".95"/><rect class="eqb" style="--d:0.38s" x="139" y="54" width="12" height="142" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.45s" x="164" y="84" width="12" height="112" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.53s" x="189" y="44" width="12" height="152" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.60s" x="214" y="98" width="12" height="98" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.67s" x="239" y="62" width="12" height="134" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.75s" x="264" y="44" width="12" height="152" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.82s" x="289" y="90" width="12" height="106" rx="2" fill="var(--coral)" opacity=".95"/><rect class="eqb" style="--d:0.90s" x="314" y="52" width="12" height="144" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:0.97s" x="339" y="106" width="12" height="90" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:1.05s" x="364" y="74" width="12" height="122" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:1.12s" x="389" y="122" width="12" height="74" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:1.20s" x="414" y="98" width="12" height="98" rx="2" fill="var(--amber)" opacity=".8"/><rect class="eqb" style="--d:1.27s" x="439" y="148" width="12" height="48" rx="2" fill="var(--amber)" opacity=".8"/>
+          </svg>
+          <div class="pzt">实时<b>听见</b></div>
+          <div class="pzs">声音进来的那一刻，它已经在听——不是录完、转写完，再来理解。</div>
+        </div>
+        <div class="prz rise" style="--i:4">
+          <div class="pzk">02 · RECALL AT ONCE</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <g opacity=".28">
+              <path class="stroke" stroke-width="1.2" d="M60 196 L150 58"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L250 96"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L398 140"/>
+              <path class="stroke" stroke-width="1.2" d="M60 196 L296 178"/>
+            </g>
+            <g opacity=".4">
+              <circle class="fill-ink" cx="150" cy="58" r="6"/>
+              <circle class="fill-ink" cx="250" cy="96" r="6"/>
+              <circle class="fill-ink" cx="398" cy="140" r="6"/>
+              <circle class="fill-ink" cx="296" cy="178" r="6"/>
+            </g>
+            <path class="stroke-am" stroke-width="1.6" opacity=".55" d="M60 196 C 160 150, 260 90, 352 44"/>
+            <path class="stroke-am pkt" style="--pl:24px;--p0:24px;--p1:-360px;--pt:2.2s" stroke-width="3.5" d="M60 196 C 160 150, 260 90, 352 44"/>
+            <circle class="fill-am" cx="60" cy="196" r="9"/>
+            <circle class="fill-co" cx="352" cy="44" r="7"/>
+            <circle class="mring" cx="352" cy="44" r="7" fill="none" stroke="var(--coral)" stroke-width="2"/>
+            <text class="lbl" x="60" y="228" text-anchor="middle" style="font-size:14px">这句话</text>
+            <text class="lbl fill-co" x="352" y="24" text-anchor="middle" style="font-size:14px">上周那件事</text>
+          </svg>
+          <div class="pzt">立刻<b>想起</b></div>
+          <div class="pzs">你提到上周的事，它不用去翻库——那段共同历史，本来就在场。</div>
+        </div>
+        <div class="prz rise" style="--i:6">
+          <div class="pzk">03 · RESPOND IN THE MOMENT</div>
+          <svg viewBox="0 0 460 240" aria-hidden="true">
+            <path class="stroke" stroke-width="2" opacity=".45" d="M14 120 C 56 96, 88 150, 126 120 C 152 100, 178 140, 212 122"/>
+            <circle class="fill-am" cx="234" cy="120" r="9"/>
+            <circle class="mring" cx="234" cy="120" r="8" fill="none" stroke="var(--amber)" stroke-width="2"/>
+            <circle class="mring" cx="234" cy="120" r="8" fill="none" stroke="var(--amber)" stroke-width="2" style="--d:.7s"/>
+            <path class="stroke-am" stroke-width="2" opacity=".7" d="M248 120 H436"/>
+            <path class="stroke-am pkt" style="--pl:20px;--p0:20px;--p1:-230px;--pt:1.3s" stroke-width="4.5" d="M248 120 H436"/>
+            <text class="lbl" x="80" y="88" style="font-size:14px">话音未落</text>
+            <text class="lbl fill-co" x="342" y="98" text-anchor="middle" style="font-size:14px">半秒之内</text>
+          </svg>
+          <div class="pzt">当下<b>回应</b></div>
+          <div class="pzs">在这句话还热着的时候接住它——而不是三秒后给一个正确答案。</div>
+        </div>
+      </div>
+      <div class="land flow rev" style="--i:8">三件事发生在同一秒里，才叫「在场」。<span class="s">记忆是资产，临场是引擎——下一页，讲那半秒。</span></div>
+    </div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>PART 2 · 被记住</span><span>22</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">这是那个「实时引擎」在干的事</div>
@@ -1791,7 +1769,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被记住</span><span>24</span></div>
+  <div class="chrome"><span>PART 2 · 被记住</span><span>23</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">本场第一处反共识</div>
@@ -1801,21 +1779,21 @@ h2 .pre{display:inline-block;}
       <div class="g3">
         <div class="card warn rise" style="--i:2">
           <div class="n">01</div>
-          <div class="tag">高情绪 · 投诉升级</div>
-          <div class="t">人要的不是方案<br>是有人认账</div>
-          <div class="d">这种时候，一个「完全理解您的心情」的机器，是在火上浇油。</div>
+          <div class="tag">电商 · 大促投诉升级</div>
+          <div class="t">投诉的人要的不是方案<br>是有人认账</div>
+          <div class="d">大促售后炸线的那晚，一句「完全理解您的心情」的机器话术，是在火上浇油。</div>
         </div>
         <div class="card warn rise" style="--i:3">
           <div class="n">02</div>
-          <div class="tag">高不可逆 · 涉钱涉命</div>
-          <div class="t">退款、退保<br>用药建议</div>
-          <div class="d">错一次赔不起。不可逆的动作，永远要有一个人按下最后那一下。</div>
+          <div class="tag">金融 · 涉钱不可逆</div>
+          <div class="t">退保、赎回、调额<br>错一次赔不起</div>
+          <div class="d">资金动作不可逆，也是监管红线——永远要有一个人按下最后那一下。</div>
         </div>
         <div class="card warn rise" style="--i:4">
           <div class="n">03</div>
-          <div class="tag">高模糊 · 需求没想清</div>
-          <div class="t">用户自己<br>都不知道要什么</div>
-          <div class="d">这时候 Agent 只会把他越绕越远——它太会顺着说了。</div>
+          <div class="tag">导购 · 高客单高模糊</div>
+          <div class="t">客户自己<br>都没想清要买什么</div>
+          <div class="d">大额消费的犹豫期，Agent 太会顺着说——只会把他越绕越远，最后谁都不下单。</div>
         </div>
       </div>
       <div class="old rise" style="--i:5">
@@ -1854,10 +1832,10 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付</span><span>27</span></div>
+  <div class="chrome"><span>PART 3 · 被托付</span><span>26</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">接上一幕的岔路口 · 我们换到下面那条</div>
+      <div class="eyebrow flow" style="--i:0">同一个起点 · 上一幕走「陪伴」，这一幕走「干活」</div>
       <h2 class="ink" style="--i:1">工具 → 实习生 → 外包 → 专家 → <em>合伙人</em></h2>
     </div>
     <div class="body">
@@ -1869,6 +1847,18 @@ h2 .pre{display:inline-block;}
               <path class="stroke" stroke-width="2" stroke-dasharray="7 12" d="M40 330 H320"/>
               <text class="ttl" x="180" y="376" text-anchor="middle" style="font-size:26px">工具</text>
               <text class="sm" x="180" y="408" text-anchor="middle">同一个起点</text>
+            </g>
+          </g>
+          <g class="pop" style="--i:8">
+            <g opacity=".5">
+              <path class="stroke" stroke-width="1.8" d="M320 330 C 356 330, 356 384, 392 384 H1200"/>
+              <circle class="fill-ink" cx="510" cy="384" r="7"/>
+              <text class="sm" x="530" y="391" style="font-size:20px">熟人 · 记得你是谁</text>
+              <circle class="fill-ink" cx="840" cy="384" r="7"/>
+              <text class="sm" x="860" y="391" style="font-size:20px">伙伴 · 在乎你怎么样</text>
+              <text class="lbl" x="1230" y="391" style="font-size:15px">消费级 · 陪伴 —— 上一幕走的那条</text>
+              <path class="stroke" stroke-width="1" stroke-dasharray="3 6" d="M510 374 V352" opacity=".55"/>
+              <path class="stroke" stroke-width="1" stroke-dasharray="3 6" d="M840 374 V290" opacity=".55"/>
             </g>
           </g>
 
@@ -1909,12 +1899,21 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · CASE</span><span>28</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · CASE</span><span>27</span></div>
   <div class="mega">
-    <div class="mark flow" style="--i:0">案例 02 · 真实生产环境 · A PRODUCTION-SCALE TURING TEST</div>
+    <div class="mark flow" style="--i:0">案例 01 · 真实生产环境 · A PRODUCTION-SCALE MEASUREMENT</div>
+    <div class="mh flow" style="--i:0">「活人感」已经被解决了。</div>
+    <div class="m35">
+      <div class="mk flow" style="--i:5">那 3.5% 的机器感，从哪来 · 九类「AI 感知信号」</div>
+      <div class="row flow" style="--i:6"><span class="n">60</span><span class="t">情绪重复 / 不耐烦</span><span class="bar" style="--w:100%"></span></div>
+      <div class="row flow" style="--i:7"><span class="n">11</span><span class="t">报出品牌或系统身份</span><span class="bar" style="--w:18%"></span></div>
+      <div class="row flow" style="--i:7"><span class="n">11</span><span class="t">粗鲁与对抗</span><span class="bar" style="--w:18%"></span></div>
+      <div class="row flow" style="--i:8"><span class="n">9</span><span class="t">直接说出「你是机器人」</span><span class="bar" style="--w:15%"></span></div>
+      <div class="sx flow" style="--i:9">一通可命中多个标签 · 86 通为去重通数<br><b>机器感先暴露在节奏与情绪，不在音色。</b></div>
+    </div>
     <div class="num settle" style="--i:1">96.5%</div>
-    <div class="cap flow" style="--i:3">2,475 通全量人工标注的真实外呼里，只有 <b>86 通</b> 被对方听出「这是 AI」。</div>
-    <div class="foot flow" style="--i:4">1950 年，图灵提出那个判别游戏的时候，设想的是一场五分钟的文字对谈。<br>76 年之后，这件事是在一条电话线上、由一个真的要把东西卖给你的人、在毫不知情的状态下完成的。</div>
+    <div class="cap flow" style="--i:3">2,475 通全量人工标注的真实外呼里，只有 <b>86 通</b> 出现「机器感」信号。</div>
+    <div class="foot flow" style="--i:4">图灵设想的考题，是「伪装成人」。真实生产环境里更难的考题是：<br>开场第一句就承认自己是 AI，对方还愿意把这通电话好好聊完——96.5%，是在<b>已披露</b>的前提下拿到的。</div>
     <div class="tri">
       <div class="col flow" style="--i:5"><div class="k">这个数字说明了什么</div><div class="v">「像不像人」这道题，在语音这条通道上，工程上已经基本解完了。</div></div>
       <div class="col flow" style="--i:6"><div class="k">它没有说明什么</div><div class="v">它没说它做对了事。像人和做对事，是两把完全不同的尺子。</div></div>
@@ -1925,20 +1924,19 @@ h2 .pre{display:inline-block;}
 <section class="slide">
   <div class="ask">
     <div class="badge flow" style="--i:0">灵魂拷问 · 先别急着回答</div>
-    <div class="q ink" style="--i:2">你凭什么说，<span class="hl">它做对了</span>？</div>
+    <div class="q ink" style="--i:2">在座的有多少人，<br><span class="hl">亲手写过</span>一份自己产品的评测集？</div>
     <div class="hint">
       <div class="col rise" style="--i:4"><div class="k">不算数的证据</div><div class="v">「我试了几十条，感觉挺好的。」<br>「客户没投诉。」<br>「大模型评分 4.6 分。」</div></div>
       <div class="col rise" style="--i:5"><div class="k">算数的证据</div><div class="v">一份别人也能跑、跑出来结果一样、<br>失败样本能追到具体哪一步的<br>评测集。</div></div>
       <div class="col rise" style="--i:6"><div class="k">为什么这很重要</div><div class="v">因为你要拿这份证据，去换<br>一个审批权——不是换一个赞。</div></div>
     </div>
-    <div class="cue flow" style="--i:7">在座有多少人，亲手写过一份自己产品的评测集？</div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · 尺子第一课</span><span>30</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · Eval 第一课</span><span>29</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">尺子第一课</div>
+      <div class="eyebrow coral flow" style="--i:0">Eval 第一课</div>
       <h2 class="ink" style="--i:1">你的 demo 在骗你</h2>
     </div>
     <div class="body">
@@ -1979,10 +1977,10 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · 尺子第二课</span><span>31</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · Eval 第二课</span><span>30</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">尺子第二课</div>
+      <div class="eyebrow coral flow" style="--i:0">Eval 第二课</div>
       <h2 class="ink" style="--i:1">每一轮都对，整段却错了</h2>
     </div>
     <div class="body">
@@ -2016,10 +2014,10 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · 尺子第三课</span><span>32</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · Eval 第三课</span><span>31</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">尺子第三课</div>
+      <div class="eyebrow flow" style="--i:0">Eval 第三课</div>
       <h2 class="ink" style="--i:1">先安静地听完一百条真实的失败</h2>
     </div>
     <div class="body">
@@ -2091,33 +2089,33 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · 尺子第四课</span><span>33</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · Eval 第四课</span><span>32</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">尺子第四课</div>
+      <div class="eyebrow coral flow" style="--i:0">Eval 第四课</div>
       <h2 class="ink" style="--i:1">你的 AI 裁判，可能也在骗你</h2>
     </div>
     <div class="body">
       <div class="fig gfill">
         <svg viewBox="0 0 1680 330" width="1680" aria-hidden="true">
-          <text class="lbl pop" style="--i:2" x="22" y="58">100 通真实通话</text>
-          <path class="stroke dw" style="--len:1468;--i:3" stroke-width="44" stroke-linecap="round" d="M44 112 H1490" opacity=".22"/>
-          <path class="stroke-co dw" style="--len:168;--i:4" stroke-width="44" stroke-linecap="round" d="M1512 112 H1658"/>
-          <text class="lbl pop" style="--i:4" x="44" y="122">90 通确实通过</text>
-          <text class="lbl fill-co pop" style="--i:5" x="1658" y="58" text-anchor="end">10 通真的失败了</text>
-
-          <rect class="box pop" style="--i:6" x="0" y="196" width="580" height="118" rx="5" stroke-dasharray="7 7"/>
-          <g class="pop" style="--i:7"><text class="ttl" x="290" y="248" text-anchor="middle" style="font-size:27px">一个永远回答「通过」的裁判</text></g>
-          <text class="sm pop" style="--i:7" x="290" y="284" text-anchor="middle">零智能 · 零成本 · 零价值</text>
-          <path class="stroke-co pop" style="--i:8" stroke-width="1.6" stroke-dasharray="6 8" d="M580 240 C 860 240, 980 160, 1180 138"/>
-          <g class="pop" style="--i:9"><text class="big" x="1658" y="266" text-anchor="end" style="font-size:70px">90%</text></g>
-          <text class="lbl pop" style="--i:10" x="1658" y="302" text-anchor="end">与人工标注一致率</text>
+          <text class="lbl pop" style="--i:2" x="22" y="44">第一遍 · AI 质检 —— AI 在检测 AI</text>
+          <path class="stroke-am dw" style="--len:1356;--i:3" stroke-width="40" stroke-linecap="round" d="M44 96 H1400"/>
+          <g class="pop" style="--i:4"><text class="big fill-am" x="1658" y="112" text-anchor="end" style="font-size:60px">100%</text></g>
+          <text class="lbl pop" style="--i:4" x="1658" y="146" text-anchor="end">质检报表 · 全部通过</text>
+          <text class="lbl pop" style="--i:5" x="22" y="200">第二遍 · 人类复检 —— 同一批通话，重新听</text>
+          <path class="stroke dw" style="--len:1220;--i:6" stroke-width="40" stroke-linecap="round" d="M44 252 H1264" opacity=".22"/>
+          <path class="stroke-co dw" style="--len:136;--i:7" stroke-width="40" stroke-linecap="round" d="M1286 252 H1400"/>
+          <g class="pop" style="--i:8"><text class="big fill-co" x="1658" y="268" text-anchor="end" style="font-size:60px">≥10%</text></g>
+          <text class="lbl fill-co pop" style="--i:8" x="1658" y="302" text-anchor="end">错判 · 实际不通过</text>
         </svg>
       </div>
       <div class="tri">
         <div class="col flow" style="--i:10"><div class="k">正确的看法 01</div><div class="v">只看<b>失败样本上</b>的一致率。整体一致率是被多数类稀释过的假象。</div></div>
         <div class="col flow" style="--i:11"><div class="k">正确的看法 02</div><div class="v">让裁判写出理由，人抽检<b>理由</b>而不是结论。理由错了，结论对也是蒙的。</div></div>
         <div class="col flow" style="--i:12"><div class="k">正确的看法 03</div><div class="v">裁判自己也要有回归集。换模型、换 prompt，裁判必须重新验一遍。</div></div>
+      </div>
+      <div class="land flow" style="--i:13">AI 裁判可以雇，但不能依赖。<span class="s">最终裁判权在你自己手里——你的产品，你亲自听。</span></div>
+      <div class="tri" style="display:none">
       </div>
     </div>
   </div>
@@ -2134,10 +2132,10 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付 · CASE</span><span>35</span></div>
+  <div class="chrome"><span>PART 3 · 被托付 · CASE</span><span>34</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">案例 03 · 岗位 01 · 外呼销售 · <span class="lv">Autonomy L4</span></div>
+      <div class="eyebrow flow" style="--i:0">案例 02 · 岗位 01 · 外呼销售 · <span class="lv">Autonomy L4</span></div>
       <h2 class="ink" style="--i:1">一个 Agent 的入职三十天</h2>
     </div>
     <div class="body">
@@ -2188,7 +2186,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付</span><span>36</span></div>
+  <div class="chrome"><span>PART 3 · 被托付</span><span>35</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">怎么判断一项技术真的兑现了</div>
@@ -2223,37 +2221,53 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 3 · 被托付</span><span>37</span></div>
+  <div class="chrome"><span>PART 3 · 被托付</span><span>36</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">把上面两页接起来</div>
-      <h2 class="ink" style="--i:1">评测不是质量流程，是计费基础设施</h2>
+      <div class="eyebrow flow" style="--i:0">把上面两页接起来 · EVAL 贯穿全生命周期</div>
+      <h2 class="ink" style="--i:1">同一把 Eval：对产品量<em>好坏</em>，对商业量<em>钱</em></h2>
     </div>
     <div class="body">
       <div class="fig gfill">
-        <svg viewBox="0 0 1680 300" width="1680" aria-hidden="true">
-          <path class="stroke-am pop" style="--i:8" stroke-width="1.6" stroke-dasharray="7 8" d="M1280 100 C 1280 26, 240 26, 240 100"/>
-          <text class="lbl fill-am pop" style="--i:9" x="760" y="20" text-anchor="middle">出题权 = 定价权</text>
-
-          <rect class="box pop" style="--i:2" x="40" y="100" width="400" height="130" rx="5"/>
-          <g class="pop" style="--i:3"><text class="ttl" x="240" y="158" text-anchor="middle" style="font-size:28px">客户的评测集</text></g>
-          <text class="sm pop" style="--i:3" x="240" y="194" text-anchor="middle">什么才算「解决」</text>
-
-          <path class="stroke dw" style="--len:120;--i:4" stroke-width="1.6" d="M440 165 H548"/>
-          <path class="fill-ink pop" style="--i:4" d="M548 157 L562 165 L548 173 Z"/>
-
-          <rect class="box pop" style="--i:4" x="580" y="100" width="400" height="130" rx="5"/>
-          <g class="pop" style="--i:5"><text class="ttl" x="780" y="158" text-anchor="middle" style="font-size:28px">每一通的判定</text></g>
-          <text class="sm pop" style="--i:5" x="780" y="194" text-anchor="middle">解决 / 未解决 · 可归因到步</text>
-
-          <path class="stroke dw" style="--len:120;--i:6" stroke-width="1.6" d="M980 165 H1088"/>
-          <path class="fill-ink pop" style="--i:6" d="M1088 157 L1102 165 L1088 173 Z"/>
-
-          <rect class="box pop" style="--i:6" x="1120" y="100" width="400" height="130" rx="5" stroke="var(--amber)" stroke-width="1.6"/>
-          <g class="pop" style="--i:7"><text class="ttl fill-am" x="1320" y="158" text-anchor="middle" style="font-size:28px">这个月的账单</text></g>
-          <text class="sm pop" style="--i:7" x="1320" y="194" text-anchor="middle">判定条数 × 单价</text>
-
-          <text class="lbl pop" style="--i:9" x="40" y="270">这条链一旦闭合，评测集就不再是 QA 的文档，而是合同附件</text>
+        <svg viewBox="0 0 1680 330" width="1680" aria-hidden="true">
+          <defs><linearGradient id="evsp" gradientUnits="userSpaceOnUse" x1="130" y1="0" x2="1530" y2="0">
+            <stop offset="0" style="stop-color:var(--amber)"/><stop offset=".56" style="stop-color:var(--amber)"/>
+            <stop offset=".68" style="stop-color:var(--coral)"/><stop offset="1" style="stop-color:var(--coral)"/>
+          </linearGradient></defs>
+          <path class="stroke dw" style="--len:1560;--i:8" stroke-width="1.4" stroke-dasharray="6 9" opacity=".6" d="M1530 148 C 1530 44, 130 44, 130 148"/>
+          <path class="stroke-am pkt" style="--pl:26px;--p0:26px;--p1:-1560px;--pt:7s;--pd:2.6s" stroke-width="3" d="M1530 148 C 1530 44, 130 44, 130 148"/>
+          <text class="lbl pop" style="--i:9" x="830" y="34" text-anchor="middle">闭环 · 商业结果，回灌下一轮产品规划</text>
+          <path class="dw" style="--len:1400;--i:1" stroke="url(#evsp)" stroke-width="5" fill="none" d="M130 170 H1530"/>
+          <path class="pkt" style="--pl:30px;--p0:30px;--p1:-1400px;--pt:5s" stroke="url(#evsp)" stroke-width="7" fill="none" d="M130 170 H1530"/>
+          <g class="pop" style="--i:2">
+            <circle class="fill-am" cx="130" cy="170" r="10"/>
+            <text class="ttl" x="130" y="136" text-anchor="middle" style="font-size:26px">产品规划</text>
+            <text class="sm" x="130" y="212" text-anchor="middle">评测即 PRD · 先定义「做对」</text>
+          </g>
+          <g class="pop" style="--i:3">
+            <circle class="fill-am" cx="480" cy="170" r="10"/>
+            <text class="ttl" x="480" y="136" text-anchor="middle" style="font-size:26px">产品打磨</text>
+            <text class="sm" x="480" y="212" text-anchor="middle">交互质量 · 量产品好坏</text>
+          </g>
+          <g class="pop" style="--i:4">
+            <circle class="fill-am" cx="830" cy="170" r="10"/>
+            <text class="ttl" x="830" y="136" text-anchor="middle" style="font-size:26px">上线验收</text>
+            <text class="sm" x="830" y="212" text-anchor="middle">模拟考核 · 敢不敢让它上岗</text>
+          </g>
+          <g class="pop" style="--i:5">
+            <circle class="fill-co" cx="1180" cy="170" r="10"/>
+            <text class="ttl" x="1180" y="136" text-anchor="middle" style="font-size:26px">计量计费</text>
+            <text class="sm" x="1180" y="212" text-anchor="middle">判「解决」才收钱</text>
+          </g>
+          <g class="pop" style="--i:6">
+            <circle class="fill-co" cx="1530" cy="170" r="13"/>
+            <text class="ttl fill-co" x="1530" y="136" text-anchor="middle" style="font-size:26px">商业结果</text>
+            <text class="sm" x="1530" y="212" text-anchor="middle">这个月的钱 · 结果生意</text>
+          </g>
+          <path class="stroke-co pop" style="--i:7" stroke-width="1.4" stroke-dasharray="5 7" d="M1005 120 V220"/>
+          <text class="lbl fill-co pop" style="--i:7" x="1005" y="106" text-anchor="middle">出题权 = 定价权</text>
+          <text class="lbl pop" style="--i:7" x="60" y="292">面向产品 · Eval 量的是「好不好」</text>
+          <text class="lbl fill-co pop" style="--i:7" x="1620" y="292" text-anchor="end">面向商业 · Eval 量的是「钱」</text>
         </svg>
       </div>
       <div class="tri">
@@ -2261,7 +2275,7 @@ h2 .pre{display:inline-block;}
         <div class="col flow" style="--i:11"><div class="k">条件 02 · 可归因</div><div class="v">没解决的时候，能指到具体是哪一步塌了——识别、检索、决策，还是话术。</div></div>
         <div class="col flow" style="--i:12"><div class="k">条件 03 · 可控</div><div class="v">发现问题之后，供应商真的能改，而且改完能证明这一类不会再犯。</div></div>
       </div>
-      <div class="land flow" style="--i:12">出题权的移交，就是信任的移交。<span class="s">法律 AI 公司 Legora 的做法值得抄：让客户的资深律师来定义「什么叫做对了」，产品团队只负责通过。谁定义正确，谁就掌握这段关系。</span></div>
+      <div class="land flow" style="--i:12">Eval 贯穿全生命周期：规划期它是 PRD，打磨期它量好坏，上线期它当考官，商业化它就是计费器——<b>从规划到回款，出题权一路没换过手。</b><span class="s">法律 AI 公司 Legora 的做法值得抄：让客户的资深律师来定义「什么叫做对了」，产品团队只负责通过。谁定义正确，谁就掌握这段关系。</span></div>
     </div>
   </div>
 </section>
@@ -2292,7 +2306,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>40</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>39</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">可观测，才敢写进需求文档</div>
@@ -2314,8 +2328,8 @@ h2 .pre{display:inline-block;}
         </div>
         <div class="card on rise" style="--i:4">
           <div class="n">03</div>
-          <div class="tag">Signal · 自己的账</div>
-          <div class="t">它有自己的账</div>
+          <div class="tag">Signal · 自己的 OKR</div>
+          <div class="t">它有自己的 OKR</div>
           <div class="d">它带来的成交、它造成的损失，记在它的编号下，而不是摊进某个人的 KPI。</div>
         </div>
       </div>
@@ -2341,7 +2355,7 @@ h2 .pre{display:inline-block;}
         <div class="card sm rise" style="--i:8">
           <div class="hd"><span class="n">Q4</span><span class="t">出错谁负责？</span></div>
           <div class="kv"><div class="kk">工具时代</div><div class="vv">谁用谁负责，没有争议。</div></div>
-          <div class="kv am"><div class="kk">共事时代</div><div class="vv"><b>先有归属，才谈得上追责。</b></div></div>
+          <div class="kv am"><div class="kk">共事时代</div><div class="vv"><b>先有归属，才谈得上追责——业绩可以记在它名下，责任必须落在可追责的人身上。</b></div></div>
           <div class="kv co"><div class="kk">怎么验</div><div class="vv">出事五分钟内，你拿得出那条链路吗？</div></div>
         </div>
       </div>
@@ -2350,7 +2364,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>41</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>40</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">自治爬梯 · THE AUTONOMY LADDER</div>
@@ -2413,11 +2427,11 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>42</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>41</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">上一页的梯子，放上真实岗位 · ON THE JOB</div>
-      <h2 class="ink" style="--i:1">五年按场景排。<em>今年按岗位排，图就变了</em></h2>
+      <h2 class="ink" style="--i:1">真实岗位放上梯子：今年的重心，压在 <em>L2 与 L3 之间</em></h2>
     </div>
     <div class="body">
       <div class="fig flow" style="--i:2">
@@ -2467,101 +2481,11 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>43</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">为什么语音这一行的门槛天然更高</div>
-      <h2 class="ink" style="--i:1">文本有「撤回」。语音，<span class="co">没有撤回键</span></h2>
-    </div>
-    <div class="body">
-      <div class="fig">
-        <!-- 两条通道的差别只有一根弧线：文本那条回得去，语音那条画不出来。
-             第三段是这一页真正的落点——撤回键不存在，那道闸门就只能整体前移到「说出口之前」。 -->
-        <svg width="1680" viewBox="0 0 1680 578" fill="none">
-
-          <!-- 文本通道 -->
-          <text class="lbl pop" style="--i:2" x="0" y="22">文本通道 · TEXT CHANNEL</text>
-          <rect class="box pop" style="--i:2" x="0" y="42" width="290" height="86" rx="4"/>
-          <g class="pop" style="--i:2"><text class="ttl" x="145" y="94" text-anchor="middle" style="font-size:26px">生成</text></g>
-          <path class="stroke dw" style="--len:62;--i:3" stroke-width="1.6" d="M290 85 H352"/>
-          <path class="fill-ink pop" style="--i:3" d="M352 77 L366 85 L352 93 Z"/>
-          <rect class="box pop" style="--i:3" x="370" y="42" width="290" height="86" rx="4"/>
-          <g class="pop" style="--i:3"><text class="ttl" x="515" y="94" text-anchor="middle" style="font-size:26px">人过一眼</text></g>
-          <path class="stroke dw" style="--len:62;--i:4" stroke-width="1.6" d="M660 85 H722"/>
-          <path class="fill-ink pop" style="--i:4" d="M722 77 L736 85 L722 93 Z"/>
-          <rect class="box pop" style="--i:4" x="740" y="42" width="290" height="86" rx="4"/>
-          <g class="pop" style="--i:4"><text class="ttl" x="885" y="94" text-anchor="middle" style="font-size:26px">发出</text></g>
-
-          <path class="stroke-am dw" style="--len:900;--i:5" stroke-width="2" d="M885 136 C 885 184, 145 184, 145 136"/>
-          <path class="fill-am pop" style="--i:6" d="M136 136 L145 120 L154 136 Z"/>
-          <g class="pop" style="--i:6">
-            <path class="stroke-am pkt" stroke-width="4"
-              style="--pl:80px;--p0:80px;--p1:-900px;--pt:5.6s;--pd:1.6s" d="M885 136 C 885 184, 145 184, 145 136"/>
-          </g>
-          <text class="txt fill-am pop" style="--i:6" x="515" y="216" text-anchor="middle">可撤回 · 可编辑 · 发错了还能删</text>
-
-          <text class="txt pop" style="--i:5" x="1090" y="78">一句越权的承诺，</text>
-          <text class="txt pop" style="--i:5" x="1090" y="110">在文本里是一条可以删掉的消息。</text>
-
-          <!-- 语音通道 -->
-          <text class="lbl pop" style="--i:7" x="0" y="258">语音通道 · VOICE CHANNEL</text>
-          <rect class="box pop" style="--i:7" x="0" y="278" width="290" height="86" rx="4"/>
-          <g class="pop" style="--i:7"><text class="ttl" x="145" y="330" text-anchor="middle" style="font-size:26px">生成</text></g>
-          <path class="stroke dw" style="--len:62;--i:8" stroke-width="1.6" d="M290 321 H352"/>
-          <path class="fill-ink pop" style="--i:8" d="M352 313 L366 321 L352 329 Z"/>
-          <rect class="box pop" style="--i:8" x="370" y="278" width="290" height="86" rx="4"/>
-          <g class="pop" style="--i:8"><text class="ttl" x="515" y="330" text-anchor="middle" style="font-size:26px">直接进耳朵</text></g>
-          <path class="stroke dw" style="--len:62;--i:9" stroke-width="1.6" d="M660 321 H722"/>
-          <path class="fill-ink pop" style="--i:9" d="M722 313 L736 321 L722 329 Z"/>
-          <rect class="box pop" style="--i:9" x="740" y="278" width="290" height="86" rx="4" stroke="var(--coral)" stroke-width="1.6"/>
-          <g class="pop" style="--i:9"><text class="ttl fill-co" x="885" y="330" text-anchor="middle" style="font-size:26px">说出即生效</text></g>
-
-          <!-- 画不出来的那条弧线：虚线，且永远走不回去 -->
-          <g class="pop" style="--i:10">
-            <path class="stroke-co" stroke-width="1.4" stroke-dasharray="6 9" opacity=".45" fill="none"
-              d="M885 372 C 885 406, 145 406, 145 372"/>
-          </g>
-          <text class="txt fill-co pop" style="--i:11" x="515" y="424" text-anchor="middle">这条弧线不存在</text>
-
-          <text class="txt pop" style="--i:10" x="1090" y="314">同样一句话，在电话里</text>
-          <text class="txt pop" style="--i:10" x="1090" y="346">是一份已经成立的口头承诺。</text>
-
-          <!-- 撤回键没有了，闸门只能整体前移 -->
-          <path class="stroke dw" style="--len:1700;--i:11" stroke-width="1" opacity=".45" d="M0 444 H1680"/>
-          <text class="lbl pop" style="--i:11" x="0" y="476">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>
-
-          <path class="stroke dw" style="--len:1580;--i:12" stroke-width="1.6" d="M0 553 H1560"/>
-          <path class="fill-ink pop" style="--i:12" d="M1560 545 L1576 553 L1560 561 Z"/>
-          <path class="stroke-co dw" style="--len:52;--i:12" stroke-width="3.4" d="M400 536 V570M820 536 V570M1240 536 V570"/>
-          <g class="pop" style="--i:12">
-            <text class="txt fill-co" x="400" y="526" text-anchor="middle">能力边界</text>
-            <text class="txt fill-co" x="820" y="526" text-anchor="middle">授权范围</text>
-            <text class="txt fill-co" x="1240" y="526" text-anchor="middle">人工审批</text>
-            <text class="txt fill-am" x="1680" y="526" text-anchor="end">才允许出声</text>
-          </g>
-        </svg>
-      </div>
-      <div class="land flow" style="--i:12">「需要人确认」不是待消除的缺陷，是当前证据水平下的<b>正确设计</b>。<span class="s">同样的模型，不等于同样的授权——语音场景的 L2 门槛，比文本高一级。企业客户买的从来不是自治，是<b>可控</b>；可控是可以卖钱的，自治不一定。</span></div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">Money Quote · 05</div>
-    <div class="q">
-      <i class="rise" style="--i:1">语音，</i>
-      <i class="rise" style="--i:2">没有撤回键。</i>
-    </div>
-    <div class="rule"></div>
-    <div class="s rise" style="--i:4">所以这一行的每一分自治，都必须先换来一分证据。</div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>45</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>42</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">交叉验证 · THREE RULERS</div>
-      <h2 class="ink" style="--i:1">三把互不相识的尺子，量出了<em>同一个形状</em></h2>
+      <h2 class="ink" style="--i:1">类比自动驾驶与支付智能体：三把尺子，<em>同一个形状</em></h2>
     </div>
     <div class="body">
       <div class="fig">
@@ -2598,11 +2522,11 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>46</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>43</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">问责 · WHO APPROVES</div>
-      <h2 class="ink" style="--i:1">比人准了，还是得<em>人审批</em></h2>
+      <div class="eyebrow flow" style="--i:0">产品在其中的角色 · WHO APPROVES</div>
+      <h2 class="ink" style="--i:1">人和 Agent 共事的协作关系：它决策，<em>人审批</em></h2>
     </div>
     <div class="body">
       <div class="g3">
@@ -2661,11 +2585,11 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴 · CASE</span><span>47</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴 · CASE</span><span>44</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow coral flow" style="--i:0">案例 04 · 今年这一行第一次被迫公开讨论的问题</div>
-      <h2 class="ink" style="--i:1">Agent 出事，<span class="co">算谁的</span></h2>
+      <div class="eyebrow coral flow" style="--i:0">案例 03 · 今年这一行第一次被迫公开讨论的问题</div>
+      <h2 class="ink" style="--i:1">两道围栏：提示词拦话术，<span class="co">架构拦越权</span></h2>
     </div>
     <div class="body">
       <div class="old rise" style="--i:2">
@@ -2674,7 +2598,7 @@ h2 .pre{display:inline-block;}
       </div>
       <div class="fig">
         <!-- 这条链路上每一步都是「可执行的动作」，而拦在第一步的只是一段文字。
-             光点一路穿过去，没有被任何东西挡住——这就是「提示词不是护栏」的全部意思。 -->
+             光点一路穿过去，没有被任何东西挡住——这就是「提示词不是围栏」的全部意思。 -->
         <svg width="1680" viewBox="0 0 1680 168" fill="none">
           <path class="stroke dw" style="--len:1560;--i:3" stroke-width="1.6" opacity=".4" d="M100 82 H1560"/>
           <path class="stroke-co dw" style="--len:1560;--i:3" stroke-width="2.4" d="M100 82 H1560"/>
@@ -2703,20 +2627,20 @@ h2 .pre{display:inline-block;}
         </svg>
       </div>
       <div class="g3">
-        <div class="card warn rise" style="--i:7"><div class="tag">教训 01</div><div class="t">提示词不是护栏</div><div class="d">高敏权限不能只靠提示词和策略文档约束。它们写得再好，也不是<b>可执行的边界</b>——模型不会因为你写了「不要」就做不到。</div></div>
-        <div class="card on rise" style="--i:8"><div class="tag">教训 02</div><div class="t">护栏必须在架构里</div><div class="d">容器、沙箱、权限边界、人工升级通道——这四件是<b>工程</b>，不是流程。写在架构图上，不是写在 Wiki 上。</div></div>
-        <div class="card on rise" style="--i:9"><div class="tag">教训 03</div><div class="t">也必须在纸上</div><div class="d">一份写清楚的<b>《Agent 授权书》</b>：替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回。下一页就发。</div></div>
+        <div class="card warn rise" style="--i:7"><div class="tag">教训 01</div><div class="t">提示词不是围栏</div><div class="d">高敏权限不能只靠提示词和策略文档约束。它们写得再好，也不是<b>可执行的边界</b>——模型不会因为你写了「不要」就做不到。</div></div>
+        <div class="card on rise" style="--i:8"><div class="tag">教训 02</div><div class="t">围栏必须在架构里</div><div class="d">容器、沙箱、权限边界、人工升级通道——这四件是<b>工程</b>，不是流程。写在架构图上，不是写在 Wiki 上。</div></div>
+        <div class="card on rise" style="--i:9"><div class="tag">教训 03</div><div class="t">也必须在纸上</div><div class="d">一份写清楚的<b>《Agent 授权书》</b>：替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回。这张表，第五幕交给组织。</div></div>
       </div>
-      <div class="note co flow" style="--i:10">我不想用这一页制造恐慌。我想用它说明一件事：<b>护栏不是合规部门的事，是架构师的事。</b>行业第一次把 Agent 的问责问题，从伦理讨论变成了工程需求。</div>
+      <div class="note co flow" style="--i:10">我不想用这一页制造恐慌。我想用它说明一件事：<b>围栏不是合规部门的事，是架构师的事。</b>行业第一次把 Agent 的问责问题，从伦理讨论变成了工程需求。</div>
     </div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴 · CASE</span><span>48</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴 · CASE</span><span>45</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">案例 05 · THE REPRESENTATION LAYER · 一次有惊无险的刹车</div>
-      <h2 class="ink" style="--i:1">行人，<em>不在像素里</em></h2>
+      <div class="eyebrow flow" style="--i:0">案例 04 · THE REPRESENTATION LAYER · 一次有惊无险的刹车</div>
+      <h2 class="ink" style="--i:1">这脚刹车，是产品经理写进<em>架构的围栏</em></h2>
     </div>
     <div class="body">
       <div class="fig">
@@ -2808,21 +2732,21 @@ h2 .pre{display:inline-block;}
 </section>
 <section class="slide">
   <div class="mq">
-    <div class="mark flow" style="--i:0">Money Quote · 06</div>
+    <div class="mark flow" style="--i:0">Money Quote · 05</div>
     <div class="q">
-      <i class="rise" style="--i:1">行人不在像素里，</i>
-      <i class="rise" style="--i:2">承诺不在波形里。</i>
+      <i class="rise" style="--i:1">提示词只能拦住一些越权，</i>
+      <i class="rise" style="--i:2">架构的围栏，才是产品经理的护城河。</i>
     </div>
     <div class="rule"></div>
     <div class="s rise" style="--i:4">你能拦住的，只有你先表示出来的那些东西。</div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>50</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>47</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">指标的更新 · FROM LATENCY TO TIMING</div>
-      <h2 class="ink" style="--i:1">延迟做到某个数之后，剩下的问题不是快，是<em>时机</em></h2>
+      <div class="eyebrow flow" style="--i:0">FROM LATENCY TO TIMING · 延迟之后，剩下的问题是时机</div>
+      <h2 class="ink" style="--i:1">体验的围栏：交互行为，要有<em>规矩</em></h2>
     </div>
     <div class="body">
       <div class="fig">
@@ -2885,101 +2809,101 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>51</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>48</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">带走页 · 可以直接拍照 · 把 Agent 当新员工对待</div>
-      <h2 class="ink" style="--i:1">给 Agent 发一张<em>工牌</em></h2>
-    </div>
-    <div class="body g2 gfill">
-      <div class="badgecard rise" style="--i:2">
-        <div class="hd"><div class="nm">AGENT / 外呼顾问</div><div class="id">BADGE No. 0001</div></div>
-        <div class="row"><div class="k">岗位</div><div class="v">销售线索初筛 · 升级路径：真人顾问</div></div>
-        <div class="row"><div class="k">红线</div><div class="v">不承诺价格 · 不承诺交付时间 · 不代客户签署</div></div>
-        <div class="row"><div class="k">审批权限</div><div class="v">可自主执行 / 需审批 / 必须转人工 —— 三档</div></div>
-        <div class="row"><div class="k">数据范围</div><div class="v">按岗位最小化授权，越权即拒答</div></div>
-        <div class="row"><div class="k">上线前</div><div class="v">模拟考核通过率 + 合规通过率，双达标</div></div>
-        <div class="row"><div class="k">转正复盘</div><div class="v">生产监控 → 失败案例归因 → 人审后再上线</div></div>
-        <div class="sig">
-          <div class="ln"><div class="k">签发 · ISSUED BY</div><div class="rule"></div></div>
-          <div class="ln"><div class="k">复核 · APPROVED BY</div><div class="rule"></div></div>
-          <div class="stamp"><b>待批</b><span>PENDING</span></div>
-        </div>
-      </div>
-      <div class="mid">
-        <div class="note flow" style="--i:4"><b>人类新员工 · ONBOARDING CHECKLIST</b> —— 同一张单子，逐行对照左边那张工牌。</div>
-        <div class="rows">
-          <div class="r flow" style="--i:5"><div class="n">01</div><div class="k">岗位</div><div class="v">岗位说明书 JD · 汇报线与晋升路径</div></div>
-          <div class="r flow" style="--i:6"><div class="n">02</div><div class="k">红线</div><div class="v">员工手册高压线 · 越线即问责</div></div>
-          <div class="r flow" style="--i:7"><div class="n">03</div><div class="k">审批权限</div><div class="v">OA 审批分级：可自批 / 需上级 / 需法务</div></div>
-          <div class="r flow" style="--i:8"><div class="n">04</div><div class="k">数据范围</div><div class="v">系统账号按岗位最小化开通</div></div>
-          <div class="r flow" style="--i:9"><div class="n">05</div><div class="k">上线前</div><div class="v">入职培训 + 上岗考核，双通过</div></div>
-          <div class="r hot flow" style="--i:10"><div class="n">06</div><div class="k">转正复盘</div><div class="v">试用期评估 → 转正答辩 → 主管审批</div></div>
-        </div>
-        <div class="note flow" style="--i:11">六个字段，一一对应。<b>我们不是在配置一个系统，是在给一个新同事办入职。</b></div>
-        <div class="foot flow rev" style="--i:12">左边：Agent 的工牌 · 右边：人类新员工的入职待办 —— 同一张表，两个新同事</div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>52</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">最低准入线 · THE BASELINE</div>
-      <h2 class="ink" style="--i:1">这五条不是从功能列表出发的，是从<span class="co">事故清单</span>倒推的</h2>
+      <div class="eyebrow coral flow" style="--i:0">ON EXECUTION · 为什么语音这一行门槛天然更高</div>
+      <h2 class="ink" style="--i:1">执行的围栏：语音的动作，<span class="co">最难在半路拦住</span></h2>
     </div>
     <div class="body">
       <div class="fig">
-        <!-- 这五条不是从功能列表长出来的，是一个闭环的产物：
-             上线 → 出事 → 复盘 → 固化成一条准入线 → 回到「下一次上线之前」。
-             回流的那条线，才是这一行这两年真正长出来的东西。 -->
-        <svg width="1680" viewBox="0 0 1680 168" fill="none">
-          <rect class="box pop" style="--i:2" x="0" y="8" width="330" height="72" rx="4"/>
-          <g class="pop" style="--i:2"><text class="ttl" x="165" y="53" text-anchor="middle" style="font-size:25px">① 上线</text></g>
-          <path class="stroke dw" style="--len:60;--i:2" stroke-width="1.6" d="M330 44 H384"/>
-          <path class="fill-ink pop" style="--i:2" d="M384 36 L398 44 L384 52 Z"/>
+        <!-- 两条通道的差别只有一根弧线：文本那条回得去，语音那条画不出来。
+             第三段是这一页真正的落点——撤回键不存在，那道闸门就只能整体前移到「说出口之前」。 -->
+        <svg width="1680" viewBox="0 0 1680 578" fill="none">
 
-          <rect class="box pop" style="--i:3" x="416" y="8" width="330" height="72" rx="4" stroke="var(--coral)" stroke-width="1.6"/>
-          <g class="pop" style="--i:3"><text class="ttl fill-co" x="581" y="53" text-anchor="middle" style="font-size:25px">② 一次真实生产事故</text></g>
-          <path class="stroke dw" style="--len:60;--i:3" stroke-width="1.6" d="M746 44 H800"/>
-          <path class="fill-ink pop" style="--i:3" d="M800 36 L814 44 L800 52 Z"/>
+          <!-- 文本通道 -->
+          <text class="lbl pop" style="--i:2" x="0" y="22">文本通道 · TEXT CHANNEL</text>
+          <rect class="box pop" style="--i:2" x="0" y="42" width="290" height="86" rx="4"/>
+          <g class="pop" style="--i:2"><text class="ttl" x="145" y="94" text-anchor="middle" style="font-size:26px">生成</text></g>
+          <path class="stroke dw" style="--len:62;--i:3" stroke-width="1.6" d="M290 85 H352"/>
+          <path class="fill-ink pop" style="--i:3" d="M352 77 L366 85 L352 93 Z"/>
+          <rect class="box pop" style="--i:3" x="370" y="42" width="290" height="86" rx="4"/>
+          <g class="pop" style="--i:3"><text class="ttl" x="515" y="94" text-anchor="middle" style="font-size:26px">人过一眼</text></g>
+          <path class="stroke dw" style="--len:62;--i:4" stroke-width="1.6" d="M660 85 H722"/>
+          <path class="fill-ink pop" style="--i:4" d="M722 77 L736 85 L722 93 Z"/>
+          <rect class="box pop" style="--i:4" x="740" y="42" width="290" height="86" rx="4"/>
+          <g class="pop" style="--i:4"><text class="ttl" x="885" y="94" text-anchor="middle" style="font-size:26px">发出</text></g>
 
-          <rect class="box pop" style="--i:4" x="832" y="8" width="330" height="72" rx="4"/>
-          <g class="pop" style="--i:4"><text class="ttl" x="997" y="53" text-anchor="middle" style="font-size:25px">③ 复盘：当时缺了什么</text></g>
-          <path class="stroke dw" style="--len:60;--i:4" stroke-width="1.6" d="M1162 44 H1216"/>
-          <path class="fill-ink pop" style="--i:4" d="M1216 36 L1230 44 L1216 52 Z"/>
-
-          <rect class="pop" style="--i:5" x="1248" y="8" width="330" height="72" rx="4" fill="var(--card-bg)" stroke="var(--amber)" stroke-width="2"/>
-          <g class="pop" style="--i:5"><text class="ttl fill-am" x="1413" y="53" text-anchor="middle" style="font-size:25px">④ 固化成一条准入线</text></g>
-
-          <!-- 回流：这一条从此站在下一次上线的前面 -->
-          <path class="stroke-am dw" style="--len:1360;--i:6" stroke-width="2" d="M1413 80 V124 H175 V100"/>
-          <path class="fill-am pop" style="--i:6" d="M166 100 L175 84 L184 100 Z"/>
+          <path class="stroke-am dw" style="--len:900;--i:5" stroke-width="2" d="M885 136 C 885 184, 145 184, 145 136"/>
+          <path class="fill-am pop" style="--i:6" d="M136 136 L145 120 L154 136 Z"/>
           <g class="pop" style="--i:6">
             <path class="stroke-am pkt" stroke-width="4"
-              style="--pl:80px;--p0:80px;--p1:-1360px;--pt:6.2s;--pd:1.8s" d="M1413 80 V124 H175 V100"/>
+              style="--pl:80px;--p0:80px;--p1:-900px;--pt:5.6s;--pd:1.6s" d="M885 136 C 885 184, 145 184, 145 136"/>
           </g>
-          <text class="txt fill-am pop" style="--i:6" x="800" y="158" text-anchor="middle">前置到下一次上线之前 —— 从此不许再犯第二遍</text>
+          <text class="txt fill-am pop" style="--i:6" x="515" y="216" text-anchor="middle">可撤回 · 可编辑 · 发错了还能删</text>
+
+          <text class="txt pop" style="--i:5" x="1090" y="78">一句越权的承诺，</text>
+          <text class="txt pop" style="--i:5" x="1090" y="110">在文本里是一条可以删掉的消息。</text>
+
+          <!-- 语音通道 -->
+          <text class="lbl pop" style="--i:7" x="0" y="258">语音通道 · VOICE CHANNEL</text>
+          <rect class="box pop" style="--i:7" x="0" y="278" width="290" height="86" rx="4"/>
+          <g class="pop" style="--i:7"><text class="ttl" x="145" y="330" text-anchor="middle" style="font-size:26px">生成</text></g>
+          <path class="stroke dw" style="--len:62;--i:8" stroke-width="1.6" d="M290 321 H352"/>
+          <path class="fill-ink pop" style="--i:8" d="M352 313 L366 321 L352 329 Z"/>
+          <rect class="box pop" style="--i:8" x="370" y="278" width="290" height="86" rx="4"/>
+          <g class="pop" style="--i:8"><text class="ttl" x="515" y="330" text-anchor="middle" style="font-size:26px">直接进耳朵</text></g>
+          <path class="stroke dw" style="--len:62;--i:9" stroke-width="1.6" d="M660 321 H722"/>
+          <path class="fill-ink pop" style="--i:9" d="M722 313 L736 321 L722 329 Z"/>
+          <rect class="box pop" style="--i:9" x="740" y="278" width="290" height="86" rx="4" stroke="var(--coral)" stroke-width="1.6"/>
+          <g class="pop" style="--i:9"><text class="ttl fill-co" x="885" y="330" text-anchor="middle" style="font-size:26px">说出即生效</text></g>
+
+          <!-- 画不出来的那条弧线：虚线，且永远走不回去 -->
+          <g class="pop" style="--i:10">
+            <path class="stroke-co" stroke-width="1.4" stroke-dasharray="6 9" opacity=".45" fill="none"
+              d="M885 372 C 885 406, 145 406, 145 372"/>
+          </g>
+          <text class="txt fill-co pop" style="--i:11" x="515" y="424" text-anchor="middle">这条弧线不存在</text>
+
+          <text class="txt pop" style="--i:10" x="1090" y="314">同样一句话，在电话里</text>
+          <text class="txt pop" style="--i:10" x="1090" y="346">是一份已经成立的口头承诺。</text>
+
+          <!-- 撤回键没有了，闸门只能整体前移 -->
+          <path class="stroke dw" style="--len:1700;--i:11" stroke-width="1" opacity=".45" d="M0 444 H1680"/>
+          <text class="lbl pop" style="--i:11" x="0" y="476">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>
+
+          <path class="stroke dw" style="--len:1580;--i:12" stroke-width="1.6" d="M0 553 H1560"/>
+          <path class="fill-ink pop" style="--i:12" d="M1560 545 L1576 553 L1560 561 Z"/>
+          <path class="stroke-co dw" style="--len:52;--i:12" stroke-width="3.4" d="M400 536 V570M820 536 V570M1240 536 V570"/>
+          <g class="pop" style="--i:12">
+            <text class="txt fill-co" x="400" y="526" text-anchor="middle">能力边界</text>
+            <text class="txt fill-co" x="820" y="526" text-anchor="middle">授权范围</text>
+            <text class="txt fill-co" x="1240" y="526" text-anchor="middle">人工审批</text>
+            <text class="txt fill-am" x="1680" y="526" text-anchor="end">才允许出声</text>
+          </g>
         </svg>
       </div>
-      <div class="rows">
-        <div class="r hot flow" style="--i:7"><div class="n">01</div><div class="k">隔离</div><div class="v">容器 / 沙箱 / 权限边界 / 人工升级通道 —— 一个租户不能拖垮另一个租户。<b>上一页那件沙箱逃逸的事，考的就是这一条。</b></div></div>
-        <div class="r Noneflow" style="--i:8"><div class="n">02</div><div class="k">数据</div><div class="v">租户级边界 · 留存与删除 · 地域围栏 —— 记忆不能越权、串户或无法删除。</div></div>
-        <div class="r Noneflow" style="--i:9"><div class="n">03</div><div class="k">安全</div><div class="v">内容前置送审 · 越权拒答 · 敏感操作二次确认 —— 关键行为必须有权限与审计。</div></div>
-        <div class="r Noneflow" style="--i:10"><div class="n">04</div><div class="k">行动</div><div class="v">动作白名单 · 可回滚 · 幂等 —— 工具调用必须可确认、可撤销、重放不出错。</div></div>
-        <div class="r Noneflow" style="--i:11"><div class="n">05</div><div class="k">韧性</div><div class="v">供应商故障降级 · 长会话与并发 · 故障演练 —— 故障必须可降级、可观测、可恢复。</div></div>
-      </div>
-      <div class="land flow" style="--i:12">功能清单是我们想给的，<b>事故清单是客户已经付过学费的。</b><span class="s">从事故清单倒推，是这一行成熟的标志。少做一项，都会在真实生产里变成事故——而且不会只发生一次。</span></div>
+      <div class="land flow" style="--i:12">「需要人确认」不是待消除的缺陷，是当前证据水平下的<b>正确设计</b>。<span class="s">同样的模型，不等于同样的授权——语音场景的 L2 门槛，比文本高一级。企业客户买的从来不是自治，是<b>可控</b>；可控是可以卖钱的，自治不一定。</span></div>
     </div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴 · 交个底</span><span>53</span></div>
+  <div class="mq">
+    <div class="mark flow" style="--i:0">Money Quote · 06</div>
+    <div class="q">
+      <i class="rise" style="--i:1">语音，</i>
+      <i class="rise" style="--i:2">没有撤回键。</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">所以这一行的每一分自治，都必须先换来一分证据。</div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>PART 4 · 双向奔赴 · 交个底</span><span>50</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">上一页的五条准入线，固化在这张图里 · 声网对话式 AI 全景</div>
-      <h2 class="ink" style="--i:1">这是一个体系，<em>不是分散的产品点</em></h2>
+      <div class="eyebrow flow" style="--i:0">交个底 · 这是一个体系，不是分散的产品点</div>
+      <h2 class="ink" style="--i:1">五条准入线，固化在这张图里：<em>声网对话式 AI 全景</em></h2>
     </div>
     <div class="body">
       <div class="fig flow" style="--i:2">
@@ -3036,7 +2960,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>54</span></div>
+  <div class="chrome"><span>PART 4 · 双向奔赴</span><span>51</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">承重页 · 第一幕留下的那格空白，现在填上</div>
@@ -3103,11 +3027,53 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>56</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>53</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">个人层 · WHERE ARE YOU STANDING</div>
+      <h2 class="ink" style="--i:1">对个人说：你站到哪一阶了——看过、用过、学过、<em>干过</em></h2>
+    </div>
+    <div class="body">
+      <div class="fig">
+        <svg width="1680" viewBox="0 0 1680 300" fill="none">
+          <path class="stroke dw" style="--len:260;--i:2" stroke-width="1.5" d="M90 280 V30"/>
+          <path class="fill-ink pop" style="--i:2" d="M90 24 l-7 12 l14 0 z"/>
+          <text class="lbl pop" style="--i:2" x="100" y="16">暴露量</text>
+
+          <path class="stroke-co pop" style="--i:3" stroke-width="1.4" stroke-opacity=".5" stroke-dasharray="6 10" d="M140 264 H1580"/>
+          <text class="txt fill-co pop" style="--i:3" x="1580" y="296" text-anchor="end">有人用了三年还停在这条线上 —— 因为他从没自己下过场</text>
+
+          <path class="stroke-am dw" style="--len:1560;--i:4" stroke-width="2.6" d="M140 236 H440 L510 178 H810 L880 120 H1180 L1250 58 H1580"/>
+          <path class="stroke-co pop" style="--i:8" stroke-width="5" d="M810 178 L880 120"/>
+          <text class="sm fill-co pop" style="--i:8" x="830" y="210">最难跨的一段</text>
+
+          <circle class="fill-am pop" style="--i:5" cx="140" cy="236" r="7" opacity=".45"/>
+          <circle class="fill-am pop" style="--i:6" cx="510" cy="178" r="8" opacity=".65"/>
+          <circle class="fill-am pop" style="--i:7" cx="880" cy="120" r="9" opacity=".85"/>
+          <circle class="fill-am pop" style="--i:8" cx="1250" cy="58" r="12"/>
+
+          <g class="pop" style="--i:5"><text class="ttl" x="290" y="214" text-anchor="middle" style="font-size:28px">看过</text></g>
+          <g class="pop" style="--i:6"><text class="ttl" x="660" y="156" text-anchor="middle" style="font-size:28px">用过</text></g>
+          <g class="pop" style="--i:7"><text class="ttl" x="1030" y="98" text-anchor="middle" style="font-size:28px">学过</text></g>
+          <g class="pop" style="--i:8"><text class="ttl fill-am" x="1415" y="36" text-anchor="middle" style="font-size:28px">干过</text></g>
+        </svg>
+      </div>
+      <div class="g4">
+        <div class="card sm rise" style="--i:9"><div class="hd"><div class="n">01</div><div class="t">看过</div></div><div class="d" style="color:var(--ink);font-weight:700">「确实挺厉害的。」</div><div class="d">没有自己的战场，认知全是二手的</div></div>
+        <div class="card sm rise" style="--i:10"><div class="hd"><div class="n">02</div><div class="t">用过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我天天用。」</div><div class="d">每次从零开始。用了一年，还是第一天</div></div>
+        <div class="card sm rise" style="--i:11"><div class="hd"><div class="n">03</div><div class="t">学过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我知道它为什么会这样。」</div><div class="d">知道但没落地。懂原理 ≠ 有系统</div></div>
+        <div class="card sm on rise" style="--i:12"><div class="hd"><div class="n">04</div><div class="t">干过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我知道它哪里会塌。」</div><div class="d">不问「能不能做」，问「错了谁负责」</div></div>
+      </div>
+      <div class="land flow" style="--i:12">四阶不是学历，是<b>暴露量</b>。<span class="s">越往上走，你越知道它什么时候会骗你 —— 而这，恰恰是你敢把重活交给它的前提。</span></div>
+    </div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>54</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">产品经理层 · EVALS ARE THE NEW PRD</div>
-      <h2 class="ink" style="--i:1">你交付的不再是一份 PRD，是<em>一套评测</em></h2>
+      <h2 class="ink" style="--i:1">对产品经理说：你交付的不再是一份 PRD，是<em>一套评测</em></h2>
     </div>
     <div class="body">
       <div class="duo">
@@ -3168,76 +3134,11 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>57</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">个人层 · WHERE ARE YOU STANDING</div>
-      <h2 class="ink" style="--i:1">看过、用过、学过、<em>干过</em></h2>
-    </div>
-    <div class="body">
-      <div class="fig">
-        <svg width="1680" viewBox="0 0 1680 300" fill="none">
-          <path class="stroke dw" style="--len:260;--i:2" stroke-width="1.5" d="M90 280 V30"/>
-          <path class="fill-ink pop" style="--i:2" d="M90 24 l-7 12 l14 0 z"/>
-          <text class="lbl pop" style="--i:2" x="100" y="16">暴露量</text>
-
-          <path class="stroke-co pop" style="--i:3" stroke-width="1.4" stroke-opacity=".5" stroke-dasharray="6 10" d="M140 264 H1580"/>
-          <text class="txt fill-co pop" style="--i:3" x="1580" y="296" text-anchor="end">有人用了三年还停在这条线上 —— 因为他从没自己下过场</text>
-
-          <path class="stroke-am dw" style="--len:1560;--i:4" stroke-width="2.6" d="M140 236 H440 L510 178 H810 L880 120 H1180 L1250 58 H1580"/>
-          <path class="stroke-co pop" style="--i:8" stroke-width="5" d="M810 178 L880 120"/>
-          <text class="sm fill-co pop" style="--i:8" x="830" y="210">最难跨的一段</text>
-
-          <circle class="fill-am pop" style="--i:5" cx="140" cy="236" r="7" opacity=".45"/>
-          <circle class="fill-am pop" style="--i:6" cx="510" cy="178" r="8" opacity=".65"/>
-          <circle class="fill-am pop" style="--i:7" cx="880" cy="120" r="9" opacity=".85"/>
-          <circle class="fill-am pop" style="--i:8" cx="1250" cy="58" r="12"/>
-
-          <g class="pop" style="--i:5"><text class="ttl" x="290" y="214" text-anchor="middle" style="font-size:28px">看过</text></g>
-          <g class="pop" style="--i:6"><text class="ttl" x="660" y="156" text-anchor="middle" style="font-size:28px">用过</text></g>
-          <g class="pop" style="--i:7"><text class="ttl" x="1030" y="98" text-anchor="middle" style="font-size:28px">学过</text></g>
-          <g class="pop" style="--i:8"><text class="ttl fill-am" x="1415" y="36" text-anchor="middle" style="font-size:28px">干过</text></g>
-        </svg>
-      </div>
-      <div class="g4">
-        <div class="card sm rise" style="--i:9"><div class="hd"><div class="n">01</div><div class="t">看过</div></div><div class="d" style="color:var(--ink);font-weight:700">「确实挺厉害的。」</div><div class="d">没有自己的战场，认知全是二手的</div></div>
-        <div class="card sm rise" style="--i:10"><div class="hd"><div class="n">02</div><div class="t">用过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我天天用。」</div><div class="d">每次从零开始。用了一年，还是第一天</div></div>
-        <div class="card sm rise" style="--i:11"><div class="hd"><div class="n">03</div><div class="t">学过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我知道它为什么会这样。」</div><div class="d">知道但没落地。懂原理 ≠ 有系统</div></div>
-        <div class="card sm on rise" style="--i:12"><div class="hd"><div class="n">04</div><div class="t">干过</div></div><div class="d" style="color:var(--ink);font-weight:700">「我知道它哪里会塌。」</div><div class="d">不问「能不能做」，问「错了谁负责」</div></div>
-      </div>
-      <div class="land flow" style="--i:12">四阶不是学历，是<b>暴露量</b>。<span class="s">越往上走，你越知道它什么时候会骗你 —— 而这，恰恰是你敢把重活交给它的前提。</span></div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>58</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">个人层 · THE HUMAN ENGINE</div>
-      <h2 class="ink" style="--i:1">High Agency 是发动机，<span class="co">但不是完整答案</span></h2>
-    </div>
-    <div class="body">
-      <div class="quotes">
-        <div class="r flow" style="--i:2"><div class="who">MODEL LAB CEO</div><div class="say">“High-agency people are the winners of the advances in AI.”</div><div class="src">Mati Staniszewski · ElevenLabs</div></div>
-        <div class="r flow rev" style="--i:3"><div class="who">APP LAYER CEO</div><div class="say">“Hyper high-agency people who really deeply care.”</div><div class="src">Bret Taylor · Sierra CEO / OpenAI 董事长</div></div>
-      </div>
-      <div class="g4">
-        <div class="card rise" style="--i:5"><div class="n">01</div><div class="t">Agency</div><div class="d">没人要求，也会主动出手。<span class="dim">看清楚就动。</span></div></div>
-        <div class="card rise" style="--i:6"><div class="n">02</div><div class="t">客户理解</div><div class="d">知道该往哪里出手。<span class="dim">敢下注，而且下对方向。</span></div></div>
-        <div class="card rise" style="--i:7"><div class="n">03</div><div class="t">Care</div><div class="d">对结果有自己的标准。<span class="dim">肯负责，不交差了事。</span></div></div>
-        <div class="card on rise" style="--i:8"><div class="n">04</div><div class="t">内观</div><div class="d">发现错了，愿意改。<span class="dim">会改错，才不会卡在原地。</span></div></div>
-      </div>
-      <div class="note co flow" style="--i:9">但只讲个人是不公平的。<b>低 agency 常常是组织制造出来的</b>——审批链太长、反馈周期太慢、犯错代价太高，人自然就不出手了。<b>先改环境，再评价人。</b></div>
-      <div class="land flow" style="--i:10">人：愿意试、愿意负责、愿意改错。<span class="s">组织：允许实验、缩短反馈、留下学习。如果可以用实验验证，就不该等待共识——这句话我 2025 年在这个台上讲过，今年它的对象多了一个：Agent。</span></div>
-    </div>
-  </div>
-</section>
-<section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>59</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>55</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">回到第一张图 · THE FOURTH CIRCLE</div>
-      <h2 class="ink" style="--i:1">2024 我画的三个圆，今天长出了<em>第四个</em></h2>
+      <h2 class="ink" style="--i:1">对产品管理者说：2024 的三个圆，长出了<em>第四个</em></h2>
     </div>
     <div class="body gfill">
       <div class="fig">
@@ -3284,10 +3185,10 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>60</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>56</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">案例 06 · ELEVEN WEEKS ON SITE</div>
+      <div class="eyebrow flow" style="--i:0">案例 05 · ELEVEN WEEKS ON SITE</div>
       <h2 class="ink" style="--i:1">一个客户的坑，怎么变成<em>所有客户的默认值</em></h2>
     </div>
     <div class="body">
@@ -3358,11 +3259,34 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>61</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>57</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">来自 CEO 们的同一个判断 · THE HUMAN ENGINE</div>
+      <h2 class="ink" style="--i:1">CEO 们说：High Agency 是发动机，<span class="co">但不是完整答案</span></h2>
+    </div>
+    <div class="body">
+      <div class="quotes">
+        <div class="r flow" style="--i:2"><div class="who">MODEL LAB CEO</div><div class="say">“High-agency people are the winners of the advances in AI.”</div><div class="src">Mati Staniszewski · ElevenLabs</div></div>
+        <div class="r flow rev" style="--i:3"><div class="who">APP LAYER CEO</div><div class="say">“Hyper high-agency people who really deeply care.”</div><div class="src">Bret Taylor · Sierra CEO / OpenAI 董事长</div></div>
+      </div>
+      <div class="g4">
+        <div class="card rise" style="--i:5"><div class="n">01</div><div class="t">Agency</div><div class="d">没人要求，也会主动出手。<span class="dim">看清楚就动。</span></div></div>
+        <div class="card rise" style="--i:6"><div class="n">02</div><div class="t">客户理解</div><div class="d">知道该往哪里出手。<span class="dim">敢下注，而且下对方向。</span></div></div>
+        <div class="card rise" style="--i:7"><div class="n">03</div><div class="t">Care</div><div class="d">对结果有自己的标准。<span class="dim">肯负责，不交差了事。</span></div></div>
+        <div class="card on rise" style="--i:8"><div class="n">04</div><div class="t">内观</div><div class="d">发现错了，愿意改。<span class="dim">会改错，才不会卡在原地。</span></div></div>
+      </div>
+      <div class="note co flow" style="--i:9">但只讲个人是不公平的。<b>低 agency 常常是组织制造出来的</b>——审批链太长、反馈周期太慢、犯错代价太高，人自然就不出手了。<b>先改环境，再评价人。</b></div>
+      <div class="land flow" style="--i:10">人：愿意试、愿意负责、愿意改错。<span class="s">组织：允许实验、缩短反馈、留下学习。如果可以用实验验证，就不该等待共识——这句话我 2025 年在这个台上讲过，今年它的对象多了一个：Agent。</span></div>
+    </div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>58</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">组织层 · ONE-WAY / TWO-WAY DOORS · 2025 画给产研的那道门，2026 画给整个公司</div>
-      <h2 class="ink" style="--i:1">转身的第一个动作，是<em>把那条线画出来</em></h2>
+      <h2 class="ink" style="--i:1">对组织说：<em>放权</em>，从分清单向门与双向门开始</h2>
     </div>
     <div class="body">
       <div class="fig">
@@ -3394,12 +3318,12 @@ h2 .pre{display:inline-block;}
         <div class="card sm on rise" style="--i:11"><div class="hd"><div class="n">04</div><div class="t">什么时候停</div></div><div class="d">到什么条件就撤、谁来宣布。<b>没有退出标准的授权，最后都会烂尾。</b></div><div class="tag">退出标准 · 谁来喊停</div></div>
       </div>
       <div class="note co flow" style="--i:12">2025 年这道题我讲给产研团队，名字叫<b>单向门 / 双向门</b>；今年它升级成整个公司的授权语法——<b>哪些门 Agent 可以自己推，哪些门必须人来推。</b>授权翻车只有两种翻法：「要他扛结果却什么都得批」，和「给了权但没画边界」——一路跑到撞上一扇单向门。</div>
-      <div class="land flow rev" style="--i:12">个人 agency 是能力，<b>组织 agency 是制度许可</b>。<span class="s">流程集中在不可逆风险上，自由留给可逆试验。你已经给 Agent 发过工牌了——替谁做、做什么、到哪里为止、错了怎么办、怎么收回。<b>同一张表，换个抬头，也给人发一张。</b></span></div>
+      <div class="land flow rev" style="--i:12">个人 agency 是能力，<b>组织 agency 是制度许可</b>。<span class="s">流程集中在不可逆风险上，自由留给可逆试验。第四幕那份《Agent 授权书》，已经把「替谁做、做什么、到哪里为止、错了怎么办、怎么收回」写给它了。<b>同一张表，换个抬头，也给人发一张。</b></span></div>
     </div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>62</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>59</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">尺子的两面 · 2025 结语的升维 · THE INNER MEASURE</div>
@@ -3462,7 +3386,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织 · 全场回看</span><span>63</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织 · 全场回看</span><span>60</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">全场回看 · FOUR LINES, ONE WORD</div>
@@ -3533,18 +3457,18 @@ h2 .pre{display:inline-block;}
             <path class="stroke-am dw" style="--len:340;--i:2" stroke-width="1.6" d="M1310 320 C 1410 320, 1460 280, 1516 261"/>
             <path class="stroke-am dw" style="--len:400;--i:3" stroke-width="1.6" d="M1310 436 C 1420 436, 1460 300, 1516 266"/>
             <circle class="fill-am pop" style="--i:4" cx="1545" cy="256" r="15"/>
-            <g class="pop" style="--i:5"><text class="ttl fill-am" x="1545" y="212" text-anchor="middle" style="font-size:38px">共事</text></g>
-            <text class="lbl fill-am pop" style="--i:6" x="1545" y="312" text-anchor="middle">COWORK</text>
+            <g class="pop" style="--i:5"><text class="ttl fill-am" x="1545" y="212" text-anchor="middle" style="font-size:38px">进化</text></g>
+            <text class="lbl fill-am pop" style="--i:6" x="1545" y="312" text-anchor="middle">EVOLUTION</text>
           </g>
         </svg>
       </div>
-      <div class="note" data-step="4"><span class="flow" style="--i:7">主题在走，话在变，产品在迭代，智能体在爬梯 —— 四条线各有各的节点，却在同一年、同一个词上会合。<b>共事不是我挑的词，是四条线自己走到的。</b></span></div>
+      <div class="note" data-step="4"><span class="flow" style="--i:7">主题在走，话在变，产品在迭代，智能体在爬梯 —— 四条线各有各的节点，却在同一年、同一个词上会合。<b>进化不是我挑的词，是四条线自己走出来的。</b></span></div>
       <div class="foot flow rev" style="--i:8" data-step="4">第一条线是我讲的 · 第二条是给你的 · 第三条是我们做的 · 第四条是它自己走的 —— 带走这一页，就带走了整场</div>
     </div>
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 5 · 人与组织</span><span>64</span></div>
+  <div class="chrome"><span>PART 5 · 人与组织</span><span>61</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">全场收束 · ONE LINE EACH</div>
@@ -3560,7 +3484,7 @@ h2 .pre{display:inline-block;}
         </div>
         <div class="c rise" data-step="1" style="--i:0">
           <div class="ord">02</div>
-          <div class="who">产品负责人</div>
+          <div class="who">产品管理者</div>
           <div class="say"><span class="no">卖的不再是调用量</span><em>一门结果生意</em></div>
           <div class="s">计价单位从「用了多少」换成「岗位交付了什么」。定价一变，产品形态、交付方式、成本科目跟着全变。</div>
         </div>
@@ -3573,8 +3497,8 @@ h2 .pre{display:inline-block;}
         <div class="c rise" data-step="3" style="--i:0">
           <div class="ord">04</div>
           <div class="who">组织</div>
-          <div class="say"><span class="no">要的不是 AI 能力</span><em>进化</em></div>
-          <div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过。组织真正的活，是让这两把梯子同步往上。</div>
+          <div class="say"><span class="no">要的不是 AI 能力</span><em>放权</em></div>
+          <div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过——组织真正的活，是把权放到这两把梯子够得着的那一格。</div>
         </div>
       </div>
       <div class="fig" data-step="4">
@@ -3599,7 +3523,7 @@ h2 .pre{display:inline-block;}
           <path class="fill-am pop" style="--i:3" d="M840 194 l-11 -18 l22 0 z"/>
         </svg>
       </div>
-      <div class="land ctr flow" data-step="4" style="--i:4">四句话，其实是<em>同一张审批单</em> —— 要批的从来不是它能不能上岗，是<b>我们愿不愿意变</b>。<span class="s">批下来，团队名单上多一个<b>同事</b>；批不下来，再大的模型也只是<b>一个更贵的玩具</b>。</span></div>
+      <div class="land ctr flow" data-step="4" style="--i:4">四句话，说的是同一件事：<em>它的进化速度，等于我们的放权速度</em>——而放权的底气，来自<b>亲手写的那把尺子</b>。<span class="s">尺子递得出去，名单上就多一个<b>同事</b>；递不出去，再大的模型也只是<b>一个更贵的玩具</b>。</span></div>
     </div>
   </div>
 </section>
@@ -3811,6 +3735,35 @@ document.addEventListener('keydown',e=>{
   opacity:0;transition:opacity .2s;white-space:nowrap;pointer-events:none;}
 .deck-ruler:hover .dr-tip{opacity:1;}
 @media print{.deck-ruler{display:none!important;}}
+
+/* ═ 定稿烘焙 · 内容层样式（2026-08-03 · 与大会版共用，全 token 双主题安全） ═ */
+.mega .mh{font-size:46px;font-weight:900;color:var(--ink);letter-spacing:.01em;margin-bottom:-4px;}
+.m35{position:absolute;right:120px;top:256px;width:560px;display:flex;flex-direction:column;gap:16px;}
+.m35 .mk{font-family:var(--f-mono);font-size:14px;letter-spacing:.2em;color:var(--coral);margin-bottom:6px;}
+.m35 .row{display:grid;grid-template-columns:64px 1fr;column-gap:16px;row-gap:7px;align-items:baseline;}
+.m35 .row .n{font-family:var(--f-en);font-size:36px;font-weight:900;line-height:1;color:var(--ink);text-align:right;}
+.m35 .row .t{font-size:20px;color:var(--ink-2);}
+.m35 .row .bar{grid-column:2;height:7px;width:var(--w);background:var(--coral);opacity:.85;border-radius:2px;}
+.m35 .sx{font-size:16px;line-height:1.7;color:var(--ink-3);border-top:1px solid var(--hair);padding-top:14px;margin-top:4px;}
+.m35 .sx b{color:var(--ink-2);}
+.prz3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:34px;margin-top:6px;}
+.prz{border:1px solid var(--hair);border-radius:10px;padding:24px 26px 22px;background:var(--card-bg);display:flex;flex-direction:column;gap:12px;}
+.prz svg{width:100%;height:auto;display:block;}
+.pzk{font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);}
+.pzt{font-size:42px;font-weight:900;color:var(--ink);letter-spacing:.02em;}
+.pzt b{color:var(--amber);}
+.pzs{font-size:18px;line-height:1.7;color:var(--ink-2);font-weight:300;}
+.prz svg .lbl{font-family:var(--f-mono);letter-spacing:.12em;fill:var(--ink-3);}
+.prz svg .lbl.fill-co{fill:var(--coral);}
+.prz svg .fill-am{fill:var(--amber);}
+.prz svg .fill-co{fill:var(--coral);}
+.prz svg .fill-ink{fill:var(--ink);}
+.prz svg .stroke{stroke:var(--ink-2);fill:none;}
+.prz svg .stroke-am{stroke:var(--amber);fill:none;}
+@keyframes przeq{0%,100%{transform:scaleY(.16)}50%{transform:scaleY(1)}}
+.eqb{transform-box:fill-box;transform-origin:50% 100%;animation:przeq 1.25s cubic-bezier(.45,0,.55,1) infinite;animation-delay:var(--d,0s);}
+@keyframes przring{0%{r:8px;opacity:.9}75%{r:36px;opacity:0}100%{r:36px;opacity:0}}
+.mring{animation:przring 2.1s ease-out infinite;animation-delay:var(--d,0s);}
 </style>
 <div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
 <script>

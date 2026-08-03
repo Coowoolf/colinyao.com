@@ -118,7 +118,7 @@ await pg.screenshot({ path: "/tmp/qa/conf-cover-title.png" });
 const titleOk = await pg.evaluate(() => document.body.textContent.includes("声网 AI 产品线负责人"));
 console.log("conf title 线字:", titleOk);
 
-// ── 6) /cowork 回归：65 页、无媒体、title 已修 ─────────
+// ── 6) /cowork 回归：62 页、无媒体 ─────────
 await pg.goto("http://localhost:3000/cowork", { waitUntil: "networkidle" });
 await pg.waitForFunction(() => window.deck && window.deck.slides);
 const mw = await pg.evaluate(() => ({
