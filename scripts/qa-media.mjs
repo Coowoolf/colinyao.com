@@ -11,7 +11,7 @@ pg.on("pageerror", (e) => errs.push("pageerror: " + e.message));
 
 // ── 1) /cowork-conf 全量走查（含 data-step 推进 + 溢出检查） ──
 await pg.goto("http://localhost:3000/cowork-conf", { waitUntil: "networkidle" });
-await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 65);
+await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 63);
 const n = await pg.evaluate(() => window.deck.slides.length);
 let overflow = [];
 for (let i = 0; i < n; i++) {

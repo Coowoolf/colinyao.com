@@ -3,7 +3,7 @@
    完全对齐大会模板：黑底 + 紫系(#9333EA/#A855F7/#C084FC) + 金黄 #FFC000 +
    阿里巴巴普惠体 2.0 + 页头紫 tab/双 logo + 模板封面 keyart + 章节页/观点页版式。
    内容与 65 页母版逐字一致，另叠加【仅大会版】内容试验层（2026-08-03 反馈：删两条路页/挪三把尺子与时机页/终幕对象化等）
-   与媒体层（P3 录音 + 「授权可收回」页后插视频页），共 65 页。
+   与媒体层（P3 录音 + 「授权可收回」页后插视频页）。R3 后共 63 页。
    媒体行为与 PPT 对齐：前进键第一按播放，再按停止并翻页；M 键手动播/停（p 已被「跳上一整页」占用）。"""
 import re, sys
 sys.path.insert(0, "/tmp/conf-tpl")
@@ -88,14 +88,17 @@ def rep1(old, new):
     assert s.count(old) == 1, "锚点失效: " + old[:44]
     s = s.replace(old, new, 1)
 
-# a) P15 分水岭 · 挪入「九成产品卡在这一格」（原 P16 的卡点标记）
+# a) P15 分水岭 · 上行支加「熟人」进阶节点（工具→熟人→伙伴），九成卡点标在熟人格
 rep1('<circle class="fill-am pop" style="--i:4" cx="840" cy="150" r="9"/>',
      '''<circle class="fill-am pop" style="--i:4" cx="840" cy="150" r="9"/>
-          <circle class="stroke-co pop" style="--i:5" cx="840" cy="150" r="17" stroke-width="2"/>
-          <text class="lbl fill-co pop" style="--i:5" x="806" y="240" text-anchor="end">九成产品卡在这一格</text>''')
+          <circle class="fill-ink pop" style="--i:5" cx="1005" cy="102" r="9"/>
+          <g class="pop" style="--i:5"><text class="ttl" x="1005" y="64" text-anchor="middle" style="font-size:30px">熟人</text></g>
+          <text class="txt pop" style="--i:5" x="1005" y="146" text-anchor="middle">记得你是谁</text>
+          <circle class="stroke-co pop" style="--i:6" cx="1005" cy="102" r="18" stroke-width="2"/>
+          <text class="lbl fill-co pop" style="--i:6" x="1005" y="238" text-anchor="middle">九成产品卡在这一格</text>''')
 
-# b) P27 眉题：岔路口页（原 P16）删除后，改指第二幕分水岭
-rep1('接上一幕的岔路口 · 我们换到下面那条', '接第二幕的分水岭 · 这次走「替你干活」这条路')
+# b) P27 眉题：分化已画进本页阶梯图，眉题点「同一个起点」
+rep1('接上一幕的岔路口 · 我们换到下面那条', '同一个起点 · 上一幕走「陪伴」，这一幕走「干活」')
 
 # c) 案例02 · 96.5% 右侧留白 → 3.5% 拆解（素材：V5 主干 · 九类 AI 感知信号）
 rep1('<div class="mark flow" style="--i:0">案例 02 · 真实生产环境 · A PRODUCTION-SCALE TURING TEST</div>',
@@ -125,6 +128,140 @@ rep1('<h2 class="ink" style="--i:1">看过、用过、学过、<em>干过</em></
 rep1('<h2 class="ink" style="--i:1">转身的第一个动作，是<em>把那条线画出来</em></h2>',
      '<h2 class="ink" style="--i:1">对组织说：先分清哪些是<em>单向门</em>，哪些是<em>双向门</em></h2>')
 
+# ── 6.4-R3) 第三轮反馈（2026-08-03 晚 · 仅大会版） ──────────
+# 1) 四种失败页标题直给
+rep1('<h2 class="ink" style="--i:1">「它变了个人」背后的四种失败</h2>',
+     '<h2 class="ink" style="--i:1">这四种失败，让它变不成<em>伙伴</em></h2>')
+
+# 2) 阶梯页：灰线画回消费分支（工具→熟人→伙伴，纵向对应实习生/外包）
+rep1('''<text class="sm" x="180" y="408" text-anchor="middle">同一个起点</text>
+            </g>
+          </g>''',
+     '''<text class="sm" x="180" y="408" text-anchor="middle">同一个起点</text>
+            </g>
+          </g>
+          <g class="pop" style="--i:8">
+            <g opacity=".5">
+              <path class="stroke" stroke-width="1.8" d="M320 330 C 356 330, 356 384, 392 384 H1200"/>
+              <circle class="fill-ink" cx="510" cy="384" r="7"/>
+              <text class="sm" x="530" y="391" style="font-size:20px">熟人 · 记得你是谁</text>
+              <circle class="fill-ink" cx="840" cy="384" r="7"/>
+              <text class="sm" x="860" y="391" style="font-size:20px">伙伴 · 在乎你怎么样</text>
+              <text class="lbl" x="1230" y="391" style="font-size:15px">消费级 · 陪伴 —— 上一幕走的那条</text>
+              <path class="stroke" stroke-width="1" stroke-dasharray="3 6" d="M510 374 V352" opacity=".55"/>
+              <path class="stroke" stroke-width="1" stroke-dasharray="3 6" d="M840 374 V290" opacity=".55"/>
+            </g>
+          </g>''')
+
+# 3) 96.5% 页加标题句
+rep1('A PRODUCTION-SCALE TURING TEST</div>\n    <div class="m35">',
+     'A PRODUCTION-SCALE TURING TEST</div>\n    <div class="mh flow" style="--i:0">「活人感」已经被解决了。</div>\n    <div class="m35">')
+
+# 4) MQ：换成面向全场的举手问句
+rep1('<div class="q ink" style="--i:2">你凭什么说，<span class="hl">它做对了</span>？</div>',
+     '<div class="q ink" style="--i:2">在座的有多少人，<br><span class="hl">亲手写过</span>一份自己产品的评测集？</div>')
+
+# 5) 尺子第N课 → Eval 第N课（chrome + 眉题）
+for _a, _b in [('尺子第一课','Eval 第一课'),('尺子第二课','Eval 第二课'),
+               ('尺子第三课','Eval 第三课'),('尺子第四课','Eval 第四课')]:
+    assert s.count(_a) == 2, f"{_a}: {s.count(_a)}"
+    s = s.replace(_a, _b)
+
+# 6) Eval 第四课重讲：AI 质检 100% 通过 vs 人类复检 ≥10% 错判
+rep1('''<text class="lbl pop" style="--i:2" x="22" y="58">100 通真实通话</text>
+          <path class="stroke dw" style="--len:1468;--i:3" stroke-width="44" stroke-linecap="round" d="M44 112 H1490" opacity=".22"/>
+          <path class="stroke-co dw" style="--len:168;--i:4" stroke-width="44" stroke-linecap="round" d="M1512 112 H1658"/>
+          <text class="lbl pop" style="--i:4" x="44" y="122">90 通确实通过</text>
+          <text class="lbl fill-co pop" style="--i:5" x="1658" y="58" text-anchor="end">10 通真的失败了</text>
+
+          <rect class="box pop" style="--i:6" x="0" y="196" width="580" height="118" rx="5" stroke-dasharray="7 7"/>
+          <g class="pop" style="--i:7"><text class="ttl" x="290" y="248" text-anchor="middle" style="font-size:27px">一个永远回答「通过」的裁判</text></g>
+          <text class="sm pop" style="--i:7" x="290" y="284" text-anchor="middle">零智能 · 零成本 · 零价值</text>
+          <path class="stroke-co pop" style="--i:8" stroke-width="1.6" stroke-dasharray="6 8" d="M580 240 C 860 240, 980 160, 1180 138"/>
+          <g class="pop" style="--i:9"><text class="big" x="1658" y="266" text-anchor="end" style="font-size:70px">90%</text></g>
+          <text class="lbl pop" style="--i:10" x="1658" y="302" text-anchor="end">与人工标注一致率</text>''',
+     '''<text class="lbl pop" style="--i:2" x="22" y="44">第一遍 · AI 质检 —— AI 在检测 AI</text>
+          <path class="stroke-am dw" style="--len:1356;--i:3" stroke-width="40" stroke-linecap="round" d="M44 96 H1400"/>
+          <g class="pop" style="--i:4"><text class="big fill-am" x="1658" y="112" text-anchor="end" style="font-size:60px">100%</text></g>
+          <text class="lbl pop" style="--i:4" x="1658" y="146" text-anchor="end">质检报表 · 全部通过</text>
+          <text class="lbl pop" style="--i:5" x="22" y="200">第二遍 · 人类复检 —— 同一批通话，重新听</text>
+          <path class="stroke dw" style="--len:1220;--i:6" stroke-width="40" stroke-linecap="round" d="M44 252 H1264" opacity=".22"/>
+          <path class="stroke-co dw" style="--len:136;--i:7" stroke-width="40" stroke-linecap="round" d="M1286 252 H1400"/>
+          <g class="pop" style="--i:8"><text class="big fill-co" x="1658" y="268" text-anchor="end" style="font-size:60px">≥10%</text></g>
+          <text class="lbl fill-co pop" style="--i:8" x="1658" y="302" text-anchor="end">错判 · 实际不通过</text>''')
+rep1('<div class="col flow" style="--i:12"><div class="k">正确的看法 03</div><div class="v">裁判自己也要有回归集。换模型、换 prompt，裁判必须重新验一遍。</div></div>',
+     '''<div class="col flow" style="--i:12"><div class="k">正确的看法 03</div><div class="v">裁判自己也要有回归集。换模型、换 prompt，裁判必须重新验一遍。</div></div>
+      </div>
+      <div class="land flow" style="--i:13">AI 裁判可以雇，但不能依赖。<span class="s">最终裁判权在你自己手里——你的产品，你亲自听。</span></div>
+      <div class="tri" style="display:none">''')
+
+# 7) P37 · 把钱突出：账单 → 钱，coral 强调 + 底注点「进账」
+rep1('<g class="pop" style="--i:7"><text class="ttl fill-am" x="1320" y="158" text-anchor="middle" style="font-size:28px">这个月的账单</text></g>',
+     '<g class="pop" style="--i:7"><text class="ttl fill-co" x="1320" y="158" text-anchor="middle" style="font-size:28px">这个月的钱</text></g>')
+rep1('<text class="sm pop" style="--i:7" x="1320" y="194" text-anchor="middle">判定条数 × 单价</text>',
+     '<text class="sm pop" style="--i:7" x="1320" y="194" text-anchor="middle">判「解决」才计费 · 判定条数 × 单价</text>')
+rep1('<rect class="box pop" style="--i:6" x="1120" y="100" width="400" height="130" rx="5" stroke="var(--amber)" stroke-width="1.6"/>',
+     '<rect class="box pop" style="--i:6" x="1120" y="100" width="400" height="130" rx="5" stroke="var(--coral)" stroke-width="2"/>')
+rep1('<text class="lbl pop" style="--i:9" x="40" y="270">这条链一旦闭合，评测集就不再是 QA 的文档，而是合同附件</text>',
+     '<text class="lbl pop" style="--i:9" x="40" y="270">这条链一旦闭合，评测集不再是 QA 文档，是合同附件——判「解决」的那一秒，就是钱进账的那一秒</text>')
+
+# 8) P40 · 账 → OKR
+rep1('<div class="tag">Signal · 自己的账</div>', '<div class="tag">Signal · 自己的 OKR</div>')
+rep1('<div class="t">它有自己的账</div>', '<div class="t">它有自己的 OKR</div>')
+
+# 9) Part4 标题与眉题：类比 / 协作 / 双护栏 / Waymo / 护城河金句 / 两道围栏
+rep1('<h2 class="ink" style="--i:1">三把互不相识的尺子，量出了<em>同一个形状</em></h2>',
+     '<h2 class="ink" style="--i:1">类比自动驾驶与支付智能体：三把尺子，<em>同一个形状</em></h2>')
+rep1('<h2 class="ink" style="--i:1">比人准了，还是得<em>人审批</em></h2>',
+     '<h2 class="ink" style="--i:1">人和 Agent 共事的协作关系：它决策，<em>人审批</em></h2>')
+rep1('<div class="eyebrow flow" style="--i:0">问责 · WHO APPROVES</div>',
+     '<div class="eyebrow flow" style="--i:0">产品在其中的角色 · WHO APPROVES</div>')
+rep1('<h2 class="ink" style="--i:1">Agent 出事，<span class="co">算谁的</span></h2>',
+     '<h2 class="ink" style="--i:1">两道护栏：提示词拦话术，<span class="co">架构拦越权</span></h2>')
+rep1('<h2 class="ink" style="--i:1">行人，<em>不在像素里</em></h2>',
+     '<h2 class="ink" style="--i:1">这脚刹车，是产品经理写进<em>架构的护栏</em></h2>')
+rep1('<i class="rise" style="--i:1">行人不在像素里，</i>',
+     '<i class="rise" style="--i:1">提示词只能拦住一些越权，</i>')
+rep1('<i class="rise" style="--i:2">承诺不在波形里。</i>',
+     '<i class="rise" style="--i:2">架构的护栏，才是产品经理的护城河。</i>')
+rep1('<div class="eyebrow flow" style="--i:0">指标的更新 · FROM LATENCY TO TIMING</div>',
+     '<div class="eyebrow flow" style="--i:0">体验的围栏 · FROM LATENCY TO TIMING</div>')
+rep1('<div class="eyebrow coral flow" style="--i:0">为什么语音这一行的门槛天然更高</div>',
+     '<div class="eyebrow coral flow" style="--i:0">执行的围栏 · 为什么语音天然更难拦</div>')
+
+# 10) 终幕：CEO 们说 / 对产品管理者说 / 共事 → 进化
+rep1('<h2 class="ink" style="--i:1">High Agency 是发动机，<span class="co">但不是完整答案</span></h2>',
+     '<h2 class="ink" style="--i:1">CEO 们说：High Agency 是发动机，<span class="co">但不是完整答案</span></h2>')
+rep1('<div class="eyebrow flow" style="--i:0">个人层 · THE HUMAN ENGINE</div>',
+     '<div class="eyebrow flow" style="--i:0">来自 CEO 们的同一个判断 · THE HUMAN ENGINE</div>')
+rep1('<h2 class="ink" style="--i:1">2024 我画的三个圆，今天长出了<em>第四个</em></h2>',
+     '<h2 class="ink" style="--i:1">对产品管理者说：2024 的三个圆，长出了<em>第四个</em></h2>')
+rep1('<text class="ttl fill-am" x="1545" y="212" text-anchor="middle" style="font-size:38px">共事</text>',
+     '<text class="ttl fill-am" x="1545" y="212" text-anchor="middle" style="font-size:38px">进化</text>')
+rep1('<text class="lbl fill-am pop" style="--i:6" x="1545" y="312" text-anchor="middle">COWORK</text>',
+     '<text class="lbl fill-am pop" style="--i:6" x="1545" y="312" text-anchor="middle">EVOLUTION</text>')
+rep1('<b>共事不是我挑的词，是四条线自己走到的。</b>',
+     '<b>进化不是我挑的词，是四条线自己走出来的。</b>')
+
+# 11) 新页 · 临场感（Part 2 高光，插在关系档位页之后、那半秒之前）
+PRESENCE = '''<section class="slide">
+  <div class="chrome"><span>PART 2 · 被记住</span><span>22</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">第二幕的高光 · PRESENCE</div>
+      <h2 class="ink" style="--i:1">记忆之上，还有一层：<em>临场感</em></h2>
+    </div>
+    <div class="body">
+      <div class="pres">
+        <div class="pr flow" style="--i:2"><span class="pn">01<br>HEAR IT LIVE</span><span class="pc">实时<b>听见</b></span><span class="ps">不是录完转写再理解——声音进来的那一刻，它已经在听。</span></div>
+        <div class="pr flow" style="--i:4"><span class="pn">02<br>RECALL AT ONCE</span><span class="pc">立刻<b>想起</b></span><span class="ps">你提到上周的事，它不用去翻库——那段共同历史本来就在场。</span></div>
+        <div class="pr flow" style="--i:6"><span class="pn">03<br>RESPOND IN THE MOMENT</span><span class="pc">当下<b>回应</b></span><span class="ps">在这句话还热着的时候接住它——而不是三秒后给一个正确答案。</span></div>
+      </div>
+      <div class="land flow rev" style="--i:8">三件事发生在同一秒里，才叫「在场」。<span class="s">记忆是资产，临场是引擎——下一页，讲那半秒。</span></div>
+    </div>
+  </div>
+</section>'''
+
 # f) 结构调整：删 P16；P45(三把尺子)挪到 P42(岗位)后；P50(时机)挪到「语音没有撤回键」前；
 #    终幕对调：先对个人(P57,P58)，再对产品经理(P56)
 _starts = [m.start() for m in re.finditer(r'<section class="slide', s)]
@@ -134,13 +271,20 @@ for _i in range(len(_starts) - 1):
 _head, _tail = s[:_starts[0]], s[_ends[-1]:]
 _secs = [s[_starts[_i]:_ends[_i]] for _i in range(len(_starts))]
 assert len(_secs) == 65, f"母版应 65 页，实际 {len(_secs)}"
-order = (list(range(0, 15))            # P1–P15
-         + list(range(16, 41))         # P17–P41（跳过 P16）
-         + [41, 44, 49, 42, 43, 45, 46, 47, 48]   # 岗位→三把尺子→时机→撤回论证→撤回MQ→审批→案例04/05→MQ
-         + list(range(50, 55))         # 工牌…章节页
-         + [56, 57, 55, 58, 59, 60]    # 个人四阶→High Agency→产品经理evals→第四圆→案例06→组织门
-         + list(range(61, 65)))        # 尺子两面…终页
-assert sorted(order) == [i for i in range(65) if i != 15]
+_secs.append(PRESENCE)                         # index 65 · 临场感新页
+order = (list(range(0, 15))                    # P1–P15
+         + [16]                                # 四种失败（P17 案例01 删）
+         + [18, 19, 20, 21]                    # 伙伴感 · 身份 · 历史 · 档位遗忘
+         + [65]                                # ★ 临场感（Part2 高光 · 新）
+         + [22, 23, 24]                        # 那半秒 · 反共识 · MQ（视频页由媒体层锚定插入）
+         + list(range(25, 38))                 # 第三幕全段
+         + [38, 39, 40, 41]                    # 章节 · OKR · 爬梯 · 岗位
+         + [44, 45, 46, 47, 48]                # 类比 → 协作审批 → 双护栏 → Waymo → 护城河MQ
+         + [49, 42, 43]                        # 体验围栏(时机) → 执行围栏(撤回) → 撤回MQ
+         + [52, 53]                            # 全景 · QoT（工牌/准入线删）
+         + [54, 56, 55, 58, 59, 57, 60]        # 章节 · 对个人 · 对产品经理 · 对管理者 · 案例06 · CEO们 · 对组织
+         + list(range(61, 65)))                # 尺子两面 · 回看(进化) · 收束 · 终页
+assert sorted(order) == sorted([i for i in range(66) if i not in (15, 17, 50, 51)]), len(order)
 s = _head + '\n'.join(_secs[o] for o in order) + _tail
 
 # ── 6.5) 媒体层（仅大会版；母版/线上 /cowork 保持无媒体） ────
@@ -161,7 +305,7 @@ VIDEO = '''<section class="slide">
 '''
 # 内容锚定：插在「授权可以被收回」反共识页之后（跟随内容移动，不吃页码位移）
 _vs = [m.start() for m in re.finditer(r'<section class="slide', s)]
-assert len(_vs) == 64, f"试验层后应 64 页，实际 {len(_vs)}"
+assert len(_vs) == 62, f"试验层后应 62 页，实际 {len(_vs)}"
 _ai = s.index('授权可以被收回——这不是失败')
 _ae = s.index('</section>', _ai) + len('</section>')
 s = s[:_ae] + '\n' + VIDEO.rstrip('\n') + s[_ae:]
@@ -251,8 +395,17 @@ CONF_CSS = """
 .mq .rule{background:#FFC000;}
 /* 结尾页照常黑底 */
 @media print{.chrome::after,.confcover::after{opacity:1;}}
+/* 96.5% 页标题句 + 临场感高光页（内容试验层） */
+.mega .mh{font-size:46px;font-weight:900;color:var(--ink);letter-spacing:.01em;margin-bottom:-4px;}
+.pres{display:flex;flex-direction:column;margin-top:6px;}
+.pres .pr{display:grid;grid-template-columns:220px 400px 1fr;column-gap:32px;align-items:baseline;padding:37px 0;border-top:1px solid var(--hair);}
+.pres .pr:first-child{border-top:0;}
+.pres .pn{font-family:var(--f-mono);font-size:14px;line-height:2;letter-spacing:.18em;color:var(--ink-3);}
+.pres .pc{font-size:58px;font-weight:900;color:var(--ink);letter-spacing:.02em;}
+.pres .pc b{color:var(--amber);}
+.pres .ps{font-size:20px;line-height:1.75;color:var(--ink-2);font-weight:300;}
 /* 案例02 · 右侧 3.5% 拆解面板（内容试验层） */
-.m35{position:absolute;right:120px;top:216px;width:560px;display:flex;flex-direction:column;gap:16px;}
+.m35{position:absolute;right:120px;top:256px;width:560px;display:flex;flex-direction:column;gap:16px;}
 .m35 .mk{font-family:var(--f-mono);font-size:14px;letter-spacing:.2em;color:var(--coral);margin-bottom:6px;}
 .m35 .row{display:grid;grid-template-columns:64px 1fr;column-gap:16px;row-gap:7px;align-items:baseline;}
 .m35 .row .n{font-family:var(--f-en);font-size:36px;font-weight:900;line-height:1;color:var(--ink);text-align:right;}
@@ -274,7 +427,7 @@ s = s[:li] + CONF_CSS + s[li:]
 
 open("public/decks/cowork-conf.html", "w", encoding="utf-8").write(s)
 n = len(re.findall(r'<section class="slide', s))
-assert n == 65, f"大会版应为 65 页，实际 {n}"
+assert n == 63, f"大会版应为 63 页，实际 {n}"
 print(f"cowork-conf.html written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
 print("ruler ✓ noindex ✓")
