@@ -112,13 +112,7 @@ rep1('<div class="mark flow" style="--i:0">案例 02 · 真实生产环境 · A 
       <div class="sx flow" style="--i:9">一通可命中多个标签 · 86 通为去重通数<br><b>机器感先暴露在节奏与情绪，不在音色。</b></div>
     </div>''')
 
-# d) P37 · Eval 升维：不止交互质量，是商业化结果的计量基础设施
-rep1('<div class="eyebrow flow" style="--i:0">把上面两页接起来</div>',
-     '<div class="eyebrow flow" style="--i:0">把上面两页接起来 · EVAL 的身份升级</div>')
-rep1('<h2 class="ink" style="--i:1">评测不是质量流程，是计费基础设施</h2>',
-     '<h2 class="ink" style="--i:1">评测不再只量交互质量，是<em>商业化结果</em>的计量基础设施</h2>')
-rep1('<div class="land flow" style="--i:12">出题权的移交，就是信任的移交。<span class="s">',
-     '<div class="land flow" style="--i:12">Eval 已经从「对交互质量的评测」，长成产品经理衡量<b>最终商业化结果</b>的关键基础设施——出题权的移交，就是信任的移交。<span class="s">')
+# d) P37 · （R2/R3 的局部补丁已被 R5 全页重做取代，见 6.4-R5）
 
 # e) 终幕三个「对象」标记 + 标题切心
 rep1('<h2 class="ink" style="--i:1">你交付的不再是一份 PRD，是<em>一套评测</em></h2>',
@@ -195,15 +189,7 @@ rep1('<div class="col flow" style="--i:12"><div class="k">正确的看法 03</di
       <div class="land flow" style="--i:13">AI 裁判可以雇，但不能依赖。<span class="s">最终裁判权在你自己手里——你的产品，你亲自听。</span></div>
       <div class="tri" style="display:none">''')
 
-# 7) P37 · 把钱突出：账单 → 钱，coral 强调 + 底注点「进账」
-rep1('<g class="pop" style="--i:7"><text class="ttl fill-am" x="1320" y="158" text-anchor="middle" style="font-size:28px">这个月的账单</text></g>',
-     '<g class="pop" style="--i:7"><text class="ttl fill-co" x="1320" y="158" text-anchor="middle" style="font-size:28px">这个月的钱</text></g>')
-rep1('<text class="sm pop" style="--i:7" x="1320" y="194" text-anchor="middle">判定条数 × 单价</text>',
-     '<text class="sm pop" style="--i:7" x="1320" y="194" text-anchor="middle">判「解决」才计费 · 判定条数 × 单价</text>')
-rep1('<rect class="box pop" style="--i:6" x="1120" y="100" width="400" height="130" rx="5" stroke="var(--amber)" stroke-width="1.6"/>',
-     '<rect class="box pop" style="--i:6" x="1120" y="100" width="400" height="130" rx="5" stroke="var(--coral)" stroke-width="2"/>')
-rep1('<text class="lbl pop" style="--i:9" x="40" y="270">这条链一旦闭合，评测集就不再是 QA 的文档，而是合同附件</text>',
-     '<text class="lbl pop" style="--i:9" x="40" y="270">这条链一旦闭合，评测集不再是 QA 文档，是合同附件——判「解决」的那一秒，就是钱进账的那一秒</text>')
+# 7) P37 · （R3 局部补丁已被 R5 全页重做取代）
 
 # 8) P40 · 账 → OKR
 rep1('<div class="tag">Signal · 自己的账</div>', '<div class="tag">Signal · 自己的 OKR</div>')
@@ -354,6 +340,84 @@ rep1('<span class="no">要的不是 AI 能力</span><em>进化</em>',
      '<span class="no">要的不是 AI 能力</span><em>放权</em>')
 rep1('<div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过。组织真正的活，是让这两把梯子同步往上。</div>',
      '<div class="s">Agent 有 L0–L4，人有看过·用过·学过·干过——组织真正的活，是把权放到这两把梯子够得着的那一格。</div>')
+
+# ── 6.4-R5) 第五轮反馈（仅大会版） ──────────────────────────
+# 1) P37 全页重做：Eval 贯穿产品全生命周期的闭环主轴
+rep1('<div class="eyebrow flow" style="--i:0">把上面两页接起来</div>',
+     '<div class="eyebrow flow" style="--i:0">把上面两页接起来 · EVAL 贯穿全生命周期</div>')
+rep1('<h2 class="ink" style="--i:1">评测不是质量流程，是计费基础设施</h2>',
+     '<h2 class="ink" style="--i:1">同一把 Eval：对产品量<em>好坏</em>，对商业量<em>钱</em></h2>')
+_ea = s.index('出题权 = 定价权')
+assert s.count('出题权 = 定价权') == 1
+_sv0 = s.rindex('<svg', 0, _ea)
+_sv1 = s.index('</svg>', _ea) + len('</svg>')
+EVAL_SVG = '''<svg viewBox="0 0 1680 330" width="1680" aria-hidden="true">
+          <defs><linearGradient id="evsp" gradientUnits="userSpaceOnUse" x1="130" y1="0" x2="1530" y2="0">
+            <stop offset="0" style="stop-color:var(--amber)"/><stop offset=".56" style="stop-color:var(--amber)"/>
+            <stop offset=".68" style="stop-color:var(--coral)"/><stop offset="1" style="stop-color:var(--coral)"/>
+          </linearGradient></defs>
+          <path class="stroke dw" style="--len:1560;--i:8" stroke-width="1.4" stroke-dasharray="6 9" opacity=".6" d="M1530 148 C 1530 44, 130 44, 130 148"/>
+          <path class="stroke-am pkt" style="--pl:26px;--p0:26px;--p1:-1560px;--pt:7s;--pd:2.6s" stroke-width="3" d="M1530 148 C 1530 44, 130 44, 130 148"/>
+          <text class="lbl pop" style="--i:9" x="830" y="34" text-anchor="middle">闭环 · 商业结果，回灌下一轮产品规划</text>
+          <path class="dw" style="--len:1400;--i:1" stroke="url(#evsp)" stroke-width="5" fill="none" d="M130 170 H1530"/>
+          <path class="pkt" style="--pl:30px;--p0:30px;--p1:-1400px;--pt:5s" stroke="url(#evsp)" stroke-width="7" fill="none" d="M130 170 H1530"/>
+          <g class="pop" style="--i:2">
+            <circle class="fill-am" cx="130" cy="170" r="10"/>
+            <text class="ttl" x="130" y="136" text-anchor="middle" style="font-size:26px">产品规划</text>
+            <text class="sm" x="130" y="212" text-anchor="middle">评测即 PRD · 先定义「做对」</text>
+          </g>
+          <g class="pop" style="--i:3">
+            <circle class="fill-am" cx="480" cy="170" r="10"/>
+            <text class="ttl" x="480" y="136" text-anchor="middle" style="font-size:26px">产品打磨</text>
+            <text class="sm" x="480" y="212" text-anchor="middle">交互质量 · 量产品好坏</text>
+          </g>
+          <g class="pop" style="--i:4">
+            <circle class="fill-am" cx="830" cy="170" r="10"/>
+            <text class="ttl" x="830" y="136" text-anchor="middle" style="font-size:26px">上线验收</text>
+            <text class="sm" x="830" y="212" text-anchor="middle">模拟考核 · 敢不敢让它上岗</text>
+          </g>
+          <g class="pop" style="--i:5">
+            <circle class="fill-co" cx="1180" cy="170" r="10"/>
+            <text class="ttl" x="1180" y="136" text-anchor="middle" style="font-size:26px">计量计费</text>
+            <text class="sm" x="1180" y="212" text-anchor="middle">判「解决」才收钱</text>
+          </g>
+          <g class="pop" style="--i:6">
+            <circle class="fill-co" cx="1530" cy="170" r="13"/>
+            <text class="ttl fill-co" x="1530" y="136" text-anchor="middle" style="font-size:26px">商业结果</text>
+            <text class="sm" x="1530" y="212" text-anchor="middle">这个月的钱 · 结果生意</text>
+          </g>
+          <path class="stroke-co pop" style="--i:7" stroke-width="1.4" stroke-dasharray="5 7" d="M1005 120 V220"/>
+          <text class="lbl fill-co pop" style="--i:7" x="1005" y="106" text-anchor="middle">出题权 = 定价权</text>
+          <text class="lbl pop" style="--i:7" x="60" y="292">面向产品 · Eval 量的是「好不好」</text>
+          <text class="lbl fill-co pop" style="--i:7" x="1620" y="292" text-anchor="end">面向商业 · Eval 量的是「钱」</text>
+        </svg>'''
+s = s[:_sv0] + EVAL_SVG + s[_sv1:]
+rep1('<div class="land flow" style="--i:12">出题权的移交，就是信任的移交。<span class="s">',
+     '<div class="land flow" style="--i:12">Eval 贯穿全生命周期：规划期它是 PRD，打磨期它量好坏，上线期它当考官，商业化它就是计费器——<b>从规划到回款，出题权一路没换过手。</b><span class="s">')
+
+# 2) P42 标题：去掉 RTE Keynote 用词，直给读图结果
+rep1('<h2 class="ink" style="--i:1">五年按场景排。<em>今年按岗位排，图就变了</em></h2>',
+     '<h2 class="ink" style="--i:1">真实岗位放上梯子：今年的重心，压在 <em>L2 与 L3 之间</em></h2>')
+
+# 3) 两道围栏页：围栏升为主标题，一读就懂；撤回键金句只留给黑页
+rep1('<h2 class="ink" style="--i:1">延迟做到某个数之后，剩下的问题不是快，是<em>时机</em></h2>',
+     '<h2 class="ink" style="--i:1">体验的围栏：交互行为，要有<em>规矩</em></h2>')
+rep1('<div class="eyebrow flow" style="--i:0">体验的围栏 · FROM LATENCY TO TIMING</div>',
+     '<div class="eyebrow flow" style="--i:0">FROM LATENCY TO TIMING · 延迟之后，剩下的问题是时机</div>')
+rep1('<h2 class="ink" style="--i:1">文本有「撤回」。语音，<span class="co">没有撤回键</span></h2>',
+     '<h2 class="ink" style="--i:1">执行的围栏：语音的动作，<span class="co">最难在半路拦住</span></h2>')
+rep1('<div class="eyebrow coral flow" style="--i:0">执行的围栏 · 为什么语音天然更难拦</div>',
+     '<div class="eyebrow coral flow" style="--i:0">ON EXECUTION · 为什么语音这一行门槛天然更高</div>')
+
+# 4) 全景页：准入线固化句升为主标题，体系句降为副标题
+rep1('<div class="eyebrow flow" style="--i:0">上一页的五条准入线，固化在这张图里 · 声网对话式 AI 全景</div>',
+     '<div class="eyebrow flow" style="--i:0">交个底 · 这是一个体系，不是分散的产品点</div>')
+rep1('<h2 class="ink" style="--i:1">这是一个体系，<em>不是分散的产品点</em></h2>',
+     '<h2 class="ink" style="--i:1">五条准入线，固化在这张图里：<em>声网对话式 AI 全景</em></h2>')
+
+# 5) 收束页 land 重写：命中全篇（进化速度 = 放权速度，底气 = 亲手写的尺子）
+rep1('<div class="land ctr flow" data-step="4" style="--i:4">四句话，其实是<em>同一张审批单</em> —— 要批的从来不是它能不能上岗，是<b>我们愿不愿意变</b>。<span class="s">批下来，团队名单上多一个<b>同事</b>；批不下来，再大的模型也只是<b>一个更贵的玩具</b>。</span></div>',
+     '<div class="land ctr flow" data-step="4" style="--i:4">四句话，说的是同一件事：<em>它的进化速度，等于我们的放权速度</em>——而放权的底气，来自<b>亲手写的那把尺子</b>。<span class="s">尺子递得出去，名单上就多一个<b>同事</b>；递不出去，再大的模型也只是<b>一个更贵的玩具</b>。</span></div>')
 
 # f) 结构调整：删 P16；P45(三把尺子)挪到 P42(岗位)后；P50(时机)挪到「语音没有撤回键」前；
 #    终幕对调：先对个人(P57,P58)，再对产品经理(P56)
