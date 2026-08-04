@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""aiot26-v3 · 《AI 有了身体，为什么还是三天进抽屉？》—— 终版（31 页 · 默认浅底）。
+"""aiot26-v3 · 《AI 有了身体，为什么还是三天进抽屉？》—— 终版（35 页 · 五幕 · 默认浅底）。
 
   规划来源：Vault《2026-08-09_AI产品大会_AIoT专场_V1V2评审与终版规划》
   一句话：V2 的骨架与诚实度 + V1 的幕结构与金句页 + 三处两版都漏掉的补位。
@@ -8,9 +8,10 @@
   留 V2：抽屉曲线 · demo · 身体≠伙伴 · 两种价值逻辑 · 三乘数总图 · 三个乘数拆页 ·
          身体的意义 · 恰好半秒 · 两种延迟 · 北极星 · 多模态时序 · 选择性注意 · 端云 ·
          故障恢复 · 四方责任表 · 标准化接口 · 评测闭环 · 三个动作 · 回到抽屉
-  取 V1：2 张幕卡（三个乘数 / 有了身体之后）+ 3 颗金句（上下半场 / 陌生人 / 生死线）+ 21g 终页
+  取 V1：幕卡与金句页型 + 3 颗金句（上下半场 / 陌生人 / 生死线）+ 21g 终页
+  五幕：01 分辨 / 02 三个乘数 / 03 那半秒 / 04 在房间里 / 05 交出去（开场先给一页路线图）
   新写：P02 续集钩子（挂 2025.12 人人都是 PM 大会，不是 0516）· P07 反共识改写（分组而非泼冷水）
-        · P24 AMA 真实提问（两版都删了的一线可信度页）
+        · P24 AMA 真实提问（两版都删了的一线可信度页）· 路线图 + 五张幕卡（讲述版结构）
   删掉：V2 的 分界线 / 一条真实链路 / 全景独立页 / 独立谢谢页（后两者折进 P27 与 P31）
 
   场合：2026 AI 产品大会 · 声网 AIoT 专场 · 2026.08.09 北京 · 30 min。
@@ -80,7 +81,30 @@ def mq(mark, l1, l2, s):
 # ═══════════════════════════════════════════════════════════════
 
 # ── P01 · 封面（V2 封面 + 页数订正） ─────────────────────────────
-P01 = one(b[0], '30 min · 26 slides', '30 min · 31 slides')
+P01 = one(b[0], '30 min · 26 slides', '30 min · 35 slides')
+
+# ── 路线图（新写）· 开场就把五幕交代清楚 ────────────────────────
+#   30 分钟的演讲，听众需要知道自己在哪一步。这一页是「好听」的关键：
+#   五个幕名都 ≤4 字，正好压进 .rows .k 的 190px 槽。
+ROADMAP = '''<section class="slide">
+  <div class="chrome"><span>路线图 · THE ROUTE</span><span>05</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">接下来 30 分钟，我们走五步</div>
+      <h2 class="ink" style="--i:1">从「该不该做」，走到「回去做什么」</h2>
+    </div>
+    <div class="body">
+      <div class="rows">
+        <div class="r flow" style="--i:2"><span class="n">01</span><span class="k">分辨</span><span class="v">同一批技术，两套评价体系。先确定你的产品该不该被记住——这一步决定后面 25 分钟跟你有没有关系。</span></div>
+        <div class="r flow" style="--i:3"><span class="n">02</span><span class="k">三个乘数</span><span class="v">今天唯一需要你带走的框架：伙伴感 = 角色一致性 × 共同历史 × 可控临场。</span></div>
+        <div class="r flow" style="--i:4"><span class="n">03</span><span class="k">那半秒</span><span class="v">有了身体，第一个变难的是时间。什么时候开口，比开口说什么更早决定体验。</span></div>
+        <div class="r flow" style="--i:4"><span class="n">04</span><span class="k">在房间里</span><span class="v">把设备放进真实的客厅、教室和车里：同时听、同时看、同时动，断了还要能回来。</span></div>
+        <div class="r flow" style="--i:5"><span class="n">05</span><span class="k">交出去</span><span class="v">哪些题不该你解，哪些事只有你能做。把破局落成责任边界，和一张能每周重跑的评测。</span></div>
+      </div>
+      <div class="land flow" style="--i:5">前两步讲判断，中间两步讲工程，最后一步讲交付。<b>你只需要记住第 02 步那一行公式，其余都是它的展开。</b></div>
+    </div>
+  </div>
+</section>'''
 
 # ── P02 · 续集钩子（新写）─────────────────────────────────────
 #   两版都做错的地方：V1 把续集挂在 0516 深圳 RTE 场，可这批听众没看过那场；
@@ -170,9 +194,18 @@ P08 = mq('MONEY QUOTE · 01',
          '下半场，造值得被记住的存在。',
          '两个半场共用技术，不共用尺子。')
 
-# ── P09 · 幕卡（V1 形制，重写文案）──────────────────────────────
-P09 = act('01', 'THE THREE MULTIPLIERS', '三个乘数',
-          '关系不是加出来的，是乘出来的。接下来四页，是今天唯一需要你带走的框架。')
+# ── 五张幕卡 · 每张都回答「这一幕要解决什么」──────────────────
+ACT1 = act('01', 'THE DIVIDE', '分辨',
+           '同一批技术，两套完全不同的评价体系。先确定你的产品该不该被记住——'
+           '这一步决定后面 25 分钟跟你有没有关系。')
+ACT2 = act('02', 'THE MULTIPLIERS', '三个乘数',
+           '关系不是加出来的，是乘出来的。接下来四页，是今天唯一需要你带走的框架。')
+ACT3 = act('03', 'THE HALF-SECOND', '那半秒',
+           '有了身体，第一个变难的是时间。什么时候开口，比开口说什么更早决定体验。')
+ACT4 = act('04', 'IN THE ROOM', '在房间里',
+           '把设备放进真实的客厅、教室和车里：同时听、同时看、同时动，断了还要能回来。')
+ACT5 = act('05', 'THE HANDOFF', '交出去',
+           '哪些题不该你解，哪些事只有你能做。这一幕把破局落成责任边界，和一张能每周重跑的评测。')
 
 # ── P10–P13 · 三乘数总图 + 三个乘数 ────────────────────────────
 # 全场拍照页之一：先让公式和三张卡片自己立住，再补「这是乘法不是加法」那一刀。
@@ -192,10 +225,6 @@ P14 = mq('MONEY QUOTE · 02',
          '没有共同历史的机器人，',
          '永远是陌生人。',
          '当前大多数消费硬件，卡在「工具」和「熟人」之间。')
-
-# ── P15 · 幕卡 ───────────────────────────────────────────────
-P15 = act('02', 'WHEN IT HAS A BODY', '有了身体之后',
-          '有身体的那一刻，一次回答就变成了一次会产生后果的行动。这一幕讲随之而来的工程问题。')
 
 # ── P16–P22 · 身体的意义 / 半秒 / 两种延迟 / 北极星 / 时序 / 注意 / 端云 ──
 P16 = b[10]   # 身体的意义
@@ -284,15 +313,30 @@ P31 = '''<section class="slide">
   </div>
 </section>'''
 
-S = [P01, P02, P03, P04, P05, P06, P07, P08, P09, P10, P11, P12, P13, P14, P15, P16,
-     P17, P18, P19, P20, P21, P22, P23, P24, P25, P26, P27, P28, P29, P30, P31]
-assert len(S) == 31, len(S)
+S = [
+    # 开场 · 4 页 —— 冷开场那条曲线 + demo，先把问题摆上台
+    P01, P02, P03, P04,
+    ROADMAP,
+    # ACT 01 · 分辨 —— 你的产品该不该被记住
+    ACT1, P05, P06, P07, P08,
+    # ACT 02 · 三个乘数 —— 今天唯一要带走的框架
+    ACT2, P10, P11, P12, P13, P14,
+    # ACT 03 · 那半秒 —— 什么时候开口
+    ACT3, P16, P17, P18, P19,
+    # ACT 04 · 在房间里 —— 真实环境里的四件事，收在生死线
+    ACT4, P20, P21, P22, P23, P26,
+    # ACT 05 · 交出去 —— 一线提问 → 责任边界 → 标准化 → 评测 → 三个动作
+    ACT5, P24, P25, P27, P28, P29,
+    # 收束 · 回到抽屉 + 21g 钉子
+    P30, P31,
+]
+assert len(S) == 35, len(S)
 
 s = head + '\n'.join(S) + tail
 
 # 页码重排（眉标右侧序号按最终顺序改写）
 _st = [m.start() for m in re.finditer(r'<section class="slide', s)]
-assert len(_st) == 31, len(_st)
+assert len(_st) == 35, len(_st)
 
 
 def _rn(mm):
@@ -308,7 +352,7 @@ open('public/decks/aiot26-v3.html', 'w', encoding='utf-8').write(s)
 # 三、发布前断言
 # ═══════════════════════════════════════════════════════════════
 n = len(re.findall(r'<section class="slide', s))
-assert n == 31, n
+assert n == 35, n
 
 # 三个可引用资产 + 本版新增的四处必须在位
 ASSETS = [
@@ -325,6 +369,8 @@ ASSETS = [
     '别听错。别失控。别让人等。',
     '从玩具到伙伴的距离，',
     '如果你在上面这三格里，接下来二十分钟你可以放松地听',
+    '从「该不该做」，走到「回去做什么」',
+    '你只需要记住第 02 步那一行公式，其余都是它的展开',
 ]
 for x in ASSETS:
     assert x in s, '资产缺失: ' + x
@@ -347,7 +393,10 @@ assert 'noindex' in s and 'deckRuler' in s and 'data-dm' in s, '底盘件缺失'
 assert 'poster="/media/aiot26/still-1.jpg"' in s and 'vstills' in s, '视频封面帧 / 兜底行缺失'
 
 # 结构：2 张幕卡 + 3 颗金句 + 1 张终页金句
-assert len(re.findall(r'<div class="act">', s)) == 2, 'act 幕卡数不对'
+assert len(re.findall(r'<div class="act">', s)) == 5, 'act 幕卡数不对（五幕）'
+# 五幕名与路线图必须一致，否则听众对不上号
+for _a in ('分辨','三个乘数','那半秒','在房间里','交出去'):
+    assert s.count(_a) >= 2, '幕名与路线图不一致: ' + _a
 assert len(re.findall(r'<div class="mq">', s)) == 4, 'mq 页数不对（3 金句 + 1 终页）'
 
 # svg 必须在类作用域容器内（.fig 或 .prz）
@@ -359,4 +408,5 @@ for m in re.finditer(r'<svg', s):
 steps = re.findall(r'data-step="(\d+)"', s)
 print('aiot26-v3.html · %d 页 · %dKB · data-step 揭示点 %d 处（最大档 %s）'
       % (n, len(s) // 1024, len(steps), max(steps) if steps else '-'))
-print('资产 ✓  红线 ✓  默认 light ✓  swap 隐藏 ✓  noindex ✓  媒体 ✓  幕卡2 金句4 ✓  fig 作用域 ✓')
+print('资产 ✓  红线 ✓  默认 light ✓  swap 隐藏 ✓  noindex ✓  媒体 ✓  幕卡%d 金句%d ✓  fig 作用域 ✓'
+      % (len(re.findall(r'<div class="act">', s)), len(re.findall(r'<div class="mq">', s))))
