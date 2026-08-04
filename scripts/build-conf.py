@@ -432,6 +432,83 @@ _r1(58, '<div class="by">Kevin Weil · OpenAI CPO</div>',
 _r1(40, '圆点大小 = 用量 · 暖橙 = 已规模商业化 · 灰 = 早期 · 粉 = 强监管场景',
         '圆点大小 = 用量 · 紫 = 已规模商业化 · 灰 = 早期 · 金黄 = 强监管场景')
 
+# ── C6（2026-08-04 六轮 · 精调：授权书退场 / 实时悖论 / QoT 口语化 / 收束换资产带）──
+# 背景：C1-C2 压缩把《Agent 授权书》整页删掉了，但 P41、P53 两处还在指它；
+#       P44 讲「说出即生效、人来不及批」，闸门轴上却写着「人工审批」，自相矛盾。
+def _cut1(i, a, b, new=''):
+    """把 _secs[i] 里从 a 到 b（含首尾）的一整块换成 new。两个锚点都必须唯一。"""
+    assert _secs[i].count(a) == 1, f"_secs[{i}] 起点定位失败: {a[:48]}"
+    assert _secs[i].count(b) == 1, f"_secs[{i}] 终点定位失败: {b[:48]}"
+    p = _secs[i].index(a)
+    q = _secs[i].index(b, p) + len(b)
+    _secs[i] = _secs[i][:p] + new + _secs[i][q:]
+
+# ① P41（案例 03 · 两道围栏）教训 03：《Agent 授权书》那页已被删，改说「内核六件事」
+_r1(43, '<div class="d">一份写清楚的<b>《Agent 授权书》</b>：替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回。这张表，第五幕交给组织。</div>',
+        '<div class="d">授权不能只活在代码里，还要白纸黑字写清六件事：<b>替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回</b>——写不出来，就是还没想清楚。这六件事，第五幕会变成组织的授权语法。</div>')
+
+# ② P44（两道围栏合一 · _secs[46] = F_FENCE）闸门轴的实时悖论：
+#    语音「说出即生效」，人不可能逐句审批 —— 人工审批必须前移成「事前授权」（批类别，不批句子）。
+_r1(46, '<text class="txt fill-co" x="1125" y="332" text-anchor="middle">人工审批</text>',
+        '<text class="txt fill-co" x="1125" y="332" text-anchor="middle">事前授权</text>')
+_r1(46, '<text class="lbl pop" style="--i:9" x="0" y="292">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>',
+        '<text class="lbl pop" style="--i:9" x="0" y="292">事后没有撤回键，闸门整体前移到「说出口之前」——人工审批也前移：'
+        '<tspan class="fill-am">批动作类别，不批每一句话</tspan></text>')
+
+# ③ P47（QoT）三张维度卡换成能念出口的词；工程坐标「授权可收」→「授权可撤销」
+_r1(50, '<div class="t">边界遵守 / Boundary Fidelity</div>', '<div class="t">边界 / BOUNDARY</div>')
+_r1(50, '<div class="t">结果可追 / Accountability</div>', '<div class="t">结果 / ACCOUNTABILITY</div>')
+_r1(50, '<div class="t">托付可收 / Recoverability</div>', '<div class="t">可撤销 / RECOVERABILITY</div>')
+_r1(50, '授权可收（随时降级、随时回滚）', '授权可撤销（随时降级、随时回滚）')
+
+# ④ P53（对组织说）：2025 那场的题目补全 + 尾部落点改「把权放给 high agency 的人」
+_r1(57, '2025 年这道题我讲给产研团队，名字叫<b>单向门 / 双向门</b>；今年它升级成整个公司的授权语法——',
+        '2025 年我把它讲给产研团队，题目叫<b>《人和组织，必须一起转身》</b>——单向门 / 双向门；今年它升级成整个公司的授权语法：')
+_r1(57, '<div class="land flow rev" style="--i:12">个人 agency 是能力，<b>组织 agency 是制度许可</b>。<span class="s">流程集中在不可逆风险上，自由留给可逆试验。第四幕那份《Agent 授权书》，已经把「替谁做、做什么、到哪里为止、错了怎么办、怎么收回」写给它了。<b>同一张表，换个抬头，也给人发一张。</b></span></div>',
+        '<div class="land flow rev" style="--i:12">转身的落点就一句：<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。<span class="s">个人 agency 是能力，<b>组织 agency 是制度许可</b>：流程集中在不可逆风险上，自由留给可逆试验。第四幕写给 Agent 的授权六件事，<b>换个抬头，也该给人写一份</b>。</span></div>')
+
+# ⑤ P54（收束页）：撤掉「四路汇聚 + 进化速度=放权速度」那套收口（母版里它接的是被删掉的终页），
+#    原位改成四张卡各自带走的那一件资产：评测 · 岗位 · 结果生意 · 放权决策机制。
+#    ⚠️ 四组的中心必须落在 .take 的列心 200/627/1053/1480（列宽 (1680-3*26)/4=400.5）。
+_TAKEAWAY_BAND = '''<div class="fig" data-step="4">
+        <svg width="1680" viewBox="0 0 1680 132" fill="none">
+          <!-- ① 评测 · 一把带刻度的尺子 -->
+          <g class="pop" style="--i:0"><path class="stroke" stroke-width="1" opacity=".4" d="M122 14 V26 M278 14 V26 M122 20 H278"/></g>
+          <path class="stroke dw" style="--len:412;--i:0" stroke-width="1.5" d="M120 34 H280 V78 H120 Z"/>
+          <g class="pop" style="--i:1"><path class="stroke" stroke-width="1.4" d="M140 34 V56 M160 34 V46 M180 34 V46 M200 34 V56 M220 34 V46 M240 34 V46 M260 34 V56"/></g>
+          <text class="ttl pop" style="--i:1;font-size:23px" x="200" y="118" text-anchor="middle">评测</text>
+
+          <!-- ② 岗位 · 三圆交叠再加第四圆（FDE 那一圈是新的） -->
+          <g class="pop" style="--i:1">
+            <circle class="stroke" stroke-width="1.4" cx="588" cy="46" r="30"/>
+            <circle class="stroke" stroke-width="1.4" cx="614" cy="46" r="30"/>
+            <circle class="stroke" stroke-width="1.4" cx="640" cy="46" r="30"/>
+          </g>
+          <circle class="stroke-am pop" style="--i:2" stroke-width="2.4" cx="666" cy="46" r="30"/>
+          <text class="ttl pop" style="--i:2;font-size:23px" x="627" y="118" text-anchor="middle">岗位</text>
+
+          <!-- ③ 结果生意 · 价签上打勾才结算 -->
+          <path class="stroke dw" style="--len:320;--i:2" stroke-width="1.5" d="M1026 18 H1104 A8 8 0 0 1 1112 26 V70 A8 8 0 0 1 1104 78 H1026 L994 48 Z"/>
+          <circle class="stroke pop" style="--i:2" stroke-width="1.4" cx="1018" cy="48" r="5"/>
+          <path class="stroke dw" style="--len:64;--i:3" stroke-width="2.4" stroke-linecap="round" d="M1042 48 L1056 62 L1086 30"/>
+          <text class="ttl pop" style="--i:3;font-size:23px" x="1053" y="118" text-anchor="middle">结果生意</text>
+
+          <!-- ④ 放权决策机制 · 左边双向门（进得去回得来），右边单向门（推开就没有回头） -->
+          <path class="stroke dw" style="--len:250;--i:3" stroke-width="1.5" d="M1400 18 H1464 V78 H1400 Z"/>
+          <path class="stroke dw" style="--len:250;--i:3" stroke-width="1.5" d="M1496 18 H1560 V78 H1496 Z"/>
+          <g class="pop" style="--i:4">
+            <path class="stroke" stroke-width="1.4" d="M1414 48 H1450"/>
+            <path class="fill-ink" d="M1408 48 L1418 42 L1418 54 Z"/>
+            <path class="fill-ink" d="M1456 48 L1446 42 L1446 54 Z"/>
+            <path class="stroke" stroke-width="1.8" d="M1508 38 V58"/>
+            <path class="stroke" stroke-width="1.4" d="M1508 48 H1544"/>
+            <path class="fill-ink" d="M1552 48 L1542 42 L1542 54 Z"/>
+          </g>
+          <text class="ttl pop" style="--i:4;font-size:23px" x="1480" y="118" text-anchor="middle">放权决策机制</text>
+        </svg>
+      </div>'''
+_cut1(60, '<div class="fig" data-step="4">', '一个更贵的玩具</b>。</span></div>', _TAKEAWAY_BAND)
+
 _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
           + list(range(11, 22)) + [23, 22] + list(range(24, 28))
           # ↑ C5：金句02(23) 与 反共识页(22) 换序 —— 恰好半秒 → 视频 → 金句02 → 反共识 → PART 3
@@ -606,6 +683,18 @@ for _mk in ("题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eva
     assert _mk in s, f"C2/C3/C4/C5 内容缺失：{_mk}"
 assert "Eval 第四课" not in s
 assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in s
+# C6 内容在位 / 悬空引用清零
+for _mk in ("事前授权", "批动作类别，不批每一句话", "这六件事，第五幕会变成组织的授权语法",
+            "边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
+            "授权可撤销（随时降级、随时回滚）", "《人和组织，必须一起转身》", "把权放给 high agency 的人"):
+    assert _mk in s, f"C6 内容缺失：{_mk}"
+assert "授权书" not in s, "C6：《Agent 授权书》已删页，正文不应再出现该字样"
+assert "进化速度，等于我们的放权速度" not in s, "C6：收束页 land 应已随汇聚箭头一并撤掉"
+assert 'text-anchor="middle">人工审批</text>' not in s, "C6：闸门轴第三节点应已从「人工审批」改成「事前授权」"
+_p54 = s[s.index('全场收束 · ONE LINE EACH'):]
+_p54 = _p54[:_p54.index('</section>')]
+for _w in ('>评测</text>', '>岗位</text>', '>结果生意</text>', '>放权决策机制</text>'):
+    assert _w in _p54, f"C6 · P54 四资产带缺失：{_w}"
 # C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
 _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
 _i_mq02, _i_anti = s.index('值得被记住的存在'), s.index('本场第一处反共识')

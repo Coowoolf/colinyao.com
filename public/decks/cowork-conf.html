@@ -2468,7 +2468,7 @@ h2 .pre{display:inline-block;}
       <div class="g3">
         <div class="card warn rise" style="--i:7"><div class="tag">教训 01</div><div class="t">提示词不是围栏</div><div class="d">高敏权限不能只靠提示词和策略文档约束。它们写得再好，也不是<b>可执行的边界</b>——模型不会因为你写了「不要」就做不到。</div></div>
         <div class="card on rise" style="--i:8"><div class="tag">教训 02</div><div class="t">围栏必须在架构里</div><div class="d">容器、沙箱、权限边界、人工升级通道——这四件是<b>工程</b>，不是流程。写在架构图上，不是写在 Wiki 上。</div></div>
-        <div class="card on rise" style="--i:9"><div class="tag">教训 03</div><div class="t">也必须在纸上</div><div class="d">一份写清楚的<b>《Agent 授权书》</b>：替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回。这张表，第五幕交给组织。</div></div>
+        <div class="card on rise" style="--i:9"><div class="tag">教训 03</div><div class="t">也必须在纸上</div><div class="d">授权不能只活在代码里，还要白纸黑字写清六件事：<b>替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回</b>——写不出来，就是还没想清楚。这六件事，第五幕会变成组织的授权语法。</div></div>
       </div>
       <div class="note co flow" style="--i:10">我不想用这一页制造恐慌。我想用它说明一件事：<b>围栏不是合规部门的事，是架构师的事。</b>行业第一次把 Agent 的问责问题，从伦理讨论变成了工程需求。</div>
     </div>
@@ -2682,7 +2682,7 @@ h2 .pre{display:inline-block;}
 
           <!-- 撤回键没有了，闸门只能整体前移 -->
           <path class="stroke dw" style="--len:1700;--i:9" stroke-width="1" opacity=".45" d="M0 262 H1680"/>
-          <text class="lbl pop" style="--i:9" x="0" y="292">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>
+          <text class="lbl pop" style="--i:9" x="0" y="292">事后没有撤回键，闸门整体前移到「说出口之前」——人工审批也前移：<tspan class="fill-am">批动作类别，不批每一句话</tspan></text>
 
           <path class="stroke dw" style="--len:1560;--i:10" stroke-width="1.6" d="M0 362 H1540"/>
           <path class="fill-ink pop" style="--i:10" d="M1540 354 L1556 362 L1540 370 Z"/>
@@ -2690,7 +2690,7 @@ h2 .pre{display:inline-block;}
           <g class="pop" style="--i:10">
             <text class="txt fill-co" x="375" y="332" text-anchor="middle">能力边界</text>
             <text class="txt fill-co" x="750" y="332" text-anchor="middle">授权范围</text>
-            <text class="txt fill-co" x="1125" y="332" text-anchor="middle">人工审批</text>
+            <text class="txt fill-co" x="1125" y="332" text-anchor="middle">事前授权</text>
             <text class="txt fill-am" x="1680" y="332" text-anchor="end">才允许出声</text>
           </g>
         </svg></div>
@@ -2813,11 +2813,11 @@ h2 .pre{display:inline-block;}
         </svg>
       </div>
       <div class="g3" data-step="4">
-        <div class="card on rise" style="--i:0"><div class="n">01</div><div class="t">边界遵守 / Boundary Fidelity</div><div class="d">越权拒答率 · 策略遵守率 · 敏感操作确认率<br><span class="dim">—— 这是爬梯每一级的门槛</span></div></div>
-        <div class="card on rise" style="--i:1"><div class="n">02</div><div class="t">结果可追 / Accountability</div><div class="d">审计覆盖率 · 决策可归因率 · 人工接管记录完整度<br><span class="dim">—— 这是审批的前提</span></div></div>
-        <div class="card on rise" style="--i:2"><div class="n">03</div><div class="t">托付可收 / Recoverability</div><div class="d">撤销生效延迟 · 回滚成功率 · 安全降级成功率<br><span class="dim">—— 这是收回的能力</span></div></div>
+        <div class="card on rise" style="--i:0"><div class="n">01</div><div class="t">边界 / BOUNDARY</div><div class="d">越权拒答率 · 策略遵守率 · 敏感操作确认率<br><span class="dim">—— 这是爬梯每一级的门槛</span></div></div>
+        <div class="card on rise" style="--i:1"><div class="n">02</div><div class="t">结果 / ACCOUNTABILITY</div><div class="d">审计覆盖率 · 决策可归因率 · 人工接管记录完整度<br><span class="dim">—— 这是审批的前提</span></div></div>
+        <div class="card on rise" style="--i:2"><div class="n">03</div><div class="t">可撤销 / RECOVERABILITY</div><div class="d">撤销生效延迟 · 回滚成功率 · 安全降级成功率<br><span class="dim">—— 这是收回的能力</span></div></div>
       </div>
-      <div class="land flow" data-step="4" style="--i:3">信任不是一种感觉。<b>信任是被验证过的行动空间。</b><span class="s">这三个维度对应四条工程坐标：身份可验（它是谁、代表谁）· 行为可拦（越界那句话必须在说完之前被拦下）· 结果可追（每一轮留痕、可归因）· 授权可收（随时降级、随时回滚）。</span></div>
+      <div class="land flow" data-step="4" style="--i:3">信任不是一种感觉。<b>信任是被验证过的行动空间。</b><span class="s">这三个维度对应四条工程坐标：身份可验（它是谁、代表谁）· 行为可拦（越界那句话必须在说完之前被拦下）· 结果可追（每一轮留痕、可归因）· 授权可撤销（随时降级、随时回滚）。</span></div>
     </div>
   </div>
 </section>
@@ -3053,8 +3053,8 @@ h2 .pre{display:inline-block;}
         <div class="card sm rise" style="--i:10"><div class="hd"><div class="n">03</div><div class="t">拿得到什么</div></div><div class="d">直接见客户、直接看数据，有原型工具和一点预算。<b>拿不到，就等于没授。</b></div><div class="tag">数据 · 工具 · 预算</div></div>
         <div class="card sm on rise" style="--i:11"><div class="hd"><div class="n">04</div><div class="t">什么时候停</div></div><div class="d">到什么条件就撤、谁来宣布。<b>没有退出标准的授权，最后都会烂尾。</b></div><div class="tag">退出标准 · 谁来喊停</div></div>
       </div>
-      <div class="note co flow" style="--i:12">2025 年这道题我讲给产研团队，名字叫<b>单向门 / 双向门</b>；今年它升级成整个公司的授权语法——<b>哪些门 Agent 可以自己推，哪些门必须人来推。</b>授权翻车只有两种翻法：「要他扛结果却什么都得批」，和「给了权但没画边界」——一路跑到撞上一扇单向门。</div>
-      <div class="land flow rev" style="--i:12">个人 agency 是能力，<b>组织 agency 是制度许可</b>。<span class="s">流程集中在不可逆风险上，自由留给可逆试验。第四幕那份《Agent 授权书》，已经把「替谁做、做什么、到哪里为止、错了怎么办、怎么收回」写给它了。<b>同一张表，换个抬头，也给人发一张。</b></span></div>
+      <div class="note co flow" style="--i:12">2025 年我把它讲给产研团队，题目叫<b>《人和组织，必须一起转身》</b>——单向门 / 双向门；今年它升级成整个公司的授权语法：<b>哪些门 Agent 可以自己推，哪些门必须人来推。</b>授权翻车只有两种翻法：「要他扛结果却什么都得批」，和「给了权但没画边界」——一路跑到撞上一扇单向门。</div>
+      <div class="land flow rev" style="--i:12">转身的落点就一句：<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。<span class="s">个人 agency 是能力，<b>组织 agency 是制度许可</b>：流程集中在不可逆风险上，自由留给可逆试验。第四幕写给 Agent 的授权六件事，<b>换个抬头，也该给人写一份</b>。</span></div>
     </div>
   </div>
 </section>
@@ -3093,28 +3093,42 @@ h2 .pre{display:inline-block;}
         </div>
       </div>
       <div class="fig" data-step="4">
-        <svg width="1680" viewBox="0 0 1680 210" fill="none">
-          <path class="stroke-am dw" style="--len:820;--i:0" stroke-width="1.8" d="M200 12 C 200 106, 840 62, 840 140"/>
-          <path class="stroke-am dw" style="--len:400;--i:0" stroke-width="1.8" d="M627 12 C 627 106, 840 62, 840 140"/>
-          <path class="stroke-am dw" style="--len:400;--i:0" stroke-width="1.8" d="M1053 12 C 1053 106, 840 62, 840 140"/>
-          <path class="stroke-am dw" style="--len:820;--i:0" stroke-width="1.8" d="M1480 12 C 1480 106, 840 62, 840 140"/>
+        <svg width="1680" viewBox="0 0 1680 132" fill="none">
+          <!-- ① 评测 · 一把带刻度的尺子 -->
+          <g class="pop" style="--i:0"><path class="stroke" stroke-width="1" opacity=".4" d="M122 14 V26 M278 14 V26 M122 20 H278"/></g>
+          <path class="stroke dw" style="--len:412;--i:0" stroke-width="1.5" d="M120 34 H280 V78 H120 Z"/>
+          <g class="pop" style="--i:1"><path class="stroke" stroke-width="1.4" d="M140 34 V56 M160 34 V46 M180 34 V46 M200 34 V56 M220 34 V46 M240 34 V46 M260 34 V56"/></g>
+          <text class="ttl pop" style="--i:1;font-size:23px" x="200" y="118" text-anchor="middle">评测</text>
 
-          <!-- 四枚光点同时出发、同时抵达：这一页讲的就是压缩 -->
-          <path class="stroke-am pkt" style="--pl:40px;--p0:40px;--p1:-876px;--pt:5.6s" stroke-width="3.4" d="M200 12 C 200 106, 840 62, 840 140"/>
-          <path class="stroke-am pkt" style="--pl:40px;--p0:40px;--p1:-359px;--pt:5.6s" stroke-width="3.4" d="M627 12 C 627 106, 840 62, 840 140"/>
-          <path class="stroke-am pkt" style="--pl:40px;--p0:40px;--p1:-359px;--pt:5.6s" stroke-width="3.4" d="M1053 12 C 1053 106, 840 62, 840 140"/>
-          <path class="stroke-am pkt" style="--pl:40px;--p0:40px;--p1:-876px;--pt:5.6s" stroke-width="3.4" d="M1480 12 C 1480 106, 840 62, 840 140"/>
+          <!-- ② 岗位 · 三圆交叠再加第四圆（FDE 那一圈是新的） -->
+          <g class="pop" style="--i:1">
+            <circle class="stroke" stroke-width="1.4" cx="588" cy="46" r="30"/>
+            <circle class="stroke" stroke-width="1.4" cx="614" cy="46" r="30"/>
+            <circle class="stroke" stroke-width="1.4" cx="640" cy="46" r="30"/>
+          </g>
+          <circle class="stroke-am pop" style="--i:2" stroke-width="2.4" cx="666" cy="46" r="30"/>
+          <text class="ttl pop" style="--i:2;font-size:23px" x="627" y="118" text-anchor="middle">岗位</text>
 
-          <circle class="fill-am pop" style="--i:1" cx="200" cy="12" r="5"/>
-          <circle class="fill-am pop" style="--i:1" cx="627" cy="12" r="5"/>
-          <circle class="fill-am pop" style="--i:1" cx="1053" cy="12" r="5"/>
-          <circle class="fill-am pop" style="--i:1" cx="1480" cy="12" r="5"/>
+          <!-- ③ 结果生意 · 价签上打勾才结算 -->
+          <path class="stroke dw" style="--len:320;--i:2" stroke-width="1.5" d="M1026 18 H1104 A8 8 0 0 1 1112 26 V70 A8 8 0 0 1 1104 78 H1026 L994 48 Z"/>
+          <circle class="stroke pop" style="--i:2" stroke-width="1.4" cx="1018" cy="48" r="5"/>
+          <path class="stroke dw" style="--len:64;--i:3" stroke-width="2.4" stroke-linecap="round" d="M1042 48 L1056 62 L1086 30"/>
+          <text class="ttl pop" style="--i:3;font-size:23px" x="1053" y="118" text-anchor="middle">结果生意</text>
 
-          <path class="stroke-am dw" style="--len:38;--i:2" stroke-width="4" d="M840 140 V172"/>
-          <path class="fill-am pop" style="--i:3" d="M840 194 l-11 -18 l22 0 z"/>
+          <!-- ④ 放权决策机制 · 左边双向门（进得去回得来），右边单向门（推开就没有回头） -->
+          <path class="stroke dw" style="--len:250;--i:3" stroke-width="1.5" d="M1400 18 H1464 V78 H1400 Z"/>
+          <path class="stroke dw" style="--len:250;--i:3" stroke-width="1.5" d="M1496 18 H1560 V78 H1496 Z"/>
+          <g class="pop" style="--i:4">
+            <path class="stroke" stroke-width="1.4" d="M1414 48 H1450"/>
+            <path class="fill-ink" d="M1408 48 L1418 42 L1418 54 Z"/>
+            <path class="fill-ink" d="M1456 48 L1446 42 L1446 54 Z"/>
+            <path class="stroke" stroke-width="1.8" d="M1508 38 V58"/>
+            <path class="stroke" stroke-width="1.4" d="M1508 48 H1544"/>
+            <path class="fill-ink" d="M1552 48 L1542 42 L1542 54 Z"/>
+          </g>
+          <text class="ttl pop" style="--i:4;font-size:23px" x="1480" y="118" text-anchor="middle">放权决策机制</text>
         </svg>
       </div>
-      <div class="land ctr flow" data-step="4" style="--i:4">四句话，说的是同一件事：<em>它的进化速度，等于我们的放权速度</em>——而放权的底气，来自<b>亲手写的那把尺子</b>。<span class="s">尺子递得出去，名单上就多一个<b>同事</b>；递不出去，再大的模型也只是<b>一个更贵的玩具</b>。</span></div>
     </div>
   </div>
 </section>
