@@ -71,4 +71,6 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
+  // aiot26 终版（31 页 · 默认浅底）= V2 骨架 + V1 幕结构与金句 + 续集钩子 / 反共识 / AMA 三处补位
+  { source: "/aiot26-v3", file: "/decks/aiot26-v3.html" },
 ];
