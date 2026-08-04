@@ -11,7 +11,7 @@ pg.on("pageerror", (e) => errs.push("pageerror: " + e.message));
 
 // ── 1) /cowork-conf 全量走查（含 data-step 推进 + 溢出检查） ──
 await pg.goto("http://localhost:3000/cowork-conf", { waitUntil: "networkidle" });
-await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 63);
+await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 58);
 const n = await pg.evaluate(() => window.deck.slides.length);
 let overflow = [];
 for (let i = 0; i < n; i++) {
@@ -59,11 +59,11 @@ const a2 = await pg.evaluate(() => {
 console.log("P3 第一按:", JSON.stringify(a1), "→ 第二按:", JSON.stringify(a2));
 
 // ── 3) 媒体行为 · 视频页（自然走入 → 播 → 翻页） ──
-await pg.evaluate(() => window.deck.go(22));
+await pg.evaluate(() => window.deck.go(20));
 await pg.waitForTimeout(300);
-// 推满 P24 的 step 后再前进
+// 推满视频前一页的 step 后再前进
 await pg.evaluate(() => {
-  const d = window.deck, s = d.slides[22];
+  const d = window.deck, s = d.slides[20];
   const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
   for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
   if (d.step !== undefined) d.step = mx;
@@ -74,26 +74,26 @@ const v0 = await pg.evaluate(() => ({ i: window.deck.i }));
 await pg.keyboard.press("ArrowRight"); // 第一按：播视频
 await pg.waitForTimeout(900);
 const v1 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[23].querySelector("video[data-dm]");
-  return { i: d.i, playing: !!x && !x.paused, ind: d.slides[23].classList.contains("dm-playing"), err: x && x.error ? x.error.code : 0, canH264: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') };
+  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
+  return { i: d.i, playing: !!x && !x.paused, ind: d.slides[21].classList.contains("dm-playing"), err: x && x.error ? x.error.code : 0, canH264: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') };
 });
 await pg.screenshot({ path: "/tmp/qa/conf-p25-video.png" });
 await pg.keyboard.press("ArrowRight"); // 第二按：停 + 翻页
 await pg.waitForTimeout(400);
 const v2 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[23].querySelector("video[data-dm]");
+  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
   return { i: d.i, paused: !!x && x.paused };
 });
 console.log("进入P25:", JSON.stringify(v0), "第一按:", JSON.stringify(v1), "→ 第二按:", JSON.stringify(v2));
 
 // ── 4) prev 复位 + P 键 ───────────────────────────────
-await pg.evaluate(() => window.deck.go(23));
+await pg.evaluate(() => window.deck.go(21));
 await pg.keyboard.press("ArrowRight");
 await pg.waitForTimeout(500);
 await pg.keyboard.press("ArrowLeft"); // prev：停 + 回上一页
 await pg.waitForTimeout(300);
 const r1 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[23].querySelector("video[data-dm]");
+  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
   return { i: d.i, paused: x.paused, t: +x.currentTime.toFixed(2) };
 });
 await pg.evaluate(() => window.deck.go(2));
