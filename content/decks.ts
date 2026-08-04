@@ -61,6 +61,9 @@ export const essayDecks: Deck[] = [
   { slug: "highagency", num: "27", title: "AI 让执行变便宜，high agency 让人变贵", slides: 51, category: "公众号", dual: true },
   { slug: "awsfde", num: "28", title: "AWS 砸 10 亿美元把工程师送进客户现场——但他们什么时候离开", slides: 30, category: "公众号", dual: true },
   { slug: "34days", num: "32", title: "改名 34 天后，它以 36 亿美元卖给 Salesforce", slides: 30, category: "公众号", dual: true },
+  { slug: "warp-public-good", num: "39", title: "OpenAI 把「更快」写进 IETF 草案，声网的护城河要换地方了", slides: 30, category: "公众号", dual: true, locked: true },
+  { slug: "turn-ledger", num: "40", title: "你按「一通电话解决了没有」收费，可「一轮」是猜出来的", slides: 30, category: "公众号", dual: true, locked: true },
+  { slug: "async-two-model", num: "41", title: "他们取消了 turn detector，然后用了两个模型", slides: 32, category: "公众号", dual: true, locked: true },
 ];
 
 export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks];
@@ -71,6 +74,6 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // aiot26 终版（35 页 · 默认浅底）= V2 骨架 + V1 幕结构与金句 + 续集钩子 / 反共识 / AMA 三处补位
-  { source: "/aiot26-v3", file: "/decks/aiot26-v3.html" },
+  // aiot26 正讲版（35 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
+  { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
 ];

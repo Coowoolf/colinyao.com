@@ -67,17 +67,29 @@ export default function DecksIndex() {
 
         <Reveal>
           <h2 className="talk-year settle" style={s(0)}>公众号 · 文章 Deck</h2>
-          {essayDecks.map((d, i) => (
-            <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(Math.min(i + 1, 10))}>
-              <div className="talk-meta">
-                <span className="date">/{d.slug}</span>
-                <span className="venue">NO.{d.num} · {d.slides} SLIDES</span>
+          {essayDecks.map((d, i) =>
+            d.locked ? (
+              <div key={d.slug} className="talk-row flow dn" style={{ ...s(Math.min(i + 1, 10)), opacity: 0.55 }}>
+                <div className="talk-meta">
+                  <span className="date">/{d.slug}</span>
+                  <span className="venue">NO.{d.num} · {d.slides} SLIDES · 连载中</span>
+                </div>
+                <div className="talk-body">
+                  <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
+                </div>
               </div>
-              <div className="talk-body">
-                <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
-              </div>
-            </a>
-          ))}
+            ) : (
+              <a key={d.slug} href={`/${d.slug}`} className="talk-row flow dn" style={s(Math.min(i + 1, 10))}>
+                <div className="talk-meta">
+                  <span className="date">/{d.slug}</span>
+                  <span className="venue">NO.{d.num} · {d.slides} SLIDES</span>
+                </div>
+                <div className="talk-body">
+                  <h3 className="talk-title" style={{ fontSize: "clamp(17px,1.8vw,21px)" }}>{d.title}</h3>
+                </div>
+              </a>
+            )
+          )}
         </Reveal>
 
         <Reveal className="mq-block">
