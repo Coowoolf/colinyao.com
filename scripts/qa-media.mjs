@@ -58,12 +58,12 @@ const a2 = await pg.evaluate(() => {
 });
 console.log("P3 第一按:", JSON.stringify(a1), "→ 第二按:", JSON.stringify(a2));
 
-// ── 3) 媒体行为 · 视频页（自然走入 → 播 → 翻页） ──
-await pg.evaluate(() => window.deck.go(20));
+// ── 3) 媒体行为 · 视频页 P21（自然走入 → 播 → 翻页） ──
+await pg.evaluate(() => window.deck.go(19));
 await pg.waitForTimeout(300);
 // 推满视频前一页的 step 后再前进
 await pg.evaluate(() => {
-  const d = window.deck, s = d.slides[20];
+  const d = window.deck, s = d.slides[19];
   const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
   for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
   if (d.step !== undefined) d.step = mx;
@@ -74,26 +74,26 @@ const v0 = await pg.evaluate(() => ({ i: window.deck.i }));
 await pg.keyboard.press("ArrowRight"); // 第一按：播视频
 await pg.waitForTimeout(900);
 const v1 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
-  return { i: d.i, playing: !!x && !x.paused, ind: d.slides[21].classList.contains("dm-playing"), err: x && x.error ? x.error.code : 0, canH264: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') };
+  const d = window.deck, x = d.slides[20].querySelector("video[data-dm]");
+  return { i: d.i, playing: !!x && !x.paused, ind: d.slides[20].classList.contains("dm-playing"), err: x && x.error ? x.error.code : 0, canH264: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') };
 });
-await pg.screenshot({ path: "/tmp/qa/conf-p25-video.png" });
+await pg.screenshot({ path: "/tmp/qa/conf-p21-video.png" });
 await pg.keyboard.press("ArrowRight"); // 第二按：停 + 翻页
 await pg.waitForTimeout(400);
 const v2 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
+  const d = window.deck, x = d.slides[20].querySelector("video[data-dm]");
   return { i: d.i, paused: !!x && x.paused };
 });
-console.log("进入P25:", JSON.stringify(v0), "第一按:", JSON.stringify(v1), "→ 第二按:", JSON.stringify(v2));
+console.log("进入P21:", JSON.stringify(v0), "第一按:", JSON.stringify(v1), "→ 第二按:", JSON.stringify(v2));
 
 // ── 4) prev 复位 + P 键 ───────────────────────────────
-await pg.evaluate(() => window.deck.go(21));
+await pg.evaluate(() => window.deck.go(20));
 await pg.keyboard.press("ArrowRight");
 await pg.waitForTimeout(500);
 await pg.keyboard.press("ArrowLeft"); // prev：停 + 回上一页
 await pg.waitForTimeout(300);
 const r1 = await pg.evaluate(() => {
-  const d = window.deck, x = d.slides[21].querySelector("video[data-dm]");
+  const d = window.deck, x = d.slides[20].querySelector("video[data-dm]");
   return { i: d.i, paused: x.paused, t: +x.currentTime.toFixed(2) };
 });
 await pg.evaluate(() => window.deck.go(2));

@@ -244,20 +244,23 @@ _secs[28] = F_EVAL
 _secs[31] = _secs[31].replace('Eval 第四课', 'Eval 第二课')
 
 # 爬梯页 · 追加交叉验证条带（末步登场，不动原梯子）
+# C5 · 断层折点 x 从 960 → 675：与母版梯子 svg 里「最大的一跳 THE BIG JUMP」那条紫色竖虚线
+#      （d="M675 40 V450"）同 x。两 svg 同为 width=1680 / viewBox 0 0 1680 …，坐标系一致，
+#      故直接取 675；标签 x=675+14=689，两段 sm 居中 x=(340+675)/2≈508 与 (675+1580)/2≈1128。
 _STRIP = '''</svg>
       </div>
       <div class="fig" data-step="4" style="margin-top:4px">
         <svg width="1680" viewBox="0 0 1680 178" fill="none">
-          <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M960 6 V172"/>
-          <text class="lbl fill-co pop" style="--i:1" x="974" y="22">交叉验证 · 两个行业的断层，也卡在同一格</text>
+          <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M675 6 V172"/>
+          <text class="lbl fill-co pop" style="--i:1" x="689" y="22">交叉验证 · 两个行业的断层，也卡在同一格</text>
           <g class="pop" style="--i:1"><text class="ttl" x="0" y="56" style="font-size:22px">自动驾驶 L1–L5</text></g>
-          <path class="stroke dw" style="--len:1240;--i:2" stroke-width="2" d="M340 50 H960 V26 H1580"/>
-          <text class="sm pop" style="--i:3" x="650" y="76" text-anchor="middle">L1–L2 · 辅助驾驶，人不敢离环</text>
-          <text class="sm pop" style="--i:3" x="1270" y="70" text-anchor="middle">L3–L5 · 系统担责，卡了十年的一跳</text>
+          <path class="stroke dw" style="--len:1240;--i:2" stroke-width="2" d="M340 50 H675 V26 H1580"/>
+          <text class="sm pop" style="--i:3" x="508" y="76" text-anchor="middle">L1–L2 · 辅助驾驶，人不敢离环</text>
+          <text class="sm pop" style="--i:3" x="1128" y="70" text-anchor="middle">L3–L5 · 系统担责，卡了十年的一跳</text>
           <g class="pop" style="--i:2"><text class="ttl" x="0" y="136" style="font-size:22px">支付 Agent 五级</text></g>
-          <path class="stroke dw" style="--len:1240;--i:3" stroke-width="2" d="M340 130 H960 V106 H1580"/>
-          <text class="sm pop" style="--i:4" x="650" y="156" text-anchor="middle">L1–L2 · 行业还在边缘徘徊</text>
-          <text class="sm pop" style="--i:4" x="1270" y="150" text-anchor="middle">L3–L5 · 还没人真正到达</text>
+          <path class="stroke dw" style="--len:1240;--i:3" stroke-width="2" d="M340 130 H675 V106 H1580"/>
+          <text class="sm pop" style="--i:4" x="508" y="156" text-anchor="middle">L1–L2 · 行业还在边缘徘徊</text>
+          <text class="sm pop" style="--i:4" x="1128" y="150" text-anchor="middle">L3–L5 · 还没人真正到达</text>
           <text class="lbl fill-am pop" style="--i:5" x="1580" y="176" text-anchor="end">第三把尺子，就是上面这架梯子——三把尺子，同一个形状</text>
         </svg>
       </div>
@@ -272,7 +275,72 @@ def _svg(sec):
     a = sec.index('<svg'); b = sec.index('</svg>') + 6
     return sec[a:b]
 _sv_exp = _svg(_secs[46]).replace('width="1680"', 'width="1360"', 1)
-_sv_exe = _svg(_secs[47]).replace('width="1680"', 'width="1130"', 1)
+# C5 · 执行的围栏改「左右两栏」重排（母版 _secs[47] 原 svg 是上下堆叠 578 高，缩到 1130 宽后拥挤且左偏）。
+#      markup / 类名全部沿用母版，只改坐标：左栏文本通道、右栏语音通道，两栏镜像对称，
+#      中间一条极淡竖分隔；底部「事后没有撤回键…」+ 闸门线横贯全宽。
+_SV_EXE_LR = '''<svg width="1560" viewBox="0 0 1680 386" fill="none">
+          <!-- 两栏中缝：极淡竖分隔 -->
+          <path class="stroke pop" style="--i:0" stroke-width="1" opacity=".16" d="M840 8 V238"/>
+
+          <!-- 左栏 · 文本通道 -->
+          <text class="lbl pop" style="--i:0" x="0" y="18">文本通道 · TEXT CHANNEL</text>
+          <rect class="box pop" style="--i:0" x="0" y="36" width="220" height="72" rx="4"/>
+          <g class="pop" style="--i:0"><text class="ttl" x="110" y="80" text-anchor="middle" style="font-size:24px">生成</text></g>
+          <path class="stroke dw" style="--len:52;--i:1" stroke-width="1.6" d="M220 72 H272"/>
+          <path class="fill-ink pop" style="--i:1" d="M272 64 L286 72 L272 80 Z"/>
+          <rect class="box pop" style="--i:1" x="290" y="36" width="220" height="72" rx="4"/>
+          <g class="pop" style="--i:1"><text class="ttl" x="400" y="80" text-anchor="middle" style="font-size:24px">人过一眼</text></g>
+          <path class="stroke dw" style="--len:52;--i:2" stroke-width="1.6" d="M510 72 H562"/>
+          <path class="fill-ink pop" style="--i:2" d="M562 64 L576 72 L562 80 Z"/>
+          <rect class="box pop" style="--i:2" x="580" y="36" width="220" height="72" rx="4"/>
+          <g class="pop" style="--i:2"><text class="ttl" x="690" y="80" text-anchor="middle" style="font-size:24px">发出</text></g>
+
+          <path class="stroke-am dw" style="--len:700;--i:3" stroke-width="2" d="M690 116 C 690 162, 110 162, 110 116"/>
+          <path class="fill-am pop" style="--i:4" d="M101 116 L110 100 L119 116 Z"/>
+          <g class="pop" style="--i:4">
+            <path class="stroke-am pkt" stroke-width="4"
+              style="--pl:70px;--p0:70px;--p1:-700px;--pt:5.6s;--pd:1.6s" d="M690 116 C 690 162, 110 162, 110 116"/>
+          </g>
+          <text class="txt fill-am pop" style="--i:4" x="400" y="196" text-anchor="middle">可撤回 · 可编辑 · 发错了还能删</text>
+          <text class="txt pop" style="--i:5" x="400" y="230" text-anchor="middle">一句越权的承诺，在文本里是一条可以删掉的消息。</text>
+
+          <!-- 右栏 · 语音通道（与左栏同 y，镜像对称） -->
+          <text class="lbl pop" style="--i:4" x="880" y="18">语音通道 · VOICE CHANNEL</text>
+          <rect class="box pop" style="--i:4" x="880" y="36" width="220" height="72" rx="4"/>
+          <g class="pop" style="--i:4"><text class="ttl" x="990" y="80" text-anchor="middle" style="font-size:24px">生成</text></g>
+          <path class="stroke dw" style="--len:52;--i:5" stroke-width="1.6" d="M1100 72 H1152"/>
+          <path class="fill-ink pop" style="--i:5" d="M1152 64 L1166 72 L1152 80 Z"/>
+          <rect class="box pop" style="--i:5" x="1170" y="36" width="220" height="72" rx="4"/>
+          <g class="pop" style="--i:5"><text class="ttl" x="1280" y="80" text-anchor="middle" style="font-size:24px">直接进耳朵</text></g>
+          <path class="stroke dw" style="--len:52;--i:6" stroke-width="1.6" d="M1390 72 H1442"/>
+          <path class="fill-ink pop" style="--i:6" d="M1442 64 L1456 72 L1442 80 Z"/>
+          <rect class="box pop" style="--i:6" x="1460" y="36" width="220" height="72" rx="4" stroke="var(--coral)" stroke-width="1.6"/>
+          <g class="pop" style="--i:6"><text class="ttl fill-co" x="1570" y="80" text-anchor="middle" style="font-size:24px">说出即生效</text></g>
+
+          <!-- 画不出来的那条弧线：虚线，且永远走不回去 -->
+          <g class="pop" style="--i:7">
+            <path class="stroke-co" stroke-width="1.4" stroke-dasharray="6 9" opacity=".45" fill="none"
+              d="M1570 116 C 1570 162, 990 162, 990 116"/>
+          </g>
+          <text class="txt fill-co pop" style="--i:8" x="1280" y="196" text-anchor="middle">这条弧线不存在</text>
+          <text class="txt pop" style="--i:8" x="1280" y="230" text-anchor="middle">同样一句话，在电话里是一份已经成立的口头承诺。</text>
+
+          <!-- 撤回键没有了，闸门只能整体前移 -->
+          <path class="stroke dw" style="--len:1700;--i:9" stroke-width="1" opacity=".45" d="M0 262 H1680"/>
+          <text class="lbl pop" style="--i:9" x="0" y="292">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>
+
+          <path class="stroke dw" style="--len:1560;--i:10" stroke-width="1.6" d="M0 362 H1540"/>
+          <path class="fill-ink pop" style="--i:10" d="M1540 354 L1556 362 L1540 370 Z"/>
+          <path class="stroke-co dw" style="--len:52;--i:10" stroke-width="3.4" d="M375 346 V378M750 346 V378M1125 346 V378"/>
+          <g class="pop" style="--i:10">
+            <text class="txt fill-co" x="375" y="332" text-anchor="middle">能力边界</text>
+            <text class="txt fill-co" x="750" y="332" text-anchor="middle">授权范围</text>
+            <text class="txt fill-co" x="1125" y="332" text-anchor="middle">人工审批</text>
+            <text class="txt fill-am" x="1680" y="332" text-anchor="end">才允许出声</text>
+          </g>
+        </svg>'''
+_sv_exe = _SV_EXE_LR
+assert '这条弧线不存在' in _svg(_secs[47]) and '这条弧线不存在' in _SV_EXE_LR
 F_FENCE = ('''<section class="slide">
   <div class="chrome"><span>PART 4 · 双向奔赴 · 两道围栏</span><span>47</span></div>
   <div class="wrap">
@@ -356,8 +424,18 @@ _r1(60, '组织真正的活，是把权放到这两把梯子够得着的那一�
 _r1(58, '<div class="by">Kevin Weil · OpenAI CPO</div>',
         '<div class="by">Kevin Weil · OpenAI 前 CPO</div>')
 
+# ── C5（2026-08-04 五轮 · 换序 + 对齐 + 图例对色 + 执行围栏左右排）──
+# 上面三处已就地改写：_order 换序（金句02 ↔ 反共识页）、_STRIP 折点 960→675、_SV_EXE_LR 左右两栏。
+# P39 · 岗位散点图图例与大会配色对不上：母版写的是浅底母版的色名，
+#      在大会版 --amber=#A855F7(紫)、--coral=#FFC000(金黄)，图上根本没有「暖橙」和「粉」。
+#      按图上实际颜色改口径：已规模商业化 = 紫，强监管场景 = 金黄。
+_r1(40, '圆点大小 = 用量 · 暖橙 = 已规模商业化 · 灰 = 早期 · 粉 = 强监管场景',
+        '圆点大小 = 用量 · 紫 = 已规模商业化 · 灰 = 早期 · 金黄 = 强监管场景')
+
 _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
-          + list(range(11, 28))                  # MQ12 … 灵魂拷问
+          + list(range(11, 22)) + [23, 22] + list(range(24, 28))
+          # ↑ C5：金句02(23) 与 反共识页(22) 换序 —— 恰好半秒 → 视频 → 金句02 → 反共识 → PART 3
+          #        反共识页后移，承上启下直接引出 PART 3（元素数仍 17）
           + [28, 31, 30]                         # Eval 第一课(一二合并) → 第二课(裁判,原四) → 第三课(听失败,方法论收尾)
           + list(range(32, 39))                  # MQ选评测 … 章节双向奔赴
           + [39, 40]                             # 爬梯×交叉验证(类比已并入) · 岗位
@@ -377,7 +455,7 @@ AUDIO = (CHROME3 + '\n  <audio data-dm src="/media/cowork/p3-call.mp3" preload="
          '\n  <div class="dm-ind" aria-hidden="true"></div>')
 s = s.replace(CHROME3, AUDIO, 1)
 
-# b) P24 之后插入全幅视频页（陪伴类智能体 · 多模态交互 demo，无文字）
+# b) 插入全幅视频页（陪伴类智能体 · 多模态交互 demo，无文字）
 VIDEO = '''<section class="slide">
   <div class="vslide">
     <video data-dm src="/media/cowork/gemini-demo.mp4" preload="auto" playsinline></video>
@@ -385,10 +463,13 @@ VIDEO = '''<section class="slide">
   </div>
 </section>
 '''
-# 内容锚定：插在「授权可以被收回」反共识页之后（跟随内容移动，不吃页码位移）
+# 内容锚定（C5 改挂）：插在「恰好的那半秒」页之后 —— 反共识页已后移到金句02 之后，
+# 视频不再跟着它走；锚点用该页 h2 全串（跟随内容移动，不吃页码位移）
 _vs = [m.start() for m in re.finditer(r'<section class="slide', s)]
 assert len(_vs) == 54, f"压缩层后应 54 页，实际 {len(_vs)}"
-_ai = s.index('授权可以被收回——这不是失败')
+_ANCHOR = '<h2 class="ink" style="--i:1">恰好的那半秒，比快半秒值钱</h2>'
+assert s.count(_ANCHOR) == 1, "视频锚点定位失败"
+_ai = s.index(_ANCHOR)
 _ae = s.index('</section>', _ai) + len('</section>')
 s = s[:_ae] + '\n' + VIDEO.rstrip('\n') + s[_ae:]
 
@@ -519,7 +600,14 @@ assert "deckRuler" in s and "noindex" in s
 # C2/C3 内容在位（防「定义了未装配」）
 for _mk in ("题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
             "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
-            "四个阶段，四颗", "不应该</em>被记住", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO"):
-    assert _mk in s, f"C2/C3/C4 内容缺失：{_mk}"
+            "四个阶段，四颗", "不应该</em>被记住", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
+            "紫 = 已规模商业化", "金黄 = 强监管场景", "这条弧线不存在", "文本通道 · TEXT CHANNEL", "语音通道 · VOICE CHANNEL",
+            'd="M675 6 V172"'):
+    assert _mk in s, f"C2/C3/C4/C5 内容缺失：{_mk}"
 assert "Eval 第四课" not in s
+assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in s
+# C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
+_i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
+_i_mq02, _i_anti = s.index('值得被记住的存在'), s.index('本场第一处反共识')
+assert _i_half < _i_video < _i_mq02 < _i_anti, "C5 换序失败：恰好半秒 → 视频 → 金句02 → 反共识"
 print("ruler ✓ noindex ✓ C2/C3 content ✓")
