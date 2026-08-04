@@ -153,6 +153,18 @@ assert len(S) == 40, len(S)
 
 s = head + '\n'.join(S) + tail
 
+# 金句编号按文档顺序重排（增量页来自 Fable 35 页版、主干页来自 robot26，
+# 两边各自从 01 起编，直接拼装会撞号；后缀如「· 生死线」不动）
+_mq = [0]
+
+
+def _mqf(mm):
+    _mq[0] += 1
+    return 'MONEY QUOTE · %02d' % _mq[0]
+
+
+s = re.sub(r'(?i)MONEY QUOTE · 0\d', _mqf, s)
+
 # 页码重排
 _st = [m.start() for m in re.finditer(r'<section class="slide', s)]
 assert len(_st) == 40, len(_st)
@@ -191,6 +203,8 @@ assert len(re.findall(r'<div class="act">', s)) == 5, '幕卡数不对'
 assert '工程问题 #5' in TXT and '工程问题 #4' in TXT, '工程问题编号未顺延'
 assert '三份产品资产 × 一个实时引擎' in TXT, '未与主论坛 keynote 公式挂钩'
 assert '恰好的那半秒' in TXT, '未与主论坛 P20 标题对齐'
+assert _mq[0] == 4 and len(set(re.findall(r'MONEY QUOTE · (\d\d)', s))) == 4, '金句编号有重复'
+assert 'MONEY QUOTE · 04 · 生死线' in s, '生死线后缀丢失'
 for _g in ('实时听见','立刻想起','当下回应'):
     assert _g in TXT, '主论坛临场感金标准缺失: ' + _g
 
