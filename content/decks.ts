@@ -20,7 +20,7 @@ export const speechDecks: Deck[] = [
 
 /** 对外演讲全集 · 2024–2026 · 14 场（13 为圆桌主持无 deck）。 */
 export const talkDecks: Deck[] = [
-  { slug: "aiot26", num: "16", date: "2026.08", venue: "2026 AI 产品大会 · 声网 AIoT 专场", title: "当 AI 有了身体：从玩具到伙伴的多模态产品化破局", slides: 35, category: "对外演讲", dual: true, locked: true },
+  { slug: "aiot26", num: "16", date: "2026.08", venue: "2026 AI 产品大会 · 声网 AIoT 专场", title: "当 AI 有了身体：从玩具到伙伴的多模态产品化破局", slides: 40, category: "对外演讲", dual: true, locked: true },
   { slug: "aws26", num: "15", date: "2026.06", venue: "AWS 中国峰会", title: "被记住 · 被托付：对话式智能体的物种分化与同源进化", slides: 38, category: "对外演讲", dual: true },
   { slug: "inspire26", num: "14", date: "2026.06", venue: "INSPIRE 2026", title: "从对话式 AI 到企业级智能体", slides: 24, category: "对外演讲", dual: true },
   { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 深圳", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 42, category: "对外演讲", dual: true },
