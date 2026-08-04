@@ -69,4 +69,6 @@ export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks];
 export const deckRoutes: { source: string; file: string }[] = [
   ...allDecks.map((d) => ({ source: `/${d.slug}`, file: `/decks/${d.slug}.html` })),
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
+  // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
+  { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
 ];
