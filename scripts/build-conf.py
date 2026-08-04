@@ -96,8 +96,8 @@ F_MONEY = '''<section class="slide">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">先看钱往哪儿去了 · 再看渗透到了哪儿</div>
-      <h2 class="ink" style="--i:1">整个赛道在同时点火，<em>采购已经开动</em></h2>
+      <div class="eyebrow flow" style="--i:0">整个赛道在同时点火，采购已经开动</div>
+      <h2 class="ink" style="--i:1">先看<em>钱</em>往哪儿去了，再看<em>渗透</em>到了哪儿</h2>
     </div>
     <div class="body">
       <div class="fx2">
@@ -249,7 +249,7 @@ _STRIP = '''</svg>
       <div class="fig" data-step="4" style="margin-top:4px">
         <svg width="1680" viewBox="0 0 1680 178" fill="none">
           <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M960 6 V172"/>
-          <text class="lbl fill-co pop" style="--i:1" x="974" y="22">交叉验证 · 断层都在同一格：人还在不在环里</text>
+          <text class="lbl fill-co pop" style="--i:1" x="974" y="22">交叉验证 · 两个行业的断层，也卡在同一格</text>
           <g class="pop" style="--i:1"><text class="ttl" x="0" y="56" style="font-size:22px">自动驾驶 L1–L5</text></g>
           <path class="stroke dw" style="--len:1240;--i:2" stroke-width="2" d="M340 50 H960 V26 H1580"/>
           <text class="sm pop" style="--i:3" x="650" y="76" text-anchor="middle">L1–L2 · 辅助驾驶，人不敢离环</text>
@@ -265,7 +265,7 @@ _STRIP = '''</svg>
 assert _secs[39].count('</svg>\n      </div>\n      <div class="note flow" data-step="3"') == 1
 _secs[39] = _secs[39].replace('</svg>\n      </div>\n      <div class="note flow" data-step="3"', _STRIP, 1)
 _secs[39] = _secs[39].replace('<div class="eyebrow flow" style="--i:0">自治爬梯 · THE AUTONOMY LADDER</div>',
-                              '<div class="eyebrow flow" style="--i:0">自治爬梯 × 交叉验证 · THE LADDER, THREE RULERS</div>')
+                              '<div class="eyebrow flow" style="--i:0">自治爬梯 × 交叉验证 · HUMAN IN THE LOOP</div>')
 
 # 两道围栏合一页（图原样保留，按宽缩放；正文口播）
 def _svg(sec):
@@ -289,6 +289,45 @@ F_FENCE = ('''<section class="slide">
   </div>
 </section>''')
 _secs[46] = F_FENCE
+
+# ── C3（2026-08-04 三轮 · 主标题精调，页数不变）───────────────
+# P5 提要页正名 / P7·P8 主副对调(P7 在 F_MONEY 字面量) / P33 商业模式变迁上主标
+# P38 证据 → Human in the loop / P50 补 P34 进阶：评测 = 计费口径
+def _r1(i, old, new):
+    assert _secs[i].count(old) == 1, f"_secs[{i}] 定位失败: {old[:48]}"
+    _secs[i] = _secs[i].replace(old, new, 1)
+
+# P5 · 「本场提要」上主标，弧线「活人感 → 双向奔赴」作副标
+_r1(4, '<div class="eyebrow flow" style="--i:0">本场提要</div>',
+       '<div class="eyebrow flow" style="--i:0">从「活人感」，到「双向奔赴」</div>')
+_r1(4, '<h2 class="ink" style="--i:1">去年问「它像不像人」。今年问：谁在替谁说话</h2>',
+       '<h2 class="ink" style="--i:1">本场提要</h2>')
+
+# P8 · 主副对调
+_r1(8, '<div class="eyebrow flow" style="--i:0">四个互不相干的人，说了同一件事</div>',
+       '<div class="eyebrow flow" style="--i:0">所有的路，最后都汇到「对话」这条线上</div>')
+_r1(8, '<h2 class="ink" style="--i:1">所有的路，最后都汇到「对话」这条线上</h2>',
+       '<h2 class="ink" style="--i:1">四个互不相干的人，说了<em>同一件事</em></h2>')
+
+# P33 · 商业模式变迁上主标，原主标（科目）降副标
+_r1(34, '<div class="eyebrow flow" style="--i:0">怎么判断一项技术真的兑现了</div>',
+        '<div class="eyebrow flow" style="--i:0">看客户把这笔钱，记在哪个科目上</div>')
+_r1(34, '<h2 class="ink" style="--i:1">看客户把这笔钱，记在哪个科目上</h2>',
+        '<h2 class="ink" style="--i:1">企业级智能体的商业模式变迁：从技术付费，到<em>结果付费</em></h2>')
+
+# P38 · 隔着的不是技术，是人还在不在环里（同自动驾驶：Human in the loop）
+_r1(39, '<h2 class="ink" style="--i:1">每一级之间隔着的不是技术，是<em>证据</em></h2>',
+        '<h2 class="ink" style="--i:1">每一级之间隔着的不是技术，是<em>人还在不在环里</em></h2>')
+
+# P50 · 进阶行（P34 的下一步）：评测不止定义产品，直接是计费口径；原 note 并入防重复
+# （放 duo 外的紧凑单行——duo 内加带会被 body flex 压缩、overflow:hidden 截断）
+_r1(53, '那句「做对了」。</b></div>\n        </div>\n      </div>',
+        '''那句「做对了」。</b></div>
+        </div>
+      </div>
+      <div class="adv flow" data-step="2"><span class="ak">进阶 · 它不止定义产品</span><span class="ab">你写的这套评测，就是「按结果收钱」的计费口径</span><span class="ad">对产品量好坏，对商业量钱——商业模式和商业结果，都押在这把尺子上</span></div>''')
+_r1(53, '<div class="note" data-step="2"><span class="flow" style="--i:0">这也是为什么<b>「按结果收钱」绕不过评测</b>：计价单位从「用量」换成「结果」的那一刻，你手里得先有一把判得了「成了」的尺子。<b>先有 Evals，才谈得上按结果收钱。</b></span></div>\n      ', '')
+
 _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
           + list(range(11, 28))                  # MQ12 … 灵魂拷问
           + [28, 31, 30]                         # Eval 第一课(一二合并) → 第二课(裁判,原四) → 第三课(听失败,方法论收尾)
@@ -425,6 +464,11 @@ CONF_CSS = """
 .nstar .ns span{display:block;margin-top:5px;font-size:15px;font-family:var(--f-mono);letter-spacing:.06em;color:var(--ink-3);}
 .nstar .ns.am{border-top-color:var(--amber);}
 .nstar .ns.am b{color:var(--amber);}
+/* C3 · P50 进阶行（评测=计费口径） */
+.adv{display:flex;gap:20px;align-items:baseline;border-top:1px solid var(--hair);padding-top:16px;}
+.adv .ak{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--amber);white-space:nowrap;flex:none;}
+.adv .ab{font-size:23px;font-weight:700;color:var(--ink);white-space:nowrap;flex:none;}
+.adv .ad{font-size:17px;color:var(--ink-3);line-height:1.5;}
 /* 结尾页照常黑底 */
 @media print{.chrome::after,.confcover::after{opacity:1;}}
 /* deck-media · 页内音视频（PPT 对齐：前进键先播，再按翻页） */
@@ -444,8 +488,9 @@ n = len(re.findall(r'<section class="slide', s))
 assert n == 55, f"大会版应为 55 页，实际 {n}"
 print(f"cowork-conf.html written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
-# C2 融合页内容在位（防「定义了未装配」）
-for _mk in ("题之骗 × 粒度之骗", "THE LADDER, THREE RULERS", "TWO FENCES", "Eval 第二课", "交叉验证 · 断层都在同一格"):
-    assert _mk in s, f"C2 内容缺失：{_mk}"
+# C2/C3 内容在位（防「定义了未装配」）
+for _mk in ("题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
+            "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径"):
+    assert _mk in s, f"C2/C3 内容缺失：{_mk}"
 assert "Eval 第四课" not in s
-print("ruler ✓ noindex ✓ C2 content ✓")
+print("ruler ✓ noindex ✓ C2/C3 content ✓")
