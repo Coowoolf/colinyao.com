@@ -3,7 +3,7 @@
    完全对齐大会模板：黑底 + 紫系(#9333EA/#A855F7/#C084FC) + 金黄 #FFC000 +
    阿里巴巴普惠体 2.0 + 页头紫 tab/双 logo + 模板封面 keyart + 章节页/观点页版式。
    内容与 62 页定稿母版逐字一致（内容层已烘焙进母版），仅叠加视觉层与媒体层
-   （P3 录音 + 「授权可收回」页后插视频页）+ 演讲压缩层（-5），共 58 页。
+   （P3 录音 + 「授权可收回」页后插视频页）+ 演讲压缩层（两轮 -8），共 55 页。
    媒体行为与 PPT 对齐：前进键第一按播放，再按停止并翻页；M 键手动播/停（p 已被「跳上一整页」占用）。"""
 import re, sys
 sys.path.insert(0, "/tmp/conf-tpl")
@@ -162,12 +162,145 @@ F_STAGES = F_STAGES.replace('这一步才算<b class="am">双向</b>。</span></
 
 _secs[6] = F_MONEY
 _secs[9] = F_STAGES
+
+# ── C2（2026-08-04 二轮 · -3 → 55 页）─────────────────────────
+# ① Eval 一二课合并（题之骗 × 粒度之骗，左右双栏），四课顺位为第二课紧随，三课(方法论)收尾
+# ② 类比三把尺子并进自治爬梯（不破坏梯子原展示，交叉验证作末步条带）
+# ③ 两道围栏合一页上下两栏（图原样保留缩放，正文砍掉由口播承担）
+F_EVAL = '''<section class="slide">
+  <div class="chrome"><span>PART 3 · 被托付 · Eval 第一课</span><span>29</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow coral flow" style="--i:0">Eval 第一课 · 题之骗 × 粒度之骗</div>
+      <h2 class="ink" style="--i:1">你的 demo 在骗你，你的<span class="co">单轮分</span>也在骗你</h2>
+    </div>
+    <div class="body">
+      <div class="fx2">
+        <div class="fxcol">
+          <div class="fxh flow" style="--i:2">题之骗 · demo 的题 ≠ 生产的题</div>
+          <div class="fig" style="margin:0;justify-content:flex-start;">
+          <svg viewBox="0 0 780 300" width="780" aria-hidden="true">
+            <text class="lbl pop" style="--i:3" x="330" y="24" text-anchor="middle">厂商 A</text>
+            <text class="lbl pop" style="--i:3" x="420" y="24" text-anchor="middle">B</text>
+            <text class="lbl pop" style="--i:3" x="510" y="24" text-anchor="middle">C</text>
+            <text class="lbl pop" style="--i:3" x="600" y="24" text-anchor="middle">D</text>
+            <text class="lbl pop" style="--i:3" x="690" y="24" text-anchor="middle">E</text>
+            <text class="lbl pop" style="--i:3" x="770" y="24" text-anchor="end">F</text>
+            <path class="stroke dw" style="--len:780;--i:3" stroke-width="1" d="M0 44 H780" opacity=".5"/>
+            <g class="pop" style="--i:4"><text class="ttl" x="0" y="112" style="font-size:23px">生僻哲学词</text></g>
+            <text class="sm pop" style="--i:4" x="0" y="142">现象学 · 二律背反 · 祛魅</text>
+            <path class="stroke-am dw" style="--len:34;--i:5" stroke-width="2.6" stroke-linecap="round" d="M322 108 L328 115 L339 100"/>
+            <path class="stroke-am dw" style="--len:34;--i:5" stroke-width="2.6" stroke-linecap="round" d="M412 108 L418 115 L429 100"/>
+            <path class="stroke-am dw" style="--len:34;--i:5" stroke-width="2.6" stroke-linecap="round" d="M502 108 L508 115 L519 100"/>
+            <path class="stroke-am dw" style="--len:34;--i:6" stroke-width="2.6" stroke-linecap="round" d="M592 108 L598 115 L609 100"/>
+            <path class="stroke-am dw" style="--len:34;--i:6" stroke-width="2.6" stroke-linecap="round" d="M682 108 L688 115 L699 100"/>
+            <path class="stroke-am dw" style="--len:34;--i:6" stroke-width="2.6" stroke-linecap="round" d="M752 108 L758 115 L769 100"/>
+            <path class="stroke dw" style="--len:780;--i:6" stroke-width="1" d="M0 176 H780" opacity=".3"/>
+            <g class="pop" style="--i:7"><text class="ttl fill-co" x="0" y="240" style="font-size:23px">呼号 / 逐位订单号</text></g>
+            <text class="sm pop" style="--i:7" x="0" y="270">B 如 Boy · 0086 · 一位一位念</text>
+            <path class="stroke-co dw" style="--len:40;--i:8" stroke-width="2.6" stroke-linecap="round" d="M324 226 L338 240 M338 226 L324 240"/>
+            <path class="stroke-co dw" style="--len:40;--i:8" stroke-width="2.6" stroke-linecap="round" d="M414 226 L428 240 M428 226 L414 240"/>
+            <path class="stroke-co dw" style="--len:40;--i:8" stroke-width="2.6" stroke-linecap="round" d="M504 226 L518 240 M518 226 L504 240"/>
+            <path class="stroke-co dw" style="--len:40;--i:9" stroke-width="2.6" stroke-linecap="round" d="M594 226 L608 240 M608 226 L594 240"/>
+            <path class="stroke-co dw" style="--len:40;--i:9" stroke-width="2.6" stroke-linecap="round" d="M684 226 L698 240 M698 226 L684 240"/>
+            <path class="stroke-co dw" style="--len:40;--i:9" stroke-width="2.6" stroke-linecap="round" d="M754 226 L768 240 M768 226 L754 240"/>
+          </svg>
+          </div>
+          <div class="fxnote flow" style="--i:10">「现象学」全对，「B 如 Boy」全崩——<b>demo 里全是你写的题。</b></div>
+        </div>
+        <div class="fxcol" data-step="1">
+          <div class="fxh flow" style="--i:0">粒度之骗 · 轮轮满分，整段 0 分</div>
+          <div class="fig" style="margin:0;justify-content:flex-start;">
+          <svg viewBox="0 0 780 210" width="780" aria-hidden="true">
+            <text class="lbl fill-am pop" style="--i:1" x="0" y="20">单轮评测 · 每一轮都拿满分</text>
+            <rect class="box pop" style="--i:2" x="0" y="38" width="115" height="56" rx="4"/>
+            <rect class="box pop" style="--i:2" x="133" y="38" width="115" height="56" rx="4"/>
+            <rect class="box pop" style="--i:2" x="266" y="38" width="115" height="56" rx="4"/>
+            <rect class="box pop" style="--i:3" x="399" y="38" width="115" height="56" rx="4"/>
+            <rect class="box pop" style="--i:3" x="532" y="38" width="115" height="56" rx="4"/>
+            <rect class="box pop" style="--i:3" x="665" y="38" width="115" height="56" rx="4"/>
+            <text class="lbl fill-am pop" style="--i:3" x="57" y="72" text-anchor="middle">T1 ✓</text>
+            <text class="lbl fill-am pop" style="--i:3" x="190" y="72" text-anchor="middle">T2 ✓</text>
+            <text class="lbl fill-am pop" style="--i:3" x="323" y="72" text-anchor="middle">T3 ✓</text>
+            <text class="lbl fill-am pop" style="--i:4" x="456" y="72" text-anchor="middle">T4 ✓</text>
+            <text class="lbl fill-am pop" style="--i:4" x="589" y="72" text-anchor="middle">T5 ✓</text>
+            <text class="lbl fill-am pop" style="--i:4" x="722" y="72" text-anchor="middle">T6 ✓</text>
+            <path class="stroke-co dw" style="--len:800;--i:5" stroke-width="2" d="M0 128 V150 H780 V128"/>
+            <g class="pop" style="--i:6"><text class="ttl fill-co" x="390" y="192" text-anchor="middle" style="font-size:23px">整段 · 客户想改的那个航班，最后没改成</text></g>
+          </svg>
+          </div>
+          <div class="fxrow flow" style="--i:7"><span class="fk">段级 01</span><span class="fn" style="font-size:20px">任务完成率</span><span class="fd">来的时候要什么，走的时候拿到没有</span></div>
+          <div class="fxrow flow" style="--i:8"><span class="fk">段级 02</span><span class="fn" style="font-size:20px">转人工原因</span><span class="fd">转出去不丢人，说不清原因才丢人</span></div>
+          <div class="fxrow flow" style="--i:9"><span class="fk">段级 03</span><span class="fn" style="font-size:20px">48h 重复来电</span><span class="fd">「解决了」最诚实的反证</span></div>
+        </div>
+      </div>
+      <div class="note flow" data-step="1"><span>单轮指标是给模型看的，段级指标才是给业务看的。<b>你付钱买的是结果，不是六次礼貌的回应。</b></span></div>
+    </div>
+  </div>
+</section>'''
+_secs[28] = F_EVAL
+
+# 课四 → Eval 第二课（紧随合并页）；课三保持「第三课」名号收尾
+_secs[31] = _secs[31].replace('Eval 第四课', 'Eval 第二课')
+
+# 爬梯页 · 追加交叉验证条带（末步登场，不动原梯子）
+_STRIP = '''</svg>
+      </div>
+      <div class="fig" data-step="4" style="margin-top:4px">
+        <svg width="1680" viewBox="0 0 1680 178" fill="none">
+          <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M960 6 V172"/>
+          <text class="lbl fill-co pop" style="--i:1" x="974" y="22">交叉验证 · 断层都在同一格：人还在不在环里</text>
+          <g class="pop" style="--i:1"><text class="ttl" x="0" y="56" style="font-size:22px">自动驾驶 L1–L5</text></g>
+          <path class="stroke dw" style="--len:1240;--i:2" stroke-width="2" d="M340 50 H960 V26 H1580"/>
+          <text class="sm pop" style="--i:3" x="650" y="76" text-anchor="middle">L1–L2 · 辅助驾驶，人不敢离环</text>
+          <text class="sm pop" style="--i:3" x="1270" y="70" text-anchor="middle">L3–L5 · 系统担责，卡了十年的一跳</text>
+          <g class="pop" style="--i:2"><text class="ttl" x="0" y="136" style="font-size:22px">支付 Agent 五级</text></g>
+          <path class="stroke dw" style="--len:1240;--i:3" stroke-width="2" d="M340 130 H960 V106 H1580"/>
+          <text class="sm pop" style="--i:4" x="650" y="156" text-anchor="middle">L1–L2 · 行业还在边缘徘徊</text>
+          <text class="sm pop" style="--i:4" x="1270" y="150" text-anchor="middle">L3–L5 · 还没人真正到达</text>
+          <text class="lbl fill-am pop" style="--i:5" x="1580" y="176" text-anchor="end">第三把尺子，就是上面这架梯子——三把尺子，同一个形状</text>
+        </svg>
+      </div>
+      <div class="note flow" data-step="3"'''
+assert _secs[39].count('</svg>\n      </div>\n      <div class="note flow" data-step="3"') == 1
+_secs[39] = _secs[39].replace('</svg>\n      </div>\n      <div class="note flow" data-step="3"', _STRIP, 1)
+_secs[39] = _secs[39].replace('<div class="eyebrow flow" style="--i:0">自治爬梯 · THE AUTONOMY LADDER</div>',
+                              '<div class="eyebrow flow" style="--i:0">自治爬梯 × 交叉验证 · THE LADDER, THREE RULERS</div>')
+
+# 两道围栏合一页（图原样保留，按宽缩放；正文口播）
+def _svg(sec):
+    a = sec.index('<svg'); b = sec.index('</svg>') + 6
+    return sec[a:b]
+_sv_exp = _svg(_secs[46]).replace('width="1680"', 'width="1360"', 1)
+_sv_exe = _svg(_secs[47]).replace('width="1680"', 'width="1130"', 1)
+F_FENCE = ('''<section class="slide">
+  <div class="chrome"><span>PART 4 · 双向奔赴 · 两道围栏</span><span>47</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">TWO FENCES · 时机立规矩，动作拦半路</div>
+      <h2 class="ink" style="--i:1">两道围栏：交互行为要有<em>规矩</em>，语音动作<span class="co">最难在半路拦住</span></h2>
+    </div>
+    <div class="body">
+      <div class="fxh flow" style="--i:2">体验的围栏 · 恰当的时机，比更快的延迟值钱</div>
+      <div class="fig">''' + _sv_exp + '''</div>
+      <div class="fxh" data-step="1">执行的围栏 · 文本有撤回弧线，语音那条画不出来</div>
+      <div class="fig" data-step="1">''' + _sv_exe + '''</div>
+    </div>
+  </div>
+</section>''')
+_secs[46] = F_FENCE
 _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
-          + list(range(11, 55))                  # MQ12 起至 对产品管理者(m55) —— 案例06(m56)删
-          + [56, 57]                             # 对 CEO 说 · 对组织说 —— 进化(m60)删
-          + [60, 58])                            # 收束(越往上答案越短) → 尺子两面(向外Eval向内内观)收全场 —— 终页(m62)删
+          + list(range(11, 28))                  # MQ12 … 灵魂拷问
+          + [28, 31, 30]                         # Eval 第一课(一二合并) → 第二课(裁判,原四) → 第三课(听失败,方法论收尾)
+          + list(range(32, 39))                  # MQ选评测 … 章节双向奔赴
+          + [39, 40]                             # 爬梯×交叉验证(类比已并入) · 岗位
+          + list(range(42, 46))                  # 协作审批 · 双围栏案例 · Waymo · MQ护城河
+          + [46]                                 # 两道围栏合一(体验+执行,黑页撤回键随后)
+          + list(range(48, 55))                  # MQ撤回键 … 对产品管理者
+          + [56, 57]                             # 对 CEO 说 · 对组织说
+          + [60, 58])                            # 收束 → 尺子两面收全场
 s = _head2 + '\n'.join(_secs[o] for o in _order) + _tail2
-assert len(re.findall(r'<section class="slide', s)) == 57, "压缩后应 57 页"
+assert len(re.findall(r'<section class="slide', s)) == 54, "压缩后应 54 页"
 
 # ── 6.5) 媒体层（仅大会版；母版/线上 /cowork 保持无媒体） ────
 # a) P3 页内录音（真实外呼片段，完美嵌入，无需解说文字）
@@ -187,7 +320,7 @@ VIDEO = '''<section class="slide">
 '''
 # 内容锚定：插在「授权可以被收回」反共识页之后（跟随内容移动，不吃页码位移）
 _vs = [m.start() for m in re.finditer(r'<section class="slide', s)]
-assert len(_vs) == 57, f"压缩层后应 57 页，实际 {len(_vs)}"
+assert len(_vs) == 54, f"压缩层后应 54 页，实际 {len(_vs)}"
 _ai = s.index('授权可以被收回——这不是失败')
 _ae = s.index('</section>', _ai) + len('</section>')
 s = s[:_ae] + '\n' + VIDEO.rstrip('\n') + s[_ae:]
@@ -308,7 +441,11 @@ s = s[:li] + CONF_CSS + s[li:]
 
 open("public/decks/cowork-conf.html", "w", encoding="utf-8").write(s)
 n = len(re.findall(r'<section class="slide', s))
-assert n == 58, f"大会版应为 58 页，实际 {n}"
+assert n == 55, f"大会版应为 55 页，实际 {n}"
 print(f"cowork-conf.html written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
-print("ruler ✓ noindex ✓")
+# C2 融合页内容在位（防「定义了未装配」）
+for _mk in ("题之骗 × 粒度之骗", "THE LADDER, THREE RULERS", "TWO FENCES", "Eval 第二课", "交叉验证 · 断层都在同一格"):
+    assert _mk in s, f"C2 内容缺失：{_mk}"
+assert "Eval 第四课" not in s
+print("ruler ✓ noindex ✓ C2 content ✓")
