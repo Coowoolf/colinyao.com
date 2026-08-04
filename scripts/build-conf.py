@@ -172,7 +172,7 @@ F_EVAL = '''<section class="slide">
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">Eval 第一课 · 题之骗 × 粒度之骗</div>
-      <h2 class="ink" style="--i:1">你的 demo 在骗你，你的<span class="co">单轮分</span>也在骗你</h2>
+      <h2 class="ink" style="--i:1">你的 demo 在骗你，你的<span class="co">单轮打分</span>也在骗你</h2>
     </div>
     <div class="body">
       <div class="fx2">
@@ -327,6 +327,34 @@ _r1(53, '那句「做对了」。</b></div>\n        </div>\n      </div>',
       </div>
       <div class="adv flow" data-step="2"><span class="ak">进阶 · 它不止定义产品</span><span class="ab">你写的这套评测，就是「按结果收钱」的计费口径</span><span class="ad">对产品量好坏，对商业量钱——商业模式和商业结果，都押在这把尺子上</span></div>''')
 _r1(53, '<div class="note" data-step="2"><span class="flow" style="--i:0">这也是为什么<b>「按结果收钱」绕不过评测</b>：计价单位从「用量」换成「结果」的那一刻，你手里得先有一把判得了「成了」的尺子。<b>先有 Evals，才谈得上按结果收钱。</b></span></div>\n      ', '')
+
+# ── C4（2026-08-04 四轮 · P9/P21 主副再调 + 收束页精进 + Kevin Weil 事实修正）──
+# P9 · 主标「四个阶段，四颗北极星」，「三个被字」回副标位
+_r1(9, '<h2 class="ink" style="--i:1">三个「被」字。今年，主语换了</h2>',
+       '<h2 class="ink" style="--i:1">四个阶段，四颗<em>北极星</em></h2>')
+_r1(9, '<div class="eyebrow flow" style="--i:0">本场承重页 · 四个阶段 × 四把北极星尺子</div>',
+       '<div class="eyebrow flow" style="--i:0">三个「被」字。今年，主语换了</div>')
+
+# P21 · 主标改问句，原主标并入副标（保留反共识记号）
+_r1(22, '<h2 class="ink" style="--i:1">有三类对话，今天就不该交给它</h2>',
+        '<h2 class="ink" style="--i:1">哪些智能体，<em>不应该</em>被记住？</h2>')
+_r1(22, '<div class="eyebrow coral flow" style="--i:0">本场第一处反共识</div>',
+        '<div class="eyebrow coral flow" style="--i:0">本场第一处反共识 · 有三类对话，今天就不该交给它</div>')
+
+# P54 · 收束卡精进：机制归组织（放权与决策机制），产品管理者带走新融合岗位的定义
+# 四张卡收拢成四个名词：一套评测 · 一个岗位 · 一门生意 · 一套机制
+_r1(60, '<span class="no">管的不再是三个职能</span><em>一套机制</em>',
+        '<span class="no">管的不再是三个职能</span><em>一个新的融合岗位</em>')
+_r1(60, '产品、设计、研发，走进客户现场融合成 FDE——第四个圆不是新部门，是岗位本身的变化。',
+        '产品、设计、研发，走进客户现场，融合成 FDE——第四个圆不是新部门，是一个新岗位的定义。')
+_r1(60, '<span class="no">要的不是 AI 能力</span><em>放权</em>',
+        '<span class="no">要的不是 AI 能力</span><em>一套放权与决策机制</em>')
+_r1(60, '组织真正的活，是把权放到这两把梯子够得着的那一格。',
+        '组织真正的活，是定一套决策机制：把权放到这两把梯子够得着的那一格。')
+
+# P55 · Kevin Weil 已卸任：OpenAI CPO → 前 CPO
+_r1(58, '<div class="by">Kevin Weil · OpenAI CPO</div>',
+        '<div class="by">Kevin Weil · OpenAI 前 CPO</div>')
 
 _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
           + list(range(11, 28))                  # MQ12 … 灵魂拷问
@@ -490,7 +518,8 @@ print(f"cowork-conf.html written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
 # C2/C3 内容在位（防「定义了未装配」）
 for _mk in ("题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
-            "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径"):
-    assert _mk in s, f"C2/C3 内容缺失：{_mk}"
+            "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
+            "四个阶段，四颗", "不应该</em>被记住", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO"):
+    assert _mk in s, f"C2/C3/C4 内容缺失：{_mk}"
 assert "Eval 第四课" not in s
 print("ruler ✓ noindex ✓ C2/C3 content ✓")
