@@ -847,6 +847,108 @@ C10_CSS = """
 .r10p45 .fig .txt{font-size:28px;}
 """
 
+# ── C11 · R11 删文/换血后的逐页视觉重排（撑满层）·只在 CONF_V2=1 装配 ────────────
+#    同 C9/C10 规矩：类名按 45 页版最终页号命名，一页一档，排在 C10_CSS 之后。
+#    仍然记住 C10 顶部那条：撑满只有 viewBox（_ystretch）与字号两把真刀，
+#    给 .fig svg 写 width:18xx 无效（.fig 是 flex 容器，超过 1680 会被压回去）。
+C11_CSS = """
+/* ============ C11 · R11 · 十三页删改与数据换血后逐页撑满 ============ */
+/* P3 录音页：两块口播结论撤走，波形（svg ×2）接管上半页，2025/2026 两栏放大 */
+.r11p3 .wrap{padding-bottom:64px;}
+.r11p3 .head{margin-bottom:30px;}
+.r11p3 .body{gap:34px;}
+.r11p3 .fig .lbl{font-size:19px;}
+.r11p3 .fig .sm{font-size:22px;}
+.r11p3 .duo>div{padding:30px 34px;gap:14px;}
+.r11p3 .duo .h{font-size:19px;}
+.r11p3 .duo .b{font-size:42px;line-height:1.3;}
+.r11p3 .quote .en.sm{font-size:27px;line-height:1.5;}
+.r11p3 .foot{font-size:24px;}
+
+/* P5 本场提要：路线图四站（站距 ≈487），比五站时多出的横向余量还给字号 */
+.r11p5 .fig .txt{font-size:82px;}
+.r11p5 .fig .sm{font-size:36px;}
+.r11p5 .fig .lbl{font-size:32px;}
+
+/* P8 渗透页：企业侧四条 + 消费侧一条，条目变少，行文与大数一起加大 */
+.r11p8 .fig .txt{font-size:25px;}
+.r11p8 .fig .lbl{font-size:20px;}
+.r11p8 .fig .big{font-size:56px;}
+.r11p8 .foot{font-size:19px;line-height:1.6;max-width:1680px;}
+
+/* P9 四个互不相干的人：结论行是这一页的落点，抬到 land 级字重 */
+.r11p9 .body{gap:34px;}
+.r11p9 .fig .ttl{font-size:31px;}
+.r11p9 .fig .sm{font-size:21px;}
+.r11p9 .fig .lbl{font-size:18px;}
+.r11p9 .note{font-size:29px;line-height:1.55;color:var(--ink);font-weight:400;}
+
+/* P10 四阶段四北极星：边界声明 foot 撤走，折线（svg ×1.08）与四颗星一起放大 */
+.r11p10 .body{gap:30px;}
+.r11p10 .fig .lbl{font-size:18px;}
+.r11p10 .fig .txt{font-size:23px;}
+.r11p10 .nstar .ns b{font-size:29px;}
+.r11p10 .nstar .ns span{font-size:17px;}
+
+/* P19 Eval 第四课：四步文字并进图内（图 364 → 522），下方四块撤走，图升整页主体 */
+.r11p19 .wrap{padding-bottom:60px;}
+.r11p19 .head{margin-bottom:28px;}
+.r11p19 .body{gap:32px;}
+.r11p19 .fig .lbl{font-size:18px;}
+.r11p19 .fig .sm{font-size:21px;}
+.r11p19 .fig .txt{font-size:26px;}
+
+/* P21 案例 02：3.08% × 1.5% 双大数对比接管页面（三格 + note 撤走）。
+   两个数一紫一灰 —— 紫的是 AI，灰的是人工那条谁也压不下去的底线。 */
+.r11p21 .body{gap:32px;}
+.cmp2{display:grid;grid-template-columns:1fr auto 1fr;gap:56px;align-items:center;}
+.cmp2 .c{display:flex;flex-direction:column;gap:10px;}
+.cmp2 .c .k{font-family:var(--f-mono);font-size:17px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);}
+.cmp2 .c .v{font-family:var(--f-en);font-size:116px;font-weight:900;line-height:.9;
+  letter-spacing:-.035em;color:var(--ink-3);}
+.cmp2 .c.am .v{color:var(--amber);}
+.cmp2 .c .l{font-size:32px;font-weight:700;line-height:1.28;color:var(--ink);}
+.cmp2 .c .u{font-size:21px;font-weight:300;line-height:1.5;color:var(--ink-2);}
+.cmp2 .vs{font-family:var(--f-mono);font-size:24px;letter-spacing:.24em;color:var(--ink-3);}
+
+/* P22 商业模式变迁：中文行升为主句，英文降为原文补充，末行标出处 */
+.r11pay{border-left-color:var(--coral);font-size:36px;line-height:1.4;
+  padding-top:14px;padding-bottom:14px;}
+.r11pay .en{display:block;font-family:var(--f-mono);font-size:26px;font-weight:700;
+  line-height:1.42;letter-spacing:.005em;color:var(--ink-2);margin-top:14px;}
+.r11pay .en b{color:var(--coral);font-weight:700;}
+.r11pay .src{display:block;font-family:var(--f-mono);font-size:17px;letter-spacing:.08em;
+  font-weight:400;color:var(--ink-3);margin-top:10px;}
+
+/* P29 它决策，人审批：版面对调 —— 两条走法图上，三个大数下并缩小 */
+.r11p29 .body{gap:60px;}
+.r11p29 .stat{gap:11px;}
+.r11p29 .stat .v{font-size:88px;}
+.r11p29 .stat .l{font-size:24px;}
+.r11p29 .stat .u{font-size:16px;}
+
+/* P30 案例 03：图最上并放大（svg ×1.55），事件叙述缩小沉底作注释行 */
+.r11p30 .body{gap:24px;}
+.r11p30 .fig .lbl{font-size:19px;}
+.r11p30 .fig .sm{font-size:23px;}
+.r11p30 .old.tail{background:none;border:none;border-top:1px solid var(--hair);
+  border-radius:0;padding:14px 0 0;gap:6px;}
+.r11p30 .old.tail .yr{font-size:13px;}
+.r11p30 .old.tail .tx{font-size:18px;line-height:1.5;font-weight:300;color:var(--ink-3);}
+
+/* P33 体验的围栏：backchannel 那条 note 撤走，波形图与四张卡一起放开 */
+.r11p33 .body{gap:32px;}
+.r11p33 .card.sm{padding:24px 26px;gap:11px;}
+
+/* P36 五条准入线全景：下方只留一句，四条产品线的能力矩阵放大（svg ×1.18） */
+.r11p36 .wrap{padding-bottom:60px;}
+.r11p36 .head{margin-bottom:30px;}
+.r11p36 .body{gap:30px;}
+.r11p36 .fig .lbl{font-size:18px;}
+.r11p36 .fig .sm{font-size:19px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -1281,6 +1383,282 @@ if V2:
         ('d="M380 125 L362 134 L380 143 Z"', 'd="M380 213 L362 228 L380 243 Z"')))
     _cls(58, 'r10p45')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C11（2026-08-05 · R11 · 十三页删改与数据换血 · 页数不变 45）─────────────────
+# 沿用 C9/C10 的四把工具（_r1 / _cut1 / _cls / _ystretch）。这一轮里除了「删句 + 撑满」，
+# 还有三类新动作：**数据换血**（P8 企业侧导向）、**结论重写**（P9）、**版面对调**（P29/P30）。
+#   ① P3  录音页 · 删两块口播讲的结论文字，波形纵向 ×2 接管上半页
+#   ② P4  一个人都没有 · OPENAPI → A2A；PSTN「跑了 100 年」→「150 年」（贝尔 1876 → 今年）
+#   ③ P5  本场提要 · 路线图删「PART 0 开场」站，四站重排（站距 / 高亮段起点同步）
+#   ④ P8  渗透页 · 数据换血：消费侧五取一，企业侧补两条 2026 一手采购硬数，SOURCE 逐条标源
+#   ⑤ P9  四个互不相干的人 · 结论行重写为「企业服务侧已到规模化应用阶段·硬性基础全部具备」
+#   ⑥ P10 四阶段四北极星 · 删「边界声明」foot
+#   ⑦ P19 Eval 第四课 · STEP 01-04 四块文字并进图内成节点标注，下方四块删除，图升主体
+#   ⑧ P21 案例 02 · 页面核心换成 3.08% 被识破率 × 1.5% 人工基线的双大数对比，删三格 + note
+#   ⑨ P22 商业模式变迁 · 中文行升主，英文降为原文补充 + 出处行（Sierra 官方博客已核到）
+#   ⑩ P29 它决策人审批 · 版面对调：两条走法图上，三个大数下并缩小
+#   ⑪ P30 案例 03 沙箱逃逸 · 版面对调：图最上并放大，事件叙述缩小沉到最底部作注释行
+#   ⑫ P33 体验的围栏 · 删 backchannel 抱怨那条 note
+#   ⑬ P36 五条准入线全景 · 下方文字只留「四条产品线…四个切片」一句，图放大
+# 页码按 45 页版；_secs 下标是母版 62 页原始下标（P3→2 / P4→3 / P5→4 / P8→7 / P9→8 /
+#   P10→9 / P19→30 / P21→33 / P22→34 / P29→42 / P30→43 / P33→46 / P36→49）。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    def _rn(i, old, new, n):
+        """定量替换：_secs[i] 里 old 必须出现 n 次，全部换成 new（_r1 的复数版）。"""
+        assert _secs[i].count(old) == n, f'_secs[{i}] 定量替换失败（应 {n} 次）：{old[:48]}'
+        _secs[i] = _secs[i].replace(old, new)
+
+    # ── C11-① P3 一年后我又听了那段录音 · 删两块口播结论，波形纵向 ×2 ────────────
+    _cut1(2, '\n          <div class="s">当时我的结论是', '把它做得更像人</b>。</div>')
+    _cut1(2, '\n          <div class="s">他真正的愤怒不是', '能替谁审批</b>。</div>')
+    #    波形是这一页唯一的视觉，删完两段之后纵向 ×2 接管上半页。
+    #    两条正弦与走带光点共用同一条 d（三处），一次替换全中；--len:2200 原本就盖得住
+    #    拉伸后的实长（1715 → 1813），不用补账。
+    _ystretch(2, 2.0, ('viewBox="0 0 1680 196"', 'viewBox="0 0 1680 392"'), paths=(
+        ('d="M0 74 C 120 32, 240 116, 360 74 S 600 32, 720 74 S 960 116, 1080 74 '
+         'S 1320 32, 1440 74 S 1620 110, 1680 74"',
+         'd="M0 148 C 120 64, 240 232, 360 148 S 600 64, 720 148 S 960 232, 1080 148 '
+         'S 1320 64, 1440 148 S 1620 220, 1680 148"'),
+        ('d="M0 74 C 120 110, 240 38, 360 74 S 600 114, 720 74 S 960 36, 1080 74 '
+         'S 1320 112, 1440 74 S 1620 40, 1680 74"',
+         'd="M0 148 C 120 220, 240 76, 360 148 S 600 228, 720 148 S 960 72, 1080 148 '
+         'S 1320 224, 1440 148 S 1620 80, 1680 148"'),
+        ('width="286" height="120"', 'width="286" height="240"'),
+        ('d="M1004 14 V134 M1290 14 V134"', 'd="M1004 28 V268 M1290 28 V268"')))
+    _cls(2, 'r11p3')
+
+    # ── C11-② P4 今年这段通话里一个人都没有 · A2A + PSTN 150 年 ──────────────────
+    #    ⓐ 四个「本来以为会用上」的协议里，OPENAPI 换成 A2A（今年真正在谈的那条 agent 互操作协议）
+    _r1(3, '<text class="lbl" x="560" y="-66" text-anchor="middle">OPENAPI</text>',
+           '<text class="lbl" x="560" y="-66" text-anchor="middle">A2A</text>')
+    #    ⓑ 贝尔 1876 年打出人类第一通电话 —— 到今年（2026）整 150 周年，图上与说明行一起改
+    _r1(3, '>PSTN · 一张跑了 100 年的电话网<', '>PSTN · 一张跑了 150 年的电话网<')
+    _r1(3, '是语音，加一张一百年的旧网。',
+           '是语音，加一张<b>一百五十年</b>的旧网'
+           '（贝尔 1876 年打出人类第一通电话，今年整 150 周年）。')
+
+    # ── C11-③ P5 本场提要 · 路线图删「PART 0 · 开场」站，四站重排 ─────────────────
+    #    站位 80/460/840/1220/1600（等距 380 · 五站）→ 140/627/1113/1600（等距 ≈487 · 四站）；
+    #    高亮段起点从 PART 2 的旧 x=840 同步挪到新 x=627，--len 800 → 1010（1600-627=973）。
+    _cut1(4, '<!-- 全场路线', '</svg>', '''<!-- 全场路线：四站一条线。第一站讲「变了什么」，后三站分别回答托付时代的三个问题。 -->
+        <svg viewBox="0 320 1680 665" width="1680" fill="none">
+          <path class="stroke dw" style="--len:1500;--i:6" stroke-width="3" d="M140 543 H1600"/>
+          <path class="stroke-am dw" style="--len:1010;--i:7" stroke-width="6" d="M627 543 H1600"/>
+
+          <circle class="fill-am pop" style="--i:7" cx="140" cy="543" r="19"/>
+          <g class="pop" style="--i:8" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="6">
+            <circle cx="627" cy="543" r="17"/><circle cx="1113" cy="543" r="17"/><circle cx="1600" cy="543" r="17"/>
+          </g>
+
+          <text class="lbl fill-am pop" style="--i:7" x="140" y="368" text-anchor="middle">PART 1</text>
+          <text class="lbl fill-am pop" style="--i:8" x="627" y="368" text-anchor="middle">PART 2</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1113" y="368" text-anchor="middle">PART 3</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1600" y="368" text-anchor="middle">PART 4</text>
+
+          <text class="txt pop" style="--i:9" x="140" y="773" text-anchor="middle">语法变了</text>
+          <text class="txt pop" style="--i:9" x="627" y="773" text-anchor="middle">被托付</text>
+          <text class="txt pop" style="--i:9" x="1113" y="773" text-anchor="middle">双向奔赴</text>
+          <text class="txt pop" style="--i:9" x="1600" y="773" text-anchor="middle">人与组织</text>
+
+          <text class="sm pop" style="--i:10" x="140" y="948" text-anchor="middle">从调用到双向奔赴</text>
+          <text class="sm fill-am pop" style="--i:10" x="627" y="948" text-anchor="middle">尺子、授权与边界</text>
+          <text class="sm fill-am pop" style="--i:10" x="1113" y="948" text-anchor="middle">出事了算谁的</text>
+          <text class="sm fill-am pop" style="--i:10" x="1600" y="948" text-anchor="middle">你和团队怎么变</text>
+        </svg>''')
+    _cls(4, 'r11p5')
+
+    # ── C11-④ P8 预测还在打架，采购已经开动 · 数据换血（企业侧导向）─────────────
+    #    消费侧五条压成一条（49% 那条最有力：两年 33% → 49%，需求端的底盘）；
+    #    企业侧补两条 2026 年一手采购硬数（Salesforce《State of Service: AI Agents Edition》，
+    #    n=3,075，2026-03-09~04-04 实地）；91% 与 15–20% 原样保留。SOURCE 逐条标源与年份。
+    #    bar 换算沿用母版比例尺 14.4px/%（91%→1310 / 20%→288 / 49%→706）。
+    _cut1(7, '<svg viewBox="0 0 1680 492"', '</svg>', '''<svg viewBox="0 0 1680 496" width="1680" aria-hidden="true">
+          <!-- ── 企业侧：四个数，全部是已经发生的采购与部署 ───────────── -->
+          <text class="lbl fill-am pop" style="--i:2" x="0" y="12">企业侧 · 这四个数都已经发生</text>
+
+          <text class="txt pop" style="--i:3" x="0" y="54">全球企业客服组织里，已经在用 AI 智能体的（一年前还是 39%）</text>
+          <path class="stroke" stroke-width="14" stroke-linecap="round" d="M0 88 H1440" opacity=".22"/>
+          <path class="stroke-am dw" style="--len:950;--i:3" stroke-width="14" stroke-linecap="round" d="M0 88 H950"/>
+          <text class="big pop" style="--i:4" x="1680" y="103" text-anchor="end">66%</text>
+
+          <text class="txt pop" style="--i:4" x="0" y="136">中国银行业里，已经部署智能客服的比例</text>
+          <path class="stroke" stroke-width="14" stroke-linecap="round" d="M0 170 H1440" opacity=".22"/>
+          <path class="stroke-am dw" style="--len:1310;--i:4" stroke-width="14" stroke-linecap="round" d="M0 170 H1310"/>
+          <text class="big pop" style="--i:5" x="1680" y="185" text-anchor="end">91%</text>
+
+          <text class="txt pop" style="--i:5" x="0" y="218">已经上线的组织里，60 天内就看到可量化收益的</text>
+          <path class="stroke" stroke-width="14" stroke-linecap="round" d="M0 252 H1440" opacity=".22"/>
+          <path class="stroke-am dw" style="--len:1010;--i:5" stroke-width="14" stroke-linecap="round" d="M0 252 H1008"/>
+          <text class="big pop" style="--i:6" x="1680" y="267" text-anchor="end">70%</text>
+
+          <text class="txt pop" style="--i:6" x="0" y="300">AI 语音坐席的综合成本，只有人工坐席的</text>
+          <path class="stroke" stroke-width="14" stroke-linecap="round" d="M0 334 H1440" opacity=".22"/>
+          <path class="stroke-am dw" style="--len:288;--i:6" stroke-width="14" stroke-linecap="round" d="M0 334 H288"/>
+          <text class="big pop" style="--i:7" x="1680" y="349" text-anchor="end">15–20%</text>
+
+          <!-- ── 消费侧：只留一条，需求那一端早就到位 ───────────────────── -->
+          <text class="lbl fill-co pop" style="--i:7" x="0" y="392">消费侧 · 只留一条对照</text>
+
+          <text class="txt pop" style="--i:8" x="0" y="434">美国成年人里，用过 AI 聊天机器人的（两年前还是 33%）</text>
+          <path class="stroke" stroke-width="14" stroke-linecap="round" d="M0 468 H1440" opacity=".22"/>
+          <path class="stroke-co dw" style="--len:710;--i:8" stroke-width="14" stroke-linecap="round" d="M0 468 H706"/>
+          <text class="big fill-co pop" style="--i:9" x="1680" y="483" text-anchor="end">49%</text>
+        </svg>''')
+    _r1(7, '<div class="foot flow rev" style="--i:11">SOURCE · 国内：CC-CMM · 艾媒咨询 · 第一新声 2025 · '
+           '消费侧：Pew Research 2026.06（n=5,119）· Common Sense Media 2025.07（n=1,060）· '
+           'Similarweb 2026 年中 · 预测对照：Gartner 2025–2026</div>',
+           '<div class="foot flow rev" style="--i:11">SOURCE · 66% 与 70%：Salesforce《State of Service: '
+           'AI Agents Edition》2026-05（n=3,075 · 2026 年 3–4 月实地）· 91% 与 15–20%：CC-CMM · 艾媒咨询 · '
+           '第一新声 2025 · 49%：Pew Research 2026-06（n=5,119）· 预测对照：Gartner 2025–2026</div>')
+    _cls(7, 'r11p8')
+
+    # ── C11-⑤ P9 四个互不相干的人 · 结论行重写 ──────────────────────────────────
+    #    四条引言不动，只把结论行的口径抬高一级：不再停在「模型不再是瓶颈」，
+    #    直接落到「企业服务侧已经到了规模化应用的阶段——硬性基础全部具备」。
+    _r1(8, '<div class="note"><span class="flow" style="--i:12">四个方向的人得出了同一个结论：'
+           '<b>模型不再是瓶颈</b>。瓶颈换成了产品——权限怎么给、结果怎么算、出错怎么收。</span></div>',
+           '<div class="note"><span class="flow" style="--i:12">四个方向的人，指向同一个判断：'
+           '<b class="am">对话式智能体在企业服务侧，已经到了规模化应用的阶段</b>——'
+           '智能够用、部署可做、扩散周期已经开始、周边那圈软件也补齐了，'
+           '<b>硬性基础全部具备</b>。</span></div>')
+    _cls(8, 'r11p9')
+
+    # ── C11-⑥ P10 四个阶段四颗北极星 · 删「边界声明」foot ────────────────────────
+    _cut1(9, '\n      <div class="foot flow rev" data-step="4" style="--i:0">边界声明',
+             '结果记在哪里 · 出错由谁负责</div>')
+    #    腾出的一行还给四级折线：纵向 ×1.08（阶梯落差拉开一点，字号同步小步加大）
+    _ystretch(9, 1.08, ('viewBox="0 0 1680 480"', 'viewBox="0 0 1680 520"'), paths=(
+        ('style="font-size:34px"', 'style="font-size:40px"'),
+        ('d="M20 410 H420"', 'd="M20 443 H420"'),
+        ('style="--len:480;--i:0" stroke-width="2" d="M420 410 V330 H820"',
+         'style="--len:500;--i:0" stroke-width="2" d="M420 443 V356 H820"'),
+        ('style="--len:480;--i:0" stroke-width="2" d="M820 330 V250 H1220"',
+         'style="--len:500;--i:0" stroke-width="2" d="M820 356 V270 H1220"'),
+        ('d="M1200 40 V450"', 'd="M1200 43 V486"'),
+        ('style="--len:520;--i:1" stroke-width="3" d="M1220 250 V170 H1660"',
+         'style="--len:540;--i:1" stroke-width="3" d="M1220 270 V184 H1660"')))
+    _cls(9, 'r11p10')
+
+    # ── C11-⑦ P19 Eval 第四课 · STEP 01-04 并进图内，下方四块删除 ────────────────
+    #    四步本来就是图上四个节点的做法说明，分成两处看是重复；并进去之后图升为整页主体。
+    _STEPS_IN = '''<text class="lbl fill-am pop" style="--i:5" x="1520" y="205" text-anchor="middle">每次发版必跑</text>
+
+          <!-- 四步做法：本来在图下方另起四块，R11 并成图上四个节点各自的标注 -->
+          <text class="lbl fill-am pop" style="--i:6" x="180" y="256" text-anchor="middle">STEP 01</text>
+          <g class="pop" style="--i:6"><text class="ttl" x="180" y="298" text-anchor="middle" style="font-size:31px">全量捞，不抽样</text></g>
+          <text class="sm pop" style="--i:7" x="180" y="330" text-anchor="middle">抽样会先把长尾抽没，</text>
+          <text class="sm pop" style="--i:7" x="180" y="356" text-anchor="middle">而长尾正是它翻车的地方</text>
+
+          <text class="lbl fill-am pop" style="--i:6" x="660" y="256" text-anchor="middle">STEP 02</text>
+          <g class="pop" style="--i:6"><text class="ttl" x="660" y="298" text-anchor="middle" style="font-size:31px">人耳听，不看文本</text></g>
+          <text class="sm pop" style="--i:7" x="660" y="330" text-anchor="middle">停顿、抢话、气口，</text>
+          <text class="sm pop" style="--i:7" x="660" y="356" text-anchor="middle">转成文字之后全没了</text>
+
+          <text class="lbl fill-am pop" style="--i:7" x="1120" y="256" text-anchor="middle">STEP 03</text>
+          <g class="pop" style="--i:7"><text class="ttl" x="1120" y="298" text-anchor="middle" style="font-size:31px">归类，不打分</text></g>
+          <text class="sm pop" style="--i:8" x="1120" y="330" text-anchor="middle">先说清「错在哪一类」，</text>
+          <text class="sm pop" style="--i:8" x="1120" y="356" text-anchor="middle">再谈错得多严重</text>
+
+          <text class="lbl fill-am pop" style="--i:7" x="1520" y="256" text-anchor="middle">STEP 04</text>
+          <g class="pop" style="--i:7"><text class="ttl fill-am" x="1520" y="298" text-anchor="middle" style="font-size:31px">固化成回归集</text></g>
+          <text class="sm pop" style="--i:8" x="1520" y="330" text-anchor="middle">每一条失败都变成一道题，</text>
+          <text class="sm pop" style="--i:8" x="1520" y="356" text-anchor="middle">从此不许再错第二遍</text>'''
+    _r1(30, '<text class="lbl fill-am pop" style="--i:5" x="1520" y="205" text-anchor="middle">每次发版必跑</text>',
+            _STEPS_IN)
+    #    图下半（九类信号带）整体下移 156，给四步标注让位
+    _r1(30, '<path class="stroke dw" style="--len:1700;--i:6" stroke-width="1" opacity=".45" d="M0 250 H1680"/>',
+            '<path class="stroke dw" style="--len:1700;--i:9" stroke-width="1" opacity=".45" d="M0 406 H1680"/>')
+    _r1(30, '<text class="lbl pop" style="--i:6" x="0" y="282">那九类，就是这九类 —— 每一类都能单独出题、单独回归</text>',
+            '<text class="lbl pop" style="--i:9" x="0" y="438">那九类，就是这九类 —— 每一类都能单独出题、单独回归</text>')
+    _r1(30, '<path class="stroke dw" style="--len:1520;--i:6" stroke-width="1.2" opacity=".5" d="M88 302 H1592"/>',
+            '<path class="stroke dw" style="--len:1520;--i:9" stroke-width="1.2" opacity=".5" d="M88 458 H1592"/>')
+    _rn(30, 'cy="302" r="5"', 'cy="458" r="5"', 9)
+    _rn(30, 'y="334" text-anchor="middle"', 'y="490" text-anchor="middle"', 9)
+    _rn(30, 'y="358" text-anchor="middle"', 'y="514" text-anchor="middle"', 9)
+    _r1(30, '<svg viewBox="0 0 1680 364" width="1680" aria-hidden="true">',
+            '<svg viewBox="0 0 1680 522" width="1680" aria-hidden="true">')
+    _cut1(30, '\n      <div class="steps">', '不许再错第二遍。</div></div>\n      </div>')
+    #    下方四块腾出的一整条还给图：整张纵向 ×1.15（522 → 600），节点标题同步加大
+    _ystretch(30, 1.15, ('viewBox="0 0 1680 522"', 'viewBox="0 0 1680 600"'), paths=(
+        ('style="font-size:28px"', 'style="font-size:32px"'),
+        ('d="M80 125 H1600"', 'd="M80 144 H1600"'),
+        ('d="M0 406 H1680"', 'd="M0 467 H1680"'),
+        ('d="M88 458 H1592"', 'd="M88 527 H1592"')))
+    _cls(30, 'r11p19')
+
+    # ── C11-⑧ P21 案例 02 · 3.08% × 1.5% 双大数对比接管页面 ──────────────────────
+    #    Colin 口径：被识破率 3.08%（现文 96.5% 反推出的 3.5% 一律以 3.08% 为准），
+    #    对照人工坐席自己被投诉「不像人」的 1.5% 基线 —— 含义是「已经逼近人工极限」。
+    _cut1(33, '\n      <div class="g4">', '就是案例 01 那个数字的现场。</span></div>', '''
+      <div class="cmp2">
+        <div class="c am rise" style="--i:8">
+          <div class="k">AI 坐席 · 本案例全量标注</div>
+          <div class="v">3.08%</div>
+          <div class="l">被识破率</div>
+          <div class="u">通话结束前，被对方听出「这是 AI」的比例</div>
+        </div>
+        <div class="vs pop" style="--i:9">VS</div>
+        <div class="c rise" style="--i:10">
+          <div class="k">人工坐席 · 上线前人工基线 · 内部口径</div>
+          <div class="v">1.5%</div>
+          <div class="l">被投诉「不像人」基线</div>
+          <div class="u">真人坐席被客户抱怨「像机器人」的比例</div>
+        </div>
+      </div>
+      <div class="land flow" style="--i:11">两个数之间只剩 <b>1.58 个百分点</b>——<b class="am">它已经贴到人工坐席自己的极限上了。</b></div>''')
+    _cls(33, 'r11p21')
+
+    # ── C11-⑨ P22 商业模式变迁 · 中文升主 / 英文降为原文补充 + 出处行 ─────────────
+    #    出处已核到一手：Sierra 官方博客《The next Horizon in agents》（Bret Taylor & Clay Bavor,
+    #    2026-07-16）原文 "And with Horizon, you don't pay for tokens, you pay for business
+    #    outcomes delivered." —— 不是转述，是原话。
+    _r1(34, '<div class="land r9en flow" style="--i:9">You don’t pay for tokens, you pay for '
+            '<b>business outcomes delivered</b>.<span class="s">你付的不是 token 的钱——'
+            '是被交付出来的业务结果的钱。</span></div>',
+            '<div class="land r11pay flow" style="--i:9">你付的不是 token 的钱——是被交付出来的业务结果的钱。'
+            '<span class="en">“You don’t pay for tokens, you pay for '
+            '<b>business outcomes delivered</b>.”</span>'
+            '<span class="src">Bret Taylor &amp; Clay Bavor · Sierra 官方博客《The next Horizon in agents》· 2026-07</span></div>')
+
+    # ── C11-⑩ P29 它决策，人审批 · 版面对调（图上 / 三个大数下并缩小）────────────
+    _a29 = _secs[42].index('\n      <div class="g3">')
+    _b29 = _secs[42].index('\n      <div class="fig">')
+    _c29 = _secs[42].index('</svg>\n      </div>', _b29) + len('</svg>\n      </div>')
+    _secs[42] = _secs[42][:_a29] + _secs[42][_b29:_c29] + _secs[42][_a29:_b29] + _secs[42][_c29:]
+    assert _secs[42].index('<div class="fig">') < _secs[42].index('<div class="g3">'), 'C11 · P29 对调失败'
+    _cls(42, 'r11p29')
+
+    # ── C11-⑪ P30 案例 03 · 版面对调（图最上并放大 / 事件叙述缩小沉底作注释行）────
+    _a30 = _secs[43].index('\n      <div class="old rise"')
+    _b30 = _secs[43].index('\n      <div class="fig">')
+    _old30 = _secs[43][_a30:_b30].replace('class="old rise"', 'class="old tail rise"')
+    _secs[43] = _secs[43][:_a30] + _secs[43][_b30:]
+    _e30 = _secs[43].rindex('\n    </div>\n  </div>\n</section>')
+    _secs[43] = _secs[43][:_e30] + _old30 + _secs[43][_e30:]
+    assert _secs[43].index('<div class="fig">') < _secs[43].index('<div class="g3">') \
+        < _secs[43].index('class="note co') < _secs[43].index('class="old tail'), 'C11 · P30 对调失败'
+    #    链路图升为页面第一视觉：纵向 ×1.55（168 → 260），节点标题 23 → 30px
+    _ystretch(43, 1.55, ('viewBox="0 0 1680 168"', 'viewBox="0 0 1680 260"'), paths=(
+        ('style="font-size:23px"', 'style="font-size:30px"'),
+        ('d="M100 82 H1560"', 'd="M100 127 H1560"'),
+        ('d="M300 14 V150"', 'd="M300 22 V233"')))
+    _cls(43, 'r11p30')
+
+    # ── C11-⑫ P33 体验的围栏 · 删 backchannel 抱怨那条 note ──────────────────────
+    _cut1(46, '\n      <div class="note flow" style="--i:10">客户现场最大的抱怨',
+              '叫 backchannel。</b></div>')
+    _cls(46, 'r11p33')
+
+    # ── C11-⑬ P36 五条准入线全景 · 下方只留一句，图放大 ─────────────────────────
+    _cut1(49, '</b>任何一格的进步，四条线一起受益', '固化在这张图的某一格里。</div>', '</b></div>')
+    _ystretch(49, 1.18, ('viewBox="0 0 1640 500"', 'viewBox="0 0 1640 590"'), paths=(
+        ('height="500"', 'height="590"'),
+        ('font-size:26px', 'font-size:31px'),
+        ('d="M200 62 H1460"', 'd="M200 73 H1460"'),
+        ('style="--len:400;--i:3" d="M200 62 V450"', 'style="--len:480;--i:3" d="M200 73 V531"')))
+    _cls(49, 'r11p36')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -1462,6 +1840,7 @@ if V2:
     CONF_CSS += C8_CSS      # C8 · 次级文字 +2px 覆盖层（必须排在 conf 版式层之后）
     CONF_CSS += C9_CSS      # C9 · R9 删文后逐页撑满（必须排在 C8 +2px 之后）
     CONF_CSS += C10_CSS     # C10 · R10 八页删改后逐页撑满（必须排在 C9 之后）
+    CONF_CSS += C11_CSS     # C11 · R11 十三页删改与数据换血后逐页撑满（必须排在 C10 之后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -1521,11 +1900,11 @@ if V2:
                 "class=\"vslide\"><", "值得被记住的存在", "本场第一处反共识", "第五幕", "上一幕",
                 "--ink-3:#A5A5A5", "--ink-2:#c9c9d4"):
         assert _mk not in s, f"C8 残留未清：{_mk}"
-    # 幕卡 rail 四站 / P5 路线五站
+    # 幕卡 rail 四站 / P5 路线四站（C8 删「被记住」六→五，C11 再删「PART 0 开场」五→四）
     assert s.count('<span>02 被托付</span>') + s.count('<span class="cur">02 被托付</span>') == 4
     assert '>02 被记住<' not in s, "C8：幕卡 rail 不应再有「02 被记住」站"
     #    y 值是 C10-① 纵向 ×4.6 之后的（原 y="80"）
-    assert s.count('y="368" text-anchor="middle">PART') == 5, "C8 · P5 路线应为五站"
+    assert s.count('y="368" text-anchor="middle">PART') == 4, "C11 · P5 路线应为四站"
     _p5 = s[s.index('<!-- 全场路线'):]; _p5 = _p5[:_p5.index('</svg>')]
     assert '被记住' not in _p5, "C8 · P5 路线应已删「被记住」站"
 
@@ -1565,7 +1944,7 @@ if V2:
                 "Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课",
                 "体验的围栏：交互行为，要有<em>规矩</em>",
                 "执行的围栏：语音的动作，<span class=\"co\">最难在半路拦住</span>",
-                "这个坑有名字，叫 backchannel",
+                # （R9 的 P33「这个坑有名字，叫 backchannel」note 已由 C11-⑫ 删掉）
                 "You don’t pay for tokens", "business outcomes delivered",
                 # （R9 的 P45 收场句「愿我们在理解 Agent 的同时」已由 C10-⑧ 撤成纯图收场）
                 "可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级",
@@ -1615,14 +1994,90 @@ if V2:
                 ".r10p5 .fig .txt{font-size:76px", ".r10p45 .fig .txt{font-size:28px"):
         assert _mk in s, f"C10 · R10 内容缺失：{_mk}"
     #    ⓒ 页级档位类必须全部挂上（八页一页一档）
+    #    （R11 起同一页可能同时挂 C10 与 C11 两个档位类，所以按词边界找，不再比结尾的引号）
     for _c in ('r10p5', 'r10p18', 'r10p22', 'r10p27', 'r10p29', 'r10p37', 'r10p39', 'r10p45'):
-        assert s.count(f' {_c}"') == 1 and f'.{_c} ' in s, f"C10 · 档位类未挂/未定义：{_c}"
-    #    ⓓ QoS-QoE-QoI-QoT 顶部条与 P5 五站路线图必须原样留在页上
+        assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
+            f"C10 · 档位类未挂/未定义：{_c}"
+    #    ⓓ QoS-QoE-QoI-QoT 顶部条必须原样留在页上（P5 路线图交给 C11 的四站断言）
     assert all(f'>{_q}</text>' in s for _q in ('QoS', 'QoE', 'QoI', 'QoT')), "C10 · QoT 顶部条缺失"
+
+    # ── C11 · R11 十三页删改与数据换血 ─────────────────────────────────────
+    #    ⓐ 逐页负向断言：每张动刀页抽一句被删原文，必须查无此句
+    for _mk in ("当时我的结论是：活人感缺失",                     # P3 · 2025 那一栏结论
+                "把它做得更像人",
+                "他真正的愤怒不是「你不像人」",                   # P3 · 2026 那一栏结论
+                "让它说清楚自己是谁、能替谁审批",
+                ">OPENAPI</text>",                              # P4 · 协议名换 A2A
+                "一张跑了 100 年的电话网", "加一张一百年的旧网",   # P4 · PSTN 年数
+                'x="80" y="368" text-anchor="middle">PART 0',    # P5 · 开场站
+                '>开场</text>',
+                "美国青少年里，用过 AI 陪伴类产品的",             # P8 · 消费侧压缩
+                "而遇到要紧事，宁可先说给 AI 听",
+                "单次停留 14分17秒", "Common Sense Media",
+                "四个方向的人得出了同一个结论",                   # P9 · 旧结论行
+                "模型不再是瓶颈",
+                "边界声明 · 本场不讨论意识",                      # P10 · foot
+                "谁先行动 · 谁代表谁",
+                '<div class="steps">',                           # P19 · 下方四块
+                '<div class="i">STEP 01</div>', '<div class="i">STEP 04</div>',
+                "抽样会先把长尾抽没，而长尾正是它翻车的地方。",
+                "每一条失败都变成一道题，从此不许再错第二遍。",
+                "96.5%</div><div class=\"l\">未被识破率",         # P21 · 三格
+                "同等时间的有效工作量", "同等产出的用人成本",
+                "这 2,475 通，是真实生产通话的自然测量",           # P21 · note
+                "意向转化率",
+                "这个坑有名字，叫 backchannel",                   # P33 · note
+                "它在我只说了一个",
+                "任何一格的进步，四条线一起受益"):                 # P36 · note 长尾
+        assert _mk not in s, f"C11 · R11 该删未删：{_mk}"
+    #    ⓑ 正向断言：换血 / 重写 / 重构 / 对调必须在位
+    for _mk in ('viewBox="0 0 1680 392"',                    # P3 波形纵向 ×2
+                '>A2A</text>', '一张跑了 150 年的电话网',      # P4
+                '贝尔 1876 年打出人类第一通电话，今年整 150 周年',
+                '<text class="lbl fill-am pop" style="--i:7" x="140" y="368" text-anchor="middle">PART 1</text>',
+                # P8 · 企业侧新数据（每条都必须能在 SOURCE 行找到出处与年份）
+                '>66%</text>', '>70%</text>', '>91%</text>', '>15–20%</text>', '>49%</text>',
+                'Salesforce《State of Service: AI Agents Edition》2026-05（n=3,075',
+                'Pew Research 2026-06（n=5,119）',
+                'CC-CMM · 艾媒咨询 · 第一新声 2025',
+                # P9 · 新结论
+                '对话式智能体在企业服务侧，已经到了规模化应用的阶段', '硬性基础全部具备',
+                # P19 · 四步并进图内
+                '>STEP 01</text>', '>STEP 02</text>', '>STEP 03</text>', '>STEP 04</text>',
+                '>全量捞，不抽样</text>', '>人耳听，不看文本</text>',
+                '>归类，不打分</text>', '>固化成回归集</text>',
+                'viewBox="0 0 1680 600"',
+                # P21 · 双大数对比 + 基线口径标注
+                '<div class="cmp2">', '<div class="v">3.08%</div>', '<div class="v">1.5%</div>',
+                '<div class="l">被识破率</div>', '上线前人工基线 · 内部口径',
+                '它已经贴到人工坐席自己的极限上了。',
+                # P22 · 出处行（一手：Sierra 官方博客）
+                'Bret Taylor &amp; Clay Bavor · Sierra 官方博客《The next Horizon in agents》· 2026-07',
+                '<div class="land r11pay flow"', '.r11pay .src{display:block',
+                # P30 · 事件叙述沉底作注释行
+                'class="old tail rise"', 'viewBox="0 0 1680 260"',
+                # P36 · 只留一句
+                '<b>四条产品线不是四个赛道，是同一个能力模型的四个切片。</b></div>'):
+        assert _mk in s, f"C11 · R11 内容缺失：{_mk}"
+    #    ⓒ P5 路线图 = 四站（PART 1-4），「PART 0 · 开场」整站撤走
     _p5b = s[s.index('<!-- 全场路线'):]; _p5b = _p5b[:_p5b.index('</svg>')]
-    assert all(_t in _p5b for _t in ('开场', '语法变了', '被托付', '双向奔赴', '人与组织')), \
-        "C10 · P5 五站路线图应完整保留"
-    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓")
+    assert all(_t in _p5b for _t in ('语法变了', '被托付', '双向奔赴', '人与组织')), \
+        "C11 · P5 路线图四站应完整保留"
+    assert _p5b.count('text-anchor="middle">PART') == 4 and 'PART 0' not in _p5b, \
+        "C11 · P5 路线应恰好四站且无 PART 0"
+    assert 'd="M627 543 H1600"' in _p5b and '--len:1010' in _p5b, "C11 · P5 高亮段起点/长度未同步"
+    #    ⓓ P29 / P30 版面对调：图必须排在大数（P29）与三卡（P30）之前
+    _p29 = s[s.index('人和 Agent 共事的协作关系'):]; _p29 = _p29[:_p29.index('</section>')]
+    assert _p29.index('<div class="fig">') < _p29.index('<div class="g3">'), "C11 · P29 未对调"
+    _p30 = s[s.index('两道围栏：提示词拦话术'):]; _p30 = _p30[:_p30.index('</section>')]
+    assert _p30.index('<div class="fig">') < _p30.index('class="old tail'), "C11 · P30 未对调"
+    assert _p30.rindex('class="old tail') > _p30.index('class="note co'), "C11 · P30 叙述未沉到最底部"
+    #    ⓔ 页级档位类必须全部挂上（十三页里十二页一页一档；P22 走 .r11pay 共享档）
+    for _c in ('r11p3', 'r11p5', 'r11p8', 'r11p9', 'r11p10', 'r11p19', 'r11p21',
+               'r11p29', 'r11p30', 'r11p33', 'r11p36'):
+        assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
+            f"C11 · 档位类未挂/未定义：{_c}"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ C11 R11 十三页 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

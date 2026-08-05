@@ -1,4 +1,4 @@
-// QA：/cowork-confv2 45 页走查（R9 删文拆页 + R10 八页删改版）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
+// QA：/cowork-confv2 45 页走查（R9 删文拆页 + R10 八页删改 + R11 十三页删改与数据换血）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
 // 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 45 页预览版。
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -165,8 +165,8 @@ chk(["QoS", "QoE", "QoI", "QoT"].every((q) => html.includes(`>${q}</text>`)),
     "R10 · P37 QoS-QoE-QoI-QoT 顶部条保留");
 chk(html.includes("你付的不是 token 的钱——是被交付出来的业务结果的钱。"),
     "R10 · P22 中文翻译行在位（land 体系 .s）");
-chk(html.includes('viewBox="0 320 1680 665"') && html.includes("开场") && html.includes("语法变了"),
-    "R10 · P5 五站路线图已纵向拉伸为全页主体");
+chk(html.includes('viewBox="0 320 1680 665"') && html.includes("语法变了"),
+    "R10 · P5 路线图已纵向拉伸为全页主体");
 chk(html.includes('viewBox="0 -177 1680 646"'), "R10 · P45 尺子两面图已纵向拉伸（纯图收场）");
 // 撑满层与档位类：八页一页一档
 // 同上：当前页的 section 会多挂 active/visible，所以不比结尾的引号
@@ -192,6 +192,101 @@ const dwbad = await pg.evaluate(() => {
   return out;
 });
 chk(dwbad.length === 0, `.dw 自绘线不被 --len 截断（异常 ${JSON.stringify(dwbad)}）`);
+
+// ── 6.7) R11：十三页删改与数据换血（P3/4/5/8/9/10/19/21/22/29/30/33/36） ──
+const cut11 = ["当时我的结论是：活人感缺失", "把它做得更像人",              // P3 两块口播结论
+               "他真正的愤怒不是「你不像人」", "让它说清楚自己是谁、能替谁审批",
+               "OPENAPI", "一张跑了 100 年的电话网", "加一张一百年的旧网", // P4 A2A / PSTN 年数
+               ">开场</text>",                                            // P5 开场站
+               "美国青少年里，用过 AI 陪伴类产品的",                        // P8 消费侧压缩
+               "而遇到要紧事，宁可先说给 AI 听", "Common Sense Media",
+               "四个方向的人得出了同一个结论", "模型不再是瓶颈",             // P9 旧结论
+               "边界声明 · 本场不讨论意识",                                // P10 foot
+               '<div class="steps">', '<div class="i">STEP 01</div>',     // P19 下方四块
+               "96.5%</div><div class=\"l\">未被识破率",                   // P21 三格
+               "同等时间的有效工作量", "同等产出的用人成本", "意向转化率",
+               "这 2,475 通，是真实生产通话的自然测量",
+               "这个坑有名字，叫 backchannel",                            // P33 note
+               "任何一格的进步，四条线一起受益"];                          // P36 note 长尾
+chk(cut11.every((k) => !html.includes(k)),
+    `R11 十三页删文到位（残留 ${JSON.stringify(cut11.filter((k) => html.includes(k)))}）`);
+chk(html.includes(">A2A</text>") && html.includes("一张跑了 150 年的电话网") &&
+    html.includes("贝尔 1876 年打出人类第一通电话，今年整 150 周年"),
+    "R11 · P4 协议名换 A2A + PSTN 150 年（贝尔 1876 起算）");
+// P5 路线图四站：PART 1-4，高亮段起点同步挪到 PART 2 的新 x
+const p5 = html.slice(html.indexOf("<!-- 全场路线"));
+const p5svg = p5.slice(0, p5.indexOf("</svg>"));
+chk((p5svg.match(/text-anchor="middle">PART/g) || []).length === 4 && !p5svg.includes("PART 0") &&
+    ["语法变了", "被托付", "双向奔赴", "人与组织"].every((t) => p5svg.includes(t)) &&
+    p5svg.includes('d="M627 543 H1600"') && p5svg.includes("--len:1010"),
+    "R11 · P5 路线图四站（PART 1-4）+ 高亮段起点/--len 同步");
+// P8 企业侧换血：五条 bar 每条都能在 SOURCE 行找到来源与年份
+chk([">66%<", ">91%<", ">70%<", ">15–20%<", ">49%<"].every((k) => html.includes(k)) &&
+    html.includes("Salesforce《State of Service: AI Agents Edition》2026-05（n=3,075") &&
+    html.includes("CC-CMM · 艾媒咨询 · 第一新声 2025") &&
+    html.includes("Pew Research 2026-06（n=5,119）"),
+    "R11 · P8 五条数据 + SOURCE 行逐条标源与年份");
+chk(html.includes("对话式智能体在企业服务侧，已经到了规模化应用的阶段") && html.includes("硬性基础全部具备"),
+    "R11 · P9 结论行已改口径");
+chk(["STEP 01", "STEP 02", "STEP 03", "STEP 04", "全量捞，不抽样", "人耳听，不看文本",
+     "归类，不打分", "固化成回归集"].every((k) => html.includes(`>${k}</text>`)) &&
+    html.includes('viewBox="0 0 1680 600"'),
+    "R11 · P19 四步已并进图内（图放大为主体）");
+chk(html.includes('<div class="cmp2">') && html.includes('<div class="v">3.08%</div>') &&
+    html.includes('<div class="v">1.5%</div>') && html.includes("<div class=\"l\">被识破率</div>") &&
+    html.includes("上线前人工基线 · 内部口径") && html.includes("它已经贴到人工坐席自己的极限上了。"),
+    "R11 · P21 3.08% × 1.5% 双大数对比 + 基线口径标注");
+chk(html.includes('<div class="land r11pay flow"') &&
+    html.includes("Bret Taylor &amp; Clay Bavor · Sierra 官方博客《The next Horizon in agents》· 2026-07"),
+    "R11 · P22 中文升主 + 英文原文 + 出处行（一手已核到）");
+// P29 / P30 版面对调
+const p29 = html.slice(html.indexOf("人和 Agent 共事的协作关系"));
+const p29s = p29.slice(0, p29.indexOf("</section>"));
+chk(p29s.indexOf('<div class="fig">') < p29s.indexOf('<div class="g3">'), "R11 · P29 图上 / 大数下");
+const p30 = html.slice(html.indexOf("两道围栏：提示词拦话术"));
+const p30s = p30.slice(0, p30.indexOf("</section>"));
+chk(p30s.indexOf('<div class="fig">') < p30s.indexOf('class="old tail') &&
+    p30s.indexOf('class="note co') < p30s.indexOf('class="old tail') &&
+    html.includes('viewBox="0 0 1680 260"'),
+    "R11 · P30 图最上并放大 / 事件叙述沉底作注释行");
+chk(html.includes("<b>四条产品线不是四个赛道，是同一个能力模型的四个切片。</b></div>"),
+    "R11 · P36 下方只留一句");
+chk(["r11p3", "r11p5", "r11p8", "r11p9", "r11p10", "r11p19", "r11p21",
+     "r11p29", "r11p30", "r11p33", "r11p36"]
+      .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)),
+    "R11 · 十一个页级档位类全部挂上且在 CSS 里有定义");
+// 十三页 .body 填充率 + svg 文字零重叠（删后撑满的机检）
+const r11fill = [];
+for (const p of [3, 4, 5, 8, 9, 10, 19, 21, 22, 29, 30, 33, 36]) {
+  await pg.evaluate((k) => window.deck.go(k - 1), p);
+  await pg.waitForTimeout(140);
+  await pg.evaluate(() => {
+    const d = window.deck, s = d.slides[d.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(80);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const body = s.querySelector(".body") || s.querySelector(".mega");
+    const kids = [...body.children].filter((e) => e.offsetParent);
+    const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+    const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+    const ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) ov++;
+    }
+    return { ratio, ov };
+  });
+  r11fill.push({ p, fill: m.ratio, ov: m.ov });
+}
+chk(r11fill.every((x) => x.fill >= 78 && x.fill <= 106 && x.ov === 0),
+    `R11 · 十三页 .body 填充率 78–106% 且 svg 文字零重叠 ${JSON.stringify(r11fill)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
