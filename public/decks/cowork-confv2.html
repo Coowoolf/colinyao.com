@@ -774,7 +774,7 @@ h2 .pre{display:inline-block;}
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">回到讲台</div>
-      <h2 class="ink" style="--i:1">第三次，站上同一个舞台</h2>
+      <h2 class="ink" style="--i:1">第三次，站上同一个讲台</h2>
     </div>
     <div class="body">
       <div class="fig">
@@ -1011,7 +1011,7 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide r12flow">
+<section class="slide r12flow r14money">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
   <div class="wrap">
     <div class="head">
@@ -1020,62 +1020,84 @@ h2 .pre{display:inline-block;}
     </div>
     <div class="body">
       <div class="fig gfill">
-        <svg viewBox="0 0 1680 530" width="1680" fill="none">
-          <!-- 年份格 -->
-          <g class="pop" style="--i:2">
-            <path class="stroke" stroke-width="1" opacity=".22" d="M300 34 V478 M740 34 V478 M1180 34 V478 M1620 34 V478"/>
-            <text class="lbl" x="520" y="18" text-anchor="middle">2024</text>
-            <text class="lbl" x="960" y="18" text-anchor="middle">2025</text>
-            <text class="lbl" x="1400" y="18" text-anchor="middle">2026 至今</text>
+        <svg viewBox="0 40 1680 530" width="1680" fill="none">
+          <defs>
+            <linearGradient id="r14conv" gradientUnits="userSpaceOnUse" x1="0" y1="270" x2="0" y2="470">
+              <stop class="g0" offset="0"/><stop class="g1" offset="1"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ① 双轴与网格：五条刻度线两轴共用（左 0/50/100/150/200 · 右 0/1/2/3/4），淡到只做参考 -->
+          <g class="pop" style="--i:1">
+            <path class="gd" d="M230 120 H1200 M230 207.5 H1200 M230 295 H1200 M230 382.5 H1200"/>
+            <path class="ax" d="M230 120 V470 M1200 120 V470"/>
+            <path class="axb" d="M230 470 H1200"/>
+            <text class="lbl" x="212" y="96" text-anchor="end">基础模型 $B</text>
+            <text class="lbl" x="212" y="127" text-anchor="end">200</text>
+            <text class="lbl" x="212" y="214" text-anchor="end">150</text>
+            <text class="lbl" x="212" y="302" text-anchor="end">100</text>
+            <text class="lbl" x="212" y="389" text-anchor="end">50</text>
+            <text class="lbl" x="212" y="477" text-anchor="end">0</text>
+            <text class="lbl" x="1218" y="96">Coding / 对话式 $B</text>
+            <text class="lbl" x="1218" y="127">4</text>
+            <text class="lbl" x="1218" y="214">3</text>
+            <text class="lbl" x="1218" y="302">2</text>
+            <text class="lbl" x="1218" y="389">1</text>
+            <text class="lbl" x="1218" y="477">0</text>
           </g>
 
-          <!-- 带 A · 基础模型：一路最粗，三年都是最大头 -->
-          <text class="ttl pop" style="--i:3" x="0" y="116">基础模型</text>
-          <text class="lbl pop" style="--i:3" x="0" y="148">FOUNDATION MODELS</text>
-          <path class="stroke dw" style="--len:460;--i:3" stroke-width="20" d="M300 124 H740"/>
-          <path class="stroke dw" style="--len:460;--i:4" stroke-width="40" d="M740 124 H1180"/>
-          <path class="stroke dw" style="--len:460;--i:5" stroke-width="64" d="M1180 124 H1620"/>
-          <text class="big pop" style="--i:3" x="520" y="72" text-anchor="middle">$31.4B</text>
-          <text class="big pop" style="--i:4" x="960" y="72" text-anchor="middle">$88.9B</text>
-          <text class="big pop" style="--i:5" x="1400" y="72" text-anchor="middle">$178B</text>
-          <text class="sm pop" style="--i:5" x="300" y="182">三个数都是当年全年融资额（2026 只到 Q1）· 2025 年全部 AI 融资的 41% 进了这一层，OpenAI · Anthropic · xAI 三家就占 38%</text>
+          <!-- ② X 轴：三刻度，2026 标「至今」；量级小注防双轴误读 -->
+          <g class="pop" style="--i:2">
+            <text class="lbl yr" x="300" y="508" text-anchor="middle">2024</text>
+            <text class="lbl yr" x="720" y="508" text-anchor="middle">2025</text>
+            <text class="lbl yr" x="1140" y="508" text-anchor="middle">2026</text>
+            <text class="lbl" x="1140" y="538" text-anchor="middle">至今</text>
+            <text class="lbl" x="230" y="538">左右两轴量级不同 · 左轴 0–200，右轴 0–4（$B）</text>
+          </g>
 
-          <!-- 带 B · Coding：第二波，2025 翻倍，2026 开始兑现成收入 -->
-          <text class="ttl pop" style="--i:6" x="0" y="264">AI 写代码</text>
-          <text class="lbl pop" style="--i:6" x="0" y="296">CODING</text>
-          <path class="stroke dw" style="--len:460;--i:6" stroke-width="10" d="M300 272 H740"/>
-          <path class="stroke dw" style="--len:460;--i:7" stroke-width="22" d="M740 272 H1180"/>
-          <path class="stroke dw" style="--len:460;--i:8" stroke-width="24" d="M1180 272 H1620"/>
-          <text class="big pop" style="--i:6" x="520" y="232" text-anchor="middle">$1.6B</text>
-          <text class="big pop" style="--i:7" x="960" y="232" text-anchor="middle">$3.3B</text>
-          <text class="big pop" style="--i:8" x="1400" y="232" text-anchor="middle">$2B ARR</text>
-          <text class="sm pop" style="--i:8" x="300" y="316">前两格是全年融资额，一年翻一倍；第三格换了口径 —— Cursor 的年化收入，第二波已经开始兑现</text>
+          <!-- ③ 基础模型（左轴）：31.4 → 88.9 → 178，白粗线，三年都是最大头 -->
+          <path class="ln fnd dw" style="--len:950;--i:3" d="M300 415 C 440 406 580 331 720 314 C 860 297 1000 234 1140 158"/>
+          <circle class="dot fnd pop" style="--i:4" cx="300" cy="415" r="5.5"/>
+          <circle class="dot fnd pop" style="--i:4" cx="720" cy="314" r="5.5"/>
+          <circle class="dot fnd pop" style="--i:5" cx="1140" cy="158" r="7.5"/>
+          <text class="txt val pop" style="--i:4" x="322" y="448">$31.4B</text>
+          <text class="txt val pop" style="--i:4" x="742" y="344">$88.9B</text>
+          <path class="lead fnd pop" style="--i:5" d="M1156 158 H1250"/>
+          <text class="ttl pop" style="--i:5" x="1262" y="150">基础模型</text>
+          <text class="big pop" style="--i:5" x="1262" y="196">$178B</text>
 
-          <!-- 带 C · 对话式 AI：由细变粗，正在发生（整组挂 data-step=1，讲到这里才出现） -->
+          <!-- ④ AI 写代码（右轴）：1.6 → 3.3；2026 无可比融资口径，线到 2025 为止，
+               第三点不画、虚线也不补 —— Cursor 的 $2B 是 ARR，不进融资轴，只作末端小注 -->
+          <path class="ln cod dw" style="--len:490;--i:6" d="M300 330 C 440 322 580 210 720 181"/>
+          <circle class="dot cod pop" style="--i:6" cx="300" cy="330" r="5.5"/>
+          <circle class="dot cod pop" style="--i:7" cx="720" cy="181" r="7.5"/>
+          <text class="txt val pop" style="--i:6" x="322" y="362">$1.6B</text>
+          <text class="ttl pop" style="--i:7" x="750" y="154">AI 写代码</text>
+          <text class="big pop" style="--i:7" x="891" y="154">$3.3B</text>
+          <text class="sm anno pop" style="--i:8" x="750" y="190">2026 转向收入兑现 · Cursor ARR $2B</text>
+
+          <!-- ⑤ 对话式 AI（右轴）：2.1 → 0.7 → 2.2+，amber 粗线 + 末段上勾 + 走线光点，
+               曲线下压一层渐变薄雾 —— 钱正在往这一层灌。整组 data-step=1，讲到这里才出现 -->
           <g data-step="1">
-            <text class="ttl fill-am pop" style="--i:0" x="0" y="404">对话式 AI</text>
-            <text class="lbl pop" style="--i:0" x="0" y="436">CONVERSATIONAL AI</text>
-            <path class="stroke-am dw" style="--len:460;--i:0" stroke-width="8" d="M300 412 H740"/>
-            <path class="stroke-am dw" style="--len:460;--i:1" stroke-width="18" d="M740 412 H1180"/>
-            <path class="stroke-am dw" style="--len:460;--i:2" stroke-width="44" d="M1180 412 H1620"/>
-            <path class="stroke-am pkt" stroke-width="10"
-              style="--pl:140px;--p0:140px;--p1:-1480px;--pt:6.4s;--pd:1.2s" d="M300 412 H1620"/>
-            <text class="big fill-am pop" style="--i:0" x="520" y="368" text-anchor="middle">$2.1B</text>
-            <text class="big fill-am pop" style="--i:1" x="960" y="368" text-anchor="middle">≈$0.7B</text>
-            <text class="big fill-am pop" style="--i:2" x="1400" y="368" text-anchor="middle">≈$2.2B</text>
-
-            <!-- 大泛类的两翼：一边消费声音，一边企业智能体，花的是同一笔钱 -->
-            <path class="stroke-am pop" style="--i:3" stroke-width="1.4" opacity=".55" d="M760 423 V452 M1320 436 V452"/>
-            <text class="lbl fill-am pop" style="--i:3" x="300" y="478">同一层的两翼</text>
-            <text class="txt pop" style="--i:3" x="760" y="478" text-anchor="middle">ElevenLabs $500M @ $11B</text>
-            <text class="sm pop" style="--i:3" x="760" y="508" text-anchor="middle">消费声音侧</text>
-            <text class="txt pop" style="--i:3" x="1320" y="478" text-anchor="middle">Sierra $950M @ $15B</text>
-            <text class="sm pop" style="--i:3" x="1320" y="508" text-anchor="middle">企业智能体侧</text>
+            <path fill="url(#r14conv)" stroke="none" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278 L1140 470 L300 470 Z"/>
+            <path class="ln cnv dw" style="--len:960;--i:0" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278"/>
+            <path class="stroke-am pkt" stroke-width="9"
+              style="--pl:120px;--p0:120px;--p1:-1040px;--pt:6.4s;--pd:1.2s" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278"/>
+            <circle class="dot cnv pop" style="--i:0" cx="300" cy="286" r="5.5"/>
+            <circle class="dot cnv pop" style="--i:1" cx="720" cy="409" r="5.5"/>
+            <circle class="dot cnv pop" style="--i:2" cx="1140" cy="278" r="8"/>
+            <text class="txt val fill-am pop" style="--i:0" x="322" y="264">$2.1B</text>
+            <text class="txt val fill-am pop" style="--i:1" x="742" y="452">&#8776;$0.7B</text>
+            <path class="lead cnv pop" style="--i:2" d="M1156 278 H1250"/>
+            <text class="ttl fill-am pop" style="--i:2" x="1262" y="270">对话式 AI</text>
+            <text class="big fill-am pop" style="--i:2" x="1262" y="316">$2.2B+</text>
+            <text class="sm wing pop" style="--i:3" x="1262" y="352">消费声音侧 · ElevenLabs $500M @ $11B</text>
+            <text class="sm wing pop" style="--i:3" x="1262" y="382">企业智能体侧 · Sierra $950M @ $15B</text>
           </g>
         </svg>
       </div>
       <div class="note" data-step="2"><span class="flow" style="--i:0">2024 全年，整个语音 AI 一共拿到 $2.1B；2026 光是上半年这五笔，加起来就已经顶得上那一整年。<b>对话式 AI 是个大泛类：消费侧的声音和企业侧的智能体，花的是同一笔钱。这笔钱在这一层内部又分给了谁——下一页拆开看。</b></span></div>
-      <div class="foot flow rev" style="--i:9">SOURCE · 基础模型层三个数＝当年全年融资额（2026 为 Q1 单季）：Crunchbase 2026-04；「41%」与「三家占 38%」：CB Insights《State of AI 2025》2026-01（2025 年私有 AI 融资 $225.8B）· Coding 层 2024 / 2025＝pure-play 编码工具全年融资额：New Market Pitch 2026-07（2025 的 $3.3B 里 Cursor 一家占 $3.2B）；$2B 年化收入：TechCrunch 2026-04 · 对话式层 2024 $2.1B＝语音 AI 全年融资、8× 于 2023：CB Insights，转引 PYMNTS 2025-06；2025 ≈$0.7B＝Sierra $350M ＋ Sesame $250M（TechCrunch 2025-10）＋ Cartesia $100M；2026 ≈$2.2B＝ElevenLabs $500M（CNBC 2026-02）＋ Sierra $950M（SiliconANGLE 2026-05，同源回溯 2025-09 的 $350M 前轮）＋ Parloa $350M（TechCrunch 2026-01）＋ Decagon $250M（Bloomberg 2026-01）＋ Deepgram $130M（Newcomer 2026-02）—— 后两格是代表性大轮之和、本页自算，不是全类别口径 · 带宽为量级示意，非等比</div>
+      <div class="foot flow rev" style="--i:9">Source · Crunchbase · CB Insights《State of AI 2025》· TechCrunch · Bloomberg · CNBC</div>
     </div>
   </div>
 </section>
@@ -3505,6 +3527,44 @@ thead th{font-size:19px;}
   color:var(--mq-2);max-width:1300px;}
 .r13mq .mq .s{font-family:var(--f-mono);font-size:22px;letter-spacing:.14em;}
 .r13fence .mq .s{max-width:1300px;}
+
+/* ============ C14 · R14 · 钱流向页重做成双轴时间图 ============ */
+/* 字号：图内五级全部再定一遍（C12 的 .r12flow 档为三条层带调的，双轴图用不上）。 */
+.r14money .fig .lbl{font-size:18px;letter-spacing:.14em;}
+.r14money .fig .lbl.yr{font-size:24px;letter-spacing:.16em;fill:var(--ink-2);}
+.r14money .fig .ttl{font-size:27px;}
+.r14money .fig .txt{font-size:22px;}
+.r14money .fig .txt.val{font-size:23px;font-weight:500;}
+.r14money .fig .sm{font-size:20px;}
+.r14money .fig .sm.wing{font-size:19px;}
+.r14money .fig .sm.anno{font-size:17px;}
+.r14money .fig .big{font-size:38px;}
+.r14money .foot{font-size:18px;}
+/* 轴与网格：安静。三档 hair token —— 网格 6% / 轴 12% / 基线 24%，一律实线一律 1px。 */
+.r14money .fig .gd{stroke:var(--hair-soft);stroke-width:1;}
+.r14money .fig .ax{stroke:var(--hair);stroke-width:1;}
+.r14money .fig .axb{stroke:var(--hair-strong);stroke-width:1;}
+/* 三条数据线：明度 + 粗细双重编码。
+   ⚠️ --ink(#fff) 与 --ink-3(#D9D9E3) 直接并排是 ΔE≈11（低于 15 的正常视觉下限，
+   两条灰线糊在一起），所以 Coding 那条压到 72% —— 合成 ≈#9C9CA3，
+   对 --ink 与 --amber 的 ΔE 都 ≥20（dataviz validator 三项 PASS），线宽补到 3.5 保投影可读。
+   明度阶梯同时就是叙事阶梯：amber 主角 > 白（最大头）> 灰（第二波，已收尾）。 */
+.r14money .fig .ln{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.r14money .fig .ln.fnd{stroke:var(--ink);stroke-width:6;}
+.r14money .fig .ln.cod{stroke:var(--ink-3);stroke-width:3.5;opacity:.72;}
+.r14money .fig .ln.cnv{stroke:var(--amber);stroke-width:7;}
+/* 节点：底色描边环，压在别的线上也认得出（dataviz 的 surface ring）。 */
+.r14money .fig .dot{stroke:var(--slide-bg);stroke-width:3;}
+.r14money .fig .dot.fnd{fill:var(--ink);}
+.r14money .fig .dot.cod{fill:var(--ink-3);opacity:.72;}
+.r14money .fig .dot.cnv{fill:var(--amber);}
+/* 终点名牌引线：极细，只做「这条线叫什么」的牵引，不参与读数。 */
+.r14money .fig .lead{fill:none;stroke-width:1.4;opacity:.5;}
+.r14money .fig .lead.fnd{stroke:var(--ink);}
+.r14money .fig .lead.cnv{stroke:var(--amber);}
+/* 对话式曲线下的渐变面积：低透明度的一层薄雾，只说「钱正在往这一层灌」。 */
+.r14money #r14conv .g0{stop-color:var(--amber);stop-opacity:.22;}
+.r14money #r14conv .g1{stop-color:var(--amber);stop-opacity:0;}
 </style>
 <div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
 <script>

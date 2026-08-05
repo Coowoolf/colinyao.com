@@ -1022,6 +1022,52 @@ C13_CSS = """
 .r13fence .mq .s{max-width:1300px;}
 """
 
+# ── C14 · R14 两处的页级档 ·只在 CONF_V2=1 装配 ────────────────────────────────
+#    ① P2「舞台 → 讲台」是纯改字，没有版式档。
+#    ② 钱流向页从「三条层带」重做成**真正的双轴时间图**，需要一整套图元档：
+#       轴/网格退到 hair 三档（6% / 12% / 24%），数据线是这一页唯一响的东西；
+#       量级差（178 vs 3.3）用左右两轴解决，图内另有一行小注防误读。
+#    档位全部排在 C12_CSS（.r12flow 那一档）之后 —— 这一页两个类都挂，后写者胜。
+C14_CSS = """
+/* ============ C14 · R14 · 钱流向页重做成双轴时间图 ============ */
+/* 字号：图内五级全部再定一遍（C12 的 .r12flow 档为三条层带调的，双轴图用不上）。 */
+.r14money .fig .lbl{font-size:18px;letter-spacing:.14em;}
+.r14money .fig .lbl.yr{font-size:24px;letter-spacing:.16em;fill:var(--ink-2);}
+.r14money .fig .ttl{font-size:27px;}
+.r14money .fig .txt{font-size:22px;}
+.r14money .fig .txt.val{font-size:23px;font-weight:500;}
+.r14money .fig .sm{font-size:20px;}
+.r14money .fig .sm.wing{font-size:19px;}
+.r14money .fig .sm.anno{font-size:17px;}
+.r14money .fig .big{font-size:38px;}
+.r14money .foot{font-size:18px;}
+/* 轴与网格：安静。三档 hair token —— 网格 6% / 轴 12% / 基线 24%，一律实线一律 1px。 */
+.r14money .fig .gd{stroke:var(--hair-soft);stroke-width:1;}
+.r14money .fig .ax{stroke:var(--hair);stroke-width:1;}
+.r14money .fig .axb{stroke:var(--hair-strong);stroke-width:1;}
+/* 三条数据线：明度 + 粗细双重编码。
+   ⚠️ --ink(#fff) 与 --ink-3(#D9D9E3) 直接并排是 ΔE≈11（低于 15 的正常视觉下限，
+   两条灰线糊在一起），所以 Coding 那条压到 72% —— 合成 ≈#9C9CA3，
+   对 --ink 与 --amber 的 ΔE 都 ≥20（dataviz validator 三项 PASS），线宽补到 3.5 保投影可读。
+   明度阶梯同时就是叙事阶梯：amber 主角 > 白（最大头）> 灰（第二波，已收尾）。 */
+.r14money .fig .ln{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.r14money .fig .ln.fnd{stroke:var(--ink);stroke-width:6;}
+.r14money .fig .ln.cod{stroke:var(--ink-3);stroke-width:3.5;opacity:.72;}
+.r14money .fig .ln.cnv{stroke:var(--amber);stroke-width:7;}
+/* 节点：底色描边环，压在别的线上也认得出（dataviz 的 surface ring）。 */
+.r14money .fig .dot{stroke:var(--slide-bg);stroke-width:3;}
+.r14money .fig .dot.fnd{fill:var(--ink);}
+.r14money .fig .dot.cod{fill:var(--ink-3);opacity:.72;}
+.r14money .fig .dot.cnv{fill:var(--amber);}
+/* 终点名牌引线：极细，只做「这条线叫什么」的牵引，不参与读数。 */
+.r14money .fig .lead{fill:none;stroke-width:1.4;opacity:.5;}
+.r14money .fig .lead.fnd{stroke:var(--ink);}
+.r14money .fig .lead.cnv{stroke:var(--amber);}
+/* 对话式曲线下的渐变面积：低透明度的一层薄雾，只说「钱正在往这一层灌」。 */
+.r14money #r14conv .g0{stop-color:var(--amber);stop-opacity:.22;}
+.r14money #r14conv .g1{stop-color:var(--amber);stop-opacity:0;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -1984,6 +2030,130 @@ if V2:
     <div class="s rise" style="--i:4">提示词 + 产品架构，围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。</div>''')
     _cls(45, 'r13fence')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C14（2026-08-05 · R14 · 两处 · 页数不变 46）────────────────────────────────
+# 一律内容锚定取页（Colin 的反馈横跨多个页码版，不信页号）：
+#   ① P2 开场「第三次，站上同一个舞台」→「讲台」（全页 grep 逐处改，eyebrow 早就是「回到讲台」）
+#   ② R12 新增的钱流向页：三条层带 → **真正的双轴时间图** + foot 来源瘦身成一行
+#      （被撤下的详细口径全文留档在设计文档 R14 段，页面上不再背这一大坨）
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    # ── C14-① P2 舞台 → 讲台 ────────────────────────────────────────────────
+    #    这一页只有 h2 里一处「舞台」（eyebrow 本来就写「回到讲台」），但按 Colin 的话
+    #    做成「全页逐处替换」，以后正文再冒出「舞台」也会一并跟着改，不用回来补。
+    _I_P2 = [_i for _i, _x in enumerate(_secs) if '第三次，站上同一个舞台' in _x]
+    assert len(_I_P2) == 1, f'C14-① P2 锚点不唯一：{_I_P2}'
+    _I_P2 = _I_P2[0]
+    assert _secs[_I_P2].count('舞台') >= 1, 'C14-① P2 没找到「舞台」'
+    _secs[_I_P2] = _secs[_I_P2].replace('舞台', '讲台')
+    assert '舞台' not in _secs[_I_P2] and '第三次，站上同一个讲台' in _secs[_I_P2], 'C14-① 改字未落地'
+
+    # ── C14-② 钱流向页 · 视觉重做成双轴时间图 + 来源瘦身 ──────────────────────
+    #    R12 的三条横带（带宽 = 量级示意）表达不清：带宽既不是等比坐标，也读不出「涨没涨」。
+    #    R14 换成真正的双轴时间图 —— x 是三个年份刻度，y 是钱，涨落一眼看得见。
+    #
+    #    坐标账（viewBox 0 40 1680 530）：
+    #      年份格心 x = 300 / 720 / 1140；绘图区 x 230→1200，y 120（顶）→470（基线）。
+    #      左轴（基础模型）0–200：y = 470 − 1.75v → 31.4→415 · 88.9→314 · 178→158
+    #      右轴（Coding / 对话式）0–4：y = 470 − 87.5v → 1.6→330 · 3.3→181
+    #                                                   2.1→286 · 0.7→409 · 2.2→278
+    #      两套刻度恰好落在同五条网格线上（120 / 207.5 / 295 / 382.5 / 470）——
+    #      双轴最怕的「两套网格打架」在这里被数值本身消掉了，只画一套网格。
+    #      右轴刻度数字 x=1218，终点名牌 x=1262 起（右留白 418px 够挂两翼小标）。
+    #
+    #    dataviz 纪律：
+    #      · 轴/网格退到 hair 三档（6%/12%/24%）、实线、1px，数据线是唯一响的东西；
+    #      · 无 3D 无阴影无装饰，面积只有一层 ≤22% 的渐变薄雾；
+    #      · 三条线颜色 + 粗细双重编码；节点带底色描边环（surface ring）；
+    #      · 值标只在起点/拐点/终点，终点走名牌，不是每点都挂数字；
+    #      · 量级差用双轴解决，图内另加一行小注「左右两轴量级不同」防误读。
+    #    ⚠️ Coding 那条：2026 没有可比的融资口径，所以**线到 2025 为止**，
+    #       第三点不画、也不画虚线补到第三点 —— Cursor 的 $2B 是 ARR，
+    #       把它画进融资轴就是造假，只以一行小注挂在线的末端。
+    _I14 = [_i for _i, _x in enumerate(_secs) if '近三年，钱的三次落点' in _x]
+    assert len(_I14) == 1, f'C14-② 钱流向页锚点不唯一：{_I14}'
+    _I14 = _I14[0]
+    _cut1(_I14, '        <svg viewBox="0 0 1680 530"', '        </svg>', '''        <svg viewBox="0 40 1680 530" width="1680" fill="none">
+          <defs>
+            <linearGradient id="r14conv" gradientUnits="userSpaceOnUse" x1="0" y1="270" x2="0" y2="470">
+              <stop class="g0" offset="0"/><stop class="g1" offset="1"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ① 双轴与网格：五条刻度线两轴共用（左 0/50/100/150/200 · 右 0/1/2/3/4），淡到只做参考 -->
+          <g class="pop" style="--i:1">
+            <path class="gd" d="M230 120 H1200 M230 207.5 H1200 M230 295 H1200 M230 382.5 H1200"/>
+            <path class="ax" d="M230 120 V470 M1200 120 V470"/>
+            <path class="axb" d="M230 470 H1200"/>
+            <text class="lbl" x="212" y="96" text-anchor="end">基础模型 $B</text>
+            <text class="lbl" x="212" y="127" text-anchor="end">200</text>
+            <text class="lbl" x="212" y="214" text-anchor="end">150</text>
+            <text class="lbl" x="212" y="302" text-anchor="end">100</text>
+            <text class="lbl" x="212" y="389" text-anchor="end">50</text>
+            <text class="lbl" x="212" y="477" text-anchor="end">0</text>
+            <text class="lbl" x="1218" y="96">Coding / 对话式 $B</text>
+            <text class="lbl" x="1218" y="127">4</text>
+            <text class="lbl" x="1218" y="214">3</text>
+            <text class="lbl" x="1218" y="302">2</text>
+            <text class="lbl" x="1218" y="389">1</text>
+            <text class="lbl" x="1218" y="477">0</text>
+          </g>
+
+          <!-- ② X 轴：三刻度，2026 标「至今」；量级小注防双轴误读 -->
+          <g class="pop" style="--i:2">
+            <text class="lbl yr" x="300" y="508" text-anchor="middle">2024</text>
+            <text class="lbl yr" x="720" y="508" text-anchor="middle">2025</text>
+            <text class="lbl yr" x="1140" y="508" text-anchor="middle">2026</text>
+            <text class="lbl" x="1140" y="538" text-anchor="middle">至今</text>
+            <text class="lbl" x="230" y="538">左右两轴量级不同 · 左轴 0–200，右轴 0–4（$B）</text>
+          </g>
+
+          <!-- ③ 基础模型（左轴）：31.4 → 88.9 → 178，白粗线，三年都是最大头 -->
+          <path class="ln fnd dw" style="--len:950;--i:3" d="M300 415 C 440 406 580 331 720 314 C 860 297 1000 234 1140 158"/>
+          <circle class="dot fnd pop" style="--i:4" cx="300" cy="415" r="5.5"/>
+          <circle class="dot fnd pop" style="--i:4" cx="720" cy="314" r="5.5"/>
+          <circle class="dot fnd pop" style="--i:5" cx="1140" cy="158" r="7.5"/>
+          <text class="txt val pop" style="--i:4" x="322" y="448">$31.4B</text>
+          <text class="txt val pop" style="--i:4" x="742" y="344">$88.9B</text>
+          <path class="lead fnd pop" style="--i:5" d="M1156 158 H1250"/>
+          <text class="ttl pop" style="--i:5" x="1262" y="150">基础模型</text>
+          <text class="big pop" style="--i:5" x="1262" y="196">$178B</text>
+
+          <!-- ④ AI 写代码（右轴）：1.6 → 3.3；2026 无可比融资口径，线到 2025 为止，
+               第三点不画、虚线也不补 —— Cursor 的 $2B 是 ARR，不进融资轴，只作末端小注 -->
+          <path class="ln cod dw" style="--len:490;--i:6" d="M300 330 C 440 322 580 210 720 181"/>
+          <circle class="dot cod pop" style="--i:6" cx="300" cy="330" r="5.5"/>
+          <circle class="dot cod pop" style="--i:7" cx="720" cy="181" r="7.5"/>
+          <text class="txt val pop" style="--i:6" x="322" y="362">$1.6B</text>
+          <text class="ttl pop" style="--i:7" x="750" y="154">AI 写代码</text>
+          <text class="big pop" style="--i:7" x="891" y="154">$3.3B</text>
+          <text class="sm anno pop" style="--i:8" x="750" y="190">2026 转向收入兑现 · Cursor ARR $2B</text>
+
+          <!-- ⑤ 对话式 AI（右轴）：2.1 → 0.7 → 2.2+，amber 粗线 + 末段上勾 + 走线光点，
+               曲线下压一层渐变薄雾 —— 钱正在往这一层灌。整组 data-step=1，讲到这里才出现 -->
+          <g data-step="1">
+            <path fill="url(#r14conv)" stroke="none" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278 L1140 470 L300 470 Z"/>
+            <path class="ln cnv dw" style="--len:960;--i:0" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278"/>
+            <path class="stroke-am pkt" stroke-width="9"
+              style="--pl:120px;--p0:120px;--p1:-1040px;--pt:6.4s;--pd:1.2s" d="M300 286 C 440 302 580 400 720 409 C 908 425 1060 400 1140 278"/>
+            <circle class="dot cnv pop" style="--i:0" cx="300" cy="286" r="5.5"/>
+            <circle class="dot cnv pop" style="--i:1" cx="720" cy="409" r="5.5"/>
+            <circle class="dot cnv pop" style="--i:2" cx="1140" cy="278" r="8"/>
+            <text class="txt val fill-am pop" style="--i:0" x="322" y="264">$2.1B</text>
+            <text class="txt val fill-am pop" style="--i:1" x="742" y="452">&#8776;$0.7B</text>
+            <path class="lead cnv pop" style="--i:2" d="M1156 278 H1250"/>
+            <text class="ttl fill-am pop" style="--i:2" x="1262" y="270">对话式 AI</text>
+            <text class="big fill-am pop" style="--i:2" x="1262" y="316">$2.2B+</text>
+            <text class="sm wing pop" style="--i:3" x="1262" y="352">消费声音侧 · ElevenLabs $500M @ $11B</text>
+            <text class="sm wing pop" style="--i:3" x="1262" y="382">企业智能体侧 · Sierra $950M @ $15B</text>
+          </g>
+        </svg>''')
+    #    foot 瘦身成一行：只留来源名，详细口径（每层的年份/口径/自算说明）移入设计文档 R14 段留档。
+    _cut1(_I14, '<div class="foot flow rev" style="--i:9">SOURCE', '带宽为量级示意，非等比</div>',
+          '<div class="foot flow rev" style="--i:9">Source · Crunchbase · CB Insights《State of AI 2025》'
+          '· TechCrunch · Bloomberg · CNBC</div>')
+    _cls(_I14, 'r14money')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -2172,6 +2342,7 @@ if V2:
     CONF_CSS += C11_CSS     # C11 · R11 十三页删改与数据换血后逐页撑满（必须排在 C10 之后）
     CONF_CSS += C12_CSS     # C12 · R12 新页「钱的三次落点」页级档（必须排在 C11 之后）
     CONF_CSS += C13_CSS     # C13 · R13 七处内容修订页级档（必须排在 C12 之后：P5 字号回调靠后写者胜）
+    CONF_CSS += C14_CSS     # C14 · R14 钱流向页双轴图页级档（必须排在 C12 之后：同页两个类，后写者胜）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -2418,36 +2589,29 @@ if V2:
     #    ⓐ 页级档挂上 + CSS 有定义；整页恰好一份
     assert len(re.findall(r'class="slide[^"]*\br12flow\b', s)) == 1 and '.r12flow ' in s, \
         "C12 · 新页档位类未挂/未定义：r12flow"
-    _pf = s[s.index('class="slide r12flow"'):]; _pf = _pf[:_pf.index('</section>')]
+    _pf = s[re.search(r'class="slide[^"]*\br12flow\b', s).start():]; _pf = _pf[:_pf.index('</section>')]
     #    ⓑ eyebrow 必须是 Colin 那句原话（逐字）
     assert '产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走' in _pf, "C12 · eyebrow 原话缺失"
     assert '近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>' in _pf, "C12 · h2 缺失"
-    #    ⓒ 三条层带（名 + 三段带 + 三个数）齐全，对话式层走 amber 且带 pkt 走带光点
+    #    ⓒ 三条线的名与数齐全（C14 已把三条层带重做成双轴时间图：$2B ARR 下轴、≈$2.2B 改 $2.2B+，
+    #       英文层名与「带宽示意」的说法一并撤掉 —— 逐条正向账搬到下面的 C14 段）
     for _b in ('>基础模型</text>', '>AI 写代码</text>', '>对话式 AI</text>',
-               '>FOUNDATION MODELS</text>', '>CODING</text>', '>CONVERSATIONAL AI</text>',
                '>$31.4B</text>', '>$88.9B</text>', '>$178B</text>',
-               '>$1.6B</text>', '>$3.3B</text>', '>$2B ARR</text>',
-               '>$2.1B</text>', '>≈$0.7B</text>', '>≈$2.2B</text>'):
-        assert _pf.count(_b) == 1, f"C12 · 新页层带元素缺失/重复：{_b}"
-    assert _pf.count('class="stroke dw"') == 6 and _pf.count('class="stroke-am dw"') == 3, \
-        "C12 · 三层带应各三段（灰 6 段 + amber 3 段）"
-    assert _pf.count('class="stroke-am pkt"') == 1, "C12 · 对话式层走带光点缺失"
+               '>$1.6B</text>', '>$3.3B</text>',
+               '>$2.1B</text>', '>&#8776;$0.7B</text>', '>$2.2B+</text>'):
+        assert _pf.count(_b) == 1, f"C12 · 页上层名/数缺失或重复：{_b}"
+    assert _pf.count('class="stroke-am pkt"') == 1, "C12 · 对话式那条的走线光点缺失"
     #    ⓓ 大泛类两翼（消费声音 / 企业智能体）点名在页上
     for _w in ('ElevenLabs $500M @ $11B', '消费声音侧', 'Sierra $950M @ $15B', '企业智能体侧'):
         assert _w in _pf, f"C12 · 两翼标注缺失：{_w}"
-    #    ⓔ foot 的 SOURCE 行：每层都要有来源 + 年份，口径声明不许省
-    for _src in ('Crunchbase 2026-04', 'CB Insights《State of AI 2025》2026-01',
-                 'New Market Pitch 2026-07', 'TechCrunch 2026-04', 'PYMNTS 2025-06',
-                 'TechCrunch 2025-10', 'TechCrunch 2026-01',
-                 'SiliconANGLE 2026-05', 'CNBC 2026-02', 'Bloomberg 2026-01', 'Newcomer 2026-02',
-                 '本页自算，不是全类别口径', '带宽为量级示意，非等比'):
-        assert _src in _pf, f"C12 · SOURCE 行缺失：{_src}"
+    #    ⓔ 来源行在位（C14 已瘦身成一行，逐条来源账见下面的 C14 段）
+    assert '<div class="foot flow rev" style="--i:9">Source · ' in _pf, "C12 · 来源行缺失"
     #    ⓕ data-step ≤ 2
     _st12 = set(re.findall(r'data-step="(\d+)"', _pf))
     assert _st12 <= {'1', '2'}, f"C12 · data-step 应 ≤2，实际 {_st12}"
     #    ⓖ 新页必须紧跟 PART 1 幕卡、排在钱页之前；钱页 eyebrow 已换成衔接句
     _i_act1 = s.index('<div class="cn spread" style="--i:3">语法变了</div>')
-    _i_flow = s.index('class="slide r12flow"')
+    _i_flow = re.search(r'class="slide[^"]*\br12flow\b', s).start()
     _i_money = s.index('这不是一个垂类')
     assert _i_act1 < _i_flow < _i_money, "C12 · 新页应排在 PART 1 幕卡之后、钱页之前"
     assert '先看钱往哪儿去了' not in s, "C12 · 钱页 eyebrow 未换成衔接句"
@@ -2540,8 +2704,79 @@ if V2:
     assert s.count('观点页 · 嘉宾金句 · 05') == 1 and '观点页 · 嘉宾金句 · 06' not in s, \
         "C13 · 金句编号应仍是 01–05"
 
+    # ── C14 · R14 两处 ─────────────────────────────────────────────────────
+    #    ① P2 讲台在 / 舞台零（正文范围内；母版的 CSS 注释「固定舞台」不在页里，不受影响）
+    _pp2 = _sec_of('第三次，站上同一个讲台')
+    assert '舞台' not in _pp2, "C14-① P2 仍有「舞台」残留"
+    assert '回到讲台' in _pp2, "C14-① P2 eyebrow「回到讲台」丢了"
+    assert '第三次，站上同一个舞台' not in s, "C14-① 全场不应再有「站上同一个舞台」"
+    _n_slide_stage = sum(1 for _x in re.findall(r'<section class="slide.*?</section>', s, re.S) if '舞台' in _x)
+    assert _n_slide_stage == 0, f"C14-① 仍有 {_n_slide_stage} 页正文含「舞台」"
+
+    #    ② 钱流向页 · 双轴时间图
+    _pm = _sec_of('近三年，钱的三次落点')
+    assert len(re.findall(r'class="slide[^"]*\br14money\b', s)) == 1 and '.r14money ' in s, \
+        "C14-② 档位类未挂/未定义：r14money"
+    #       ⓐ 双轴骨架：两条轴 + 一套共用网格 + 基线；左右轴标 mono 小字
+    assert 'd="M230 120 V470 M1200 120 V470"' in _pm, "C14-② 左右两条轴缺失"
+    assert _pm.count('class="gd"') == 1 and _pm.count('class="axb"') == 1, "C14-② 网格/基线缺失"
+    assert '>基础模型 $B</text>' in _pm, "C14-② 左轴标缺失"
+    assert '>Coding / 对话式 $B</text>' in _pm, "C14-② 右轴标缺失"
+    #       ⓑ 左轴刻度 0/50/100/150/200 · 右轴刻度 0/1/2/3/4（两套落在同五条网格线上）
+    for _t in ('x="212" y="127" text-anchor="end">200<', 'x="212" y="477" text-anchor="end">0<',
+               'x="1218" y="127">4<', 'x="1218" y="477">0<'):
+        assert _t in _pm, f"C14-② 轴刻度缺失：{_t}"
+    #       ⓒ X 轴三刻度 + 2026「至今」+ 双轴量级小注
+    for _t in ('class="lbl yr" x="300" y="508"', 'class="lbl yr" x="720" y="508"',
+               'class="lbl yr" x="1140" y="508"', 'x="1140" y="538" text-anchor="middle">至今</text>',
+               '左右两轴量级不同 · 左轴 0–200，右轴 0–4（$B）'):
+        assert _t in _pm, f"C14-② X 轴/小注缺失：{_t}"
+    #       ⓓ 三条数据线各一条：基础模型（白粗）· Coding（灰细）· 对话式（amber 粗 + 光点）
+    assert _pm.count('class="ln fnd dw"') == 1 and _pm.count('class="ln cod dw"') == 1 \
+       and _pm.count('class="ln cnv dw"') == 1, "C14-② 三条曲线应各一条"
+    assert _pm.count('class="stroke-am pkt"') == 1, "C14-② 对话式曲线的走线光点缺失"
+    #          Coding 那条只到 2025（第三点不画、虚线也不补），ARR 绝不上融资轴
+    assert _pm.count('class="ln cod dw" style="--len:490;--i:6" d="M300 330 C 440 322 580 210 720 181"') == 1, \
+        "C14-② Coding 曲线必须止于 2025（x=720）"
+    assert 'stroke-dasharray' not in _pm, "C14-② 不许有虚线（ARR 不能被画成第三个融资点）"
+    assert '$2B ARR' not in _pm and '2026 转向收入兑现 · Cursor ARR $2B' in _pm, \
+        "C14-② Cursor ARR 只能作末端小注，不能当轴上的数"
+    #       ⓔ 面积：对话式曲线下的 amber 低透明度渐变（强调「正在灌进来」）
+    assert 'fill="url(#r14conv)"' in _pm and 'id="r14conv"' in _pm, "C14-② 对话式曲线下的渐变面积缺失"
+    assert '.r14money #r14conv .g0{stop-color:var(--amber);stop-opacity:.22;}' in s, "C14-② 渐变档未定义"
+    #       ⓕ 三条曲线各自终点挂名牌（+ 两条引线）；两翼小标挂在 2026 点旁
+    for _t in ('x="1262" y="150">基础模型</text>', 'x="1262" y="196">$178B</text>',
+               'x="750" y="154">AI 写代码</text>', 'x="891" y="154">$3.3B</text>',
+               'x="1262" y="270">对话式 AI</text>', 'x="1262" y="316">$2.2B+</text>'):
+        assert _t in _pm, f"C14-② 终点名牌缺失：{_t}"
+    assert _pm.count('class="lead fnd pop"') == 1 and _pm.count('class="lead cnv pop"') == 1, \
+        "C14-② 名牌引线缺失"
+    assert _pm.count('class="sm wing pop"') == 2, "C14-② 2026 点旁应挂两翼小标"
+    #       ⓖ 值标只在起点/拐点/终点（终点走名牌），不是每点都挂数字：图内值标恰好五个
+    _n_val = _pm.count('class="txt val')
+    assert _n_val == 5, f"C14-② 值标应恰好五个（三条线的非终点值），实际 {_n_val}"
+    #       ⓗ 三条层带的旧图元必须清零（英文层名 / 三段带 / 带宽示意）
+    for _old in ('>FOUNDATION MODELS</text>', '>CODING</text>', '>CONVERSATIONAL AI</text>',
+                 'class="stroke dw"', 'class="stroke-am dw"', '>$2B ARR</text>', '>&#8776;$2.2B</text>',
+                 '同一层的两翼'):
+        assert _old not in _pm, f"C14-② 三条层带旧图元未清：{_old}"
+    #       ⓘ foot 瘦身成一行；旧的长口径行全文清零（已移入设计文档 R14 段留档）
+    assert '<div class="foot flow rev" style="--i:9">Source · Crunchbase · CB Insights《State of AI 2025》' \
+           '· TechCrunch · Bloomberg · CNBC</div>' in _pm, "C14-② 新 foot 一行未落地"
+    for _old in ('New Market Pitch 2026-07', 'PYMNTS 2025-06', 'SiliconANGLE 2026-05',
+                 'Newcomer 2026-02', 'Crunchbase 2026-04', 'CB Insights《State of AI 2025》2026-01',
+                 '本页自算，不是全类别口径', '带宽为量级示意，非等比', 'Cartesia $100M', 'Parloa $350M'):
+        assert _old not in s, f"C14-② 旧长 foot 口径未撤下：{_old}"
+    #       ⓙ eyebrow / h2 / note 三样原样保留
+    for _keep in ('产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走',
+                  '近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>',
+                  '这笔钱在这一层内部又分给了谁——下一页拆开看。'):
+        assert _keep in _pm, f"C14-② 该保留的没保住：{_keep}"
+    #       ⓚ data-step 仍 ≤2（对话式整组第二拍，note 第三拍）
+    assert set(re.findall(r'data-step="(\d+)"', _pm)) <= {'1', '2'}, "C14-② data-step 应 ≤2"
+
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
-          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓")
+          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

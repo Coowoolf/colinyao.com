@@ -302,28 +302,18 @@ chk(seq12.p6.includes("语法变了") && seq12.p7.includes("钱的三次落点")
 chk(html.includes("产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走"),
     "R12 · 新页 eyebrow 用 Colin 原话（逐字）");
 chk(html.includes("近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>"), "R12 · 新页 h2 在位");
-// 三条层带：层名 + 每层三个数 + 对话式层走 amber 并带走带光点
+// 三条线的名与数（R14 已把三条层带重做成双轴时间图，逐条图元账见 6.10）
 chk([">基础模型</text>", ">AI 写代码</text>", ">对话式 AI</text>",
-     ">FOUNDATION MODELS</text>", ">CODING</text>", ">CONVERSATIONAL AI</text>",
      ">$31.4B</text>", ">$88.9B</text>", ">$178B</text>",
-     ">$1.6B</text>", ">$3.3B</text>", ">$2B ARR</text>",
-     ">$2.1B</text>", ">≈$0.7B</text>", ">≈$2.2B</text>"].every((k) => html.includes(k)),
-    "R12 · 三条层带（层名 + 九个数）全在");
-const p7h = html.slice(html.indexOf('class="slide r12flow"'));
+     ">$1.6B</text>", ">$3.3B</text>",
+     ">$2.1B</text>", ">≈$0.7B</text>", ">$2.2B+</text>"].every((k) => html.includes(k)),
+    "R12 · 三条线的名与数全在");
+const p7h = html.slice(html.search(/class="slide[^"]*\br12flow\b/));
 const p7s = p7h.slice(0, p7h.indexOf("</section>"));
-chk((p7s.match(/class="stroke dw"/g) || []).length === 6 &&
-    (p7s.match(/class="stroke-am dw"/g) || []).length === 3 &&
-    (p7s.match(/class="stroke-am pkt"/g) || []).length === 1,
-    "R12 · 灰 6 段 + amber 3 段 + 对话式层走带光点");
+chk((p7s.match(/class="stroke-am pkt"/g) || []).length === 1, "R12 · 对话式那条走线光点在位");
 // 大泛类两翼：消费声音侧 / 企业智能体侧各点一个代表名
 chk(["ElevenLabs $500M @ $11B", "消费声音侧", "Sierra $950M @ $15B", "企业智能体侧"]
       .every((k) => p7s.includes(k)), "R12 · 对话式层两翼（ElevenLabs / Sierra）标注在位");
-// foot：每层都能追到来源与年份，口径声明不许省
-chk(["Crunchbase 2026-04", "CB Insights《State of AI 2025》2026-01", "New Market Pitch 2026-07",
-     "TechCrunch 2026-04", "PYMNTS 2025-06", "SiliconANGLE 2026-05", "CNBC 2026-02",
-     "Bloomberg 2026-01", "Newcomer 2026-02", "TechCrunch 2025-10", "TechCrunch 2026-01",
-     "本页自算，不是全类别口径", "带宽为量级示意，非等比"].every((k) => p7s.includes(k)),
-    "R12 · foot SOURCE 行逐层标源与年份 + 口径声明");
 chk([...p7s.matchAll(/data-step="(\d+)"/g)].every((m) => +m[1] <= 2), "R12 · 新页 data-step ≤2");
 chk(/class="slide[^"]*\br12flow\b/.test(html) && html.includes(".r12flow "),
     "R12 · 新页档位类挂上且在 CSS 里有定义");
@@ -487,6 +477,124 @@ chk(r13bad.length === 0, `R13 · 七页零溢出零 svg 文字重叠（异常 ${
 chk(["r13bell", "r13p5", "r13ask", "r13case", "r13mq", "r13fence"]
       .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)),
     "R13 · 四个页级档位类全部挂上且在 CSS 里有定义");
+
+// ── 6.10) R14：① P2 舞台 → 讲台 ② 钱流向页重做成双轴时间图 + 来源瘦身 ──
+const P14 = {
+  p2: await idxOf("第三次，站上同一个讲台"),
+  money: await idxOf("近三年，钱的三次落点"),
+};
+chk(Object.values(P14).every((i) => i >= 0), `R14 · 两个目标页按内容找到 ${JSON.stringify(P14)}`);
+// ① 讲台在 / 舞台零（正文范围；母版 CSS 注释里的「固定舞台」不算页内容）
+const s14p2 = await secOf(P14.p2);
+chk(s14p2.includes("第三次，站上同一个讲台") && s14p2.includes("回到讲台") && !s14p2.includes("舞台"),
+    "R14-① P2 讲台在、全页零「舞台」");
+const stageLeft = await pg.evaluate(() =>
+  window.deck.slides.filter((s) => (s.textContent || "").includes("舞台")).length);
+chk(stageLeft === 0 && !html.includes("第三次，站上同一个舞台"),
+    `R14-① 全场 46 页正文零「舞台」（残留 ${stageLeft} 页）`);
+// ② 双轴时间图：骨架 / 三条线 / 名牌 / 两翼 / 小注 / 面积 / 光点
+const pmh = html.slice(html.search(/class="slide[^"]*\br14money\b/));
+const pms = pmh.slice(0, pmh.indexOf("</section>"));
+chk(pms.includes('d="M230 120 V470 M1200 120 V470"') &&
+    (pms.match(/class="gd"/g) || []).length === 1 &&
+    (pms.match(/class="axb"/g) || []).length === 1 &&
+    pms.includes(">基础模型 $B</text>") && pms.includes(">Coding / 对话式 $B</text>"),
+    "R14-② 双轴骨架：左右两轴 + 一套共用网格 + 基线 + 两个 mono 轴标");
+chk(['x="212" y="127" text-anchor="end">200<', 'x="212" y="477" text-anchor="end">0<',
+     'x="1218" y="127">4<', 'x="1218" y="477">0<'].every((k) => pms.includes(k)),
+    "R14-② 左轴 0–200 / 右轴 0–4 刻度在位（两套落在同五条网格线上）");
+chk(['class="lbl yr" x="300" y="508"', 'class="lbl yr" x="720" y="508"',
+     'class="lbl yr" x="1140" y="508"', '>至今</text>',
+     "左右两轴量级不同 · 左轴 0–200，右轴 0–4（$B）"].every((k) => pms.includes(k)),
+    "R14-② X 轴三刻度 + 2026「至今」+ 双轴量级防误读小注");
+chk((pms.match(/class="ln fnd dw"/g) || []).length === 1 &&
+    (pms.match(/class="ln cod dw"/g) || []).length === 1 &&
+    (pms.match(/class="ln cnv dw"/g) || []).length === 1 &&
+    (pms.match(/class="stroke-am pkt"/g) || []).length === 1,
+    "R14-② 三条曲线各一条 + 对话式那条挂走线光点");
+chk(pms.includes('class="ln cod dw" style="--len:490;--i:6" d="M300 330 C 440 322 580 210 720 181"') &&
+    !pms.includes("stroke-dasharray") && !pms.includes("$2B ARR") &&
+    pms.includes("2026 转向收入兑现 · Cursor ARR $2B"),
+    "R14-② Coding 线止于 2025、无虚线补第三点，ARR 只作末端小注（不上融资轴）");
+chk(pms.includes('fill="url(#r14conv)"') && pms.includes('id="r14conv"') &&
+    html.includes(".r14money #r14conv .g0{stop-color:var(--amber);stop-opacity:.22;}"),
+    "R14-② 对话式曲线下的 amber 低透明度渐变面积在位");
+chk(['x="1262" y="150">基础模型</text>', 'x="1262" y="196">$178B</text>',
+     'x="750" y="154">AI 写代码</text>', 'x="891" y="154">$3.3B</text>',
+     'x="1262" y="270">对话式 AI</text>', 'x="1262" y="316">$2.2B+</text>'].every((k) => pms.includes(k)) &&
+    (pms.match(/class="sm wing pop"/g) || []).length === 2 &&
+    (pms.match(/class="lead (fnd|cnv) pop"/g) || []).length === 2,
+    "R14-② 三条曲线各自终点挂名牌（两条带引线）+ 2026 点旁两翼小标");
+chk((pms.match(/class="txt val/g) || []).length === 5,
+    "R14-② 值标只在起点/拐点（终点走名牌），恰好五个 —— 不是每点都挂数字");
+chk([">FOUNDATION MODELS</text>", ">CODING</text>", ">CONVERSATIONAL AI</text>",
+     'class="stroke dw"', 'class="stroke-am dw"', ">$2B ARR</text>", ">≈$2.2B</text>",
+     "同一层的两翼"].every((k) => !pms.includes(k)),
+    "R14-② 三条层带的旧图元清零");
+// foot 瘦身成一行；旧长口径全文撤下（已移入设计文档 R14 段留档）
+chk(pms.includes('<div class="foot flow rev" style="--i:9">Source · Crunchbase · ' +
+                 "CB Insights《State of AI 2025》· TechCrunch · Bloomberg · CNBC</div>"),
+    "R14-② 新 foot 一行在位");
+chk(["New Market Pitch 2026-07", "PYMNTS 2025-06", "SiliconANGLE 2026-05", "Newcomer 2026-02",
+     "Crunchbase 2026-04", "CB Insights《State of AI 2025》2026-01",
+     "本页自算，不是全类别口径", "带宽为量级示意，非等比", "Cartesia $100M", "Parloa $350M"]
+      .every((k) => !html.includes(k)), "R14-② 旧的长口径 foot 全场清零");
+chk(["产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走",
+     "近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>",
+     "这笔钱在这一层内部又分给了谁——下一页拆开看。"].every((k) => pms.includes(k)),
+    "R14-② eyebrow / h2 / note 三样原样保留");
+// 两页逐页截图 + 填充率 / 溢出 / svg 文字重叠复核
+const r14 = [];
+for (const [name, i] of Object.entries({ p2: P14.p2, money: P14.money })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(180);
+  await pg.evaluate(() => {
+    const d = window.deck, s = d.slides[d.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const body = s.querySelector(".body");
+    const kids = [...body.children].filter((e) => e.offsetParent);
+    const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+    const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+    const ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0, worst = null;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) {
+        ov++; if (!worst) worst = [t[i].textContent.trim(), t[j].textContent.trim()];
+      }
+    }
+    // svg 是否画出了自己的框（双轴图元素多，单独查一次）
+    const svg = s.querySelector("svg"), sb = svg ? svg.getBoundingClientRect() : null;
+    let vbOut = 0;
+    if (svg) [...svg.querySelectorAll("text")].forEach((e) => {
+      const b = e.getBoundingClientRect();
+      if (b.width && (b.left < sb.left - 2 || b.right > sb.right + 2 ||
+                      b.top < sb.top - 2 || b.bottom > sb.bottom + 2)) vbOut++;
+    });
+    return { out, ratio, ov, worst, vbOut };
+  });
+  r14.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r14-${name}.png` });
+}
+chk(r14.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.fill !== 0 &&
+                     x.ratio >= 78 && x.ratio <= 106),
+    `R14 · 两页零溢出 / 零 svg 文字重叠 / 零出框 / 填充率 78–106% ${JSON.stringify(r14)}`);
+chk(/class="slide[^"]*\br14money\b/.test(html) && html.includes(".r14money "),
+    "R14 · 页级档位类挂上且在 CSS 里有定义");
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
