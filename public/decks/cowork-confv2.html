@@ -1004,11 +1004,79 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide t8">
+<section class="slide r12flow">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
   <div class="wrap">
     <div class="head">
-      <div class="eyebrow flow" style="--i:0">先看钱往哪儿去了</div>
+      <div class="eyebrow flow" style="--i:0">产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走</div>
+      <h2 class="ink" style="--i:1">近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em></h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1680 530" width="1680" fill="none">
+          <!-- 年份格 -->
+          <g class="pop" style="--i:2">
+            <path class="stroke" stroke-width="1" opacity=".22" d="M300 34 V478 M740 34 V478 M1180 34 V478 M1620 34 V478"/>
+            <text class="lbl" x="520" y="18" text-anchor="middle">2024</text>
+            <text class="lbl" x="960" y="18" text-anchor="middle">2025</text>
+            <text class="lbl" x="1400" y="18" text-anchor="middle">2026 至今</text>
+          </g>
+
+          <!-- 带 A · 基础模型：一路最粗，三年都是最大头 -->
+          <text class="ttl pop" style="--i:3" x="0" y="116">基础模型</text>
+          <text class="lbl pop" style="--i:3" x="0" y="148">FOUNDATION MODELS</text>
+          <path class="stroke dw" style="--len:460;--i:3" stroke-width="20" d="M300 124 H740"/>
+          <path class="stroke dw" style="--len:460;--i:4" stroke-width="40" d="M740 124 H1180"/>
+          <path class="stroke dw" style="--len:460;--i:5" stroke-width="64" d="M1180 124 H1620"/>
+          <text class="big pop" style="--i:3" x="520" y="72" text-anchor="middle">$31.4B</text>
+          <text class="big pop" style="--i:4" x="960" y="72" text-anchor="middle">$88.9B</text>
+          <text class="big pop" style="--i:5" x="1400" y="72" text-anchor="middle">$178B</text>
+          <text class="sm pop" style="--i:5" x="300" y="182">三个数都是当年全年融资额（2026 只到 Q1）· 2025 年全部 AI 融资的 41% 进了这一层，OpenAI · Anthropic · xAI 三家就占 38%</text>
+
+          <!-- 带 B · Coding：第二波，2025 翻倍，2026 开始兑现成收入 -->
+          <text class="ttl pop" style="--i:6" x="0" y="264">AI 写代码</text>
+          <text class="lbl pop" style="--i:6" x="0" y="296">CODING</text>
+          <path class="stroke dw" style="--len:460;--i:6" stroke-width="10" d="M300 272 H740"/>
+          <path class="stroke dw" style="--len:460;--i:7" stroke-width="22" d="M740 272 H1180"/>
+          <path class="stroke dw" style="--len:460;--i:8" stroke-width="24" d="M1180 272 H1620"/>
+          <text class="big pop" style="--i:6" x="520" y="232" text-anchor="middle">$1.6B</text>
+          <text class="big pop" style="--i:7" x="960" y="232" text-anchor="middle">$3.3B</text>
+          <text class="big pop" style="--i:8" x="1400" y="232" text-anchor="middle">$2B ARR</text>
+          <text class="sm pop" style="--i:8" x="300" y="316">前两格是全年融资额，一年翻一倍；第三格换了口径 —— Cursor 的年化收入，第二波已经开始兑现</text>
+
+          <!-- 带 C · 对话式 AI：由细变粗，正在发生（整组挂 data-step=1，讲到这里才出现） -->
+          <g data-step="1">
+            <text class="ttl fill-am pop" style="--i:0" x="0" y="404">对话式 AI</text>
+            <text class="lbl pop" style="--i:0" x="0" y="436">CONVERSATIONAL AI</text>
+            <path class="stroke-am dw" style="--len:460;--i:0" stroke-width="8" d="M300 412 H740"/>
+            <path class="stroke-am dw" style="--len:460;--i:1" stroke-width="18" d="M740 412 H1180"/>
+            <path class="stroke-am dw" style="--len:460;--i:2" stroke-width="44" d="M1180 412 H1620"/>
+            <path class="stroke-am pkt" stroke-width="10"
+              style="--pl:140px;--p0:140px;--p1:-1480px;--pt:6.4s;--pd:1.2s" d="M300 412 H1620"/>
+            <text class="big fill-am pop" style="--i:0" x="520" y="368" text-anchor="middle">$2.1B</text>
+            <text class="big fill-am pop" style="--i:1" x="960" y="368" text-anchor="middle">≈$0.7B</text>
+            <text class="big fill-am pop" style="--i:2" x="1400" y="368" text-anchor="middle">≈$2.2B</text>
+
+            <!-- 大泛类的两翼：一边消费声音，一边企业智能体，花的是同一笔钱 -->
+            <path class="stroke-am pop" style="--i:3" stroke-width="1.4" opacity=".55" d="M760 423 V452 M1320 436 V452"/>
+            <text class="lbl fill-am pop" style="--i:3" x="300" y="478">同一层的两翼</text>
+            <text class="txt pop" style="--i:3" x="760" y="478" text-anchor="middle">ElevenLabs $500M @ $11B</text>
+            <text class="sm pop" style="--i:3" x="760" y="508" text-anchor="middle">消费声音侧</text>
+            <text class="txt pop" style="--i:3" x="1320" y="478" text-anchor="middle">Sierra $950M @ $15B</text>
+            <text class="sm pop" style="--i:3" x="1320" y="508" text-anchor="middle">企业智能体侧</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note" data-step="2"><span class="flow" style="--i:0">2024 全年，整个语音 AI 一共拿到 $2.1B；2026 光是上半年这五笔，加起来就已经顶得上那一整年。<b>对话式 AI 是个大泛类：消费侧的声音和企业侧的智能体，花的是同一笔钱。这笔钱在这一层内部又分给了谁——下一页拆开看。</b></span></div>
+      <div class="foot flow rev" style="--i:9">SOURCE · 基础模型层三个数＝当年全年融资额（2026 为 Q1 单季）：Crunchbase 2026-04；「41%」与「三家占 38%」：CB Insights《State of AI 2025》2026-01（2025 年私有 AI 融资 $225.8B）· Coding 层 2024 / 2025＝pure-play 编码工具全年融资额：New Market Pitch 2026-07（2025 的 $3.3B 里 Cursor 一家占 $3.2B）；$2B 年化收入：TechCrunch 2026-04 · 对话式层 2024 $2.1B＝语音 AI 全年融资、8× 于 2023：CB Insights，转引 PYMNTS 2025-06；2025 ≈$0.7B＝Sierra $350M ＋ Sesame $250M（TechCrunch 2025-10）＋ Cartesia $100M；2026 ≈$2.2B＝ElevenLabs $500M（CNBC 2026-02）＋ Sierra $950M（SiliconANGLE 2026-05，同源回溯 2025-09 的 $350M 前轮）＋ Parloa $350M（TechCrunch 2026-01）＋ Decagon $250M（Bloomberg 2026-01）＋ Deepgram $130M（Newcomer 2026-02）—— 后两格是代表性大轮之和、本页自算，不是全类别口径 · 带宽为量级示意，非等比</div>
+    </div>
+  </div>
+</section>
+<section class="slide t8">
+  <div class="chrome"><span>PART 1 · 语法变了</span><span>8</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">钱到了对话式 AI，再往里看一层：它分给了谁</div>
       <h2 class="ink" style="--i:1">这不是一个垂类，是整个对话式 AI 在同时点火</h2>
     </div>
     <div class="body">
@@ -1056,7 +1124,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8 r11p8">
-  <div class="chrome"><span>PART 1 · 语法变了</span><span>8</span></div>
+  <div class="chrome"><span>PART 1 · 语法变了</span><span>9</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">企业侧 × 消费侧 · 渗透读数</div>
@@ -1103,7 +1171,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r11p9">
-  <div class="chrome"><span>PART 1 · 语法变了</span><span>9</span></div>
+  <div class="chrome"><span>PART 1 · 语法变了</span><span>10</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">所有的路，最后都汇到「对话」这条线上</div>
@@ -1143,7 +1211,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r11p10">
-  <div class="chrome"><span>PART 1 · 语法变了</span><span>10</span></div>
+  <div class="chrome"><span>PART 1 · 语法变了</span><span>11</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">三个「被」字。今年，主语换了</div>
@@ -1227,7 +1295,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8">
-  <div class="chrome"><span>PART 2 · 被托付</span><span>13</span></div>
+  <div class="chrome"><span>PART 2 · 被托付</span><span>14</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">同一个起点 · 陪伴那条线走「熟人 → 伙伴」（下午专场），这条线走「干活」</div>
@@ -1294,7 +1362,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r9p14">
-  <div class="chrome"><span>PART 2 · 被托付 · CASE</span><span>14</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · CASE</span><span>15</span></div>
   <div class="mega">
     <div class="mark flow" style="--i:0">案例 01 · 真实生产环境 · A PRODUCTION-SCALE TURING TEST</div>
     <div class="mh flow" style="--i:0">「活人感」已经被解决了。</div>
@@ -1318,7 +1386,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被托付 · Eval 第一课</span><span>16</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · Eval 第一课</span><span>17</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">Eval 第一课</div>
@@ -1362,7 +1430,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 2 · 被托付 · Eval 第二课</span><span>17</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · Eval 第二课</span><span>18</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">Eval 第二课</div>
@@ -1399,7 +1467,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8 r10p18">
-  <div class="chrome"><span>PART 2 · 被托付 · Eval 第三课</span><span>18</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · Eval 第三课</span><span>19</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">Eval 第三课</div>
@@ -1426,7 +1494,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r11p19">
-  <div class="chrome"><span>PART 2 · 被托付 · Eval 第四课</span><span>19</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · Eval 第四课</span><span>20</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">Eval 第四课</div>
@@ -1527,7 +1595,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r11p21">
-  <div class="chrome"><span>PART 2 · 被托付 · CASE</span><span>21</span></div>
+  <div class="chrome"><span>PART 2 · 被托付 · CASE</span><span>22</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">案例 02 · 岗位 01 · 外呼销售 · <span class="lv">Autonomy L4</span></div>
@@ -1590,7 +1658,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r9p22 r10p22">
-  <div class="chrome"><span>PART 2 · 被托付</span><span>22</span></div>
+  <div class="chrome"><span>PART 2 · 被托付</span><span>23</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">看客户把这笔钱，记在哪个科目上</div>
@@ -1624,7 +1692,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8 r9p23">
-  <div class="chrome"><span>PART 2 · 被托付</span><span>23</span></div>
+  <div class="chrome"><span>PART 2 · 被托付</span><span>24</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">把上面两页接起来 · EVAL 贯穿全生命周期</div>
@@ -1703,7 +1771,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>26</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>27</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">可观测，才敢写进需求文档</div>
@@ -1761,7 +1829,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b r10p27">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>27</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>28</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">自治爬梯 × 交叉验证 · HUMAN IN THE LOOP</div>
@@ -1837,7 +1905,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r9p28">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>28</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>29</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">上一页的梯子，放上真实岗位 · ON THE JOB</div>
@@ -1886,7 +1954,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8 r9p29 r10p29 r11p29">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>29</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>30</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">产品在其中的角色 · WHO APPROVES</div>
@@ -1940,7 +2008,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b r11p30">
-  <div class="chrome"><span>PART 3 · 双向奔赴 · CASE</span><span>30</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴 · CASE</span><span>31</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">案例 03 · 今年这一行第一次被迫公开讨论的问题</div>
@@ -1991,7 +2059,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b r9p31">
-  <div class="chrome"><span>PART 3 · 双向奔赴 · CASE</span><span>31</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴 · CASE</span><span>32</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">案例 04 · THE REPRESENTATION LAYER · 一次有惊无险的刹车</div>
@@ -2092,7 +2160,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r9p33 r11p33">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>33</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>34</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">FROM LATENCY TO TIMING · 延迟之后，剩下的问题是时机</div>
@@ -2158,7 +2226,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r9p34">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>34</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>35</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow coral flow" style="--i:0">ON EXECUTION · 为什么语音这一行门槛天然更高</div>
@@ -2248,7 +2316,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r11p36">
-  <div class="chrome"><span>PART 3 · 双向奔赴 · 交个底</span><span>36</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴 · 交个底</span><span>37</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">交个底 · 这是一个体系，不是分散的产品点</div>
@@ -2309,7 +2377,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r10p37">
-  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>37</span></div>
+  <div class="chrome"><span>PART 3 · 双向奔赴</span><span>38</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">承重页 · 第一幕留下的那格空白，现在填上</div>
@@ -2375,7 +2443,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide r10p39">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>39</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>40</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">个人层 · WHERE ARE YOU STANDING</div>
@@ -2416,7 +2484,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>40</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>41</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">产品经理层 · EVALS ARE THE NEW PRD</div>
@@ -2481,7 +2549,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>41</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>42</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">回到第一张图 · THE FOURTH CIRCLE</div>
@@ -2532,7 +2600,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>42</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>43</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">来自 CEO 们的同一个判断 · THE HUMAN ENGINE</div>
@@ -2555,7 +2623,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8b r9p43">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>43</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>44</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">组织层 · ONE-WAY / TWO-WAY DOORS · 2025 画给产研的那道门，2026 画给整个公司</div>
@@ -2603,7 +2671,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>44</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>45</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">全场收束 · ONE LINE EACH</div>
@@ -2677,7 +2745,7 @@ h2 .pre{display:inline-block;}
   </div>
 </section>
 <section class="slide t8 r9p45 r10p45">
-  <div class="chrome"><span>PART 4 · 人与组织</span><span>45</span></div>
+  <div class="chrome"><span>PART 4 · 人与组织</span><span>46</span></div>
   <div class="wrap">
     <div class="head">
       <div class="eyebrow flow" style="--i:0">尺子的两面 · 2025 结语的升维 · THE INNER MEASURE</div>
@@ -3362,6 +3430,21 @@ thead th{font-size:19px;}
 .r11p36 .body{gap:30px;}
 .r11p36 .fig .lbl{font-size:18px;}
 .r11p36 .fig .sm{font-size:19px;}
+
+/* ============ C12 · R12 · 新页「钱的三次落点」（PART 1 数据开场第一页）============ */
+/* 大屏可读优先：图内三级字号全部上调；.big 是三条带上的钱数（母版 44px 紫），
+   这一页的 .big 要跟着带走灰 / 走 amber 两种色，所以色由 fill-* 类另给。 */
+.r12flow .wrap{padding-bottom:56px;}
+.r12flow .head{margin-bottom:26px;}
+.r12flow .body{gap:26px;}
+.r12flow .fig .lbl{font-size:21px;letter-spacing:.16em;}
+.r12flow .fig .ttl{font-size:30px;}
+.r12flow .fig .txt{font-size:25px;}
+.r12flow .fig .sm{font-size:22px;}
+.r12flow .fig .big{font-size:40px;fill:var(--ink);}
+.r12flow .fig .big.fill-am{fill:var(--amber);}
+.r12flow .note{font-size:26px;}
+.r12flow .foot{font-size:16px;line-height:1.62;max-width:1680px;}
 </style>
 <div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
 <script>

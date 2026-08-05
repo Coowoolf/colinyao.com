@@ -949,6 +949,28 @@ C11_CSS = """
 .r11p36 .fig .sm{font-size:19px;}
 """
 
+# ── C12 · R12 新页「AI 投资资金流向 2024→2026」的页级档 ·只在 CONF_V2=1 装配 ─────
+#    这一轮不是删文撑满，而是**新增一页**（45 → 46），所以档位里只有新页一档 .r12flow。
+#    图是「时间 × 层级」的资金流向带：三条横带（基础模型 / Coding / 对话式 AI），
+#    每条带按 2024 / 2025 / 2026 三段给不同 stroke-width —— 带宽是量级示意，
+#    真数全部以文字标在带上，口径与来源逐条写进 foot（不造数）。
+C12_CSS = """
+/* ============ C12 · R12 · 新页「钱的三次落点」（PART 1 数据开场第一页）============ */
+/* 大屏可读优先：图内三级字号全部上调；.big 是三条带上的钱数（母版 44px 紫），
+   这一页的 .big 要跟着带走灰 / 走 amber 两种色，所以色由 fill-* 类另给。 */
+.r12flow .wrap{padding-bottom:56px;}
+.r12flow .head{margin-bottom:26px;}
+.r12flow .body{gap:26px;}
+.r12flow .fig .lbl{font-size:21px;letter-spacing:.16em;}
+.r12flow .fig .ttl{font-size:30px;}
+.r12flow .fig .txt{font-size:25px;}
+.r12flow .fig .sm{font-size:22px;}
+.r12flow .fig .big{font-size:40px;fill:var(--ink);}
+.r12flow .fig .big.fill-am{fill:var(--amber);}
+.r12flow .note{font-size:26px;}
+.r12flow .foot{font-size:16px;line-height:1.62;max-width:1680px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -1659,6 +1681,107 @@ if V2:
         ('style="--len:400;--i:3" d="M200 62 V450"', 'style="--len:480;--i:3" d="M200 73 V531"')))
     _cls(49, 'r11p36')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C12（2026-08-05 · R12 · PART 1 幕卡后新增一页 · 45 → 46 页）─────────────────
+# 前十一层都在「删 / 改 / 重排」，这一层第一次**加页**。母版 62 页仍然只读：
+#   新页作为第 63 个元素 append 进 _secs，再把它的下标插进 _order 的第 6 位
+#   （幕卡 _secs[5] 之后、钱页 _secs[6] 之前），页码由现成的 _renum 统一重排。
+#
+# 为什么加这一页：PART 1 现在的数据开场是「钱（P7）→ 采购（P8）」，一上来就已经在
+#   对话式 AI 内部了，缺一张「先看全图」。R12 补上这张全图，三连变成——
+#     新 P7  近三年 AI 的钱先后涌进哪里（本页 · 全图）
+#     现 P8  对话式 AI 内部的钱分布在哪（ElevenLabs / OpenAI / Sierra 那页）
+#     现 P9  采购已经开始发生
+#   主张：2024 起最大头一直是基础模型，第二波是 Coding，现在钱正在涌向对话式 AI；
+#   对话式 AI 是大泛类，消费声音侧（ElevenLabs）与企业智能体侧（Sierra）都算。
+#
+# 数据纪律（与 R11 的 P8 换血同一条）：图上每个数都能在 foot 的 SOURCE 行找到来源与
+#   年份；拿不到全类别口径的层，用「代表性大轮次之和」并在 sm 行与 foot 里如实写明，
+#   **带宽只是量级示意、非等比**这一句也写进 foot，不拿图形冒充等比坐标。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    # 时间 × 层级的资金流向图：x 轴三格年份（2024 / 2025 / 2026 至今），
+    # 三条横带按层级排开，每条带三段各给一个 stroke-width（粗细 = 量级）。
+    # 坐标账：带轨 x 300→1620，年份格心 520 / 960 / 1400；
+    #   带 A 心 y=124（段宽 20/40/64）· 带 B 心 y=272（10/22/24）· 带 C 心 y=412（8/18/44）。
+    #   每段长 440，.dw 一律 --len:460 盖得住；带 C 另挂一条 pkt 走带光点（1320 长 → --p1:-1480px）。
+    F_FLOW = '''<section class="slide r12flow">
+  <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow flow" style="--i:0">产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走</div>
+      <h2 class="ink" style="--i:1">近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em></h2>
+    </div>
+    <div class="body">
+      <div class="fig gfill">
+        <svg viewBox="0 0 1680 530" width="1680" fill="none">
+          <!-- 年份格 -->
+          <g class="pop" style="--i:2">
+            <path class="stroke" stroke-width="1" opacity=".22" d="M300 34 V478 M740 34 V478 M1180 34 V478 M1620 34 V478"/>
+            <text class="lbl" x="520" y="18" text-anchor="middle">2024</text>
+            <text class="lbl" x="960" y="18" text-anchor="middle">2025</text>
+            <text class="lbl" x="1400" y="18" text-anchor="middle">2026 至今</text>
+          </g>
+
+          <!-- 带 A · 基础模型：一路最粗，三年都是最大头 -->
+          <text class="ttl pop" style="--i:3" x="0" y="116">基础模型</text>
+          <text class="lbl pop" style="--i:3" x="0" y="148">FOUNDATION MODELS</text>
+          <path class="stroke dw" style="--len:460;--i:3" stroke-width="20" d="M300 124 H740"/>
+          <path class="stroke dw" style="--len:460;--i:4" stroke-width="40" d="M740 124 H1180"/>
+          <path class="stroke dw" style="--len:460;--i:5" stroke-width="64" d="M1180 124 H1620"/>
+          <text class="big pop" style="--i:3" x="520" y="72" text-anchor="middle">$31.4B</text>
+          <text class="big pop" style="--i:4" x="960" y="72" text-anchor="middle">$88.9B</text>
+          <text class="big pop" style="--i:5" x="1400" y="72" text-anchor="middle">$178B</text>
+          <text class="sm pop" style="--i:5" x="300" y="182">三个数都是当年全年融资额（2026 只到 Q1）· 2025 年全部 AI 融资的 41% 进了这一层，OpenAI · Anthropic · xAI 三家就占 38%</text>
+
+          <!-- 带 B · Coding：第二波，2025 翻倍，2026 开始兑现成收入 -->
+          <text class="ttl pop" style="--i:6" x="0" y="264">AI 写代码</text>
+          <text class="lbl pop" style="--i:6" x="0" y="296">CODING</text>
+          <path class="stroke dw" style="--len:460;--i:6" stroke-width="10" d="M300 272 H740"/>
+          <path class="stroke dw" style="--len:460;--i:7" stroke-width="22" d="M740 272 H1180"/>
+          <path class="stroke dw" style="--len:460;--i:8" stroke-width="24" d="M1180 272 H1620"/>
+          <text class="big pop" style="--i:6" x="520" y="232" text-anchor="middle">$1.6B</text>
+          <text class="big pop" style="--i:7" x="960" y="232" text-anchor="middle">$3.3B</text>
+          <text class="big pop" style="--i:8" x="1400" y="232" text-anchor="middle">$2B ARR</text>
+          <text class="sm pop" style="--i:8" x="300" y="316">前两格是全年融资额，一年翻一倍；第三格换了口径 —— Cursor 的年化收入，第二波已经开始兑现</text>
+
+          <!-- 带 C · 对话式 AI：由细变粗，正在发生（整组挂 data-step=1，讲到这里才出现） -->
+          <g data-step="1">
+            <text class="ttl fill-am pop" style="--i:0" x="0" y="404">对话式 AI</text>
+            <text class="lbl pop" style="--i:0" x="0" y="436">CONVERSATIONAL AI</text>
+            <path class="stroke-am dw" style="--len:460;--i:0" stroke-width="8" d="M300 412 H740"/>
+            <path class="stroke-am dw" style="--len:460;--i:1" stroke-width="18" d="M740 412 H1180"/>
+            <path class="stroke-am dw" style="--len:460;--i:2" stroke-width="44" d="M1180 412 H1620"/>
+            <path class="stroke-am pkt" stroke-width="10"
+              style="--pl:140px;--p0:140px;--p1:-1480px;--pt:6.4s;--pd:1.2s" d="M300 412 H1620"/>
+            <text class="big fill-am pop" style="--i:0" x="520" y="368" text-anchor="middle">$2.1B</text>
+            <text class="big fill-am pop" style="--i:1" x="960" y="368" text-anchor="middle">≈$0.7B</text>
+            <text class="big fill-am pop" style="--i:2" x="1400" y="368" text-anchor="middle">≈$2.2B</text>
+
+            <!-- 大泛类的两翼：一边消费声音，一边企业智能体，花的是同一笔钱 -->
+            <path class="stroke-am pop" style="--i:3" stroke-width="1.4" opacity=".55" d="M760 423 V452 M1320 436 V452"/>
+            <text class="lbl fill-am pop" style="--i:3" x="300" y="478">同一层的两翼</text>
+            <text class="txt pop" style="--i:3" x="760" y="478" text-anchor="middle">ElevenLabs $500M @ $11B</text>
+            <text class="sm pop" style="--i:3" x="760" y="508" text-anchor="middle">消费声音侧</text>
+            <text class="txt pop" style="--i:3" x="1320" y="478" text-anchor="middle">Sierra $950M @ $15B</text>
+            <text class="sm pop" style="--i:3" x="1320" y="508" text-anchor="middle">企业智能体侧</text>
+          </g>
+        </svg>
+      </div>
+      <div class="note" data-step="2"><span class="flow" style="--i:0">2024 全年，整个语音 AI 一共拿到 $2.1B；2026 光是上半年这五笔，加起来就已经顶得上那一整年。<b>对话式 AI 是个大泛类：消费侧的声音和企业侧的智能体，花的是同一笔钱。这笔钱在这一层内部又分给了谁——下一页拆开看。</b></span></div>
+      <div class="foot flow rev" style="--i:9">SOURCE · 基础模型层三个数＝当年全年融资额（2026 为 Q1 单季）：Crunchbase 2026-04；「41%」与「三家占 38%」：CB Insights《State of AI 2025》2026-01（2025 年私有 AI 融资 $225.8B）· Coding 层 2024 / 2025＝pure-play 编码工具全年融资额：New Market Pitch 2026-07（2025 的 $3.3B 里 Cursor 一家占 $3.2B）；$2B 年化收入：TechCrunch 2026-04 · 对话式层 2024 $2.1B＝语音 AI 全年融资、8× 于 2023：CB Insights，转引 PYMNTS 2025-06；2025 ≈$0.7B＝Sierra $350M ＋ Sesame $250M（TechCrunch 2025-10）＋ Cartesia $100M；2026 ≈$2.2B＝ElevenLabs $500M（CNBC 2026-02）＋ Sierra $950M（SiliconANGLE 2026-05，同源回溯 2025-09 的 $350M 前轮）＋ Parloa $350M（TechCrunch 2026-01）＋ Decagon $250M（Bloomberg 2026-01）＋ Deepgram $130M（Newcomer 2026-02）—— 后两格是代表性大轮之和、本页自算，不是全类别口径 · 带宽为量级示意，非等比</div>
+    </div>
+  </div>
+</section>'''
+    _secs.append(F_FLOW)
+    _I_FLOW = len(_secs) - 1
+    assert _I_FLOW == 62, f'C12 · 新页应是第 63 个元素，实际下标 {_I_FLOW}'
+
+    # ── C12-② 现 P7（钱页）eyebrow 改成衔接句 ────────────────────────────────
+    #    「先看钱往哪儿去了」这句话已经由新页整页承担了，原位换成「再往里看一层」的承接。
+    _r1(6, '<div class="eyebrow flow" style="--i:0">先看钱往哪儿去了</div>',
+           '<div class="eyebrow flow" style="--i:0">钱到了对话式 AI，再往里看一层：它分给了谁</div>')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -1684,8 +1807,12 @@ if V2:
     for _a, _b in ((28, 29), (46, 47)):
         assert _order.count(_a) == 1 and _b not in _order, f'C9 拆页入列定位失败：{_a}/{_b}'
         _order.insert(_order.index(_a) + 1, _b)
+    # ── C12 新页入列（承上面 C12 层）：PART 1 幕卡 _secs[5] 之后、钱页 _secs[6] 之前 ──
+    #    45 → 46 页。插在这里而不是插在 C12 层里，是因为 _order 到这一行才装配完。
+    assert _order[:7] == [0, 1, 2, 3, 4, 5, 6], f'C12 入列定位失败：{_order[:7]}'
+    _order.insert(6, _I_FLOW)
 s = _head2 + '\n'.join(_secs[o] for o in _order) + _tail2
-_n_cut = 45 if V2 else 54
+_n_cut = 46 if V2 else 54
 assert len(re.findall(r'<section class="slide', s)) == _n_cut, f"压缩后应 {_n_cut} 页"
 
 # ── 6.5) 媒体层（仅大会版；母版/线上 /cowork 保持无媒体） ────
@@ -1841,14 +1968,15 @@ if V2:
     CONF_CSS += C9_CSS      # C9 · R9 删文后逐页撑满（必须排在 C8 +2px 之后）
     CONF_CSS += C10_CSS     # C10 · R10 八页删改后逐页撑满（必须排在 C9 之后）
     CONF_CSS += C11_CSS     # C11 · R11 十三页删改与数据换血后逐页撑满（必须排在 C10 之后）
+    CONF_CSS += C12_CSS     # C12 · R12 新页「钱的三次落点」页级档（必须排在 C11 之后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
 
 open(OUT, "w", encoding="utf-8").write(s)
 n = len(re.findall(r'<section class="slide', s))
-_n_out = 45 if V2 else 55
-assert n == _n_out, f"{'R9 聚焦版' if V2 else '大会版'}应为 {_n_out} 页，实际 {n}"
+_n_out = 46 if V2 else 55
+assert n == _n_out, f"{'R12 聚焦版' if V2 else '大会版'}应为 {_n_out} 页，实际 {n}"
 print(f"{OUT.split('/')[-1]} written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
 # 两版共用：多行 note clip-path 真 bug 修复必须在位
@@ -2077,7 +2205,47 @@ if V2:
                'r11p29', 'r11p30', 'r11p33', 'r11p36'):
         assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
             f"C11 · 档位类未挂/未定义：{_c}"
-    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ C11 R11 十三页 ✓")
+
+    # ── C12 · R12 新页「钱的三次落点」在位 ─────────────────────────────────
+    #    ⓐ 页级档挂上 + CSS 有定义；整页恰好一份
+    assert len(re.findall(r'class="slide[^"]*\br12flow\b', s)) == 1 and '.r12flow ' in s, \
+        "C12 · 新页档位类未挂/未定义：r12flow"
+    _pf = s[s.index('class="slide r12flow"'):]; _pf = _pf[:_pf.index('</section>')]
+    #    ⓑ eyebrow 必须是 Colin 那句原话（逐字）
+    assert '产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走' in _pf, "C12 · eyebrow 原话缺失"
+    assert '近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>' in _pf, "C12 · h2 缺失"
+    #    ⓒ 三条层带（名 + 三段带 + 三个数）齐全，对话式层走 amber 且带 pkt 走带光点
+    for _b in ('>基础模型</text>', '>AI 写代码</text>', '>对话式 AI</text>',
+               '>FOUNDATION MODELS</text>', '>CODING</text>', '>CONVERSATIONAL AI</text>',
+               '>$31.4B</text>', '>$88.9B</text>', '>$178B</text>',
+               '>$1.6B</text>', '>$3.3B</text>', '>$2B ARR</text>',
+               '>$2.1B</text>', '>≈$0.7B</text>', '>≈$2.2B</text>'):
+        assert _pf.count(_b) == 1, f"C12 · 新页层带元素缺失/重复：{_b}"
+    assert _pf.count('class="stroke dw"') == 6 and _pf.count('class="stroke-am dw"') == 3, \
+        "C12 · 三层带应各三段（灰 6 段 + amber 3 段）"
+    assert _pf.count('class="stroke-am pkt"') == 1, "C12 · 对话式层走带光点缺失"
+    #    ⓓ 大泛类两翼（消费声音 / 企业智能体）点名在页上
+    for _w in ('ElevenLabs $500M @ $11B', '消费声音侧', 'Sierra $950M @ $15B', '企业智能体侧'):
+        assert _w in _pf, f"C12 · 两翼标注缺失：{_w}"
+    #    ⓔ foot 的 SOURCE 行：每层都要有来源 + 年份，口径声明不许省
+    for _src in ('Crunchbase 2026-04', 'CB Insights《State of AI 2025》2026-01',
+                 'New Market Pitch 2026-07', 'TechCrunch 2026-04', 'PYMNTS 2025-06',
+                 'TechCrunch 2025-10', 'TechCrunch 2026-01',
+                 'SiliconANGLE 2026-05', 'CNBC 2026-02', 'Bloomberg 2026-01', 'Newcomer 2026-02',
+                 '本页自算，不是全类别口径', '带宽为量级示意，非等比'):
+        assert _src in _pf, f"C12 · SOURCE 行缺失：{_src}"
+    #    ⓕ data-step ≤ 2
+    _st12 = set(re.findall(r'data-step="(\d+)"', _pf))
+    assert _st12 <= {'1', '2'}, f"C12 · data-step 应 ≤2，实际 {_st12}"
+    #    ⓖ 新页必须紧跟 PART 1 幕卡、排在钱页之前；钱页 eyebrow 已换成衔接句
+    _i_act1 = s.index('<div class="cn spread" style="--i:3">语法变了</div>')
+    _i_flow = s.index('class="slide r12flow"')
+    _i_money = s.index('这不是一个垂类')
+    assert _i_act1 < _i_flow < _i_money, "C12 · 新页应排在 PART 1 幕卡之后、钱页之前"
+    assert '先看钱往哪儿去了' not in s, "C12 · 钱页 eyebrow 未换成衔接句"
+    assert '钱到了对话式 AI，再往里看一层：它分给了谁' in s, "C12 · 钱页新 eyebrow 缺失"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
+          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

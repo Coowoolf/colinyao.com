@@ -1,5 +1,6 @@
-// QA：/cowork-confv2 45 页走查（R9 删文拆页 + R10 八页删改 + R11 十三页删改与数据换血）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
-// 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 45 页预览版。
+// QA：/cowork-confv2 46 页走查（R9 删文拆页 + R10 八页删改 + R11 十三页删改与数据换血 + R12 新页「钱的三次落点」）
+//     + P3 录音按键行为 + 无视频断言 + 灰字提亮核对
+// 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 46 页预览版。
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const { chromium } = require("/home/claude/.npm-global/lib/node_modules/playwright");
@@ -12,9 +13,9 @@ pg.on("pageerror", (e) => errs.push("pageerror: " + e.message));
 let fail = 0;
 const chk = (ok, label) => { if (!ok) fail++; console.log((ok ? "✓ " : "✗ ") + label); };
 
-// ── 1) 45 页全量走查（含 data-step 推满 + 溢出检查） ──
+// ── 1) 46 页全量走查（含 data-step 推满 + 溢出检查） ──
 await pg.goto("http://localhost:3000/cowork-confv2", { waitUntil: "networkidle" });
-await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 45);
+await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 46);
 const n = await pg.evaluate(() => window.deck.slides.length);
 let overflow = [];
 for (let i = 0; i < n; i++) {
@@ -40,7 +41,7 @@ for (let i = 0; i < n; i++) {
   });
   if (bad.length) overflow.push({ slide: i + 1, bad });
 }
-chk(n === 45, `页数 = 45（实测 ${n}）`);
+chk(n === 46, `页数 = 46（实测 ${n}）`);
 chk(overflow.length === 0, `零溢出（溢出页 ${JSON.stringify(overflow)}）`);
 
 // ── 2) 媒体行为 · P3 录音（第一按播，第二按停 + 翻页） ──
@@ -257,7 +258,8 @@ chk(["r11p3", "r11p5", "r11p8", "r11p9", "r11p10", "r11p19", "r11p21",
     "R11 · 十一个页级档位类全部挂上且在 CSS 里有定义");
 // 十三页 .body 填充率 + svg 文字零重叠（删后撑满的机检）
 const r11fill = [];
-for (const p of [3, 4, 5, 8, 9, 10, 19, 21, 22, 29, 30, 33, 36]) {
+// ⚠️ R12 在 P6 幕卡后插了新页，R11 那十三页里 P7 起的页号一律 +1（3/4/5 不变）
+for (const p of [3, 4, 5, 9, 10, 11, 20, 22, 23, 30, 31, 34, 37]) {
   await pg.evaluate((k) => window.deck.go(k - 1), p);
   await pg.waitForTimeout(140);
   await pg.evaluate(() => {
@@ -287,6 +289,82 @@ for (const p of [3, 4, 5, 8, 9, 10, 19, 21, 22, 29, 30, 33, 36]) {
 }
 chk(r11fill.every((x) => x.fill >= 78 && x.fill <= 106 && x.ov === 0),
     `R11 · 十三页 .body 填充率 78–106% 且 svg 文字零重叠 ${JSON.stringify(r11fill)}`);
+
+// ── 6.8) R12：PART 1 幕卡后新增一页「钱的三次落点」（45 → 46） ──
+// 页序：P6 幕卡 → P7 新页（全图）→ P8 钱页（对话式内部分布）→ P9 采购已开动
+const seq12 = await pg.evaluate(() => {
+  const t = (i) => (window.deck.slides[i].textContent || "").replace(/\s+/g, " ");
+  return { p6: t(5), p7: t(6), p8: t(7), p9: t(8) };
+});
+chk(seq12.p6.includes("语法变了") && seq12.p7.includes("钱的三次落点") &&
+    seq12.p8.includes("这不是一个垂类") && seq12.p9.includes("预测还在打架"),
+    "R12 · 三连页序：幕卡 → 新页全图 → 对话式内部分布 → 采购已开动");
+// eyebrow 必须是 Colin 原话，逐字
+chk(html.includes("产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走"),
+    "R12 · 新页 eyebrow 用 Colin 原话（逐字）");
+chk(html.includes("近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>"), "R12 · 新页 h2 在位");
+// 三条层带：层名 + 每层三个数 + 对话式层走 amber 并带走带光点
+chk([">基础模型</text>", ">AI 写代码</text>", ">对话式 AI</text>",
+     ">FOUNDATION MODELS</text>", ">CODING</text>", ">CONVERSATIONAL AI</text>",
+     ">$31.4B</text>", ">$88.9B</text>", ">$178B</text>",
+     ">$1.6B</text>", ">$3.3B</text>", ">$2B ARR</text>",
+     ">$2.1B</text>", ">≈$0.7B</text>", ">≈$2.2B</text>"].every((k) => html.includes(k)),
+    "R12 · 三条层带（层名 + 九个数）全在");
+const p7h = html.slice(html.indexOf('class="slide r12flow"'));
+const p7s = p7h.slice(0, p7h.indexOf("</section>"));
+chk((p7s.match(/class="stroke dw"/g) || []).length === 6 &&
+    (p7s.match(/class="stroke-am dw"/g) || []).length === 3 &&
+    (p7s.match(/class="stroke-am pkt"/g) || []).length === 1,
+    "R12 · 灰 6 段 + amber 3 段 + 对话式层走带光点");
+// 大泛类两翼：消费声音侧 / 企业智能体侧各点一个代表名
+chk(["ElevenLabs $500M @ $11B", "消费声音侧", "Sierra $950M @ $15B", "企业智能体侧"]
+      .every((k) => p7s.includes(k)), "R12 · 对话式层两翼（ElevenLabs / Sierra）标注在位");
+// foot：每层都能追到来源与年份，口径声明不许省
+chk(["Crunchbase 2026-04", "CB Insights《State of AI 2025》2026-01", "New Market Pitch 2026-07",
+     "TechCrunch 2026-04", "PYMNTS 2025-06", "SiliconANGLE 2026-05", "CNBC 2026-02",
+     "Bloomberg 2026-01", "Newcomer 2026-02", "TechCrunch 2025-10", "TechCrunch 2026-01",
+     "本页自算，不是全类别口径", "带宽为量级示意，非等比"].every((k) => p7s.includes(k)),
+    "R12 · foot SOURCE 行逐层标源与年份 + 口径声明");
+chk([...p7s.matchAll(/data-step="(\d+)"/g)].every((m) => +m[1] <= 2), "R12 · 新页 data-step ≤2");
+chk(/class="slide[^"]*\br12flow\b/.test(html) && html.includes(".r12flow "),
+    "R12 · 新页档位类挂上且在 CSS 里有定义");
+// 衔接：现 P8（钱页）eyebrow 已换成承接句
+chk(!html.includes("先看钱往哪儿去了") &&
+    html.includes("钱到了对话式 AI，再往里看一层：它分给了谁"),
+    "R12 · P8 钱页 eyebrow 已改为衔接句");
+// 新页与衔接页填充率 + svg 文字零重叠 + 截图
+const r12fill = [];
+for (const p of [7, 8]) {
+  await pg.evaluate((k) => window.deck.go(k - 1), p);
+  await pg.waitForTimeout(160);
+  await pg.evaluate(() => {
+    const d = window.deck, s = d.slides[d.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const body = s.querySelector(".body") || s.querySelector(".mega");
+    const kids = [...body.children].filter((e) => e.offsetParent);
+    const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+    const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+    const ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) ov++;
+    }
+    return { ratio, ov };
+  });
+  r12fill.push({ p, fill: m.ratio, ov: m.ov });
+  await pg.screenshot({ path: p === 7 ? "/tmp/qa/r12-new.png" : "/tmp/qa/r12-p8.png" });
+}
+chk(r12fill.every((x) => x.fill >= 78 && x.fill <= 106 && x.ov === 0),
+    `R12 · 新页与衔接页 .body 填充率 78–106% 且 svg 文字零重叠 ${JSON.stringify(r12fill)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
