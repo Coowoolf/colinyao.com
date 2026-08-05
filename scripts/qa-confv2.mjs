@@ -154,8 +154,8 @@ const cut10 = ["问题一 · 授权边界", "问题二 · 问责归属", "问题
                "撤销生效延迟 · 回滚成功率", "信任是被验证过的行动空间",
                "这三个维度对应四条工程坐标",                                     // P37 三卡 + 两段解释
                "四阶不是学历",                                                  // P39 land
-               "Writing evals is the most important thing", "Kevin Weil",       // P45 引文卡
                "愿我们在理解"];                                                 // P45 结语
+// ⚠️ R13 起「Writing evals / Kevin Weil」不再列进 cut10：那句从终页撤走后放回了灵魂拷问页
 chk(cut10.every((k) => !html.includes(k)),
     `R10 八页删文到位（残留 ${JSON.stringify(cut10.filter((k) => html.includes(k)))}）`);
 // 注意：走查时 data-step 已被推满，四列那块的 class 会多一个 on，所以只比前缀
@@ -205,7 +205,7 @@ const cut11 = ["当时我的结论是：活人感缺失", "把它做得更像人
                "边界声明 · 本场不讨论意识",                                // P10 foot
                '<div class="steps">', '<div class="i">STEP 01</div>',     // P19 下方四块
                "96.5%</div><div class=\"l\">未被识破率",                   // P21 三格
-               "同等时间的有效工作量", "同等产出的用人成本", "意向转化率",
+               "同等时间的有效工作量", "同等产出的用人成本",
                "这 2,475 通，是真实生产通话的自然测量",
                "这个坑有名字，叫 backchannel",                            // P33 note
                "任何一格的进步，四条线一起受益"];                          // P36 note 长尾
@@ -219,7 +219,7 @@ const p5 = html.slice(html.indexOf("<!-- 全场路线"));
 const p5svg = p5.slice(0, p5.indexOf("</svg>"));
 chk((p5svg.match(/text-anchor="middle">PART/g) || []).length === 4 && !p5svg.includes("PART 0") &&
     ["语法变了", "被托付", "双向奔赴", "人与组织"].every((t) => p5svg.includes(t)) &&
-    p5svg.includes('d="M627 543 H1600"') && p5svg.includes("--len:1010"),
+    p5svg.includes('d="M627 580 H1600"') && p5svg.includes("--len:1010"),
     "R11 · P5 路线图四站（PART 1-4）+ 高亮段起点/--len 同步");
 // P8 企业侧换血：五条 bar 每条都能在 SOURCE 行找到来源与年份
 chk([">66%<", ">91%<", ">70%<", ">15–20%<", ">49%<"].every((k) => html.includes(k)) &&
@@ -234,9 +234,8 @@ chk(["STEP 01", "STEP 02", "STEP 03", "STEP 04", "全量捞，不抽样", "人�
     html.includes('viewBox="0 0 1680 600"'),
     "R11 · P19 四步已并进图内（图放大为主体）");
 chk(html.includes('<div class="cmp2">') && html.includes('<div class="v">3.08%</div>') &&
-    html.includes('<div class="v">1.5%</div>') && html.includes("<div class=\"l\">被识破率</div>") &&
-    html.includes("上线前人工基线 · 内部口径") && html.includes("它已经贴到人工坐席自己的极限上了。"),
-    "R11 · P21 3.08% × 1.5% 双大数对比 + 基线口径标注");
+    html.includes('<div class="v">1.5%</div>') && html.includes("上线前人工基线 · 内部口径"),
+    "R11 · P21 3.08% × 1.5% 双大数对比 + 基线口径标注（度量名/结论句由 R13 纠正）");
 chk(html.includes('<div class="land r11pay flow"') &&
     html.includes("Bret Taylor &amp; Clay Bavor · Sierra 官方博客《The next Horizon in agents》· 2026-07"),
     "R11 · P22 中文升主 + 英文原文 + 出处行（一手已核到）");
@@ -365,6 +364,129 @@ for (const p of [7, 8]) {
 }
 chk(r12fill.every((x) => x.fill >= 78 && x.fill <= 106 && x.ov === 0),
     `R12 · 新页与衔接页 .body 填充率 78–106% 且 svg 文字零重叠 ${JSON.stringify(r12fill)}`);
+
+// ── 6.9) R13：七处内容修订（全部内容锚定取页，不信页码） ──
+// 页号在 46 页版里现算：靠正文找 slide 下标，Colin 的反馈横跨 45/46 两版
+const idxOf = async (needle) =>
+  await pg.evaluate((n) => window.deck.slides.findIndex((s) => (s.textContent || "").includes(n)), needle);
+const P = {
+  bell: await idxOf("今年这段通话里，一个人都没有"),
+  route: await idxOf("本场提要"),
+  ask: await idxOf("亲手写过"),
+  eval1: await idxOf("你的 demo 在骗你"),
+  case2: await idxOf("一个 Agent 的入职三十天"),
+  mqTaylor: await idxOf("One of the biggest fallacies in AI"),
+  mqFence: await idxOf("围栏不是拦住它，"),
+};
+chk(Object.values(P).every((i) => i >= 0), `R13 · 七个目标页全部按内容找到 ${JSON.stringify(P)}`);
+// 负向：被换下 / 被改写的六句必须查无此句
+const cut13 = ["B 如 Boy", '<div class="l">被识破率</div>', "被投诉「不像人」基线",
+               "通话结束前，被对方听出「这是 AI」的比例", "它已经贴到人工坐席自己的极限上了。",
+               "一个能被计量的同事，", "计量不是为了管住它，是为了敢把事交给它。",
+               "提示词只能拦住一些越权，", "架构的围栏，才是产品经理的护城河。",
+               "你能拦住的，只有你先表示出来的那些东西。"];
+chk(cut13.every((k) => !html.includes(k)),
+    `R13 七处改写到位（残留 ${JSON.stringify(cut13.filter((k) => html.includes(k)))}）`);
+// ① 贝尔第一通电话
+const secOf = async (i) => await pg.evaluate((k) => window.deck.slides[k].outerHTML, i);
+const sBell = await secOf(P.bell);
+chk(sBell.includes("Mr. Watson — come here — I want to see you.") &&
+    sBell.includes("贝尔 · 1876 · 人类第一通电话，今年整 150 年") &&
+    sBell.includes("PSTN · 一张跑了 150 年的电话网") &&
+    (sBell.match(/<div class="quote/g) || []).length === 2,
+    "R13-① 贝尔原话 + 出处行挂在 PSTN/150 年那一页（左栏两条引文）");
+// ② 路线图字号回调：站名 46 / PART 标 24 / 副题 25（实测计算值）
+const route = await pg.evaluate((k) => {
+  const s = window.deck.slides[k], g = (sel) => {
+    const e = s.querySelector(sel);
+    return e ? Math.round(parseFloat(getComputedStyle(e).fontSize)) : null;
+  };
+  const c = s.querySelector("circle.fill-am");
+  return { txt: g("svg text.txt"), lbl: g("svg text.lbl"), sm: g("svg text.sm"),
+           r: c ? +c.getAttribute("r") : null };
+}, P.route);
+chk(route.txt >= 44 && route.txt <= 48 && route.lbl >= 22 && route.lbl <= 26 &&
+    route.sm >= 24 && route.sm <= 26 && route.r === 11,
+    `R13-② 路线图回调到优雅档（站名 44–48 / PART 24 / 副题 24–26 / 圆点回收）${JSON.stringify(route)}`);
+// ③ Weil 金句在拷问页、且是第二拍
+const sAsk = await secOf(P.ask);
+chk(sAsk.includes("Writing evals is the most important thing a PM can do in the AI era.") &&
+    sAsk.includes("Kevin Weil · OpenAI 前 CPO") && sAsk.includes('data-step="1"') &&
+    (html.match(/Writing evals is the most important thing/g) || []).length === 1,
+    "R13-③ Weil 金句作 data-step=1 第二拍落在灵魂拷问页（全场仅此一处）");
+// ④ 英语习惯拼读法：svg 与关联句两处
+const sEv = await secOf(P.eval1);
+chk(sEv.includes("A as in Apple · B as in Boy · 0086 · 一位一位念") &&
+    sEv.includes("在「A as in Apple、0086」上"),
+    "R13-④ A as in Apple · B as in Boy（svg + 关联句同步）");
+// ⑤ 3.08% 表意纠正：同一把尺子 + Agent 条更长 + amber
+const case2 = await pg.evaluate((k) => {
+  const s = window.deck.slides[k];
+  const cs = [...s.querySelectorAll(".cmp2 .c")].map((c) => ({
+    v: c.querySelector(".v").textContent.trim(),
+    l: c.querySelector(".l").textContent.trim(),
+    w: c.querySelector(".bar i").getBoundingClientRect().width,
+    bg: getComputedStyle(c.querySelector(".bar i")).backgroundColor,
+  }));
+  return { cs, land: (s.querySelector(".land") || {}).textContent || "" };
+}, P.case2);
+chk(case2.cs.length === 2 && case2.cs.every((c) => c.l === "意向转化率") &&
+    case2.cs[0].v === "3.08%" && case2.cs[1].v === "1.5%" &&
+    case2.cs[0].w > case2.cs[1].w * 1.8 && case2.cs[0].bg !== case2.cs[1].bg &&
+    case2.land.includes("它已经把人工基线翻了一倍。") && case2.land.includes("不是在"),
+    `R13-⑤ 两数同为意向转化率 + Agent 条更长/amber + 主句转向「强过人」${JSON.stringify(case2.cs.map((c) => [c.v, c.l, Math.round(c.w)]))}`);
+chk(html.includes("上线前人工基线 · 内部口径"), "R13-⑤ 1.5% 的口径标注保留");
+// ⑥ Bret Taylor perfect human 金句页
+const sMq = await secOf(P.mqTaylor);
+chk(sMq.includes("is people compare it with this perfect human") &&
+    sMq.includes("that does not exist.") &&
+    sMq.includes("AI 最大的谬误之一，是人们总把它跟一个并不存在的完美的人相比。") &&
+    sMq.includes("Bret Taylor · Sierra CEO / OpenAI 董事长") &&
+    sMq.includes("观点页 · 嘉宾金句 · 03"),
+    "R13-⑥ 金句 03 换成 Bret Taylor 原句（英文主 + 中文译 + 署名行）");
+// ⑦ 围栏 Part 点睛
+const sFc = await secOf(P.mqFence);
+chk(sFc.includes("是放出它。") && sFc.includes("观点页 · 嘉宾金句 · 04") &&
+    sFc.includes("围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。"),
+    "R13-⑦ 围栏 Part 金句重写（一句主 + 一行小字）");
+// 七页逐页截图 + 溢出/重叠复核（金句页无 .body，只查溢出）
+const shots = { bell: P.bell, route: P.route, ask: P.ask, eval1: P.eval1,
+                case2: P.case2, "mq-taylor": P.mqTaylor, "mq-fence": P.mqFence };
+const r13bad = [];
+for (const [name, i] of Object.entries(shots)) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(160);
+  await pg.evaluate(() => {
+    const d = window.deck, s = d.slides[d.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2200);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) ov++;
+    }
+    return { out, ov };
+  });
+  if (m.out || m.ov) r13bad.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r13-p${name}.png` });
+}
+chk(r13bad.length === 0, `R13 · 七页零溢出零 svg 文字重叠（异常 ${JSON.stringify(r13bad)}）`);
+chk(["r13bell", "r13p5", "r13ask", "r13case", "r13mq", "r13fence"]
+      .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)),
+    "R13 · 四个页级档位类全部挂上且在 CSS 里有定义");
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));

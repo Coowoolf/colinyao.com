@@ -971,6 +971,57 @@ C12_CSS = """
 .r12flow .foot{font-size:16px;line-height:1.62;max-width:1680px;}
 """
 
+# ── C13 · R13 七处内容修订的页级档 ·只在 CONF_V2=1 装配 ────────────────────────
+#    这一层里只有一处是「回调」（P5 路线图字号从 R10/R11 的 76→82px 收回 46px），
+#    其余六处都是内容层动作（补引文 / 补金句 / 改拼读法 / 纠表意 / 换两张金句页），
+#    所以档位很薄：一页一档，全部排在 C12_CSS 之后（同名属性后写者胜）。
+C13_CSS = """
+/* ============ C13 · R13 · 七处内容修订 ============ */
+/* P4 一个人都没有：左栏两条引文叠成一摞 —— 2026 的 Bret 与 1876 的贝尔，
+   一页之内把「150 年」这件事从文字变成两个可以并排读的时间点。 */
+.r13bell .qstack{display:flex;flex-direction:column;gap:24px;align-self:center;}
+.r13bell .qstack .quote .en.sm{font-size:23px;line-height:1.46;}
+.r13bell .qstack .quote.co .en.sm{font-family:var(--f-mono);font-size:21px;color:var(--ink-2);}
+.r13bell .qstack .quote.co .by{margin-top:10px;text-transform:none;letter-spacing:.1em;}
+
+/* P5 本场提要：R10 的 ×4.6 把站名推到 76px、R11 再推到 82px，顶格失了美感。
+   R13 回调到「大而清爽」的优雅档 —— 站名 46 / PART 标 24 / 副题 25，
+   圆点半径与线宽同步回收，四行在 665 的 viewBox 里居中排开、上下留白各 ≈120。 */
+.r13p5 .head{margin-bottom:26px;}
+.r13p5 .fig .txt{font-size:46px;}
+.r13p5 .fig .sm{font-size:25px;}
+.r13p5 .fig .lbl{font-size:24px;letter-spacing:.2em;}
+
+/* P16 灵魂拷问：问句仍是主体（112 → 96px 给第二拍让位），
+   Weil 金句作 data-step=1 的第二拍落在下方（英文 mono + 署名行）。 */
+.r13ask .ask{gap:56px;}
+.r13ask .ask .q{font-size:96px;}
+.r13ask .ask .quote{max-width:1420px;border-left-width:4px;padding-left:32px;}
+.r13ask .ask .quote .en{font-family:var(--f-mono);font-size:32px;line-height:1.44;
+  font-weight:700;letter-spacing:0;color:var(--coral);}
+.r13ask .ask .quote .by{font-size:21px;letter-spacing:.16em;margin-top:16px;}
+
+/* P22 案例 02：两个数是同一把尺子（意向转化率），所以两栏加一条等宽底座的条，
+   条长比 = 数值比（3.08 : 1.5 ≈ 100% : 49%），Agent 那条走 amber。
+   ⚠️ 两条比例条把这一页撑到 108%（超 106 上限），所以大数与栏距同步收一档。 */
+.cmp2 .c .bar{height:14px;border-radius:3px;background:var(--hair-soft);
+  border:1px solid var(--hair);margin:2px 0 0;}
+.cmp2 .c .bar i{display:block;height:100%;border-radius:2px;background:rgba(255,255,255,.38);}
+.cmp2 .c.am .bar i{background:var(--amber);}
+.r13case .body{gap:26px;}
+.r13case .cmp2{gap:48px;}
+.r13case .cmp2 .c{gap:8px;}
+.r13case .cmp2 .c .v{font-size:104px;}
+
+/* P25 金句 03：换成 Bret Taylor 的英文原句 —— 英文为主（mono）、中文译一行、署名行。 */
+.r13mq .mq .q{font-family:var(--f-mono);font-size:52px;font-weight:700;
+  line-height:1.36;letter-spacing:0;}
+.r13mq .mq .zh{font-size:34px;font-weight:700;line-height:1.5;
+  color:var(--mq-2);max-width:1300px;}
+.r13mq .mq .s{font-family:var(--f-mono);font-size:22px;letter-spacing:.14em;}
+.r13fence .mq .s{max-width:1300px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -1782,6 +1833,157 @@ if V2:
     _r1(6, '<div class="eyebrow flow" style="--i:0">先看钱往哪儿去了</div>',
            '<div class="eyebrow flow" style="--i:0">钱到了对话式 AI，再往里看一层：它分给了谁</div>')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C13（2026-08-05 · R13 · 七处内容修订 · 页数不变 46）─────────────────────────
+# Colin 的反馈横跨 45/46 两个页码版，所以这一层**一律用内容锚定**（_r1/_cut1 的
+#   字符串锚点都是页上的原话），不信页码。_secs 下标仍是母版 62 页的原始下标。
+#   ① P4  一个人都没有  _secs[3]  · 补贝尔 1876 的人类第一通电话原话（左栏两条引文叠一摞）
+#   ② P5  本场提要      _secs[4]  · 路线图字号回调（R10/R11 放大过猛，站名 82 → 46px）
+#   ③ P16 灵魂拷问      _secs[27] · 补 Kevin Weil 金句作 data-step=1 的第二拍（问→答）
+#   ④ P17 Eval 第一课   _secs[28] · 「B 如 Boy」→ 英语习惯拼读法「A as in Apple · B as in Boy」
+#   ⑤ P22 案例 02       _secs[33] · 3.08% 表意纠正：两个数都是**意向转化率**，Agent 已强过人
+#   ⑥ P25 金句 03       _secs[36] · 换 Bret Taylor「perfect human」原句（换下「能被计量的同事」）
+#   ⑦ P33 金句 04       _secs[45] · 围栏 Part 点睛重写（换下「架构的围栏…护城河」）
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    # ── C13-① P4 今年这段通话里一个人都没有 · 把人类第一通电话写进「150 年」──────
+    #    R11 已经把 PSTN 改成「跑了 150 年」并在灰 note 里注了贝尔 1876。R13 再进一步：
+    #    左栏做成两条引文的一摞 —— 上面是 2026 的 Bret（英语跑在电话网上），
+    #    下面是 1876 的贝尔（人类第一通电话）。同一条线的两端，一页读完 150 年。
+    #    .g-38 是两列栅格，直接并排两个 .quote 会把第二条挤到第二行，所以套一层 .qstack。
+    _r1(3, '''      <div class="g-38">
+        <div class="quote flow" style="--i:11">
+          <div class="en sm">&#8220;You have all these fancy MCP things, and we&#8217;re doing English over PSTN.&#8221;</div>
+          <div class="by">Bret Taylor · CEO of Sierra / Chairman of OpenAI · 2026-03 公开访谈</div>
+        </div>
+        <div class="mid">''',
+           '''      <div class="g-38">
+        <div class="qstack">
+          <div class="quote flow" style="--i:11">
+            <div class="en sm">&#8220;You have all these fancy MCP things, and we&#8217;re doing English over PSTN.&#8221;</div>
+            <div class="by">Bret Taylor · CEO of Sierra / Chairman of OpenAI · 2026-03 公开访谈</div>
+          </div>
+          <div class="quote co flow" style="--i:12">
+            <div class="en sm">&#8220;Mr. Watson — come here — I want to see you.&#8221;</div>
+            <div class="by">贝尔 · 1876 · 人类第一通电话，今年整 150 年</div>
+          </div>
+        </div>
+        <div class="mid">''')
+    _cls(3, 'r13bell')
+
+    # ── C13-② P5 本场提要 · 路线图字号回调到优雅档 ────────────────────────────
+    #    R10-① 把这张图纵向 ×4.6 并把站名推到 76px，R11-③ 删站之后又推到 82px ——
+    #    Colin：大到顶格，美感没了。R13 回调：站名 46 / PART 标 24 / 副题 25（CSS 档），
+    #    圆点半径 19/17 → 11/10、线宽 3/6 → 2/4（图内属性），四行 y 同步收拢并居中：
+    #      PART 标 368 → 468 · 线与圆点 543 → 580 · 站名 773 → 746 · 副题 948 → 856
+    #    viewBox 仍是 0 320 1680 665（不动，.body 填充率与 C10/C11 的既有断言一并保住），
+    #    上下留白各 ≈120 —— 这就是「大而清爽」而不是「大到顶格」。
+    _cut1(4, '<!-- 全场路线', '</svg>', '''<!-- 全场路线：四站一条线。第一站讲「变了什么」，后三站分别回答托付时代的三个问题。
+             R13 字号回调：站名 46px，圆点/线宽同步回收，四行在 viewBox 内垂直居中。 -->
+        <svg viewBox="0 320 1680 665" width="1680" fill="none">
+          <path class="stroke dw" style="--len:1500;--i:6" stroke-width="2" d="M140 580 H1600"/>
+          <path class="stroke-am dw" style="--len:1010;--i:7" stroke-width="4" d="M627 580 H1600"/>
+
+          <circle class="fill-am pop" style="--i:7" cx="140" cy="580" r="11"/>
+          <g class="pop" style="--i:8" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="3.5">
+            <circle cx="627" cy="580" r="10"/><circle cx="1113" cy="580" r="10"/><circle cx="1600" cy="580" r="10"/>
+          </g>
+
+          <text class="lbl fill-am pop" style="--i:7" x="140" y="468" text-anchor="middle">PART 1</text>
+          <text class="lbl fill-am pop" style="--i:8" x="627" y="468" text-anchor="middle">PART 2</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1113" y="468" text-anchor="middle">PART 3</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1600" y="468" text-anchor="middle">PART 4</text>
+
+          <text class="txt pop" style="--i:9" x="140" y="746" text-anchor="middle">语法变了</text>
+          <text class="txt pop" style="--i:9" x="627" y="746" text-anchor="middle">被托付</text>
+          <text class="txt pop" style="--i:9" x="1113" y="746" text-anchor="middle">双向奔赴</text>
+          <text class="txt pop" style="--i:9" x="1600" y="746" text-anchor="middle">人与组织</text>
+
+          <text class="sm pop" style="--i:10" x="140" y="856" text-anchor="middle">从调用到双向奔赴</text>
+          <text class="sm fill-am pop" style="--i:10" x="627" y="856" text-anchor="middle">尺子、授权与边界</text>
+          <text class="sm fill-am pop" style="--i:10" x="1113" y="856" text-anchor="middle">出事了算谁的</text>
+          <text class="sm fill-am pop" style="--i:10" x="1600" y="856" text-anchor="middle">你和团队怎么变</text>
+        </svg>''')
+    _cls(4, 'r13p5')
+
+    # ── C13-③ 灵魂拷问页 · 加 Kevin Weil 金句作第二拍 ──────────────────────────
+    #    R10-⑧ 把这句从终页删掉了（终页改成纯图收场）；它真正的位置在这里 ——
+    #    全页大字问句先砸下来，data-step=1 再揭金句，问 → 答两拍。
+    _r1(27, '<div class="q ink" style="--i:2">在座的有多少人，<br>'
+            '<span class="hl">亲手写过</span>一份自己产品的评测集？</div>',
+            '<div class="q ink" style="--i:2">在座的有多少人，<br>'
+            '<span class="hl">亲手写过</span>一份自己产品的评测集？</div>\n'
+            '    <div class="quote co flow" data-step="1" style="--i:0">\n'
+            '      <div class="en">&#8220;Writing evals is the most important thing '
+            'a PM can do in the AI era.&#8221;</div>\n'
+            '      <div class="by">Kevin Weil · OpenAI 前 CPO</div>\n'
+            '    </div>')
+    _cls(27, 'r13ask')
+
+    # ── C13-④ Eval 第一课 · 题之骗 ·「B 如 Boy」→ 英语习惯拼读法 ────────────────
+    #    真实通话里对方念的是 "A as in Apple, B as in Boy"，不是中式直译的「B 如 Boy」。
+    #    svg 那行加了前半句之后仍在 x=0→≈420 之内，离最左一列打叉（x=489）还有余量。
+    _r1(28, '<text class="sm pop" style="--i:7" x="0" y="306">B 如 Boy · 0086 · 一位一位念</text>',
+            '<text class="sm pop" style="--i:7" x="0" y="306">'
+            'A as in Apple · B as in Boy · 0086 · 一位一位念</text>')
+    _r1(28, '在「B 如 Boy、0086」上<b>全崩</b>', '在「A as in Apple、0086」上<b>全崩</b>')
+
+    # ── C13-⑤ 案例 02 · 3.08% 表意纠正（R11-⑧ 误标成「被识破率」）───────────────
+    #    Colin 定：3.08% 与 1.5% 是**同一把尺子** —— 都是意向转化率。
+    #    所以这一页的结论不是「它已经贴到人的极限」，而是「它已经强过人」：
+    #    3.08% ≈ 人工基线 1.5% 的两倍。两栏加一条等宽底座的比例条（100% : 49%），
+    #    Agent 那条更长并走 amber，视觉方向与主句一致。1.5% 的口径标注原样保留。
+    _cut1(33, '\n      <div class="cmp2">', '它已经贴到人工坐席自己的极限上了。</b></div>', '''
+      <div class="cmp2">
+        <div class="c am rise" style="--i:8">
+          <div class="k">AI 坐席 · 本案例全量标注</div>
+          <div class="v">3.08%</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="l">意向转化率</div>
+          <div class="u">一通电话打完，客户留下明确意向的比例</div>
+        </div>
+        <div class="vs pop" style="--i:9">VS</div>
+        <div class="c rise" style="--i:10">
+          <div class="k">人工坐席 · 上线前人工基线 · 内部口径</div>
+          <div class="v">1.5%</div>
+          <div class="bar"><i style="width:49%"></i></div>
+          <div class="l">意向转化率</div>
+          <div class="u">同一条产线、同一批名单，上线前人工坐席的水平</div>
+        </div>
+      </div>
+      <div class="land flow" style="--i:11">它不是在<b>逼近</b>人的水平——<b class="am">3.08% 对 1.5%，它已经把人工基线翻了一倍。</b></div>''')
+    _cls(33, 'r13case')
+
+    # ── C13-⑥ 金句 03 · 换成 Bret Taylor 的「perfect human」原句 ────────────────
+    #    被换下的是「一个能被计量的同事，才是真的同事。」（全 deck 仅此一处，别页正文无）。
+    #    ⚠️ 出处：本仓库 csagent.html / outcome.html 里都没有这句的逐字原文（已 grep），
+    #       所以署名口径按 csagent / 3years 一致的那行写「Bret Taylor · Sierra CEO /
+    #       OpenAI 董事长」，不替他补一个没核到的播客集数。
+    _cut1(36, '\n    <div class="q">', '是为了敢把事交给它。</div>', '''
+    <div class="q">
+      <i class="rise" style="--i:1">&#8220;One of the biggest fallacies in AI</i>
+      <i class="rise" style="--i:2">is people compare it with this perfect human</i>
+      <i class="rise" style="--i:3">that does not exist.&#8221;</i>
+    </div>
+    <div class="rule"></div>
+    <div class="zh rise" style="--i:4">AI 最大的谬误之一，是人们总把它跟一个并不存在的完美的人相比。</div>
+    <div class="s rise" style="--i:5">Bret Taylor · Sierra CEO / OpenAI 董事长</div>''')
+    _cls(36, 'r13mq')
+
+    # ── C13-⑦ 金句 04 · 围栏 Part 的点睛重写 ───────────────────────────────────
+    #    被换下的是「提示词只能拦住一些越权，架构的围栏，才是产品经理的护城河。」——
+    #    Colin 判定它像 Waymo 那一案的总结，不是整个 PART 3 的点睛。
+    #    钉死的内核：双向奔赴的内核 = 围栏。有了围栏（提示词 + 产品架构），
+    #    才有能担起责任、扛得起 OKR 的 Agent，执行流从此摆脱人的辅助。
+    _cut1(45, '\n    <div class="q">', '只有你先表示出来的那些东西。</div>', '''
+    <div class="q">
+      <i class="rise" style="--i:1">围栏不是拦住它，</i>
+      <i class="rise" style="--i:2">是放出它。</i>
+    </div>
+    <div class="rule"></div>
+    <div class="s rise" style="--i:4">提示词 + 产品架构，围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。</div>''')
+    _cls(45, 'r13fence')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -1969,6 +2171,7 @@ if V2:
     CONF_CSS += C10_CSS     # C10 · R10 八页删改后逐页撑满（必须排在 C9 之后）
     CONF_CSS += C11_CSS     # C11 · R11 十三页删改与数据换血后逐页撑满（必须排在 C10 之后）
     CONF_CSS += C12_CSS     # C12 · R12 新页「钱的三次落点」页级档（必须排在 C11 之后）
+    CONF_CSS += C13_CSS     # C13 · R13 七处内容修订页级档（必须排在 C12 之后：P5 字号回调靠后写者胜）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -2031,8 +2234,8 @@ if V2:
     # 幕卡 rail 四站 / P5 路线四站（C8 删「被记住」六→五，C11 再删「PART 0 开场」五→四）
     assert s.count('<span>02 被托付</span>') + s.count('<span class="cur">02 被托付</span>') == 4
     assert '>02 被记住<' not in s, "C8：幕卡 rail 不应再有「02 被记住」站"
-    #    y 值是 C10-① 纵向 ×4.6 之后的（原 y="80"）
-    assert s.count('y="368" text-anchor="middle">PART') == 4, "C11 · P5 路线应为四站"
+    #    y 值：C10-① 纵向 ×4.6 后是 368（原 y="80"），C13-② 字号回调时收拢到 468
+    assert s.count('y="468" text-anchor="middle">PART') == 4, "C11 · P5 路线应为四站"
     _p5 = s[s.index('<!-- 全场路线'):]; _p5 = _p5[:_p5.index('</svg>')]
     assert '被记住' not in _p5, "C8 · P5 路线应已删「被记住」站"
 
@@ -2107,9 +2310,12 @@ if V2:
                 "信任是被验证过的行动空间",                      # P37 · land
                 "这三个维度对应四条工程坐标",                    # P37 · 坐标行文字版
                 "四阶不是学历",                                  # P39 · land
-                "Writing evals is the most important thing",     # P45 · Kevin Weil 引文
                 "愿我们在理解"):                                 # P45 · 结语
+        # ⚠️ R13-③ 起「Writing evals…」不再列在这里：那句从 P45 撤走之后，
+        #    R13 把它放回灵魂拷问页作第二拍（正向账在 C13 段里）。
         assert _mk not in s, f"C10 · R10 该删未删：{_mk}"
+    #    终页仍必须是纯图收场：Weil 引文卡不许回到那一页（内容锚定，不点页号）
+    assert 'Writing evals' not in s[s.index('尺子的两面'):], "C10 · 终页应仍是纯图收场"
     #    ⓑ 正向断言：三处重构与一处新增必须在位
     for _mk in ("身份可验", "VERIFIABLE", "行为可拦", "INTERCEPTABLE",
                 "结果可追", "ACCOUNTABLE", "授权可撤销", "REVOCABLE",
@@ -2153,7 +2359,8 @@ if V2:
                 "96.5%</div><div class=\"l\">未被识破率",         # P21 · 三格
                 "同等时间的有效工作量", "同等产出的用人成本",
                 "这 2,475 通，是真实生产通话的自然测量",           # P21 · note
-                "意向转化率",
+                # ⚠️「意向转化率」R11 时是负向断言（三格被删）；R13-⑤ 纠正表意之后，
+                #    它是这一页两个大数共同的度量名，正向账在 C13 段里。
                 "这个坑有名字，叫 backchannel",                   # P33 · note
                 "它在我只说了一个",
                 "任何一格的进步，四条线一起受益"):                 # P36 · note 长尾
@@ -2162,7 +2369,8 @@ if V2:
     for _mk in ('viewBox="0 0 1680 392"',                    # P3 波形纵向 ×2
                 '>A2A</text>', '一张跑了 150 年的电话网',      # P4
                 '贝尔 1876 年打出人类第一通电话，今年整 150 周年',
-                '<text class="lbl fill-am pop" style="--i:7" x="140" y="368" text-anchor="middle">PART 1</text>',
+                # （四站首站的坐标账；y 由 C13-② 字号回调时 368 → 468）
+                '<text class="lbl fill-am pop" style="--i:7" x="140" y="468" text-anchor="middle">PART 1</text>',
                 # P8 · 企业侧新数据（每条都必须能在 SOURCE 行找到出处与年份）
                 '>66%</text>', '>70%</text>', '>91%</text>', '>15–20%</text>', '>49%</text>',
                 'Salesforce《State of Service: AI Agents Edition》2026-05（n=3,075',
@@ -2175,10 +2383,9 @@ if V2:
                 '>全量捞，不抽样</text>', '>人耳听，不看文本</text>',
                 '>归类，不打分</text>', '>固化成回归集</text>',
                 'viewBox="0 0 1680 600"',
-                # P21 · 双大数对比 + 基线口径标注
+                # P21 · 双大数对比 + 基线口径标注（度量名与结论句由 R13-⑤ 纠正，见 C13 段）
                 '<div class="cmp2">', '<div class="v">3.08%</div>', '<div class="v">1.5%</div>',
-                '<div class="l">被识破率</div>', '上线前人工基线 · 内部口径',
-                '它已经贴到人工坐席自己的极限上了。',
+                '上线前人工基线 · 内部口径',
                 # P22 · 出处行（一手：Sierra 官方博客）
                 'Bret Taylor &amp; Clay Bavor · Sierra 官方博客《The next Horizon in agents》· 2026-07',
                 '<div class="land r11pay flow"', '.r11pay .src{display:block',
@@ -2193,7 +2400,8 @@ if V2:
         "C11 · P5 路线图四站应完整保留"
     assert _p5b.count('text-anchor="middle">PART') == 4 and 'PART 0' not in _p5b, \
         "C11 · P5 路线应恰好四站且无 PART 0"
-    assert 'd="M627 543 H1600"' in _p5b and '--len:1010' in _p5b, "C11 · P5 高亮段起点/长度未同步"
+    #    （起点 x=627 与 --len:1010 是 C11 的账；y 由 C13-② 字号回调时 543 → 580）
+    assert 'd="M627 580 H1600"' in _p5b and '--len:1010' in _p5b, "C11 · P5 高亮段起点/长度未同步"
     #    ⓓ P29 / P30 版面对调：图必须排在大数（P29）与三卡（P30）之前
     _p29 = s[s.index('人和 Agent 共事的协作关系'):]; _p29 = _p29[:_p29.index('</section>')]
     assert _p29.index('<div class="fig">') < _p29.index('<div class="g3">'), "C11 · P29 未对调"
@@ -2244,8 +2452,96 @@ if V2:
     assert _i_act1 < _i_flow < _i_money, "C12 · 新页应排在 PART 1 幕卡之后、钱页之前"
     assert '先看钱往哪儿去了' not in s, "C12 · 钱页 eyebrow 未换成衔接句"
     assert '钱到了对话式 AI，再往里看一层：它分给了谁' in s, "C12 · 钱页新 eyebrow 缺失"
+
+    # ── C13 · R13 七处内容修订 ─────────────────────────────────────────────
+    #    全部用内容锚定取页（Colin 的反馈横跨 45/46 两个页码版，不信页号）
+    def _sec_of(anchor):
+        """按页上一句原话取出它所在的整个 <section>（锚点必须唯一）。"""
+        assert s.count(anchor) == 1, f"C13 · 取页锚点不唯一：{anchor[:40]}"
+        _a = s.rindex('<section class="slide', 0, s.index(anchor))
+        return s[_a:s.index('</section>', _a) + len('</section>')]
+    #    ⓐ 负向：被换下 / 被改写的六句必须查无此句
+    for _mk in ('B 如 Boy',                                        # ④ 中式直译拼读法
+                '<div class="l">被识破率</div>',                    # ⑤ R11 的误标
+                '被投诉「不像人」基线', '通话结束前，被对方听出「这是 AI」的比例',
+                '它已经贴到人工坐席自己的极限上了。',                 # ⑤ 旧结论（「逼近人」向）
+                '一个能被计量的同事，', '计量不是为了管住它，是为了敢把事交给它。',   # ⑥ 被换下的金句
+                '提示词只能拦住一些越权，', '架构的围栏，才是产品经理的护城河。',     # ⑦ 被换下的金句
+                '你能拦住的，只有你先表示出来的那些东西。'):
+        assert _mk not in s, f"C13 · R13 该改未改：{_mk}"
+
+    #    ⓑ ① 贝尔第一通电话：原话 + 出处行必须挂在 P4 那一页（内容锚定取页）
+    _p4 = _sec_of('今年这段通话里，一个人都没有')
+    for _mk in ('&#8220;Mr. Watson — come here — I want to see you.&#8221;',
+                '贝尔 · 1876 · 人类第一通电话，今年整 150 年',
+                '<div class="qstack">', 'PSTN · 一张跑了 150 年的电话网'):
+        assert _mk in _p4, f"C13-① 贝尔引文缺失：{_mk}"
+    assert _p4.count('<div class="quote') == 2, "C13-① P4 左栏应是两条引文的一摞"
+
+    #    ⓒ ② 路线图字号回调：档位类在位 + 四组回调值 + 圆点/线宽同步回收
+    for _mk in ('.r13p5 .fig .txt{font-size:46px;}', '.r13p5 .fig .lbl{font-size:24px',
+                '.r13p5 .fig .sm{font-size:25px;}'):
+        assert _mk in s, f"C13-② 路线图回调值缺失：{_mk}"
+    assert '.r11p5 .fig .txt{font-size:82px' in s and s.index('.r11p5 .fig .txt') < s.index('.r13p5 .fig .txt'), \
+        "C13-② 回调档必须排在 C11 的 82px 之后（后写者胜）"
+    _p5c = s[s.index('<!-- 全场路线'):]; _p5c = _p5c[:_p5c.index('</svg>')]
+    assert 'r="11"' in _p5c and _p5c.count('r="10"') == 3 and 'stroke-width="3.5"' in _p5c, \
+        "C13-② 圆点半径未回收"
+    assert 'stroke-width="2" d="M140 580 H1600"' in _p5c and 'stroke-width="4" d="M627 580 H1600"' in _p5c, \
+        "C13-② 线宽未回收"
+    assert _p5c.count('y="746"') == 4 and _p5c.count('y="856"') == 4, "C13-② 四行 y 未收拢"
+
+    #    ⓓ ③ Weil 金句落在灵魂拷问页（不是终页），并且是 data-step=1 的第二拍
+    _pask = _sec_of('亲手写过')
+    assert '“Writing evals is the most important thing a PM can do in the AI era.”' in _pask \
+        or '&#8220;Writing evals is the most important thing a PM can do in the AI era.&#8221;' in _pask, \
+        "C13-③ Weil 金句未落在灵魂拷问页"
+    assert 'Kevin Weil · OpenAI 前 CPO' in _pask, "C13-③ Weil 署名行缺失"
+    assert 'data-step="1"' in _pask, "C13-③ Weil 金句应是 data-step=1 的第二拍"
+    assert s.count('Writing evals is the most important thing') == 1, "C13-③ Weil 金句应全场只此一处"
+
+    #    ⓔ ④ 英语习惯拼读法：svg 与 note 两处都改到
+    _pev = _sec_of('你的 demo 在骗你</h2>')
+    assert 'A as in Apple · B as in Boy · 0086 · 一位一位念' in _pev, "C13-④ svg 行未改"
+    assert '在「A as in Apple、0086」上<b>全崩</b>' in _pev, "C13-④ 关联句未同步"
+
+    #    ⓕ ⑤ 3.08% 表意纠正：两个数同为意向转化率，主句转向「已经强过人」
+    _pc2 = _sec_of('一个 Agent 的入职三十天')
+    assert _pc2.count('<div class="l">意向转化率</div>') == 2, "C13-⑤ 两个数的度量名应同为意向转化率"
+    assert '<div class="v">3.08%</div>' in _pc2 and '<div class="v">1.5%</div>' in _pc2
+    assert '上线前人工基线 · 内部口径' in _pc2, "C13-⑤ 1.5% 的口径标注应保留"
+    assert '它已经把人工基线翻了一倍。' in _pc2, "C13-⑤ 新主句缺失"
+    #       视觉方向：Agent 那条更长（100%）且走 amber，人工那条 49%
+    assert '<div class="bar"><i style="width:100%"></i></div>' in _pc2 \
+       and '<div class="bar"><i style="width:49%"></i></div>' in _pc2, "C13-⑤ 比例条缺失"
+    assert _pc2.index('width:100%') < _pc2.index('width:49%'), "C13-⑤ Agent 条应排在人工条之前（更长）"
+    assert '.cmp2 .c.am .bar i{background:var(--amber);}' in s, "C13-⑤ Agent 条 amber 强调未定义"
+
+    #    ⓖ ⑥ Bret Taylor「perfect human」金句页：英文为主 + 中文一行 + 署名行
+    _pmq = _sec_of('One of the biggest fallacies in AI')
+    for _mk in ('is people compare it with this perfect human', 'that does not exist.&#8221;',
+                'AI 最大的谬误之一，是人们总把它跟一个并不存在的完美的人相比。',
+                'Bret Taylor · Sierra CEO / OpenAI 董事长'):
+        assert _mk in _pmq, f"C13-⑥ 金句页元素缺失：{_mk}"
+    assert '观点页 · 嘉宾金句 · 03' in _pmq, "C13-⑥ 金句编号应仍是 03（页数与编号都不变）"
+
+    #    ⓗ ⑦ 围栏 Part 点睛：新金句在位，且仍挂在金句 04 上
+    _pfc = _sec_of('围栏不是拦住它，')
+    for _mk in ('是放出它。</i>',
+                '提示词 + 产品架构，围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。'):
+        assert _mk in _pfc, f"C13-⑦ 新金句元素缺失：{_mk}"
+    assert '观点页 · 嘉宾金句 · 04' in _pfc, "C13-⑦ 应仍是金句 04"
+
+    #    ⓘ 页级档位类必须全部挂上且 CSS 有定义
+    for _c in ('r13bell', 'r13p5', 'r13ask', 'r13case', 'r13mq', 'r13fence'):
+        assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
+            f"C13 · 档位类未挂/未定义：{_c}"
+    #    ⓙ 页数不变 46（最终页数断言在写盘处，这里只守金句编号 01–05 不变）
+    assert s.count('观点页 · 嘉宾金句 · 05') == 1 and '观点页 · 嘉宾金句 · 06' not in s, \
+        "C13 · 金句编号应仍是 01–05"
+
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
-          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓")
+          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
