@@ -759,6 +759,94 @@ C9_CSS = """
 .r9p45 .land{font-size:42px;line-height:1.4;padding-top:8px;padding-bottom:8px;}
 """
 
+# ── C10 · R10 删文后的逐页视觉重排（撑满层）·只在 CONF_V2=1 装配 ────────────────
+#    与 C9_CSS 同规矩：类名按 45 页版最终页号命名，一页一档，排在 C9_CSS 之后。
+#    这一轮八页里有三页是「重构」而不是「删句」——P5 路线图升主体、P37 四坐标接管、
+#    P45 纯图收场——所以档位里除了放大，还带版式（.body 分配、图内字号）的重写。
+C10_CSS = """
+/* ============ C10 · R10 · 八页删改后逐页撑满 ============ */
+/* ⚠️ 撑满只有两把真刀：svg 的 viewBox（_ystretch）与字号。
+      给 .fig svg 写 width:18xx 是无效的——.fig 是 flex 容器，超过 1680 的
+      svg 会被 flex-shrink 压回 1680（母版正文栅格宽），C9 那几条 width 即属此列。 */
+
+/* P5 本场提要：三问卡与 note 撤走，五站路线图升为全页主体（svg 已纵向 ×4.6） */
+.r10p5 .wrap{padding-bottom:64px;}
+.r10p5 .head{margin-bottom:22px;}
+.r10p5 .body{gap:0;justify-content:center;}
+.r10p5 .fig .lbl{font-size:30px;letter-spacing:.22em;}
+.r10p5 .fig .txt{font-size:76px;font-weight:700;fill:var(--ink);}
+.r10p5 .fig .sm{font-size:34px;}
+
+/* P18 Eval 第三课 · 裁判：删三条「正确的看法」，两遍质检对照条放大（svg ×1.5） */
+.r10p18 .wrap{padding-bottom:72px;}
+.r10p18 .head{margin-bottom:32px;}
+.r10p18 .body{gap:44px;}
+.r10p18 .fig .lbl{font-size:27px;letter-spacing:.1em;}
+.r10p18 .land{font-size:40px;line-height:1.4;}
+.r10p18 .land .s{font-size:28px;margin-top:12px;}
+
+/* P22 商业模式变迁：英文判断句 + 中文翻译行（同 land 体系，次一级字号） */
+.r10p22 .wrap{padding-bottom:74px;}
+.r10p22 .body{gap:46px;}
+.r9en .s{font-family:var(--f-cn);font-size:30px;font-weight:400;line-height:1.46;
+  letter-spacing:0;color:var(--ink-2);margin-top:16px;}
+
+/* P27 爬梯页：note 与 foot 撤走，梯子图（svg ×1.13）+ 交叉验证条带接管整页。
+   字号只小步加——底部条带那两行本来就贴得紧，加大了会撞在一起。 */
+.r10p27 .wrap{padding-bottom:56px;}
+.r10p27 .head{margin-bottom:30px;}
+.r10p27 .body{gap:30px;}
+.r10p27 .fig .lbl{font-size:19px;}
+.r10p27 .fig .txt{font-size:22px;}
+.r10p27 .fig .sm{font-size:18px;}
+
+/* P29 它决策，人审批：英文引文块撤走，三格大数与两条走法图（svg ×1.9）再放大 */
+.r10p29 .wrap{padding-bottom:74px;}
+.r10p29 .body{gap:56px;}
+.r10p29 .stat .v{font-size:132px;}
+.r10p29 .stat .l{font-size:29px;}
+.r10p29 .stat .u{font-size:19px;}
+.r10p29 .fig .lbl{font-size:23px;}
+.r10p29 .fig .sm{font-size:23px;}
+
+/* P37 QoT：三卡 + 两段解释撤走，四条工程坐标升为页面主体（四列 · 大字为主）。
+   .take.qot4 的特异性必须压过母版 .take .c:nth-child(n) —— 四条是并列关系，
+   不是递进关系，所以字号一致、左边框一律走 amber。 */
+.r10p37 .wrap{padding-bottom:70px;}
+.r10p37 .head{margin-bottom:30px;}
+.r10p37 .body{gap:56px;}
+.r10p37 .fig .lbl{font-size:19px;}
+.r10p37 .fig .sm{font-size:22px;}
+.take.qot4{gap:30px;}
+.take.qot4 .c{gap:16px;padding:8px 0 8px 28px;border-left:4px solid var(--amber);}
+.take.qot4 .c .ord{font-family:var(--f-en);font-size:27px;font-weight:900;color:var(--amber);}
+.take.qot4 .c .who{font-size:50px;font-weight:700;line-height:1.16;
+  letter-spacing:-.015em;color:var(--ink);}
+.take.qot4 .c .lat{font-family:var(--f-mono);font-size:19px;letter-spacing:.16em;
+  color:var(--ink-3);}
+.take.qot4 .c .s{font-size:27px;font-weight:300;line-height:1.5;color:var(--ink-2);}
+
+/* P39 对个人说：land 撤走，暴露量折线（svg ×1.4）与四阶卡一起放大 */
+.r10p39 .wrap{padding-bottom:70px;}
+.r10p39 .head{margin-bottom:32px;}
+.r10p39 .body{gap:52px;}
+.r10p39 .fig .lbl{font-size:22px;}
+.r10p39 .fig .txt{font-size:24px;}
+.r10p39 .fig .sm{font-size:24px;}
+.r10p39 .card.sm{padding:26px 28px;gap:12px;}
+.r10p39 .card .n{font-size:44px;}
+.r10p39 .card .t{font-size:31px;}
+.r10p39 .card .d{font-size:24px;line-height:1.52;}
+
+/* P45 终页：引文卡与结语撤走，向外/向内那把尺子摊开成整页（svg ×1.7）· 纯视觉收场。
+   .lbl 保持母版字号 —— 行首那两个 mono 标签（外 · 读 AGENT / 内 · 读自己）
+   离第一列正文只有 180 个单位，一加大就骑到正文上。 */
+.r10p45 .wrap{padding-bottom:64px;}
+.r10p45 .head{margin-bottom:26px;}
+.r10p45 .body{gap:0;justify-content:center;}
+.r10p45 .fig .txt{font-size:28px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -917,7 +1005,9 @@ if V2:
     _ystretch(40, 1.24, ('width="1640" height="470" viewBox="0 0 1640 470"',
                          'width="1640" height="583" viewBox="0 0 1640 583"'), paths=(
         ('d="M190 400 H1590"', 'd="M190 496 H1590"'),
-        ('d="M190 400 V70"', 'd="M190 496 V87"'),
+        # R10 补账：纵轴拉长到 409，--len 还停在 330 —— .dw 的 dasharray 只画到 --len
+        #           为止，L4 那一格旁边的轴线在 R9 里是断的
+        ('style="--len:330;--i:3" d="M190 400 V70"', 'style="--len:420;--i:3" d="M190 496 V87"'),
         ('width="1400" height="120"', 'width="1400" height="149"')))
     _cls(40, 'r9p28')
 
@@ -1009,6 +1099,187 @@ if V2:
             '愿我们在理解 Agent 的同时，也不忘理解自己。</span></div>',
             '<div class="land flow" style="--i:11">愿我们在理解 <b>Agent</b> 的同时，也不忘<b>理解自己</b>。</div>')
     _cls(58, 'r9p45')
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C10（2026-08-05 · R10 · 八页删改 · 页数不变 45）─────────────────────────────
+# 评审结论同 R9：解释性文字交回口播，页面只留观众要看的东西；这一轮里有三页不只是
+#   删句，而是把「配角」提成主体（重构）：
+#   ① P5  本场提要 · 删三问卡整组 + note，五站路线图升为全页主体（纵向 ×4.6 + 大字）
+#   ② P18 Eval 第三课 · 删「正确的看法 01/02/03」，两遍质检对照条放大（纵向 ×1.5）
+#   ③ P22 商业模式变迁 · 英文判断句下补中文翻译行（同 land 体系）+ 删 36 亿 foot
+#   ④ P27 爬梯页 · 删 note + foot，梯子图与交叉验证条带一起放大撑满
+#   ⑤ P29 它决策人审批 · 删英文引文块，三格大数与两条走法图再放大
+#   ⑥ P37 QoT · 删三卡 + 两段解释，四条工程坐标升为页面主体（四列 .take.qot4）
+#   ⑦ P39 对个人说 · 删 land，暴露量折线与四阶卡放大
+#   ⑧ P45 终页 · 删 Kevin Weil 引文卡 + 结语，那把尺子摊开成整页，纯视觉收场
+# 页码均按 45 页版；_secs 下标仍是母版 62 页的原始下标（P5→4 / P18→31 / P22→34 /
+#   P27→39 / P29→42 / P37→50 / P39→52 / P45→58）。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    # ── C10-① P5 本场提要 · 三问卡整组 + note 撤走，路线图升主体 ───────────────
+    _cut1(4, '\n      <div class="g3">', '↓ PART 4 · 人与组织</div></div>\n      </div>')
+    _cut1(4, '\n      <div class="note flow" style="--i:11">这三个问题不是哲学问题',
+             '「这事出了问题，算谁的」</b>。</div>')
+    #    站点圆点 / 线宽随图一起放大（半径与 stroke-width 不在纵拉伸的作用域内）
+    _r1(4, '<circle class="fill-am pop" style="--i:7" cx="80" cy="118" r="10"/>',
+           '<circle class="fill-am pop" style="--i:7" cx="80" cy="118" r="19"/>')
+    _r1(4, '<circle class="pop" style="--i:7" cx="460" cy="118" r="7" fill="var(--ink-3)"/>',
+           '<circle class="pop" style="--i:7" cx="460" cy="118" r="14" fill="var(--ink-3)"/>')
+    _r1(4, '<g class="pop" style="--i:8" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="3">\n'
+           '            <circle cx="840" cy="118" r="9"/><circle cx="1220" cy="118" r="9"/>'
+           '<circle cx="1600" cy="118" r="9"/>',
+           '<g class="pop" style="--i:8" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="6">\n'
+           '            <circle cx="840" cy="118" r="17"/><circle cx="1220" cy="118" r="17"/>'
+           '<circle cx="1600" cy="118" r="17"/>')
+    #    纵向 ×4.6：一条扁线长成整页的五站路线；viewBox 顺手裁掉拉伸出来的上下空白
+    _ystretch(4, 4.6, ('viewBox="0 0 1680 250"', 'viewBox="0 320 1680 665"'), paths=(
+        ('<path class="stroke dw" style="--len:1560;--i:6" stroke-width="1.5" d="M80 118 H1600"/>',
+         '<path class="stroke dw" style="--len:1560;--i:6" stroke-width="3" d="M80 543 H1600"/>'),
+        ('<path class="stroke-am dw" style="--len:800;--i:7" stroke-width="3" d="M840 118 H1600"/>',
+         '<path class="stroke-am dw" style="--len:800;--i:7" stroke-width="6" d="M840 543 H1600"/>')))
+    _cls(4, 'r10p5')
+
+    # ── C10-② P18 Eval 第三课 · 裁判 · 删三条「正确的看法」──────────────────────
+    _cut1(31, '\n      <div class="tri">', '裁判必须重新验一遍。</div></div>\n      </div>')
+    _ystretch(31, 1.5, ('viewBox="0 0 1680 330"', 'viewBox="0 0 1680 495"'), paths=(
+        ('stroke-width="40" stroke-linecap="round" d="M44 96 H1400"',
+         'stroke-width="58" stroke-linecap="round" d="M44 144 H1400"'),
+        ('stroke-width="40" stroke-linecap="round" d="M44 252 H1264"',
+         'stroke-width="58" stroke-linecap="round" d="M44 378 H1264"'),
+        ('stroke-width="40" stroke-linecap="round" d="M1286 252 H1400"',
+         'stroke-width="58" stroke-linecap="round" d="M1286 378 H1400"'),
+        ('style="font-size:60px">100%', 'style="font-size:86px">100%'),
+        ('style="font-size:60px">≥10%', 'style="font-size:86px">≥10%')))
+    _cls(31, 'r10p18')
+
+    # ── C10-③ P22 商业模式变迁 · 英文判断句补中文翻译行 + 删 36 亿 foot ──────────
+    #    英文原句保留原样，中文走 land 体系的 .s（次一级字号），不另起一块
+    _r1(34, 'you pay for <b>business outcomes delivered</b>.</div>',
+            'you pay for <b>business outcomes delivered</b>.'
+            '<span class="s">你付的不是 token 的钱——是被交付出来的业务结果的钱。</span></div>')
+    _cut1(34, '\n      <div class="foot flow rev" style="--i:10">同一赛道的参照',
+              '付了一个软件公司拿不到的价</div>')
+    _cls(34, 'r10p22')
+
+    # ── C10-④ P27 爬梯页 · 删 note + foot，梯子图（含交叉验证条带）放大撑满 ────────
+    _cut1(39, '\n      <div class="note flow" data-step="3" style="--i:6">一个只能升级',
+              '收权难——收权才是工程。</b></div>')
+    _cut1(39, '\n      <div class="foot flow rev" data-step="4">给产品团队的动作',
+              '就是你现在真实的位置</div>')
+    #    梯子纵向 ×1.13（_ystretch 只作用于第一张 svg，底部交叉验证条带原样保留）
+    _ystretch(39, 1.13, ('viewBox="0 0 1680 460"', 'viewBox="0 0 1680 520"'), paths=(
+        ('d="M40 400 H340"', 'd="M40 452 H340"'),
+        ('style="--len:368;--i:4" stroke-width="2" d="M340 400 V332 H640"',
+         'style="--len:380;--i:4" stroke-width="2" d="M340 452 V375 H640"'),
+        ('d="M675 40 V450"', 'd="M675 45 V509"'),
+        ('style="--len:100;--i:1" stroke-width="3" d="M640 332 L710 264"',
+         'style="--len:106;--i:1" stroke-width="3" d="M640 375 L710 298"'),
+        ('d="M710 264 H1010"', 'd="M710 298 H1010"'),
+        ('style="--len:368;--i:2" stroke-width="2" d="M1010 264 V196 H1310"',
+         'style="--len:380;--i:2" stroke-width="2" d="M1010 298 V221 H1310"'),
+        ('style="--len:398;--i:4" stroke-width="3" d="M1310 196 V128 H1640"',
+         'style="--len:410;--i:4" stroke-width="3" d="M1310 221 V145 H1640"'),
+        ('d="M1600 150 V424"', 'd="M1600 170 V481"'),
+        # 向下电梯的箭头保持原大小，只整体下移到新的线尾
+        ('d="M1591 424 L1600 442 L1609 424 Z"', 'd="M1591 481 L1600 499 L1609 481 Z"')))
+    #    交叉验证条带里「第三把尺子」那行原本贴着上一行（母版 26 单位）；本页字号加大后
+    #    只剩 7px，往下让 12 个单位把行距还回去（viewBox 同步加高）
+    _r1(39, '<text class="lbl fill-am pop" style="--i:5" x="1580" y="176"',
+            '<text class="lbl fill-am pop" style="--i:5" x="1580" y="188"')
+    _r1(39, '<svg width="1680" viewBox="0 0 1680 178" fill="none">',
+            '<svg width="1680" viewBox="0 0 1680 192" fill="none">')
+    _cls(39, 'r10p27')
+
+    # ── C10-⑤ P29 它决策，人审批 · 删英文引文块 ────────────────────────────────
+    _cut1(42, '\n      <div class="quote flow" style="--i:8">',
+              '<div class="by">某企业支付平台 CEO 与访谈者 · 2026</div>\n      </div>')
+    #    引文块腾出的 200px 全给两条走法：纵向 ×1.9，节点圆点与线宽同步加粗
+    for _o, _n in (('<circle cx="300" cy="64" r="7"/><circle cx="720" cy="64" r="7"/>'
+                    '<circle cx="1140" cy="64" r="7"/>',
+                    '<circle cx="300" cy="64" r="12"/><circle cx="720" cy="64" r="12"/>'
+                    '<circle cx="1140" cy="64" r="12"/>'),
+                   ('<circle cx="300" cy="186" r="7"/><circle cx="1140" cy="186" r="7"/>',
+                    '<circle cx="300" cy="186" r="12"/><circle cx="1140" cy="186" r="12"/>'),
+                   ('cx="720" cy="186" r="13" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="3.4"',
+                    'cx="720" cy="186" r="20" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="4.6"')):
+        _r1(42, _o, _n)
+    assert _secs[42].count('text-anchor="middle" style="font-size:24px"') == 6
+    _secs[42] = _secs[42].replace('text-anchor="middle" style="font-size:24px"',
+                                  'text-anchor="middle" style="font-size:32px"')
+    #    ✗ / ✓ 两个记号不跟着纵向拉伸变形，只整体平移到新的线心（64→122 / 186→353）
+    _ystretch(42, 1.9, ('viewBox="0 0 1680 250"', 'viewBox="0 24 1680 412"'), paths=(
+        ('stroke-width="2.8" d="M76 50 L104 78 M104 50 L76 78"',
+         'stroke-width="4" d="M76 108 L104 136 M104 108 L76 136"'),
+        ('stroke-width="2.8" d="M76 186 L88 198 L106 172"',
+         'stroke-width="4" d="M76 353 L88 365 L106 339"'),
+        ('stroke-width="2" d="M180 64 H1240"', 'stroke-width="3" d="M180 122 H1240"'),
+        ('stroke-width="3" d="M180 186 H1240"', 'stroke-width="4.5" d="M180 353 H1240"'),
+        ('--pd:1.4s" d="M180 186 H1240"', '--pd:1.4s" d="M180 353 H1240"')))
+    _cls(42, 'r10p29')
+
+    # ── C10-⑥ P37 QoT · 三卡 + 两段解释 → 四条工程坐标接管页面 ───────────────────
+    #    QoS-QoE-QoI-QoT 顶部条保留；下半页换成四列（.take 体系，大字为主）。
+    _QOT4 = '''
+      <div class="take qot4" data-step="4">
+        <div class="c rise" style="--i:0"><div class="ord">01</div><div class="who">身份可验</div><div class="lat">VERIFIABLE</div><div class="s">「它是谁、代表谁」</div></div>
+        <div class="c rise" style="--i:1"><div class="ord">02</div><div class="who">行为可拦</div><div class="lat">INTERCEPTABLE</div><div class="s">「越界那句话，必须在说完之前被拦下」</div></div>
+        <div class="c rise" style="--i:2"><div class="ord">03</div><div class="who">结果可追</div><div class="lat">ACCOUNTABLE</div><div class="s">「每一轮留痕、可归因」</div></div>
+        <div class="c rise" style="--i:3"><div class="ord">04</div><div class="who">授权可撤销</div><div class="lat">REVOCABLE</div><div class="s">「随时降级、随时回滚」</div></div>
+      </div>'''
+    _cut1(50, '\n      <div class="g3" data-step="4">', '随时降级、随时回滚）。</span></div>', _QOT4)
+    #    顶部四格条纵向 ×1.35（格子本身要跟着长高，height 不在 y 正则的作用域里）
+    for _o, _n in (('style="font-size:32px">QoS', 'style="font-size:42px">QoS'),
+                   ('style="font-size:32px">QoE', 'style="font-size:42px">QoE'),
+                   ('style="font-size:32px">QoI', 'style="font-size:42px">QoI'),
+                   ('style="font-size:32px">QoT', 'style="font-size:42px">QoT')):
+        _r1(50, _o, _n)
+    _ystretch(50, 1.35, ('viewBox="0 0 1680 250"', 'viewBox="0 0 1680 338"'), paths=(
+        ('width="380" height="120"', 'width="380" height="162"'),
+        ('d="M388 100 H418"', 'd="M388 135 H418"'),
+        ('d="M821 100 H851"', 'd="M821 135 H851"'),
+        ('d="M1254 100 H1284"', 'd="M1254 135 H1284"'),
+        ('d="M1489 174 V210 H0 V186"', 'd="M1489 235 V284 H0 V251"')))
+    _cls(50, 'r10p37')
+
+    # ── C10-⑦ P39 对个人说 · 删 land ──────────────────────────────────────────
+    _cut1(52, '\n      <div class="land flow" style="--i:12">四阶不是学历',
+              '你敢把重活交给它的前提。</span></div>')
+    #    四阶折线纵向 ×1.4：台阶落差拉开，最难跨的那一段才看得出「难」
+    for _o, _n in (('style="font-size:28px">看过', 'style="font-size:34px">看过'),
+                   ('style="font-size:28px">用过', 'style="font-size:34px">用过'),
+                   ('style="font-size:28px">学过', 'style="font-size:34px">学过'),
+                   ('style="font-size:28px">干过', 'style="font-size:34px">干过')):
+        _r1(52, _o, _n)
+    _ystretch(52, 1.4, ('viewBox="0 0 1680 300"', 'viewBox="0 -14 1680 452"'), paths=(
+        ('style="--len:260;--i:2" stroke-width="1.5" d="M90 280 V30"',
+         'style="--len:360;--i:2" stroke-width="1.5" d="M90 392 V42"'),
+        ('d="M90 24 l-7 12 l14 0 z"', 'd="M90 38 l-7 12 l14 0 z"'),   # 箭头保持原大小
+        ('d="M140 264 H1580"', 'd="M140 370 H1580"'),
+        ('d="M140 236 H440 L510 178 H810 L880 120 H1180 L1250 58 H1580"',
+         'd="M140 330 H440 L510 249 H810 L880 168 H1180 L1250 81 H1580"'),
+        ('d="M810 178 L880 120"', 'd="M810 249 L880 168"')))
+    _cls(52, 'r10p39')
+
+    # ── C10-⑧ P45 终页 · 删 Kevin Weil 引文卡 + 结语，纯图收场 ────────────────────
+    _cut1(58, '\n      <div class="quote flow" style="--i:10">',
+              '也不忘<b>理解自己</b>。</div>')
+    #    图内 ttl 是 inline font-size（压过 class），先就地加大，再整体纵向 ×1.7
+    for _o, _n in (('style="font-size:26px">同一把尺子', 'style="font-size:46px">同一把尺子'),
+                   ('style="font-size:28px">向外 · Eval', 'style="font-size:48px">向外 · Eval'),
+                   ('style="font-size:28px">向内 · 内观', 'style="font-size:48px">向内 · 内观')):
+        _r1(58, _o, _n)
+    _ystretch(58, 1.7, ('viewBox="0 -104 1680 380"', 'viewBox="0 -177 1680 646"'), paths=(
+        ('d="M0 -44 H1680"', 'd="M0 -75 H1680"'),
+        ('style="--len:20;--i:8" stroke-width="2.2" d="M190 -52 V-36M560 -52 V-36M930 -52 V-36M1300 -52 V-36"',
+         'style="--len:34;--i:8" stroke-width="2.6" d="M190 -88 V-61M560 -88 V-61M930 -88 V-61M1300 -88 V-61"'),
+        ('width="80" height="176"', 'width="80" height="299"'),
+        ('d="M800 82 H832 M800 116 H822 M800 150 H832 M800 184 H822"',
+         'd="M800 139 H832 M800 197 H822 M800 255 H832 M800 313 H822"'),
+        ('d="M900 134 H1300"', 'd="M900 228 H1300"'),
+        ('d="M1300 125 L1318 134 L1300 143 Z"', 'd="M1300 213 L1318 228 L1300 243 Z"'),
+        ('d="M780 134 H380"', 'd="M780 228 H380"'),
+        ('d="M380 125 L362 134 L380 143 Z"', 'd="M380 213 L362 228 L380 243 Z"')))
+    _cls(58, 'r10p45')
 
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
@@ -1190,6 +1461,7 @@ CONF_CSS += FIX_CSS         # 两版共用 · 多行 note clip-path 真 bug 修�
 if V2:
     CONF_CSS += C8_CSS      # C8 · 次级文字 +2px 覆盖层（必须排在 conf 版式层之后）
     CONF_CSS += C9_CSS      # C9 · R9 删文后逐页撑满（必须排在 C8 +2px 之后）
+    CONF_CSS += C10_CSS     # C10 · R10 八页删改后逐页撑满（必须排在 C9 之后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -1205,12 +1477,13 @@ assert ".note>span.flow,.note>span.flow.rev,.note>.flow{display:inline-block;}" 
 # C2/C3 内容在位（防「定义了未装配」）
 _MK = ["HUMAN IN THE LOOP", "Eval 第二课", "交叉验证 · 两个行业的断层",
        "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
-       "四个阶段，四颗", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
+       "四个阶段，四颗", "一个新的融合岗位", "一套放权与决策机制",
        "紫 = 已规模商业化", "金黄 = 强监管场景", "这条弧线不存在", "文本通道 · TEXT CHANNEL", "语音通道 · VOICE CHANNEL",
        'd="M675 6 V172"']
 if not V2:
     # 陪伴章内容 + C1/C2 两张融合页（V2 已被 C8/C9 拆回母版原页，融合页定义保留但不装配）
-    _MK += ["不应该</em>被记住", "题之骗 × 粒度之骗", "单轮打分", "TWO FENCES"]
+    # + C10 · R10 在 V2 里删掉的两处：P45 Kevin Weil 引文卡署名
+    _MK += ["不应该</em>被记住", "题之骗 × 粒度之骗", "单轮打分", "TWO FENCES", "OpenAI 前 CPO"]
 for _mk in _MK:
     assert _mk in s, f"C2/C3/C4/C5 内容缺失：{_mk}"
 assert ("Eval 第四课" in s) == V2, "课序：V2 应有第四课（听失败），55 页版不应有"
@@ -1218,10 +1491,12 @@ assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in
 # C6 内容在位 / 悬空引用清零
 _MK6 = ["事前授权", "批动作类别，不批每一句话",
         "这六件事，第四幕会变成组织的授权语法" if V2 else "这六件事，第五幕会变成组织的授权语法",
-        "边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
-        "授权可撤销（随时降级、随时回滚）", "把权放给 high agency 的人"]
+        "把权放给 high agency 的人"]
 if not V2:
     _MK6.append("《人和组织，必须一起转身》")   # C9 · R9 把 P43 的 2025 承接段整段删掉
+    # C6 给 QoT 三卡起的短名 —— C10 · R10 在 V2 里把三卡换成了四条工程坐标
+    _MK6 += ["边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
+             "授权可撤销（随时降级、随时回滚）"]
 for _mk in _MK6:
     assert _mk in s, f"C6 内容缺失：{_mk}"
 assert "授权书" not in s, "C6：《Agent 授权书》已删页，正文不应再出现该字样"
@@ -1249,7 +1524,8 @@ if V2:
     # 幕卡 rail 四站 / P5 路线五站
     assert s.count('<span>02 被托付</span>') + s.count('<span class="cur">02 被托付</span>') == 4
     assert '>02 被记住<' not in s, "C8：幕卡 rail 不应再有「02 被记住」站"
-    assert s.count('y="80" text-anchor="middle">PART') == 5, "C8 · P5 路线应为五站"
+    #    y 值是 C10-① 纵向 ×4.6 之后的（原 y="80"）
+    assert s.count('y="368" text-anchor="middle">PART') == 5, "C8 · P5 路线应为五站"
     _p5 = s[s.index('<!-- 全场路线'):]; _p5 = _p5[:_p5.index('</svg>')]
     assert '被记住' not in _p5, "C8 · P5 路线应已删「被记住」站"
 
@@ -1291,7 +1567,7 @@ if V2:
                 "执行的围栏：语音的动作，<span class=\"co\">最难在半路拦住</span>",
                 "这个坑有名字，叫 backchannel",
                 "You don’t pay for tokens", "business outcomes delivered",
-                "愿我们在理解 <b>Agent</b> 的同时",
+                # （R9 的 P45 收场句「愿我们在理解 Agent 的同时」已由 C10-⑧ 撤成纯图收场）
                 "可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级",
                 ".r9p14 .mega .num{font-size:336px;}", ".r9en{font-family:var(--f-mono)"):
         assert _mk in s, f"C9 · R9 内容缺失：{_mk}"
@@ -1303,7 +1579,50 @@ if V2:
     _pfe = s[s.index('执行的围栏：语音的动作'):]
     _pfe = _pfe[:_pfe.index('</section>')]
     assert '事前授权' in _pfe and '批动作类别，不批每一句话' in _pfe, "C9 · 事前授权未落在执行围栏页"
-    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓")
+
+    # ── C10 · R10 八页删改 ────────────────────────────────────────────────
+    #    ⓐ 逐页负向断言：每张动刀页抽一句被删原文，必须查无此句
+    for _mk in ("问题一 · 授权边界",                            # P5 · 三问卡整组
+                "问题二 · 问责归属", "问题三 · 撤销机制",
+                "它能替你做什么，到哪里为止", "收不回来的授权不叫授权",
+                "这三个问题不是哲学问题",                       # P5 · note
+                "整体一致率是被多数类稀释过的假象",              # P18 · 正确的看法 01
+                "人抽检<b>理由</b>而不是结论",                   # P18 · 正确的看法 02
+                "裁判自己也要有回归集",                          # P18 · 正确的看法 03
+                "一笔约 36 亿美元的收购",                        # P22 · foot
+                "不是成熟，只是乐观",                            # P27 · note
+                "给产品团队的动作 · 先别问",                     # P27 · foot
+                "separation of duties",                          # P29 · 英文引文块
+                "某企业支付平台 CEO 与访谈者",
+                "越权拒答率 · 策略遵守率",                       # P37 · 01 边界卡
+                "审计覆盖率 · 决策可归因率",                     # P37 · 02 结果卡
+                "撤销生效延迟 · 回滚成功率",                     # P37 · 03 可撤销卡
+                "信任是被验证过的行动空间",                      # P37 · land
+                "这三个维度对应四条工程坐标",                    # P37 · 坐标行文字版
+                "四阶不是学历",                                  # P39 · land
+                "Writing evals is the most important thing",     # P45 · Kevin Weil 引文
+                "愿我们在理解"):                                 # P45 · 结语
+        assert _mk not in s, f"C10 · R10 该删未删：{_mk}"
+    #    ⓑ 正向断言：三处重构与一处新增必须在位
+    for _mk in ("身份可验", "VERIFIABLE", "行为可拦", "INTERCEPTABLE",
+                "结果可追", "ACCOUNTABLE", "授权可撤销", "REVOCABLE",
+                "「越界那句话，必须在说完之前被拦下」", "「随时降级、随时回滚」",
+                '<div class="take qot4" data-step="4">', ".take.qot4 .c .who{font-size:50px",
+                "你付的不是 token 的钱——是被交付出来的业务结果的钱。",
+                'viewBox="0 320 1680 665"',        # P5 路线图纵向 ×4.6
+                'viewBox="0 -177 1680 646"',       # P45 尺子纵向 ×1.7
+                'viewBox="0 0 1680 495"',          # P18 两遍质检条纵向 ×1.5
+                ".r10p5 .fig .txt{font-size:76px", ".r10p45 .fig .txt{font-size:28px"):
+        assert _mk in s, f"C10 · R10 内容缺失：{_mk}"
+    #    ⓒ 页级档位类必须全部挂上（八页一页一档）
+    for _c in ('r10p5', 'r10p18', 'r10p22', 'r10p27', 'r10p29', 'r10p37', 'r10p39', 'r10p45'):
+        assert s.count(f' {_c}"') == 1 and f'.{_c} ' in s, f"C10 · 档位类未挂/未定义：{_c}"
+    #    ⓓ QoS-QoE-QoI-QoT 顶部条与 P5 五站路线图必须原样留在页上
+    assert all(f'>{_q}</text>' in s for _q in ('QoS', 'QoE', 'QoI', 'QoT')), "C10 · QoT 顶部条缺失"
+    _p5b = s[s.index('<!-- 全场路线'):]; _p5b = _p5b[:_p5b.index('</svg>')]
+    assert all(_t in _p5b for _t in ('开场', '语法变了', '被托付', '双向奔赴', '人与组织')), \
+        "C10 · P5 五站路线图应完整保留"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

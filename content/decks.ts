@@ -74,7 +74,7 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // cowork-conf R9 聚焦版（45 页 · 删陪伴整章 + 逐页删文 + 两页拆分 · 大会 conf 视觉）· 预览路由，
+  // cowork-conf R10 聚焦版（45 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 · 大会 conf 视觉）· 预览路由，
   // Colin 定稿前不进 speechDecks 索引；线上 /cowork-conf 仍是 55 页原版。
   // 同源同脚本：CONF_V2=1 python3 scripts/build-conf.py
   { source: "/cowork-confv2", file: "/decks/cowork-confv2.html" },

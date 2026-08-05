@@ -1,4 +1,4 @@
-// QA：/cowork-confv2 45 页走查（R9 删文 + 两页拆分版）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
+// QA：/cowork-confv2 45 页走查（R9 删文拆页 + R10 八页删改版）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
 // 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 45 页预览版。
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -139,9 +139,59 @@ chk(fence.slice(0, fence.indexOf("</section>")).includes("事前授权") &&
     "R9 · C6「事前授权」已移植进母版执行围栏页");
 chk(html.includes("You don’t pay for tokens") && html.includes("business outcomes delivered"),
     "R9 · P22 英文判断句大字在位");
-chk(html.includes("愿我们在理解 <b>Agent</b> 的同时"), "R9 · P45 终页收场句在位");
 chk(html.includes("可逆 · 双向门 · 放手做，不用批") && html.includes("不可逆 · 单向门 · 先升级"),
     "R9 · P43 单向门 / 双向门核心图形保留");
+
+// ── 6.6) R10：八页删改（P5 / P18 / P22 / P27 / P29 / P37 / P39 / P45） ──
+const cut10 = ["问题一 · 授权边界", "问题二 · 问责归属", "问题三 · 撤销机制",   // P5 三问卡整组
+               "这三个问题不是哲学问题",                                        // P5 note
+               "整体一致率是被多数类稀释过的假象", "裁判自己也要有回归集",        // P18 正确的看法
+               "一笔约 36 亿美元的收购",                                        // P22 foot
+               "不是成熟，只是乐观", "给产品团队的动作 · 先别问",                 // P27 note / foot
+               "separation of duties", "某企业支付平台 CEO 与访谈者",            // P29 英文引文块
+               "越权拒答率 · 策略遵守率", "审计覆盖率 · 决策可归因率",
+               "撤销生效延迟 · 回滚成功率", "信任是被验证过的行动空间",
+               "这三个维度对应四条工程坐标",                                     // P37 三卡 + 两段解释
+               "四阶不是学历",                                                  // P39 land
+               "Writing evals is the most important thing", "Kevin Weil",       // P45 引文卡
+               "愿我们在理解"];                                                 // P45 结语
+chk(cut10.every((k) => !html.includes(k)),
+    `R10 八页删文到位（残留 ${JSON.stringify(cut10.filter((k) => html.includes(k)))}）`);
+// 注意：走查时 data-step 已被推满，四列那块的 class 会多一个 on，所以只比前缀
+chk(["身份可验", "VERIFIABLE", "行为可拦", "INTERCEPTABLE", "结果可追", "ACCOUNTABLE",
+     "授权可撤销", "REVOCABLE", '<div class="take qot4'].every((k) => html.includes(k)),
+    "R10 · P37 四条工程坐标已升为页面主体（四列 .take.qot4）");
+chk(["QoS", "QoE", "QoI", "QoT"].every((q) => html.includes(`>${q}</text>`)),
+    "R10 · P37 QoS-QoE-QoI-QoT 顶部条保留");
+chk(html.includes("你付的不是 token 的钱——是被交付出来的业务结果的钱。"),
+    "R10 · P22 中文翻译行在位（land 体系 .s）");
+chk(html.includes('viewBox="0 320 1680 665"') && html.includes("开场") && html.includes("语法变了"),
+    "R10 · P5 五站路线图已纵向拉伸为全页主体");
+chk(html.includes('viewBox="0 -177 1680 646"'), "R10 · P45 尺子两面图已纵向拉伸（纯图收场）");
+// 撑满层与档位类：八页一页一档
+// 同上：当前页的 section 会多挂 active/visible，所以不比结尾的引号
+chk(["r10p5", "r10p18", "r10p22", "r10p27", "r10p29", "r10p37", "r10p39", "r10p45"]
+      .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)),
+    "R10 · 八页档位类全部挂上且在 CSS 里有定义");
+// .dw 自绘线：--len 必须盖得住路径长度，否则线画一半就断（R10 在 P27/P39/P45 与 P28 补账）
+const dwbad = await pg.evaluate(() => {
+  const out = [];
+  window.deck.slides.forEach((s, i) => {
+    s.querySelectorAll("path.dw").forEach((p) => {
+      const len = parseFloat(getComputedStyle(p).getPropertyValue("--len")) || 1200;
+      let mx = 0;
+      (p.getAttribute("d") || "").split(/(?=M)/).filter(Boolean).forEach((sd) => {
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        t.setAttribute("d", sd); p.parentNode.appendChild(t);
+        mx = Math.max(mx, t.getTotalLength()); t.remove();
+      });
+      // 母版 P27 交叉验证条带那两条自带 24/1264 的短账，属既有陈账，放行
+      if (mx > len + 30) out.push({ slide: i + 1, len, need: Math.round(mx) });
+    });
+  });
+  return out;
+});
+chk(dwbad.length === 0, `.dw 自绘线不被 --len 截断（异常 ${JSON.stringify(dwbad)}）`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
