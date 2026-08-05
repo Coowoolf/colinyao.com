@@ -74,6 +74,7 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // aiot26 正讲版（35 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
+  // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
+  // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
 ];

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""aiot26-v3 → aiot26-conf.html：2026 AI 产品大会 · 声网 AIoT 专场视觉版（35 页）。
+"""aiot26-v3 → aiot26-conf.html：2026 AI 产品大会 · 声网 AIoT 专场视觉版（37 页）。
 
    与 scripts/build-conf.py（cowork → cowork-conf）同一套视觉层做法：
    黑底 + 紫系(#9333EA/#A855F7/#C084FC) + 金黄 #FFC000 + 阿里巴巴普惠体 2.0
    + 页头紫 tab / 右上大会 logo + 模板封面 keyart + 章节页 / 观点页版式。
 
-   内容层一个字不改 —— 全部来自 scripts/build-aiot26-v3.py 的产物（35 页 · 五幕）。
+   内容层一个字不改 —— 全部来自 scripts/build-aiot26-v3.py 的产物（37 页 · 五幕）。
    为保证可再生：本脚本先在临时目录里跑一遍 build-aiot26-v3.py 拿到 V3 全文，
    因此 public/decks/aiot26-v3.html 从仓库删除后，本脚本依然能独立重建
    （V3 的两个输入 _src-aiot26-fable35.html / aiot26-v2.html 仍在仓库里）。
 
-   媒体层沿用 V3：P04 视频页（.vstage + 三帧静帧兜底）+ deck-media 按键行为，
+   媒体层沿用 V3：视频页（.vstage + 三帧静帧兜底，C7 起位于 ACT04 P26）+ deck-media 按键行为，
    .dm-ind/.vslide 样式 V3 已自带，本脚本的覆盖层不再重复声明。
 """
 import os, re, shutil, subprocess, sys, tempfile
@@ -193,7 +193,7 @@ open(os.path.join(REPO, "public", "decks", "aiot26-conf.html"), "w", encoding="u
 
 # ── 8) 发布前断言 ────────────────────────────────────────────
 n = len(re.findall(r'<section class="slide', s))
-assert n == 35, f"大会版应为 35 页，实际 {n}"
+assert n == 37, f"大会版应为 37 页，实际 {n}"
 assert "noindex" in s and "deckRuler" in s, "noindex / deckRuler 缺失"
 assert s.count("观点页 · 嘉宾金句") >= 1, "观点页文案未生效"
 assert "MONEY QUOTE" not in s, "仍有未替换的 MONEY QUOTE"
@@ -206,8 +206,27 @@ assert "--amber:#A855F7" in s and "--coral:#FFC000" in s, "大会 token 块未�
 # 内容层（V3 资产）必须原样在位
 for _mk in ("伙伴感 = 角色一致性 × 共同历史 × 可控临场", "临场感 = 实时听见 × 立刻想起 × 当下回应",
             "别听错。别失控。别让人等。", "从玩具到伙伴的距离，", "四方责任",
-            "gemini-demo.mp4", 'poster="/media/aiot26/still-1.jpg"'):
+            "gemini-demo.mp4", 'poster="/media/aiot26/still-1.jpg"',
+            # C7 · 六处改动的落地证据
+            "主论坛 · 身份 ⇒ 角色一致性", "主论坛 · 关系 × 历史 ⇒ 共同记忆",
+            "主论坛 · 实时引擎，早就在做 ⇒ 可控临场",
+            "ONE TIMELINE", "P90 E2E LATENCY &lt; 1.5S",
+            "从人说完最后一个字，到人听到 Agent 说出第一个字", "与 Tolan 工程团队一手交流",
+            "接下来只看一件事", "这一幕不讲知识点，只回答五个问题",
+            "不是端到端赢了，是异步双模型：级联没死，是被重构了",
+            "two-model architecture", "会死的是串行，不会死的是分工",
+            "6 RTT → 2 RTT", "Active Internet-Draft", "说了不该说的话", "动作延迟"):
     assert _mk in s, f"V3 内容缺失：{_mk}"
+# C7 · 五问在位 + 环形五节点 + 北极星不再出现「设计样例」
+for _q in ("Q1</span><span class=\"k\">延迟", "Q2</span><span class=\"k\">听不清",
+           "Q3</span><span class=\"k\">端到端", "Q4</span><span class=\"k\">端与云",
+           "Q5</span><span class=\"k\">出错了"):
+    assert _q in s, f"五问总览缺题：{_q}"
+assert s.count("A208 208 0 0 1") == 8, "临场环弧段数不对"
+assert len(re.findall(r'<circle cx="[\d.]+" cy="[\d.]+" r="1[35]" class="fill-(?:am|co)"/>', s)) == 5, \
+    "临场环节点应为 5 个"
+_ns = s.index("北极星只有一条")
+assert "设计样例" not in s[_ns:_ns + 4200], "北极星页仍有「设计样例」"
 assert len(re.findall(r'<div class="act">', s)) == 5, "五张幕卡缺失"
 assert len(re.findall(r'<div class="mq">', s)) == 4, "金句页 / 终页数量不对"
 print(f"aiot26-conf.html written · {n} slides · {len(s)//1024}KB")
