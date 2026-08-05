@@ -74,9 +74,11 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // cowork-conf R14 聚焦版（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
+  // cowork-conf R15 终轮聚焦版（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
   // + PART 1 幕卡后新增「AI 投资资金流向 2024→2026」一页 + R13 七处内容修订
-  // + R14 P2 讲台 / 资金流向页重做成双轴时间图 · 大会 conf 视觉）· 预览路由，
+  // + R14 P2 讲台 / 资金流向页重做成双轴时间图
+  // + R15 终轮十项（三张主标题 / CONVOAI AGENT / 北极星逐列对齐 / PART 2 幕卡金句 / 三处删段
+  //   / Weil 归金句页 / 自治爬梯 L0-L4 → L1-L5 全 deck 连坐 / 终检）· 大会 conf 视觉）· 预览路由，
   // Colin 定稿前不进 speechDecks 索引；线上 /cowork-conf 仍是 55 页原版。
   // 同源同脚本：CONF_V2=1 python3 scripts/build-conf.py
   { source: "/cowork-confv2", file: "/decks/cowork-confv2.html" },

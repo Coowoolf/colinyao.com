@@ -227,8 +227,10 @@ chk([">66%<", ">91%<", ">70%<", ">15–20%<", ">49%<"].every((k) => html.include
     html.includes("CC-CMM · 艾媒咨询 · 第一新声 2025") &&
     html.includes("Pew Research 2026-06（n=5,119）"),
     "R11 · P8 五条数据 + SOURCE 行逐条标源与年份");
-chk(html.includes("对话式智能体在企业服务侧，已经到了规模化应用的阶段") && html.includes("硬性基础全部具备"),
-    "R11 · P9 结论行已改口径");
+// ⚠️ R15-① 把这句从 note 提上主标题，中间多了一层 <em>；结论行保留后半段
+chk(html.includes("对话式智能体在企业服务侧，<em>已经到了规模化应用的阶段</em>") &&
+    html.includes("硬性基础全部具备"),
+    "R11 · P9 结论行已改口径（R15 起在主标题上）");
 chk(["STEP 01", "STEP 02", "STEP 03", "STEP 04", "全量捞，不抽样", "人耳听，不看文本",
      "归类，不打分", "固化成回归集"].every((k) => html.includes(`>${k}</text>`)) &&
     html.includes('viewBox="0 0 1680 600"'),
@@ -295,8 +297,9 @@ const seq12 = await pg.evaluate(() => {
   const t = (i) => (window.deck.slides[i].textContent || "").replace(/\s+/g, " ");
   return { p6: t(5), p7: t(6), p8: t(7), p9: t(8) };
 });
+// ⚠️ R15-① 换了 P8 / P9 两张主标题，页序断言改用新标题取词
 chk(seq12.p6.includes("语法变了") && seq12.p7.includes("钱的三次落点") &&
-    seq12.p8.includes("这不是一个垂类") && seq12.p9.includes("预测还在打架"),
+    seq12.p8.includes("对话式 AI 的钱，流向了哪里") && seq12.p9.includes("正在悄然发生"),
     "R12 · 三连页序：幕卡 → 新页全图 → 对话式内部分布 → 采购已开动");
 // eyebrow 必须是 Colin 原话，逐字
 chk(html.includes("产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走"),
@@ -318,9 +321,10 @@ chk([...p7s.matchAll(/data-step="(\d+)"/g)].every((m) => +m[1] <= 2), "R12 · �
 chk(/class="slide[^"]*\br12flow\b/.test(html) && html.includes(".r12flow "),
     "R12 · 新页档位类挂上且在 CSS 里有定义");
 // 衔接：现 P8（钱页）eyebrow 已换成承接句
+// ⚠️ R15-① 把这条 eyebrow 精简了（与新 h2 语义重复）
 chk(!html.includes("先看钱往哪儿去了") &&
-    html.includes("钱到了对话式 AI，再往里看一层：它分给了谁"),
-    "R12 · P8 钱页 eyebrow 已改为衔接句");
+    html.includes('<div class="eyebrow flow" style="--i:0">承上页，再往里看一层</div>'),
+    "R12 · P8 钱页 eyebrow 已改为衔接句（R15 精简版）");
 // 新页与衔接页填充率 + svg 文字零重叠 + 截图
 const r12fill = [];
 for (const p of [7, 8]) {
@@ -398,12 +402,12 @@ const route = await pg.evaluate((k) => {
 chk(route.txt >= 44 && route.txt <= 48 && route.lbl >= 22 && route.lbl <= 26 &&
     route.sm >= 24 && route.sm <= 26 && route.r === 11,
     `R13-② 路线图回调到优雅档（站名 44–48 / PART 24 / 副题 24–26 / 圆点回收）${JSON.stringify(route)}`);
-// ③ Weil 金句在拷问页、且是第二拍
+// ③ Weil 金句 —— ⚠️ R15-⑦ 改判：整张搬到金句 02，拷问页回到纯问句全页大字。
+//    这里只守「拷问页不再有 Weil / 不再有第二拍」，落点的正向账在 6.11 段。
 const sAsk = await secOf(P.ask);
-chk(sAsk.includes("Writing evals is the most important thing a PM can do in the AI era.") &&
-    sAsk.includes("Kevin Weil · OpenAI 前 CPO") && sAsk.includes('data-step="1"') &&
-    (html.match(/Writing evals is the most important thing/g) || []).length === 1,
-    "R13-③ Weil 金句作 data-step=1 第二拍落在灵魂拷问页（全场仅此一处）");
+chk(!sAsk.includes("Writing evals") && !sAsk.includes("Kevin Weil") &&
+    !sAsk.includes('data-step'),
+    "R15-⑦ 灵魂拷问页已撤回 Weil 第二拍，回到纯问句全页大字");
 // ④ 英语习惯拼读法：svg 与关联句两处
 const sEv = await secOf(P.eval1);
 chk(sEv.includes("A as in Apple · B as in Boy · 0086 · 一位一位念") &&
@@ -474,9 +478,11 @@ for (const [name, i] of Object.entries(shots)) {
   await pg.screenshot({ path: `/tmp/qa/r13-p${name}.png` });
 }
 chk(r13bad.length === 0, `R13 · 七页零溢出零 svg 文字重叠（异常 ${JSON.stringify(r13bad)}）`);
-chk(["r13bell", "r13p5", "r13ask", "r13case", "r13mq", "r13fence"]
-      .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)),
-    "R13 · 四个页级档位类全部挂上且在 CSS 里有定义");
+// ⚠️ r13ask 已随 R15-⑦ 撤回第二拍一并摘除
+chk(["r13bell", "r13p5", "r13case", "r13mq", "r13fence"]
+      .every((c) => new RegExp(`class="slide[^"]*\\b${c}\\b`).test(html) && html.includes(`.${c} `)) &&
+    !/class="slide[^"]*\br13ask\b/.test(html),
+    "R13 · 页级档位类全部挂上且在 CSS 里有定义（r13ask 已随 R15 摘除）");
 
 // ── 6.10) R14：① P2 舞台 → 讲台 ② 钱流向页重做成双轴时间图 + 来源瘦身 ──
 const P14 = {
@@ -595,6 +601,177 @@ chk(r14.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.fill !== 0 
     `R14 · 两页零溢出 / 零 svg 文字重叠 / 零出框 / 填充率 78–106% ${JSON.stringify(r14)}`);
 chk(/class="slide[^"]*\br14money\b/.test(html) && html.includes(".r14money "),
     "R14 · 页级档位类挂上且在 CSS 里有定义");
+
+// ── 6.11) R15 终轮十项（全部内容锚定取页，不信页码） ──
+const P15 = {
+  money:  await idxOf("对话式 AI 的钱，流向了哪里"),
+  buy:    await idxOf("对话式智能体的采购，正在悄然发生"),
+  four:   await idxOf("已经到了规模化应用的阶段"),
+  nstar:  await idxOf("四个阶段，四颗"),
+  act2:   await idxOf("ENTRUSTED"),
+  ladder: await idxOf("工具 → 实习生 → 外包 → 专家 →"),
+  eval1:  await idxOf("你的 demo 在骗你"),
+  mqWeil: await idxOf("Writing evals"),
+  ask:    await idxOf("亲手写过"),
+  ladderL:await idxOf("人还在不在环里"),
+  jobs:   await idxOf("真实岗位放上梯子"),
+  fin:    await idxOf("一套放权与决策机制"),
+};
+chk(Object.values(P15).every((i) => i >= 0), `R15 · 十二个目标页全部按内容找到 ${JSON.stringify(P15)}`);
+// 负向：被换下 / 被删掉的整段必须查无此句
+const cut15 = ["这不是一个垂类", "钱到了对话式 AI，再往里看一层：它分给了谁", "预测还在打架",
+               "所有的路，最后都汇到「对话」这条线上", ">Conversational AI</text>",
+               "可这三年里，一直是我们单方面朝它走", "下午 AIoT 专场整场拆开讲",
+               "被记住，靠的是一致性。被托付，靠的是可验证。",
+               "这四级换的不是它的能力", "那把越来越硬的尺子",
+               "给产品经理的动作 · 把你 demo 里最得意的那三条",
+               "你以为在选模型，", "其实在选评测。", "模型半年换一次，评测集用三年",
+               "L0 · 旁听", "L1 · 起草", "L2 · 只读应答", "L3 · 可执行", "L4 · 主动外呼",
+               "L2 与 L3 之间", ">L4 主动<", ">L0–L1<", "Autonomy L4",
+               "语音场景的 L2 门槛", "Agent 有 L0–L4", "这五笔"];
+chk(cut15.every((k) => !html.includes(k)),
+    `R15 · 被删/被换的整段全部清零（残留 ${JSON.stringify(cut15.filter((k) => html.includes(k)))}）`);
+// ① 三个新主标题（h2 在位 + eyebrow 精简）
+const s15money = await secOf(P15.money), s15buy = await secOf(P15.buy), s15four = await secOf(P15.four);
+chk(s15money.includes('<h2 class="ink" style="--i:1">对话式 AI 的钱，<em>流向了哪里</em></h2>') &&
+    s15money.includes("承上页，再往里看一层") && s15money.includes("ElevenLabs · 语音合成"),
+    "R15-①a 钱分布页新主标题 + eyebrow 精简");
+chk(s15buy.includes('<h2 class="ink" style="--i:1">对话式智能体的采购，<em>正在悄然发生</em></h2>') &&
+    s15buy.includes("至于预测？同一年的两份报告还在打架"),
+    "R15-①b 渗透采购页新主标题（「预测打架」的对照仍在 note 里）");
+chk(s15four.includes('对话式智能体在企业服务侧，<em>已经到了规模化应用的阶段</em>') &&
+    s15four.includes('<div class="eyebrow flow" style="--i:0">四个互不相干的人，说了同一件事</div>') &&
+    s15four.includes("四个方向的人，指向同一个判断：智能够用、部署可做、扩散周期已经开始、周边那圈软件也补齐了，"),
+    "R15-①c 四方观点页新主标题 + 原 h2 降回 eyebrow + 结论行保留现文");
+// ② CONVOAI AGENT
+chk(s15four.includes(">CONVOAI AGENT</text>") &&
+    (html.match(/CONVOAI AGENT/g) || []).length === 1, "R15-② 中心块英文标 CONVOAI AGENT");
+// ③ 北极星逐列对齐（实测：四条 tread 的 x 跨度 = 四栏 nstar 的 x 跨度）+ note 清零
+const align = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 400));
+  const s = window.deck.slides[k];
+  for (let st = 1; st <= 3; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  await new Promise((r) => setTimeout(r, 1800));
+  const ns = [...s.querySelectorAll(".nstar .ns")].map((e) => Math.round(e.getBoundingClientRect().left));
+  const tt = [...s.querySelectorAll("svg text.ttl")].map((e) => Math.round(e.getBoundingClientRect().left));
+  return { ns, tt, note: !!s.querySelector(".note") };
+}, P15.nstar);
+chk(!align.note && align.ns.length === 4 && align.tt.length === 4 &&
+    align.ns.every((x, i) => Math.abs(x - align.tt[i]) <= 2),
+    `R15-③ 北极星四栏与阶梯四级逐列对齐 + note 整段删 ${JSON.stringify(align)}`);
+chk(/class="slide[^"]*\br15nstar\b/.test(html) && html.includes(".r15nstar "),
+    "R15-③ 档位类 r15nstar 挂上且有定义");
+// ④ PART 2 幕卡金句
+const s15act = await secOf(P15.act2);
+chk(s15act.includes("我们叫了它三年 Agent（代理人）——今天，它终于开始代理了。") &&
+    s15act.includes("这一幕只讲一件事：那把尺子怎么造。"),
+    "R15-④ PART 2 幕卡新金句（双关反转）+ 本幕导航保留");
+// ⑤⑥ 两处删段
+const s15lad = await secOf(P15.ladder), s15ev = await secOf(P15.eval1);
+chk(!s15lad.includes('<div class="land') && s15lad.includes('<div class="g4">') &&
+    s15lad.includes('viewBox="0 73 1680 484"'),
+    "R15-⑤ 分水岭页 land 整段删 + 阶梯图纵拉伸撑满");
+chk(!s15ev.includes('<div class="foot') && s15ev.includes("你的 demo 里全是前一种题"),
+    "R15-⑥ Eval 第一课 foot 整句删");
+// ⑦ Weil 只在金句 02
+const s15mq = await secOf(P15.mqWeil);
+chk(s15mq.includes("观点页 · 嘉宾金句 · 02") &&
+    s15mq.includes("写评测，是 AI 时代一个产品经理能做的最重要的事。") &&
+    s15mq.includes("Kevin Weil · OpenAI 前 CPO") &&
+    (html.match(/Kevin Weil · OpenAI 前 CPO/g) || []).length === 1,
+    "R15-⑦ Weil 整张占金句 02（全场仅一处）");
+// ⑧ 梯子 L1-L5 + BIG JUMP 位置不动（天然 = L2→L3）+ 交叉验证条带不用改
+const s15L = await secOf(P15.ladderL);
+chk(["L1 · 旁听", "L2 · 起草", "L3 · 只读应答", "L4 · 可执行", "L5 · 主动外呼"].every((k) => s15L.includes(k)) &&
+    s15L.includes('d="M675 45 V509"') &&
+    s15L.indexOf("L2 · 起草") < s15L.indexOf("撤掉「人」这张安全网") &&
+    s15L.indexOf("撤掉「人」这张安全网") < s15L.indexOf("L3 · 只读应答"),
+    "R15-⑧ 梯子重编 L1–L5，BIG JUMP 位置不动 → 天然 L2→L3");
+chk(["自动驾驶 L1–L5", "L1–L2 · 辅助驾驶，人不敢离环", "L3–L5 · 系统担责，卡了十年的一跳",
+     "支付 Agent 五级", "L1–L2 · 行业还在边缘徘徊", "L3–L5 · 还没人真正到达",
+     "向下的电梯 · THE WAY DOWN"].every((k) => s15L.includes(k)),
+    "R15-⑧ 交叉验证条带与向下电梯旁注一个字未动即自洽");
+// ⑨ 全 deck L 连坐 + 语义三处互证
+const s15job = await secOf(P15.jobs), s15fin = await secOf(P15.fin);
+chk(s15job.includes("压在 <em>L3 与 L4 之间</em>") && s15job.includes("今年整体重心：L3 与 L4 之间") &&
+    [">L5 主动<", ">L4 可执行<", ">L3 只读应答<", ">L1–L2<"].every((k) => s15job.includes(k)),
+    "R15-⑨a 岗位散点页 h2 / 纵轴 / 重心带标注全部同步");
+chk((await secOf(P15.buy)) !== null &&
+    html.includes("Autonomy L5") && html.includes("语音场景的 L3 门槛，比文本高一级") &&
+    s15fin.includes("Agent 有 L1–L5，人有看过·用过·学过·干过"),
+    "R15-⑨b/c/d 案例 02 / 执行围栏 / 全场收束三处 L 记号同步");
+const noL0 = await pg.evaluate(() =>
+  window.deck.slides.every((s) => !s.outerHTML.includes("L0")));
+chk(noL0, "R15-⑨ 全 deck 正文再无 L0");
+// ⑩ 终检：这几笔 / 幕序课序金句序 / 目标页零溢出与填充率
+chk(html.includes("2026 光是上半年这几笔"), "R15-⑩a 钱流向页「这五笔」→「这几笔」");
+chk((html.match(/嘉宾金句 · 0\d/g) || []).length === 5 &&
+    ["Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课"].every((k) => html.includes(k)),
+    "R15-⑩b 金句 01–05 五张 / Eval 四课课序完整");
+const r15 = [];
+for (const [name, i] of Object.entries({ money8: P15.money, buy9: P15.buy, four10: P15.four,
+    nstar11: P15.nstar, act12: P15.act2, ladder28: P15.ladder, jobs29: P15.jobs,
+    "mq-weil": P15.mqWeil })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(300);
+  await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const body = s.querySelector(".body");
+    let ratio = null;
+    if (body) {
+      const kids = [...body.children].filter((e) => e.offsetParent);
+      const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+      const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+      ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    }
+    // 还没开完的 clip-path（动画未落位 = 页面上会看到半截字）
+    let clipped = 0;
+    s.querySelectorAll("*").forEach((el) => {
+      const cp = getComputedStyle(el).clipPath;
+      if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+    });
+    return { out, ratio, clipped };
+  });
+  r15.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r15-p${name}.png` });
+}
+chk(r15.every((x) => x.out === 0 && x.clipped === 0 && (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
+    `R15 · 八页零溢出 / 零半截字 / 填充率 78–106% ${JSON.stringify(r15)}`);
+// 全 46 页 .body 填充率下限（R15 终检把最低的那页 62% 修到 ~80%）
+const fillAll = await pg.evaluate(async () => {
+  const out = [];
+  for (let i = 0; i < window.deck.slides.length; i++) {
+    window.deck.go(i);
+    await new Promise((r) => setTimeout(r, 90));
+    const s = window.deck.slides[i], body = s.querySelector(".body");
+    if (!body) continue;
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+    const kids = [...body.children].filter((e) => e.offsetParent);
+    if (!kids.length) continue;
+    const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+    const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+    out.push({ p: i + 1, r: Math.round(((bot - top) / body.getBoundingClientRect().height) * 100) });
+  }
+  return out;
+});
+const lowFill = fillAll.filter((x) => x.r < 78 || x.r > 106);
+chk(lowFill.length === 0, `R15-⑩c 全 46 页填充率 78–106%（异常 ${JSON.stringify(lowFill)}）`);
+chk(/class="slide[^"]*\br15end\b/.test(html) && html.includes(".r15end "),
+    "R15-⑩c 全场收束页留白失衡已修（档位类 r15end 在位）");
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));

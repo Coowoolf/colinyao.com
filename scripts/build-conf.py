@@ -1068,6 +1068,70 @@ C14_CSS = """
 .r14money #r14conv .g1{stop-color:var(--amber);stop-opacity:0;}
 """
 
+# ── C15 · R15 终轮的页级档 ·只在 CONF_V2=1 装配 ───────────────────────────────
+#    R15 是「改完全部内容」的收官轮，十项里六项是纯删/纯改字（无版式档），
+#    需要档位的只有四处：北极星逐列对齐后的撑满、两页删段后的撑满、
+#    灵魂拷问页撤掉第二拍后回到纯问句、新 Weil 金句页的英文体例。
+#    全部排在 C14_CSS 之后 —— 与 C13 同名选择器（.r13ask / .r13mq 那两条）靠后写者胜。
+C15_CSS = """
+/* ============ C15 · R15 终轮 ============ */
+/* 北极星页：note 整段删掉之后，body 只剩「阶梯图 + 四颗北极星」两块。
+   图按 nstar 的四列几何重画（tread 与列等宽等位），所以这里只负责把两块撑开：
+   图放大到 1.06、四栏字号上一档、栏间距跟着 grid 的 26px 走（不改 grid，改了就错位）。 */
+.r15nstar .head{margin-bottom:30px;}
+.r15nstar .body{gap:34px;}
+.r15nstar .fig{align-items:stretch;}
+.r15nstar .fig svg{width:100%;height:auto;}
+.r15nstar .fig .ttl{font-size:44px;}
+.r15nstar .fig .txt{font-size:23px;}
+.r15nstar .fig .lbl{font-size:19px;letter-spacing:.16em;}
+.r15nstar .nstar{margin-top:6px;}
+.r15nstar .nstar .ns{padding-top:16px;}
+.r15nstar .nstar .ns b{font-size:30px;}
+.r15nstar .nstar .ns span{font-size:19px;}
+
+/* 分水岭页：land 整段删掉之后，图与四张卡各自吃掉一半空档。 */
+.r15ladder .head{margin-bottom:30px;}
+.r15ladder .body{gap:34px;}
+.r15ladder .fig svg{width:100%;height:auto;}
+.r15ladder .g4 .card.sm .hd .n{font-size:23px;}
+.r15ladder .g4 .card.sm .hd .t{font-size:29px;}
+.r15ladder .g4 .card.sm .d{font-size:21px;line-height:1.62;}
+.r15ladder .g4 .card.sm .tag{font-size:17px;}
+
+/* Eval 第一课：foot 那句「给产品经理的动作」删掉之后，题面矩阵撑满，note 上一档。 */
+.r15eval1 .head{margin-bottom:32px;}
+.r15eval1 .body{gap:40px;}
+.r15eval1 .fig svg{width:100%;height:auto;}
+.r15eval1 .note{font-size:27px;line-height:1.6;}
+
+/* 灵魂拷问页：Weil 第二拍撤回金句页，这一页回到纯问句全页大字（= R9 的 .r9p15 档）。
+   C13 那三条 .r13ask 选择器已随 class 一并摘除，这里只留一条兜底，防止将来回挂。 */
+.r13ask .ask .q{font-size:112px;}
+
+/* 终检 · 全场收束页（四条一行）：R15 视觉终审逐张过图时抓到的唯一一处留白失衡 ——
+   四栏 + 图标带只占 body 的 62%，上下各空一大条。这一页是全场最后的落点，
+   字应该是全场最大的一档。四栏整体上调一档 + 间距放开，撑到 ~80%。 */
+.r15end .body{gap:72px;}
+.r15end .take{gap:30px;}
+.r15end .take .c{gap:18px;}
+.r15end .take .c .ord{font-size:26px;}
+.r15end .take .c .who{font-size:36px;}
+.r15end .take .c .say .no{font-size:25px;line-height:1.42;}
+.r15end .take .c:nth-child(1) .say em{font-size:30px;}
+.r15end .take .c:nth-child(2) .say em{font-size:33px;}
+.r15end .take .c:nth-child(3) .say em{font-size:37px;}
+.r15end .take .c:nth-child(4) .say em{font-size:41px;}
+.r15end .take .c .s{font-size:24px;line-height:1.66;}
+
+/* 金句 02 · Kevin Weil：英文原句为主（mono）+ 中文一行 + 署名行，与 .r13mq 同体例。 */
+.r15mq .mq .q{font-family:var(--f-mono);font-size:54px;font-weight:700;
+  line-height:1.36;letter-spacing:0;}
+.r15mq .mq .zh{font-size:34px;font-weight:700;line-height:1.5;
+  color:var(--mq-2);max-width:1300px;}
+.r15mq .mq .s{font-family:var(--f-mono);font-size:22px;letter-spacing:.14em;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -2154,6 +2218,210 @@ if V2:
           '· TechCrunch · Bloomberg · CNBC</div>')
     _cls(_I14, 'r14money')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C15（2026-08-05 · R15 终轮 · 十项 · 页数不变 46）──────────────────────────
+# Colin：「至此改完全部内容」。这一层是收官轮，十项：
+#   ① 三个主标题（钱分布 / 渗透采购 / 四方观点），eyebrow 与新 h2 语义重复的顺手精简
+#   ② 四方观点页中心块英文标 Conversational AI → CONVOAI AGENT
+#   ③ 北极星页：nstar 四栏与阶梯四级**逐列对齐** + note 整段删（删后撑满）
+#   ④ PART 2 被托付幕卡换金句（Agent＝代理人的双关反转）
+#   ⑤ 分水岭页 land 整段删（删后撑满）
+#   ⑥ Eval 第一课 foot 整句删（删后撑满）
+#   ⑦ 金句 02 换成 Kevin Weil；灵魂拷问页撤掉 R13 加的第二拍（全场 Weil 仅一处）
+#   ⑧ 自治爬梯页 L 记号重编 L0-L4 → L1-L5（BIG JUMP 位置不动 → 天然 = L2→L3）
+#   ⑨ 全 deck L 记号连坐（岗位散点页 / 案例 02 / 执行的围栏 / 全场收束）
+#   ⑩ 终检：R14 留下的「这五笔」→「这几笔」+ 悬空引用终扫
+# 取页一律**内容锚定**（_ix 按正文找 _secs 下标），不信页号；母版 62 页仍然只读。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    def _ix(needle):
+        """按正文在母版 62 页里找唯一那一节（R15 起全部改动都走这个入口，不写死页号）"""
+        _h = [_i for _i, _x in enumerate(_secs) if needle in _x]
+        assert len(_h) == 1, f'C15 · 锚点不唯一/未命中「{needle[:30]}」：{_h}'
+        return _h[0]
+
+    # ── C15-① 三个主标题 ────────────────────────────────────────────────────
+    # a) 钱分布页（ElevenLabs / OpenAI / Sierra 六张卡）——「这不是一个垂类」是一句
+    #    反驳式的话，台下没听过反面观点就接不住；换成一句直说的题。
+    #    eyebrow 原文「钱到了对话式 AI，再往里看一层：它分给了谁」与新 h2 是近义重复，
+    #    只留承接功能，精简成六个字。
+    _I_M8 = _ix('这不是一个垂类，是整个对话式 AI 在同时点火')
+    _r1(_I_M8, '<h2 class="ink" style="--i:1">这不是一个垂类，是整个对话式 AI 在同时点火</h2>',
+                '<h2 class="ink" style="--i:1">对话式 AI 的钱，<em>流向了哪里</em></h2>')
+    _r1(_I_M8, '<div class="eyebrow flow" style="--i:0">钱到了对话式 AI，再往里看一层：它分给了谁</div>',
+                '<div class="eyebrow flow" style="--i:0">承上页，再往里看一层</div>')
+
+    # b) 渗透采购页 —— 「预测还在打架」的对照仍在 note 里（「至于预测？…还在打架」），
+    #    所以主标不再背它，直接说结论：采购正在悄然发生。
+    _I_BUY = _ix('<em>采购已经开动</em>')
+    _r1(_I_BUY, '<h2 class="ink" style="--i:1">预测还在打架，<em>采购已经开动</em></h2>',
+                 '<h2 class="ink" style="--i:1">对话式智能体的采购，<em>正在悄然发生</em></h2>')
+
+    # c) 四方观点页 —— 原 h2「四个互不相干的人，说了同一件事」降回 eyebrow
+    #    （C3 当年正是把它从 eyebrow 提上来的，这一步是原路退回），
+    #    h2 换成 note 里那句真正的判断；note 去掉被提上去的那一句，其余保留现文。
+    _I_FOUR = _ix('四个互不相干的人，说了<em>同一件事</em>')
+    _r1(_I_FOUR, '<div class="eyebrow flow" style="--i:0">所有的路，最后都汇到「对话」这条线上</div>',
+                  '<div class="eyebrow flow" style="--i:0">四个互不相干的人，说了同一件事</div>')
+    _r1(_I_FOUR, '<h2 class="ink" style="--i:1">四个互不相干的人，说了<em>同一件事</em></h2>',
+                  '<h2 class="ink" style="--i:1">对话式智能体在企业服务侧，<em>已经到了规模化应用的阶段</em></h2>')
+    _r1(_I_FOUR, '四个方向的人，指向同一个判断：<b class="am">对话式智能体在企业服务侧，'
+                 '已经到了规模化应用的阶段</b>——智能够用、部署可做、',
+                 '四个方向的人，指向同一个判断：智能够用、部署可做、')
+
+    # ── C15-② 四方观点页中心块英文标 ────────────────────────────────────────
+    #    「对话式智能体」下面那行英文是全场唯一一处对这个词的英文表述，
+    #    统一成产品线口径 CONVOAI AGENT（与 P37 全景页的 ConvoAI Engine 同宗）。
+    _r1(_I_FOUR, '>Conversational AI</text>', '>CONVOAI AGENT</text>')
+
+    # ── C15-③ 北极星页：逐列对齐 + note 整段删 ──────────────────────────────
+    #    a) 对齐账（实测 body 宽 1680px，svg viewBox 0 0 1680 520 → 1 单位 = 1px）：
+    #       .nstar 是 `1fr×4 + gap:26`，四列 x = [0,400.5] [426.5,827] [853,1253.5] [1279.5,1680]。
+    #       原阶梯四级是 [20,420] [420,820] [820,1220] [1220,1660]，与列位差 20–40px，
+    #       四栏读起来「差一点点」最难受。改法：**每一级的水平段 = 对应那一列的完整跨度**，
+    #       级与级之间的竖梁改走 26px 空档里的斜梁（几乎垂直，看着仍是阶梯）。
+    #       文字 x 同步落到列左沿 —— 于是 svg 文字与下方 nstar 文字共用一条左边线。
+    #       --len 逐条配套：斜梁 √(26²+87²)≈91，加 400.5 的水平段 ≈491 → 一律给 500。
+    _I_NS = _ix('四个阶段，四颗<em>北极星</em>')
+    for _o, _n in (
+        ('d="M20 443 H420"', 'd="M0 443 H400.5"'),
+        ('style="--len:400;--i:0" stroke-width="2" d="M0 443 H400.5"',
+         'style="--len:410;--i:0" stroke-width="2" d="M0 443 H400.5"'),
+        ('d="M420 443 V356 H820"', 'd="M400.5 443 L426.5 356 H827"'),
+        ('d="M820 356 V270 H1220"', 'd="M827 356 L853 270 H1253.5"'),
+        ('d="M1220 270 V184 H1660"', 'd="M1253.5 270 L1279.5 184 H1680"'),
+        ('style="--len:540;--i:1" stroke-width="3" d="M1253.5 270 L1279.5 184 H1680"',
+         'style="--len:500;--i:1" stroke-width="3" d="M1253.5 270 L1279.5 184 H1680"'),
+        ('x="54" y="339"', 'x="0" y="339"'), ('x="54" y="384"', 'x="0" y="384"'),
+        ('x="54" y="421"', 'x="0" y="421"'),
+        ('x="454" y="253"', 'x="426.5" y="253"'), ('x="454" y="298"', 'x="426.5" y="298"'),
+        ('x="454" y="335"', 'x="426.5" y="335"'),
+        ('x="854" y="166"', 'x="853" y="166"'), ('x="854" y="212"', 'x="853" y="212"'),
+        ('x="854" y="248"', 'x="853" y="248"'),
+        ('x="1254" y="80"', 'x="1279.5" y="80"'), ('x="1254" y="125"', 'x="1279.5" y="125"'),
+        ('x="1254" y="162"', 'x="1279.5" y="162"'),
+        # 主语易位那条虚线：落到第三、四列中间那道 26px 空档的正中；标注贴第四列左沿
+        ('d="M1200 43 V486"', 'd="M1266.5 43 V486"'),
+        ('x="1216" y="480"', 'x="1279.5" y="480"'),
+    ):
+        _r1(_I_NS, _o, _n)
+    #    b) note 整段删：三句话（「叫了三年 Agent…才算双向」/「错位」/「陪伴那半球…直接从被托付进」）
+    #       —— 第一句打磨后上了 PART 2 幕卡（C15-④），「下午专场」的交接在分水岭页
+    #       eyebrow 与图注里各留一处，不会因此悬空。
+    _cut1(_I_NS, '<div class="note" data-step="3">', '「被托付」</b>进。</span></div>', '')
+    assert '错位' not in _secs[_I_NS] and '下午 AIoT 专场整场拆开讲' not in _secs[_I_NS]
+    _cls(_I_NS, 'r15nstar')
+
+    # ── C15-④ PART 2 被托付幕卡 · 换金句 ────────────────────────────────────
+    #    Colin 底稿：「我们叫了它三年 Agent（代理人），今天它终于变成了 Agent（代理人）」。
+    #    定稿取「叫了三年 / 今天终于」的反转 + 名词→动词的双关落点：把第二个「代理人」
+    #    从名词打成动词（「开始代理了」），一句话就说清 PART 2 要讲什么。
+    #    第二行「这一幕只讲一件事：那把尺子怎么造」是本幕导航，保留不动。
+    _I_ACT2 = _ix('<div class="cn spread" style="--i:3">被托付</div>')
+    _r1(_I_ACT2, '<div class="d flow" style="--i:4">被记住，靠的是一致性。被托付，靠的是可验证。<br>'
+                 '这一幕只讲一件事：那把尺子怎么造。</div>',
+                 '<div class="d flow" style="--i:4">我们叫了它三年 Agent（代理人）——今天，它终于开始代理了。<br>'
+                 '这一幕只讲一件事：那把尺子怎么造。</div>')
+
+    # ── C15-⑤ 分水岭页 land 整段删 ──────────────────────────────────────────
+    #    「你交出去的东西」这层意思，图上四级的副题（交出去「一步」/「一段」/「一个判断」/
+    #    「一个结果」）已经把它说完了，land 是重复讲一遍。
+    _I_LAD = _ix('工具 → 实习生 → 外包 → 专家 → <em>合伙人</em>')
+    _cut1(_I_LAD, '<div class="land flow rev" style="--i:12">这四级换的不是它的能力',
+                  '这一幕，讲的就是那把越来越硬的尺子。</span></div>', '')
+    #    删后撑满：这张阶梯图「宽而扁」（1680×372），只放大宽度没用 —— 走 C9 的纵拉伸，
+    #    y 整体 ×1.3（字号/半径不变），viewBox 同步加高；四级上行因此更陡，读起来更像「爬」。
+    #    ⚠️ --len 与走线光点的行程必须配套：路径长 1438 → 1501，所以 1520→1560、-1560→-1620。
+    _ystretch(_I_LAD, 1.3, ('viewBox="0 56 1680 372"', 'viewBox="0 73 1680 484"'), paths=(
+        ('d="M40 330 H320"', 'd="M40 429 H320"'),
+        ('d="M320 330 C 356 330, 356 384, 392 384 H1200"',
+         'd="M320 429 C 356 429, 356 499, 392 499 H1200"'),
+        ('d="M510 374 V352"', 'd="M510 486 V458"'),
+        ('d="M840 374 V290"', 'd="M840 486 V377"'),
+        ('d="M320 330 L370 268 H650 L700 206 H980 L1030 144 H1310 L1360 82 H1640"',
+         'd="M320 429 L370 348 H650 L700 268 H980 L1030 187 H1310 L1360 107 H1640"'),
+        ('d="M650 268 L700 206"', 'd="M650 348 L700 268"'),
+        ('d="M702 202 L720 172"', 'd="M702 263 L720 224"'),
+        ('--len:1520;--i:2', '--len:1560;--i:2'),
+        ('--pl:110px;--p0:110px;--p1:-1560px', '--pl:110px;--p0:110px;--p1:-1620px'),
+    ))
+    _cls(_I_LAD, 'r15ladder')
+
+    # ── C15-⑥ Eval 第一课 foot 整句删 ───────────────────────────────────────
+    #    note 那两句（「六家主流方案…全崩」「你的 demo 里全是前一种题」）就是落点，
+    #    foot 的「动作项」是第三次说同一件事。
+    _I_EV1 = _ix('你的 demo 在骗你')
+    _cut1(_I_EV1, '<div class="foot flow rev" style="--i:12">给产品经理的动作',
+                  '换成客户上周真正打进来的那三通</div>', '')
+    _cls(_I_EV1, 'r15eval1')
+
+    # ── C15-⑦ 金句页调换：Weil 从拷问页搬到金句 02 ──────────────────────────
+    #    R13-③ 把 Weil 加成拷问页的第二拍，Colin 复看后判定：拷问页就该是纯问句全页大字，
+    #    Weil 该占一整张金句页。于是——
+    #    a) 拷问页撤回第二拍（连 .r13ask 档位类一并摘掉，回到 R9 的 .r9p15 纯问句档）；
+    #    b) 金句 02 换血：被换下的「你以为在选模型，其实在选评测。」全场仅此一处，
+    #       换掉即全场清零（评测=资产这层意思由 P41「Evals are the new PRD」承接）。
+    _I_ASK = _ix('亲手写过</span>一份自己产品的评测集？')
+    _cut1(_I_ASK, '\n    <div class="quote co flow" data-step="1"', 'OpenAI 前 CPO</div>\n    </div>', '')
+    _secs[_I_ASK] = _secs[_I_ASK].replace(' r13ask', '', 1)
+    assert 'Kevin Weil' not in _secs[_I_ASK] and 'r13ask' not in _secs[_I_ASK]
+
+    _I_MQ2 = _ix('你以为在选模型，')
+    _cut1(_I_MQ2, '\n    <div class="q">', '真正的资产是后者。</div>', '''
+    <div class="q">
+      <i class="rise" style="--i:1">&#8220;Writing evals is the most important</i>
+      <i class="rise" style="--i:2">thing a PM can do in the AI era.&#8221;</i>
+    </div>
+    <div class="rule"></div>
+    <div class="zh rise" style="--i:4">写评测，是 AI 时代一个产品经理能做的最重要的事。</div>
+    <div class="s rise" style="--i:5">Kevin Weil · OpenAI 前 CPO</div>''')
+    _cls(_I_MQ2, 'r15mq')
+
+    # ── C15-⑧ 自治爬梯页 · L 记号重编 L0-L4 → L1-L5 ─────────────────────────
+    #    五阶一个不删，只把编号整体 +1，理由是与自动驾驶的 L1–L5 对齐：
+    #    THE BIG JUMP（撤掉「人」这张安全网）夹在「起草」与「只读应答」之间，位置不动，
+    #    重编后天然 = L2→L3 —— 正好是自动驾驶「L2 辅助驾驶 → L3 系统担责」那一跳。
+    #    交叉验证条带上的 L1–L2 / L3–L5 分段标注因此不用改一个字就自洽。
+    #    ⚠️ 从高到低替换，避免「改完 L0→L1 又被 L1→L2 二次命中」。
+    _I_LDR = _ix('每一级之间隔着的不是技术，是<em>人还在不在环里</em>')
+    for _o, _n in (('L4 · 主动外呼', 'L5 · 主动外呼'), ('L3 · 可执行', 'L4 · 可执行'),
+                   ('L2 · 只读应答', 'L3 · 只读应答'), ('L1 · 起草', 'L2 · 起草'),
+                   ('L0 · 旁听', 'L1 · 旁听'),
+                   ('<!-- L2 / L3 / L4 -->', '<!-- L3 / L4 / L5 -->'),
+                   ('<!-- L0 / L1 -->', '<!-- L1 / L2 -->')):
+        _r1(_I_LDR, _o, _n)
+    assert 'L0' not in _secs[_I_LDR], 'C15-⑧ 梯子上不该再有 L0'
+    for _mk in ('自动驾驶 L1–L5', 'L1–L2 · 辅助驾驶，人不敢离环', 'L3–L5 · 系统担责，卡了十年的一跳',
+                'L1–L2 · 行业还在边缘徘徊', 'L3–L5 · 还没人真正到达', '撤掉「人」这张安全网'):
+        assert _mk in _secs[_I_LDR], f'C15-⑧ 交叉验证条带/BIG JUMP 不该被动到：{_mk}'
+
+    # ── C15-⑨ 全 deck L 记号连坐 ────────────────────────────────────────────
+    #    a) 岗位散点页：h2 重心 + 纵轴四档刻度 + 重心带标注（图上重心带 rect 罩住的
+    #       正是「可执行 / 只读应答」两行，重编后 = L3 与 L4 之间，与新 h2 互证）
+    _I_JOB = _ix('真实岗位放上梯子：今年的重心，压在 <em>L2 与 L3 之间</em>')
+    for _o, _n in (('压在 <em>L2 与 L3 之间</em>', '压在 <em>L3 与 L4 之间</em>'),
+                   ('>L4 主动<', '>L5 主动<'), ('>L3 可执行<', '>L4 可执行<'),
+                   ('>L2 只读应答<', '>L3 只读应答<'), ('>L0–L1<', '>L1–L2<'),
+                   ('今年整体重心：L2 与 L3 之间', '今年整体重心：L3 与 L4 之间')):
+        _r1(_I_JOB, _o, _n)
+    #    b) 案例 02 外呼销售：图上它的点就落在最高一档（主动外呼），重编后 = L5
+    _I_C2 = _ix('一个 Agent 的入职三十天')
+    _r1(_I_C2, '<span class="lv">Autonomy L4</span>', '<span class="lv">Autonomy L5</span>')
+    #    c) 执行的围栏：「语音场景的 L2 门槛」指的是「直接对客户说话」那一级 → L3
+    _I_FNC = _ix('执行的围栏：语音的动作，')
+    _r1(_I_FNC, '语音场景的 L2 门槛，比文本高一级', '语音场景的 L3 门槛，比文本高一级')
+    #    d) 全场收束 · 04 组织：两把梯子并列那句
+    _I_END = _ix('一套放权与决策机制')
+    _r1(_I_END, 'Agent 有 L0–L4，人有看过·用过·学过·干过', 'Agent 有 L1–L5，人有看过·用过·学过·干过')
+    #       ⑩c 视觉终审顺手修：这一页四栏 + 图标带只填到 body 的 62%（全场最低），
+    #       是唯一一处明显的留白失衡。整体上调一档撑到 ~80%（正文在位断言见下面 C15 段）。
+    _cls(_I_END, 'r15end')
+
+    # ── C15-⑩ 终检 · R14 留下的悬空计数词 ───────────────────────────────────
+    #    R14 把 foot 从「逐个点名五轮」瘦身成一行来源名之后，note 里的「这五笔」
+    #    在页面上再也数不出五笔（图上只挂了两翼那两笔）→ 改成「这几笔」。
+    _r1(_I14, '2026 光是上半年这五笔', '2026 光是上半年这几笔')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -2343,6 +2611,7 @@ if V2:
     CONF_CSS += C12_CSS     # C12 · R12 新页「钱的三次落点」页级档（必须排在 C11 之后）
     CONF_CSS += C13_CSS     # C13 · R13 七处内容修订页级档（必须排在 C12 之后：P5 字号回调靠后写者胜）
     CONF_CSS += C14_CSS     # C14 · R14 钱流向页双轴图页级档（必须排在 C12 之后：同页两个类，后写者胜）
+    CONF_CSS += C15_CSS     # C15 · R15 终轮页级档（必须排在 C13 之后：.r13ask 那条要靠后写者胜盖回去）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -2390,10 +2659,13 @@ for _w in ('>评测</text>', '>岗位</text>', '>结果生意</text>', '>放权�
 
 if V2:
     # ── C8 内容在位 / 陪伴章清零 / 视觉第一刀在位 ────────────────────────
-    for _mk in ("下午 AIoT 专场整场拆开讲", "直接从<b class=\"am\">「被托付」</b>进",
-                "陪伴那条线走「熟人 → 伙伴」（下午专场）", "消费级 · 陪伴 —— 下午 AIoT 专场那条",
+    # ⚠️ R15 回归账（改动累计 15 轮后的第四次挪账）：C15-③ 把北极星页 note 整段删了，
+    #    「下午 AIoT 专场整场拆开讲」「直接从「被托付」进」两句随之下台 —— 下午专场的交接
+    #    改由分水岭页 eyebrow 与图注承担（下面两条），所以这两句从正向名单里摘出。
+    #    C15-① 换了两张主标题，「这不是一个垂类」「预测还在打架」同理换成新主标题的锚点。
+    for _mk in ("陪伴那条线走「熟人 → 伙伴」（下午专场）", "消费级 · 陪伴 —— 下午 AIoT 专场那条",
                 "PART 2 · 被托付", "PART 3 · 双向奔赴", "PART 4 · 人与组织",
-                "这不是一个垂类", "预测还在打架",
+                "对话式 AI 的钱，<em>流向了哪里</em>", "<em>正在悄然发生</em>",
                 "观点页 · 嘉宾金句 · 05", "前面三幕讲的是",
                 "这道题第二、三幕来解",
                 "--ink-3:#D9D9E3;", "--ink-2:#E8E8F0;", ".note{font-size:24px"):
@@ -2547,8 +2819,8 @@ if V2:
                 'Salesforce《State of Service: AI Agents Edition》2026-05（n=3,075',
                 'Pew Research 2026-06（n=5,119）',
                 'CC-CMM · 艾媒咨询 · 第一新声 2025',
-                # P9 · 新结论
-                '对话式智能体在企业服务侧，已经到了规模化应用的阶段', '硬性基础全部具备',
+                # P9 · 新结论（R15-① 把这句从 note 提上主标题，中间多了一层 <em>）
+                '对话式智能体在企业服务侧，<em>已经到了规模化应用的阶段</em>', '硬性基础全部具备',
                 # P19 · 四步并进图内
                 '>STEP 01</text>', '>STEP 02</text>', '>STEP 03</text>', '>STEP 04</text>',
                 '>全量捞，不抽样</text>', '>人耳听，不看文本</text>',
@@ -2612,10 +2884,11 @@ if V2:
     #    ⓖ 新页必须紧跟 PART 1 幕卡、排在钱页之前；钱页 eyebrow 已换成衔接句
     _i_act1 = s.index('<div class="cn spread" style="--i:3">语法变了</div>')
     _i_flow = re.search(r'class="slide[^"]*\br12flow\b', s).start()
-    _i_money = s.index('这不是一个垂类')
+    # （锚点随 C15-① 改主标题一并换成新 h2；eyebrow 也在 R15 精简过，断言同步改判）
+    _i_money = s.index('对话式 AI 的钱，<em>流向了哪里</em>')
     assert _i_act1 < _i_flow < _i_money, "C12 · 新页应排在 PART 1 幕卡之后、钱页之前"
     assert '先看钱往哪儿去了' not in s, "C12 · 钱页 eyebrow 未换成衔接句"
-    assert '钱到了对话式 AI，再往里看一层：它分给了谁' in s, "C12 · 钱页新 eyebrow 缺失"
+    assert '<div class="eyebrow flow" style="--i:0">承上页，再往里看一层</div>' in s, "C12 · 钱页新 eyebrow 缺失"
 
     # ── C13 · R13 七处内容修订 ─────────────────────────────────────────────
     #    全部用内容锚定取页（Colin 的反馈横跨 45/46 两个页码版，不信页号）
@@ -2655,14 +2928,14 @@ if V2:
         "C13-② 线宽未回收"
     assert _p5c.count('y="746"') == 4 and _p5c.count('y="856"') == 4, "C13-② 四行 y 未收拢"
 
-    #    ⓓ ③ Weil 金句落在灵魂拷问页（不是终页），并且是 data-step=1 的第二拍
+    #    ⓓ ③ Weil 金句 —— ⚠️ R15-⑦ 改判：C13 把它加成灵魂拷问页的第二拍，
+    #       C15 把它整张搬到金句 02，拷问页回到纯问句全页大字。这里只守「全场仅一处」，
+    #       落点的正向账搬到下面的 C15 段。
     _pask = _sec_of('亲手写过')
-    assert '“Writing evals is the most important thing a PM can do in the AI era.”' in _pask \
-        or '&#8220;Writing evals is the most important thing a PM can do in the AI era.&#8221;' in _pask, \
-        "C13-③ Weil 金句未落在灵魂拷问页"
-    assert 'Kevin Weil · OpenAI 前 CPO' in _pask, "C13-③ Weil 署名行缺失"
-    assert 'data-step="1"' in _pask, "C13-③ Weil 金句应是 data-step=1 的第二拍"
-    assert s.count('Writing evals is the most important thing') == 1, "C13-③ Weil 金句应全场只此一处"
+    assert 'Writing evals' not in _pask and 'Kevin Weil' not in _pask, \
+        "C15-⑦ 灵魂拷问页应已撤回 Weil 第二拍"
+    assert 'data-step' not in _pask, "C15-⑦ 灵魂拷问页应是纯问句全页大字（无第二拍）"
+    assert s.count('Writing evals is the most important') == 1, "C13-③ Weil 金句应全场只此一处"
 
     #    ⓔ ④ 英语习惯拼读法：svg 与 note 两处都改到
     _pev = _sec_of('你的 demo 在骗你</h2>')
@@ -2696,8 +2969,10 @@ if V2:
         assert _mk in _pfc, f"C13-⑦ 新金句元素缺失：{_mk}"
     assert '观点页 · 嘉宾金句 · 04' in _pfc, "C13-⑦ 应仍是金句 04"
 
-    #    ⓘ 页级档位类必须全部挂上且 CSS 有定义
-    for _c in ('r13bell', 'r13p5', 'r13ask', 'r13case', 'r13mq', 'r13fence'):
+    #    ⓘ 页级档位类必须全部挂上且 CSS 有定义（r13ask 已随 C15-⑦ 撤回第二拍一并摘掉）
+    assert 'class="slide' in s and not re.search(r'class="slide[^"]*\br13ask\b', s), \
+        "C15-⑦ r13ask 档位类应已随第二拍一并摘除"
+    for _c in ('r13bell', 'r13p5', 'r13case', 'r13mq', 'r13fence'):
         assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
             f"C13 · 档位类未挂/未定义：{_c}"
     #    ⓙ 页数不变 46（最终页数断言在写盘处，这里只守金句编号 01–05 不变）
@@ -2775,8 +3050,119 @@ if V2:
     #       ⓚ data-step 仍 ≤2（对话式整组第二拍，note 第三拍）
     assert set(re.findall(r'data-step="(\d+)"', _pm)) <= {'1', '2'}, "C14-② data-step 应 ≤2"
 
+    # ── C15 · R15 终轮十项 ─────────────────────────────────────────────────
+    #    ⓐ 负向：被换下 / 被删掉的整段必须查无此句
+    for _mk in ('这不是一个垂类',                                   # ①a 旧 h2
+                '钱到了对话式 AI，再往里看一层：它分给了谁',           # ①a 旧 eyebrow
+                '预测还在打架',                                     # ①b 旧 h2
+                '四个互不相干的人，说了<em>同一件事</em>',            # ①c 旧 h2（降回 eyebrow，无 em）
+                '所有的路，最后都汇到「对话」这条线上',               # ①c 旧 eyebrow
+                '>Conversational AI</text>',                        # ② 旧英文标
+                '可这三年里，一直是我们单方面朝它走',                 # ③b 北极星页 note 第一句
+                '是三年里最常见的<b>错位</b>',                       # ③b note 第二句
+                '下午 AIoT 专场整场拆开讲',                          # ③b note 第三句
+                '被记住，靠的是一致性。被托付，靠的是可验证。',        # ④ 旧幕卡金句
+                '这四级换的不是它的能力',                            # ⑤ 分水岭 land
+                '那把越来越硬的尺子',
+                '给产品经理的动作 · 把你 demo 里最得意的那三条',       # ⑥ Eval 一课 foot
+                '你以为在选模型，', '其实在选评测。',                  # ⑦ 被换下的金句 02
+                '模型半年换一次，评测集用三年',
+                'L0 · 旁听', 'L1 · 起草', 'L2 · 只读应答', 'L3 · 可执行', 'L4 · 主动外呼',  # ⑧ 旧梯级
+                '压在 <em>L2 与 L3 之间</em>', '今年整体重心：L2 与 L3 之间',              # ⑨a 旧重心
+                '>L4 主动<', '>L0–L1<', 'Autonomy L4',                                   # ⑨a/b
+                '语音场景的 L2 门槛', 'Agent 有 L0–L4',                                   # ⑨c/d
+                '2026 光是上半年这五笔'):                            # ⑩a 悬空计数词
+        assert _mk not in s, f"C15 · R15 该删/该改未落地：{_mk}"
+
+    #    ⓑ ① 三个新主标题在位（各自那一页里）
+    _p8n = _sec_of('对话式 AI 的钱，<em>流向了哪里</em>')
+    assert '承上页，再往里看一层' in _p8n and 'ElevenLabs · 语音合成' in _p8n, "C15-①a 钱分布页错位"
+    _p9n = _sec_of('对话式智能体的采购，<em>正在悄然发生</em>')
+    assert '企业侧 · 这四个数都已经发生' in _p9n and '至于预测？同一年的两份报告还在打架' in _p9n, \
+        "C15-①b 渗透页错位（「预测打架」的对照仍须留在 note 里）"
+    _p10n = _sec_of('对话式智能体在企业服务侧，<em>已经到了规模化应用的阶段</em>')
+    assert '<div class="eyebrow flow" style="--i:0">四个互不相干的人，说了同一件事</div>' in _p10n, \
+        "C15-①c 原 h2 应降回 eyebrow"
+    assert '四个方向的人，指向同一个判断：智能够用、部署可做、扩散周期已经开始、' \
+           '周边那圈软件也补齐了，<b>硬性基础全部具备</b>。' in _p10n, "C15-①c 结论行未按现文保留"
+    #    ⓒ ② 中心块英文标
+    assert '>CONVOAI AGENT</text>' in _p10n and s.count('>CONVOAI AGENT</text>') == 1, "C15-② 英文标未落地"
+
+    #    ⓓ ③ 北极星逐列对齐 + note 清零
+    _pns = _sec_of('四个阶段，四颗<em>北极星</em>')
+    assert '<div class="note"' not in _pns and '<div class="nstar">' in _pns, "C15-③b note 未整段删"
+    #       四级的水平段 = .nstar 四列的完整跨度（1fr×4 + gap:26 @ body 1680 → 列宽 400.5）
+    for _t in ('d="M0 443 H400.5"', 'd="M400.5 443 L426.5 356 H827"',
+               'd="M827 356 L853 270 H1253.5"', 'd="M1253.5 270 L1279.5 184 H1680"'):
+        assert _t in _pns, f"C15-③a 阶梯未落到列位：{_t}"
+    #       文字 x 落在列左沿（svg 文字与下方 nstar 文字共用一条左边线）
+    for _x in ('x="0" y="384"', 'x="426.5" y="298"', 'x="853" y="212"', 'x="1279.5" y="125"'):
+        assert _x in _pns, f"C15-③a 级名未落到列左沿：{_x}"
+    #       --len 配套（斜梁 ≈91 + 水平段 400.5 ≈ 491 → 500；首级 400.5 → 410）
+    assert '--len:410;--i:0' in _pns and _pns.count('--len:500') == 3, "C15-③a --len 未配套"
+    assert 'd="M1266.5 43 V486"' in _pns, "C15-③a 主语易位虚线未落到三/四列之间的空档正中"
+    assert len(re.findall(r'class="slide[^"]*\br15nstar\b', s)) == 1 and '.r15nstar ' in s, \
+        "C15-③ 档位类未挂/未定义：r15nstar"
+
+    #    ⓔ ④ PART 2 幕卡新金句（Agent＝代理人的双关反转）+ 本幕导航保留
+    _pa2 = _sec_of('<div class="cn spread" style="--i:3">被托付</div>')
+    assert '我们叫了它三年 Agent（代理人）——今天，它终于开始代理了。' in _pa2, "C15-④ 幕卡金句未落地"
+    assert '这一幕只讲一件事：那把尺子怎么造。' in _pa2, "C15-④ 本幕导航不该被动"
+
+    #    ⓕ ⑤⑥ 两处删段 + 档位类
+    _pld = _sec_of('工具 → 实习生 → 外包 → 专家 → <em>合伙人</em>')
+    assert '<div class="land' not in _pld and '<div class="g4">' in _pld, "C15-⑤ land 未整段删"
+    _pe1 = _sec_of('你的 demo 在骗你</h2>')
+    assert '<div class="foot' not in _pe1 and '你的 demo 里全是前一种题' in _pe1, "C15-⑥ foot 未整句删"
+    for _c in ('r15ladder', 'r15eval1'):
+        assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
+            f"C15 · 档位类未挂/未定义：{_c}"
+
+    #    ⓖ ⑦ Weil 只在金句 02（体例：英文两行 + 中文一行 + 署名行）
+    _pw = _sec_of('Writing evals is the most important')
+    for _mk in ('观点页 · 嘉宾金句 · 02', 'thing a PM can do in the AI era.&#8221;',
+                '写评测，是 AI 时代一个产品经理能做的最重要的事。', 'Kevin Weil · OpenAI 前 CPO'):
+        assert _mk in _pw, f"C15-⑦ 金句 02 元素缺失：{_mk}"
+    #       「全场仅一处」只数正文（C15_CSS 里那行档位注释也写了 Kevin Weil，不算页内容）
+    _slides_txt = ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S))
+    assert _slides_txt.count('Kevin Weil') == 1, "C15-⑦ 全场 Weil 应仅金句页一处"
+    assert len(re.findall(r'class="slide[^"]*\br15mq\b', s)) == 1 and '.r15mq ' in s, \
+        "C15-⑦ 档位类未挂/未定义：r15mq"
+
+    #    ⓗ ⑧⑨ L 记号全 deck 一致性自检（三处互证）
+    _pl = _sec_of('每一级之间隔着的不是技术，是<em>人还在不在环里</em>')
+    for _t in ('L1 · 旁听', 'L2 · 起草', 'L3 · 只读应答', 'L4 · 可执行', 'L5 · 主动外呼'):
+        assert _t in _pl, f"C15-⑧ 新梯级缺失：{_t}"
+    #       BIG JUMP 不动位置：竖虚线 x=675 仍夹在「起草」(340–640) 与「只读应答」(710–1010) 之间
+    #       → 重编后天然 = L2→L3，与自动驾驶「L2 辅助驾驶 → L3 系统担责」完全对齐
+    assert 'd="M675 45 V509"' in _pl and '撤掉「人」这张安全网' in _pl, "C15-⑧ BIG JUMP 位置被动了"
+    assert _pl.index('L2 · 起草') < _pl.index('撤掉「人」这张安全网') < _pl.index('L3 · 只读应答'), \
+        "C15-⑧ BIG JUMP 应仍夹在 L2 与 L3 之间"
+    #       交叉验证条带一个字不用改就自洽（自动驾驶 / 支付 Agent 两行的分段标注）
+    for _t in ('自动驾驶 L1–L5', 'L1–L2 · 辅助驾驶，人不敢离环', 'L3–L5 · 系统担责，卡了十年的一跳',
+               '支付 Agent 五级', 'L1–L2 · 行业还在边缘徘徊', 'L3–L5 · 还没人真正到达'):
+        assert _t in _pl, f"C15-⑧ 交叉验证条带被误伤：{_t}"
+    #       岗位散点页：h2 重心 = L3 与 L4 之间，纵轴四档同步，重心带标注同步
+    _pj = _sec_of('真实岗位放上梯子')
+    for _t in ('压在 <em>L3 与 L4 之间</em>', '>L5 主动<', '>L4 可执行<', '>L3 只读应答<', '>L1–L2<',
+               '今年整体重心：L3 与 L4 之间'):
+        assert _t in _pj, f"C15-⑨a 岗位散点页 L 记号未同步：{_t}"
+    #       其余三处
+    assert 'Autonomy L5' in _sec_of('一个 Agent 的入职三十天'), "C15-⑨b 案例 02 未同步"
+    assert '语音场景的 L3 门槛，比文本高一级' in _sec_of('执行的围栏：语音的动作，'), "C15-⑨c 执行围栏未同步"
+    assert 'Agent 有 L1–L5，人有看过·用过·学过·干过' in _sec_of('一套放权与决策机制'), "C15-⑨d 收束页未同步"
+    #       全 deck 语义自检：正文里再无 L0，且梯子/重心/BIG JUMP 三处互证
+    assert 'L0' not in _slides_txt, "C15-⑨ 全 deck 正文不应再有 L0"
+
+    #    ⓘ ⑩ 终检：悬空计数词改判 + 幕序/课序/金句序仍自洽
+    assert '2026 光是上半年这几笔' in _pm, "C15-⑩a「这几笔」未落地"
+    assert s.count('观点页 · 嘉宾金句 · 0') == 5, "C15-⑩b 金句仍应是 01–05 五张"
+    for _c in '一二三四':
+        assert f'>Eval 第{_c}课</div>' in s, f"C15-⑩b 课序缺失：第{_c}课"
+
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
-          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓")
+          "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓ "
+          "C15 R15 终轮十项 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
