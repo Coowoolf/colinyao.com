@@ -105,6 +105,11 @@ assert len(_secs) == 62, f"母版应 62 页，实际 {len(_secs)}"
 # C8 存底：母版原「钱」页 / 原「渗透」页（C1 会把 _secs[6] 覆盖成 F_MONEY 融合页，
 # C8 里要原样拆回这两页——存底放在任何改写之前，保证拆回的就是母版原文）
 _ORIG6, _ORIG7 = _secs[6], _secs[7]
+# C9 存底：母版原 Eval 一/二课两页（C2 会把 _secs[28] 覆盖成 F_EVAL 融合页）、
+#          母版原「体验的围栏 / 执行的围栏」两页（C1 会把 _secs[46] 覆盖成 F_FENCE 融合页）。
+#          同 C8 手法：存底放在任何改写之前，C9 拆回的就是母版原文。
+_ORIG28, _ORIG29 = _secs[28], _secs[29]
+_ORIG46, _ORIG47 = _secs[46], _secs[47]
 
 F_MONEY = '''<section class="slide">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
@@ -671,6 +676,89 @@ thead th{font-size:19px;}
 .t8b .rows .r{padding:9px 0;}
 """
 
+# ── C9 · R9 删文后的逐页视觉重排（撑满层）·只在 CONF_V2=1 装配 ─────────────────
+#    删文的代价是掏空的半页；这一层把每张动刀页保留下来的元素放大、间距放开，
+#    让页面重新长满 1920×1080。类名按 R9 完成后的最终页号命名，一页一档。
+C9_CSS = """
+/* ============ C9 · R9 · 删文后逐页撑满 ============ */
+/* P14 案例01 · 96.5%：大数与九类信号图接管整页 */
+.r9p14 .mega{gap:40px;}
+.r9p14 .mega .mark{font-size:17px;margin-bottom:26px;}
+.r9p14 .mega .mh{font-size:60px;}
+.r9p14 .mega .num{font-size:336px;}
+.r9p14 .mega .cap{font-size:38px;line-height:1.46;max-width:1000px;}
+.r9p14 .mega .foot{font-size:26px;line-height:1.62;max-width:1010px;}
+.r9p14 .m35{top:206px;width:640px;gap:36px;}
+.r9p14 .m35 .mk{font-size:19px;margin-bottom:12px;}
+.r9p14 .m35 .row{grid-template-columns:100px 1fr;column-gap:22px;row-gap:16px;}
+.r9p14 .m35 .row .n{font-size:58px;}
+.r9p14 .m35 .row .t{font-size:28px;}
+.r9p14 .m35 .row .bar{height:12px;}
+.r9p14 .m35 .sx{font-size:23px;line-height:1.66;padding-top:24px;}
+
+/* P15 灵魂拷问：只剩一问，做成全页级大字 */
+.r9p15 .ask{gap:64px;}
+.r9p15 .ask .badge{font-size:21px;letter-spacing:.34em;}
+.r9p15 .ask .badge::before{width:80px;}
+.r9p15 .ask .q{font-size:112px;line-height:1.28;max-width:1680px;}
+
+/* P22 商业模式变迁：图放大 + 英文判断句大字收底 */
+.r9p22 .fig svg{width:1840px;}
+.r9p22 .head{margin-bottom:30px;}
+.r9p22 .body{gap:36px;}
+.r9en{font-family:var(--f-mono);font-size:40px;font-weight:700;line-height:1.4;
+  letter-spacing:.005em;border-left-color:var(--coral);padding-top:16px;padding-bottom:16px;}
+.r9en b{color:var(--coral);font-weight:700;}
+
+/* P23 同一把 Eval：全生命周期长图放大（.t8 的收紧在这里放回来） */
+.r9p23 .wrap{padding-bottom:78px;}
+.r9p23 .head{margin-bottom:34px;}
+.r9p23 .body{gap:38px;}
+.r9p23 .fig svg{width:1860px;}
+.r9p23 .land{font-size:34px;}
+.r9p23 .land .s{font-size:26px;}
+
+/* P28 真实岗位上梯子：散点图放大撑满 */
+.r9p28 .fig svg{width:1860px;height:auto;}
+.r9p28 .head{margin-bottom:30px;}
+.r9p28 .body{gap:32px;}
+.r9p28 .foot{font-size:19px;}
+
+/* P29 它决策，人审批：三格大数 + 两条走法图同时放大 */
+.r9p29 .wrap{padding-bottom:76px;}
+.r9p29 .head{margin-bottom:34px;}
+.r9p29 .body{gap:40px;}
+.r9p29 .stat .v{font-size:118px;}
+.r9p29 .stat .l{font-size:26px;}
+.r9p29 .stat .u{font-size:18px;}
+.r9p29 .fig svg{width:1840px;}
+.r9p29 .quote .en.sm{font-size:28px;line-height:1.44;}
+
+/* P31 Waymo：图是主体，口播讲故事 */
+.r9p31 .wrap{padding-bottom:64px;}
+.r9p31 .head{margin-bottom:30px;}
+.r9p31 .fig svg{width:1880px;}
+.r9p31 .body{gap:32px;}
+.r9p31 .land{font-size:33px;padding-top:10px;padding-bottom:10px;}
+.r9p31 .land .s{font-size:25px;}
+
+/* P43 对组织说：两扇门放大成整页主体 + 一句话收底 */
+.r9p43 .wrap{padding-bottom:64px;}
+.r9p43 .head{margin-bottom:30px;}
+.r9p43 .fig svg{width:1780px;}
+.r9p43 .body{gap:40px;}
+.r9p43 .land{font-size:38px;line-height:1.44;padding-top:10px;padding-bottom:10px;}
+
+/* P45 终页：尺子两面图放大居中 + 一句收场 */
+.r9p45 .wrap{padding-bottom:80px;}
+.r9p45 .head{margin-bottom:34px;}
+.r9p45 .fig svg{width:1840px;}
+.r9p45 .body{gap:40px;}
+.r9p45 .quote .en{font-size:34px;line-height:1.4;}
+.r9p45 .quote .by{font-size:19px;}
+.r9p45 .land{font-size:42px;line-height:1.4;padding-top:8px;padding-bottom:8px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -744,6 +832,184 @@ if V2:
         assert _secs[_i].startswith('<section class="slide">'), f'_secs[{_i}] 起始标签异常'
         _secs[_i] = _secs[_i].replace('<section class="slide">', f'<section class="slide {_c}">', 1)
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C9（2026-08-05 · R9 · 43 → 45 页 · Colin 逐页点名的大幅删文 + 两页拆分）────
+# 评审结论：解释性文字整段交回口播，页面只留「他讲这一段时观众要看的东西」；
+#   删完必须视觉重排撑满（放大保留元素 / 图表、调间距），不许出现掏空的半页。
+#   ① P14 案例01 · 删三栏解读，大数与九类信号图放大
+#   ② P15 灵魂拷问 · 删三栏证据，拷问做成全页级大字
+#   ③ P16 Eval 融合页 · 拆回母版原两页（第一课 题之骗 / 第二课 整段），课序全链重排
+#   ④ P22 商业模式变迁 · note 换英文判断句大字   ⑤ P23 同一把 Eval · 删三条件
+#   ⑥ P28 真实岗位上梯子 · 删读图规则           ⑦ P29 它决策人审批 · 删三栏
+#   ⑧ P31 Waymo · 删三栏，图放大成视觉主体
+#   ⑨ P33 两道围栏合页 · 拆回母版原两页（C6 的「事前授权」修正移植进母版执行页）
+#   ⑩ P43 对组织说 · 大清削（门下例子 / 01-04 四卡 / 2025 承接段 / land 只留一句）
+#   ⑪ P45 终页 · 删解释性 note，land 压到一句收场
+# 页码均按 R9 完成后的 45 页版；_secs 下标是母版 62 页的原始下标。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    def _cls(i, c):
+        """给 _secs[i] 的 section 追加一个 class（保留 C8 已挂的 .t8/.t8b 档位）"""
+        _m = re.match(r'<section class="slide([^"]*)">', _secs[i])
+        assert _m, f'_secs[{i}] section 标签定位失败'
+        _secs[i] = _secs[i].replace(_m.group(0), f'<section class="slide{_m.group(1)} {c}">', 1)
+
+    def _ystretch(i, k, vb, paths=()):
+        """把 _secs[i] 那张 svg 的纵向坐标整体拉伸 k 倍（字号 / 半径不变），viewBox 同步加高。
+           删掉图下方那排文字之后，「宽而扁」的图靠这一手把整页撑满——比只放大宽度有效得多。
+           y=/cy= 属性走正则；路径 d= 里的纵坐标必须逐条显式给出（paths），改漏了断言会炸。"""
+        _a = _secs[i].index('<svg'); _b = _secs[i].index('</svg>') + 6
+        _sv = _secs[i][_a:_b]
+        for _o, _n in paths:
+            assert _o in _sv, f'_secs[{i}] svg 纵拉伸 · 定位失败：{_o}'
+            _sv = _sv.replace(_o, _n)
+        _sv = re.sub(r'\b(c?y)="(-?\d+)"', lambda m: f'{m.group(1)}="{round(int(m.group(2)) * k)}"', _sv)
+        assert _sv.count(vb[0]) == 1, f'_secs[{i}] svg 纵拉伸 · viewBox 定位失败'
+        _sv = _sv.replace(vb[0], vb[1], 1)
+        assert ' y="' not in _secs[i][:_a], f'_secs[{i}] svg 之外不应有 y 属性'
+        _secs[i] = _secs[i][:_a] + _sv + _secs[i][_b:]
+
+    # ── C9-① P14 案例 01 · 96.5% ───────────────────────────────────────────
+    #    删「这个数字说明了什么 / 它没有说明什么 / 所以这一幕要讲」三栏；
+    #    撑满：大数 236→330px、主句 46→60px、cap/foot 加大，九类信号图右移放大。
+    _cut1(26, '\n    <div class="tri">', '剩下的全部难题都叫「凭什么信」。</div></div>\n    </div>')
+    _cls(26, 'r9p14')
+
+    # ── C9-② P15 灵魂拷问 ──────────────────────────────────────────────────
+    #    删「不算数的证据 / 算数的证据 / 为什么这很重要」三栏；只剩拷问主句，
+    #    撑满：拷问升到 .mq 级大字（104px），badge 放大，全页只此一问。
+    _cut1(27, '\n    <div class="hint">', '一个审批权——不是换一个赞。</div></div>\n    </div>')
+    _cls(27, 'r9p15')
+
+    # ── C9-③ P16 Eval 第一课融合页 → 拆回母版原两页 ─────────────────────────
+    #    C2 的 F_EVAL 在 V2 路径下不装配（定义保留，便于回退）；用 C8 同样的存底手法
+    #    把 _secs[28]（你的 demo 在骗你 · 题之骗）/ _secs[29]（每一轮都对，整段却错了）
+    #    原样拆回，再补 C8 的 PART 重编号（母版是 PART 3）。
+    _secs[28], _secs[29] = _ORIG28, _ORIG29
+    for _i in (28, 29):
+        assert 'PART 3 · 被托付' in _secs[_i]
+        _secs[_i] = _secs[_i].replace('PART 3 · 被托付', 'PART 2 · 被托付')
+    assert '你的 demo 在骗你</h2>' in _secs[28] and '每一轮都对，整段却错了</h2>' in _secs[29]
+    #    课序全链重排：融合页退场后，原第二课（裁判）→第三课、原第三课（听失败）→第四课
+    for _i, _o, _n in ((30, 'Eval 第三课', 'Eval 第四课'), (31, 'Eval 第二课', 'Eval 第三课')):
+        assert _secs[_i].count(_o) == 2, f'_secs[{_i}] 课序标记应为 chrome+eyebrow 两处'
+        _secs[_i] = _secs[_i].replace(_o, _n)
+
+    # ── C9-④ P22 商业模式变迁 · note → 英文判断句大字 ────────────────────────
+    _r1(34, '<div class="note"><span class="flow" style="--i:9">最右边那一格，才是「被托付」在财务报表上的样子。'
+            '<b>只有当供应商敢按结果收钱，客户才是真的把事交出去了。</b></span></div>',
+            '<div class="land r9en flow" style="--i:9">You don’t pay for tokens, '
+            'you pay for <b>business outcomes delivered</b>.</div>')
+    _cls(34, 'r9p22')
+
+    # ── C9-⑤ P23 同一把 Eval · 删「可判定 / 可归因 / 可控」三条件 ─────────────
+    #    腾出来的 160px 交给全生命周期长图：纵坐标 ×1.45，图从一条细线长成整页主视觉
+    _cut1(35, '\n      <div class="tri">', '改完能证明这一类不会再犯。</div></div>\n      </div>')
+    _ystretch(35, 1.45, ('viewBox="0 0 1680 330"', 'viewBox="0 0 1680 479"'), paths=(
+        ('d="M1530 148 C 1530 44, 130 44, 130 148"', 'd="M1530 215 C 1530 64, 130 64, 130 215"'),
+        ('d="M130 170 H1530"', 'd="M130 247 H1530"'),
+        ('d="M1005 120 V220"', 'd="M1005 174 V319"')))
+    _cls(35, 'r9p23')
+
+    # ── C9-⑥ P28 真实岗位上梯子 · 删三条读图规则，散点图放大撑满 ──────────────
+    #    纵坐标 ×1.24：四条自治级别的行距拉开，散点图接管整页
+    _cut1(40, '\n      <div class="tri" data-step="4">', '他们问「这个岗位能不能交」</b>。</div></div>\n      </div>')
+    _ystretch(40, 1.24, ('width="1640" height="470" viewBox="0 0 1640 470"',
+                         'width="1640" height="583" viewBox="0 0 1640 583"'), paths=(
+        ('d="M190 400 H1590"', 'd="M190 496 H1590"'),
+        ('d="M190 400 V70"', 'd="M190 496 V87"'),
+        ('width="1400" height="120"', 'width="1400" height="149"')))
+    _cls(40, 'r9p28')
+
+    # ── C9-⑦ P29 它决策，人审批 · 删三栏解读 ─────────────────────────────────
+    _cut1(42, '\n      <div class="tri">', '是<b>权责结构</b>。</div></div>\n      </div>')
+    _cls(42, 'r9p29')
+
+    # ── C9-⑧ P31 Waymo · 删三栏（现场 / 需求 / 落到语音），只留标题 + 图 + 一句收底 ──
+    _cut1(44, '\n      <div class="tri">', '一个能被拦下来的对象</b>——和那双脚一样。</div></div>\n      </div>')
+    _cls(44, 'r9p31')
+
+    # ── C9-⑨ P33 两道围栏合页 → 拆回母版原两页 ──────────────────────────────
+    #    C1 的 F_FENCE / C5 的 _SV_EXE_LR 在 V2 路径下不装配（定义保留）。
+    #    母版执行页的闸门轴仍是旧文，C6 的两处修正在这里原样移植过来。
+    _secs[46], _secs[47] = _ORIG46, _ORIG47
+    for _i in (46, 47):
+        assert 'PART 4 · 双向奔赴' in _secs[_i]
+        _secs[_i] = _secs[_i].replace('PART 4 · 双向奔赴', 'PART 3 · 双向奔赴')
+    assert '体验的围栏：交互行为，要有<em>规矩</em>' in _secs[46]
+    assert '执行的围栏：语音的动作，<span class="co">最难在半路拦住</span>' in _secs[47]
+    #    C6-② 移植：闸门轴第三节点「人工审批」→「事前授权」，引导行加「人工审批也前移」
+    _r1(47, '<text class="txt fill-co" x="1240" y="526" text-anchor="middle">人工审批</text>',
+            '<text class="txt fill-co" x="1240" y="526" text-anchor="middle">事前授权</text>')
+    _r1(47, '<text class="lbl pop" style="--i:11" x="0" y="476">事后没有撤回键，那道闸门就只能整体前移到「说出口之前」</text>',
+            '<text class="lbl pop" style="--i:11" x="0" y="476">事后没有撤回键，闸门整体前移到「说出口之前」——人工审批也前移：'
+            '<tspan class="fill-am">批动作类别，不批每一句话</tspan></text>')
+    #    幕序悬空清账：母版体验页 note 指的「第二幕」是已删的陪伴章
+    _r1(46, '——这就是第二幕留下的那个坑，它的名字叫 backchannel。',
+            '——<b>这个坑有名字，叫 backchannel。</b>')
+    _cls(46, 'r9p33')
+    _cls(47, 'r9p34')
+
+    # ── C9-⑩ P43 对组织说 · 大清削 ──────────────────────────────────────────
+    #    ⓐ 门下四行例子清单 ⓑ 01–04 四张卡 ⓒ 2025 承接段 ⓓ land 只留落点那一句
+    #    ⓐ 连同整张图一起重画：例子清单撤掉，两扇门本身放大成整页主体
+    #      （门的画法沿用 C6 收束页四资产带里那对门的写法：双向门来回箭头 / 单向门一堵挡回墙）
+    _R9_DOORS = '''<svg width="1680" viewBox="0 0 1680 600" fill="none">
+          <text class="lbl fill-co pop" style="--i:2" x="840" y="34" text-anchor="middle">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</text>
+
+          <!-- 左区 · 可逆 · 双向门：推得开，也回得来 -->
+          <rect class="pop" style="--i:3" x="60" y="96" width="880" height="430" rx="6" fill="var(--on-fill)" stroke="var(--amber)" stroke-width="2.4"/>
+          <g class="pop" style="--i:4">
+            <rect class="stroke-am" x="350" y="160" width="300" height="250" rx="5" stroke-width="3"/>
+            <path class="stroke-am" stroke-width="2" opacity=".5" d="M500 160 V410"/>
+          </g>
+          <g class="pop" style="--i:5">
+            <path class="stroke-am" stroke-width="3" d="M392 285 H608"/>
+            <path class="fill-am" d="M348 285 L392 265 L392 305 Z"/>
+            <path class="fill-am" d="M652 285 L608 265 L608 305 Z"/>
+            <path class="stroke-am pkt" stroke-width="4"
+              style="--pl:60px;--p0:60px;--p1:-216px;--pt:4.4s;--pd:1.2s" d="M392 285 H608"/>
+          </g>
+          <g class="pop" style="--i:5"><text class="ttl fill-am" x="500" y="474" text-anchor="middle" style="font-size:42px">可逆 · 双向门 · 放手做，不用批</text></g>
+
+          <!-- 右区 · 不可逆 · 单向门：推开就没有回头 -->
+          <rect class="pop" style="--i:6" x="940" y="96" width="680" height="430" rx="6" stroke="var(--coral)" stroke-width="2.4"/>
+          <g class="pop" style="--i:6">
+            <rect class="stroke-co" x="1130" y="160" width="300" height="250" rx="5" stroke-width="3"/>
+            <path class="stroke-co" stroke-width="2" opacity=".5" d="M1280 160 V410"/>
+          </g>
+          <g class="pop" style="--i:7">
+            <path class="stroke-co" stroke-width="5" d="M1150 205 V365"/>
+            <path class="stroke-co" stroke-width="3" d="M1150 285 H1408"/>
+            <path class="fill-co" d="M1452 285 L1408 265 L1408 305 Z"/>
+          </g>
+          <g class="pop" style="--i:7"><text class="ttl fill-co" x="1280" y="474" text-anchor="middle" style="font-size:42px">不可逆 · 单向门 · 先升级</text></g>
+
+          <!-- 那条线 -->
+          <path class="stroke-co dw" style="--len:520;--i:8" stroke-width="5" d="M940 70 V552"/>
+        </svg>'''
+    _cut1(57, '<svg width="1680" viewBox="0 0 1680 270" fill="none">', '</svg>', _R9_DOORS)
+    _cut1(57, '\n      <div class="g4">', '退出标准 · 谁来喊停</div></div>\n      </div>')
+    _cut1(57, '\n      <div class="note co flow" style="--i:12">2025 年我把它讲给产研团队',
+              '一路跑到撞上一扇单向门。</div>')
+    _r1(57, '<div class="land flow rev" style="--i:12">转身的落点就一句：<b>把权放给 high agency 的人</b>'
+            '——他们会带着 Agent，把结果一起做出来。<span class="s">个人 agency 是能力，'
+            '<b>组织 agency 是制度许可</b>：流程集中在不可逆风险上，自由留给可逆试验。'
+            '第三幕写给 Agent 的授权六件事，<b>换个抬头，也该给人写一份</b>。</span></div>',
+            '<div class="land flow rev" style="--i:8"><b>把权放给 high agency 的人</b>'
+            '——他们会带着 Agent，把结果一起做出来。</div>')
+    _cls(57, 'r9p43')
+
+    # ── C9-⑪ P45 终页 · 删解释性 note，land 压到一句收场 ──────────────────────
+    _cut1(58, '\n      <div class="note flow" style="--i:11">Weil 说的是向外那一面。',
+              '是不敢定义「什么算做成」。</b></div>')
+    _r1(58, '<div class="land flow" style="--i:12">去年结语我说：<b>AI 会重塑世界，而内观会重塑我们</b>。'
+            '今年这句话长成了一把可以量的尺子——向外量它，叫 Eval；向内量自己，叫内观。'
+            '<span class="s">一个决定产品能不能进化，一个决定我们自己能不能进化——'
+            '愿我们在理解 Agent 的同时，也不忘理解自己。</span></div>',
+            '<div class="land flow" style="--i:11">愿我们在理解 <b>Agent</b> 的同时，也不忘<b>理解自己</b>。</div>')
+    _cls(58, 'r9p45')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -762,8 +1028,15 @@ _order += ([28, 31, 30]                        # Eval 第一课(一二合并) �
           + list(range(48, 55))                  # MQ撤回键 … 对产品管理者
           + [56, 57]                             # 对 CEO 说 · 对组织说
           + [60, 58])                            # 收束 → 尺子两面收全场
+if V2:
+    # ── C9-③/⑨ 拆页入列（承上面 C9 层）：融合页退场，母版原两页各自成页 ──────
+    #    Eval：第一课(题之骗) → 第二课(整段) → 第三课(裁判,原四) → 第四课(听失败)
+    #    围栏：体验的围栏 → 执行的围栏
+    for _a, _b in ((28, 29), (46, 47)):
+        assert _order.count(_a) == 1 and _b not in _order, f'C9 拆页入列定位失败：{_a}/{_b}'
+        _order.insert(_order.index(_a) + 1, _b)
 s = _head2 + '\n'.join(_secs[o] for o in _order) + _tail2
-_n_cut = 43 if V2 else 54
+_n_cut = 45 if V2 else 54
 assert len(re.findall(r'<section class="slide', s)) == _n_cut, f"压缩后应 {_n_cut} 页"
 
 # ── 6.5) 媒体层（仅大会版；母版/线上 /cowork 保持无媒体） ────
@@ -916,35 +1189,40 @@ CONF_CSS = CONF_CSS.replace("__LOGO__", LOGO).replace("__COVER__", COVER).replac
 CONF_CSS += FIX_CSS         # 两版共用 · 多行 note clip-path 真 bug 修复
 if V2:
     CONF_CSS += C8_CSS      # C8 · 次级文字 +2px 覆盖层（必须排在 conf 版式层之后）
+    CONF_CSS += C9_CSS      # C9 · R9 删文后逐页撑满（必须排在 C8 +2px 之后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
 
 open(OUT, "w", encoding="utf-8").write(s)
 n = len(re.findall(r'<section class="slide', s))
-_n_out = 43 if V2 else 55
-assert n == _n_out, f"{'R8 聚焦版' if V2 else '大会版'}应为 {_n_out} 页，实际 {n}"
+_n_out = 45 if V2 else 55
+assert n == _n_out, f"{'R9 聚焦版' if V2 else '大会版'}应为 {_n_out} 页，实际 {n}"
 print(f"{OUT.split('/')[-1]} written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
 # 两版共用：多行 note clip-path 真 bug 修复必须在位
 assert ".note>span.flow,.note>span.flow.rev,.note>.flow{display:inline-block;}" in s, "FIX_CSS 未装配"
 # C2/C3 内容在位（防「定义了未装配」）
-_MK = ["题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
+_MK = ["HUMAN IN THE LOOP", "Eval 第二课", "交叉验证 · 两个行业的断层",
        "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
-       "四个阶段，四颗", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
+       "四个阶段，四颗", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
        "紫 = 已规模商业化", "金黄 = 强监管场景", "这条弧线不存在", "文本通道 · TEXT CHANNEL", "语音通道 · VOICE CHANNEL",
        'd="M675 6 V172"']
 if not V2:
-    _MK.append("不应该</em>被记住")     # 陪伴章内容（V2 已整章删除）
+    # 陪伴章内容 + C1/C2 两张融合页（V2 已被 C8/C9 拆回母版原页，融合页定义保留但不装配）
+    _MK += ["不应该</em>被记住", "题之骗 × 粒度之骗", "单轮打分", "TWO FENCES"]
 for _mk in _MK:
     assert _mk in s, f"C2/C3/C4/C5 内容缺失：{_mk}"
-assert "Eval 第四课" not in s
+assert ("Eval 第四课" in s) == V2, "课序：V2 应有第四课（听失败），55 页版不应有"
 assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in s
 # C6 内容在位 / 悬空引用清零
-for _mk in ("事前授权", "批动作类别，不批每一句话",
-            "这六件事，第四幕会变成组织的授权语法" if V2 else "这六件事，第五幕会变成组织的授权语法",
-            "边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
-            "授权可撤销（随时降级、随时回滚）", "《人和组织，必须一起转身》", "把权放给 high agency 的人"):
+_MK6 = ["事前授权", "批动作类别，不批每一句话",
+        "这六件事，第四幕会变成组织的授权语法" if V2 else "这六件事，第五幕会变成组织的授权语法",
+        "边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
+        "授权可撤销（随时降级、随时回滚）", "把权放给 high agency 的人"]
+if not V2:
+    _MK6.append("《人和组织，必须一起转身》")   # C9 · R9 把 P43 的 2025 承接段整段删掉
+for _mk in _MK6:
     assert _mk in s, f"C6 内容缺失：{_mk}"
 assert "授权书" not in s, "C6：《Agent 授权书》已删页，正文不应再出现该字样"
 assert "进化速度，等于我们的放权速度" not in s, "C6：收束页 land 应已随汇聚箭头一并撤掉"
@@ -960,7 +1238,7 @@ if V2:
                 "陪伴那条线走「熟人 → 伙伴」（下午专场）", "消费级 · 陪伴 —— 下午 AIoT 专场那条",
                 "PART 2 · 被托付", "PART 3 · 双向奔赴", "PART 4 · 人与组织",
                 "这不是一个垂类", "预测还在打架",
-                "观点页 · 嘉宾金句 · 05", "第三幕写给 Agent 的授权六件事", "前面三幕讲的是",
+                "观点页 · 嘉宾金句 · 05", "前面三幕讲的是",
                 "这道题第二、三幕来解",
                 "--ink-3:#D9D9E3;", "--ink-2:#E8E8F0;", ".note{font-size:24px"):
         assert _mk in s, f"C8 内容缺失：{_mk}"
@@ -974,7 +1252,58 @@ if V2:
     assert s.count('y="80" text-anchor="middle">PART') == 5, "C8 · P5 路线应为五站"
     _p5 = s[s.index('<!-- 全场路线'):]; _p5 = _p5[:_p5.index('</svg>')]
     assert '被记住' not in _p5, "C8 · P5 路线应已删「被记住」站"
-    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓")
+
+    # ── C9 · R9 删文到位 / 拆页到位 / 撑满层在位 ──────────────────────────
+    #    ⓐ 逐页负向断言：每张动刀页抽一句被删原文，必须查无此句
+    for _mk in ("工程上已经基本解完了",                  # P14 · 这个数字说明了什么
+                "两把完全不同的尺子",                      # P14 · 它没有说明什么
+                "剩下的全部难题都叫「凭什么信」",           # P14 · 所以这一幕要讲
+                "大模型评分 4.6 分",                       # P15 · 不算数的证据
+                "失败样本能追到具体哪一步的",               # P15 · 算数的证据
+                "不是换一个赞",                            # P15 · 为什么这很重要
+                "最右边那一格，才是「被托付」在财务报表上的样子",  # P22 · 原 note
+                "两个人分别判，结论一样",                   # P23 · 条件 01
+                "识别、检索、决策，还是话术",               # P23 · 条件 02
+                "改完能证明这一类不会再犯",                 # P23 · 条件 03
+                "只等于人退得越远",                        # P28 · 读图规则 01
+                "未必是自治级别最高的那一列",               # P28 · 读图规则 02
+                "这个岗位能不能交",                        # P28 · 读图规则 03
+                "责任必须落在一个能被追责的主体上",         # P29 · 审批不是为了审得更准
+                "准确率和问责，是两件事",                   # P29 · 给企业组织的提醒
+                "它约束的从来不是能力",                     # P29 · 这一条不会过时
+                "捞回一双正在移动的脚",                     # P31 · 现场 · 有惊无险
+                "中间隔着一条被写下来的需求",               # P31 · 刹得住是因为有人写过
+                "和那双脚一样",                            # P31 · 落到语音上
+                "找十个客户聊聊", "改一版提示词",           # P43 · 双向门例子
+                "改一条红线", "换掉一条业务规则",           # P43 · 单向门例子
+                "没有名字的授权，是一句好听的话",           # P43 · 01 结果归谁
+                "就是上面那条线", "拿不到，就等于没授",     # P43 · 02 / 03
+                "没有退出标准的授权，最后都会烂尾",         # P43 · 04 什么时候停
+                "2025 年我把它讲给产研团队",               # P43 · 2025 承接段
+                "组织 agency 是制度许可",                   # P43 · 原 land 长尾
+                "Weil 说的是向外那一面",                    # P45 · 解释性 note
+                "去年结语我说"):                            # P45 · 原 land 长尾
+        assert _mk not in s, f"C9 · R9 该删未删：{_mk}"
+    #    ⓑ 拆页与课序：Eval 四课全在、母版原两页在位；两道围栏各自成页
+    for _mk in ("你的 demo 在骗你</h2>", "每一轮都对，整段却错了</h2>",
+                "Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课",
+                "体验的围栏：交互行为，要有<em>规矩</em>",
+                "执行的围栏：语音的动作，<span class=\"co\">最难在半路拦住</span>",
+                "这个坑有名字，叫 backchannel",
+                "You don’t pay for tokens", "business outcomes delivered",
+                "愿我们在理解 <b>Agent</b> 的同时",
+                "可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级",
+                ".r9p14 .mega .num{font-size:336px;}", ".r9en{font-family:var(--f-mono)"):
+        assert _mk in s, f"C9 · R9 内容缺失：{_mk}"
+    #    ⓒ 课序链：第一课 → 第二课 → 第三课(裁判) → 第四课(听失败)，正序出现
+    _ke = [s.index(f'>Eval 第{_c}课</div>') for _c in '一二三四']
+    assert _ke == sorted(_ke), f"C9 · Eval 课序错位：{_ke}"
+    assert '裁判' in s[_ke[2]:_ke[3]] and '一百条真实的失败' in s[_ke[3]:], "C9 · 第三/四课内容与课号错配"
+    #    ⓓ 事前授权必须落在「执行的围栏」那一页（而不是别处）
+    _pfe = s[s.index('执行的围栏：语音的动作'):]
+    _pfe = _pfe[:_pfe.index('</section>')]
+    assert '事前授权' in _pfe and '批动作类别，不批每一句话' in _pfe, "C9 · 事前授权未落在执行围栏页"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

@@ -1,5 +1,5 @@
-// QA：/cowork-confv2 43 页走查（R8 聚焦版）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
-// 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 43 页预览版。
+// QA：/cowork-confv2 45 页走查（R9 删文 + 两页拆分版）+ P3 录音按键行为 + 无视频断言 + 灰字提亮核对
+// 与 qa-media.mjs 分工：那支跑线上 55 页版（/cowork-conf，含视频页），这支只跑 45 页预览版。
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const { chromium } = require("/home/claude/.npm-global/lib/node_modules/playwright");
@@ -12,9 +12,9 @@ pg.on("pageerror", (e) => errs.push("pageerror: " + e.message));
 let fail = 0;
 const chk = (ok, label) => { if (!ok) fail++; console.log((ok ? "✓ " : "✗ ") + label); };
 
-// ── 1) 43 页全量走查（含 data-step 推满 + 溢出检查） ──
+// ── 1) 45 页全量走查（含 data-step 推满 + 溢出检查） ──
 await pg.goto("http://localhost:3000/cowork-confv2", { waitUntil: "networkidle" });
-await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 43);
+await pg.waitForFunction(() => window.deck && window.deck.slides && window.deck.slides.length === 45);
 const n = await pg.evaluate(() => window.deck.slides.length);
 let overflow = [];
 for (let i = 0; i < n; i++) {
@@ -40,7 +40,7 @@ for (let i = 0; i < n; i++) {
   });
   if (bad.length) overflow.push({ slide: i + 1, bad });
 }
-chk(n === 43, `页数 = 43（实测 ${n}）`);
+chk(n === 45, `页数 = 45（实测 ${n}）`);
 chk(overflow.length === 0, `零溢出（溢出页 ${JSON.stringify(overflow)}）`);
 
 // ── 2) 媒体行为 · P3 录音（第一按播，第二按停 + 翻页） ──
@@ -113,6 +113,35 @@ chk(!html.includes("PART 5") && !html.includes("PART 2 · 被记住"), "五幕�
 chk(html.includes("观点页 · 嘉宾金句 · 05") && !html.includes("观点页 · 嘉宾金句 · 06"), "金句重编号 01–05");
 chk(html.includes("下午 AIoT 专场"), "P9 分论坛预告在位");
 chk(!txt.includes("上一幕") && !txt.includes("第五幕"), "悬空幕序指涉清零");
+
+// ── 6.5) R9：Colin 逐页删文 / 两处拆页 / 撑满层 ──
+const cut = ["工程上已经基本解完了", "两把完全不同的尺子", "剩下的全部难题都叫「凭什么信」",
+             "大模型评分 4.6 分", "不是换一个赞", "最右边那一格",
+             "两个人分别判，结论一样", "改完能证明这一类不会再犯",
+             "只等于人退得越远", "这个岗位能不能交",
+             "责任必须落在一个能被追责的主体上", "准确率和问责，是两件事",
+             "捞回一双正在移动的脚", "和那双脚一样",
+             "找十个客户聊聊", "换掉一条业务规则", "没有名字的授权", "没有退出标准的授权",
+             "2025 年我把它讲给产研团队", "组织 agency 是制度许可",
+             "Weil 说的是向外那一面", "去年结语我说"];
+chk(cut.every((k) => !html.includes(k)),
+    `R9 逐页删文到位（残留 ${JSON.stringify(cut.filter((k) => html.includes(k)))}）`);
+chk(html.includes("你的 demo 在骗你</h2>") && html.includes("每一轮都对，整段却错了</h2>"),
+    "R9 · Eval 融合页已拆回母版原两页");
+const lesson = ["一", "二", "三", "四"].map((c) => html.indexOf(`>Eval 第${c}课</div>`));
+chk(lesson.every((x) => x > 0) && lesson.every((x, i) => i === 0 || x > lesson[i - 1]),
+    `R9 · Eval 课序 一→二→三→四 正序 ${JSON.stringify(lesson)}`);
+chk(html.includes("体验的围栏：交互行为，要有<em>规矩</em>") &&
+    html.includes("执行的围栏：语音的动作"), "R9 · 两道围栏合页已拆回母版原两页");
+const fence = html.slice(html.indexOf("执行的围栏：语音的动作"));
+chk(fence.slice(0, fence.indexOf("</section>")).includes("事前授权") &&
+    fence.slice(0, fence.indexOf("</section>")).includes("批动作类别，不批每一句话"),
+    "R9 · C6「事前授权」已移植进母版执行围栏页");
+chk(html.includes("You don’t pay for tokens") && html.includes("business outcomes delivered"),
+    "R9 · P22 英文判断句大字在位");
+chk(html.includes("愿我们在理解 <b>Agent</b> 的同时"), "R9 · P45 终页收场句在位");
+chk(html.includes("可逆 · 双向门 · 放手做，不用批") && html.includes("不可逆 · 单向门 · 先升级"),
+    "R9 · P43 单向门 / 双向门核心图形保留");
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
