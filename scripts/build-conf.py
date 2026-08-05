@@ -4,10 +4,20 @@
    阿里巴巴普惠体 2.0 + 页头紫 tab/双 logo + 模板封面 keyart + 章节页/观点页版式。
    内容与 62 页定稿母版逐字一致（内容层已烘焙进母版），仅叠加视觉层与媒体层
    （P3 录音 + 「授权可收回」页后插视频页）+ 演讲压缩层（两轮 -8），共 55 页。
-   媒体行为与 PPT 对齐：前进键第一按播放，再按停止并翻页；M 键手动播/停（p 已被「跳上一整页」占用）。"""
-import re, sys
+   媒体行为与 PPT 对齐：前进键第一按播放，再按停止并翻页；M 键手动播/停（p 已被「跳上一整页」占用）。
+
+   ── 双输出（2026-08-05）──────────────────────────────────────────────
+   本脚本一份源码出两个 deck，靠环境变量 CONF_V2 切换：
+     默认（不设）  → 55 页大会版   public/decks/cowork-conf.html   （线上 /cowork-conf，C1–C6）
+     CONF_V2=1     → 43 页 R8 聚焦版 public/decks/cowork-confv2.html（预览 /cowork-confv2，+C8）
+   C8 的全部变换（删陪伴章、钱×渗透拆回、PART/金句重编号、灰字提亮、+2px、溢出档…）
+   一律在 `if V2:` 门内；门外两版逐字一致，唯一共用增量 = FIX_CSS（多行 note clip-path 真 bug）。"""
+import os, re, sys
 sys.path.insert(0, "/tmp/conf-tpl")
 from assets import LOGO, COVER, VENUE
+
+V2 = os.environ.get("CONF_V2") == "1"
+OUT = "public/decks/cowork-confv2.html" if V2 else "public/decks/cowork-conf.html"
 
 s = open("public/decks/cowork.html", encoding="utf-8").read()
 
@@ -91,6 +101,10 @@ _en = [s.index('</section>', t) + len('</section>') for t in _st]
 _head2, _tail2 = s[:_st[0]], s[_en[-1]:]
 _secs = [s[_st[i]:_en[i]] for i in range(len(_st))]
 assert len(_secs) == 62, f"母版应 62 页，实际 {len(_secs)}"
+
+# C8 存底：母版原「钱」页 / 原「渗透」页（C1 会把 _secs[6] 覆盖成 F_MONEY 融合页，
+# C8 里要原样拆回这两页——存底放在任何改写之前，保证拆回的就是母版原文）
+_ORIG6, _ORIG7 = _secs[6], _secs[7]
 
 F_MONEY = '''<section class="slide">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
@@ -509,11 +523,238 @@ _TAKEAWAY_BAND = '''<div class="fig" data-step="4">
       </div>'''
 _cut1(60, '<div class="fig" data-step="4">', '一个更贵的玩具</b>。</span></div>', _TAKEAWAY_BAND)
 
-_order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
-          + list(range(11, 22)) + [23, 22] + list(range(24, 28))
-          # ↑ C5：金句02(23) 与 反共识页(22) 换序 —— 恰好半秒 → 视频 → 金句02 → 反共识 → PART 3
-          #        反共识页后移，承上启下直接引出 PART 3（元素数仍 17）
-          + [28, 31, 30]                         # Eval 第一课(一二合并) → 第二课(裁判,原四) → 第三课(听失败,方法论收尾)
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C8（2026-08-05 · R8 第一版 · 55 → 43 页 · 聚焦企业级智能体：客服 / 销售）──
+# 8.5 试讲评审会结论：
+#   ① 删 PART 2「被记住 · 陪伴」整章（陪伴半球下午 AIoT 专场整场拆讲，本场不重复）
+#   ② 钱 × 渗透拆回母版原版两页（融合页信息密度过高，评审会要求拆开各讲一页）
+#   ③ P9 承重页加分论坛预告，把删掉的半球明确交接出去
+#   ④ 暗线页（工具→合伙人）改写：指向下午专场，不再指「上一幕」
+#   ⑤ PART 重编号 0/1/2/3/4 + 金句重编号 01–05 + 幕序文字指涉全扫描
+#   ⑥ 灰字提亮（--ink-2/--ink-3）+ 次级文字类统一 +2px（视觉第一刀）
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── 真 bug 修复（两版共用）：多行 .note 从第二行起被 clip-path 吃掉 ──
+FIX_CSS = """
+/* ---- 修复：多行 .note 整段被 clip-path 吃掉第二行起 ----
+   .flow 的入场动效结束态是 clip-path:inset(-10px -16px)；内联元素的裁切参考框只取
+   第一行行盒，于是换行后的第二、三行永远不显示（母版遗留，P8/P10 两页命中）。
+   把 note 的整段包裹层改 inline-block，参考框变成整块，动效不变、全文可见。 */
+.note>span.flow,.note>span.flow.rev,.note>.flow{display:inline-block;}
+"""
+
+# ── 以下两块只在 CONF_V2=1 时装配（定义本身无副作用，放在门外便于阅读）──
+
+_ROUTE5 = '''<!-- 全场路线：五站一条线。前两站讲「变了什么」，后三站分别回答上面三个问题。 -->
+        <svg viewBox="0 0 1680 250" width="1680" fill="none">
+          <path class="stroke dw" style="--len:1560;--i:6" stroke-width="1.5" d="M80 118 H1600"/>
+          <path class="stroke-am dw" style="--len:800;--i:7" stroke-width="3" d="M840 118 H1600"/>
+
+          <circle class="fill-am pop" style="--i:7" cx="80" cy="118" r="10"/>
+          <circle class="pop" style="--i:7" cx="460" cy="118" r="7" fill="var(--ink-3)"/>
+          <g class="pop" style="--i:8" fill="var(--slide-bg)" stroke="var(--amber)" stroke-width="3">
+            <circle cx="840" cy="118" r="9"/><circle cx="1220" cy="118" r="9"/><circle cx="1600" cy="118" r="9"/>
+          </g>
+
+          <text class="lbl fill-am pop" style="--i:7" x="80" y="80" text-anchor="middle">PART 0</text>
+          <text class="lbl pop" style="--i:7" x="460" y="80" text-anchor="middle">PART 1</text>
+          <text class="lbl fill-am pop" style="--i:8" x="840" y="80" text-anchor="middle">PART 2</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1220" y="80" text-anchor="middle">PART 3</text>
+          <text class="lbl fill-am pop" style="--i:8" x="1600" y="80" text-anchor="middle">PART 4</text>
+
+          <text class="txt pop" style="--i:9" x="80" y="168" text-anchor="middle">开场</text>
+          <text class="txt pop" style="--i:9" x="460" y="168" text-anchor="middle">语法变了</text>
+          <text class="txt pop" style="--i:9" x="840" y="168" text-anchor="middle">被托付</text>
+          <text class="txt pop" style="--i:9" x="1220" y="168" text-anchor="middle">双向奔赴</text>
+          <text class="txt pop" style="--i:9" x="1600" y="168" text-anchor="middle">人与组织</text>
+
+          <text class="sm pop" style="--i:10" x="80" y="206" text-anchor="middle">三年，同一场转身</text>
+          <text class="sm pop" style="--i:10" x="460" y="206" text-anchor="middle">从调用到双向奔赴</text>
+          <text class="sm fill-am pop" style="--i:10" x="840" y="206" text-anchor="middle">尺子、授权与边界</text>
+          <text class="sm fill-am pop" style="--i:10" x="1220" y="206" text-anchor="middle">出事了算谁的</text>
+          <text class="sm fill-am pop" style="--i:10" x="1600" y="206" text-anchor="middle">你和团队怎么变</text>
+        </svg>'''
+
+# ── C8-⑨ 次级文字类统一 +2px（现值基准显式覆盖；卡片行高同步收紧防挤）──
+C8_CSS = """
+/* ============ C8 · R8 第一版 · 次级文字 +2px（大屏可读性） ============ */
+/* 正文 / 说明类：现值 +2px */
+.note{font-size:24px;line-height:1.56;}
+.mega .foot{font-size:24px;line-height:1.6;}
+.land .s{font-size:24px;line-height:1.55;}
+.ask .hint .v{font-size:24px;line-height:1.52;}
+.ask .cue{font-size:23px;}
+.rows .r .v{font-size:23px;line-height:1.46;}
+.tri .col .v{font-size:23px;line-height:1.5;}
+.vs .line{font-size:23px;line-height:1.52;}
+.wall .v .t{font-size:23px;line-height:1.48;}
+.card .d{font-size:22px;line-height:1.5;}
+.card-w .d{font-size:22px;line-height:1.5;}
+.duo .s{font-size:22px;line-height:1.52;}
+.dutyrow .b{font-size:22px;line-height:1.5;}
+.layer .ds{font-size:22px;line-height:1.44;}
+.stat .l{font-size:22px;line-height:1.38;}
+.steps .s{font-size:22px;}
+.take .c .say .no{font-size:22px;line-height:1.38;}
+.m35 .row .t{font-size:22px;}
+.badgecard .row .v{font-size:22px;line-height:1.44;}
+.card.sm .d{font-size:20px;line-height:1.44;}
+.card .kv .vv{font-size:21px;line-height:1.44;}
+.steps .s .d{font-size:21px;line-height:1.48;}
+.take .c .s{font-size:21px;line-height:1.5;}
+.thanks .ft{font-size:21px;}
+.quotes .r .src{font-size:20px;}
+.pzs{font-size:20px;line-height:1.62;}
+.m35 .sx{font-size:18px;line-height:1.62;}
+.mq .s{font-size:26px;line-height:1.55;}
+/* 表格 */
+table{font-size:23px;}
+table.big tbody td{font-size:24px;}
+table.tight tbody td{font-size:22px;}
+table.mini tbody td{font-size:20px;line-height:1.4;}
+table.mini thead th{font-size:16px;}
+thead th{font-size:19px;}
+/* mono 标签 / 脚注类：现值 +2px */
+.foot{font-size:16px;line-height:1.62;}
+.card .tag,.card-w .tag{font-size:17px;}
+.card.sm .tag{font-size:15px;}
+.card .kv .kk{font-size:15px;}
+.steps .s .i{font-size:17px;}
+.duo .h{font-size:17px;}
+.dutyrow .s{font-size:17px;}
+.dutyrow .h span{font-size:15px;}
+.vs .col .h{font-size:17px;}
+.vs .line .num{font-size:18px;}
+.quotes .r .who{font-size:17px;}
+.tri .col .k{font-size:16px;}
+.stat .u{font-size:16px;}
+.layer .fr{font-size:17px;}
+.lv{font-size:17px;}
+.pill{font-size:16px;}
+.old .yr{font-size:16px;}
+.m35 .mk{font-size:16px;}
+.quote .by{font-size:16px;}
+.wall .v .by{font-size:15px;}
+.badgecard .row .k,.badgecard .hd .id{font-size:16px;}
+.badgecard .sig .ln .k{font-size:15px;}
+.ask .hint .k{font-size:16px;}
+.act .rail span{font-size:18px;}
+/* 图内文字（svg）：现值 +2px */
+.fig .txt{font-size:21px;}
+.fig .sm{font-size:18px;}
+.fig .lbl{font-size:17px;}
+/* conf 层自有的次级类 */
+.fxrow .fk{font-size:17px;}
+.fxrow .fd{font-size:18px;}
+.fxnote{font-size:18px;line-height:1.6;}
+.fx2 svg .txt{font-size:19px;}
+.nstar .ns span{font-size:17px;}
+.adv .ak{font-size:17px;}
+.adv .ad{font-size:19px;line-height:1.45;}
+/* 图内灰圆点不跟着提亮（P27「灰 = 早期」、P34 投入强度图例要保住三色可辨） */
+[fill="var(--ink-3)"]{fill:var(--mark-3);}
+/* ---- 加大后的溢出页逐页微调：只收留白 / 间距 / 内边距，字号一律不回缩 ---- */
+.t8 .wrap{padding-bottom:56px;}
+.t8 .head{margin-bottom:26px;}
+.t8 .body{gap:20px;}
+.t8b .wrap{padding-bottom:40px;}
+.t8b .head{margin-bottom:18px;}
+.t8b .body{gap:15px;}
+.t8b .card{padding:22px 26px;}
+.t8b .card.sm{padding:16px 18px;gap:7px;}
+.t8b .g3{gap:18px;}
+.t8b .g4{gap:16px;}
+.t8b .duo>div{padding:20px 28px;gap:9px;}
+.t8b .steps .s{padding:18px 22px 18px 0;}
+.t8b .steps .s+.s{padding-left:22px;}
+.t8b .land{padding-top:4px;padding-bottom:4px;}
+.t8b .rows .r{padding:9px 0;}
+"""
+
+if V2:
+    # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
+    #    F_MONEY 定义保留（不装配），便于以后回退到融合版
+    _secs[6], _secs[7] = _ORIG6, _ORIG7
+    assert '这不是一个垂类' in _secs[6] and '预测还在打架' in _secs[7]
+
+    # ── C8-② P9 承重页：末尾追加分论坛预告（陪伴半球交接给下午 AIoT 专场）────
+    _r1(9, '是三年里最常见的<b>错位</b>。</span></div>',
+           '是三年里最常见的<b>错位</b>。<br>陪伴那半球——从「被使用」到「被记住」——'
+           '下午 AIoT 专场整场拆开讲；今天这场，直接从<b class="am">「被托付」</b>进。</span></div>')
+
+    # ── C8-③ 暗线页（工具 → 实习生 → 外包 → 专家 → 合伙人）改写 ────────────
+    #    原文三处指向已删的「上一幕」，全部改指下午专场
+    _r1(25, '<div class="eyebrow flow" style="--i:0">同一个起点 · 上一幕走「陪伴」，这一幕走「干活」</div>',
+            '<div class="eyebrow flow" style="--i:0">同一个起点 · 陪伴那条线走「熟人 → 伙伴」（下午专场），这条线走「干活」</div>')
+    _r1(25, '<text class="lbl" x="1230" y="391" style="font-size:15px">消费级 · 陪伴 —— 上一幕走的那条</text>',
+            '<text class="lbl" x="1230" y="391" style="font-size:15px">消费级 · 陪伴 —— 下午 AIoT 专场那条</text>')
+    _r1(25, '<!-- 共同的根（上一幕那个工具） -->', '<!-- 共同的根（同一个工具起点） -->')
+
+    # ── C8-④ PART 重编号：3→2 被托付 / 4→3 双向奔赴 / 5→4 人与组织 ──────────
+    #    带幕名整串替换，顺序从大到小，避免链式误伤（chrome / 幕卡 / P5 三问卡片一次到位）
+    for _a, _b in (('PART 5 · 人与组织', 'PART 4 · 人与组织'),
+                   ('PART 4 · 双向奔赴', 'PART 3 · 双向奔赴'),
+                   ('PART 3 · 被托付',   'PART 2 · 被托付')):
+        _secs[:] = [x.replace(_a, _b) for x in _secs]
+
+    # 幕卡上的大编号
+    for _i, _o, _n in ((24, 'PART 3', 'PART 2'), (37, 'PART 4', 'PART 3'), (51, 'PART 5', 'PART 4')):
+        _r1(_i, f'<div class="num flow" style="--i:0">{_o}</div>',
+                f'<div class="num flow" style="--i:0">{_n}</div>')
+
+    # 幕卡底部 rail：五站 → 四站（「02 被记住」整条撤掉）
+    _RAIL = ('01 语法变了', '02 被托付', '03 双向奔赴', '04 人与组织')
+    for _i, _cur in ((5, 0), (24, 1), (37, 2), (51, 3)):
+        _m = re.search(r'<div class="rail">.*?</div>\n', _secs[_i], re.S)
+        assert _m, f'_secs[{_i}] rail 定位失败'
+        _new = ('<div class="rail">\n'
+                + ''.join('      <span%s>%s</span>\n' % (' class="cur"' if _k == _cur else '', _t)
+                          for _k, _t in enumerate(_RAIL))
+                + '    </div>\n')
+        _secs[_i] = _secs[_i].replace(_m.group(0), _new, 1)
+
+    # ── C8-⑤ P5 提要页：全场路线 六站 → 五站（删「被记住」站，站间距重排）────
+    #    x 由 80/388/696/1004/1312/1600 改为 80/460/840/1220/1600（等距 380）
+    _cut1(4, '<!-- 全场路线', '</svg>', _ROUTE5)
+
+    # ── C8-⑥ 幕序文字指涉全扫描修正（删章后整体前移一位）────────────────
+    _r1(7, '这道题第三、四幕来解', '这道题第二、三幕来解')   # 渗透页（拆回后重新入场）
+    _r1(43, '这六件事，第五幕会变成组织的授权语法', '这六件事，第四幕会变成组织的授权语法')
+    _r1(57, '第四幕写给 Agent 的授权六件事', '第三幕写给 Agent 的授权六件事')
+    _r1(51, '前面四幕讲的是「怎么造那把尺子」。', '前面三幕讲的是「怎么造那把尺子」。')
+    # （_secs[50] QoT 页「第一幕留下的那格空白」指 PART 1 语法变了，编号未变，保留）
+
+    # ── C8-⑦ 观点页 · 嘉宾金句重编号：删掉的 02 之后整体前移 ────────────────
+    for _i, _o, _n in ((32, '03', '02'), (36, '04', '03'), (45, '05', '04'), (48, '06', '05')):
+        _r1(_i, f'观点页 · 嘉宾金句 · {_o}', f'观点页 · 嘉宾金句 · {_n}')
+
+    # ── C8-⑧ 灰字提亮（token 层：次级灰 → 近白，大屏可读性第一刀）──────────
+    #    --mark-3 = 原次级灰：提亮只给「字」，图内灰圆点（紫/灰/金黄三分图例）仍按原灰
+    for _o, _n in (('--ink-2:#c9c9d4;', '--ink-2:#E8E8F0;'),
+                   ('--ink-3:#A5A5A5;', '--ink-3:#D9D9E3;\n  --mark-3:#A5A5A5;')):
+        assert _head2.count(_o) == 1, f'C8 token 定位失败：{_o}'
+        _head2 = _head2.replace(_o, _n, 1)
+
+    # ── C8-⑩ 溢出页逐页微调：给需要的页挂 .t8 / .t8b（字号不回缩）───────────
+    #    档位来自 43 页实测「.body 自然高 − 可用高」缺口：>40px 用 t8b，1–40px 用 t8
+    _TIGHT = {6: 't8', 7: 't8', 25: 't8', 31: 't8', 35: 't8', 38: 't8b', 39: 't8b',
+              42: 't8', 43: 't8b', 44: 't8b', 46: 't8', 53: 't8b', 54: 't8b',
+              57: 't8b', 58: 't8'}
+    for _i, _c in _TIGHT.items():
+        assert _secs[_i].startswith('<section class="slide">'), f'_secs[{_i}] 起始标签异常'
+        _secs[_i] = _secs[_i].replace('<section class="slide">', f'<section class="slide {_c}">', 1)
+
+if V2:
+    _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
+              + [11] + list(range(24, 28)))
+    # ↑ C8：金句01 之后直接进 PART 2（原 PART 3）被托付 ——
+    #        原 PART 2 陪伴整章（12 节：幕卡+9 内容页+金句02+反共识页）整章删除
+else:
+    _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]      # P1-6 · 融合钱×渗透 · 四方观点 · 融合阶段×北极星
+              + list(range(11, 22)) + [23, 22] + list(range(24, 28)))
+    # ↑ C5：金句02(23) 与 反共识页(22) 换序 —— 恰好半秒 → 视频 → 金句02 → 反共识 → PART 3
+    #        反共识页后移，承上启下直接引出 PART 3（元素数仍 17）
+_order += ([28, 31, 30]                        # Eval 第一课(一二合并) → 第二课(裁判,原四) → 第三课(听失败,方法论收尾)
           + list(range(32, 39))                  # MQ选评测 … 章节双向奔赴
           + [39, 40]                             # 爬梯×交叉验证(类比已并入) · 岗位
           + list(range(42, 46))                  # 协作审批 · 双围栏案例 · Waymo · MQ护城河
@@ -522,7 +763,8 @@ _order = ([0, 1, 2, 3, 4, 5, 6, 8, 9]          # P1-6 · 融合钱×渗透 · �
           + [56, 57]                             # 对 CEO 说 · 对组织说
           + [60, 58])                            # 收束 → 尺子两面收全场
 s = _head2 + '\n'.join(_secs[o] for o in _order) + _tail2
-assert len(re.findall(r'<section class="slide', s)) == 54, "压缩后应 54 页"
+_n_cut = 43 if V2 else 54
+assert len(re.findall(r'<section class="slide', s)) == _n_cut, f"压缩后应 {_n_cut} 页"
 
 # ── 6.5) 媒体层（仅大会版；母版/线上 /cowork 保持无媒体） ────
 # a) P3 页内录音（真实外呼片段，完美嵌入，无需解说文字）
@@ -532,23 +774,29 @@ AUDIO = (CHROME3 + '\n  <audio data-dm src="/media/cowork/p3-call.mp3" preload="
          '\n  <div class="dm-ind" aria-hidden="true"></div>')
 s = s.replace(CHROME3, AUDIO, 1)
 
-# b) 插入全幅视频页（陪伴类智能体 · 多模态交互 demo，无文字）
-VIDEO = '''<section class="slide">
+# b) 全幅视频页（陪伴类智能体 · 多模态交互 demo，无文字）
+if V2:
+    # C8：视频页随 PART 2 陪伴整章一并撤除 —— 锚点「恰好的那半秒」页已不在本场，
+    #     视频改由下午 AIoT 专场承载。
+    assert '恰好的那半秒' not in s, "C8：陪伴章已删，视频锚点不应仍在"
+    assert 'gemini-demo.mp4' not in s, "C8：视频页应已随陪伴章撤除"
+else:
+    VIDEO = '''<section class="slide">
   <div class="vslide">
     <video data-dm src="/media/cowork/gemini-demo.mp4" preload="auto" playsinline></video>
     <div class="dm-ind" aria-hidden="true"></div>
   </div>
 </section>
 '''
-# 内容锚定（C5 改挂）：插在「恰好的那半秒」页之后 —— 反共识页已后移到金句02 之后，
-# 视频不再跟着它走；锚点用该页 h2 全串（跟随内容移动，不吃页码位移）
-_vs = [m.start() for m in re.finditer(r'<section class="slide', s)]
-assert len(_vs) == 54, f"压缩层后应 54 页，实际 {len(_vs)}"
-_ANCHOR = '<h2 class="ink" style="--i:1">恰好的那半秒，比快半秒值钱</h2>'
-assert s.count(_ANCHOR) == 1, "视频锚点定位失败"
-_ai = s.index(_ANCHOR)
-_ae = s.index('</section>', _ai) + len('</section>')
-s = s[:_ae] + '\n' + VIDEO.rstrip('\n') + s[_ae:]
+    # 内容锚定（C5 改挂）：插在「恰好的那半秒」页之后 —— 反共识页已后移到金句02 之后，
+    # 视频不再跟着它走；锚点用该页 h2 全串（跟随内容移动，不吃页码位移）
+    _vs = [m.start() for m in re.finditer(r'<section class="slide', s)]
+    assert len(_vs) == 54, f"压缩层后应 54 页，实际 {len(_vs)}"
+    _ANCHOR = '<h2 class="ink" style="--i:1">恰好的那半秒，比快半秒值钱</h2>'
+    assert s.count(_ANCHOR) == 1, "视频锚点定位失败"
+    _ai = s.index(_ANCHOR)
+    _ae = s.index('</section>', _ai) + len('</section>')
+    s = s[:_ae] + '\n' + VIDEO.rstrip('\n') + s[_ae:]
 
 # c) 页码重排：每个 chrome 第二个 span = 所属 slide 的 1-based 序号
 starts = [m.start() for m in re.finditer(r'<section class="slide', s)]
@@ -665,26 +913,36 @@ CONF_CSS = """
 .vslide video{width:100%;height:100%;object-fit:contain;background:#000;}
 """
 CONF_CSS = CONF_CSS.replace("__LOGO__", LOGO).replace("__COVER__", COVER).replace("__VENUE__", VENUE)
+CONF_CSS += FIX_CSS         # 两版共用 · 多行 note clip-path 真 bug 修复
+if V2:
+    CONF_CSS += C8_CSS      # C8 · 次级文字 +2px 覆盖层（必须排在 conf 版式层之后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
 
-open("public/decks/cowork-conf.html", "w", encoding="utf-8").write(s)
+open(OUT, "w", encoding="utf-8").write(s)
 n = len(re.findall(r'<section class="slide', s))
-assert n == 55, f"大会版应为 55 页，实际 {n}"
-print(f"cowork-conf.html written · {n} slides · {len(s)//1024}KB")
+_n_out = 43 if V2 else 55
+assert n == _n_out, f"{'R8 聚焦版' if V2 else '大会版'}应为 {_n_out} 页，实际 {n}"
+print(f"{OUT.split('/')[-1]} written · {n} slides · {len(s)//1024}KB")
 assert "deckRuler" in s and "noindex" in s
+# 两版共用：多行 note clip-path 真 bug 修复必须在位
+assert ".note>span.flow,.note>span.flow.rev,.note>.flow{display:inline-block;}" in s, "FIX_CSS 未装配"
 # C2/C3 内容在位（防「定义了未装配」）
-for _mk in ("题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
-            "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
-            "四个阶段，四颗", "不应该</em>被记住", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
-            "紫 = 已规模商业化", "金黄 = 强监管场景", "这条弧线不存在", "文本通道 · TEXT CHANNEL", "语音通道 · VOICE CHANNEL",
-            'd="M675 6 V172"'):
+_MK = ["题之骗 × 粒度之骗", "HUMAN IN THE LOOP", "TWO FENCES", "Eval 第二课", "交叉验证 · 两个行业的断层",
+       "本场提要</h2>", "四个互不相干的人，说了", "商业模式变迁", "人还在不在环里</em></h2>", "就是「按结果收钱」的计费口径",
+       "四个阶段，四颗", "单轮打分", "一个新的融合岗位", "一套放权与决策机制", "OpenAI 前 CPO",
+       "紫 = 已规模商业化", "金黄 = 强监管场景", "这条弧线不存在", "文本通道 · TEXT CHANNEL", "语音通道 · VOICE CHANNEL",
+       'd="M675 6 V172"']
+if not V2:
+    _MK.append("不应该</em>被记住")     # 陪伴章内容（V2 已整章删除）
+for _mk in _MK:
     assert _mk in s, f"C2/C3/C4/C5 内容缺失：{_mk}"
 assert "Eval 第四课" not in s
 assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in s
 # C6 内容在位 / 悬空引用清零
-for _mk in ("事前授权", "批动作类别，不批每一句话", "这六件事，第五幕会变成组织的授权语法",
+for _mk in ("事前授权", "批动作类别，不批每一句话",
+            "这六件事，第四幕会变成组织的授权语法" if V2 else "这六件事，第五幕会变成组织的授权语法",
             "边界 / BOUNDARY", "结果 / ACCOUNTABILITY", "可撤销 / RECOVERABILITY",
             "授权可撤销（随时降级、随时回滚）", "《人和组织，必须一起转身》", "把权放给 high agency 的人"):
     assert _mk in s, f"C6 内容缺失：{_mk}"
@@ -695,8 +953,38 @@ _p54 = s[s.index('全场收束 · ONE LINE EACH'):]
 _p54 = _p54[:_p54.index('</section>')]
 for _w in ('>评测</text>', '>岗位</text>', '>结果生意</text>', '>放权决策机制</text>'):
     assert _w in _p54, f"C6 · P54 四资产带缺失：{_w}"
-# C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
-_i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
-_i_mq02, _i_anti = s.index('值得被记住的存在'), s.index('本场第一处反共识')
-assert _i_half < _i_video < _i_mq02 < _i_anti, "C5 换序失败：恰好半秒 → 视频 → 金句02 → 反共识"
-print("ruler ✓ noindex ✓ C2/C3 content ✓")
+
+if V2:
+    # ── C8 内容在位 / 陪伴章清零 / 视觉第一刀在位 ────────────────────────
+    for _mk in ("下午 AIoT 专场整场拆开讲", "直接从<b class=\"am\">「被托付」</b>进",
+                "陪伴那条线走「熟人 → 伙伴」（下午专场）", "消费级 · 陪伴 —— 下午 AIoT 专场那条",
+                "PART 2 · 被托付", "PART 3 · 双向奔赴", "PART 4 · 人与组织",
+                "这不是一个垂类", "预测还在打架",
+                "观点页 · 嘉宾金句 · 05", "第三幕写给 Agent 的授权六件事", "前面三幕讲的是",
+                "这道题第二、三幕来解",
+                "--ink-3:#D9D9E3;", "--ink-2:#E8E8F0;", ".note{font-size:24px"):
+        assert _mk in s, f"C8 内容缺失：{_mk}"
+    for _mk in ("PART 5", "PART 2 · 被记住", "观点页 · 嘉宾金句 · 06", "恰好的那半秒", "gemini-demo.mp4",
+                "class=\"vslide\"><", "值得被记住的存在", "本场第一处反共识", "第五幕", "上一幕",
+                "--ink-3:#A5A5A5", "--ink-2:#c9c9d4"):
+        assert _mk not in s, f"C8 残留未清：{_mk}"
+    # 幕卡 rail 四站 / P5 路线五站
+    assert s.count('<span>02 被托付</span>') + s.count('<span class="cur">02 被托付</span>') == 4
+    assert '>02 被记住<' not in s, "C8：幕卡 rail 不应再有「02 被记住」站"
+    assert s.count('y="80" text-anchor="middle">PART') == 5, "C8 · P5 路线应为五站"
+    _p5 = s[s.index('<!-- 全场路线'):]; _p5 = _p5[:_p5.index('</svg>')]
+    assert '被记住' not in _p5, "C8 · P5 路线应已删「被记住」站"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓")
+else:
+    # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
+    _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
+    _i_mq02, _i_anti = s.index('值得被记住的存在'), s.index('本场第一处反共识')
+    assert _i_half < _i_video < _i_mq02 < _i_anti, "C5 换序失败：恰好半秒 → 视频 → 金句02 → 反共识"
+    # ── 55 页线上版：C8 的一切都不应出现（陪伴章 / 五幕编号 / 金句06 / 原 token / 溢出档）
+    for _mk in ("PART 2 · 被记住", "PART 5 · 人与组织", "观点页 · 嘉宾金句 · 06",
+                "--ink-3:#A5A5A5;", "--ink-2:#c9c9d4;", 'class="vslide"'):
+        assert _mk in s, f"55 页版内容缺失：{_mk}"
+    for _mk in ("下午 AIoT 专场", "--ink-3:#D9D9E3", "--mark-3:", ".note{font-size:24px",
+                '<section class="slide t8', "PART 4 · 人与组织"):
+        assert _mk not in s, f"55 页版不应含 C8 产物：{_mk}"
+    print("ruler ✓ noindex ✓ C2/C3 content ✓")
