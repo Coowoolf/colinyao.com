@@ -1262,6 +1262,31 @@ C17_CSS = """
 .r17fin .fig .lbl{font-size:19px;letter-spacing:.2em;}
 """
 
+# ── C18 · R18 的页级档 ·只在 CONF_V2=1 装配 ───────────────────────────────────
+#    只有一处：P44 那两个 SVG 门换成 Colin 用 GPT-image 生成的单张门图。
+C18_CSS = """
+/* ============ C18 · R18 · P44 换 GPT 生成门图（单图双门 · screen 融底） ============ */
+/* 版面：一行 CEO 那句（原来挂在 svg 里的 .lbl）→ 门图 → 图下双标签 → land 落地句。
+   图 1672×669（已裁掉上下的空黑边，长宽比 2.4993），max-width 1380 → 高 552，
+   加上标签行 52 = 604；body 实测 764，配 gap 20 与 39 的 caption 行，填充率落在 ~99%。 */
+.r18doors .head{margin-bottom:30px;}
+.r18doors .body{gap:20px;}
+.r18doors .dcap{font-family:var(--f-mono);font-size:24px;letter-spacing:.1em;
+  color:var(--coral);text-align:center;line-height:1.4;}
+.r18doors .doors{position:relative;width:100%;max-width:1380px;margin:0 auto;padding-bottom:52px;}
+/* mix-blend-mode:screen —— 黑底与页面底合成，图片的矩形边界消失。
+   ⚠️ 双保险：图本身已经把底色**压到纯 #000**（生成图原来是 rgb(3,3,8) 的抬升黑），
+      所以就算 .rise 的 transform/clip-path 造出层叠上下文、blend 只对着透明背景生效，
+      边界一样看不出来 —— 两条路任意一条成立，页面都是对的。 */
+.r18doors .doors img{display:block;width:100%;height:auto;mix-blend-mode:screen;}
+/* 图下双标签：绝对定位到两扇门各自的横向中心（实测 27.2% / 72.3%），
+   随图等比缩放永远对得上；文字一字未改，只是从旧 svg 里挪出来重排。 */
+.r18doors .doors .dl{position:absolute;bottom:0;transform:translateX(-50%);
+  white-space:nowrap;font-size:31px;font-weight:700;line-height:1.2;letter-spacing:.01em;}
+.r18doors .doors .dl.am{color:var(--amber);}
+.r18doors .doors .dl.co{color:var(--coral);}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -3019,7 +3044,57 @@ if V2:
                '<div class="by">Bret Taylor · CEO of Sierra / Chairman of OpenAI · Cheeky Pint #27</div>')
     assert '2026-03 公开访谈' not in _secs[_I_P4], 'C17-⑪ 旧出处未清零'
 
-    # ── C17-⑫ P44 —— 本轮一个字不动（Colin 要换一张门的生成图，图回来才动版面）。
+    # ── C17-⑫ P44 —— R17 那一轮一个字不动（等 Colin 的门图）；R18 已把图换上，见 C18。
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C18（2026-08-06 · R18 · 一处 · 页数不变 46）─────────────────────────────────
+# 只有一处：P44「对组织说 · 单向门 / 双向门」把那两个 SVG 门（Colin 嫌太大没美感）
+# 换成他用 GPT-image 生成的**单张门图**——左半是带紫色摆弧的双向弹簧门，右半是微开
+# 露紫光缝的金库门，共一条基线，无文字。R17-⑫ 那条「P44 未动」的守门断言随之改判到这里。
+#
+# 资源纪律：图**进仓库**（scripts/assets/r18-doors.webp），build 时 base64 内联成 data URI ——
+#   与母版那四张图（logo / cover / venue）同一个模式，归档出去的单文件 HTML 才能离线渲染；
+#   文件缺失直接断言报错，保证 Colin 在自己终端上 clone 下来就能重建同样的产物。
+# 压图账：原图 PNG 1672×941 / 1.27MB → 裁掉上下纯黑空边（131..800，长宽比 2.4993）
+#   → 底色从 rgb(3,3,8) 压到纯 #000 → WebP q95 **78KB**（远在 400KB 预算内）。
+#   2x 放大逐处看过门缝紫光与地面光斑：无色带（灰阶切片相邻步进 ≤2/255）。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    import base64
+    _DOORS_F = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'r18-doors.webp')
+    assert os.path.exists(_DOORS_F), \
+        f'C18-① 门图资源缺失：{_DOORS_F} —— 该文件随仓库走，clone 下来才能重建这一页'
+    _DOORS_B = open(_DOORS_F, 'rb').read()
+    assert _DOORS_B[:4] == b'RIFF' and _DOORS_B[8:12] == b'WEBP', 'C18-① 门图不是 WebP'
+    assert len(_DOORS_B) <= 400 * 1024, f'C18-① 门图超预算：{len(_DOORS_B)//1024}KB > 400KB'
+    _DOORS_URI = 'data:image/webp;base64,' + base64.b64encode(_DOORS_B).decode('ascii')
+
+    #    版面：CEO 那句（原本是 svg 里的 .lbl 文本）单独成行 → 门图 → 图下双标签 → land。
+    #    两个标签的横向位置是**在图上量出来的**：左侧弹簧门（含两侧摆弧）横跨 109–799，
+    #    中心 27.2%；右侧金库门（含敞开的圆弧门框）横跨 929–1488，中心 72.3%。
+    #    用百分比 + translateX(-50%) 定位，图怎么缩放都对得上。
+    #    ⚠️ 两段标签文字与 land / h2 / eyebrow 全部**一字未改**，只是从旧 svg 里挪出来重排。
+    _I_D18 = _ix('对组织说：<em>放权</em>，从分清单向门与双向门开始')
+    _cut1(_I_D18, '      <div class="fig">', '      </div>\n', f'''      <div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</div>
+      <div class="fig">
+        <div class="doors rise" style="--i:3">
+          <img src="{_DOORS_URI}" alt="左：可逆的双向弹簧门；右：不可逆的单向金库门">
+          <div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>
+          <div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>
+        </div>
+      </div>
+''')
+    #    旧的两个 svg 门必须整块清零（矩形门板 / 摆动箭头 / 那条竖着的分界线 / 走线光点）
+    for _old in ('<svg', '</svg>', 'class="stroke-am pkt"', 'd="M940 70 V552"',
+                 'x="350" y="160"', 'x="1130" y="160"', 'font-size:42px'):
+        assert _old not in _secs[_I_D18], f'C18-① 旧门图残留：{_old}'
+    #    该留的一样不少（h2 / eyebrow / CEO 那句 / 两段标签 / land）
+    for _keep in ('组织层 · ONE-WAY / TWO-WAY DOORS', '对组织说：<em>放权</em>，从分清单向门与双向门开始',
+                  '这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活',
+                  '可逆 · 双向门 · 放手做，不用批', '不可逆 · 单向门 · 先升级',
+                  '<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。'):
+        assert _keep in _secs[_I_D18], f'C18-① 该保留的丢了：{_keep}'
+    _cls(_I_D18, 'r18doors')
 
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
@@ -3213,6 +3288,7 @@ if V2:
     CONF_CSS += C15_CSS     # C15 · R15 终轮页级档（必须排在 C13 之后：.r13ask 那条要靠后写者胜盖回去）
     CONF_CSS += C16_CSS     # C16 · R16 页级档（必须排在 C13/C14/C15 之后：.r13mq/.r15mq/.r14money 三处都靠后写者胜）
     CONF_CSS += C17_CSS     # C17 · R17 页级档（必须排在 C16 之后：.r16money / .r15end 等同页档靠后写者胜）
+    CONF_CSS += C18_CSS     # C18 · R18 页级档（P44 门图，必须排在 C9 的 .r9p43 之后：同页两个类，后写者胜）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -3504,6 +3580,13 @@ if V2:
     assert '先看钱往哪儿去了' not in s, "C12 · 钱页 eyebrow 未换成衔接句"
     assert '<div class="eyebrow flow" style="--i:0">承上页，再往里看一层</div>' in s, "C12 · 钱页新 eyebrow 缺失"
 
+    # ⚠️ **R18 起的通用护栏**：C18 把一张 78KB 的门图 base64 内联进了 P44，
+    #    base64 是纯 ASCII 乱码，全 deck 的**英文短串**负向扫描（'L0' / 'Legora' / 'Gartner' …）
+    #    会被它随机命中而误报。所以凡是「整本扫英文短串」的断言，一律先把 data-URI 载荷抹掉。
+    #    （中文串不受影响，base64 里不会出现中文。）
+    def _nouri(t):
+        return re.sub(r'data:image/[a-z+]+;base64,[A-Za-z0-9+/=]+', 'data:image/…', t)
+
     # ── C13 · R13 七处内容修订 ─────────────────────────────────────────────
     #    全部用内容锚定取页（Colin 的反馈横跨 45/46 两个页码版，不信页号）
     def _sec_of(anchor):
@@ -3715,7 +3798,7 @@ if V2:
                 'Kevin Weil · OpenAI 前 CPO'):
         assert _mk in _pw, f"C15-⑦ 金句 02 元素缺失：{_mk}"
     #       「全场仅一处」只数正文（C15_CSS 里那行档位注释也写了 Kevin Weil，不算页内容）
-    _slides_txt = ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S))
+    _slides_txt = _nouri(''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)))
     assert _slides_txt.count('Kevin Weil') == 1, "C15-⑦ 全场 Weil 应仅金句页一处"
     assert len(re.findall(r'class="slide[^"]*\br15mq\b', s)) == 1 and '.r15mq ' in s, \
         "C15-⑦ 档位类未挂/未定义：r15mq"
@@ -3773,7 +3856,7 @@ if V2:
         assert _mk not in s, f"C16 · R16 该删/该改未落地：{_mk}"
     #    ⚠️「Bret Taylor」这一轮只从金句 03 撤下，**其余三处一个都不许连坐**（全是核过的真引文）：
     #       P4「English over PSTN」/ P23 Sierra 官方博客「不是 token 的钱」/ P43「Hyper high-agency」。
-    _slides16 = ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S))
+    _slides16 = _nouri(''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)))
     #    只数**页面上看得见的**署名（P4 的 svg 上方有一条源码注释也写了 Bret Taylor，不算页内容）
     _visible16 = re.sub(r'<!--.*?-->', '', _slides16, flags=re.S)
     _n_bret = _visible16.count('Bret Taylor')
@@ -3894,7 +3977,7 @@ if V2:
     #    ⚠️ 只数**页面正文**：历史层的 CSS 注释里写过被删素材的名字（例如 C10_CSS 里那句
     #       「行首那两个 mono 标签（外 · 读 AGENT / 内 · 读自己）」），那是源码注释不是页内容，
     #       历史层只读、不改，所以这里把 <style> 排除掉再查。
-    _slides17 = ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S))
+    _slides17 = _nouri(''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)))
     for _mk in ('不是你问它才查。是你还没开口',                    # ① P27 Signal 01 描述句
                 '发起权第一次不在人这边',                          # ① P27 Signal 02
                 '而不是摊进某个人的 KPI',                          # ① P27 Signal 03
@@ -4035,18 +4118,47 @@ if V2:
     for _c in ('r17money', 'r17p8', 'r17p9', 'r17p15', 'r17p24', 'r17p27', 'r17case3', 'r17fin'):
         assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
             f"C17 · 档位类未挂/未定义：{_c}"
-    #       ⑫ P44「对组织说 · 单向门/双向门」这一轮**一个字不动**
-    #          （Colin 要用 GPT-image 生成一张门的图替换页上那对 SVG 门，图回来才动版面）——
-    #          所以这里只做一条「原样还在」的守门断言，不做任何改动。
+    #       ⑫ P44「对组织说 · 单向门/双向门」—— ⚠️ **R18 改判**：R17 那一轮按 Colin 的话
+    #          按兵不动（等他的生成图），当时立了一条「门图仍是那一张 svg」的守门断言；
+    #          R18 图到了，那对 svg 门已被单张门图取代，`<svg count == 1` 这条作废。
+    #          三段文字「原样还在」的账仍然成立（它们只是从 svg 里挪出来重排），继续守。
     _p44 = _sec_of('对组织说：<em>放权</em>，从分清单向门与双向门开始')
     for _keep in ('可逆 · 双向门 · 放手做，不用批', '不可逆 · 单向门 · 先升级',
                   '这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活'):
-        assert _keep in _p44, f"C17-⑫ P44 本轮不该被动：{_keep}"
-    assert _p44.count('<svg') == 1, "C17-⑫ P44 的门图本轮不该被换"
+        assert _keep in _p44, f"C17-⑫ P44 的三段文字一字未改：{_keep}"
+
+    # ── C18 · R18 一处（P44 换门图） ────────────────────────────────────────
+    #    ⓐ 单张门图在位：data URI · WebP · screen 融底 · .rise 入场
+    _p44b = _sec_of('对组织说：<em>放权</em>，从分清单向门与双向门开始')
+    assert '<div class="doors rise" style="--i:3">' in _p44b, "C18-① 门图容器/入场未落地"
+    assert _p44b.count('<img src="data:image/webp;base64,') == 1, "C18-① 门图应是唯一一张内联 data URI"
+    assert 'alt="左：可逆的双向弹簧门；右：不可逆的单向金库门"' in _p44b, "C18-① 门图缺 alt"
+    assert '.r18doors .doors img{display:block;width:100%;height:auto;mix-blend-mode:screen;}' in s, \
+        "C18-① screen 融底未定义"
+    #    ⓑ 旧的两个 svg 门整块清零（这一页从此没有 svg）
+    assert '<svg' not in _p44b, "C18-① 旧门图 svg 未清零"
+    for _old in ('class="stroke-am pkt"', 'd="M940 70 V552"', 'x="350" y="160"', 'x="1130" y="160"'):
+        assert _old not in _p44b, f"C18-① 旧门图元残留：{_old}"
+    #    ⓒ 图下双标签：对位到实测的两扇门中心，文字一字未改
+    assert '<div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>' in _p44b and \
+           '<div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>' in _p44b, \
+        "C18-① 图下双标签未对位/文字被动"
+    #    ⓓ CEO 那句从 svg 里挪出来成了独立一行；land 落地句原样
+    assert '<div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</div>' in _p44b, \
+        "C18-① CEO 那句未挪成独立行"
+    assert '<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。' in _p44b, \
+        "C18-① land 落地句不该被动"
+    #    ⓔ 档位类 + 资源账（图进仓库、内联体积可控）
+    assert len(re.findall(r'class="slide[^"]*\br18doors\b', s)) == 1 and '.r18doors ' in s, \
+        "C18 · 档位类未挂/未定义：r18doors"
+    assert len(_DOORS_B) <= 400 * 1024, "C18 · 门图超预算"
+    #    ⓕ 全场只有这一张 webp（其余四张是母版的 logo/cover/venue，jpeg/png）
+    assert s.count('data:image/webp;base64,') == 1, "C18 · 全场应只有一张内联 webp"
 
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
           "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓ "
-          "C15 R15 终轮十项 ✓ C16 R16 五处 ✓ C17 R17 十二处 ✓")
+          "C15 R15 终轮十项 ✓ C16 R16 五处 ✓ C17 R17 十二处 ✓ "
+          f"C18 R18 P44 门图 ✓（{len(_DOORS_B)//1024}KB webp 内联）")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

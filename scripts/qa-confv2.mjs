@@ -669,7 +669,8 @@ chk((await secOf(P15.buy)) !== null &&
     s15fin.includes("Agent 有 L1–L5，人有看过·用过·学过·干过"),
     "R15-⑨b/c/d 案例 02 / 执行围栏 / 全场收束三处 L 记号同步");
 const noL0 = await pg.evaluate(() =>
-  window.deck.slides.every((s) => !s.outerHTML.includes("L0")));
+  window.deck.slides.every((s) => !s.outerHTML
+    .replace(/data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+/g, "").includes("L0")));
 chk(noL0, "R15-⑨ 全 deck 正文再无 L0");
 // ⑩ 终检：幕序课序金句序 / 目标页零溢出与填充率
 // ⚠️ R16 改判：⑩a「2026 光是上半年这几笔」随 C16-⑤ 的 note 整段重写而作废（负向的「这五笔」仍在上面 cut15 里）
@@ -925,7 +926,11 @@ const P17 = {
 };
 chk(Object.values(P17).every((i) => i >= 0), `R17 · 十二个目标页全部按内容找到 ${JSON.stringify(P17)}`);
 // 负向：九处删文的整段必须清零（只数页面正文 —— 历史层的 CSS 注释里写过被删素材的名字）
-const slides17 = await pg.evaluate(() => window.deck.slides.map((s) => s.outerHTML).join(""));
+// ⚠️ **R18 起的通用护栏**：C18 把一张 78KB 的门图 base64 内联进了 P44，base64 是纯 ASCII 乱码，
+//    全 deck 的英文短串负向扫描（Legora / Gartner / L0 …）会被它随机命中而误报 ——
+//    凡是「整本扫英文短串」的检查，一律先把 data-URI 载荷抹掉（中文串不受影响）。
+const noURI = (t) => t.replace(/data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+/g, "data:image/…");
+const slides17 = noURI(await pg.evaluate(() => window.deck.slides.map((s) => s.outerHTML).join("")));
 const cut17 = ["不是你问它才查。是你还没开口", "发起权第一次不在人这边", "而不是摊进某个人的 KPI",
                "翻最近 100 次交互，几次是它发起的？", "它自报家门那句话，写在哪个文件里？",
                "报表里有没有独立的一行？", "出事五分钟内，你拿得出那条链路吗？",
@@ -1038,12 +1043,13 @@ chk(!(await secOf(P17.p7)).includes('<div class="act">'), "R17-⑩ 资金流向�
 // ⑪ P4 出处精化
 chk((await secOf(P17.p4)).includes('<div class="by">Bret Taylor · CEO of Sierra / Chairman of OpenAI · Cheeky Pint #27</div>'),
     "R17-⑪ P4 出处「2026-03 公开访谈」→「Cheeky Pint #27」");
-// ⑫ P44 一个字不动（门那张图 Colin 自己换，图回来才动版面）
+// ⑫ P44 —— ⚠️ **R18 改判**：R17 那一轮按 Colin 的话按兵不动（等生成图），
+//    当时立了「门图仍是那一张 svg」的守门断言；R18 图到了，那对 svg 门已被单张门图取代，
+//    `<svg count === 1` 作废。三段文字「一字未改」的账仍然成立（只是挪出 svg 重排），继续守。
 const s17p44 = await secOf(await idxOf("从分清单向门与双向门开始"));
 chk(["可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级",
-     "这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活"].every((k) => s17p44.includes(k)) &&
-    (s17p44.match(/<svg/g) || []).length === 1,
-    "R17-⑫ P44 本轮一个字未动（门图仍是那一张）");
+     "这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活"].every((k) => s17p44.includes(k)),
+    "R17-⑫ P44 的三段文字一字未改（门图由 R18 接管）");
 // 连坐终扫：被删素材在全 deck 不留悬空引用
 // ⚠️「怎么验」只在 P27 有过**标签**用法；P45 的「做到了，我怎么验」是自然语言，自己站得住
 chk(!slides17.includes('<div class="kk">怎么验</div>') &&
@@ -1115,6 +1121,73 @@ for (const [name, i] of Object.entries({ p27: P17.p27, p31: P17.p31, p45: P17.p4
 chk(r17.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.clipped === 0 &&
                      (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
     `R17 · 十一页零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(r17)}`);
+
+// ── 6.14) R18 一处：P44 那两个 SVG 门 → Colin 用 GPT-image 生成的单张门图 ──
+const iP44 = await idxOf("从分清单向门与双向门开始");
+chk(iP44 >= 0, `R18 · P44 按内容找到（第 ${iP44 + 1} 页）`);
+const s18 = await secOf(iP44);
+// ⓐ 单张门图在位：内联 data URI（WebP）+ screen 融底 + .rise 入场，且全场只此一张 webp
+chk(s18.includes('<div class="doors rise" style="--i:3">') &&
+    (s18.match(/<img src="data:image\/webp;base64,/g) || []).length === 1 &&
+    s18.includes('alt="左：可逆的双向弹簧门；右：不可逆的单向金库门"') &&
+    (html.match(/data:image\/webp;base64,/g) || []).length === 1,
+    "R18-① P44 单张门图内联在位（data URI · webp · .rise），全场唯一一张 webp");
+// ⓑ 旧的两个 svg 门整块清零（这一页从此没有 svg）
+chk(!s18.includes("<svg") &&
+    ['class="stroke-am pkt"', 'd="M940 70 V552"', 'x="350" y="160"', 'x="1130" y="160"']
+      .every((k) => !s18.includes(k)),
+    "R18-① P44 旧双门 SVG 元素全部清零");
+// ⓒ 两组标签在位、对位到实测的两扇门中心，文字一字未改；CEO 那句与 land 原样
+chk(s18.includes('<div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>') &&
+    s18.includes('<div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>') &&
+    s18.includes('<div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</div>') &&
+    s18.includes("<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。"),
+    "R18-① 图下双标签 + CEO 那句 + land 落地句，文字一字未改");
+chk(/class="slide[^"]*\br18doors\b/.test(html) && html.includes(".r18doors "),
+    "R18 · 档位类 r18doors 挂上且在 CSS 里有定义");
+// ⓓ 浏览器实测：图真的解码了、blend 生效、标签中心落在门中心、零溢出零半截字、填充率入账
+await pg.evaluate((k) => window.deck.go(k), iP44);
+await pg.waitForTimeout(2400);
+const m18 = await pg.evaluate(() => {
+  const s = window.deck.slides[window.deck.i], sr = s.getBoundingClientRect();
+  const img = s.querySelector(".doors img"), ib = img.getBoundingClientRect();
+  const dls = [...s.querySelectorAll(".doors .dl")].map((e) => {
+    const b = e.getBoundingClientRect();
+    return { t: e.textContent.trim(), pct: +(((b.left + b.width / 2) - ib.left) / ib.width * 100).toFixed(1),
+             l: Math.round(b.left), r: Math.round(b.right) };
+  });
+  let out = 0;
+  s.querySelectorAll("div,p,h1,h2,h3,span,i,li,img").forEach((el) => {
+    if (!el.offsetParent) return;
+    const b = el.getBoundingClientRect();
+    if (b.width && b.height && (b.bottom > sr.bottom + 4 || b.right > sr.right + 4)) out++;
+  });
+  let clipped = 0;
+  s.querySelectorAll("*").forEach((el) => {
+    const cp = getComputedStyle(el).clipPath;
+    if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+  });
+  const body = s.querySelector(".body"), kids = [...body.children].filter((e) => e.offsetParent);
+  const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+  const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+  return { decoded: img.complete && img.naturalWidth > 0,
+           nat: [img.naturalWidth, img.naturalHeight],
+           blend: getComputedStyle(img).mixBlendMode,
+           w: Math.round(ib.width), h: Math.round(ib.height),
+           centred: Math.abs((ib.left + ib.width / 2) - (sr.left + sr.width / 2)) <= 2,
+           dls, out, clipped,
+           fill: Math.round(((bot - top) / body.getBoundingClientRect().height) * 100),
+           svgs: s.querySelectorAll("svg").length };
+});
+await pg.screenshot({ path: "/tmp/qa/r18-p44.png" });
+chk(m18.decoded && m18.nat[0] === 1672 && m18.nat[1] === 669 && m18.blend === "screen" &&
+    m18.svgs === 0 && m18.centred && m18.w >= 1300 && m18.w <= 1500,
+    `R18-① 门图解码成功 / screen 生效 / 居中 / 宽 1300–1500 / 页面零 svg ${JSON.stringify({ ...m18, dls: undefined })}`);
+chk(m18.dls.length === 2 && Math.abs(m18.dls[0].pct - 27.2) <= 0.5 &&
+    Math.abs(m18.dls[1].pct - 72.3) <= 0.5 && m18.dls[0].r < m18.dls[1].l,
+    `R18-① 两组标签对位到门中心（27.2% / 72.3%）且互不重叠 ${JSON.stringify(m18.dls)}`);
+chk(m18.out === 0 && m18.clipped === 0 && m18.fill >= 78 && m18.fill <= 106,
+    `R18-① P44 零溢出 / 零半截字 / 填充率 78–106%（实测 ${m18.fill}%）`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
