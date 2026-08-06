@@ -1010,7 +1010,7 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide r12flow r14money r16money r17money r19money">
+<section class="slide r12flow r14money r16money r17money r19money r20money">
   <div class="chrome"><span>PART 1 · 语法变了</span><span>7</span></div>
   <div class="wrap">
     <div class="head">
@@ -1020,20 +1020,26 @@ h2 .pre{display:inline-block;}
     <div class="body">
       <div class="fig gfill">
         <svg viewBox="0 0 1680 600" width="1680" fill="none">
-          <!-- ① 顶行：左 = 单一口径；右 = 刻度性质（角落小字，不写成整句解释） -->
+          <!-- ① 顶行：左 = 单一口径；右 = 刻度性质（断轴必须被声明，不写成整句解释） -->
           <g class="pop" style="--i:0">
             <text class="lbl" x="0" y="26">口径：一级市场披露融资额 · $B</text>
-            <text class="lbl" x="1680" y="26" text-anchor="end">纵轴 · 对数刻度</text>
+            <text class="lbl" x="1680" y="26" text-anchor="end">纵轴分段 · $4B–$30B 间断开</text>
           </g>
 
-          <!-- ② 十倍阶梯网格 + 基线：网格线本身就是刻度，逐条标出来 -->
+          <!-- ② 两段参考线（段内一律线性）+ 基线 + 断口双斜线 -->
           <g class="pop" style="--i:1">
-            <path class="gd" d="M250 200 H1180 M250 300 H1180 M250 400 H1180 M250 500 H1180"/>
-            <path class="axb" d="M250 520 H1180"/>
-            <text class="lbl dec" x="222" y="207" text-anchor="end">$100B</text>
-            <text class="lbl dec" x="222" y="307" text-anchor="end">$10B</text>
-            <text class="lbl dec" x="222" y="407" text-anchor="end">$1B</text>
-            <text class="lbl dec" x="222" y="507" text-anchor="end">$0.1B</text>
+            <path class="gd" d="M250 186.8 H1180 M250 221.47 H1180 M250 256.13 H1180"/>
+            <path class="gd" d="M250 354.75 H1180 M250 411.5 H1180 M250 468.25 H1180"/>
+            <path class="axb" d="M250 525 H1180"/>
+            <text class="lbl dec" x="222" y="193.8" text-anchor="end">$150B</text>
+            <text class="lbl dec" x="222" y="228.47" text-anchor="end">$100B</text>
+            <text class="lbl dec" x="222" y="263.13" text-anchor="end">$50B</text>
+            <text class="lbl dec" x="222" y="361.75" text-anchor="end">$3B</text>
+            <text class="lbl dec" x="222" y="418.5" text-anchor="end">$2B</text>
+            <text class="lbl dec" x="222" y="475.25" text-anchor="end">$1B</text>
+            <path class="brk" d="M250 282 L1180 274"/>
+            <path class="brk" d="M250 296 L1180 288"/>
+            <path class="brkm" d="M236 300 L258 272 M250 300 L272 272"/>
             <text class="lbl yr" x="300" y="556" text-anchor="middle">2024</text>
             <text class="lbl yr" x="725" y="556" text-anchor="middle">2025</text>
             <text class="lbl yr" x="1150" y="556" text-anchor="middle">2026</text>
@@ -1041,54 +1047,54 @@ h2 .pre{display:inline-block;}
             <text class="lbl" x="250" y="584">2026 至今：基础模型截至 3-31（Q1）· 写代码与对话式截至 7-02（H1）</text>
           </g>
 
-          <!-- ③ 基础模型（白粗）：31.4 → 88.9 → 178，三年都是最大头，一直在涨 -->
-          <path class="ln fnd dw" style="--len:860;--i:2" d="M300 250.3 C 448.75 250.3, 576.25 205.1, 725 205.1 C 873.75 205.1, 1001.25 175, 1150 175"/>
-          <circle class="dot fnd pop" style="--i:3" cx="300" cy="250.3" r="6"/>
-          <circle class="dot fnd pop" style="--i:3" cx="725" cy="205.1" r="6"/>
-          <circle class="dot fnd pop" style="--i:4" cx="1150" cy="175" r="8.5"/>
+          <!-- ③ 基础模型（白粗，上段）：31.4 → 88.9 → 178，三年都是最大头，一直在涨 -->
+          <path class="ln fnd dw" style="--len:865;--i:2" d="M300 269.03 C 448.75 269.03, 576.25 229.16, 725 229.16 C 873.75 229.16, 1001.25 167.39, 1150 167.39"/>
+          <circle class="dot fnd pop" style="--i:3" cx="300" cy="269.03" r="6"/>
+          <circle class="dot fnd pop" style="--i:3" cx="725" cy="229.16" r="6"/>
+          <circle class="dot fnd pop" style="--i:4" cx="1150" cy="167.39" r="8.5"/>
           <g class="pop" style="--i:3">
-            <text class="txt val" x="300" y="232" text-anchor="middle">$31.4B</text>
-            <text class="txt val" x="725" y="187" text-anchor="middle">$88.9B</text>
+            <text class="txt val" x="300" y="249" text-anchor="middle">$31.4B</text>
+            <text class="txt val" x="725" y="209" text-anchor="middle">$88.9B</text>
           </g>
           <g class="pop" style="--i:4">
-            <path class="lead fnd" d="M1166 175 H1190"/>
-            <text class="ttl" x="1200" y="160">基础模型</text>
-            <text class="big" x="1200" y="220">$178B</text>
-            <text class="sm anno" x="937" y="160" text-anchor="middle">一个季度，就是去年一整年的两倍</text>
+            <path class="lead fnd" d="M1166 167.39 H1190"/>
+            <text class="ttl" x="1200" y="152">基础模型</text>
+            <text class="big" x="1200" y="212">$178B</text>
+            <text class="sm anno" x="920" y="118" text-anchor="middle">一个季度，就是去年一整年的两倍</text>
           </g>
 
-          <!-- ④ AI 写代码（灰细）：1.59 → 3.25 → 0.2075 —— 2025 冲顶，2026 跳水 1.2 个数量级 -->
-          <path class="ln cod dw" style="--len:878;--i:5" d="M300 379.9 C 448.75 379.9, 576.25 348.8, 725 348.8 C 873.75 348.8, 1001.25 468.3, 1150 468.3"/>
-          <circle class="dot cod pop" style="--i:6" cx="300" cy="379.9" r="6"/>
-          <circle class="dot cod pop" style="--i:6" cx="725" cy="348.8" r="6"/>
-          <circle class="dot cod pop" style="--i:7" cx="1150" cy="468.3" r="8.5"/>
+          <!-- ④ AI 写代码（金黄，下段）：1.59 → 3.25 → 0.2075 —— 2025 冲顶，2026 跳水见底 -->
+          <path class="ln cod dw" style="--len:910;--i:5" d="M300 434.77 C 448.75 434.77, 576.25 340.56, 725 340.56 C 873.75 340.56, 1001.25 513.22, 1150 513.22"/>
+          <circle class="dot cod pop" style="--i:6" cx="300" cy="434.77" r="6"/>
+          <circle class="dot cod pop" style="--i:6" cx="725" cy="340.56" r="6"/>
+          <circle class="dot cod pop" style="--i:7" cx="1150" cy="513.22" r="8.5"/>
           <g class="pop" style="--i:6">
-            <text class="txt val" x="725" y="331" text-anchor="middle">$3.3B</text>
-            <text class="sm anno" x="725" y="296" text-anchor="middle">一轮钱在 2025 发完 · Cursor 一家占 98%</text>
+            <text class="txt val fill-co" x="725" y="320" text-anchor="middle">$3.3B</text>
           </g>
           <g class="pop" style="--i:7">
-            <path class="lead cod" d="M1166 468.3 L1190 483"/>
-            <text class="ttl" x="1200" y="474">AI 写代码</text>
-            <text class="big" x="1200" y="534">$0.2B</text>
+            <text class="sm anno fill-co" x="905" y="487" text-anchor="middle">一轮钱在 2025 发完 · Cursor 一家占 98%</text>
+            <path class="lead cod" d="M1166 513.22 L1190 519"/>
+            <text class="ttl fill-co" x="1200" y="512">AI 写代码</text>
+            <text class="big fill-co" x="1200" y="570">$0.2B</text>
           </g>
 
-          <!-- ⑤ 对话式 AI（amber 粗，今年的主角）：1.59 → 1.94 → 1.82；
-               与写代码在 2024 同一点出发、在 x≈807 交叉，2026 反超。整组 data-step=1 -->
+          <!-- ⑤ 对话式 AI（amber 粗，今年的主角，下段）：1.59 → 1.94 → 1.82；
+               与写代码在 2024 落在同一个点，2025 被写代码甩开，2026 反超。整组 data-step=1 -->
           <g data-step="1">
-            <path class="ln cnv dw" style="--len:856;--i:0" d="M300 379.9 C 448.75 379.9, 576.25 371.2, 725 371.2 C 873.75 371.2, 1001.25 374, 1150 374"/>
-            <circle class="dot cnv pop" style="--i:1" cx="300" cy="379.9" r="6"/>
-            <circle class="dot cnv pop" style="--i:1" cx="725" cy="371.2" r="6"/>
-            <circle class="dot cnv pop" style="--i:2" cx="1150" cy="374" r="8.5"/>
+            <path class="ln cnv dw" style="--len:858;--i:0" d="M300 434.77 C 448.75 434.77, 576.25 414.9, 725 414.9 C 873.75 414.9, 1001.25 421.72, 1150 421.72"/>
+            <circle class="dot cnv pop" style="--i:1" cx="300" cy="434.77" r="6"/>
+            <circle class="dot cnv pop" style="--i:1" cx="725" cy="414.9" r="6"/>
+            <circle class="dot cnv pop" style="--i:2" cx="1150" cy="421.72" r="8.5"/>
             <g class="pop" style="--i:1">
-              <text class="txt val" x="300" y="412" text-anchor="middle">$1.6B</text>
-              <text class="sm anno" x="300" y="446" text-anchor="middle">写代码与对话式，2024 从同一点出发</text>
-              <text class="txt val fill-am" x="725" y="404" text-anchor="middle">$1.9B</text>
+              <text class="txt val" x="300" y="415" text-anchor="middle">$1.6B</text>
+              <text class="sm anno" x="360" y="502" text-anchor="middle">写代码与对话式，2024 从同一点出发</text>
+              <text class="txt val fill-am" x="725" y="394" text-anchor="middle">$1.9B</text>
             </g>
             <g class="pop" style="--i:2">
-              <path class="lead cnv" d="M1166 374 H1190"/>
-              <text class="ttl" x="1200" y="358">对话式 AI</text>
-              <text class="big fill-am" x="1200" y="418">$1.8B</text>
-              <text class="sm anno fill-am" x="1000" y="345" text-anchor="middle">半年，已经追平去年一整年</text>
+              <path class="lead cnv" d="M1166 421.72 H1190"/>
+              <text class="ttl fill-am" x="1200" y="400">对话式 AI</text>
+              <text class="big fill-am" x="1200" y="456">$1.8B</text>
+              <text class="sm anno fill-am" x="985" y="378" text-anchor="middle">半年，已经追平去年一整年</text>
             </g>
           </g>
         </svg>
@@ -1840,7 +1846,7 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide t8b r10p27">
+<section class="slide t8b r10p27 r20cross">
   <div class="chrome"><span>PART 3 · 双向奔赴</span><span>28</span></div>
   <div class="wrap">
     <div class="head">
@@ -1899,18 +1905,13 @@ h2 .pre{display:inline-block;}
         </svg>
       </div>
       <div class="fig" data-step="4" style="margin-top:4px">
-        <svg width="1680" viewBox="0 0 1680 192" fill="none">
-          <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M675 6 V172"/>
-          <text class="lbl fill-co pop" style="--i:1" x="689" y="22">交叉验证 · 两个行业的断层，也卡在同一格</text>
+        <svg width="1680" viewBox="0 0 1680 96" fill="none">
+          <path class="stroke-co pop" style="--i:0" stroke-width="1.4" stroke-dasharray="5 9" d="M675 6 V96"/>
+          <text class="lbl fill-co pop" style="--i:1" x="689" y="22">交叉验证 · 自动驾驶的断层，也卡在同一格</text>
           <g class="pop" style="--i:1"><text class="ttl" x="0" y="56" style="font-size:22px">自动驾驶 L1–L5</text></g>
           <path class="stroke dw" style="--len:1240;--i:2" stroke-width="2" d="M340 50 H675 V26 H1580"/>
           <text class="sm pop" style="--i:3" x="508" y="76" text-anchor="middle">L1–L2 · 辅助驾驶，人不敢离环</text>
           <text class="sm pop" style="--i:3" x="1128" y="70" text-anchor="middle">L3–L5 · 系统担责，卡了十年的一跳</text>
-          <g class="pop" style="--i:2"><text class="ttl" x="0" y="136" style="font-size:22px">支付 Agent 五级</text></g>
-          <path class="stroke dw" style="--len:1240;--i:3" stroke-width="2" d="M340 130 H675 V106 H1580"/>
-          <text class="sm pop" style="--i:4" x="508" y="156" text-anchor="middle">L1–L2 · 行业还在边缘徘徊</text>
-          <text class="sm pop" style="--i:4" x="1128" y="150" text-anchor="middle">L3–L5 · 还没人真正到达</text>
-          <text class="lbl fill-am pop" style="--i:5" x="1580" y="188" text-anchor="end">第三把尺子，就是上面这架梯子——三把尺子，同一个形状</text>
         </svg>
       </div>
     </div>
@@ -2450,7 +2451,7 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide r10p39">
+<section class="slide r10p39 r20step">
   <div class="chrome"><span>PART 4 · 人与组织</span><span>40</span></div>
   <div class="wrap">
     <div class="head">
@@ -2459,17 +2460,16 @@ h2 .pre{display:inline-block;}
     </div>
     <div class="body">
       <div class="fig">
-        <svg width="1680" viewBox="0 -14 1680 452" fill="none">
+        <svg width="1680" viewBox="0 -14 1680 406" fill="none">
           <path class="stroke dw" style="--len:360;--i:2" stroke-width="1.5" d="M90 392 V42"/>
           <path class="fill-ink pop" style="--i:2" d="M90 38 l-7 12 l14 0 z"/>
           <text class="lbl pop" style="--i:2" x="100" y="22">暴露量</text>
 
-          <path class="stroke-co pop" style="--i:3" stroke-width="1.4" stroke-opacity=".5" stroke-dasharray="6 10" d="M140 370 H1580"/>
-          <text class="txt fill-co pop" style="--i:3" x="1580" y="414" text-anchor="end">有人用了三年还停在这条线上 —— 因为他从没自己下过场</text>
-
+          <path class="stroke-co pop" style="--i:3" stroke-width="1.4" stroke-opacity=".5" stroke-dasharray="6 10" d="M880 249 H1580"/>
           <path class="stroke-am dw" style="--len:1560;--i:4" stroke-width="2.6" d="M140 330 H440 L510 249 H810 L880 168 H1180 L1250 81 H1580"/>
           <path class="stroke-co pop" style="--i:8" stroke-width="5" d="M810 249 L880 168"/>
           <text class="sm fill-co pop" style="--i:8" x="830" y="294">最难跨的一段</text>
+          <text class="sm sub fill-co pop" style="--i:8" x="830" y="328">有人用了三年还停在这条线上 —— 因为他从没自己下过场</text>
 
           <circle class="fill-am pop" style="--i:5" cx="140" cy="330" r="7" opacity=".45"/>
           <circle class="fill-am pop" style="--i:6" cx="510" cy="249" r="8" opacity=".65"/>
@@ -2625,7 +2625,7 @@ h2 .pre{display:inline-block;}
         <div class="card rise" style="--i:7"><div class="n">03</div><div class="t">Care</div><div class="d">对结果有自己的标准。<span class="dim">肯负责，不交差了事。</span></div></div>
         <div class="card on rise" style="--i:8"><div class="n">04</div><div class="t">内观</div><div class="d">发现错了，愿意改。<span class="dim">会改错，才不会卡在原地。</span></div></div>
       </div>
-      <div class="note co flow" style="--i:9">但只讲个人是不公平的。<b>低 agency 常常是组织制造出来的</b>——审批链太长、反馈周期太慢、犯错代价太高，人自然就不出手了。<b>先改环境，再评价人。</b></div>
+      <div class="note co flow" style="--i:9"><b>低 agency 常常是组织制造出来的</b>——审批链太长、反馈周期太慢、犯错代价太高，人自然就不出手了。<b>先改环境，再评价人。</b></div>
       <div class="land flow" style="--i:10">人：愿意试、愿意负责、愿意改错。<span class="s">组织：允许实验、缩短反馈、留下学习。如果可以用实验验证，就不该等待共识——这句话我 2025 年在这个台上讲过，今年它的对象多了一个：Agent。</span></div>
     </div>
   </div>
@@ -3754,6 +3754,47 @@ thead th{font-size:19px;}
    标签仍是 % 定位（27.2% / 72.3%），随图等比自适应，一个数都不用改。 */
 .r19doors .body{gap:32px;}
 .r19doors .doors{max-width:1180px;}
+
+/* ============ C20 · R20 终稿 · P7 分段断轴 / P28 条带单列 / P40 副注归位 ============ */
+/* P7：Colin「对话式那条线太直，1.6→1.9 的变化要看得出来；左侧的轴要下点功夫」。
+   R19 的对数刻度把 1.6→1.9→1.8 压成 ~7px 的摆动 —— 对数轴的本职就是压缩，
+   要在同一张图里既画得下 178 又看得清 1.6↔1.9，只能**分段断轴**：
+     下段 $0–$4B 线性（对话式的弓形、写代码的冲顶跳水都回到真实比例）
+     上段 $30–$180B 线性（基础模型的强劲上行）
+     两段之间明示断口（双斜线贯穿绘图区）+ 角落注「纵轴分段 · $4B–$30B 间断开」
+   ⚠️ 红线照旧：**不回双轴**（一根轴、一套刻度，只是中间剪掉一段）；
+      **段内一律线性**，不做任何未声明的非线性。
+   ⚠️ 写代码那条换成金黄 --coral（与 P31 事件块 / P44 门图同一支黄）：
+      白（基础模型）/ 黄（写代码，已收尾）/ 紫（对话式，今年的主角）三色互不相邻混淆，
+      端点名牌与点标同步换色，callout 也各归各色，不串。 */
+.r20money .fig .lbl.dec{font-size:19px;letter-spacing:.08em;text-transform:none;}
+.r20money .fig .ln.cod{stroke:var(--coral);stroke-width:4.5;opacity:1;}
+.r20money .fig .dot.cod{fill:var(--coral);opacity:1;}
+.r20money .fig .lead.cod{stroke:var(--coral);}
+.r20money .fig .txt.val.fill-co{fill:var(--coral);}
+.r20money .fig .sm.anno.fill-co{fill:var(--coral);}
+.r20money .fig .ttl.fill-co{fill:var(--coral);}
+.r20money .fig .big.fill-co{fill:var(--coral);}
+/* 断口记号：两道几乎水平的细斜线贯穿绘图区，中间那条缝就是「这里剪掉了一段」。
+   比 hair-strong 再实一点（断轴是必须被看见的声明，不是装饰性网格）。 */
+.r20money .fig .brk{stroke:var(--hair-strong);stroke-width:1.4;fill:none;}
+/* 断口在轴根处再补一对短斜杠 —— 这是「这里剪掉了一段」最通用的记号，比两条横线更认得出。 */
+.r20money .fig .brkm{stroke:var(--ink-3);stroke-width:2.2;fill:none;stroke-linecap:round;}
+/* 三条 callout 压在曲线上时要读得清：给它们把母版本来就写好的「底色描边」halo 打开
+   （components.css 里 .slide svg text 定义了 paint-order:stroke fill 又被后面一条 stroke:none 关掉）。 */
+.r20money .fig .sm.anno{paint-order:stroke fill;stroke:var(--slide-bg);stroke-width:6px;stroke-linejoin:round;}
+.r20money .fig .txt.val{paint-order:stroke fill;stroke:var(--slide-bg);stroke-width:6px;stroke-linejoin:round;}
+
+/* P28 交叉验证条带：删掉「支付 Agent 五级」整列之后只剩自动驾驶一行 ——
+   条带高度砍半，剩下的一行字号上一档（一行独占时太小会显得空），
+   主图那张梯子同步吃掉腾出来的高度。 */
+.r20cross .body{gap:18px;}
+.r20cross .fig svg{width:100%;height:auto;}
+.r20cross .fig .ttl{font-size:24px;}
+
+/* P40：那句「有人用了三年还停在这条线上」从全图底部收到「最难跨的一段」脚下，
+   降一档成它的副注（原来是 .txt，现在走 .sm 一档并保持 coral）。 */
+.r20step .fig .sm.sub{font-size:21px;}
 </style>
 <div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
 <script>

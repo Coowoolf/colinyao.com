@@ -74,7 +74,7 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // cowork-conf R19 聚焦版（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
+  // cowork-conf R20 终稿（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
   // + PART 1 幕卡后新增「AI 投资资金流向 2024→2026」一页 + R13 七处内容修订
   // + R14 P2 讲台 / 资金流向页重做成双轴时间图
   // + R15 终轮十项（三张主标题 / CONVOAI AGENT / 北极星逐列对齐 / PART 2 幕卡金句 / 三处删段
@@ -89,6 +89,9 @@ export const deckRoutes: { source: string; file: string }[] = [
   // + R19 五处（P7 三格小倍数 → 单轴对数三线图「带时间轴的曲线」，数据一个不动、不回双轴
   //   / 五张金句页 eyebrow 全删 / 金句 02 署名 ex CPO / P31 三段教训正文删 + 教训 03 改题
   //   / P44 删 CEO 那行 + 门图 1380 → 1180）
+  // + R20 **终稿**五处（P7 对数轴 → 分段断轴 $0–$4B / $30–$180B 两段线性 + 写代码线换金黄
+  //   / P28 交叉验证条带只留自动驾驶一列 / P40「有人用了三年还停在这条线上」归位到「最难跨的一段」
+  //   / P43 删「但只讲个人是不公平的。」；P30 点名待 Colin 定夺，本轮未动）
   // · 大会 conf 视觉）· 预览路由，
   // Colin 定稿前不进 speechDecks 索引；线上 /cowork-conf 仍是 55 页原版。
   // 同源同脚本：CONF_V2=1 python3 scripts/build-conf.py

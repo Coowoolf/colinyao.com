@@ -657,10 +657,11 @@ chk(["L1 · 旁听", "L2 · 起草", "L3 · 只读应答", "L4 · 可执行", "L
     s15L.indexOf("L2 · 起草") < s15L.indexOf("撤掉「人」这张安全网") &&
     s15L.indexOf("撤掉「人」这张安全网") < s15L.indexOf("L3 · 只读应答"),
     "R15-⑧ 梯子重编 L1–L5，BIG JUMP 位置不动 → 天然 L2→L3");
+// ⚠️ R20 改判：C20-② 删掉「支付 Agent 五级」整列（含两段标注），条带只剩自动驾驶 ——
+//    那三条从这里摘除，负向账在 6.16 段；自动驾驶三条 + 向下电梯仍守在这里。
 chk(["自动驾驶 L1–L5", "L1–L2 · 辅助驾驶，人不敢离环", "L3–L5 · 系统担责，卡了十年的一跳",
-     "支付 Agent 五级", "L1–L2 · 行业还在边缘徘徊", "L3–L5 · 还没人真正到达",
      "向下的电梯 · THE WAY DOWN"].every((k) => s15L.includes(k)),
-    "R15-⑧ 交叉验证条带与向下电梯旁注一个字未动即自洽");
+    "R15-⑧ 交叉验证条带（自动驾驶列）与向下电梯旁注一个字未动即自洽");
 // ⑨ 全 deck L 连坐 + 语义三处互证
 const s15job = await secOf(P15.jobs), s15fin = await secOf(P15.fin);
 chk(s15job.includes("压在 <em>L3 与 L4 之间</em>") && s15job.includes("今年整体重心：L3 与 L4 之间") &&
@@ -1205,11 +1206,9 @@ const s19p7 = await secOf(P19.p7);
 chk(['>基础模型 $B</text>', ">Coding / 对话式 $B</text>", "左右两轴量级不同",
      'id="r14conv"', 'x="1218"'].every((k) => !s19p7.includes(k)),
     "R19-① 红线：全场零第二把尺（双轴图元一个都没回来）");
-chk(s19p7.includes(">纵轴 · 对数刻度</text>") &&
-    s19p7.includes('d="M250 200 H1180 M250 300 H1180 M250 400 H1180 M250 500 H1180"') &&
-    [">$100B</text>", ">$10B</text>", ">$1B</text>", ">$0.1B</text>"]
-      .every((k) => (s19p7.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1),
-    "R19-① 对数刻度：角落小字 + 十倍阶梯网格四条并逐条标出（点标即刻度）");
+// ⚠️ R20 改判：对数刻度整套作废（角落注 / 十倍阶梯网格 / 四条十倍刻度标）——
+//    Colin「对话式那条线太直」，对数轴把 1.6→1.9→1.8 压成 ~7px；C20-① 换成分段断轴。
+//    等价的正向账（断轴注 / 两段参考线 / 六条段内刻度标）搬到 6.16 段。
 chk(["fnd", "cod", "cnv"].every((c) =>
       (s19p7.match(new RegExp(`class="ln ${c} dw"`, "g")) || []).length === 1 &&
       (s19p7.match(new RegExp(`class="dot ${c} pop"`, "g")) || []).length === 3 &&
@@ -1352,6 +1351,196 @@ for (const [name, i] of Object.entries({ p7: P19.p7, mq02: P19.mq02, p31: P19.p3
 chk(r19.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.clipped === 0 &&
                      (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
     `R19 · 八页零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(r19)}`);
+
+// ── 6.16) R20 终稿五处（全部内容锚定取页，不信页码） ──
+//   ① P7 对数轴 → 分段断轴 + 写代码换金黄 ② P28 条带只留自动驾驶
+//   ③ P30 点名（查证与 Stripe 矛盾 → 本轮按硬纪律一个字不动）④ P40 那句话归位 ⑤ P43 删句
+const P20 = {
+  p7:  await idxOf("钱的三次落点"),
+  p28: await idxOf("人还在不在环里"),
+  p30: await idxOf("它决策"),
+  p40: await idxOf("你站到哪一阶了"),
+  p43: await idxOf("High Agency"),
+};
+chk(Object.values(P20).every((i) => i >= 0), `R20 · 五个目标页全部按内容找到 ${JSON.stringify(P20)}`);
+const slides20 = await pg.evaluate(() =>
+  window.deck.slides.map((s) => s.outerHTML.replace(/data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+/g, "")).join(""));
+// 负向：被作废 / 被删的整段必须查无此句
+const cut20 = ["纵轴 · 对数刻度", ">$10B</text>", ">$0.1B</text>",          // ① 对数轴整套
+               'd="M250 200 H1180 M250 300 H1180',
+               "支付 Agent 五级", "L1–L2 · 行业还在边缘徘徊",                // ② 条带第二列
+               "L3–L5 · 还没人真正到达", "三把尺子",
+               "交叉验证 · 两个行业的断层",                                  // ② 旧条带标题
+               "但只讲个人是不公平的。"];                                    // ⑤ P43 那句
+chk(cut20.every((k) => !slides20.includes(k)),
+    `R20 · 被删/被换的整段全部清零（残留 ${JSON.stringify(cut20.filter((k) => slides20.includes(k)))}）`);
+// ① P7 分段断轴：断轴声明 + 断口记号 + 两段参考线 + 六条段内刻度
+const s20p7 = await secOf(P20.p7);
+chk(['>基础模型 $B</text>', ">Coding / 对话式 $B</text>", "左右两轴量级不同", 'x="1218"']
+      .every((k) => !s20p7.includes(k)),
+    "R20-① 红线：断轴 ≠ 双轴 —— 全场仍然零第二把尺");
+chk(s20p7.includes(">纵轴分段 · $4B–$30B 间断开</text>") &&
+    (s20p7.match(/class="brk"/g) || []).length === 2 &&
+    s20p7.includes('class="brkm"'),
+    "R20-① 断轴已明示：角落注 + 贯穿绘图区的双斜线 + 轴根断口记号");
+chk(s20p7.includes('d="M250 186.8 H1180 M250 221.47 H1180 M250 256.13 H1180"') &&
+    s20p7.includes('d="M250 354.75 H1180 M250 411.5 H1180 M250 468.25 H1180"') &&
+    [">$150B</text>", ">$100B</text>", ">$50B</text>", ">$3B</text>", ">$2B</text>", ">$1B</text>"]
+      .every((k) => (s20p7.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1),
+    "R20-① 两段各三条参考线 + 六条段内 $ 刻度（段内一律线性）");
+// 九个点落到断轴新位；2024 两条线仍是同一个点
+chk([["fnd", ["269.03", "229.16", "167.39"]], ["cod", ["434.77", "340.56", "513.22"]],
+     ["cnv", ["434.77", "414.9", "421.72"]]]
+      .every(([c, ys]) => (s20p7.match(new RegExp(`class="dot ${c} pop"`, "g")) || []).length === 3 &&
+                          ys.every((y) => s20p7.includes(`cy="${y}"`))) &&
+    (s20p7.match(/cy="434\.77"/g) || []).length === 2,
+    "R20-① 九个点落到断轴新位，写代码与对话式 2024 仍是同一个点");
+// 写代码换金黄：CSS 三档 + 页上点标/名牌/callout 四处；两条 callout 各归各色不串
+chk([".r20money .fig .ln.cod{stroke:var(--coral);", ".r20money .fig .dot.cod{fill:var(--coral);",
+     ".r20money .fig .lead.cod{stroke:var(--coral);"].every((k) => html.includes(k)),
+    "R20-① 写代码换金黄的档位（线 / 点 / 引线）已定义");
+const codColor = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 2400));
+  const s = window.deck.slides[k], g = (q) => getComputedStyle(s.querySelector(q));
+  return { cod: g("path.ln.cod").stroke, fnd: g("path.ln.fnd").stroke, cnv: g("path.ln.cnv").stroke,
+           coral: getComputedStyle(document.documentElement).getPropertyValue("--coral").trim() };
+}, P20.p7);
+chk(codColor.cod === "rgb(255, 192, 0)" && codColor.coral === "#FFC000" &&
+    codColor.fnd === "rgb(255, 255, 255)" && codColor.cnv === "rgb(168, 85, 247)",
+    `R20-① 三线配色实测：写代码金黄 / 基础模型白 / 对话式紫 ${JSON.stringify(codColor)}`);
+chk((s20p7.match(/class="sm anno fill-co"/g) || []).length === 1 &&
+    (s20p7.match(/class="sm anno fill-am"/g) || []).length === 1,
+    "R20-① 黄与紫的 callout 各归各色，不串");
+// --len 逐条盖得住贝塞尔实长（浏览器里直接量 getTotalLength，比算式更硬）
+const len20 = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 300));
+  return [...window.deck.slides[k].querySelectorAll("path.ln")].map((p) => ({
+    cls: p.getAttribute("class"),
+    len: parseFloat(getComputedStyle(p).getPropertyValue("--len")),
+    real: Math.round(p.getTotalLength()),
+  }));
+}, P20.p7);
+chk(len20.length === 3 && len20.every((x) => x.len >= x.real && x.len <= x.real + 40),
+    `R20-① --len 逐条与断轴后的路径实长同步 ${JSON.stringify(len20)}`);
+// 口径行 / 截点说明 / 三条 callout / 九个数 / Source 一个字没动
+chk([">口径：一级市场披露融资额 · $B</text>",
+     "2026 至今：基础模型截至 3-31（Q1）· 写代码与对话式截至 7-02（H1）",
+     "一个季度，就是去年一整年的两倍", "一轮钱在 2025 发完 · Cursor 一家占 98%",
+     "半年，已经追平去年一整年", "写代码与对话式，2024 从同一点出发",
+     "Source · New Market Pitch · Crunchbase News · TechCrunch · CNBC"]
+      .every((k) => s20p7.includes(k)) &&
+    [">$31.4B</text>", ">$88.9B</text>", ">$178B</text>", ">$3.3B</text>", ">$0.2B</text>",
+     ">$1.6B</text>", ">$1.9B</text>", ">$1.8B</text>"]
+      .every((k) => (s20p7.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1),
+    "R20-① 口径行 / 截点说明 / 三条 callout / 九个数 / Source 一字未动");
+// ② P28 条带只剩自动驾驶
+const s20p28 = await secOf(P20.p28);
+chk(s20p28.includes("交叉验证 · 自动驾驶的断层，也卡在同一格") &&
+    ["自动驾驶 L1–L5", "L1–L2 · 辅助驾驶，人不敢离环", "L3–L5 · 系统担责，卡了十年的一跳",
+     'd="M340 50 H675 V26 H1580"'].every((k) => s20p28.includes(k)) &&
+    s20p28.includes('d="M675 6 V96"') &&
+    s20p28.includes('<svg width="1680" viewBox="0 0 1680 96" fill="none">'),
+    "R20-② 条带改单数标题 + 只剩自动驾驶一列 + 高度随之收半");
+chk(["L1 · 旁听", "L5 · 主动外呼", "撤掉「人」这张安全网", "向下的电梯 · THE WAY DOWN"]
+      .every((k) => s20p28.includes(k)) &&
+    /class="slide[^"]*\br20cross\b/.test(html) && html.includes(".r20cross "),
+    "R20-② 梯子主图未被误伤 + 档位类 r20cross 在位");
+// ③ P30：查证结论是 Ramp / Eric Glyman（不是 Stripe）→ 本轮按硬纪律一个字不动
+const s20p30 = await secOf(P20.p30);
+chk(s20p30.includes("某企业支付平台 CEO 公开口径 · 2026") &&
+    s20p30.includes("厂商自报 · 未经独立核实") &&
+    !slides20.includes("Stripe") && !slides20.includes("Ramp"),
+    "R20-③ P30 署名原样待 Colin 定夺（查证与「Stripe」矛盾，未经拍板不实名）");
+// ④ P40 那句话归位：DOM 上紧跟「最难跨的一段」，降档成 .sm.sub，且旧位清零
+const s20p40 = await secOf(P20.p40);
+chk((s20p40.match(/有人用了三年还停在这条线上/g) || []).length === 1 &&
+    !s20p40.includes('x="1580" y="414"') &&
+    s20p40.includes('<text class="sm fill-co pop" style="--i:8" x="830" y="294">最难跨的一段</text>') &&
+    s20p40.includes('<text class="sm sub fill-co pop" style="--i:8" x="830" y="328">'),
+    "R20-④ 那句话从图底归位到「最难跨的一段」脚下并降一档");
+const adj20 = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 2400));
+  const s = window.deck.slides[k];
+  const t = [...s.querySelectorAll("svg text")];
+  const a = t.find((e) => e.textContent.includes("最难跨的一段"));
+  const b = t.find((e) => e.textContent.includes("有人用了三年还停在这条线上"));
+  const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+  const dash = s.querySelector('path[stroke-dasharray="6 10"]');
+  return { dy: Math.round(rb.top - ra.bottom), dx: Math.round(Math.abs(rb.left - ra.left)),
+           dash: dash ? dash.getAttribute("d") : null };
+}, P20.p40);
+chk(adj20.dy >= 0 && adj20.dy <= 24 && adj20.dx <= 3 && adj20.dash === "M880 249 H1580",
+    `R20-④ 副注与标注左边线对齐、垂直紧贴，虚线同步归位到「用过」那一档 ${JSON.stringify(adj20)}`);
+chk(/class="slide[^"]*\br20step\b/.test(html) && html.includes(".r20step "),
+    "R20-④ 档位类 r20step 挂上且在 CSS 里有定义");
+// ⑤ P43 删句
+const s20p43 = await secOf(P20.p43);
+chk(s20p43.includes('<div class="note co flow" style="--i:9"><b>低 agency 常常是组织制造出来的</b>') &&
+    s20p43.includes("先改环境，再评价人。"),
+    "R20-⑤ 删句后 note 直接从判断句起头，后半块原样");
+// 五页逐页：零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率 78–106% + 截图（2.4s）
+const r20 = [];
+for (const [name, i] of Object.entries({ p7: P20.p7, p28: P20.p28, p30: P20.p30,
+                                         p40: P20.p40, p43: P20.p43 })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(300);
+  await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const body = s.querySelector(".body");
+    let ratio = null;
+    if (body) {
+      const kids = [...body.children].filter((e) => e.offsetParent);
+      const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+      const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+      ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    }
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0, worst = null;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) {
+        ov++; if (!worst) worst = [t[i].textContent.trim(), t[j].textContent.trim()];
+      }
+    }
+    let vbOut = 0;
+    s.querySelectorAll("svg").forEach((svg) => {
+      const sb = svg.getBoundingClientRect();
+      [...svg.querySelectorAll("text")].forEach((e) => {
+        const b = e.getBoundingClientRect();
+        if (b.width && (b.left < sb.left - 2 || b.right > sb.right + 2 ||
+                        b.top < sb.top - 2 || b.bottom > sb.bottom + 2)) vbOut++;
+      });
+    });
+    let clipped = 0;
+    s.querySelectorAll("*").forEach((el) => {
+      const cp = getComputedStyle(el).clipPath;
+      if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+    });
+    return { out, ratio, ov, worst, vbOut, clipped };
+  });
+  r20.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r20-${name}.png` });
+}
+chk(r20.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.clipped === 0 &&
+                     (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
+    `R20 · 五页零溢出 / 零重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(r20)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
