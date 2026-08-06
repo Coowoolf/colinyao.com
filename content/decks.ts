@@ -74,7 +74,7 @@ export const deckRoutes: { source: string; file: string }[] = [
   { source: "/newcollege-light", file: "/decks/newcollege-light.html" },
   // aiot26 叙事重构版（26 页 · 默认浅底）· 预览路由，Colin 定稿前不进 talkDecks 索引
   { source: "/aiot26-v2", file: "/decks/aiot26-v2.html" },
-  // cowork-conf R20 终稿（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
+  // cowork-conf R21 终稿（46 页 · 删陪伴整章 + 逐页删文 + 两页拆分 + 八页删改 + 十三页删改与数据换血
   // + PART 1 幕卡后新增「AI 投资资金流向 2024→2026」一页 + R13 七处内容修订
   // + R14 P2 讲台 / 资金流向页重做成双轴时间图
   // + R15 终轮十项（三张主标题 / CONVOAI AGENT / 北极星逐列对齐 / PART 2 幕卡金句 / 三处删段
@@ -92,6 +92,9 @@ export const deckRoutes: { source: string; file: string }[] = [
   // + R20 **终稿**五处（P7 对数轴 → 分段断轴 $0–$4B / $30–$180B 两段线性 + 写代码线换金黄
   //   / P28 交叉验证条带只留自动驾驶一列 / P40「有人用了三年还停在这条线上」归位到「最难跨的一段」
   //   / P43 删「但只讲个人是不公平的。」；P30 点名待 Colin 定夺，本轮未动）
+  // + R21 **终稿收口**一页三处（P30 署名实名化为 Eric Glyman · Ramp 联合创始人 · Cheeky Pint 2026-02
+  //   / 左侧「10 万+」补 Glyman 逐字原话 [00:06:30] / 右侧「自我认证」补 John Collison
+  //   逐字原话 [00:08:09] + 署名 —— 数是 Ramp 的、「不能自我认证」是 Stripe 的，两家各归各）
   // · 大会 conf 视觉）· 预览路由，
   // Colin 定稿前不进 speechDecks 索引；线上 /cowork-conf 仍是 55 页原版。
   // 同源同脚本：CONF_V2=1 python3 scripts/build-conf.py

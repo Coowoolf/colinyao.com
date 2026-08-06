@@ -1447,12 +1447,12 @@ chk(["L1 · 旁听", "L5 · 主动外呼", "撤掉「人」这张安全网", "�
       .every((k) => s20p28.includes(k)) &&
     /class="slide[^"]*\br20cross\b/.test(html) && html.includes(".r20cross "),
     "R20-② 梯子主图未被误伤 + 档位类 r20cross 在位");
-// ③ P30：查证结论是 Ramp / Eric Glyman（不是 Stripe）→ 本轮按硬纪律一个字不动
+// ③ P30 —— ⚠️ **R21 改判**：R20 的「按兵不动」在 Colin 拍板（「OK 的，改一下」）后作废。
+//    「匿名署名在位 / 全场无 Stripe 无 Ramp」两条**反向账变正向账**，搬到 6.17 段；
+//    只有「厂商自报 · 未经独立核实」这条不随实名变化，留在这里。
 const s20p30 = await secOf(P20.p30);
-chk(s20p30.includes("某企业支付平台 CEO 公开口径 · 2026") &&
-    s20p30.includes("厂商自报 · 未经独立核实") &&
-    !slides20.includes("Stripe") && !slides20.includes("Ramp"),
-    "R20-③ P30 署名原样待 Colin 定夺（查证与「Stripe」矛盾，未经拍板不实名）");
+chk(s20p30.includes("厂商自报 · 未经独立核实"),
+    "R20-③ P30「未经独立核实」标注不随实名改动而消失");
 // ④ P40 那句话归位：DOM 上紧跟「最难跨的一段」，降档成 .sm.sub，且旧位清零
 const s20p40 = await secOf(P20.p40);
 chk((s20p40.match(/有人用了三年还停在这条线上/g) || []).length === 1 &&
@@ -1541,6 +1541,107 @@ for (const [name, i] of Object.entries({ p7: P20.p7, p28: P20.p28, p30: P20.p30,
 chk(r20.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.clipped === 0 &&
                      (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
     `R20 · 五页零溢出 / 零重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(r20)}`);
+
+// ── 6.17) R21 终稿收口：P30 实名 Ramp/Glyman + 双引文 ──
+// Colin 拍板「OK 的，改一下」→ 把 R20 追到一手、备而未发的那条补丁落地。
+// 两家各归各：10 万+ 与 >99% 是 Ramp（Eric Glyman）的数；「不能自我认证」是 Stripe（John Collison）的话。
+const P21 = { p30: await idxOf("它决策，人审批") };
+chk(P21.p30 >= 0, `R21 · P30 按内容找到（第 ${P21.p30 + 1} 页）`);
+const s21 = await secOf(P21.p30);
+// ① 实名署名在位 + 旧的匿名口径全场清零
+chk(s21.includes('<div class="u">Eric Glyman · Ramp 联合创始人 · Cheeky Pint 2026-02</div>') &&
+    !html.includes("某企业支付平台 CEO 公开口径"),
+    "R21-① P30 署名实名化（旧匿名口径清零）");
+// ②③ 两条逐字引文 —— 一个字母都不许改，逐字比对
+chk(s21.includes("“we’re processing over 100,000 expenses a day that are being reviewed agentically.”"),
+    "R21-② 左侧 Glyman 逐字原话在位（00:06:30）");
+chk(s21.includes("“you can’t self-certify.”") &&
+    s21.includes("John Collison · Stripe 联合创始人"),
+    "R21-③ 右侧 Collison 逐字原话 + 署名在位（00:08:09）");
+// 右侧三行共用左边线 x=1300（与左侧那行对称/同档）
+chk(['x="1300" y="133"', 'x="1300" y="167"', 'x="1300" y="195"'].every((k) => s21.includes(k)),
+    "R21-③ 右侧三行共用同一条左边线，版式与左侧对称");
+// 两家各归各：全场 Ramp 一处 · Stripe 一处，且都落在 P30（别处不许撞车）
+const nameHits = await pg.evaluate(() => {
+  const f = (w) => window.deck.slides.map((s, i) => [(s.textContent || "").split(w).length - 1, i + 1])
+                                     .filter((x) => x[0] > 0);
+  return { ramp: f("Ramp"), stripe: f("Stripe") };
+});
+chk(nameHits.ramp.length === 1 && nameHits.ramp[0][0] === 1 &&
+    nameHits.stripe.length === 1 && nameHits.stripe[0][0] === 1 &&
+    nameHits.ramp[0][1] === P21.p30 + 1 && nameHits.stripe[0][1] === P21.p30 + 1,
+    `R21 · 全场 Ramp / Stripe 各恰好一处且都在 P30 ${JSON.stringify(nameHits)}`);
+// 未核实标注保留 + 原有元素未被误伤 + 档位类
+// （`>99%` 在源码里是实体 `&gt;99%`，所以两种写法都认）
+chk(["厂商自报 · 未经独立核实", "10 万+", "&gt;99%", "一个人类，在它后面审批",
+     "自我认证 —— 不被允许", "职责分离 —— 可以放行", "关键动作不可自我认证"]
+      .every((k) => s21.includes(k)) &&
+    /class="slide[^"]*\br21p30\b/.test(html) && html.includes(".r21p30 "),
+    "R21 · 未核实标注保留 + 三数两走法未被误伤 + 档位类 r21p30 在位");
+// 实测：两条引文与两条署名都是 mono、且署名不再是 uppercase（左右同档，见 C21_CSS 注释）
+const s21fmt = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 2400));
+  const s = window.deck.slides[k];
+  const g = (el) => el ? { ff: getComputedStyle(el).fontFamily.slice(0, 12),
+                           fs: getComputedStyle(el).fontSize,
+                           tt: getComputedStyle(el).textTransform } : null;
+  return { en: g(s.querySelector(".stat .en")), u: g(s.querySelector(".stat .u")),
+           quo: g(s.querySelector("svg text.quo")), att: g(s.querySelector("svg text.att")) };
+}, P21.p30);
+chk(s21fmt.en && s21fmt.quo && s21fmt.att && s21fmt.u.tt === "none" &&
+    [s21fmt.en, s21fmt.quo, s21fmt.att].every((x) => /mono|JetBrains|Menlo|Courier|ui-mono/i.test(x.ff)),
+    `R21 · 左右两处引文同为 mono 档 + 署名行不再全大写 ${JSON.stringify(s21fmt)}`);
+// P30 单页：零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率
+await pg.evaluate((k) => window.deck.go(k), P21.p30);
+await pg.waitForTimeout(300);
+await pg.evaluate(() => {
+  const s = window.deck.slides[window.deck.i];
+  const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+  for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+});
+await pg.waitForTimeout(2400);
+const m21 = await pg.evaluate(() => {
+  const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+  let out = 0;
+  s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+    if (!el.offsetParent) return;
+    const b = el.getBoundingClientRect();
+    if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+  });
+  const body = s.querySelector(".body");
+  const kids = [...body.children].filter((e) => e.offsetParent);
+  const ratio = Math.round((Math.max(...kids.map((e) => e.getBoundingClientRect().bottom)) -
+                            Math.min(...kids.map((e) => e.getBoundingClientRect().top))) /
+                           body.getBoundingClientRect().height * 100);
+  const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+  let ov = 0, worst = null;
+  for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+    const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+    if (!a.width || !c.width) continue;
+    if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+        Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) {
+      ov++; if (!worst) worst = [t[i].textContent.trim(), t[j].textContent.trim()];
+    }
+  }
+  const svg = s.querySelector("svg"), sb = svg.getBoundingClientRect();
+  let vbOut = 0;
+  [...svg.querySelectorAll("text")].forEach((e) => {
+    const b = e.getBoundingClientRect();
+    if (b.width && (b.left < sb.left - 2 || b.right > sb.right + 2 ||
+                    b.top < sb.top - 2 || b.bottom > sb.bottom + 2)) vbOut++;
+  });
+  let clipped = 0;
+  s.querySelectorAll("*").forEach((el) => {
+    const cp = getComputedStyle(el).clipPath;
+    if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+  });
+  return { out, ratio, ov, worst, vbOut, clipped };
+});
+await pg.screenshot({ path: "/tmp/qa/r21-p30.png" });
+chk(m21.out === 0 && m21.ov === 0 && m21.vbOut === 0 && m21.clipped === 0 &&
+    m21.ratio >= 78 && m21.ratio <= 106,
+    `R21 · P30 零溢出 / 零重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(m21)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));

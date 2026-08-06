@@ -1966,7 +1966,7 @@ h2 .pre{display:inline-block;}
     </div>
   </div>
 </section>
-<section class="slide t8 r9p29 r10p29 r11p29">
+<section class="slide t8 r9p29 r10p29 r11p29 r21p30">
   <div class="chrome"><span>PART 3 · 双向奔赴</span><span>30</span></div>
   <div class="wrap">
     <div class="head">
@@ -1991,6 +1991,8 @@ h2 .pre{display:inline-block;}
           <text class="lbl pop" style="--i:7" x="720" y="190" text-anchor="middle">审的和批的是同一个主体</text>
           <text class="lbl pop" style="--i:7" x="1140" y="190" text-anchor="middle">出事时无人可追责</text>
           <text class="sm fill-co pop" style="--i:7" x="1300" y="133">自我认证 —— 不被允许</text>
+          <text class="quo pop" style="--i:8" x="1300" y="167">&#8220;you can&#8217;t self-certify.&#8221;</text>
+          <text class="att pop" style="--i:8" x="1300" y="195">John Collison · Stripe 联合创始人</text>
 
           <!-- 走法二：Agent 审阅，人审批 -->
           <path class="stroke-am dw" style="--len:56;--i:6" stroke-width="4" d="M76 353 L88 365 L106 339"/>
@@ -2013,7 +2015,7 @@ h2 .pre{display:inline-block;}
         </svg>
       </div>
       <div class="g3">
-        <div class="stat rise" style="--i:2"><div class="v">10 万+</div><div class="l">每天由 Agent 审阅的费用条目</div><div class="u">某企业支付平台 CEO 公开口径 · 2026</div></div>
+        <div class="stat rise" style="--i:2"><div class="v">10 万+</div><div class="l">每天由 Agent 审阅的费用条目</div><div class="en">&#8220;we&#8217;re processing over 100,000 expenses a day that are being reviewed agentically.&#8221;</div><div class="u">Eric Glyman · Ramp 联合创始人 · Cheeky Pint 2026-02</div></div>
         <div class="stat rise" style="--i:3"><div class="v">&gt;99%</div><div class="l">审阅准确率 —— 已经高于人工</div><div class="u">厂商自报 · 未经独立核实</div></div>
         <div class="stat rise" style="--i:4"><div class="v co">仍需</div><div class="l">一个人类，在它后面审批</div><div class="u">关键动作不可自我认证</div></div>
       </div>
@@ -3795,6 +3797,23 @@ thead th{font-size:19px;}
 /* P40：那句「有人用了三年还停在这条线上」从全图底部收到「最难跨的一段」脚下，
    降一档成它的副注（原来是 .txt，现在走 .sm 一档并保持 coral）。 */
 .r20step .fig .sm.sub{font-size:21px;}
+
+/* ============ C21 · R21 终稿收口 · P30 实名 + 双引文 ============ */
+/* 左：10 万+ 那张卡里的逐字原话（Eric Glyman）。.stat .u 是 uppercase + .16em 的标签体例，
+   引文不能跟着走那一套，所以单独一档：mono、16px、正常字距、可折行。 */
+.r21p30 .stat .en{font-family:var(--f-mono);font-size:16px;line-height:1.5;
+  letter-spacing:0;text-transform:none;color:var(--ink-2);}
+/* 署名行变长了（实名 + 播客 + 年月），比默认 .u 的 .16em 收一档字距，免得挤成两行半。
+   ⚠️ 同时关掉 .stat .u 自带的 uppercase：那是「单位/口径标签」的体例，
+   这一行现在是**人名署名**——全大写会把 ERIC GLYMAN / CHEEKY PINT 读成标签，
+   而且与右边 John Collison 那行（mono 混合大小写）不对称。本 deck 别处的署名
+   （「Des Traynor · Intercom 联合创始人」）也一律是自然大小写。
+   这一页另外两条 .u 都是纯中文，关掉 uppercase 对它们零影响。 */
+.r21p30 .stat .u{letter-spacing:.08em;text-transform:none;}
+/* 右：svg 里「自我认证 —— 不被允许」脚下的那句原话 + 出处，与左边同档。
+   .quo 是引文本身，.att 是它的署名（再降一档、压暗），两条都不参与读数。 */
+.r21p30 .fig .quo{font-family:var(--f-mono);font-size:18px;fill:var(--ink-2);}
+.r21p30 .fig .att{font-family:var(--f-mono);font-size:16px;fill:var(--ink-3);}
 </style>
 <div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
 <script>

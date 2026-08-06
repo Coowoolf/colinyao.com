@@ -1403,6 +1403,29 @@ C20_CSS = """
 .r20step .fig .sm.sub{font-size:21px;}
 """
 
+# ── C21 · R21 终稿收口的页级档 ·只在 CONF_V2=1 装配 ───────────────────────────
+#    只有一页一档 .r21p30：P30 实名落地之后，页上第一次出现「英文逐字引文」这种元素，
+#    左右各一处（左边在 .stat 卡里，右边在 svg 里），两处必须**同档同质感**：
+#    mono、比正文小一档、不做 uppercase/letter-spacing（那是标签的体例，不是引文的）。
+C21_CSS = """
+/* ============ C21 · R21 终稿收口 · P30 实名 + 双引文 ============ */
+/* 左：10 万+ 那张卡里的逐字原话（Eric Glyman）。.stat .u 是 uppercase + .16em 的标签体例，
+   引文不能跟着走那一套，所以单独一档：mono、16px、正常字距、可折行。 */
+.r21p30 .stat .en{font-family:var(--f-mono);font-size:16px;line-height:1.5;
+  letter-spacing:0;text-transform:none;color:var(--ink-2);}
+/* 署名行变长了（实名 + 播客 + 年月），比默认 .u 的 .16em 收一档字距，免得挤成两行半。
+   ⚠️ 同时关掉 .stat .u 自带的 uppercase：那是「单位/口径标签」的体例，
+   这一行现在是**人名署名**——全大写会把 ERIC GLYMAN / CHEEKY PINT 读成标签，
+   而且与右边 John Collison 那行（mono 混合大小写）不对称。本 deck 别处的署名
+   （「Des Traynor · Intercom 联合创始人」）也一律是自然大小写。
+   这一页另外两条 .u 都是纯中文，关掉 uppercase 对它们零影响。 */
+.r21p30 .stat .u{letter-spacing:.08em;text-transform:none;}
+/* 右：svg 里「自我认证 —— 不被允许」脚下的那句原话 + 出处，与左边同档。
+   .quo 是引文本身，.att 是它的署名（再降一档、压暗），两条都不参与读数。 */
+.r21p30 .fig .quo{font-family:var(--f-mono);font-size:18px;fill:var(--ink-2);}
+.r21p30 .fig .att{font-family:var(--f-mono);font-size:16px;fill:var(--ink-3);}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -3577,6 +3600,55 @@ if V2:
     assert '但只讲个人是不公平的。' not in _secs[_I_HA], 'C20-⑤ 该句未删'
     assert '先改环境，再评价人。' in _secs[_I_HA], 'C20-⑤ 后半块不该被动'
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C21（2026-08-06 · R21 终稿收口 · P30 一页三处 · 页数不变 46）────────────────
+# R20 把 P30 那两个数追到了一手（Cheeky Pint《Ramp founder Eric Glyman on the many ways
+# AI is changing corporate spending》2026-02-17，主持 John Collison），结论是**出自 Ramp
+# 不是 Stripe**，按硬纪律停在原地等 Colin。Colin 2026-08-06 拍板：「OK 的，改一下」。
+# 本层就是把 R20 备好的那条补丁落地，三处：
+#   ① 署名实名化：「某企业支付平台 CEO 公开口径 · 2026」→ Eric Glyman · Ramp · Cheeky Pint 2026-02
+#   ② 左侧「10 万+」卡下补一行 mono 英文**逐字**原话（Glyman [00:06:30]）
+#   ③ 右侧「自我认证 —— 不被允许」脚下补 John Collison [00:08:09] 的逐字原话 + 署名
+#      —— 这句本来就是**访谈者**说的，两家各归各：数是 Ramp 的，「不能自我认证」是 Stripe 的。
+# 「厂商自报 · 未经独立核实」保留（>99% 那个数仍是自报口径，标注继续成立）。
+# ⚠️ title 复核（R21 明确要求「用准确的」）：R20 写的「Ramp 联合创始人兼 CEO」**已经过期** ——
+#    Ramp 2026-06-25 官宣 Eric Glyman 与联合创始人 Karim Atiyeh 同任 **Co-CEO**，
+#    官网 authors 页现在的 title 是「Co-Founder & Co-CEO, Ramp」。
+#    页面取**「Ramp 联合创始人」**：录音当时（2026-02）与今天都成立，不吃 CEO/Co-CEO 的时效，
+#    而且与本 deck 既有体例（「Des Traynor · Intercom 联合创始人」）逐字同宗。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    _I_P30b = _ix('人和 Agent 共事的协作关系：它决策，<em>人审批</em>')
+
+    # ── C21-① 署名实名化 ────────────────────────────────────────────────────
+    _r1(_I_P30b, '<div class="u">某企业支付平台 CEO 公开口径 · 2026</div>',
+                 '<div class="u">Eric Glyman · Ramp 联合创始人 · Cheeky Pint 2026-02</div>')
+
+    # ── C21-② 左侧「10 万+」卡 · 补一行逐字原话 ──────────────────────────────
+    #    位置在标签行与署名行之间 —— 「数 → 它说的是什么 → 原话 → 谁说的」，一路读下来。
+    #    逐字，一个字母都不改（Glyman [00:06:30]）。
+    _r1(_I_P30b, '<div class="l">每天由 Agent 审阅的费用条目</div>',
+                 '<div class="l">每天由 Agent 审阅的费用条目</div>'
+                 '<div class="en">&#8220;we&#8217;re processing over 100,000 expenses a day '
+                 'that are being reviewed agentically.&#8221;</div>')
+
+    # ── C21-③ 右侧「自我认证 —— 不被允许」· 补访谈者那句原话 ────────────────
+    #    与左边那行同档同质感（mono、比正文小一档），版式上左右对称。
+    #    x 沿用同一条左边线 1300；y 在 133 之下按 30 / 26 的行距落两行，
+    #    下方最近的邻居是 x=1140 y=190 那条居中标签（右端 ≈1224），横向不重叠。
+    _r1(_I_P30b, '<text class="sm fill-co pop" style="--i:7" x="1300" y="133">自我认证 —— 不被允许</text>',
+                 '<text class="sm fill-co pop" style="--i:7" x="1300" y="133">自我认证 —— 不被允许</text>\n'
+                 '          <text class="quo pop" style="--i:8" x="1300" y="167">'
+                 '&#8220;you can&#8217;t self-certify.&#8221;</text>\n'
+                 '          <text class="att pop" style="--i:8" x="1300" y="195">'
+                 'John Collison · Stripe 联合创始人</text>')
+    _cls(_I_P30b, 'r21p30')
+
+    #    两家各归各：Ramp 一处（Glyman 的署名）· Stripe 一处（Collison 的署名），不许串
+    assert _secs[_I_P30b].count('Ramp') == 1 and _secs[_I_P30b].count('Stripe') == 1, \
+        'C21 · P30 实名应各恰好一处'
+    assert '厂商自报 · 未经独立核实' in _secs[_I_P30b], 'C21 ·「未经独立核实」标注不该被动'
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -3772,6 +3844,7 @@ if V2:
     CONF_CSS += C18_CSS     # C18 · R18 页级档（P44 门图，必须排在 C9 的 .r9p43 之后：同页两个类，后写者胜）
     CONF_CSS += C19_CSS     # C19 · R19 页级档（必须排在 C17/C18 之后：.r17money / .r18doors 同页档靠后写者胜）
     CONF_CSS += C20_CSS     # C20 · R20 终稿页级档（必须排在 C19 之后：.r19money / .r10p27 / .r10p39 三处靠后写者胜）
+    CONF_CSS += C21_CSS     # C21 · R21 终稿收口页级档（P30 一页一档，排在最后）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -4817,11 +4890,13 @@ if V2:
     for _keep in ('L1 · 旁听', 'L5 · 主动外呼', '撤掉「人」这张安全网', '向下的电梯 · THE WAY DOWN'):
         assert _keep in _x20, f"C20-② 梯子主图被误伤：{_keep}"
 
-    #    ⓓ ③ P30 —— 查证与「Stripe」矛盾，本轮按硬纪律**一个字不动**（证据链见 C20 层注释）
+    #    ⓓ ③ P30 —— ⚠️ **R21 改判：这一条的「按兵不动」已经作废**。
+    #       R20 把证据链追到一手后停在原地等 Colin；Colin 2026-08-06 拍板「OK 的，改一下」，
+    #       C21 层把实名与两条逐字引文落地。于是本条的三条断言：
+    #         · 「某企业支付平台 CEO 公开口径 · 2026」在位 → 作废（已实名，负向账搬到 C21 段）
+    #         · 全场无 Stripe / 无 Ramp        → 作废，**反向账变正向账**（各恰好一处，搬到 C21 段）
+    #         · 「厂商自报 · 未经独立核实」在位 → **仍然成立，留在这里**（>99% 那个数还是自报口径）
     _p30 = _sec_of('人和 Agent 共事的协作关系：它决策，<em>人审批</em>')
-    assert '某企业支付平台 CEO 公开口径 · 2026' in _p30, "C20-③ P30 署名应原样待 Colin 定夺"
-    assert 'Stripe' not in _slides20 and 'Ramp' not in _slides20, \
-        "C20-③ 未经 Colin 拍板不得把任一实名写上台"
     assert '厂商自报 · 未经独立核实' in _p30, "C20-③ 未核实标注不该被动"
 
     #    ⓔ ④ P40 那句话归位：与「最难跨的一段」DOM 相邻，且降档成 .sm.sub
@@ -4842,10 +4917,39 @@ if V2:
         "C20-⑤ 删句后 note 未直接从判断句起头"
     assert '先改环境，再评价人。' in _p43, "C20-⑤ 后半块被误伤"
 
+    # ── C21 · R21 终稿收口 · P30 实名 + 双引文 ─────────────────────────────
+    _p30b = _sec_of('人和 Agent 共事的协作关系：它决策，<em>人审批</em>')
+    #    ⓐ ① 实名署名在位；被换下的匿名口径全场清零
+    assert '<div class="u">Eric Glyman · Ramp 联合创始人 · Cheeky Pint 2026-02</div>' in _p30b, \
+        "C21-① P30 实名署名未落地"
+    assert '某企业支付平台 CEO 公开口径' not in s, "C21-① 旧的匿名口径未清零"
+    #    ⓑ ②③ 两条**逐字**引文在位（一个字母都不许改；改了这两条断言就是防线）
+    assert '<div class="en">&#8220;we&#8217;re processing over 100,000 expenses a day ' \
+           'that are being reviewed agentically.&#8221;</div>' in _p30b, "C21-② Glyman 逐字原话未落地"
+    assert '&#8220;you can&#8217;t self-certify.&#8221;' in _p30b, "C21-③ Collison 逐字原话未落地"
+    assert '>John Collison · Stripe 联合创始人</text>' in _p30b, "C21-③ 访谈者署名未落地"
+    #       右侧两行与「自我认证 —— 不被允许」同一条左边线（x=1300），版式左右对称
+    #       （这一页别处也有 x=1300 的元素 —— y=34 的列标与 y=365 的「职责分离」，所以按 y 逐条点名）
+    for _xy in ('x="1300" y="133"', 'x="1300" y="167"', 'x="1300" y="195"'):
+        assert _p30b.count(_xy) == 1, f"C21-③ 右侧三行未共用左边线：{_xy}"
+    #    ⓒ 两家各归各：Ramp 恰好一处（数）· Stripe 恰好一处（不能自我认证），全场不许别处撞车
+    _slides21 = ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S))
+    assert _slides21.count('Ramp') == 1 and _slides21.count('Stripe') == 1, \
+        f"C21 · 全场 Ramp/Stripe 各应恰好一处，实际 {_slides21.count('Ramp')}/{_slides21.count('Stripe')}"
+    assert _p30b.count('Ramp') == 1 and _p30b.count('Stripe') == 1, "C21 · 两处实名都应落在 P30"
+    #    ⓓ 未核实标注保留；三个数与两条走法一个字没动
+    for _keep in ('厂商自报 · 未经独立核实', '>10 万+<', '&gt;99%', '一个人类，在它后面审批',
+                  '自我认证 —— 不被允许', '职责分离 —— 可以放行', '关键动作不可自我认证'):
+        assert _keep in _p30b, f"C21 · P30 原有元素被误伤：{_keep}"
+    #    ⓔ 档位类挂上且有定义
+    assert len(re.findall(r'class="slide[^"]*\br21p30\b', s)) == 1 and '.r21p30 ' in s, \
+        "C21 · 档位类未挂/未定义：r21p30"
+
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
           "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓ "
           "C15 R15 终轮十项 ✓ C16 R16 五处 ✓ C17 R17 十二处 ✓ "
-          f"C18 R18 P44 门图 ✓（{len(_DOORS_B)//1024}KB webp 内联）· C19 R19 五处 ✓ · C20 R20 终稿五处 ✓")
+          f"C18 R18 P44 门图 ✓（{len(_DOORS_B)//1024}KB webp 内联）· C19 R19 五处 ✓ · C20 R20 终稿五处 ✓ "
+          "· C21 R21 终稿收口 P30 实名 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')
