@@ -305,15 +305,14 @@ chk(seq12.p6.includes("语法变了") && seq12.p7.includes("钱的三次落点")
 chk(html.includes("产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走"),
     "R12 · 新页 eyebrow 用 Colin 原话（逐字）");
 chk(html.includes("近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>"), "R12 · 新页 h2 在位");
-// 三条线的名与数（R14 已把三条层带重做成双轴时间图，逐条图元账见 6.10）
-chk([">基础模型</text>", ">AI 写代码</text>", ">对话式 AI</text>",
-     ">$31.4B</text>", ">$88.9B</text>", ">$178B</text>",
-     ">$1.6B</text>", ">$3.3B</text>",
-     ">$2.1B</text>", ">≈$0.7B</text>", ">$2.2B+</text>"].every((k) => html.includes(k)),
-    "R12 · 三条线的名与数全在");
+// 三条赛道的名（R14 重做成双轴时间图、R16 又整张换成三格小倍数）
+// ⚠️ R16 改判：三条线的「数」不再由这里守 —— 2.1 / ≈0.7 / 2.2+ 经重查全部作废，
+//    $178B / $1.6B 在小倍数里各出现两次；逐条数值账（含来源与截点）搬到 6.12 段。
+//    「走线光点 .pkt」是曲线图元，柱图上没有线可走，一并搬到 6.12 段作反向断言。
+chk([">基础模型</text>", ">AI 写代码</text>", ">对话式 AI</text>"].every((k) => html.includes(k)),
+    "R12 · 三条赛道的名全在");
 const p7h = html.slice(html.search(/class="slide[^"]*\br12flow\b/));
 const p7s = p7h.slice(0, p7h.indexOf("</section>"));
-chk((p7s.match(/class="stroke-am pkt"/g) || []).length === 1, "R12 · 对话式那条走线光点在位");
 // 大泛类两翼：消费声音侧 / 企业智能体侧各点一个代表名
 chk(["ElevenLabs $500M @ $11B", "消费声音侧", "Sierra $950M @ $15B", "企业智能体侧"]
       .every((k) => p7s.includes(k)), "R12 · 对话式层两翼（ElevenLabs / Sierra）标注在位");
@@ -430,14 +429,14 @@ chk(case2.cs.length === 2 && case2.cs.every((c) => c.l === "意向转化率") &&
     case2.land.includes("它已经把人工基线翻了一倍。") && case2.land.includes("不是在"),
     `R13-⑤ 两数同为意向转化率 + Agent 条更长/amber + 主句转向「强过人」${JSON.stringify(case2.cs.map((c) => [c.v, c.l, Math.round(c.w)]))}`);
 chk(html.includes("上线前人工基线 · 内部口径"), "R13-⑤ 1.5% 的口径标注保留");
-// ⑥ Bret Taylor perfect human 金句页
+// ⑥「perfect human」金句页 —— ⚠️ R16 改判：R13 换上来的英文逐字仍在，但
+//    ⒜ 中文从一整行拆成两行 `<i>`（中上英下），contiguous 整句不再存在；
+//    ⒝ 署名改成 Des Traynor（这句本来就不是 Bret 的）。两条正向账搬到 6.12 段。
 const sMq = await secOf(P.mqTaylor);
 chk(sMq.includes("is people compare it with this perfect human") &&
     sMq.includes("that does not exist.") &&
-    sMq.includes("AI 最大的谬误之一，是人们总把它跟一个并不存在的完美的人相比。") &&
-    sMq.includes("Bret Taylor · Sierra CEO / OpenAI 董事长") &&
     sMq.includes("观点页 · 嘉宾金句 · 03"),
-    "R13-⑥ 金句 03 换成 Bret Taylor 原句（英文主 + 中文译 + 署名行）");
+    "R13-⑥ 金句 03 的英文原句逐字仍在（署名与版式由 R16 接管）");
 // ⑦ 围栏 Part 点睛
 const sFc = await secOf(P.mqFence);
 chk(sFc.includes("是放出它。") && sFc.includes("观点页 · 嘉宾金句 · 04") &&
@@ -498,49 +497,17 @@ const stageLeft = await pg.evaluate(() =>
   window.deck.slides.filter((s) => (s.textContent || "").includes("舞台")).length);
 chk(stageLeft === 0 && !html.includes("第三次，站上同一个舞台"),
     `R14-① 全场 46 页正文零「舞台」（残留 ${stageLeft} 页）`);
-// ② 双轴时间图：骨架 / 三条线 / 名牌 / 两翼 / 小注 / 面积 / 光点
+// ② 钱流向页 —— ⚠️ **R16 改判：双轴时间图整张作废**（Colin 三条质疑全部成立：
+//    左 0–200 / 右 0–4 把 $3.3B 画得比 $178B 还高；对话式那条取数残缺；融资额与 ARR 混图）。
+//    R16 换成三格小倍数，所以双轴骨架 / 两套刻度 / 三条曲线 / 走线光点 / 渐变面积 /
+//    终点名牌 / 值标五个 / foot 逐字，**全部从这里摘除**，正向账搬到 6.12 段。
+//    仍留在这里的是不随画法变化的两条：三条层带旧图元清零 · 旧长 foot 口径清零。
 const pmh = html.slice(html.search(/class="slide[^"]*\br14money\b/));
 const pms = pmh.slice(0, pmh.indexOf("</section>"));
-chk(pms.includes('d="M230 120 V470 M1200 120 V470"') &&
-    (pms.match(/class="gd"/g) || []).length === 1 &&
-    (pms.match(/class="axb"/g) || []).length === 1 &&
-    pms.includes(">基础模型 $B</text>") && pms.includes(">Coding / 对话式 $B</text>"),
-    "R14-② 双轴骨架：左右两轴 + 一套共用网格 + 基线 + 两个 mono 轴标");
-chk(['x="212" y="127" text-anchor="end">200<', 'x="212" y="477" text-anchor="end">0<',
-     'x="1218" y="127">4<', 'x="1218" y="477">0<'].every((k) => pms.includes(k)),
-    "R14-② 左轴 0–200 / 右轴 0–4 刻度在位（两套落在同五条网格线上）");
-chk(['class="lbl yr" x="300" y="508"', 'class="lbl yr" x="720" y="508"',
-     'class="lbl yr" x="1140" y="508"', '>至今</text>',
-     "左右两轴量级不同 · 左轴 0–200，右轴 0–4（$B）"].every((k) => pms.includes(k)),
-    "R14-② X 轴三刻度 + 2026「至今」+ 双轴量级防误读小注");
-chk((pms.match(/class="ln fnd dw"/g) || []).length === 1 &&
-    (pms.match(/class="ln cod dw"/g) || []).length === 1 &&
-    (pms.match(/class="ln cnv dw"/g) || []).length === 1 &&
-    (pms.match(/class="stroke-am pkt"/g) || []).length === 1,
-    "R14-② 三条曲线各一条 + 对话式那条挂走线光点");
-chk(pms.includes('class="ln cod dw" style="--len:490;--i:6" d="M300 330 C 440 322 580 210 720 181"') &&
-    !pms.includes("stroke-dasharray") && !pms.includes("$2B ARR") &&
-    pms.includes("2026 转向收入兑现 · Cursor ARR $2B"),
-    "R14-② Coding 线止于 2025、无虚线补第三点，ARR 只作末端小注（不上融资轴）");
-chk(pms.includes('fill="url(#r14conv)"') && pms.includes('id="r14conv"') &&
-    html.includes(".r14money #r14conv .g0{stop-color:var(--amber);stop-opacity:.22;}"),
-    "R14-② 对话式曲线下的 amber 低透明度渐变面积在位");
-chk(['x="1262" y="150">基础模型</text>', 'x="1262" y="196">$178B</text>',
-     'x="750" y="154">AI 写代码</text>', 'x="891" y="154">$3.3B</text>',
-     'x="1262" y="270">对话式 AI</text>', 'x="1262" y="316">$2.2B+</text>'].every((k) => pms.includes(k)) &&
-    (pms.match(/class="sm wing pop"/g) || []).length === 2 &&
-    (pms.match(/class="lead (fnd|cnv) pop"/g) || []).length === 2,
-    "R14-② 三条曲线各自终点挂名牌（两条带引线）+ 2026 点旁两翼小标");
-chk((pms.match(/class="txt val/g) || []).length === 5,
-    "R14-② 值标只在起点/拐点（终点走名牌），恰好五个 —— 不是每点都挂数字");
 chk([">FOUNDATION MODELS</text>", ">CODING</text>", ">CONVERSATIONAL AI</text>",
      'class="stroke dw"', 'class="stroke-am dw"', ">$2B ARR</text>", ">≈$2.2B</text>",
      "同一层的两翼"].every((k) => !pms.includes(k)),
     "R14-② 三条层带的旧图元清零");
-// foot 瘦身成一行；旧长口径全文撤下（已移入设计文档 R14 段留档）
-chk(pms.includes('<div class="foot flow rev" style="--i:9">Source · Crunchbase · ' +
-                 "CB Insights《State of AI 2025》· TechCrunch · Bloomberg · CNBC</div>"),
-    "R14-② 新 foot 一行在位");
 chk(["New Market Pitch 2026-07", "PYMNTS 2025-06", "SiliconANGLE 2026-05", "Newcomer 2026-02",
      "Crunchbase 2026-04", "CB Insights《State of AI 2025》2026-01",
      "本页自算，不是全类别口径", "带宽为量级示意，非等比", "Cartesia $100M", "Parloa $350M"]
@@ -622,7 +589,8 @@ chk(Object.values(P15).every((i) => i >= 0), `R15 · 十二个目标页全部按
 const cut15 = ["这不是一个垂类", "钱到了对话式 AI，再往里看一层：它分给了谁", "预测还在打架",
                "所有的路，最后都汇到「对话」这条线上", ">Conversational AI</text>",
                "可这三年里，一直是我们单方面朝它走", "下午 AIoT 专场整场拆开讲",
-               "被记住，靠的是一致性。被托付，靠的是可验证。",
+               // ⚠️ R16 改判：「被记住，靠的是一致性。被托付，靠的是可验证。」从这条负向名单摘除 ——
+               //    R16-② 把 PART 2 幕卡首行退回了这句原文，它重新是正向内容（正向账见 6.12 段）。
                "这四级换的不是它的能力", "那把越来越硬的尺子",
                "给产品经理的动作 · 把你 demo 里最得意的那三条",
                "你以为在选模型，", "其实在选评测。", "模型半年换一次，评测集用三年",
@@ -662,11 +630,8 @@ chk(!align.note && align.ns.length === 4 && align.tt.length === 4 &&
     `R15-③ 北极星四栏与阶梯四级逐列对齐 + note 整段删 ${JSON.stringify(align)}`);
 chk(/class="slide[^"]*\br15nstar\b/.test(html) && html.includes(".r15nstar "),
     "R15-③ 档位类 r15nstar 挂上且有定义");
-// ④ PART 2 幕卡金句
-const s15act = await secOf(P15.act2);
-chk(s15act.includes("我们叫了它三年 Agent（代理人）——今天，它终于开始代理了。") &&
-    s15act.includes("这一幕只讲一件事：那把尺子怎么造。"),
-    "R15-④ PART 2 幕卡新金句（双关反转）+ 本幕导航保留");
+// ④ PART 2 幕卡 —— ⚠️ **R16 改判：整条作废**。Colin 澄清 R15-④ 那句本意是放金句页，
+//    R16 把它搬到金句 01、把幕卡首行退回原文。幕卡两行的正向账搬到 6.12 段。
 // ⑤⑥ 两处删段
 const s15lad = await secOf(P15.ladder), s15ev = await secOf(P15.eval1);
 chk(!s15lad.includes('<div class="land') && s15lad.includes('<div class="g4">') &&
@@ -674,10 +639,10 @@ chk(!s15lad.includes('<div class="land') && s15lad.includes('<div class="g4">') 
     "R15-⑤ 分水岭页 land 整段删 + 阶梯图纵拉伸撑满");
 chk(!s15ev.includes('<div class="foot') && s15ev.includes("你的 demo 里全是前一种题"),
     "R15-⑥ Eval 第一课 foot 整句删");
-// ⑦ Weil 只在金句 02
+// ⑦ Weil 只在金句 02（⚠️ R16 改判：R16-③ 把这一页改成中上英下，中文拆成两行 `<i>`，
+//    contiguous 的中文整句不再存在 —— 中文两行的正向账搬到 6.12 段）
 const s15mq = await secOf(P15.mqWeil);
 chk(s15mq.includes("观点页 · 嘉宾金句 · 02") &&
-    s15mq.includes("写评测，是 AI 时代一个产品经理能做的最重要的事。") &&
     s15mq.includes("Kevin Weil · OpenAI 前 CPO") &&
     (html.match(/Kevin Weil · OpenAI 前 CPO/g) || []).length === 1,
     "R15-⑦ Weil 整张占金句 02（全场仅一处）");
@@ -704,8 +669,8 @@ chk((await secOf(P15.buy)) !== null &&
 const noL0 = await pg.evaluate(() =>
   window.deck.slides.every((s) => !s.outerHTML.includes("L0")));
 chk(noL0, "R15-⑨ 全 deck 正文再无 L0");
-// ⑩ 终检：这几笔 / 幕序课序金句序 / 目标页零溢出与填充率
-chk(html.includes("2026 光是上半年这几笔"), "R15-⑩a 钱流向页「这五笔」→「这几笔」");
+// ⑩ 终检：幕序课序金句序 / 目标页零溢出与填充率
+// ⚠️ R16 改判：⑩a「2026 光是上半年这几笔」随 C16-⑤ 的 note 整段重写而作废（负向的「这五笔」仍在上面 cut15 里）
 chk((html.match(/嘉宾金句 · 0\d/g) || []).length === 5 &&
     ["Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课"].every((k) => html.includes(k)),
     "R15-⑩b 金句 01–05 五张 / Eval 四课课序完整");
@@ -772,6 +737,175 @@ const lowFill = fillAll.filter((x) => x.r < 78 || x.r > 106);
 chk(lowFill.length === 0, `R15-⑩c 全 46 页填充率 78–106%（异常 ${JSON.stringify(lowFill)}）`);
 chk(/class="slide[^"]*\br15end\b/.test(html) && html.includes(".r15end "),
     "R15-⑩c 全场收束页留白失衡已修（档位类 r15end 在位）");
+
+// ── 6.12) R16 五处（全部内容锚定取页，不信页码） ──
+//   ① 金句 01 主文换血 ② PART 2 幕卡首行还原 ③④ 两张金句页中上英下 + 金句 03 出处改正
+//   ⑤ P7 钱流向页：数据重查 + 弃双轴重画成三格小倍数
+const P16 = {
+  mq01:  await idxOf("嘉宾金句 · 01"),
+  act2:  await idxOf("ENTRUSTED"),
+  mq02:  await idxOf("Writing evals"),
+  mq03:  await idxOf("perfect human"),
+  money: await idxOf("钱的三次落点"),
+};
+chk(Object.values(P16).every((i) => i >= 0), `R16 · 五个目标页全部按内容找到 ${JSON.stringify(P16)}`);
+// 负向：被换下 / 被作废的整段必须查无此句
+const cut16 = ["兑现的，", "不是模型更聪明了。", "是「谁负责」这件事，", "终于有了答案。",  // ① 旧金句 01
+               "左右两轴量级不同", ">基础模型 $B</text>", ">Coding / 对话式 $B</text>",   // ⑤ 双轴骨架
+               'class="ln fnd dw"', 'class="ln cod dw"', 'class="ln cnv dw"',              // ⑤ 三条曲线
+               'id="r14conv"', 'class="lead ',                                             // ⑤ 渐变面积 / 名牌引线
+               "Cursor ARR $2B", "2026 转向收入兑现",                                       // ⑤ ARR 混入融资图
+               ">$2.1B</text>", ">≈$0.7B</text>", ">$2.2B+</text>",                         // ⑤ 被重查推翻的三个数
+               "2026 光是上半年这几笔", "CB Insights《State of AI 2025》"];                 // ⑤ 旧 note 量词 / 旧来源
+chk(cut16.every((k) => !html.includes(k)),
+    `R16 · 被删/被换的整段全部清零（残留 ${JSON.stringify(cut16.filter((k) => html.includes(k)))}）`);
+// ①② 一次搬家：金句 01 拿到那句、幕卡退回原文、全场「我们叫了它三年」恰好一处
+const s16q1 = await secOf(P16.mq01), s16act = await secOf(P16.act2);
+chk(s16q1.includes('<i class="rise" style="--i:1">我们叫了它三年 Agent（代理人）——</i>') &&
+    s16q1.includes('<i class="rise" style="--i:2">今天，它终于开始代理了。</i>') &&
+    s16q1.includes("所以今年这一场，讲的不是能力，是责任。"),
+    "R16-① 金句 01 新主文两行 + 承句保留");
+chk(s16act.includes("被记住，靠的是一致性。被托付，靠的是可验证。<br>这一幕只讲一件事：那把尺子怎么造。") &&
+    !s16act.includes("我们叫了它三年"),
+    "R16-② PART 2 幕卡首行退回原文、导航行未动");
+const nAgent3y = await pg.evaluate(() =>
+  window.deck.slides.filter((s) => (s.textContent || "").includes("我们叫了它三年")).length);
+chk(nAgent3y === 1, `R16-①② 全场「我们叫了它三年」恰好一处（实测 ${nAgent3y} 页）`);
+// ③④ 中上英下：DOM 顺序中文在英文之前 + 实测字号中文 > 英文 + 中文每行不折行（禁止词中断行）
+const mqLayout = [];
+for (const [name, i] of Object.entries({ mq02: P16.mq02, mq03: P16.mq03 })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(2400);
+  mqLayout.push(await pg.evaluate((nm) => {
+    const s = window.deck.slides[window.deck.i];
+    const q = s.querySelector(".mq .q"), en = s.querySelector(".mq .en");
+    const qFs = parseFloat(getComputedStyle(q).fontSize), enFs = parseFloat(getComputedStyle(en).fontSize);
+    // DOM 顺序：中文节点必须排在英文节点之前
+    const order = q.compareDocumentPosition(en) & Node.DOCUMENT_POSITION_FOLLOWING ? "zh-then-en" : "en-then-zh";
+    // 每一行 <i> 只占一个 client rect = 没有被容器宽度折断（折断就会在词中间断开）
+    const lines = [...s.querySelectorAll(".mq .q i")].map((e) => e.getClientRects().length);
+    const qb = q.getBoundingClientRect(), sb = s.getBoundingClientRect();
+    return { nm, qFs, enFs, order, wrapped: lines.filter((n) => n !== 1).length, nLines: lines.length,
+             fits: qb.left >= sb.left && qb.right <= sb.right };
+  }, name));
+  await pg.screenshot({ path: `/tmp/qa/r16-${name}.png` });
+}
+chk(mqLayout.every((x) => x.order === "zh-then-en" && x.qFs > x.enFs && x.wrapped === 0 &&
+                          x.nLines === 2 && x.fits),
+    `R16-③④ 两张金句页中上英下：DOM 中文在前 + 中文字号 > 英文 + 两行零折行 ${JSON.stringify(mqLayout)}`);
+// ④ 出处改正：Des Traynor 在位 · 金句 03 页内 Bret Taylor / 2026-03 公开访谈 清零
+const s16q3 = await secOf(P16.mq03);
+chk(s16q3.includes('<div class="s rise" style="--i:5">Des Traynor · Intercom 联合创始人</div>') &&
+    s16q3.includes('<div class="s src rise" style="--i:6">Cheeky Pint #11 · 00:10:29</div>') &&
+    !s16q3.includes("Bret Taylor") && !s16q3.includes("2026-03 公开访谈") &&
+    s16q3.includes("One of the biggest fallacies in AI is people compare it with this perfect human"),
+    "R16-④ 金句 03 出处改正（Des Traynor + Cheeky Pint #11 · 00:10:29），英文逐字未动");
+// ⚠️ 全场「Bret Taylor」只从金句 03 撤下，其余三处是核过的真引文，一个都不许连坐：
+//    P4「English over PSTN」/ P23 Sierra 官方博客 / P43「Hyper high-agency」
+const bret = await pg.evaluate(() => {
+  const hit = window.deck.slides.map((s, i) => [(s.textContent || "").includes("Bret Taylor"), i + 1])
+                                .filter((x) => x[0]).map((x) => x[1]);
+  return hit;
+});
+chk(bret.length === 3 &&
+    ["You have all these fancy MCP things", "business outcomes delivered",
+     "Hyper high-agency people who really deeply care."].every((k) => html.includes(k)),
+    `R16-④ 全场 Bret Taylor 剩三处真引文（页 ${JSON.stringify(bret)}）`);
+// ⑤ 钱流向页：三格小倍数 · 单一口径 · 九根柱 + 九个值标 · 落点年高亮 · 序列 = 重查结果
+const s16m = await secOf(P16.money);
+chk(/class="slide[^"]*\br16money\b/.test(html) && html.includes(".r16money "),
+    "R16-⑤ 档位类 r16money 挂上且在 CSS 里有定义");
+chk(s16m.includes(">口径：一级市场披露融资额 · $B</text>") &&
+    s16m.includes("三条赛道量级差百倍，同一把尺画不下：三格各用各的尺，看形状") &&
+    !s16m.includes("pkt"),
+    "R16-⑤ 单一口径行 + 尺度差异明示 + 曲线专属的走线光点已清零");
+chk((s16m.match(/class="col /g) || []).length === 9 &&
+    (s16m.match(/class="txt val/g) || []).length === 9 &&
+    (s16m.match(/class="axb"/g) || []).length === 3 &&
+    (s16m.match(/class="pr"/g) || []).length === 3 &&
+    (s16m.match(/>至今<\/text>/g) || []).length === 3,
+    "R16-⑤ 三格 × 三年 = 九根柱 / 九个值标 / 三条基线 / 三条表头线 / 三个「至今」");
+// 落点年高亮（emphasis）：每格恰好一根不带 .dim
+chk([["fnd", 'd="M417 446 V166"'], ["cod", 'd="M840 446 V166"'], ["cnv", 'd="M1597 446 V183.3"']]
+      .every(([c, d]) => s16m.includes(`class="col ${c} dw"`) && s16m.includes(d) &&
+                         (s16m.match(new RegExp(`class="col ${c} dim dw"`, "g")) || []).length === 2),
+    "R16-⑤ 每格落点年高亮：基础模型 2026 / 写代码 2025 / 对话式 2026（其余两根降档）");
+// 序列 = 重查结果（终值各出现两次：表头终值大字 + 柱上值标）
+chk([[">$31.4B</text>", 1], [">$88.9B</text>", 1], [">$178B</text>", 2],
+     [">$1.6B</text>", 2], [">$3.3B</text>", 1], [">$0.2B</text>", 2],
+     [">$1.9B</text>", 1], [">$1.8B</text>", 2]]
+      .every(([k, n]) => (s16m.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === n),
+    "R16-⑤ 三条序列 = 重查结果（31.4/88.9/178 · 1.6/3.3/0.2 · 1.6/1.9/1.8）");
+chk((s16m.match(/>2026 Q1 · 截至 3-31<\/text>/g) || []).length === 1 &&
+    (s16m.match(/>2026 上半年 · 截至 7-02<\/text>/g) || []).length === 2,
+    "R16-⑤ 2026 各格截点逐格标清（基础模型只有 Q1 可比口径，另两格是 H1）");
+chk(["一个季度，就是去年一整年的两倍", "一轮钱在 2025 发完 · Cursor 一家占 98%",
+     "半年，已经追平去年一整年"].every((k) => s16m.includes(k)),
+    "R16-⑤ 三格 take 正好说完 h2 的三拍");
+// svg 内不许再有 ARR / 收入口径；note 交代 $1.82B 是保守下限；foot 换源后仍是一行体例
+const svg16 = s16m.slice(s16m.indexOf("<svg"), s16m.indexOf("</svg>"));
+chk(!svg16.includes("ARR") && !svg16.includes("收入"), "R16-⑤ 融资图内零 ARR / 零收入口径");
+chk(s16m.includes("2026 前六个月的 $1.82B 已经追平 2025 全年，而这还没算进 Sierra 五月那笔 $950M。") &&
+    s16m.includes("2024 那一年，写代码和对话式拿到的钱一样多，都是 $1.6B。") &&
+    s16m.includes('<div class="foot flow rev" style="--i:9">Source · New Market Pitch · Crunchbase News · TechCrunch · CNBC</div>'),
+    "R16-⑤ note 交代下限与同起跑线 + foot 换源后仍是一行来源名");
+chk(["产品经理判断趋势有个笨办法：不看报告的措辞，看钱往哪走",
+     "近三年，钱的三次落点：先模型，再代码，<em>现在轮到对话</em>",
+     "ElevenLabs $500M @ $11B", "消费声音侧", "Sierra $950M @ $15B", "企业智能体侧"]
+      .every((k) => s16m.includes(k)),
+    "R16-⑤ eyebrow / h2 未动 + 大泛类两翼明细留在 note");
+// 五页逐页：零溢出 / 零半截字 / svg 文字零重叠 / 填充率 78–106% + 截图（2.4s 等入场落位）
+const r16 = [];
+for (const [name, i] of Object.entries({ mq01: P16.mq01, act2: P16.act2, mq02: P16.mq02,
+                                         mq03: P16.mq03, money7: P16.money })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(300);
+  await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const body = s.querySelector(".body");
+    let ratio = null;
+    if (body) {
+      const kids = [...body.children].filter((e) => e.offsetParent);
+      const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+      const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+      ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    }
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0, worst = null;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) {
+        ov++; if (!worst) worst = [t[i].textContent.trim(), t[j].textContent.trim()];
+      }
+    }
+    // 还没开完的 clip-path = 页面上会看到「半截字」
+    let clipped = 0;
+    s.querySelectorAll("*").forEach((el) => {
+      const cp = getComputedStyle(el).clipPath;
+      if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+    });
+    return { out, ratio, ov, worst, clipped };
+  });
+  r16.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r16-${name}.png` });
+}
+chk(r16.every((x) => x.out === 0 && x.ov === 0 && x.clipped === 0 &&
+                     (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
+    `R16 · 五页零溢出 / 零 svg 文字重叠 / 零半截字 / 填充率 78–106% ${JSON.stringify(r16)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
