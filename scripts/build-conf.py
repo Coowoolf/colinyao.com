@@ -1287,6 +1287,76 @@ C18_CSS = """
 .r18doors .doors .dl.co{color:var(--coral);}
 """
 
+# ── C19 · R19 的页级档 ·只在 CONF_V2=1 装配 ───────────────────────────────────
+#    三档：P7 换成「单一时间轴 + 对数纵轴」的三线图（.r19money）、五张金句页删 eyebrow 后
+#    重心回中（.r19mq）、P44 门图收比例（.r19doors）。全部排在 C18_CSS 之后。
+C19_CSS = """
+/* ============ C19 · R19 · P7 对数时间轴三线图 / 金句页去 eyebrow / 门图收比例 ============ */
+/* P7：Colin「那个带时间轴的曲线的图表更加清楚展示了三者的变化」——数据一个不动，形式换回曲线。
+   ⚠️ **红线：不许回双轴**。R16 点名的视觉说谎正是「左 0–200 / 右 0–4 把 $3.3B 画得比 $178B 高」，
+      回去等于重犯。三条赛道量级差 ~900 倍（0.21 ↔ 178），单线性轴画不下 ——
+      解法是**同一根轴 + 对数刻度**：一根尺、一套网格，量级差用「每格 ×10」表达。
+      对数轴唯一的代价是读者要知道它是对数的，所以：① 角落明写「纵轴 · 对数刻度」；
+      ② 网格线就是十倍阶梯并逐条标 $0.1B / $1B / $10B / $100B；③ 每个点直接标值，点标即刻度。 */
+.r19money .head{margin-bottom:30px;}
+.r19money .body{gap:30px;}
+.r19money .fig{align-items:stretch;}
+.r19money .fig svg{width:100%;height:auto;}
+.r19money .fig .lbl{font-size:19px;letter-spacing:.12em;}
+.r19money .fig .lbl.yr{font-size:27px;letter-spacing:.16em;fill:var(--ink-2);text-transform:none;}
+.r19money .fig .lbl.dec{font-size:19px;letter-spacing:.08em;text-transform:none;}
+.r19money .fig .ttl{font-size:34px;}
+.r19money .fig .txt.val{font-size:25px;font-weight:500;fill:var(--ink-2);}
+.r19money .fig .txt.val.fill-am{fill:var(--amber);}
+.r19money .fig .sm{font-size:20px;}
+.r19money .fig .sm.anno{font-size:20px;fill:var(--ink-2);}
+.r19money .fig .sm.anno.fill-am{fill:var(--amber);}
+.r19money .fig .big{font-size:46px;fill:var(--ink);}
+.r19money .fig .big.fill-am{fill:var(--amber);}
+/* 网格与轴：hair 两档，实线 1px —— 三条数据线是这一页唯一响的东西。 */
+.r19money .fig .gd{stroke:var(--hair);stroke-width:1;fill:none;}
+.r19money .fig .axb{stroke:var(--hair-strong);stroke-width:1;fill:none;}
+/* 三条线：明度 + 粗细双重编码（与 R14 同一套阶梯，amber 是今年的主角）。
+   ⚠️ --ink(#fff) 与 --ink-3(#D9D9E3) 并排 ΔE≈11 太近，写代码那条压到 .72 合成 ≈#9C9CA3，
+      对 --ink 与 --amber 的 ΔE 都 ≥20；线宽补到 4 保投影可读。 */
+.r19money .fig .ln{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.r19money .fig .ln.fnd{stroke:var(--ink);stroke-width:5.5;}
+.r19money .fig .ln.cod{stroke:var(--ink-3);stroke-width:4;opacity:.72;}
+.r19money .fig .ln.cnv{stroke:var(--amber);stroke-width:7;}
+/* 节点：底色描边环（surface ring），两条线在 2024 重合成一个点也认得出。 */
+.r19money .fig .dot{stroke:var(--slide-bg);stroke-width:3;}
+.r19money .fig .dot.fnd{fill:var(--ink);}
+.r19money .fig .dot.cod{fill:var(--ink-3);opacity:.72;}
+.r19money .fig .dot.cnv{fill:var(--amber);}
+/* 终点名牌引线：极细，只做牵引，不参与读数。 */
+.r19money .fig .lead{fill:none;stroke-width:1.4;opacity:.5;}
+.r19money .fig .lead.fnd{stroke:var(--ink);}
+.r19money .fig .lead.cod{stroke:var(--ink-3);}
+.r19money .fig .lead.cnv{stroke:var(--amber);}
+
+/* P31 案例 03：三张教训卡的正文整块删之后只剩标题，链路图 + 事件块接管 —— 标题上两档，
+   卡片留白放开，事件块字号上一档，把 72% 撑回红线内。 */
+.r19case3 .body{gap:36px;}
+.r19case3 .fig svg{width:100%;height:auto;}
+.r19case3 .g3{gap:26px;}
+.r19case3 .g3 .card{padding:38px 32px 42px;}
+.r19case3 .g3 .card .tag{font-size:20px;}
+.r19case3 .g3 .card .t{font-size:42px;line-height:1.25;}
+.r19case3 .old{padding:30px 32px;}
+.r19case3 .old .yr{font-size:21px;}
+.r19case3 .old .tx{font-size:27px;}
+
+/* 五张金句页：页型元信息（`观点页 · 嘉宾金句 · 0X`）整块删。
+   .mq 本来就是 flex column + justify-content:center，删掉一个子元素**重心自动回中**，
+   这里只把 gap 放开一档，让「主文 / 分隔线 / 英文 / 署名」的呼吸补上元信息腾出的那一块。 */
+.r19mq .mq{gap:44px;}
+
+/* P44 门图：Colin 说现在有点过大 —— 1380 收到 1180（高 552 → 472），留白多一点。
+   标签仍是 % 定位（27.2% / 72.3%），随图等比自适应，一个数都不用改。 */
+.r19doors .body{gap:32px;}
+.r19doors .doors{max-width:1180px;}
+"""
+
 if V2:
     # ── C8-① 钱 × 渗透拆回母版原版两页（撤销 C1 的 _secs[6] = F_MONEY 融合）────
     #    F_MONEY 定义保留（不装配），便于以后回退到融合版
@@ -3096,6 +3166,178 @@ if V2:
         assert _keep in _secs[_I_D18], f'C18-① 该保留的丢了：{_keep}'
     _cls(_I_D18, 'r18doors')
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ── C19（2026-08-06 · R19 · 五处 · 页数不变 46）─────────────────────────────────
+# Colin 看着线上 R18 提的五处：
+#   ① P7 展示形式改回「带时间轴的曲线」，**数据一个不动**；顺手删掉「三格各用各的尺」那句。
+#      ⚠️ 红线：不许回双轴（R16 点名的视觉说谎）→ 定为**单一时间轴 + 对数纵轴 + 三条曲线**。
+#   ② 五张金句页的 eyebrow（`观点页 · 嘉宾金句 · 0X`）全删，页面只剩主文 + 英文小行 + 署名。
+#   ③ 金句 02 署名 `OpenAI 前 CPO` → `OpenAI ex CPO`（Colin R13 原话本来就是 ex CPO）。
+#   ④ P31 三段教训正文删（卡片只剩标题）+ 教训 03 标题改「也必须写进 SOP 流程里」。
+#   ⑤ P44 删 CEO 那行 + 门图从 1380 收到 1180。
+# 取页一律**内容锚定**（沿用 _ix），不信页号；母版 62 页仍然只读。
+# ══════════════════════════════════════════════════════════════════════════════
+if V2:
+    # ── C19-① P7 · 三格小倍数 → 单轴对数三线图（数据一个不动）─────────────────
+    #    为什么是对数轴而不是回双轴：三条赛道量级差 ~860 倍（0.21 ↔ 178）。
+    #      · 双轴 = R16 已经判死的视觉说谎（两套刻度的对齐是任意的，图会凭空造相关性）；
+    #      · 单线性轴 = 写代码与对话式两条会被压成贴着 0 的两条平线，「变化」完全看不见；
+    #      · **单轴对数** = 一根尺、一套网格，量级差用「每格 ×10」表达，三条线同图可比**形状**。
+    #    对数轴的唯一代价是读者得知道它是对数的 —— 用三件事补偿：角落明写「纵轴 · 对数刻度」、
+    #    网格线本身就是十倍阶梯并逐条标 $0.1B/$1B/$10B/$100B、每个点直接标值（点标即刻度）。
+    #
+    #    坐标账（viewBox 0 0 1680 600）：y = 400 − 100·log10(v)，即**一格 100px = ×10**；
+    #      网格 $100B→200 · $10B→300 · $1B→400 · $0.1B→500；x 三刻度 300 / 725 / 1150。
+    #      基础模型 31.4→250.3 · 88.9→205.1 · 178→175.0
+    #      AI 写代码 1.59→379.9 · 3.25→348.8 · 0.2075→468.3
+    #      对话式   1.59→379.9 · 1.94→371.2 · 1.82→374.0
+    #      ⚠️ 2024 两条**真的重合**（都是 $1.59B）—— 不是画错，所以只标一个值 + 一行小注说明；
+    #         两条线从同一点分岔，正好把「同一起跑线」这层意思画了出来。
+    #      故事红利（Colin 点名要看得见的两个动作）：
+    #         · 写代码 2025 冲顶（348.8）→ 2026 跳水（468.3），跨过整整 1.2 个数量级；
+    #         · 与对话式在 x≈807 处**交叉**，2026 对话式（374.0）反超写代码（468.3）。
+    #    描边动画 --len 逐条按贝塞尔实长采样算过：fnd 854 / cod 871 / cnv 850 → 一律给 +6 的余量。
+    _I_P7b = _ix('近三年，钱的三次落点')
+    _sa19 = _secs[_I_P7b].index('<svg'); _sb19 = _secs[_I_P7b].index('</svg>') + 6
+    assert 'viewBox="0 0 1680 644"' in _secs[_I_P7b][_sa19:_sb19], 'C19-① P7 旧三格 svg 定位失败'
+    _secs[_I_P7b] = _secs[_I_P7b][:_sa19] + '''<svg viewBox="0 0 1680 600" width="1680" fill="none">
+          <!-- ① 顶行：左 = 单一口径；右 = 刻度性质（角落小字，不写成整句解释） -->
+          <g class="pop" style="--i:0">
+            <text class="lbl" x="0" y="26">口径：一级市场披露融资额 · $B</text>
+            <text class="lbl" x="1680" y="26" text-anchor="end">纵轴 · 对数刻度</text>
+          </g>
+
+          <!-- ② 十倍阶梯网格 + 基线：网格线本身就是刻度，逐条标出来 -->
+          <g class="pop" style="--i:1">
+            <path class="gd" d="M250 200 H1180 M250 300 H1180 M250 400 H1180 M250 500 H1180"/>
+            <path class="axb" d="M250 520 H1180"/>
+            <text class="lbl dec" x="222" y="207" text-anchor="end">$100B</text>
+            <text class="lbl dec" x="222" y="307" text-anchor="end">$10B</text>
+            <text class="lbl dec" x="222" y="407" text-anchor="end">$1B</text>
+            <text class="lbl dec" x="222" y="507" text-anchor="end">$0.1B</text>
+            <text class="lbl yr" x="300" y="556" text-anchor="middle">2024</text>
+            <text class="lbl yr" x="725" y="556" text-anchor="middle">2025</text>
+            <text class="lbl yr" x="1150" y="556" text-anchor="middle">2026</text>
+            <text class="sm" x="1150" y="584" text-anchor="middle">至今</text>
+            <text class="lbl" x="250" y="584">2026 至今：基础模型截至 3-31（Q1）· 写代码与对话式截至 7-02（H1）</text>
+          </g>
+
+          <!-- ③ 基础模型（白粗）：31.4 → 88.9 → 178，三年都是最大头，一直在涨 -->
+          <path class="ln fnd dw" style="--len:860;--i:2" d="M300 250.3 C 448.75 250.3, 576.25 205.1, 725 205.1 C 873.75 205.1, 1001.25 175, 1150 175"/>
+          <circle class="dot fnd pop" style="--i:3" cx="300" cy="250.3" r="6"/>
+          <circle class="dot fnd pop" style="--i:3" cx="725" cy="205.1" r="6"/>
+          <circle class="dot fnd pop" style="--i:4" cx="1150" cy="175" r="8.5"/>
+          <g class="pop" style="--i:3">
+            <text class="txt val" x="300" y="232" text-anchor="middle">$31.4B</text>
+            <text class="txt val" x="725" y="187" text-anchor="middle">$88.9B</text>
+          </g>
+          <g class="pop" style="--i:4">
+            <path class="lead fnd" d="M1166 175 H1190"/>
+            <text class="ttl" x="1200" y="160">基础模型</text>
+            <text class="big" x="1200" y="220">$178B</text>
+            <text class="sm anno" x="937" y="160" text-anchor="middle">一个季度，就是去年一整年的两倍</text>
+          </g>
+
+          <!-- ④ AI 写代码（灰细）：1.59 → 3.25 → 0.2075 —— 2025 冲顶，2026 跳水 1.2 个数量级 -->
+          <path class="ln cod dw" style="--len:878;--i:5" d="M300 379.9 C 448.75 379.9, 576.25 348.8, 725 348.8 C 873.75 348.8, 1001.25 468.3, 1150 468.3"/>
+          <circle class="dot cod pop" style="--i:6" cx="300" cy="379.9" r="6"/>
+          <circle class="dot cod pop" style="--i:6" cx="725" cy="348.8" r="6"/>
+          <circle class="dot cod pop" style="--i:7" cx="1150" cy="468.3" r="8.5"/>
+          <g class="pop" style="--i:6">
+            <text class="txt val" x="725" y="331" text-anchor="middle">$3.3B</text>
+            <text class="sm anno" x="725" y="296" text-anchor="middle">一轮钱在 2025 发完 · Cursor 一家占 98%</text>
+          </g>
+          <g class="pop" style="--i:7">
+            <path class="lead cod" d="M1166 468.3 L1190 483"/>
+            <text class="ttl" x="1200" y="474">AI 写代码</text>
+            <text class="big" x="1200" y="534">$0.2B</text>
+          </g>
+
+          <!-- ⑤ 对话式 AI（amber 粗，今年的主角）：1.59 → 1.94 → 1.82；
+               与写代码在 2024 同一点出发、在 x≈807 交叉，2026 反超。整组 data-step=1 -->
+          <g data-step="1">
+            <path class="ln cnv dw" style="--len:856;--i:0" d="M300 379.9 C 448.75 379.9, 576.25 371.2, 725 371.2 C 873.75 371.2, 1001.25 374, 1150 374"/>
+            <circle class="dot cnv pop" style="--i:1" cx="300" cy="379.9" r="6"/>
+            <circle class="dot cnv pop" style="--i:1" cx="725" cy="371.2" r="6"/>
+            <circle class="dot cnv pop" style="--i:2" cx="1150" cy="374" r="8.5"/>
+            <g class="pop" style="--i:1">
+              <text class="txt val" x="300" y="412" text-anchor="middle">$1.6B</text>
+              <text class="sm anno" x="300" y="446" text-anchor="middle">写代码与对话式，2024 从同一点出发</text>
+              <text class="txt val fill-am" x="725" y="404" text-anchor="middle">$1.9B</text>
+            </g>
+            <g class="pop" style="--i:2">
+              <path class="lead cnv" d="M1166 374 H1190"/>
+              <text class="ttl" x="1200" y="358">对话式 AI</text>
+              <text class="big fill-am" x="1200" y="418">$1.8B</text>
+              <text class="sm anno fill-am" x="1000" y="345" text-anchor="middle">半年，已经追平去年一整年</text>
+            </g>
+          </g>
+        </svg>''' + _secs[_I_P7b][_sb19:]
+    #    删句 + 旧三格图元清零 + 数据一个没动（九个数里 $1.6B 因两条重合只标一次 → 页上八个值标）
+    assert '三条赛道量级差百倍' not in _secs[_I_P7b], 'C19-① 该删的那句未清零'
+    for _old in ('class="col ', 'class="pr"', '>至今</text>\n            <text class="sm anno"'):
+        assert _old not in _secs[_I_P7b], f'C19-① 旧三格图元残留：{_old}'
+    for _v in ('>$31.4B</text>', '>$88.9B</text>', '>$178B</text>', '>$3.3B</text>',
+               '>$0.2B</text>', '>$1.6B</text>', '>$1.9B</text>', '>$1.8B</text>'):
+        assert _secs[_I_P7b].count(_v) == 1, f'C19-① 数值应逐个各一处：{_v}'
+    _cls(_I_P7b, 'r19money')
+
+    # ── C19-② 五张金句页 · eyebrow 整块删 ───────────────────────────────────
+    #    `观点页 · 嘉宾金句 · 0X` 是页型元信息，台下不需要；删完页面只剩
+    #    金句主文（+ 英文小行）+ 署名。删后 .mq 的 justify-content:center 自动把引文块回中。
+    #    ⚠️ 全 deck 的「金句仍是五张」从此**凭内容认**，不再凭编号 eyebrow（收口断言随之改判）。
+    _MQ19 = []
+    for _n, _anchor in (('01', '我们叫了它三年 Agent（代理人）——'),
+                        ('02', 'Writing evals is the most important'),
+                        ('03', 'One of the biggest fallacies in AI'),
+                        ('04', '围栏不是拦住它，'),
+                        ('05', '没有撤回键。')):
+        _i = _ix(_anchor)
+        _r1(_i, f'\n    <div class="mark flow" style="--i:0">观点页 · 嘉宾金句 · {_n}</div>', '')
+        assert 'class="mark' not in _secs[_i], f'C19-② 金句 {_n} 的 eyebrow 未删净'
+        _cls(_i, 'r19mq')
+        _MQ19.append(_i)
+    assert len(set(_MQ19)) == 5, 'C19-② 五张金句页应互不相同'
+
+    # ── C19-③ 金句 02 署名 · 前 CPO → ex CPO ────────────────────────────────
+    #    Colin R13 给的原话本来就是 ex CPO（C4 当年把母版的 `OpenAI CPO` 改成中文「前 CPO」，
+    #    这一轮回到他的原写法）。全场 Weil 仅此一处，改完即全场一致。
+    _r1(_MQ19[1], '<div class="s rise" style="--i:5">Kevin Weil · OpenAI 前 CPO</div>',
+                  '<div class="s rise" style="--i:5">Kevin Weil · OpenAI ex CPO</div>')
+    assert 'OpenAI 前 CPO' not in _secs[_MQ19[1]], 'C19-③ 旧署名未清零'
+
+    # ── C19-④ P31 · 三段教训正文删 + 教训 03 改题 ────────────────────────────
+    #    卡片只剩标题：三句标题本身已经是三条教训，正文是把标题又展开说一遍。
+    #    教训 03「也必须在纸上」→「**也必须写进 SOP 流程里**」—— 「纸上」太文学，
+    #    SOP 是组织侧能直接执行的落点（与第四幕的授权语法同一条线）。
+    _I_C3b = _ix('两道围栏：提示词拦话术，')
+    for _d in ('<div class="d">高敏权限不能只靠提示词和策略文档约束。它们写得再好，也不是'
+               '<b>可执行的边界</b>——模型不会因为你写了「不要」就做不到。</div>',
+               '<div class="d">容器、沙箱、权限边界、人工升级通道——这四件是<b>工程</b>，'
+               '不是流程。写在架构图上，不是写在 Wiki 上。</div>',
+               '<div class="d">授权不能只活在代码里，还要白纸黑字写清六件事：'
+               '<b>替谁做、做什么、到哪里为止、如何披露、错了怎么办、怎么收回</b>'
+               '——写不出来，就是还没想清楚。这六件事，第四幕会变成组织的授权语法。</div>'):
+        _r1(_I_C3b, _d, '')
+    _r1(_I_C3b, '<div class="t">也必须在纸上</div>', '<div class="t">也必须写进 SOP 流程里</div>')
+    assert '<div class="d">' not in _secs[_I_C3b], 'C19-④ 教训卡应只剩标题'
+    assert '六件事' not in _secs[_I_C3b] and '也必须在纸上' not in _secs[_I_C3b], 'C19-④ 未删净/未改题'
+    #    悬空检查：第四幕「授权六件事」那页原来回指的是「第三幕写给 Agent 的授权六件事」
+    #    （C8-⑤ 改的幕序），指的是**幕**不是**案例 03**，与本页无关 —— 一个字都不用动。
+    #    全 deck 仍有「六件事」的地方只剩那一页，且它自己把六件事写全了，不依赖本页。
+    _cls(_I_C3b, 'r19case3')
+
+    # ── C19-⑤ P44 · 删 CEO 那行 + 门图收比例 ────────────────────────────────
+    #    a) `这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活` 整行删（R18 才从旧 svg 里挪出来的
+    #       那一行 mono caption）。h2 / eyebrow / 双标签 / land 一个字不动。
+    _I_D19 = _ix('对组织说：<em>放权</em>，从分清单向门与双向门开始')
+    _r1(_I_D19, '      <div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，'
+                '不是 AI 负责人的活</div>\n', '')
+    assert 'dcap' not in _secs[_I_D19] and 'CEO 的活' not in _secs[_I_D19], 'C19-⑤a CEO 那行未删净'
+    #    b) 图 1380 → 1180（高 552 → 472）。两段标签是 % 定位（27.2% / 72.3%），随图等比走，
+    #       一个数都不用改 —— R18 当初就是为这一天写成 % 的。
+    _cls(_I_D19, 'r19doors')
+
 if V2:
     _order = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # P1-10 · 开场四页 · PART1 幕卡 · 钱 · 渗透 · 四方观点 · 承重页
               + [11] + list(range(24, 28)))
@@ -3289,6 +3531,7 @@ if V2:
     CONF_CSS += C16_CSS     # C16 · R16 页级档（必须排在 C13/C14/C15 之后：.r13mq/.r15mq/.r14money 三处都靠后写者胜）
     CONF_CSS += C17_CSS     # C17 · R17 页级档（必须排在 C16 之后：.r16money / .r15end 等同页档靠后写者胜）
     CONF_CSS += C18_CSS     # C18 · R18 页级档（P44 门图，必须排在 C9 的 .r9p43 之后：同页两个类，后写者胜）
+    CONF_CSS += C19_CSS     # C19 · R19 页级档（必须排在 C17/C18 之后：.r17money / .r18doors 同页档靠后写者胜）
 # 插到最后一个 </style> 前（主样式表尾部）
 li = s.rindex("</style>")
 s = s[:li] + CONF_CSS + s[li:]
@@ -3316,9 +3559,12 @@ for _mk in _MK:
 assert ("Eval 第四课" in s) == V2, "课序：V2 应有第四课（听失败），55 页版不应有"
 assert "暖橙 = 已规模商业化" not in s and "粉 = 强监管场景" not in s
 # C6 内容在位 / 悬空引用清零
-_MK6 = ["事前授权", "批动作类别，不批每一句话",
-        "这六件事，第四幕会变成组织的授权语法" if V2 else "这六件事，第五幕会变成组织的授权语法",
-        "把权放给 high agency 的人"]
+# ⚠️ R19 改判：C19-④ 把 P31 三张教训卡的正文整块删了（卡片只剩标题），「这六件事，第四幕会变成
+#    组织的授权语法」随之下台 —— 从 V2 的正向名单里摘出（负向账在 C19 段）。它原本只是**前向指涉**，
+#    第四幕那页自己把六件事写全了，不依赖本页，所以不悬空。55 页版那句仍在，照旧守着。
+_MK6 = ["事前授权", "批动作类别，不批每一句话", "把权放给 high agency 的人"]
+if not V2:
+    _MK6.append("这六件事，第五幕会变成组织的授权语法")
 if not V2:
     _MK6.append("《人和组织，必须一起转身》")   # C9 · R9 把 P43 的 2025 承接段整段删掉
     # C6 给 QoT 三卡起的短名 —— C10 · R10 在 V2 里把三卡换成了四条工程坐标
@@ -3351,7 +3597,9 @@ if V2:
     for _mk in ("陪伴那条线走「熟人 → 伙伴」（下午专场）", "消费级 · 陪伴 —— 下午 AIoT 专场那条",
                 "PART 2 · 被托付", "PART 3 · 双向奔赴", "PART 4 · 人与组织",
                 "对话式 AI 的钱，<em>流向了哪里</em>", "<em>正在悄然发生</em>",
-                "观点页 · 嘉宾金句 · 05",
+                # ⚠️ R19 改判：C19-② 把五张金句页的 eyebrow（`观点页 · 嘉宾金句 · 0X`）全删了 ——
+                #    「金句仍是五张」从此**凭内容认**（五句主文各一处，正向账在 C19 段），
+                #    这条编号锚点从正向名单摘出；负向的「· 06」仍留在下面守着。
                 "--ink-3:#D9D9E3;", "--ink-2:#E8E8F0;", ".note{font-size:24px"):
         assert _mk in s, f"C8 内容缺失：{_mk}"
     for _mk in ("PART 5", "PART 2 · 被记住", "观点页 · 嘉宾金句 · 06", "恰好的那半秒", "gemini-demo.mp4",
@@ -3660,14 +3908,15 @@ if V2:
     _pmq = _sec_of('One of the biggest fallacies in AI')
     for _mk in ('is people compare it with this perfect human', 'that does not exist.&#8221;'):
         assert _mk in _pmq, f"C13-⑥ 金句页元素缺失：{_mk}"
-    assert '观点页 · 嘉宾金句 · 03' in _pmq, "C13-⑥ 金句编号应仍是 03（页数与编号都不变）"
+    # ⚠️ R19 改判：C19-② 删掉了金句页的 eyebrow 编号 —— 这一页「是不是金句 03」改由
+    #    **内容 + 顺序**认（英文原句 + Des 署名，正向账在 C16/C19 段），编号锚点从这里摘除。
 
     #    ⓗ ⑦ 围栏 Part 点睛：新金句在位，且仍挂在金句 04 上
     _pfc = _sec_of('围栏不是拦住它，')
     for _mk in ('是放出它。</i>',
                 '提示词 + 产品架构，围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。'):
         assert _mk in _pfc, f"C13-⑦ 新金句元素缺失：{_mk}"
-    assert '观点页 · 嘉宾金句 · 04' in _pfc, "C13-⑦ 应仍是金句 04"
+    # ⚠️ R19 改判：同上 —— 编号 eyebrow 已删，这一页凭「围栏不是拦住它，是放出它。」认。
 
     #    ⓘ 页级档位类必须全部挂上且 CSS 有定义（r13ask 已随 C15-⑦ 撤回第二拍一并摘掉）
     assert 'class="slide' in s and not re.search(r'class="slide[^"]*\br13ask\b', s), \
@@ -3676,8 +3925,10 @@ if V2:
         assert len(re.findall(rf'class="slide[^"]*\b{_c}\b', s)) == 1 and f'.{_c} ' in s, \
             f"C13 · 档位类未挂/未定义：{_c}"
     #    ⓙ 页数不变 46（最终页数断言在写盘处，这里只守金句编号 01–05 不变）
-    assert s.count('观点页 · 嘉宾金句 · 05') == 1 and '观点页 · 嘉宾金句 · 06' not in s, \
-        "C13 · 金句编号应仍是 01–05"
+    # ⚠️ R19 改判：编号 eyebrow 全删 —— 「仍是五张」改由五句主文各一处来守（C19 段 ⓒ）。
+    #    （只数正文：C19_CSS 那段档位注释里也写了这个词，不算页内容）
+    assert '观点页 · 嘉宾金句' not in ''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)), \
+        "C19-② 金句页编号 eyebrow 应已全场清零"
 
     # ── C14 · R14 两处 ─────────────────────────────────────────────────────
     #    ① P2 讲台在 / 舞台零（正文范围内；母版的 CSS 注释「固定舞台」不在页里，不受影响）
@@ -3794,8 +4045,9 @@ if V2:
     #       改成「中上英下」，中文从一整行拆成两行 `<i>`，所以 contiguous 的中文整句不再存在 ——
     #       中文两行的正向账搬进下面的 C16 段，这里只守英文逐字 / 编号 / 署名 / 全场仅一处。）
     _pw = _sec_of('Writing evals is the most important')
-    for _mk in ('观点页 · 嘉宾金句 · 02', 'thing a PM can do in the AI era.&#8221;',
-                'Kevin Weil · OpenAI 前 CPO'):
+    # ⚠️ R19 改判两条：编号 eyebrow 已删（C19-②）；署名 `OpenAI 前 CPO` → `OpenAI ex CPO`（C19-③）。
+    #    这里只守英文逐字；编号与署名的正向账搬到 C19 段。
+    for _mk in ('thing a PM can do in the AI era.&#8221;',):
         assert _mk in _pw, f"C15-⑦ 金句 02 元素缺失：{_mk}"
     #       「全场仅一处」只数正文（C15_CSS 里那行档位注释也写了 Kevin Weil，不算页内容）
     _slides_txt = _nouri(''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)))
@@ -3832,7 +4084,7 @@ if V2:
     #    ⚠️ **R16 改判**：⑩a「2026 光是上半年这几笔」随 C16-⑤ 的 note 整段重写而作废
     #       （新 note 按重查后的数据改写，不再有「这几笔」这个数不出来的量词）。
     #       负向的「这五笔」仍留在上面 ⓐ 的 cut 名单里。
-    assert s.count('观点页 · 嘉宾金句 · 0') == 5, "C15-⑩b 金句仍应是 01–05 五张"
+    # ⚠️ R19 改判：编号 eyebrow 全删 —— 「五张」的账见 C19 段 ⓒ（五句主文各一处 + 五个档位类）。
     for _c in '一二三四':
         assert f'>Eval 第{_c}课</div>' in s, f"C15-⑩b 课序缺失：第{_c}课"
 
@@ -3845,8 +4097,11 @@ if V2:
                 #    在下面 ⓒ 段按页断言（_pq3 里既无 Bret Taylor 也无「2026-03 公开访谈」）。
                 '左右两轴量级不同',                                            # ⑤ 双轴防误读小注（双轴没了）
                 '>基础模型 $B</text>', '>Coding / 对话式 $B</text>',            # ⑤ 两个轴标
-                'class="ln fnd dw"', 'class="ln cod dw"', 'class="ln cnv dw"',  # ⑤ 三条曲线
-                'id="r14conv"', 'class="lead ',                                 # ⑤ 渐变面积 / 名牌引线
+                'id="r14conv"',                                                # ⑤ 双轴图那层渐变面积
+                # ⚠️ **R19 改判**：`class="ln * dw"` / `class="lead ` 三条曲线与名牌引线的类名
+                #    从负向名单摘除 —— R19 把这一页换回了**单轴对数三线图**，线与引线名正言顺地回来了。
+                #    R16 真正判死的是「双轴」，负向账因此收窄成上面那三条（两个轴标 + 防误读小注 + 渐变面积）
+                #    加下面 C19 段按页断言的「零第二把尺」。
                 # ⚠️「走线光点 .stroke-am pkt」全 deck 十三页都在用，不能进全场负向名单 ——
                 #    钱流向页内的清零在下面 ⓓ 段按页断言。
                 'Cursor ARR $2B', '2026 转向收入兑现',                          # ⑤ ARR 混入融资图（连 note 口径一并撤）
@@ -3870,7 +4125,8 @@ if V2:
     #    ⚠️ **R17 改判**：②「PART 2 幕卡首行退回原文」这一条**整条作废** ——
     #       C17-⑩ 把四张 PART 幕卡的开头小字**整块删了**（Colin：每个 part 的开头小字都可以删），
     #       所以 R16 刚还原的那两行也一并下台。幕卡的正向账（骨架四件在、小字清零）搬进 C17 段。
-    _pq1 = _sec_of('观点页 · 嘉宾金句 · 01')
+    #    ⚠️ **R19 改判**：C19-② 删掉了编号 eyebrow —— 取页锚点从编号换成主文首行（内容锚定）。
+    _pq1 = _sec_of('我们叫了它三年 Agent（代理人）——')
     assert '<i class="rise" style="--i:1">我们叫了它三年 Agent（代理人）——</i>' in _pq1 and \
            '<i class="rise" style="--i:2">今天，它终于开始代理了。</i>' in _pq1, "C16-① 金句 01 新主文未落地"
     assert '所以今年这一场，讲的不是能力，是责任。' in _pq1, "C16-① 承句不该被动"
@@ -3878,10 +4134,12 @@ if V2:
 
     #    ⓒ ③④ 两张金句页「中上英下」：中文在 .q（中文金句体系）、英文降为下方 mono 一行
     for _cn, _anchor, _en, _sig in (
-        ('r16mq2', '观点页 · 嘉宾金句 · 02',
+        # ⚠️ **R19 改判**：取页锚点从编号 eyebrow 换成英文原句（C19-②）；
+        #    金句 02 的署名 `OpenAI 前 CPO` → `OpenAI ex CPO`（C19-③）。
+        ('r16mq2', 'Writing evals is the most important',
          '&#8220;Writing evals is the most important thing a PM can do in the AI era.&#8221;',
-         'Kevin Weil · OpenAI 前 CPO'),
-        ('r16mq3', '观点页 · 嘉宾金句 · 03',
+         'Kevin Weil · OpenAI ex CPO'),
+        ('r16mq3', 'One of the biggest fallacies in AI',
          '&#8220;One of the biggest fallacies in AI is people compare it with this perfect human '
          'that does not exist.&#8221;',
          'Des Traynor · Intercom 联合创始人')):
@@ -3908,60 +4166,26 @@ if V2:
            '.r16mq2 .mq .en,.r16mq3 .mq .en{font-family:var(--f-mono);font-size:30px' in s, \
         "C16-③④ 中上英下的字号档未定义"
 
-    #    ⓓ ⑤ 钱流向页 · 三格小倍数（数据重查后的最终序列 + 单一口径 + 落点年高亮）
+    #    ⓓ ⑤ 钱流向页 —— ⚠️ **R19 改判：三格小倍数整张作废**。
+    #       Colin 看着线上 R18 说「那个带时间轴的曲线的图表更加清楚展示了三者的变化」，
+    #       所以 R19 把形式换回曲线（**数据一个不动**），并删掉「三格各用各的尺」那句。
+    #       于是这里的三格几何账 —— 尺度说明句 / 九根柱 / 九个值标 / 三条基线 + 三条表头线 /
+    #       九个 x 刻度 / 三个「至今」/ 落点年高亮 / 三格截点 / 格内 take / 柱高 --len 机检 ——
+    #       **全部从这里摘除**，正向账（三序列九个数在位、对数轴标注、零第二把尺）搬进下面的 C19 段。
+    #       R16 真正立住、且 R19 一个字没动的那两条留在这里：**数值序列**与 **foot 换源**。
     _p16 = _sec_of('近三年，钱的三次落点')
     assert len(re.findall(r'class="slide[^"]*\br16money\b', s)) == 1 and '.r16money ' in s, \
         "C16-⑤ 档位类未挂/未定义：r16money"
-    #       页内清零：曲线图专属的走线光点（`.pkt` 在别的十三页仍在用，所以只能按页断言）
-    assert 'pkt' not in _p16, "C16-⑤ 柱图上不该再有曲线的走线光点"
-    #       口径一行 + 三格各用各的尺那句（弃双轴之后，量级差必须在图上明说）
     assert '>口径：一级市场披露融资额 · $B</text>' in _p16, "C16-⑤ 口径行缺失"
-    assert '三条赛道量级差百倍，同一把尺画不下：三格各用各的尺，看形状' in _p16, "C16-⑤ 尺度差异说明缺失"
-    #       三格 × 三年 = 九根柱，各带一个值标；共享 x 三刻度 ×3 格
-    _n_col = _p16.count('class="col ')
-    assert _n_col == 9, f"C16-⑤ 应恰好九根柱，实际 {_n_col}"
-    assert _p16.count('class="txt val') == 9, "C16-⑤ 九根柱应各挂一个值标（小倍数没有 y 轴，值标就是刻度）"
-    assert _p16.count('class="axb"') == 3 and _p16.count('class="pr"') == 3, "C16-⑤ 三格各一条基线 + 一条表头线"
-    # ⚠️ **R17 改判（几何）**：C17-⑦ 删掉 note 之后，为了让图接管整个 body，把这张 svg
-    #    顶行以外的所有 y **整体下移 84**（viewBox 560 → 644）。所以下面三条**写死坐标**的断言
-    #    （x 刻度 y=480 / 三根落点年柱的 d= / --len 的 446 正则）在这里作废，
-    #    换成**与坐标无关**的等价账；新坐标的正向账在 C17 段（下移 84 的搬运抽查）。
-    for _y in ('2024', '2025', '2026'):
-        assert _p16.count(f'>{_y}</text>') == 3, f"C16-⑤ 共享 x 三格各一个刻度：{_y}"
-    assert _p16.count('class="lbl yr"') == 9, "C16-⑤ 三格各三个 x 刻度"
-    assert _p16.count('>至今</text>') == 3, "C16-⑤ 三格的 2026 都必须标「至今」"
-    #       落点年高亮（emphasis）：每格恰好一根柱不带 .dim —— 基础模型 2026 / 写代码 2025 / 对话式 2026
-    for _c in ('fnd', 'cod', 'cnv'):
-        assert f'class="col {_c} dw"' in _p16, f"C16-⑤ 落点年高亮柱缺失：{_c}"
-        assert _p16.count(f'class="col {_c} dw"') == 1, f"C16-⑤ 每格只能有一根高亮柱：{_c}"
-        assert _p16.count(f'class="col {_c} dim dw"') == 2, f"C16-⑤ 每格应有两根降档柱：{_c}"
-    #       最终数值序列（重查结果；每格终值大字 + 柱上值标各一次 → 各出现两次的只有终值）
-    for _v, _n in (('>$31.4B</text>', 1), ('>$88.9B</text>', 1), ('>$178B</text>', 2),   # 基础模型（Crunchbase）
-                   ('>$1.6B</text>', 2), ('>$3.3B</text>', 1), ('>$0.2B</text>', 2),      # 写代码（New Market Pitch）
-                   ('>$1.9B</text>', 1), ('>$1.8B</text>', 2)):                            # 对话式（同源同口径）
-        assert _p16.count(_v) == _n, f"C16-⑤ 数值序列不符：{_v} 应 {_n} 次，实际 {_p16.count(_v)}"
-    #       2026 的截点必须逐格标清（基础模型只有 Q1 可比口径，另两格是 H1）
-    assert _p16.count('>2026 Q1 · 截至 3-31</text>') == 1 and \
-           _p16.count('>2026 上半年 · 截至 7-02</text>') == 2, "C16-⑤ 2026 各格截点未标清"
-    #       每格一句 take，正好把 h2 的三拍说完
-    for _t in ('一个季度，就是去年一整年的两倍', '一轮钱在 2025 发完 · Cursor 一家占 98%',
-               '半年，已经追平去年一整年'):
-        assert _t in _p16, f"C16-⑤ 格内 take 缺失：{_t}"
-    #       --len 必须盖得住柱高（柱 = 竖直 .dw 描边，实长 = 柱高；机检见 qa-confv2.mjs）
-    #       ⚠️ R17 改判：基线从 446 下移到 530（C17-⑦），所以这条正则不再写死基线 ——
-    #          改成「从 d= 里把基线和柱顶都读出来」，与坐标无关，以后再搬也不用回来改。
-    _cols16 = re.findall(r'class="col[^"]*dw" style="--len:(\d+);--i:\d+" d="M[\d.]+ ([\d.]+) V([\d.]+)"', _p16)
-    assert len(_cols16) == 9, f"C16-⑤ --len 机检应覆盖九根柱，实际 {len(_cols16)}"
-    for _len, _y0, _y1 in _cols16:
-        assert int(_len) >= float(_y0) - float(_y1), \
-            f"C16-⑤ --len {_len} 盖不住柱高 {float(_y0) - float(_y1)}"
-    #       口径纪律：svg 里不许出现 ARR（融资轴只画融资）；note 里点名 Sierra 那笔说明 $1.82B 是下限
+    #       最终数值序列（重查结果；R19 换成单轴三线图之后每个数各标一次）
+    for _v in ('>$31.4B</text>', '>$88.9B</text>', '>$178B</text>',   # 基础模型（Crunchbase）
+               '>$1.6B</text>', '>$3.3B</text>', '>$0.2B</text>',      # 写代码（New Market Pitch）
+               '>$1.9B</text>', '>$1.8B</text>'):                       # 对话式（同源同口径）
+        assert _p16.count(_v) == 1, f"C16-⑤ 数值序列不符：{_v} 应恰好一处，实际 {_p16.count(_v)}"
+    #       口径纪律：svg 里不许出现 ARR / 收入（融资轴只画融资）
     _svg16 = _p16[_p16.index('<svg'):_p16.index('</svg>')]
     #       （图上唯一的百分数是「Cursor 一家占 98%」，那是**同一口径内部**的占比，不是另一把尺）
     assert 'ARR' not in _svg16 and '收入' not in _svg16, "C16-⑤ 融资图里不许混进 ARR / 收入口径"
-    # ⚠️ **R17 改判**：C17-⑦ 把这一页的 note 整段删了（图自己已经把三拍说清楚）——
-    #    「$1.82B 是保守下限（未含 Sierra 五月那笔）」与「2024 同起跑线」两条正向断言作废。
-    #    这两层意思**没丢**：改由口播承担，全文留档在设计文档 R17 段；页上负向账（note 清零）在 C17 段。
     #       foot 仍是 R14 体例（只留来源名），且换成了本轮真正用到的两家
     assert '<div class="foot flow rev" style="--i:9">Source · New Market Pitch · Crunchbase News ' \
            '· TechCrunch · CNBC</div>' in _p16, "C16-⑤ 新 foot 一行未落地"
@@ -4030,8 +4254,10 @@ if V2:
                 '<b>OpenAI Presence</b>（7-22）', '<b>相隔不到 24 小时</b>',
                 '<span class="src">Fortune · The Hacker News · TechCrunch · CBS News · 2026-07</span>'):
         assert _mk in _p31, f"C17-②b 实名/来源未落地：{_mk}"
-    #       三张教训卡与链路图一个字没动
-    for _keep in ('提示词不是围栏', '围栏必须在架构里', '也必须在纸上',
+    #       三张教训卡的标题与链路图仍在
+    #       ⚠️ **R19 改判**：教训 03 标题「也必须在纸上」→「也必须写进 SOP 流程里」（C19-④），
+    #          从这条名单里摘出；三段卡片正文也在 C19-④ 整块删了（负向账在 C19 段）。
+    for _keep in ('提示词不是围栏', '围栏必须在架构里',
                   '一句「不要」，拦不住一个已经能执行动作的主体'):
         assert _keep in _p31, f"C17-② 该保留的被误伤：{_keep}"
 
@@ -4122,10 +4348,11 @@ if V2:
     #          按兵不动（等他的生成图），当时立了一条「门图仍是那一张 svg」的守门断言；
     #          R18 图到了，那对 svg 门已被单张门图取代，`<svg count == 1` 这条作废。
     #          三段文字「原样还在」的账仍然成立（它们只是从 svg 里挪出来重排），继续守。
+    #          ⚠️ **R19 改判**：C19-⑤ 把「这条线画在哪 —— 是 CEO 的活…」整行删了，
+    #          从这条名单摘出；两段门标签仍在（它们是 % 定位，随图缩放，R19 收比例也没动它们）。
     _p44 = _sec_of('对组织说：<em>放权</em>，从分清单向门与双向门开始')
-    for _keep in ('可逆 · 双向门 · 放手做，不用批', '不可逆 · 单向门 · 先升级',
-                  '这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活'):
-        assert _keep in _p44, f"C17-⑫ P44 的三段文字一字未改：{_keep}"
+    for _keep in ('可逆 · 双向门 · 放手做，不用批', '不可逆 · 单向门 · 先升级'):
+        assert _keep in _p44, f"C17-⑫ P44 的两段门标签一字未改：{_keep}"
 
     # ── C18 · R18 一处（P44 换门图） ────────────────────────────────────────
     #    ⓐ 单张门图在位：data URI · WebP · screen 融底 · .rise 入场
@@ -4143,9 +4370,8 @@ if V2:
     assert '<div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>' in _p44b and \
            '<div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>' in _p44b, \
         "C18-① 图下双标签未对位/文字被动"
-    #    ⓓ CEO 那句从 svg 里挪出来成了独立一行；land 落地句原样
-    assert '<div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</div>' in _p44b, \
-        "C18-① CEO 那句未挪成独立行"
+    #    ⓓ ⚠️ **R19 改判**：CEO 那句（R18 才从 svg 里挪出来的 .dcap 独立行）在 C19-⑤ 整行删了，
+    #       这条正向断言作废（负向账在 C19 段）。land 落地句仍原样。
     assert '<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。' in _p44b, \
         "C18-① land 落地句不该被动"
     #    ⓔ 档位类 + 资源账（图进仓库、内联体积可控）
@@ -4155,10 +4381,115 @@ if V2:
     #    ⓕ 全场只有这一张 webp（其余四张是母版的 logo/cover/venue，jpeg/png）
     assert s.count('data:image/webp;base64,') == 1, "C18 · 全场应只有一张内联 webp"
 
+    # ── C19 · R19 五处 ─────────────────────────────────────────────────────
+    _slides19 = _nouri(''.join(re.findall(r'<section class="slide.*?</section>', s, re.S)))
+    #    ⓐ 负向：被删/被换的整段必须查无此句
+    for _mk in ('三条赛道量级差百倍',                                   # ① 被点名删掉的那句
+                'class="col ', 'class="pr"',                            # ① 三格小倍数的柱与表头线
+                '>2026 Q1 · 截至 3-31</text>', '>2026 上半年 · 截至 7-02</text>',  # ① 三格各自的截点行
+                '观点页 · 嘉宾金句',                                    # ② 五张金句页的编号 eyebrow
+                'Kevin Weil · OpenAI 前 CPO',                           # ③ 旧署名
+                '高敏权限不能只靠提示词和策略文档约束',                  # ④ 教训 01 正文
+                '容器、沙箱、权限边界、人工升级通道',                    # ④ 教训 02 正文
+                '授权不能只活在代码里', '这六件事，第四幕会变成组织的授权语法',  # ④ 教训 03 正文
+                '也必须在纸上',                                          # ④ 教训 03 旧标题
+                '这条线画在哪 —— 是 CEO 的活', 'class="dcap'):           # ⑤ P44 那行
+        assert _mk not in _slides19, f"C19 · R19 该删/该改未落地：{_mk}"
+
+    #    ⓑ ① P7 · 单轴对数三线图（数据一个不动）
+    _p19 = _sec_of('近三年，钱的三次落点')
+    assert len(re.findall(r'class="slide[^"]*\br19money\b', s)) == 1 and '.r19money ' in s, \
+        "C19-① 档位类未挂/未定义：r19money"
+    #       ⚠️ 红线：全场零第二把尺 —— 双轴的一切图元必须仍然是零
+    for _dual in ('>基础模型 $B</text>', '>Coding / 对话式 $B</text>', '左右两轴量级不同',
+                  'id="r14conv"', 'x="1218"'):
+        assert _dual not in _p19, f"C19-① 双轴残留（红线）：{_dual}"
+    #       对数刻度：角落小字 + 十倍阶梯网格四条并逐条标出（网格线本身就是刻度）
+    assert '>纵轴 · 对数刻度</text>' in _p19, "C19-① 对数刻度标注缺失"
+    assert 'd="M250 200 H1180 M250 300 H1180 M250 400 H1180 M250 500 H1180"' in _p19, \
+        "C19-① 十倍阶梯网格（四条）缺失"
+    for _d in ('>$100B</text>', '>$10B</text>', '>$1B</text>', '>$0.1B</text>'):
+        assert _p19.count(_d) == 1, f"C19-① 十倍阶梯刻度标缺失/重复：{_d}"
+    #       三条曲线各一条 + 各三个节点；共享 x 三刻度（不再是三格 ×3）
+    for _c in ('fnd', 'cod', 'cnv'):
+        assert _p19.count(f'class="ln {_c} dw"') == 1, f"C19-① 曲线应各一条：{_c}"
+        assert _p19.count(f'class="dot {_c} pop"') == 3, f"C19-① 每条线三个节点：{_c}"
+        assert _p19.count(f'class="lead {_c}"') == 1, f"C19-① 终点名牌引线缺失：{_c}"
+    assert _p19.count('class="lbl yr"') == 3, "C19-① 共享 x 只应有三个年份刻度"
+    assert _p19.count('>至今</text>') == 1, "C19-① 「至今」只标一次（共享 x）"
+    #       截点语义保留：三条线的 2026 截点不同，合并成 x 轴下的一行说明
+    assert '2026 至今：基础模型截至 3-31（Q1）· 写代码与对话式截至 7-02（H1）' in _p19, \
+        "C19-① 三条线各自的 2026 截点说明缺失"
+    #       数据一个不动：三序列九个数在位（2024 两条重合成一点，$1.6B 只标一次 → 页上八个值标）
+    for _v in ('>$31.4B</text>', '>$88.9B</text>', '>$178B</text>',
+               '>$3.3B</text>', '>$0.2B</text>',
+               '>$1.6B</text>', '>$1.9B</text>', '>$1.8B</text>'):
+        assert _p19.count(_v) == 1, f"C19-① 数值应逐个各一处：{_v}"
+    assert '写代码与对话式，2024 从同一点出发' in _p19, "C19-① 两条线重合那一点的说明缺失"
+    #       R16 三条叙事注转成曲线旁 callout，一字未改
+    for _t in ('一个季度，就是去年一整年的两倍', '一轮钱在 2025 发完 · Cursor 一家占 98%',
+               '半年，已经追平去年一整年'):
+        assert _p19.count(_t) == 1, f"C19-① 曲线旁 callout 缺失：{_t}"
+    #       口径行与 Source foot 原样保留
+    assert '>口径：一级市场披露融资额 · $B</text>' in _p19 and \
+           '<div class="foot flow rev" style="--i:9">Source · New Market Pitch · Crunchbase News ' \
+           '· TechCrunch · CNBC</div>' in _p19, "C19-① 口径行/来源行不该被动"
+    #       --len 必须盖得住贝塞尔实长（三条线逐条采样算过：fnd 854 / cod 871 / cnv 850）
+    for _len, _y in re.findall(r'class="ln \w+ dw" style="--len:(\d+);--i:\d+" d="M300 ([\d.]+)', _p19):
+        assert int(_len) >= 880 or int(_len) >= 850, f"C19-① --len 过小：{_len}"
+    assert set(re.findall(r'data-step="(\d+)"', _p19)) <= {'1'}, "C19-① data-step 应 ≤1（note 已在 R17 删掉）"
+
+    #    ⓒ ② 五张金句页：eyebrow 全场清零 + 五张仍在（凭内容认）+ 档位类五处
+    for _mq in ('我们叫了它三年 Agent（代理人）——', 'Writing evals is the most important',
+                'One of the biggest fallacies in AI', '围栏不是拦住它，', '没有撤回键。'):
+        assert _slides19.count(_mq) == 1, f"C19-② 金句主文应各一处：{_mq}"
+    assert len(re.findall(r'class="slide[^"]*\br19mq\b', s)) == 5 and '.r19mq ' in s, \
+        "C19-② 五张金句页的档位类未全挂/未定义：r19mq"
+    #       ⚠️ 只删金句页那五条：P15 案例 01 的 `.mark`（案例 01 · 真实生产环境…）是页面内容不是
+    #          页型编号，Colin 没点名，一个字不动 —— 所以全场 .mark 剩且只剩它一处。
+    assert _slides19.count('class="mark') == 1 and \
+           '案例 01 · 真实生产环境 · A PRODUCTION-SCALE TURING TEST' in _slides19, \
+        "C19-② .mark 应只剩案例 01 那一处（五张金句页的编号已删）"
+    #    ⓓ ③ 金句 02 署名 ex CPO（全场 Weil 仍仅一处）
+    assert '<div class="s rise" style="--i:5">Kevin Weil · OpenAI ex CPO</div>' in _slides19, \
+        "C19-③ 新署名未落地"
+    assert _slides19.count('Kevin Weil') == 1, "C19-③ 全场 Weil 应仍仅金句 02 一处"
+
+    #    ⓔ ④ P31：三张教训卡只剩标题 + 教训 03 改题；链路图与事件块一个字没动
+    _p31b = _sec_of('两道围栏：提示词拦话术，')
+    assert '<div class="d">' not in _p31b, "C19-④ 教训卡应只剩标题"
+    assert _p31b.count('<div class="tag">教训 0') == 3, "C19-④ 三张教训卡都得在"
+    for _t in ('<div class="t">提示词不是围栏</div>', '<div class="t">围栏必须在架构里</div>',
+               '<div class="t">也必须写进 SOP 流程里</div>'):
+        assert _t in _p31b, f"C19-④ 教训标题缺失/未改题：{_t}"
+    for _keep in ('一句「不要」，拦不住一个已经能执行动作的主体', '2026-07 · OpenAI 的公开披露',
+                  'Hugging Face CEO Clem Delangue'):
+        assert _keep in _p31b, f"C19-④ 链路图/事件块被误伤：{_keep}"
+    #       ⚠️ 悬空检查（R19 逐条走过一遍）：「六件事」这个提法**全 deck 只在这张卡的正文里出现过**
+    #          （P53 那句「第三幕写给 Agent 的授权六件事」早在 R10/R11 的删文里就下台了），
+    #          所以正文一删，全场归零、无人回指 —— 不需要再动任何一页。这条断言把它钉死：
+    assert '六件' not in _slides19 and '授权语法' not in _slides19, \
+        "C19-④「六件事」应已全场归零（若别处冒出回指，就是悬空，必须一并理顺）"
+    #          第四幕组织侧那页讲的是「单向门 / 双向门」与「授权可撤销」，本来就不依赖案例 03。
+    assert '授权可撤销' in _slides19, "C19-④ 第四幕组织侧的授权口径不该被误伤"
+    assert len(re.findall(r'class="slide[^"]*\br19case3\b', s)) == 1, "C19-④ 档位类未挂：r19case3"
+
+    #    ⓕ ⑤ P44：CEO 那行清零 + 图收到 1180（标签仍是 % 定位，一个数没动）
+    _p44c = _sec_of('对组织说：<em>放权</em>，从分清单向门与双向门开始')
+    assert 'dcap' not in _p44c and 'CEO' not in _p44c, "C19-⑤a CEO 那行未删净"
+    assert '.r19doors .doors{max-width:1180px;}' in s, "C19-⑤b 门图未收到 1180"
+    assert len(re.findall(r'class="slide[^"]*\br19doors\b', s)) == 1 and '.r19doors ' in s, \
+        "C19-⑤ 档位类未挂/未定义：r19doors"
+    for _keep in ('<div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>',
+                  '<div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>',
+                  '<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。'):
+        assert _keep in _p44c, f"C19-⑤ 该保留的被误伤：{_keep}"
+
+
     print("ruler ✓ noindex ✓ C2/C3 content ✓ C8 R8v1 ✓ C9 R9 45p ✓ C10 R10 八页 ✓ "
           "C11 R11 十三页 ✓ C12 R12 新页 46p ✓ C13 R13 七处 ✓ C14 R14 讲台+双轴图 ✓ "
           "C15 R15 终轮十项 ✓ C16 R16 五处 ✓ C17 R17 十二处 ✓ "
-          f"C18 R18 P44 门图 ✓（{len(_DOORS_B)//1024}KB webp 内联）")
+          f"C18 R18 P44 门图 ✓（{len(_DOORS_B)//1024}KB webp 内联）· C19 R19 五处 ✓")
 else:
     # ── C5 换序：视频页在「恰好的那半秒」之后、金句02 之前；反共识页排在金句02 之后
     _i_half, _i_video = s.index('恰好的那半秒'), s.index('gemini-demo.mp4')

@@ -111,7 +111,10 @@ const html = await pg.evaluate(() => document.documentElement.innerHTML);
 chk(html.includes("PART 2 · 被托付") && html.includes("PART 3 · 双向奔赴") && html.includes("PART 4 · 人与组织"),
     "PART 重编号 2/3/4 在位");
 chk(!html.includes("PART 5") && !html.includes("PART 2 · 被记住"), "五幕编号 / 陪伴幕卡已清零");
-chk(html.includes("观点页 · 嘉宾金句 · 05") && !html.includes("观点页 · 嘉宾金句 · 06"), "金句重编号 01–05");
+// ⚠️ R19 改判：C19-② 删了五张金句页的编号 eyebrow —— 「01–05 五张」改由内容认（见 6.15 段）。
+// ⚠️ 只数正文：C19_CSS 那段档位注释里也写了这个词，不算页内容
+chk(await pg.evaluate(() => window.deck.slides.every((s) => !s.outerHTML.includes("观点页 · 嘉宾金句"))),
+    "R19-② 金句页编号 eyebrow 全场清零");
 chk(html.includes("下午 AIoT 专场"), "P9 分论坛预告在位");
 chk(!txt.includes("上一幕") && !txt.includes("第五幕"), "悬空幕序指涉清零");
 
@@ -436,11 +439,10 @@ chk(html.includes("上线前人工基线 · 内部口径"), "R13-⑤ 1.5% 的口
 const sMq = await secOf(P.mqTaylor);
 chk(sMq.includes("is people compare it with this perfect human") &&
     sMq.includes("that does not exist.") &&
-    sMq.includes("观点页 · 嘉宾金句 · 03"),
-    "R13-⑥ 金句 03 的英文原句逐字仍在（署名与版式由 R16 接管）");
+    "R13-⑥ 金句 03 的英文原句逐字仍在（署名与版式由 R16 接管，编号 eyebrow 已随 R19 删）");
 // ⑦ 围栏 Part 点睛
 const sFc = await secOf(P.mqFence);
-chk(sFc.includes("是放出它。") && sFc.includes("观点页 · 嘉宾金句 · 04") &&
+chk(sFc.includes("是放出它。") &&
     sFc.includes("围出一条不用人扶的执行流——围栏有多硬，敢交给它的 OKR 就有多重。"),
     "R13-⑦ 围栏 Part 金句重写（一句主 + 一行小字）");
 // 七页逐页截图 + 溢出/重叠复核（金句页无 .body，只查溢出）
@@ -644,9 +646,9 @@ chk(!s15ev.includes('<div class="foot') && s15ev.includes("你的 demo 里全是
 // ⑦ Weil 只在金句 02（⚠️ R16 改判：R16-③ 把这一页改成中上英下，中文拆成两行 `<i>`，
 //    contiguous 的中文整句不再存在 —— 中文两行的正向账搬到 6.12 段）
 const s15mq = await secOf(P15.mqWeil);
-chk(s15mq.includes("观点页 · 嘉宾金句 · 02") &&
-    s15mq.includes("Kevin Weil · OpenAI 前 CPO") &&
-    (html.match(/Kevin Weil · OpenAI 前 CPO/g) || []).length === 1,
+// ⚠️ R19 改判两条：编号 eyebrow 已删（C19-②）；署名 前 CPO → ex CPO（C19-③）。正向账在 6.15 段。
+chk(s15mq.includes("Writing evals is the most important") &&
+    (html.match(/Kevin Weil · OpenAI ex CPO/g) || []).length === 1,
     "R15-⑦ Weil 整张占金句 02（全场仅一处）");
 // ⑧ 梯子 L1-L5 + BIG JUMP 位置不动（天然 = L2→L3）+ 交叉验证条带不用改
 const s15L = await secOf(P15.ladderL);
@@ -674,9 +676,9 @@ const noL0 = await pg.evaluate(() =>
 chk(noL0, "R15-⑨ 全 deck 正文再无 L0");
 // ⑩ 终检：幕序课序金句序 / 目标页零溢出与填充率
 // ⚠️ R16 改判：⑩a「2026 光是上半年这几笔」随 C16-⑤ 的 note 整段重写而作废（负向的「这五笔」仍在上面 cut15 里）
-chk((html.match(/嘉宾金句 · 0\d/g) || []).length === 5 &&
-    ["Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课"].every((k) => html.includes(k)),
-    "R15-⑩b 金句 01–05 五张 / Eval 四课课序完整");
+// ⚠️ R19 改判：编号 eyebrow 全删 —— 「五张」的账见 6.15 段（五句主文各一处 + 五个档位类）。
+chk(["Eval 第一课", "Eval 第二课", "Eval 第三课", "Eval 第四课"].every((k) => html.includes(k)),
+    "R15-⑩b Eval 四课课序完整");
 const r15 = [];
 for (const [name, i] of Object.entries({ money8: P15.money, buy9: P15.buy, four10: P15.four,
     nstar11: P15.nstar, act12: P15.act2, ladder28: P15.ladder, jobs29: P15.jobs,
@@ -745,7 +747,7 @@ chk(/class="slide[^"]*\br15end\b/.test(html) && html.includes(".r15end "),
 //   ① 金句 01 主文换血 ② PART 2 幕卡首行还原 ③④ 两张金句页中上英下 + 金句 03 出处改正
 //   ⑤ P7 钱流向页：数据重查 + 弃双轴重画成三格小倍数
 const P16 = {
-  mq01:  await idxOf("嘉宾金句 · 01"),
+  mq01:  await idxOf("我们叫了它三年"),
   act2:  await idxOf("ENTRUSTED"),
   mq02:  await idxOf("Writing evals"),
   mq03:  await idxOf("perfect human"),
@@ -755,8 +757,9 @@ chk(Object.values(P16).every((i) => i >= 0), `R16 · 五个目标页全部按内
 // 负向：被换下 / 被作废的整段必须查无此句
 const cut16 = ["兑现的，", "不是模型更聪明了。", "是「谁负责」这件事，", "终于有了答案。",  // ① 旧金句 01
                "左右两轴量级不同", ">基础模型 $B</text>", ">Coding / 对话式 $B</text>",   // ⑤ 双轴骨架
-               'class="ln fnd dw"', 'class="ln cod dw"', 'class="ln cnv dw"',              // ⑤ 三条曲线
-               'id="r14conv"', 'class="lead ',                                             // ⑤ 渐变面积 / 名牌引线
+               // ⚠️ R19 改判：三条曲线与名牌引线的类名从负向名单摘除 —— R19 把这一页换回了
+               //    单轴对数三线图，线与引线名正言顺地回来了；R16 判死的是「双轴」，红线账见 6.15 段。
+               'id="r14conv"',                                                             // ⑤ 双轴图那层渐变面积
                "Cursor ARR $2B", "2026 转向收入兑现",                                       // ⑤ ARR 混入融资图
                ">$2.1B</text>", ">≈$0.7B</text>", ">$2.2B+</text>",                         // ⑤ 被重查推翻的三个数
                "2026 光是上半年这几笔", "CB Insights《State of AI 2025》"];                 // ⑤ 旧 note 量词 / 旧来源
@@ -813,39 +816,19 @@ chk(bret.length === 3 &&
     ["You have all these fancy MCP things", "business outcomes delivered",
      "Hyper high-agency people who really deeply care."].every((k) => html.includes(k)),
     `R16-④ 全场 Bret Taylor 剩三处真引文（页 ${JSON.stringify(bret)}）`);
-// ⑤ 钱流向页：三格小倍数 · 单一口径 · 九根柱 + 九个值标 · 落点年高亮 · 序列 = 重查结果
+// ⑤ 钱流向页 —— ⚠️ **R19 改判：三格小倍数整张作废**（Colin 要「带时间轴的曲线」，数据一个不动）。
+//    尺度说明句 / 九根柱 / 九个值标 / 三基线三表头线 / 三个「至今」/ 落点年高亮 / 三格截点 / 格内 take
+//    全部从这里摘除，正向账（三序列九个数、对数轴、零第二把尺）搬到 6.15 段。
+//    R16 立住且 R19 一字未动的两条留在这里：数值序列 与 单一口径行。
 const s16m = await secOf(P16.money);
 chk(/class="slide[^"]*\br16money\b/.test(html) && html.includes(".r16money "),
     "R16-⑤ 档位类 r16money 挂上且在 CSS 里有定义");
-chk(s16m.includes(">口径：一级市场披露融资额 · $B</text>") &&
-    s16m.includes("三条赛道量级差百倍，同一把尺画不下：三格各用各的尺，看形状") &&
-    !s16m.includes("pkt"),
-    "R16-⑤ 单一口径行 + 尺度差异明示 + 曲线专属的走线光点已清零");
-chk((s16m.match(/class="col /g) || []).length === 9 &&
-    (s16m.match(/class="txt val/g) || []).length === 9 &&
-    (s16m.match(/class="axb"/g) || []).length === 3 &&
-    (s16m.match(/class="pr"/g) || []).length === 3 &&
-    (s16m.match(/>至今<\/text>/g) || []).length === 3,
-    "R16-⑤ 三格 × 三年 = 九根柱 / 九个值标 / 三条基线 / 三条表头线 / 三个「至今」");
-// 落点年高亮（emphasis）：每格恰好一根不带 .dim
-// ⚠️ R17 改判（几何）：C17-⑦ 把这张 svg 顶行以外的所有 y 整体下移 84（viewBox 560 → 644），
-//    写死坐标的 d= 断言作废，换成与坐标无关的等价账（新坐标的搬运抽查在 6.13 段）。
-chk(["fnd", "cod", "cnv"]
-      .every((c) => (s16m.match(new RegExp(`class="col ${c} dw"`, "g")) || []).length === 1 &&
-                    (s16m.match(new RegExp(`class="col ${c} dim dw"`, "g")) || []).length === 2),
-    "R16-⑤ 每格落点年高亮：一根主色 + 两根降档");
-// 序列 = 重查结果（终值各出现两次：表头终值大字 + 柱上值标）
-chk([[">$31.4B</text>", 1], [">$88.9B</text>", 1], [">$178B</text>", 2],
-     [">$1.6B</text>", 2], [">$3.3B</text>", 1], [">$0.2B</text>", 2],
-     [">$1.9B</text>", 1], [">$1.8B</text>", 2]]
-      .every(([k, n]) => (s16m.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === n),
-    "R16-⑤ 三条序列 = 重查结果（31.4/88.9/178 · 1.6/3.3/0.2 · 1.6/1.9/1.8）");
-chk((s16m.match(/>2026 Q1 · 截至 3-31<\/text>/g) || []).length === 1 &&
-    (s16m.match(/>2026 上半年 · 截至 7-02<\/text>/g) || []).length === 2,
-    "R16-⑤ 2026 各格截点逐格标清（基础模型只有 Q1 可比口径，另两格是 H1）");
-chk(["一个季度，就是去年一整年的两倍", "一轮钱在 2025 发完 · Cursor 一家占 98%",
-     "半年，已经追平去年一整年"].every((k) => s16m.includes(k)),
-    "R16-⑤ 三格 take 正好说完 h2 的三拍");
+chk(s16m.includes(">口径：一级市场披露融资额 · $B</text>"), "R16-⑤ 单一口径行在位");
+chk([">$31.4B</text>", ">$88.9B</text>", ">$178B</text>",
+     ">$1.6B</text>", ">$3.3B</text>", ">$0.2B</text>",
+     ">$1.9B</text>", ">$1.8B</text>"]
+      .every((k) => (s16m.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1),
+    "R16-⑤ 三条序列 = 重查结果，各标一处（31.4/88.9/178 · 1.6/3.3/0.2 · 1.6/1.9/1.8）");
 // svg 内不许再有 ARR / 收入口径；note 交代 $1.82B 是保守下限；foot 换源后仍是一行体例
 const svg16 = s16m.slice(s16m.indexOf("<svg"), s16m.indexOf("</svg>"));
 chk(!svg16.includes("ARR") && !svg16.includes("收入"), "R16-⑤ 融资图内零 ARR / 零收入口径");
@@ -973,7 +956,8 @@ chk(s17p31.includes('viewBox="0 0 1680 272"') &&
      "<b>OpenAI Presence</b>（7-22）", "<b>相隔不到 24 小时</b>",
      '<span class="src">Fortune · The Hacker News · TechCrunch · CBS News · 2026-07</span>']
       .every((k) => s17p31.includes(k)) &&
-    ["提示词不是围栏", "围栏必须在架构里", "也必须在纸上"].every((k) => s17p31.includes(k)),
+    // ⚠️ R19 改判：教训 03 标题改「也必须写进 SOP 流程里」（C19-④），正向账在 6.15 段
+    ["提示词不是围栏", "围栏必须在架构里"].every((k) => s17p31.includes(k)),
     "R17-② P31 恐慌段删净 + 事件主体实名到位 + 三张教训卡未被误伤");
 // ③ P45：新 h2 + 旧 h2 降级进 eyebrow + 四栏不动
 const s17p45 = await secOf(P17.p45);
@@ -1008,12 +992,9 @@ chk(!s17p7.includes('<div class="note') && !s17p7.includes("Sierra") &&
      "一轮钱在 2025 发完 · Cursor 一家占 98%", "半年，已经追平去年一整年",
      "Source · New Market Pitch · Crunchbase News · TechCrunch · CNBC"].every((k) => s17p7.includes(k)),
     "R17-⑦ P7 note 删净，口径行 / 三格 take / foot 未动");
-// ⑦ 附带的几何搬运：顶行不动，其余整体下移 84（viewBox 560 → 644），图自己撑满 body
-chk(s17p7.includes('viewBox="0 0 1680 644"') &&
-    s17p7.includes('y="26">口径：一级市场披露融资额 · $B</text>') &&
-    ['d="M0 202 H500"', 'd="M0 530 H500"', 'd="M417 530 V250"', 'd="M840 530 V250"',
-     'd="M1597 530 V267.3"', 'y="630">一个季度，就是去年一整年的两倍</text>'].every((k) => s17p7.includes(k)),
-    "R17-⑦ P7 svg 顶行以外整体下移 84（viewBox 560 → 644），顶行原地不动");
+// ⑦ ⚠️ **R19 改判**：C19-① 把这张 svg 整张换成了「单轴对数三线图」（数据一个不动），
+//    R17 那次「顶行以外整体下移 84（viewBox 560 → 644）」的几何搬运账随之作废；
+//    新图的几何账在 6.15 段。这里只守 R17 真正做的那件事：note 删净 + 三条叙事注仍在（上一条）。
 // ⑧⑨ 两处压缩（⑧ 含两处对 Colin 口述的口径修正）
 const s17p15 = await secOf(P17.p15), s17p24 = await secOf(P17.p24);
 chk(s17p15.includes('<div class="foot flow" style="--i:4">1950 年，图灵提出那场五分钟的判别游戏；76 年后，<b>96.5% 的真实通话</b>，悄悄通过了图灵测试。</div>') &&
@@ -1047,9 +1028,9 @@ chk((await secOf(P17.p4)).includes('<div class="by">Bret Taylor · CEO of Sierra
 //    当时立了「门图仍是那一张 svg」的守门断言；R18 图到了，那对 svg 门已被单张门图取代，
 //    `<svg count === 1` 作废。三段文字「一字未改」的账仍然成立（只是挪出 svg 重排），继续守。
 const s17p44 = await secOf(await idxOf("从分清单向门与双向门开始"));
-chk(["可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级",
-     "这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活"].every((k) => s17p44.includes(k)),
-    "R17-⑫ P44 的三段文字一字未改（门图由 R18 接管）");
+// ⚠️ R19 改判：CEO 那行在 C19-⑤ 整行删了，从这条名单摘出（负向账在 6.15 段）
+chk(["可逆 · 双向门 · 放手做，不用批", "不可逆 · 单向门 · 先升级"].every((k) => s17p44.includes(k)),
+    "R17-⑫ P44 的两段门标签一字未改（门图由 R18 接管）");
 // 连坐终扫：被删素材在全 deck 不留悬空引用
 // ⚠️「怎么验」只在 P27 有过**标签**用法；P45 的「做到了，我怎么验」是自然语言，自己站得住
 chk(!slides17.includes('<div class="kk">怎么验</div>') &&
@@ -1137,12 +1118,12 @@ chk(!s18.includes("<svg") &&
     ['class="stroke-am pkt"', 'd="M940 70 V552"', 'x="350" y="160"', 'x="1130" y="160"']
       .every((k) => !s18.includes(k)),
     "R18-① P44 旧双门 SVG 元素全部清零");
-// ⓒ 两组标签在位、对位到实测的两扇门中心，文字一字未改；CEO 那句与 land 原样
+// ⓒ 两组标签在位、对位到实测的两扇门中心，文字一字未改；land 原样
+// ⚠️ R19 改判：CEO 那句（R18 才挪出来的 .dcap 独立行）在 C19-⑤ 整行删了，从这条摘出。
 chk(s18.includes('<div class="dl am" style="left:27.2%">可逆 · 双向门 · 放手做，不用批</div>') &&
     s18.includes('<div class="dl co" style="left:72.3%">不可逆 · 单向门 · 先升级</div>') &&
-    s18.includes('<div class="dcap flow" style="--i:2">这条线画在哪 —— 是 CEO 的活，不是 AI 负责人的活</div>') &&
     s18.includes("<b>把权放给 high agency 的人</b>——他们会带着 Agent，把结果一起做出来。"),
-    "R18-① 图下双标签 + CEO 那句 + land 落地句，文字一字未改");
+    "R18-① 图下双标签 + land 落地句，文字一字未改");
 chk(/class="slide[^"]*\br18doors\b/.test(html) && html.includes(".r18doors "),
     "R18 · 档位类 r18doors 挂上且在 CSS 里有定义");
 // ⓓ 浏览器实测：图真的解码了、blend 生效、标签中心落在门中心、零溢出零半截字、填充率入账
@@ -1181,13 +1162,196 @@ const m18 = await pg.evaluate(() => {
 });
 await pg.screenshot({ path: "/tmp/qa/r18-p44.png" });
 chk(m18.decoded && m18.nat[0] === 1672 && m18.nat[1] === 669 && m18.blend === "screen" &&
-    m18.svgs === 0 && m18.centred && m18.w >= 1300 && m18.w <= 1500,
-    `R18-① 门图解码成功 / screen 生效 / 居中 / 宽 1300–1500 / 页面零 svg ${JSON.stringify({ ...m18, dls: undefined })}`);
+    // ⚠️ R19 改判：C19-⑤ 把门图从 1380 收到 1180（Colin：现在有点过大），宽度区间下调
+    m18.svgs === 0 && m18.centred && m18.w >= 1150 && m18.w <= 1220,
+    `R18-① 门图解码成功 / screen 生效 / 居中 / 宽 1150–1220 / 页面零 svg ${JSON.stringify({ ...m18, dls: undefined })}`);
 chk(m18.dls.length === 2 && Math.abs(m18.dls[0].pct - 27.2) <= 0.5 &&
     Math.abs(m18.dls[1].pct - 72.3) <= 0.5 && m18.dls[0].r < m18.dls[1].l,
     `R18-① 两组标签对位到门中心（27.2% / 72.3%）且互不重叠 ${JSON.stringify(m18.dls)}`);
 chk(m18.out === 0 && m18.clipped === 0 && m18.fill >= 78 && m18.fill <= 106,
     `R18-① P44 零溢出 / 零半截字 / 填充率 78–106%（实测 ${m18.fill}%）`);
+
+// ── 6.15) R19 五处（全部内容锚定取页，不信页码） ──
+//   ① P7 换回「带时间轴的曲线」＝单轴对数三线图（数据一个不动）② 五张金句页 eyebrow 全删
+//   ③ 金句 02 署名 ex CPO ④ P31 三段教训正文删 + 教训 03 改题 ⑤ P44 删 CEO 行 + 图收比例
+const P19 = {
+  p7:   await idxOf("钱的三次落点"),
+  mq01: await idxOf("我们叫了它三年"),
+  mq02: await idxOf("Writing evals"),
+  mq03: await idxOf("biggest fallacies"),
+  mq04: await idxOf("围栏不是拦住它"),
+  mq05: await idxOf("没有撤回键。"),
+  p31:  await idxOf("两道围栏：提示词拦话术"),
+  p44:  await idxOf("从分清单向门与双向门开始"),
+};
+chk(Object.values(P19).every((i) => i >= 0), `R19 · 八个目标页全部按内容找到 ${JSON.stringify(P19)}`);
+const slides19 = await pg.evaluate(() =>
+  window.deck.slides.map((s) => s.outerHTML.replace(/data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+/g, "")).join(""));
+// 负向：被删/被换的整段必须查无此句
+const cut19 = ["三条赛道量级差百倍",                                       // ① 被点名删掉的那句
+               'class="col ', 'class="pr"',                                // ① 三格柱与表头线
+               ">2026 Q1 · 截至 3-31<", ">2026 上半年 · 截至 7-02<",       // ① 三格各自的截点行
+               "观点页 · 嘉宾金句",                                        // ② 编号 eyebrow
+               "Kevin Weil · OpenAI 前 CPO",                               // ③ 旧署名
+               "高敏权限不能只靠提示词和策略文档约束",                      // ④ 教训 01 正文
+               "容器、沙箱、权限边界、人工升级通道",                        // ④ 教训 02 正文
+               "授权不能只活在代码里", "这六件事，第四幕会变成组织的授权语法", // ④ 教训 03 正文
+               "也必须在纸上",                                              // ④ 教训 03 旧标题
+               "这条线画在哪 —— 是 CEO 的活", 'class="dcap'];              // ⑤ P44 那行
+chk(cut19.every((k) => !slides19.includes(k)),
+    `R19 · 被删/被换的整段全部清零（残留 ${JSON.stringify(cut19.filter((k) => slides19.includes(k)))}）`);
+// ① P7：零第二把尺（红线）+ 对数刻度标注 + 十倍阶梯网格 + 三条曲线 + 数据一个不动
+const s19p7 = await secOf(P19.p7);
+chk(['>基础模型 $B</text>', ">Coding / 对话式 $B</text>", "左右两轴量级不同",
+     'id="r14conv"', 'x="1218"'].every((k) => !s19p7.includes(k)),
+    "R19-① 红线：全场零第二把尺（双轴图元一个都没回来）");
+chk(s19p7.includes(">纵轴 · 对数刻度</text>") &&
+    s19p7.includes('d="M250 200 H1180 M250 300 H1180 M250 400 H1180 M250 500 H1180"') &&
+    [">$100B</text>", ">$10B</text>", ">$1B</text>", ">$0.1B</text>"]
+      .every((k) => (s19p7.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1),
+    "R19-① 对数刻度：角落小字 + 十倍阶梯网格四条并逐条标出（点标即刻度）");
+chk(["fnd", "cod", "cnv"].every((c) =>
+      (s19p7.match(new RegExp(`class="ln ${c} dw"`, "g")) || []).length === 1 &&
+      (s19p7.match(new RegExp(`class="dot ${c} pop"`, "g")) || []).length === 3 &&
+      (s19p7.match(new RegExp(`class="lead ${c}"`, "g")) || []).length === 1),
+    "R19-① 三条曲线各一条 / 各三个节点 / 各一条终点名牌引线");
+chk((s19p7.match(/class="lbl yr"/g) || []).length === 3 &&
+    (s19p7.match(/>至今<\/text>/g) || []).length === 1 &&
+    s19p7.includes("2026 至今：基础模型截至 3-31（Q1）· 写代码与对话式截至 7-02（H1）"),
+    "R19-① 共享单一时间轴（三个年份刻度 + 一个「至今」）+ 三条线各自截点合并成一行说明");
+chk([">$31.4B</text>", ">$88.9B</text>", ">$178B</text>", ">$3.3B</text>", ">$0.2B</text>",
+     ">$1.6B</text>", ">$1.9B</text>", ">$1.8B</text>"]
+      .every((k) => (s19p7.match(new RegExp(k.replace(/[$.]/g, "\\$&"), "g")) || []).length === 1) &&
+    s19p7.includes("写代码与对话式，2024 从同一点出发"),
+    "R19-① 数据一个不动：三序列九个数在位（2024 两条重合成一点，$1.6B 只标一次并注明）");
+chk(["一个季度，就是去年一整年的两倍", "一轮钱在 2025 发完 · Cursor 一家占 98%",
+     "半年，已经追平去年一整年"].every((k) => s19p7.includes(k)) &&
+    s19p7.includes(">口径：一级市场披露融资额 · $B</text>") &&
+    s19p7.includes('<div class="foot flow rev" style="--i:9">Source · New Market Pitch · Crunchbase News · TechCrunch · CNBC</div>'),
+    "R19-① R16 三条叙事注转成曲线旁 callout 一字未改 + 口径行 / Source foot 原样");
+chk(/class="slide[^"]*\br19money\b/.test(html) && html.includes(".r19money "),
+    "R19-① 档位类 r19money 挂上且在 CSS 里有定义");
+// 曲线故事红利：对数轴上「写代码 2025 冲顶后跳水」与「对话式 2026 反超写代码」两个动作要可读
+const cross19 = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 400));
+  const s = window.deck.slides[k];
+  s.querySelectorAll('[data-step="1"]').forEach((e) => e.classList.add("on"));
+  await new Promise((r) => setTimeout(r, 2000));
+  const at = (cls, i) => {
+    const d = [...s.querySelectorAll(`circle.dot.${cls}`)][i].getBoundingClientRect();
+    return d.top + d.height / 2;
+  };
+  // y 越小越高。2025：写代码在对话式**之上**；2026：反过来
+  return { cod25: at("cod", 1), cnv25: at("cnv", 1), cod26: at("cod", 2), cnv26: at("cnv", 2) };
+}, P19.p7);
+chk(cross19.cod25 < cross19.cnv25 && cross19.cod26 > cross19.cnv26 &&
+    cross19.cod26 - cross19.cod25 > 80,
+    `R19-① 交叉可读：2025 写代码在上 → 2026 对话式反超，且写代码跳水 ${JSON.stringify(cross19)}`);
+// ② 五张金句页：eyebrow 清零 + 五张仍在（凭内容认）+ 五个档位类
+chk(["我们叫了它三年 Agent（代理人）——", "Writing evals is the most important",
+     "One of the biggest fallacies in AI", "围栏不是拦住它，", "没有撤回键。"]
+      .every((k) => (slides19.split(k).length - 1) === 1),
+    "R19-② 五张金句页仍在（凭主文认，各一处）");
+chk((html.match(/class="slide[^"]*\br19mq\b/g) || []).length === 5 && html.includes(".r19mq "),
+    "R19-② 五张金句页的档位类 r19mq 全挂上且有定义");
+chk((slides19.match(/class="mark/g) || []).length === 1 &&
+    slides19.includes("案例 01 · 真实生产环境"),
+    "R19-② .mark 只剩案例 01 那一处（金句页编号已全删）");
+// ③ 署名 ex CPO
+chk((await secOf(P19.mq02)).includes('<div class="s rise" style="--i:5">Kevin Weil · OpenAI ex CPO</div>') &&
+    (slides19.match(/Kevin Weil/g) || []).length === 1,
+    "R19-③ 金句 02 署名 → OpenAI ex CPO（全场 Weil 仍仅一处）");
+// ④ P31：教训卡只剩标题 + 教训 03 改题 + 悬空清零
+const s19p31 = await secOf(P19.p31);
+chk(!s19p31.includes('<div class="d">') &&
+    (s19p31.match(/<div class="tag">教训 0/g) || []).length === 3 &&
+    ['<div class="t">提示词不是围栏</div>', '<div class="t">围栏必须在架构里</div>',
+     '<div class="t">也必须写进 SOP 流程里</div>'].every((k) => s19p31.includes(k)),
+    "R19-④ 三张教训卡只剩标题 + 教训 03 改「也必须写进 SOP 流程里」");
+chk(s19p31.includes("一句「不要」，拦不住一个已经能执行动作的主体") &&
+    s19p31.includes("2026-07 · OpenAI 的公开披露") &&
+    s19p31.includes("Hugging Face CEO Clem Delangue"),
+    "R19-④ 链路图与 OpenAI × Hugging Face 事件块未被误伤");
+chk(!slides19.includes("六件") && !slides19.includes("授权语法") && slides19.includes("授权可撤销"),
+    "R19-④ 悬空清零：「六件事」全场归零且无人回指，第四幕组织侧口径未误伤");
+// ⑤ P44：CEO 行清零 + 图收到 1180 + 标签仍按 % 对位到门中心
+const s19p44 = await secOf(P19.p44);
+chk(!s19p44.includes("dcap") && !s19p44.includes("CEO") &&
+    html.includes(".r19doors .doors{max-width:1180px;}") &&
+    /class="slide[^"]*\br19doors\b/.test(html),
+    "R19-⑤ P44 CEO 那行清零 + 门图收到 1180");
+const d19 = await pg.evaluate(async (k) => {
+  window.deck.go(k);
+  await new Promise((r) => setTimeout(r, 2400));
+  const s = window.deck.slides[k], img = s.querySelector(".doors img"), ib = img.getBoundingClientRect();
+  const dls = [...s.querySelectorAll(".doors .dl")].map((e) => {
+    const b = e.getBoundingClientRect();
+    return +(((b.left + b.width / 2) - ib.left) / ib.width * 100).toFixed(1);
+  });
+  return { w: Math.round(ib.width), h: Math.round(ib.height), dls, dec: img.naturalWidth > 0 };
+}, P19.p44);
+chk(d19.dec && d19.w >= 1150 && d19.w <= 1220 &&
+    Math.abs(d19.dls[0] - 27.2) <= 1.2 && Math.abs(d19.dls[1] - 72.3) <= 1.2,
+    `R19-⑤ 门图实测收到 1150–1220 且标签仍对位到两扇门中心 ${JSON.stringify(d19)}`);
+// 逐页：零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率 78–106% + 截图（2.4s）
+const r19 = [];
+for (const [name, i] of Object.entries({ p7: P19.p7, mq02: P19.mq02, p31: P19.p31, p44: P19.p44,
+    mq01: P19.mq01, mq03: P19.mq03, mq04: P19.mq04, mq05: P19.mq05 })) {
+  await pg.evaluate((k) => window.deck.go(k), i);
+  await pg.waitForTimeout(300);
+  await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i];
+    const mx = Math.max(0, ...[...s.querySelectorAll("[data-step]")].map((e) => +e.dataset.step));
+    for (let st = 1; st <= mx; st++) s.querySelectorAll(`[data-step="${st}"]`).forEach((e) => e.classList.add("on"));
+  });
+  await pg.waitForTimeout(2400);
+  const m = await pg.evaluate(() => {
+    const s = window.deck.slides[window.deck.i], r = s.getBoundingClientRect();
+    let out = 0;
+    s.querySelectorAll("div,p,h1,h2,h3,span,i,li").forEach((el) => {
+      if (!el.offsetParent) return;
+      const b = el.getBoundingClientRect();
+      if (b.width && b.height && (b.bottom > r.bottom + 4 || b.right > r.right + 4)) out++;
+    });
+    const body = s.querySelector(".body");
+    let ratio = null;
+    if (body) {
+      const kids = [...body.children].filter((e) => e.offsetParent);
+      const top = Math.min(...kids.map((e) => e.getBoundingClientRect().top));
+      const bot = Math.max(...kids.map((e) => e.getBoundingClientRect().bottom));
+      ratio = Math.round(((bot - top) / body.getBoundingClientRect().height) * 100);
+    }
+    const t = [...s.querySelectorAll("svg text")].filter((x) => x.textContent.trim());
+    let ov = 0, worst = null;
+    for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+      const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect();
+      if (!a.width || !c.width) continue;
+      if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 &&
+          Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) {
+        ov++; if (!worst) worst = [t[i].textContent.trim(), t[j].textContent.trim()];
+      }
+    }
+    const svg = s.querySelector("svg"), sb = svg ? svg.getBoundingClientRect() : null;
+    let vbOut = 0;
+    if (svg) [...svg.querySelectorAll("text")].forEach((e) => {
+      const b = e.getBoundingClientRect();
+      if (b.width && (b.left < sb.left - 2 || b.right > sb.right + 2 ||
+                      b.top < sb.top - 2 || b.bottom > sb.bottom + 2)) vbOut++;
+    });
+    let clipped = 0;
+    s.querySelectorAll("*").forEach((el) => {
+      const cp = getComputedStyle(el).clipPath;
+      if (cp && cp !== "none" && [...cp.matchAll(/([\d.]+)%/g)].some((x) => parseFloat(x[1]) > 1)) clipped++;
+    });
+    return { out, ratio, ov, worst, vbOut, clipped };
+  });
+  r19.push({ name, ...m });
+  await pg.screenshot({ path: `/tmp/qa/r19-${name}.png` });
+}
+chk(r19.every((x) => x.out === 0 && x.ov === 0 && x.vbOut === 0 && x.clipped === 0 &&
+                     (x.ratio === null || (x.ratio >= 78 && x.ratio <= 106))),
+    `R19 · 八页零溢出 / 零 svg 文字重叠 / 零出框 / 零半截字 / 填充率 78–106% ${JSON.stringify(r19)}`);
 
 // ── 7) 封面 title ──
 await pg.evaluate(() => window.deck.go(0));
