@@ -57,21 +57,19 @@ A = "/decks/assets/robot26/"
 # 格式：(页, shapeId, 段序) : [(新文本, 借第几个原 run 的字号/字色/字重), ...]；ref=None 表示换行
 BR = None
 QUOTE_PATCH = {
-    (4, "10", 0): [("★ ", 0), ("MONEY QUOTE · 01 OF 04", 1)],
+    (4, "10", 0): [("★ ", 0), ("MONEY QUOTE · 01 OF 03", 1)],   # R24：MQ04 删页，重连号
     (4, "11", 0): [("3 ", 0), ("天扔抽屉，不是 ", 1), ("技术故障", 3), ("，", 4), ("", BR),
                    ("是 ", 5), ("关系破裂", 7), ("。", 8)],
     (4, "13", 0): [("用户买的不是 ", 0), ("更聪明的玩具", 4), ("，", 5), ("", BR),
                    ("是 ", 5), ("更处得来的伙伴", 6), ("。", 7)],
-    (24, "10", 0): [("★ ", 0), ("MONEY QUOTE · 02 OF 04", 1)],
+    (24, "10", 0): [("★ ", 0), ("MONEY QUOTE · 02 OF 03", 1)],
     (24, "16", 0): [("钉子 · PIN 02", 0)],
-    (25, "4", 0): [("★ ", 0), ("MONEY QUOTE · 03 OF 04", 1)],
+    (25, "4", 0): [("★ ", 0), ("MONEY QUOTE · 03 OF 03", 1)],
     (25, "17", 0): [("钉子 · PIN 03", 0)],
     # P28 右上注脚：原稿把「INFO DENSITY HIGH」和中文说明挤在 250px 里折行，
     # 「给」被甩到行尾成孤字 —— 改成显式断行，标签一行、说明一行。
     (28, "4", 0): [("INFO DENSITY HIGH", 0), ("", BR), ("给一线产品经理看的版本", 0)],
-    (33, "9", 0): [("★ ", 0), ("MONEY QUOTE · 04 OF 04", 1)],
-    (33, "10", 0): [("消费机器人今天解的题，", 0), ("", BR), ("具身智能明天直接抄", 1), ("。", 2)],
-    (33, "12", 0): [("What consumer robots solve today, embodied AI copies tomorrow.", 0)],
+    # R24：老 P33（MQ04）整页删除，原三条 patch 随之退役
 }
 
 
@@ -99,7 +97,7 @@ def apply_quote_patch(model):
 WIDEN = {
     (2, "28"): 180,     # RETENTION SHAPE OF CONSUMER ROBOTS, 2025 —— Colin 点名
     (6, "46"): 270,     # FUNCTIONS BOX VS. CHARACTER BEING
-    (21, "31"): 120,    # SD-RTN 10 YEARS OF TIMING
+    (23, "31"): 120,    # SD-RTN 10 YEARS OF TIMING（R24 顺延：21→23）
 }
 
 PT = 4 / 3.0          # 1pt = 4/3 px（1920px 舞台 = 20 英寸 → 96 dpi）
@@ -109,7 +107,7 @@ MAX_I = 5             # --i 上限：0.44s + 1.7s(dw) < 2.4s，保证 QA 截图�
 
 # ── R22 模板层 ──────────────────────────────────────────────────────────────
 SIG = "colinyao.com"          # 右上角落款（原会场双 logo 条的槽位）
-NO_SIG = {1, 22, 36}          # P22 满幅视频；P1/P36 封面页（R23 起为 colin-deck 背景板，按封面惯例不挂 chrome）
+NO_SIG = {1, 24, 37}          # P24 满幅视频；P1/P37 封面页（R23 起为 colin-deck 背景板，按封面惯例不挂 chrome）·R24 顺延
 
 # ── R23 · 封面背景板：P1/P36 撤峰会满幅 keyart，换 colin-deck 暗色模板层 ──────
 # Colin 2026-08-09 拍板：P1/P36 的背景板换成自家 deck 设计（此前是峰会 keyart 风格）。
@@ -118,7 +116,109 @@ NO_SIG = {1, 22, 36}          # P22 满幅视频；P1/P36 封面页（R23 起为
 #       文案/坐标/字号/动效一律不动）。cover-ai.jpg 资产随之清零（会场痕迹清零同一纪律）。
 # 浅底变体：不进本 deck（colin-deck 节奏铁律「单场一个主题」，本体纯黑）；
 #       预览稿由 build 后另行叠加浅底变量生成，不上线不注册路由。
-COVER_BG_DROP = {1, 36}
+COVER_BG_DROP = {1, 37}          # R24 起尾页顺延为 P37
+
+# ── R24 · P11 一拆三 + 老 P13 严谨化 + MQ04 删页（Colin 2026-08-09 逐页指令）────
+# ① 老 P11 拆成三页：Ilya 引文页（GTC 2023 对谈，10 亿词出处）→ 0.29TB 四步推演页
+#    （口径与 #03《我们的一生只有 0.29TB》一致：10 亿词 → 25% → ÷150 词/分 ≈ 3.2 年 → 25kbps ≈ 0.29TB）
+#    → FIG 01 关系容量曲线整页（左侧卡原几何不动，右侧补伙伴线读数 + TAKEAWAY）。
+# ② 老 P13（新 P14）30 年坐标严谨化：第三段「2024 →」改「2022 →」（ChatGPT 2022.11 为拐点，
+#    GPT-4o 2024.05 为演进），「ChatGPT · GPT-4o」改「ChatGPT → GPT-4o」；其余三段交叉验证均成立
+#    （1990s 固网→蜂窝→IP ✓ / 2010s Siri 2011·Alexa 2014 指令式 ✓ / NOW 共在 ✓）。
+# ③ 删老 P33（MQ04「抄作业」页，Colin：有点没意义）——金句重连号 01–03 OF 03，PIN 04 随页退役。
+# 页数 36 → 37；P11 之后全部顺延 +2，老 P33 之后回收 -1（老 P34-36 → 新 P35-37）。
+W, ZI, HUI = "#FFFFFF", "#D4B7F9", "var(--ink-3)"   # 白 / 淡紫 / 弱灰（沿用模型字面色 + R23 变量惯例）
+
+def _tx(sid, x, y, w, h, paras, anchor="t"):
+    return {"kind": "sp", "id": sid, "name": "R24 " + sid, "x": x, "y": y, "w": w, "h": h,
+            "geom": "rect", "body": {"anchor": anchor, "ins": [2.67, 2.67, 2.67, 2.67], "wrap": "square", "af": 1},
+            "paras": paras}
+
+def _p(runs, ln=None, algn=None, bef=None):
+    p = {"runs": [dict(t=t, sz=sz, c=c, **({"b": 1} if b else {}), **({"spc": spc} if spc else {}))
+                  for (t, sz, c, b, spc) in runs]}
+    if ln: p["ln"] = ln
+    if algn: p["algn"] = algn
+    if bef: p["bef"] = bef
+    return p
+
+def _slide_a():
+    """新 P11 · Ilya 引文页：语境节录（左）+ 两拍对白（右，分步）。引文 verbatim，节略以 … 标示。"""
+    ctx1 = ("“So there are two dimensions to multi-modality. … The first reason is that "
+            "multi-modality is useful. It is useful for a neural network to see … because the "
+            "world is very visual. … There is a second reason … which is that we learn more "
+            "about the world by learning from images, in addition to learning from text. … ")
+    ctx2 = "For a human being, as human beings, we get to hear about one billion words in our entire life.”"
+    shapes = [
+        _tx("a2", 120, 144, 1730, 34, [_p([("A NUMBER FROM THE SOURCE · ILYA SUTSKEVER × JENSEN HUANG", 15.0, ZI, 1, 6.4)])]),
+        _tx("a3", 120, 192, 1730, 146, [_p([("一生，只听得到「 ", 45.0, W, 1, -0.6), ("10 亿词", 45.0, ZI, 1, -0.6),
+                                            (" 」。", 45.0, W, 1, -0.6)], ln=1.18)]),
+        _tx("a4", 120, 392, 920, 470, [_p([("ILYA SUTSKEVER · 时任 OPENAI 首席科学家", 12.0, HUI, 1, 3.2)]),
+                                       _p([(ctx1, 15.0, HUI, 0, 0), (ctx2, 15.0, W, 1, 0)], ln=1.62, bef=18)]),
+        _tx("a5", 1160, 430, 640, 150, [_p([("JENSEN HUANG", 12.0, HUI, 1, 3.2)]),
+                                        _p([("“Only one billion words?”", 30.0, W, 1, 0)], ln=1.25, bef=14)]),
+        _tx("a6", 1160, 640, 640, 190, [_p([("ILYA", 12.0, HUI, 1, 3.2)]),
+                                        _p([("“That’s amazing.", 30.0, ZI, 1, 0)], ln=1.3, bef=14),
+                                        _p([("That’s not a lot.”", 30.0, ZI, 1, 0)], ln=1.3)]),
+        _tx("a7", 120, 972, 1680, 26, [_p([("SOURCE · NVIDIA GTC SPRING 2023 · FIRESIDE CHAT: AI TODAY AND VISION OF THE FUTURE · 2023.03", 10.5, HUI, 1, 3.36)])]),
+    ]
+    return {"n": -1, "shapes": shapes, "clicks": [["a5"], ["a6"]]}
+
+def _slide_b():
+    """新 P12 · 0.29TB 四步推演：四节点横排分步 → 大数落地。口径同 #03 essay。"""
+    nodes = [
+        ("b4", 120,  "一生听 10 亿词",   "口径 · ILYA，GTC 2023",            0),
+        ("b5", 553,  "→ 只有 25% 值得记", "筛出 2.5 亿词 · 寒暄重复噪声出局", 1),
+        ("b6", 986,  "→ 折成 3.2 年音频", "÷ 150 词/分钟 ≈ 167 万分钟",      2),
+        ("b7", 1419, "→ 装进 0.29 TB",   "语音 25 KBPS ≈ 295 GB",           3),
+    ]
+    shapes = [
+        _tx("b2", 120, 144, 1730, 34, [_p([("THE BACK-OF-THE-ENVELOPE · 1B WORDS → 0.29 TB", 15.0, ZI, 1, 6.4)])]),
+        _tx("b3", 120, 192, 1730, 146, [_p([("一道", 45.0, W, 1, -0.6), ("「 四步 」", 45.0, ZI, 1, -0.6),
+                                            ("算术题。", 45.0, W, 1, -0.6)], ln=1.18)]),
+    ]
+    for sid, x, tt, sub, _ in nodes:
+        zi_head = tt.split(" ", 1)[0] if tt.startswith("→") else None
+        runs = ([("→ ", 27.0, ZI, 1, 0), (tt[2:], 27.0, W, 1, 0)] if zi_head else [(tt, 27.0, W, 1, 0)])
+        shapes.append(_tx(sid, x, 420, 392, 200, [_p(runs, ln=1.3),
+                                                  _p([(sub, 11.5, HUI, 1, 2.4)], ln=1.5, bef=16)]))
+    shapes += [
+        _tx("b8", 120, 660, 1730, 170, [_p([("0.29 ", 105.0, ZI, 1, -5.6), ("TB", 36.0, W, 1, -5.6)], ln=0.9, algn="ctr")]),
+        _tx("b9", 120, 852, 1730, 44, [_p([("一个人一生中，真正值得被保存的「生命上下文」——上限就在这里。", 20.0, W, 1, 0)], algn="ctr")]),
+        _tx("b10", 120, 972, 1680, 26, [_p([("口径 · 思想实验 · 详见 #03《我们的一生只有 0.29TB》· 均为数量级估算", 10.5, HUI, 1, 3.36)])]),
+    ]
+    return {"n": -1, "shapes": shapes, "clicks": [["b5"], ["b6"], ["b7", "b8", "b9"]]}
+
+def apply_r24(model):
+    sls = model["slides"]
+    assert sls[10]["n"] == 11 and sls[32]["n"] == 33, "R24 前置页序不对"
+    p11 = sls[10]
+    keep = {str(s["id"]): s for s in p11["shapes"]}
+    # 新 P13 = FIG 01 整页：左侧卡原几何（4/5/6），右侧伙伴线读数（c7）+ TAKEAWAY（11/12/13 右移）
+    c7 = _tx("c7", 1160, 430, 640, 200, [_p([("一台机器人能成为「伙伴」的", 24.0, W, 1, 0)], ln=1.5),
+                                         _p([("记忆配额上限 —— 也是 ", 24.0, W, 1, 0), ("0.29 TB", 24.0, ZI, 1, 0),
+                                             ("。", 24.0, W, 1, 0)], ln=1.5)])
+    for sid, dx, dy in (("11", 31, -184), ("12", 31, -184), ("13", 31, -184)):  # 原块在 x≈1129，右移 31 上提 184
+        sh = keep[sid]
+        sh["x"] += dx
+        sh["y"] += dy
+    slide_c = {"n": -1,
+               "shapes": [keep["2"], keep["3"], keep["4"], keep["5"], keep["6"], c7, keep["11"], keep["12"], keep["13"]],
+               "clicks": [["4", "5", "6"], ["c7"], ["13", "12", "11"]]}
+    # 老 P13 严谨化（此时仍是原编号 13 → 列表下标 12）
+    for sh in sls[12]["shapes"]:
+        for p in sh.get("paras", []):
+            for r in p.get("runs", []):
+                if r.get("t") == "2024 →":
+                    r["t"] = "2022 →"
+                if r.get("t") == "ChatGPT · GPT-4o":
+                    r["t"] = "ChatGPT → GPT-4o"
+    # 重组：P11 → A/B/C；删老 P33
+    new = sls[:10] + [_slide_a(), _slide_b(), slide_c] + sls[11:32] + sls[33:]
+    for i, sl in enumerate(new, 1):
+        sl["n"] = i
+    assert len(new) == 37, "R24 后应为 37 页，实际 %d" % len(new)
+    model["slides"] = new
 # 底流场：8 条横贯画面的贝塞尔曲线，分 3 组各自 sway；与 cowork-confv2 同一实现
 FLOW_SVG = """<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
   <g>
@@ -242,7 +342,8 @@ def fig01_svg(w, h, i):
              f'<circle cx="1232" cy="{ys["伙伴"]-2}" r="38" fill="none" stroke="#D4B7F9" stroke-width="2" opacity=".55"/>'
              f'<circle cx="1232" cy="{ys["伙伴"]-2}" r="26" fill="#C9A9F7"/></g>')
     # X 轴刻度文字
-    for x, t, cls in [(280, "Siri · 0.000", "axm"), (452, "普通玩具 · 0.001", "axm"),
+    # R24：前两枚刻度文字原稿互压（280/452 中锚半径重叠），左右各让 28px 错开
+    for x, t, cls in [(252, "Siri · 0.000", "axm"), (490, "普通玩具 · 0.001", "axm"),
                       (730, "主流 AI 玩具 · 0.01", "axm"), (1232, "目标 · 0.29 TB", "axp2")]:
         s.append(f'<text x="{x}" y="{B+75}" text-anchor="middle" class="{cls}">{t}</text>')
     s.append("</svg>")
@@ -263,7 +364,8 @@ MONO_PARA = re.compile(r"^\s*钉子\s*·\s*PIN")   # 角标：PPT 里 P33 是 Co
 
 # 来源行 / 出处角标 —— 纯拉丁的小字注脚，PPT 里写成 Arial，收进 mono 与 eyebrow 同族。
 # （Colin R22 点名的「CONSUMER ROBOTS, 2025」就是第一条）
-MONO_SID = {(2, "28"), (3, "10"), (6, "46"), (7, "4"), (17, "5"), (21, "31"), (30, "49")}
+MONO_SID = {(2, "28"), (3, "10"), (6, "46"), (7, "4"), (19, "5"), (23, "31"), (32, "49"),
+            (11, "a7"), (12, "b10")}  # R24 顺延 + 新增两条来源行（Ilya 引文页 / 0.29TB 口径行）
 
 
 def fam_of(run, sz_px, para_txt="", key=None):
@@ -483,8 +585,8 @@ def shape_html(sh, step, i, sn):
         src = ASSET.get(img)
         if not src:
             return ""
-        # P22 视频页：PPT 里这张图就是 media1.mp4 的封面帧，单击播放
-        if sn == 22:
+        # 视频页（老 P22 → R24 起 P24）：PPT 里这张图就是 media1.mp4 的封面帧，单击播放
+        if sn == 24:
             return ('<div class="sh vid"%s style="%s;--i:%d">'
                     '<video data-play-step="1" src="%sdemo.mp4" poster="%s" preload="none" playsinline'
                     ' muted controls></video></div>' % (attr, ";".join(base), i, A, src))
@@ -546,7 +648,7 @@ def build_slide(sl):
     #      sl["logo"] 仍留在模型里，只是不再落地 —— 想回滚场次版把下面两行换回来即可。
     if n not in NO_SIG:
         parts.insert(0, '<div class="sig">%s</div>' % SIG)
-    maxstep = len(groups) + (1 if n == 22 else 0)
+    maxstep = len(groups) + (1 if n == 24 else 0)  # R24：视频页顺延 22→24
     html = ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
             % (n, maxstep, "".join(p for p in parts if p)))
     if n in COVER_BG_DROP:
@@ -946,6 +1048,7 @@ document.addEventListener('keydown',e=>{
 
 def main():
     apply_quote_patch(MODEL)
+    apply_r24(MODEL)
     secs = [build_slide(sl) for sl in MODEL["slides"]]
     doc = (
         '<!DOCTYPE html>\n<html lang="zh-CN"><head>\n'
@@ -964,7 +1067,7 @@ def main():
         + JS + "\n" + RULER + "\n</body></html>\n"
     )
     open(OUT, "w", encoding="utf-8").write(doc)
-    steps = [len([g for g in s["clicks"] if g]) + (1 if s["n"] == 22 else 0) for s in MODEL["slides"]]
+    steps = [len([g for g in s["clicks"] if g]) + (1 if s["n"] == 24 else 0) for s in MODEL["slides"]]
     print("robot26.html · %d 页 · %dKB" % (len(secs), len(doc) // 1024))
     print("分步数逐页：" + " ".join(str(x) for x in steps) + "  （合计 %d 次单击）" % sum(steps))
 

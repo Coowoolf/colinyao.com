@@ -32,7 +32,7 @@ export const talkDecks: Deck[] = [
   //   下面的 venue 是**讲次档案**（这场在哪儿讲的），不是 deck 里的 chrome —— deck 内已零场次痕迹。
   // 重建：python3 scripts/build-robot26-bj.py（数据 scripts/assets/robot26-bj-*.json）
   // 自检：node scripts/qa-robot26.mjs（含 R22 段：痕迹清零 / 模板 token / 金句连号 / mono 裁字）
-  { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 北京（PPT 原稿还原）", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 36, category: "对外演讲", dual: false },
+  { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 北京（PPT 原稿还原）", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 37, category: "对外演讲", dual: false },
   { slug: "dual26", num: "11", date: "2026.04", venue: "中国网络视听大会", title: "RTE + AI 双引擎驱动视听全域商业增长", slides: 20, category: "对外演讲", dual: true },
   { slug: "vibesota", num: "10", date: "2026.01", venue: "Voice Agent 闭门会", title: "Voice Agent 2026 · Vibe SOTA", slides: 28, category: "对外演讲", dual: true },
   { slug: "vibecheck", num: "09", date: "2026.01", venue: "First Prompt · Singapore", title: "No More Prompts — How Conversation Agents Pass the Vibe Check", slides: 21, category: "对外演讲", dual: true },
