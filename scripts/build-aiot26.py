@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """aiot26 · 「当 AI 有了身体」——从玩具到伙伴的 Physical AI 升维版（35 页 · 双主题）。
-   底盘：robot26.html（RTE 春夏巡游原版，组件库同源）；
+   底盘：robot26-v0516.html（0516 深圳改编版归档件；原路径 robot26.html 已改为北京站还原版）；
    移植：cowork 定稿的 分水岭(熟人版)/临场感三块动效/半秒页 + .pkt 动效 + 媒体模块(gemini 视频)；
    新写：钩子/双赛道全景/消费读数/端×云五问/破局主张/五幕章节/首尾页。
    场合：2026 AI 产品大会 · 声网 AIoT 专场 · 2026.08.09 北京 · 30 min。"""
 import re
 
-R = open("public/decks/robot26.html", encoding="utf-8").read()
+# 源锚：robot26 现在是北京站 PPT 一比一还原（36 页），本脚本要的是 0516 深圳改编版，改指归档件。
+# 注：本脚本的 36 页断言早在 2026-08-04 build-robot26-full.py 把 robot26 补到 42 页时就已失效，
+#     属既有历史状态，本次只改源路径、不动断言（aiot26.html 的现役重建走 build-aiot26-v1.py）。
+R = open("public/decks/robot26-v0516.html", encoding="utf-8").read()
 C = open("public/decks/cowork.html", encoding="utf-8").read()
 SEC = re.compile(r'<section class="slide[^"]*">.*?</section>', re.S)
 rs = SEC.findall(R)

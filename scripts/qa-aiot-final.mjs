@@ -79,7 +79,7 @@ await pg.waitForTimeout(500);
 await pg.screenshot({ path: "/tmp/qa/final-v3-p12.png" });
 
 // ── 3) 未改 deck 回归 ───────────────────────────────────
-for (const [r, n] of [["/cowork", 62], ["/cowork-conf", 55], ["/robot26", 42], ["/aiot26-v2", 26]]) {
+for (const [r, n] of [["/cowork", 62], ["/cowork-conf", 55], ["/robot26", 36], ["/aiot26-v2", 26]]  // robot26 2026-08-09 起 = 北京站 PPT 还原 36 页) {
   await pg.goto("http://localhost:3000" + r, { waitUntil: "networkidle" });
   await pg.waitForFunction(() => window.deck && window.deck.slides);
   const got = await pg.evaluate(() => window.deck.slides.length);

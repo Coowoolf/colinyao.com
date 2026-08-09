@@ -11,7 +11,7 @@
   （另有 aiot26-v3 是完整升维版，用三乘数新框架；aiot26-v2 留作过程材料。）
 
   底盘：aiot26.html（robot26 组件库 + 移植层 PORT_CSS + 媒体模块，同源）
-  主干：robot26.html 还原版取 19 页
+  主干：robot26-v0516.html（0516 深圳改编版 42 页归档件）取 19 页
   增量：Physical AI 两个半场 / 消费侧读数 / 端云边界(工程 #4) / 产品化破局 / 上下半场金句
   适配：封面换场合、钩子改挂 2025-12 人人都是 PM 大会（这批听众看过那场，没看过 0516）
   场合：2026 AI 产品大会 · 声网 AIoT 专场 · 2026.08.09 北京 · 30 min。
@@ -21,12 +21,13 @@ import re
 # 增量页取自 Fable 那版 35 页 aiot26（保存为 _src-，因为本脚本的输出就是 aiot26.html，
 # 直接读自己会在第二次运行时炸掉）
 A = open("public/decks/_src-aiot26-fable35.html", encoding="utf-8").read()
-R = open("public/decks/robot26.html", encoding="utf-8").read()
+# 源锚：robot26 现在是北京站 PPT 一比一还原（36 页），本脚本要的是补全到 42 页的 0516 改编版，改指归档件。
+R = open("public/decks/robot26-v0516.html", encoding="utf-8").read()
 SEC = re.compile(r'<section class="slide[^"]*">.*?</section>', re.S)
 a_ = SEC.findall(A)
 rs = SEC.findall(R)
 assert len(a_) == 35, "增量源必须是 Fable 那版 35 页，当前 %d" % len(a_)
-assert len(rs) == 42, "robot26 必须是全量还原后的 42 页，当前 %d" % len(rs)
+assert len(rs) == 42, "robot26-v0516 必须是全量还原后的 42 页，当前 %d" % len(rs)
 
 head = A[:A.index('<section class="slide')]
 tail = A[A.rindex('</section>') + len('</section>'):]

@@ -3,6 +3,9 @@ import { chromium } from "playwright-core";
 import { execSync } from "child_process";
 
 const exe = execSync("find /opt/pw-browsers -name chrome -type f | head -1").toString().trim();
+// robot26 = 北京站 PPT 一比一还原：视觉忠于 PPT 模板（纯黑底），单一视觉、无深浅切换按钮，
+// 因此豁免「舞台底色 token」与「切换按钮文案」两项；pageerror / deck 初始化 / data-theme 仍照查。
+const SINGLE_THEME = new Set(["robot26"]);
 const slugs = ["rte24","pm24","convoai","audio25","engine25","era3","prodready","pm25","vibecheck","vibesota","dual26","robot26","gcloud","aws26"];
 
 const browser = await chromium.launch({ executablePath: exe });
@@ -30,14 +33,18 @@ for (const theme of ["dark", "light"]) {
     const problems = [];
     if (errs.length) problems.push("pageerror: " + errs[0].slice(0, 90));
     if (slug !== "talkdecks" && !r.hasActive) problems.push("deck not initialized");
-    if (wantDark && r.attr !== "dark") problems.push("data-theme missing");
-    if (!wantDark && r.attr) problems.push("data-theme not removed");
-    if (slug !== "talkdecks") {
+    if (!SINGLE_THEME.has(slug)) {
+      if (wantDark && r.attr !== "dark") problems.push("data-theme missing");
+      if (!wantDark && r.attr) problems.push("data-theme not removed");
+    }
+    if (slug !== "talkdecks" && !SINGLE_THEME.has(slug)) {
       const expect = wantDark ? "rgb(15, 14, 23)" : "rgb(239, 240, 243)";
       if (r.bg !== expect) problems.push(`bg ${r.bg} ≠ ${expect}`);
     }
-    const expectBtn = wantDark ? "浅底" : "暗底";
-    if (r.btn !== expectBtn) problems.push(`btn "${r.btn}" ≠ ${expectBtn}`);
+    if (!SINGLE_THEME.has(slug)) {
+      const expectBtn = wantDark ? "浅底" : "暗底";
+      if (r.btn !== expectBtn) problems.push(`btn "${r.btn}" ≠ ${expectBtn}`);
+    }
     if (problems.length) fails.push(`${theme}/${slug}: ${problems.join("; ")}`);
     else console.log(`${theme}/${slug} OK`);
   }

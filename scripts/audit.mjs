@@ -4,6 +4,8 @@ import { execSync } from "child_process";
 const exe = execSync("find /opt/pw-browsers -name chrome -type f | head -1").toString().trim();
 const BASE = "http://localhost:3000";
 const pages = ["/", "/time", "/space", "/inward", "/outward", "/preface", "/vol1", "/vol2", "/vol3", "/vol4", "/vol5", "/decks"];
+// 注：robot26 自 2026-08-09 起 = 北京站 PPT 一比一还原（36 页 · 单一视觉）；
+// 旧 42 页改编版归档为 public/decks/robot26-v0516.html，不注册路由，故不进本清单。
 const deckSlugs = ["cowork","newcollege","3years","rte24","pm24","convoai","audio25","engine25","era3","prodready","pm25","vibecheck","vibesota","dual26","robot26","inspire26","aws26","tolan","paperhunt","029tb","voiceeval","openclaw","elys","staas","4mtokens","3days","systemcard","77days","csagent","arch","demolies","turns","evalprd","interrupted","presence","bottleneck","outcome","highagency","awsfde","34days","newcollege-light"];
 
 const browser = await chromium.launch({ executablePath: exe });

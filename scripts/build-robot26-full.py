@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""robot26 全量还原 —— 把 0516 深圳 RTE 春夏巡游原稿（36 张 PPTX）的信息补齐。
+"""【已退役 · 2026-08-09】本脚本的产物已归档为 public/decks/robot26-v0516.html。
+  robot26 现役版本改由 scripts/build-robot26-bj.py 生成（北京站 PPT 36 页一比一还原），
+  两者互不相干：本脚本处理的是 0516 深圳那份改编稿。若要复跑，先把 SRC 指向归档件。
+
+robot26 全量还原 —— 把 0516 深圳 RTE 春夏巡游原稿（36 张 PPTX）的信息补齐。
 
   背景：现有 robot26.html 是当初从 PPTX 手工改编成 colin-deck 的版本，
   36 页里有 6 页是 colin-deck 新增的结构件（1 张全场主线 + 5 张幕卡），
@@ -20,7 +24,7 @@
 """
 import re
 
-SRC = "public/decks/robot26.html"
+SRC = "public/decks/robot26-v0516.html"   # 退役后源锚改指归档件
 s = open(SRC, encoding="utf-8").read()
 SEC = re.compile(r'<section class="slide[^"]*">.*?</section>', re.S)
 secs = SEC.findall(s)
@@ -276,7 +280,7 @@ MUST = [
 for m in MUST:
     assert m in TXT, '还原缺失: ' + m
 
-print('robot26.html · %d 页（原 36 → 补回 %d 页）· %dKB' % (n, n - 36, len(s2) // 1024))
+print('robot26-v0516.html · %d 页（原 36 → 补回 %d 页）· %dKB' % (n, n - 36, len(s2) // 1024))
 print('补回：三级跳 / 豆豆案例 / Engine 2.0 九项能力 / Robotics 1 / OpenAI 背书 / 家庭第六成员')
 print('就地补足：四症状主线声明 + 临场空间时间双维度 / RTE 全域通信底座')
 print('还原断言 %d 条 ✓' % len(MUST))

@@ -20,7 +20,9 @@ DECKS = {
     "09-FirstPrompt新加坡-NoMorePrompts-浅底.html": "vibecheck",
     "10-VoiceAgent闭门会-VibeSOTA-浅底.html": "vibesota",
     "11-中国网络视听大会-RTE与AI双引擎-浅底.html": "dual26",
-    "12-RTE春夏巡游深圳-从玩具到伙伴-浅底.html": "robot26",
+    # robot26 现役 = 北京站 PPT 一比一还原（build-robot26-bj.py 生成），
+    # 这条 Vault 源是 0516 深圳浅底稿，落到归档件，避免批处理覆盖现役产物。
+    "12-RTE春夏巡游深圳-从玩具到伙伴-浅底.html": "robot26-v0516",
     "14-GoogleCloud开发者大会-从对话式AI到企业级智能体-浅底.html": "gcloud",
     "15-AWS中国峰会-被记住被托付-浅底.html": "aws26",
 }
