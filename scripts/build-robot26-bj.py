@@ -109,7 +109,16 @@ MAX_I = 5             # --i 上限：0.44s + 1.7s(dw) < 2.4s，保证 QA 截图�
 
 # ── R22 模板层 ──────────────────────────────────────────────────────────────
 SIG = "colinyao.com"          # 右上角落款（原会场双 logo 条的槽位）
-NO_SIG = {1, 22, 36}          # 满幅浅底封面 / 满幅视频 / 满幅浅底尾页：挂上去看不见，索性不挂
+NO_SIG = {1, 22, 36}          # P22 满幅视频；P1/P36 封面页（R23 起为 colin-deck 背景板，按封面惯例不挂 chrome）
+
+# ── R23 · 封面背景板：P1/P36 撤峰会满幅 keyart，换 colin-deck 暗色模板层 ──────
+# Colin 2026-08-09 拍板：P1/P36 的背景板换成自家 deck 设计（此前是峰会 keyart 风格）。
+# 做法：这两页跳过 image5.jpeg 满幅 shape → stage 的底流场/栏线网格/发丝导轨透出，
+#       与 P2-P35 同一块背景板；两页黑字 #000000 翻 var(--ink)（淡紫 accent 原样保留，
+#       文案/坐标/字号/动效一律不动）。cover-ai.jpg 资产随之清零（会场痕迹清零同一纪律）。
+# 浅底变体：不进本 deck（colin-deck 节奏铁律「单场一个主题」，本体纯黑）；
+#       预览稿由 build 后另行叠加浅底变量生成，不上线不注册路由。
+COVER_BG_DROP = {1, 36}
 # 底流场：8 条横贯画面的贝塞尔曲线，分 3 组各自 sway；与 cowork-confv2 同一实现
 FLOW_SVG = """<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
   <g>
@@ -135,7 +144,8 @@ FLOW_SVG = """<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio
 ASSET = {
     # R22 已删：image3.png（RTE 2026 春夏巡游角标）/ image4.png（人人都是产品经理 + 起点课堂双 logo 条）
     #          —— 两个资产文件同步从 public/decks/assets/robot26/ 移除，全场零残留。
-    "image5.jpeg": A + "cover-ai.jpg",
+    # R23 已删：image5.jpeg（cover-ai.jpg 峰会 keyart 满幅背景）—— P1/P36 换 colin-deck 背景板，
+    #          shape 在 build_slide 里跳过，资产文件同步移除。
     "image10.png": A + "robot-face.webp",
     "image11.png": A + "cat-day30.webp",
     "image12.png": A + "cat-day1.webp",
@@ -512,6 +522,9 @@ def stagger(n):
 
 def build_slide(sl):
     n = sl["n"]
+    # R23：封面两页跳过峰会满幅 keyart（背景板交给 stage 模板层）
+    shapes = [s for s in sl["shapes"]
+              if not (n in COVER_BG_DROP and s.get("img") == "image5.jpeg")]
     groups = [g for g in sl["clicks"] if g]
     step_of, idx_of = {}, {}
     for gi, ids in enumerate(groups, 1):
@@ -520,13 +533,13 @@ def build_slide(sl):
             step_of[sid] = gi
             idx_of[sid] = st[j]
     # 无动画的 shape：按 z-order 错峰，随页面入场
-    free = [s["id"] for s in sl["shapes"] if s["id"] not in step_of]
+    free = [s["id"] for s in shapes if s["id"] not in step_of]
     fst = stagger(len(free))
     for j, sid in enumerate(free):
         idx_of[sid] = fst[j]
 
     parts = []
-    for sh in sl["shapes"]:
+    for sh in shapes:
         parts.append(shape_html(sh, step_of.get(sh["id"], 0), idx_of.get(sh["id"], 0), n))
     # R22：版式角标（会场双 logo 条 34 页 + P22 的 RTE 巡游角标）整条撤掉，
     #      换成 Colin 自己的 mono 落款；两页满幅图/满幅视频不挂（P1 封面、P22 视频）。
@@ -534,8 +547,12 @@ def build_slide(sl):
     if n not in NO_SIG:
         parts.insert(0, '<div class="sig">%s</div>' % SIG)
     maxstep = len(groups) + (1 if n == 22 else 0)
-    return ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
+    html = ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
             % (n, maxstep, "".join(p for p in parts if p)))
+    if n in COVER_BG_DROP:
+        # R23：黑底上黑字不可读，两页 #000000 全部翻主题变量（其余颜色原样，淡紫 accent 留任）
+        html = html.replace("color:#000000", "color:var(--ink)")
+    return html
 
 
 # ── 骨架 ────────────────────────────────────────────────────────────────────

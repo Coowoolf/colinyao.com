@@ -79,6 +79,21 @@ imgs.filter((s) => !/^data:/.test(s || "")).forEach((s) => {
 for (const f of ["logo-woshipm.webp", "logo-rte-tour.webp"])
   if (fs.existsSync(`public/decks/assets/robot26/${f}`)) fails.push(`会场 logo 资产未删：${f}`);
 
+// ── ⑫ R23 · 封面背景板：峰会 keyart 清零 + P1/P36 黑字翻 --ink ────────────
+if (/cover-ai\.jpg/.test(SRC)) fails.push("R23：cover-ai.jpg 仍被源码引用");
+if (fs.existsSync("public/decks/assets/robot26/cover-ai.jpg")) fails.push("R23：cover-ai.jpg 资产未删");
+const covers = await pg.evaluate(() => [1, 36].map((p) => {
+  const s = document.querySelector(`.slide[data-p="${p}"]`);
+  return { p, black: (s.innerHTML.match(/color:#000000/g) || []).length,
+           keyart: [...s.querySelectorAll("img")].some((el) => /cover-ai/.test(el.getAttribute("src") || "")),
+           inkVar: (s.innerHTML.match(/color:var\(--ink\)/g) || []).length };
+}));
+covers.forEach(({ p, black, keyart, inkVar }) => {
+  if (black) fails.push(`R23：P${p} 残留黑字 ${black} 处`);
+  if (keyart) fails.push(`R23：P${p} 仍挂满幅 keyart`);
+  if (!inkVar) fails.push(`R23：P${p} 未见 var(--ink) 文字（翻色未生效？）`);
+});
+
 // ── ⑨ R22 · 模板 token 在位 ─────────────────────────────────────────────
 const tpl = await pg.evaluate(() => ({
   flow: document.querySelectorAll(".deck-stage > .deck-flow path").length,
