@@ -8,6 +8,11 @@
 //   ⑤ 填充率表：逐页 ink 覆盖率（太空/太满都会在这里露出来）
 //   ⑥ 视频锚点：P22 的 <video data-play-step> 在位、poster/src 可达
 //   ⑦ 资产 200：所有 /decks/assets/robot26/* 都能取到
+// R22 增补（换 Colin 暗色模板 / 会场痕迹清零 / 金句校号 / mono 裁字）：
+//   ⑧ 会场痕迹清零：双 logo 条与「RTE 2026 春夏巡游」在源码与 DOM 里都为 0
+//   ⑨ 模板 token 在位：底流场 8 条曲线 / 栏线网格 / 上下导轨 / 33 页落款 / slide 背景 transparent
+//   ⑩ 金句连号：4 张金句页 MONEY QUOTE · 01–04 OF 04，PIN 与 MQ 同号
+//   ⑪ mono 标签零裁切：点名的一族逐个实测行数 = 1，且行盒不越过容器内边界
 // 已知豁免：容器 chromium 无 H.264 解码，P22 的 <video> 必然抛 `err:4`（MEDIA_ELEMENT_ERROR）
 //   —— 与 scripts/qa-media.mjs 同一处理，白名单放行，不算 pageerror。
 //
@@ -31,6 +36,19 @@ const STEPS = [0, 5, 0, 0, 4, 5, 0, 0, 8, 5, 4, 5, 6, 4, 4, 3, 3, 0, 1, 0,
 // 容器 chromium 无 H.264：P22 视频必然报这个，白名单豁免
 const MEDIA_EXEMPT = /err:?\s*4|MEDIA_ELEMENT_ERROR|DEMUXER_ERROR|not supported|NotSupportedError/i;
 
+// R22 · 会场痕迹黑名单（源码级 grep，命中即 FAIL）
+const VENUE = [/logo-woshipm/i, /logo-rte/i, /woshipm/i, /人人都是产品经理/, /起点课堂/, /春夏巡游/, /RTE\s*2026/i];
+// R22 · mono 标签零裁切名单：(页, data-sid) —— 这一族必须单行
+const MONO_ONE_LINE = [
+  [2, "28"], [3, "10"], [6, "46"], [7, "4"], [17, "5"], [21, "31"], [30, "49"],   // 来源行 / 出处角标
+  [4, "10"], [24, "10"], [25, "4"], [33, "9"],                                    // ★ MONEY QUOTE
+  [4, "14"], [24, "16"], [25, "17"], [33, "14"],                                  // 钉子 · PIN
+  [2, "2"], [3, "2"], [5, "2"], [6, "2"], [7, "2"], [8, "2"], [9, "2"], [10, "2"],
+  [11, "2"], [12, "2"], [13, "2"], [14, "2"], [15, "2"], [16, "2"], [17, "3"],
+  [18, "2"], [19, "2"], [20, "2"], [21, "2"], [23, "2"], [26, "2"], [27, "2"],
+  [28, "2"], [29, "2"], [30, "2"], [31, "3"], [32, "2"], [34, "2"], [36, "8"],    // eyebrow
+];
+
 const fails = [], warn = [];
 const b = await chromium.launch({ executablePath: exe, args: ["--force-color-profile=srgb"] });
 const ctx = await b.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
@@ -50,6 +68,44 @@ const got = await pg.evaluate(() => window.deck.maxStep);
 STEPS.forEach((want, i) => {
   if (got[i] !== want) fails.push(`P${i + 1} 分步数 ${got[i]} ≠ 动线表 ${want}`);
 });
+
+// ── ⑧ R22 · 会场痕迹清零（源码 grep + DOM 图片清点）──────────────────────
+const SRC = fs.readFileSync("public/decks/robot26.html", "utf8");
+VENUE.forEach((re) => { if (re.test(SRC)) fails.push(`会场痕迹残留（源码）：${re}`); });
+const imgs = await pg.evaluate(() => [...document.querySelectorAll(".slide img")].map((el) => el.getAttribute("src")));
+imgs.filter((s) => !/^data:/.test(s || "")).forEach((s) => {
+  if (/logo|woshipm|rte-tour/i.test(s || "")) fails.push(`会场痕迹残留（DOM img）：${s}`);
+});
+for (const f of ["logo-woshipm.webp", "logo-rte-tour.webp"])
+  if (fs.existsSync(`public/decks/assets/robot26/${f}`)) fails.push(`会场 logo 资产未删：${f}`);
+
+// ── ⑨ R22 · 模板 token 在位 ─────────────────────────────────────────────
+const tpl = await pg.evaluate(() => ({
+  flow: document.querySelectorAll(".deck-stage > .deck-flow path").length,
+  grid: !!document.querySelector(".deck-stage > .deck-grid"),
+  rail: document.querySelectorAll(".deck-stage > .deck-rail").length,
+  sig: [...document.querySelectorAll(".slide .sig")].map((el) => +el.closest(".slide").dataset.p),
+  sigText: (document.querySelector(".slide .sig") || {}).textContent || "",
+  slideBg: getComputedStyle(document.querySelector(".slide")).backgroundColor,
+}));
+if (tpl.flow !== 8) fails.push(`底流场曲线 ${tpl.flow} 条 ≠ 8`);
+if (!tpl.grid) fails.push("栏线网格 .deck-grid 缺失");
+if (tpl.rail !== 2) fails.push(`发丝导轨 ${tpl.rail} 条 ≠ 2`);
+if (tpl.sig.length !== 33) fails.push(`落款页数 ${tpl.sig.length} ≠ 33（1/22/36 三页不挂）`);
+if ([1, 22, 36].some((p) => tpl.sig.includes(p))) fails.push("落款挂到了满幅页（1/22/36）");
+if (!/colinyao\.com/i.test(tpl.sigText)) fails.push(`落款文案异常：${tpl.sigText}`);
+if (!/rgba\(0, 0, 0, 0\)|transparent/.test(tpl.slideBg)) fails.push(`slide 背景 ${tpl.slideBg} 不透明，底流场会被盖住`);
+
+// ── ⑩ R22 · 金句连号 ────────────────────────────────────────────────────
+const mq = [...SRC.matchAll(/MONEY QUOTE · (\d+) OF (\d+)/g)].map((m) => [m[1], m[2]]);
+const pin = [...SRC.matchAll(/钉子 · PIN (\d+)/g)].map((m) => m[1]);
+if (mq.length !== 4) fails.push(`金句页 ${mq.length} 张 ≠ 4`);
+mq.forEach(([i2, of], k) => {
+  if (i2 !== String(k + 1).padStart(2, "0")) fails.push(`金句序号错位：第 ${k + 1} 张标了 ${i2}`);
+  if (of !== "04") fails.push(`金句总数标成 OF ${of}，应为 OF 04`);
+});
+if (pin.join(",") !== "01,02,03,04") fails.push(`PIN 角标序列 ${pin.join(",")} ≠ 01,02,03,04`);
+if (mq.map((x) => x[0]).join(",") !== pin.join(",")) fails.push("MQ 与 PIN 编号不同号");
 
 // ── ④ --len 机检 ────────────────────────────────────────────────────────
 const lenBad = await pg.evaluate(() => {
@@ -122,10 +178,36 @@ for (let i = 1; i <= 36; i++) {
       for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) cells.add(x + ":" + y);
     });
     out.ink = Math.round((cells.size / (60 * 34)) * 100);
+    // ⑪ R22 · mono 标签零裁切：点名的一族逐个量行数 + 量行盒有没有超出容器内边界
+    out.mono = [];
+    sec.querySelectorAll(".tx").forEach((el) => {
+      const cs = getComputedStyle(el);
+      const inner = { l: el.getBoundingClientRect().left + parseFloat(cs.paddingLeft || 0),
+                      r: el.getBoundingClientRect().right - parseFloat(cs.paddingRight || 0) };
+      el.querySelectorAll("p").forEach((p) => {
+        const bd = bands(p);
+        const rg = document.createRange(); rg.selectNodeContents(p);
+        const rs = [...rg.getClientRects()].filter((x) => x.height > 1);
+        const over = rs.length ? Math.max(0, Math.max(...rs.map((x) => x.right)) - inner.r,
+                                             inner.l - Math.min(...rs.map((x) => x.left))) : 0;
+        // 容差 = 本段最大字距：R22 给行尾 run 挂了等量负 margin 把尾字距收回来，
+        // 于是 inline 盒会比容器右缘外探正好一个字距 —— 字形本身是贴齐的，不是溢出。
+        const tol = Math.max(0, ...[...p.querySelectorAll("span")]
+          .map((sp) => parseFloat(getComputedStyle(sp).letterSpacing) || 0)) + 0.6;
+        out.mono.push([el.dataset.sid, bd.length, +Math.max(0, over - tol).toFixed(1),
+                       p.textContent.trim().slice(0, 34)]);
+      });
+    });
     return out;
   });
   fillTable.push([i, r.boxes, r.ink]);
   r.over.forEach((o) => fails.push(`P${i} ${o[0]} sid=${o[1]}「${o[2]}」`));
+  MONO_ONE_LINE.filter((x) => x[0] === i).forEach(([, sid]) => {
+    const hit = r.mono.find((m) => m[0] === sid);
+    if (!hit) fails.push(`P${i} mono 标签 sid=${sid} 找不到`);
+    else if (hit[1] !== 1) fails.push(`P${i} mono 标签 sid=${sid}「${hit[3]}」折成 ${hit[1]} 行（裁字）`);
+    else if (hit[2] > 0.6) fails.push(`P${i} mono 标签 sid=${sid}「${hit[3]}」越界 ${hit[2]}px`);
+  });
   await pg.screenshot({ path: `${SHOT}/p${String(i).padStart(2, "0")}.png` });
 }
 

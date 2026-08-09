@@ -44,15 +44,97 @@ FIT = json.load(open(_fitp, encoding="utf-8")) if os.path.exists(_fitp) else {}
 OUT = os.path.join(ROOT, "public/decks/robot26.html")
 A = "/decks/assets/robot26/"
 
+# ── R22 · 金句：编号校正 + 逐张打磨 ──────────────────────────────────────────
+# 原稿两处错：① P24/P25 的「MONEY QUOTE · NN」与右下「钉子 · PIN NN」编号互换；
+#            ② 标了 OF 05，全场实际只有 4 张。统一成 01–04 OF 04，MQ 与 PIN 同号。
+# 打磨口径（Colin R22 授权 brainstorm）：短、反转、有动作、能脱稿念出来。
+#   PIN 01 两句都压缩：去掉「因为 / 的 / 值得」这类缓冲词，把反转顶到句尾。
+#   PIN 02「别听错。别失控。别让人等。」已经够金 —— 动不如不动，只改编号。
+#   PIN 03「模型决定能力上限。引擎决定体验下限。」结构已对仗 —— 不动，只改编号。
+#   PIN 04 用 Colin 自己给的种子：「继承」→「抄」，英文副标同步改成对应的动词句。
+# 三张金句页统一断成「铺垫，」/「是 反转。」的对句 —— 反转独占一行才念得响，
+# 也顺手治了原稿在窄框里的坏断行（关系/破裂、具身/智能被劈开）。
+# 格式：(页, shapeId, 段序) : [(新文本, 借第几个原 run 的字号/字色/字重), ...]；ref=None 表示换行
+BR = None
+QUOTE_PATCH = {
+    (4, "10", 0): [("★ ", 0), ("MONEY QUOTE · 01 OF 04", 1)],
+    (4, "11", 0): [("3 ", 0), ("天扔抽屉，不是 ", 1), ("技术故障", 3), ("，", 4), ("", BR),
+                   ("是 ", 5), ("关系破裂", 7), ("。", 8)],
+    (4, "13", 0): [("用户买的不是 ", 0), ("更聪明的玩具", 4), ("，", 5), ("", BR),
+                   ("是 ", 5), ("更处得来的伙伴", 6), ("。", 7)],
+    (24, "10", 0): [("★ ", 0), ("MONEY QUOTE · 02 OF 04", 1)],
+    (24, "16", 0): [("钉子 · PIN 02", 0)],
+    (25, "4", 0): [("★ ", 0), ("MONEY QUOTE · 03 OF 04", 1)],
+    (25, "17", 0): [("钉子 · PIN 03", 0)],
+    # P28 右上注脚：原稿把「INFO DENSITY HIGH」和中文说明挤在 250px 里折行，
+    # 「给」被甩到行尾成孤字 —— 改成显式断行，标签一行、说明一行。
+    (28, "4", 0): [("INFO DENSITY HIGH", 0), ("", BR), ("给一线产品经理看的版本", 0)],
+    (33, "9", 0): [("★ ", 0), ("MONEY QUOTE · 04 OF 04", 1)],
+    (33, "10", 0): [("消费机器人今天解的题，", 0), ("", BR), ("具身智能明天直接抄", 1), ("。", 2)],
+    (33, "12", 0): [("What consumer robots solve today, embodied AI copies tomorrow.", 0)],
+}
+
+
+def apply_quote_patch(model):
+    """把 QUOTE_PATCH 落到模型上：新 run 整份克隆参考 run 的字号/字色/字重/字距，只换文本。"""
+    hit = 0
+    for sl in model["slides"]:
+        for sh in sl["shapes"]:
+            for pi, p in enumerate(sh.get("paras", [])):
+                key = (sl["n"], str(sh["id"]), pi)
+                if key not in QUOTE_PATCH:
+                    continue
+                src = p["runs"]
+                p["runs"] = [{"br": True} if ref is None else dict(src[ref], t=txt)
+                             for txt, ref in QUOTE_PATCH[key]]
+                hit += 1
+    assert hit == len(QUOTE_PATCH), "QUOTE_PATCH 有 %d 条没落地" % (len(QUOTE_PATCH) - hit)
+
+# ── R22 · mono 标签裁字：宽度放开表 ──────────────────────────────────────────
+# 病灶：PPT 里这些角标本来就靠 normAutofit 缩排硬塞进窄框，换字体后仍然折行，
+#       读起来像「被剪裁压缩显示不全」（Colin 点名的 CONSUMER ROBOTS, 2025 就是这张）。
+#       字号一律不动（保留原字号体系），只把框往**文字锚点的反方向**放开，
+#       视觉位置与原稿逐像素一致，只是不再折行。
+# 格式：(页, shapeId) : 放开多少 px（右对齐 → 往左放；左对齐 → 往右放；居中 → 两边各半）
+WIDEN = {
+    (2, "28"): 180,     # RETENTION SHAPE OF CONSUMER ROBOTS, 2025 —— Colin 点名
+    (6, "46"): 270,     # FUNCTIONS BOX VS. CHARACTER BEING
+    (21, "31"): 120,    # SD-RTN 10 YEARS OF TIMING
+}
+
 PT = 4 / 3.0          # 1pt = 4/3 px（1920px 舞台 = 20 英寸 → 96 dpi）
 DEF_SZ = 18.0         # presentation.xml defaultTextStyle lvl1
 LH = 1.22             # spcPct 100% → CSS line-height（对 Source Han Sans 量得的换算）
 MAX_I = 5             # --i 上限：0.44s + 1.7s(dw) < 2.4s，保证 QA 截图不拍到半截
 
+# ── R22 模板层 ──────────────────────────────────────────────────────────────
+SIG = "colinyao.com"          # 右上角落款（原会场双 logo 条的槽位）
+NO_SIG = {1, 22, 36}          # 满幅浅底封面 / 满幅视频 / 满幅浅底尾页：挂上去看不见，索性不挂
+# 底流场：8 条横贯画面的贝塞尔曲线，分 3 组各自 sway；与 cowork-confv2 同一实现
+FLOW_SVG = """<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<div class="deck-grid" aria-hidden="true"></div>
+<div class="deck-rail t" aria-hidden="true"></div>
+<div class="deck-rail b" aria-hidden="true"></div>"""
+
 # ── 资产映射 ────────────────────────────────────────────────────────────────
 ASSET = {
-    "image3.png": A + "logo-rte-tour.webp",      # 场次痕迹 · RTE 2026 春夏巡游（仅 P22 版式）
-    "image4.png": A + "logo-woshipm.webp",       # 场次痕迹 · 人人都是产品经理 / 起点课堂（34 页右上角标）
+    # R22 已删：image3.png（RTE 2026 春夏巡游角标）/ image4.png（人人都是产品经理 + 起点课堂双 logo 条）
+    #          —— 两个资产文件同步从 public/decks/assets/robot26/ 移除，全场零残留。
     "image5.jpeg": A + "cover-ai.jpg",
     "image10.png": A + "robot-face.webp",
     "image11.png": A + "cat-day30.webp",
@@ -165,9 +247,35 @@ def bold_of(run):
     return "Bold" in f or "Heavy" in f or "Black" in f
 
 
-def fam_of(run):
+CJK = re.compile(r"[⺀-鿿豈-﫿＀-｠￠-￦]")
+MONO_PARA = re.compile(r"^\s*钉子\s*·\s*PIN")   # 角标：PPT 里 P33 是 Courier、其余是 Arial，不齐
+
+
+# 来源行 / 出处角标 —— 纯拉丁的小字注脚，PPT 里写成 Arial，收进 mono 与 eyebrow 同族。
+# （Colin R22 点名的「CONSUMER ROBOTS, 2025」就是第一条）
+MONO_SID = {(2, "28"), (3, "10"), (6, "46"), (7, "4"), (17, "5"), (21, "31"), (30, "49")}
+
+
+def fam_of(run, sz_px, para_txt="", key=None):
+    """R22 · mono 统一 —— 只收 chrome 那一族，正文与大标题一律不碰。
+       PPT 原稿把角标/注脚一半写成 Courier New（P33/P35），一半写成 Arial（其余 30 页），
+       同一族标签两种字，是原稿自己的不一致；统一收进 --f-mono，
+       顺带把 eyebrow 对齐 Colin 家 deck 的 chrome 语言。
+       三条判据：① 原稿就是 Courier ② 字距 ≥ 5.5px 的拉字距标签（eyebrow / MQ / PIN）
+                ③ MONO_SID 点名的来源行。"""
     f = run.get("f") or ""
     if "Courier" in f:
+        return "var(--f-mono)"
+    t = run.get("t") or ""
+    if not t.strip():
+        return None
+    if MONO_PARA.match(para_txt):
+        return "var(--f-mono)"
+    if CJK.search(t):
+        return None
+    if key in MONO_SID:
+        return "var(--f-mono)"
+    if (run.get("spc") or 0) >= 5.5 and sz_px <= 24.5:
         return "var(--f-mono)"
     return None    # 默认继承 --f-cn
 
@@ -176,7 +284,7 @@ def esc(t):
     return html.escape(t).replace("  ", " &#160;")
 
 
-def render_text(sh, scale):
+def render_text(sh, scale, key=None):
     """把 shape 的段落/run 渲染成 HTML。scale = normAutofit fontScale。"""
     body = sh.get("body") or {}
     lsr = body.get("lsr", 0.0)
@@ -197,14 +305,14 @@ def render_text(sh, scale):
             st.append("margin-bottom:%.1fpx" % p["aft"])
         if p.get("marL"):
             st.append("padding-left:%.1fpx" % p["marL"])
+        ptxt = "".join(r.get("t", "") for r in p.get("runs", []))
+        runs = [r for r in p.get("runs", []) if r.get("br") or (r.get("t", "") != "")]
         inner = []
-        for r in p.get("runs", []):
+        for ri, r in enumerate(runs):
             if r.get("br"):
                 inner.append("<br>")
                 continue
             t = r.get("t", "")
-            if t == "":
-                continue
             cs = []
             sz = (r.get("sz") or DEF_SZ) * PT * scale
             cs.append("font-size:%.1fpx" % sz)
@@ -220,8 +328,15 @@ def render_text(sh, scale):
             if deco:
                 cs.append("text-decoration:" + " ".join(deco))
             if r.get("spc"):
-                cs.append("letter-spacing:%.2fpx" % (r["spc"] * scale))
-            fam = fam_of(r)
+                spc = r["spc"] * scale
+                cs.append("letter-spacing:%.2fpx" % spc)
+                # R22 · 尾字距回收（conf 家族当年的 padding-right:.06em 同一个病）：
+                # CSS 的 letter-spacing 会在**最后一个字之后**也补一个字距，这一格空白
+                # 计进行盒宽度 —— 于是「刚好放得下」的标签被挤到换行、居中的标签左偏半格。
+                # 行尾 run 用等量负 margin 把它收回来，字形不动、位置不动，只还回那一格。
+                if ri == len(runs) - 1 and not t.endswith(" "):
+                    cs.append("margin-right:%.2fpx" % (-spc))
+            fam = fam_of(r, sz, ptxt, key)
             if fam:
                 cs.append("font-family:" + fam)
             inner.append('<span style="%s">%s</span>' % (";".join(cs), esc(t)))
@@ -311,6 +426,16 @@ def shape_html(sh, step, i, sn):
     w, h = sh.get("w", 0), sh.get("h", 0)
     x, y = sh.get("x", 0), sh.get("y", 0)
     role = role_of(sh)
+    # R22 · 裁字修复：只放宽框，不动字号；按段落对齐方向反向放开，视觉锚点保持原位
+    d = WIDEN.get((sn, str(sh["id"])))
+    if d:
+        algn = (sh.get("paras") or [{}])[0].get("algn")
+        if algn == "r":
+            x, w = x - d, w + d
+        elif algn == "ctr":
+            x, w = x - d / 2.0, w + d
+        else:
+            w = w + d
     base = ["left:%.1fpx" % x, "top:%.1fpx" % y, "width:%.1fpx" % w, "height:%.1fpx" % h]
     attr = ""
     if step:
@@ -366,7 +491,7 @@ def shape_html(sh, step, i, sn):
         if body.get("wrap") == "none":
             css.append("white-space:nowrap")
         k = body.get("fs", 1.0) * float(FIT.get("%d:%s" % (sn, sh["id"]), 1.0))
-        inner = render_text(sh, k)
+        inner = render_text(sh, k, (sn, str(sh["id"])))
         cls = "sh tx " + role
     else:
         inner = ""
@@ -403,12 +528,11 @@ def build_slide(sl):
     parts = []
     for sh in sl["shapes"]:
         parts.append(shape_html(sh, step_of.get(sh["id"], 0), idx_of.get(sh["id"], 0), n))
-    # 版式角标（场次痕迹，一比一保留）
-    logo = sl.get("logo")
-    if logo:
-        img, lx, ly, lw, lh = logo
-        parts.insert(0, '<div class="sh mark" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx">'
-                        '<img src="%s" alt=""></div>' % (lx, ly, lw, lh, ASSET[img]))
+    # R22：版式角标（会场双 logo 条 34 页 + P22 的 RTE 巡游角标）整条撤掉，
+    #      换成 Colin 自己的 mono 落款；两页满幅图/满幅视频不挂（P1 封面、P22 视频）。
+    #      sl["logo"] 仍留在模型里，只是不再落地 —— 想回滚场次版把下面两行换回来即可。
+    if n not in NO_SIG:
+        parts.insert(0, '<div class="sig">%s</div>' % SIG)
     maxstep = len(groups) + (1 if n == 22 else 0)
     return ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
             % (n, maxstep, "".join(p for p in parts if p)))
@@ -424,19 +548,32 @@ FONTS = """<style>
 
 CSS = r"""<style>
 /* ===========================================================
-   robot26 · 北京站原稿还原
-   视觉 token 直接取自 PPT 自己的模板（不走站内深浅双主题）：
-   纯黑 #000000 底 · 淡紫 #D4B7F9 主强调 · 深紫 #944AF0 次强调
-   · 卡片白 #FFFFFE / 深卡 #1F1D2B / 分隔 #2A2A2A · 灰阶 #D9D9D9 #A6A6A6 #5B5B5B
+   robot26 · 北京站原稿还原 · R22 换 Colin 暗色模板
+   排版 / 字号 / 配色 token 仍取自 PPT 自己的稿子（一比一）：
+   近黑 #000000 底 · 淡紫 #D4B7F9 主强调 · 深紫 #944AF0 次强调
+   · 卡片白 #FFFFFE / 深卡 #1F1D2B / 分隔 #2A2A2A / 灰阶 #D9D9D9 #A6A6A6 #5B5B5B
+   —— R22 只换「模板层」（页面 chrome + 底色质感），排版 / 图片 / 动效 / 字号一律不动：
+   ① 会场双 logo 条（34 页）与 P22 的巡游场次角标整条撤掉（QA 全场 grep 零残留）
+   ② 底色体系换成 colin-deck-dark 的做法：黑底 + 底流场（8 条贝塞尔漂移）
+      + 240px 极细栏线网格 + 上下发丝导轨；slide 背景改 transparent 让流场透出来
+      （底色数值仍是纯黑 —— 全部 PPT 位图都带烘死的黑底，抬亮底色会露出矩形接缝）
+   ③ 右上角原 logo 槽换成 Colin 自己的 mono 落款
    =========================================================== */
 :root{
   /* PPT 原稿是「Calibri/Arial 拉丁 + Source Han Sans CN 中文」的混排；
-     这里按同一分工映射到自托管/系统栈：拉丁走 SF/Helvetica/Arial，中文走 PingFang/思源 */
+     这里按同一分工映射到自托管/系统栈：拉丁走 SF/Helvetica/Arial，中文走 PingFang/思源。
+     R22：小号带字距的拉丁标签（eyebrow / 角标 / PIN / 来源行）统一收进 mono ——
+     PPT 原稿里这一族一半 Courier 一半 Arial，本来就不齐，顺手对齐 Colin 家的 chrome 语言 */
   --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
   --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
   --stage-bg:#000000; --slide-bg:#000000;
   --ink:#FFFFFF; --ink-3:#6f7186; --amber:#D4B7F9; --hair:rgba(255,255,255,.14);
   --card-bg-2:#131320;
+  /* colin-deck-dark 的底流场：本 deck 的 accent 是淡紫，流场线随 accent 走（不引第二个强调色） */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
+  --flow-op:.42;
+  --grid-line:rgba(255,255,255,.042);
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flow:cubic-bezier(.22,.9,.24,1);
   --step:88ms;
@@ -448,11 +585,40 @@ html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage
 .deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg);}
 .deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg);}
 .slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;
-  visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg);
+  visibility:hidden;opacity:0;pointer-events:none;background:transparent;
   font-family:var(--f-cn);color:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
 img,video,canvas,svg{max-width:100%;max-height:100%;}
+
+/* ---- R22 模板层 · 底流场（colin-deck-dark 同源实现）---- */
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+.deck-flow .s1{animation-duration:38s;}
+.deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;}
+.deck-flow .s4{animation-duration:46s;}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+/* ---- R22 模板层 · 240px 极细栏线网格 + 上下发丝导轨 ---- */
+.deck-grid{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 120px,var(--grid-line) 120px 121px,transparent 121px 360px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
+.deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 18%,rgba(255,255,255,.10) 82%,transparent);}
+.deck-rail.t{top:32px;} .deck-rail.b{bottom:32px;}
+/* ---- R22 模板层 · 右上角落款（原会场 logo 槽）---- */
+.sig{position:absolute;right:120px;top:47px;z-index:2;
+  font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
+  letter-spacing:.24em;padding-right:.24em;color:rgba(255,255,255,.30);
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
 @media print{
+  .deck-flow,.deck-grid,.deck-rail{display:none!important;}
   html,body{width:1920px;height:auto;overflow:visible;background:#000;}
   .deck-viewport{position:static;overflow:visible;}
   .deck-stage{position:static;width:auto;height:auto;transform:none!important;}
@@ -762,6 +928,7 @@ document.addEventListener('keydown',e=>{
 
 
 def main():
+    apply_quote_patch(MODEL)
     secs = [build_slide(sl) for sl in MODEL["slides"]]
     doc = (
         '<!DOCTYPE html>\n<html lang="zh-CN"><head>\n'
@@ -770,6 +937,7 @@ def main():
         '<title>从玩具到伙伴 · 消费级机器人的「活人感」交互设计 · 姚光华 Colin</title>\n'
         + FONTS + "\n" + CSS + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
+        + FLOW_SVG + "\n"
         + "\n".join(secs) +
         "\n  </div>\n</div>\n"
         '<div class="deck-progress" id="deckProgress"></div>\n'

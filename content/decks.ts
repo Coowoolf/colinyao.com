@@ -27,7 +27,11 @@ export const talkDecks: Deck[] = [
   // 视觉忠于 PPT 自己的模板（纯黑底 + #D4B7F9 淡紫），因此是**单一视觉**、没有深浅切换按钮
   //（dual 在这里读作「无 -light 双文件」，与 aiot26-conf 单主题同例）。
   // 老的 0516 深圳改编版（42 页 colin-deck 视觉）归档在 public/decks/robot26-v0516.html，不注册路由。
+  // R22（2026.08）换模板：会场双 logo 条 + 场次角标全删，底色体系换成 Colin 暗色 deck 的
+  //   做法（黑底 + 底流场 + 栏线网格 + 右上 colinyao.com 落款），排版/图片/动效/字号一律不动。
+  //   下面的 venue 是**讲次档案**（这场在哪儿讲的），不是 deck 里的 chrome —— deck 内已零场次痕迹。
   // 重建：python3 scripts/build-robot26-bj.py（数据 scripts/assets/robot26-bj-*.json）
+  // 自检：node scripts/qa-robot26.mjs（含 R22 段：痕迹清零 / 模板 token / 金句连号 / mono 裁字）
   { slug: "robot26", num: "12", date: "2026.05", venue: "RTE 春夏巡游 · 北京（PPT 原稿还原）", title: "从玩具到伙伴：消费级机器人的「活人感」交互设计", slides: 36, category: "对外演讲", dual: false },
   { slug: "dual26", num: "11", date: "2026.04", venue: "中国网络视听大会", title: "RTE + AI 双引擎驱动视听全域商业增长", slides: 20, category: "对外演讲", dual: true },
   { slug: "vibesota", num: "10", date: "2026.01", venue: "Voice Agent 闭门会", title: "Voice Agent 2026 · Vibe SOTA", slides: 28, category: "对外演讲", dual: true },
