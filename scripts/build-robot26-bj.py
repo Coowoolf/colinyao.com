@@ -266,6 +266,23 @@ ASSET = {
 }
 SKIP_IMG = {"image16.png"}   # 整张 alpha=0 的空图，PowerPoint 里也是不可见的
 
+# ── R26 · 浅色资产映射（交付包 robot26-light-optimized · 2026-08-11）─────────
+# 11 张黑底线稿的浅色版：透明底 + #0d0d0d 深线 + #f45b8c 玫红强调；
+# P33 合作图为完整重建（两个 wordmark 转深色，无黑色画布）。像素级翻色，尺寸与原图逐对一致。
+ASSET_LIGHT = {
+    "image10.png": A + "robot-face-light.png",
+    "image11.png": A + "cat-day30-light.png",
+    "image12.png": A + "cat-day1-light.png",
+    "image13.png": A + "cat-day365-light.png",
+    "image17.png": A + "era-now-light.png",
+    "image18.png": A + "era-2024-light.png",
+    "image19.png": A + "era-2010s-light.png",
+    "image20.png": A + "era-1990s-light.png",
+    "image24.png": A + "comfort-faces-light.png",
+    "image40.png": A + "openai-agora-light.png",
+    "image41.png": A + "living-room-light.png",
+}
+
 # ── 图表重画（原生 SVG，零截图）─────────────────────────────────────────────
 # 环形图：(边长, 内半径, 外半径, 轨道色, 弧色, 百分比)
 DONUT = {
@@ -590,7 +607,10 @@ def shape_html(sh, step, i, sn):
             return ('<div class="sh vid"%s style="%s;--i:%d">'
                     '<video data-play-step="1" src="%sdemo.mp4" poster="%s" preload="none" playsinline'
                     ' muted controls></video></div>' % (attr, ";".join(base), i, A, src))
-        return '<div class="%s"%s style="%s;--i:%d"><img src="%s" alt=""></div>' % (cls, attr, ";".join(base), i, src)
+        # R26：浅色资产双源（默认 src=暗版；主题切换脚本按 data-*-src 同步）
+        light_src = ASSET_LIGHT.get(img)
+        theme_attr = (' data-dark-src="%s" data-light-src="%s"' % (src, light_src)) if light_src else ""
+        return '<div class="%s"%s style="%s;--i:%d"><img src="%s"%s alt=""></div>' % (cls, attr, ";".join(base), i, src, theme_attr)
 
     # ③ 普通形状 / 文本框
     css = base + geom_css(sh)
@@ -725,6 +745,12 @@ html[data-theme="dark"]{
 /* R25 · 浅底位图媒体卡：黑底烘死的位图在浅底上收成「暗媒体卡」——圆角 + 发丝描边，接缝变画框 */
 html:not([data-theme="dark"]) .pp .sh>img{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
 html:not([data-theme="dark"]) .pp video{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
+/* R26 · 浅色资产：透明 PNG 不需要媒体卡画框；P17 卡文对比度修正；P24 视频影院卡 */
+html:not([data-theme="dark"]) .pp img[data-light-src]{border-radius:0!important;outline:0!important;background:transparent!important;}
+html:not([data-theme="dark"]) section[data-p="17"] :is([data-sid="10"],[data-sid="11"],[data-sid="12"]) span{color:var(--ink)!important;}
+html:not([data-theme="dark"]) section[data-p="17"] :is([data-sid="14"],[data-sid="15"],[data-sid="16"]) span{color:#fffffe!important;}
+html:not([data-theme="dark"]) section[data-p="24"] .sh.vid{left:80px!important;top:45px!important;width:1760px!important;height:990px!important;}
+html:not([data-theme="dark"]) section[data-p="24"] video{border-radius:18px!important;outline:1px solid var(--hair)!important;outline-offset:-1px!important;}
 *{margin:0;padding:0;box-sizing:border-box;}
 
 /* ---- 固定舞台（viewport-base，与全站 deck 同源）---- */
@@ -1078,7 +1104,9 @@ document.addEventListener('keydown',e=>{
 /* R25 · 深浅切换（colin-theme 全站共享偏好键） */
 (function(){var b=document.getElementById('deckSwap');
   function apply(t){if(t==='light'){document.documentElement.removeAttribute('data-theme');b.textContent='暗底';}
-    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}}
+    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}
+    document.querySelectorAll('img[data-dark-src][data-light-src]').forEach(function(im){
+      im.src = t==='light' ? im.dataset.lightSrc : im.dataset.darkSrc;});}
   var cur='dark';try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
   apply(cur);
   b.addEventListener('click',function(){cur=(cur==='dark')?'light':'dark';

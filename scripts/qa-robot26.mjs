@@ -121,6 +121,49 @@ const themeNow = await pg.evaluate(() => ({
 if (THEME === "dark" && themeNow.attr !== "dark") fails.push("R25：dark 期望但主题态=" + themeNow.attr);
 if (THEME === "light" && themeNow.attr === "dark") fails.push("R25：light 期望但主题态仍为 dark");
 
+// ── ⑮ R26 · 浅色资产双源（交付包 2026-08-11）───────────────────────────
+const LIGHT_PNGS = ["robot-face-light.png","cat-day1-light.png","cat-day30-light.png","cat-day365-light.png",
+  "era-1990s-light.png","era-2010s-light.png","era-2024-light.png","era-now-light.png",
+  "comfort-faces-light.png","openai-agora-light.png","living-room-light.png"];
+for (const f of LIGHT_PNGS)
+  if (!fs.existsSync(`public/decks/assets/robot26/${f}`)) fails.push(`R26：浅色资产缺失 ${f}`);
+const dual = await pg.evaluate(() => [...document.querySelectorAll("img[data-dark-src][data-light-src]")].map((im) => ({
+  src: im.getAttribute("src"), dark: im.dataset.darkSrc, light: im.dataset.lightSrc,
+})));
+if (dual.length !== 11) fails.push(`R26：双源图 ${dual.length} 张 ≠ 11`);
+dual.forEach((d) => {
+  if (THEME === "light" && !/-light\.png$/.test(d.src)) fails.push(`R26：light 下图源未切换 ${d.src}`);
+  if (THEME === "dark" && !/\.webp$/.test(d.src)) fails.push(`R26：dark 下图源不是原 webp ${d.src}`);
+});
+const dims = await pg.evaluate(async () => {
+  const out = [];
+  for (const im of document.querySelectorAll("img[data-dark-src][data-light-src]")) {
+    const load = (u) => new Promise((ok) => { const t = new Image(); t.onload = () => ok([t.naturalWidth, t.naturalHeight]); t.onerror = () => ok(null); t.src = u; });
+    const a = await load(im.dataset.darkSrc), b = await load(im.dataset.lightSrc);
+    out.push({ dark: im.dataset.darkSrc, a, b });
+  }
+  return out;
+});
+dims.forEach(({ dark, a, b }) => {
+  if (!a || !b) fails.push(`R26：图加载失败 ${dark}`);
+  else if (a[0] !== b[0] || a[1] !== b[1]) fails.push(`R26：尺寸不一致 ${dark} ${a} vs ${b}`);
+});
+if (THEME === "light") {
+  const p17 = await pg.evaluate(() => {
+    const g = (sid) => { const el = document.querySelector(`section[data-p="17"] [data-sid="${sid}"] span`);
+      return el ? getComputedStyle(el).color : null; };
+    return { mid: g("10"), right: g("14") };
+  });
+  if (p17.mid !== "rgb(17, 17, 17)") fails.push(`R26：P17 中卡文字 ${p17.mid} ≠ rgb(17,17,17)`);
+  if (p17.right !== "rgb(255, 255, 254)") fails.push(`R26：P17 右卡文字 ${p17.right} ≠ rgb(255,255,254)`);
+  const vid = await pg.evaluate(() => { const el = document.querySelector('section[data-p="24"] .sh.vid');
+    const r = el.style; return { w: r.width, l: r.left, cw: el.getBoundingClientRect ? getComputedStyle(el).width : null }; });
+  if (vid.cw !== "1760px") fails.push(`R26：light 下 P24 影院卡宽 ${vid.cw} ≠ 1760px`);
+} else {
+  const vid = await pg.evaluate(() => getComputedStyle(document.querySelector('section[data-p="24"] .sh.vid')).width);
+  if (vid !== "1920px") fails.push(`R26：dark 下 P24 视频宽 ${vid} ≠ 1920px 满幅`);
+}
+
 // ── ⑨ R22 · 模板 token 在位 ─────────────────────────────────────────────
 const tpl = await pg.evaluate(() => ({
   flow: document.querySelectorAll(".deck-stage > .deck-flow path").length,
