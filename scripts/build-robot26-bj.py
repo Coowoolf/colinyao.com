@@ -685,18 +685,46 @@ CSS = r"""<style>
      PPT 原稿里这一族一半 Courier 一半 Arial，本来就不齐，顺手对齐 Colin 家的 chrome 语言 */
   --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
   --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
-  --stage-bg:#000000; --slide-bg:#000000;
-  --ink:#FFFFFF; --ink-3:#6f7186; --amber:#D4B7F9; --hair:rgba(255,255,255,.14);
-  --card-bg-2:#131320;
-  /* colin-deck-dark 的底流场：本 deck 的 accent 是淡紫，流场线随 accent 走（不引第二个强调色） */
-  --flow-line:rgba(212,183,249,.30);
-  --flow-line-2:rgba(255,255,255,.11);
-  --flow-op:.42;
-  --grid-line:rgba(255,255,255,.042);
+  /* R25 · conf 家族双主题：:root = conf-light（玫红系），html[data-theme="dark"] = conf-dark（淡紫系）。
+     默认暗（deck 血统），左下角可切换；变量口径 = colin-deck conf-theme-dual.css。 */
+  --stage-bg:#e2e3e8; --slide-bg:#eff0f3;
+  --ink:#111111; --ink-3:#8e8e93; --amber:#f45b8c; --hair:rgba(17,17,17,.16);
+  --card-bg-2:#fffffe;
+  --ink-m:#6e6e73; --ink-soft:#7a7a83; --ink-2x:#3a3a3f;
+  --acc-deep:#d8366a; --acc-2:#7b61ff; --amber-soft:#f9a8c6;
+  --rule-line:#d8d8dc; --sig-ink:rgba(17,17,17,.30); --rail-line:rgba(17,17,17,.10);
+  --void-0:#fffffe; --void-1:#fffffe; --void-2:#fffffe;   /* 黑页隐形垫板 → 浅底白卡 */
+  --flow-line:rgba(244,91,140,.30);
+  --flow-line-2:rgba(17,17,17,.13);
+  --flow-op:.40;
+  --grid-line:rgba(17,17,17,.05);
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-flow:cubic-bezier(.22,.9,.24,1);
   --step:88ms;
 }
+html[data-theme="dark"]{
+  --stage-bg:#000000; --slide-bg:#000000;
+  --ink:#FFFFFF; --ink-3:#6f7186; --amber:#D4B7F9; --hair:rgba(255,255,255,.14);
+  --card-bg-2:#131320;
+  --ink-m:#A6A6A6; --ink-soft:#A7A9BE; --ink-2x:#D9D9D9;
+  --acc-deep:#944AF0; --acc-2:#B78CF0; --amber-soft:#C9A9F7;
+  --rule-line:#2A2A2A; --sig-ink:rgba(255,255,255,.30); --rail-line:rgba(255,255,255,.10);
+  --void-0:#000000; --void-1:#0D0D0D; --void-2:#0A0A0A;   /* 暗底保持原稿近黑三档 */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
+  --flow-op:.42;
+  --grid-line:rgba(255,255,255,.042);
+}
+/* R25 · svg 属性色跟主题（presentation attr 优先级低于 CSS，可直接覆写）*/
+[stroke="#D4B7F9"]{stroke:var(--amber);} [fill="#D4B7F9"]{fill:var(--amber);}
+[stroke="#D3B7F9"]{stroke:var(--amber);} [fill="#D3B7F9"]{fill:var(--amber);}
+[stroke="#C9A9F7"]{stroke:var(--amber-soft);} [fill="#C9A9F7"]{fill:var(--amber-soft);}
+[stroke="#944AF0"]{stroke:var(--acc-deep);} [fill="#944AF0"]{fill:var(--acc-deep);}
+[stroke="#B78CF0"]{stroke:var(--acc-2);} [fill="#B78CF0"]{fill:var(--acc-2);}
+[stroke="#2A2A2A"]{stroke:var(--rule-line);}
+/* R25 · 浅底位图媒体卡：黑底烘死的位图在浅底上收成「暗媒体卡」——圆角 + 发丝描边，接缝变画框 */
+html:not([data-theme="dark"]) .pp .sh>img{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
+html:not([data-theme="dark"]) .pp video{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 
 /* ---- 固定舞台（viewport-base，与全站 deck 同源）---- */
@@ -705,7 +733,7 @@ html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage
 .deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg);}
 .slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;
   visibility:hidden;opacity:0;pointer-events:none;background:transparent;
-  font-family:var(--f-cn);color:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
 img,video,canvas,svg{max-width:100%;max-height:100%;}
 
@@ -729,12 +757,12 @@ img,video,canvas,svg{max-width:100%;max-height:100%;}
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
 .deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 18%,rgba(255,255,255,.10) 82%,transparent);}
+  background:linear-gradient(90deg,transparent,var(--rail-line) 18%,var(--rail-line) 82%,transparent);}
 .deck-rail.t{top:32px;} .deck-rail.b{bottom:32px;}
 /* ---- R22 模板层 · 右上角落款（原会场 logo 槽）---- */
 .sig{position:absolute;right:120px;top:47px;z-index:2;
   font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
-  letter-spacing:.24em;padding-right:.24em;color:rgba(255,255,255,.30);
+  letter-spacing:.24em;padding-right:.24em;color:var(--sig-ink);
   text-transform:uppercase;white-space:nowrap;pointer-events:none;}
 @media print{
   .deck-flow,.deck-grid,.deck-rail{display:none!important;}
@@ -838,6 +866,9 @@ img,video,canvas,svg{max-width:100%;max-height:100%;}
 .edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
   transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
   border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);border-radius:3px;padding:7px 12px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;background:transparent;cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap{display:none!important;}}
 .edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
 .edit-toggle.active{border-color:var(--amber);color:var(--amber);}
 [contenteditable="true"]{outline:1px dashed rgba(212,183,249,.55);outline-offset:4px;}
@@ -1043,6 +1074,16 @@ document.addEventListener('keydown',e=>{
   if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
   if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
 });
+
+/* R25 · 深浅切换（colin-theme 全站共享偏好键） */
+(function(){var b=document.getElementById('deckSwap');
+  function apply(t){if(t==='light'){document.documentElement.removeAttribute('data-theme');b.textContent='暗底';}
+    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}}
+  var cur='dark';try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){cur=(cur==='dark')?'light':'dark';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}apply(cur);});
+})();
 </script>"""
 
 
@@ -1050,8 +1091,30 @@ def main():
     apply_quote_patch(MODEL)
     apply_r24(MODEL)
     secs = [build_slide(sl) for sl in MODEL["slides"]]
+    # R25 · 字面色 → 主题变量（黑字/白卡内深灰字/chip 上黑字保持字面：两主题都在浅面上）
+    def _apply_map(t, mp):
+        for a, b in mp:
+            t = t.replace(a, b)
+        return t
+    R25_MAP = [
+        ("color:#FFFFFF", "color:var(--ink)"),
+        ("color:#FFFFFE", "color:var(--ink)"),
+        ("color:#D4B7F9", "color:var(--amber)"),
+        ("color:#944AF0", "color:var(--acc-deep)"),
+        ("color:#A6A6A6", "color:var(--ink-m)"),
+        ("color:#A7A9BE", "color:var(--ink-soft)"),
+        ("color:#D9D9D9", "color:var(--ink-2x)"),
+        ("background:#D4B7F9", "background:var(--amber)"),
+        ("background:#000000", "background:var(--void-0)"),
+        ("background:#0D0D0D", "background:var(--void-1)"),
+        ("background:#0A0A0A", "background:var(--void-2)"),
+        ("background:#1F1D2B", "background:var(--card-bg-2)"),
+        ("background:#944AF0", "background:var(--acc-deep)"),
+    ]
+    secs = [_apply_map(x, R25_MAP) for x in secs]
     doc = (
-        '<!DOCTYPE html>\n<html lang="zh-CN"><head>\n'
+        '<!DOCTYPE html>\n<html lang="zh-CN" data-theme="dark"><head>\n'
+        '<script>try{if(localStorage.getItem("colin-theme")==="light")document.documentElement.removeAttribute("data-theme")}catch(e){}</script>\n'
         '<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         '<title>从玩具到伙伴 · 消费级机器人的「活人感」交互设计 · 姚光华 Colin</title>\n'
@@ -1064,6 +1127,7 @@ def main():
         '<div class="deck-steps" id="deckSteps"></div>\n'
         '<div class="edit-hotzone"></div>\n'
         '<button class="edit-toggle" id="editToggle">EDIT</button>\n'
+        '<button class="deck-swap" id="deckSwap">浅底</button>\n'
         + JS + "\n" + RULER + "\n</body></html>\n"
     )
     open(OUT, "w", encoding="utf-8").write(doc)

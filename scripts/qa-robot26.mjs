@@ -55,6 +55,8 @@ const fails = [], warn = [];
 const b = await chromium.launch({ executablePath: exe, args: ["--force-color-profile=srgb"] });
 const ctx = await b.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 const pg = await ctx.newPage();
+const THEME = process.env.THEME || "dark";   // R25：双主题各跑一遍（THEME=light 走浅底）
+await pg.addInitScript((t) => { try { localStorage.setItem("colin-theme", t); } catch (e) {} }, THEME);
 const errs = [], media = [], bad404 = [];
 pg.on("pageerror", (e) => (MEDIA_EXEMPT.test(String(e)) ? media : errs).push(String(e)));
 pg.on("console", (m) => { if (m.type() === "error" && MEDIA_EXEMPT.test(m.text())) media.push(m.text()); });
@@ -105,6 +107,19 @@ if (!/记忆配额上限/.test(SRC)) fails.push("R24：P13 伙伴线读数缺失
 if (/具身智能明天直接抄|embodied AI copies tomorrow|浪潮的第一站/.test(SRC)) fails.push("R24：MQ04 文案残留（页已删）");
 if (/2024 →/.test(SRC)) fails.push("R24：老 P13 era 标签未改（2024 → 应为 2022 →）");
 if (!/2022 →/.test(SRC) || !/ChatGPT → GPT-4o/.test(SRC)) fails.push("R24：30 年坐标严谨化未落地");
+
+// ── ⑭ R25 · conf 双主题：变量化 + 引导 + 切换 ────────────────────────────
+if (/color:#FFFFFF|color:#D4B7F9|color:#FFFFFE/.test(SRC)) fails.push("R25：仍有未变量化的主题字面色");
+if (!/html lang="zh-CN" data-theme="dark"/.test(SRC)) fails.push("R25：默认暗主题缺失");
+if (!/colin-theme/.test(SRC)) fails.push("R25：colin-theme 引导/切换缺失");
+if (!/deckSwap/.test(SRC)) fails.push("R25：deckSwap 按钮缺失");
+const themeNow = await pg.evaluate(() => ({
+  attr: document.documentElement.getAttribute("data-theme"),
+  slideBg2: getComputedStyle(document.querySelector(".deck-stage")).backgroundColor,
+  ink: getComputedStyle(document.querySelector(".slide")).color,
+}));
+if (THEME === "dark" && themeNow.attr !== "dark") fails.push("R25：dark 期望但主题态=" + themeNow.attr);
+if (THEME === "light" && themeNow.attr === "dark") fails.push("R25：light 期望但主题态仍为 dark");
 
 // ── ⑨ R22 · 模板 token 在位 ─────────────────────────────────────────────
 const tpl = await pg.evaluate(() => ({
@@ -260,6 +275,6 @@ const h264 = await pg.evaluate(() => document.createElement("video").canPlayType
 console.log("chromium H.264 支持:", h264, "· 媒体类报错（已豁免）:", media.length ? media.length + " 条，例：" + media[0].slice(0, 80) : "0 条");
 console.log("pageerrors:", errs.length ? errs : "none");
 if (errs.length) fails.push("pageerror ×" + errs.length);
-console.log("\n" + (fails.length ? "QA FAIL\n" + fails.join("\n") : "QA PASS · 37 页零溢出零 pageerror · 分步数逐页对齐动线表"));
+console.log("\n" + (fails.length ? "QA FAIL\n" + fails.join("\n") : `QA PASS · 37 页零溢出零 pageerror · 分步对齐 · 主题=${THEME}`));
 await b.close();
 process.exit(fails.length ? 1 : 0);
