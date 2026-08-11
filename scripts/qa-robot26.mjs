@@ -10,9 +10,16 @@
 //   ⑦ 资产 200：所有 /decks/assets/robot26/* 都能取到
 // R22 增补（换 Colin 暗色模板 / 会场痕迹清零 / 金句校号 / mono 裁字）：
 //   ⑧ 会场痕迹清零：双 logo 条与「RTE 2026 春夏巡游」在源码与 DOM 里都为 0
-//   ⑨ 模板 token 在位：底流场 8 条曲线 / 栏线网格 / 上下导轨 / 34 页落款 / slide 背景 transparent
+//   ⑨ 模板 token 在位：底流场 8 条曲线 / 栏线网格 / 上下导轨 / slide 背景 transparent
+//      + R27 改版：37 页右上角连续页码 1/37…37/37（总数派生），落款域名清零
 //   ⑩ 金句连号：3 张金句页 MONEY QUOTE · 01–03 OF 03，PIN 与 MQ 同号（R24：MQ04 删页）
 //   ⑪ mono 标签零裁切：点名的一族逐个实测行数 = 1，且行盒不越过容器内边界
+//      （R27 手排页的单行 mono 元素挂 data-sid="r…"，同一机制续保）
+// R27 增补（GPT 5.6 整体视觉优化 · 交付包 2026-08-11 · Fable review 后合入）：
+//   ⑯ P2 只剩 2026 / P3 Clutch 口径 87·67·N=422 / P11 speaker 归属与官方口径一致 /
+//      P5 sid28@build4 · P6 sid44/46@build5 · P14 标题 build0 常驻 / P17 build 序列 /
+//      P28 五节点 timeline（大箭头清零）/ P37 页码 37/37 + 双二维码可加载；
+//      非豁免 console error/warning 记 FAIL；R27 触改页逐 build 截图（/tmp/qa/robot26/builds）
 // 已知豁免：容器 chromium 无 H.264 解码，P22 的 <video> 必然抛 `err:4`（MEDIA_ELEMENT_ERROR）
 //   —— 与 scripts/qa-media.mjs 同一处理，白名单放行，不算 pageerror。
 //
@@ -27,7 +34,7 @@ const PORT = process.env.PORT || 8899;
 const URL = PORT === "3000" ? "http://localhost:3000/robot26"
                             : `http://localhost:${PORT}/decks/robot26.html`;
 const SHOT = "/tmp/qa/robot26";
-fs.mkdirSync(SHOT, { recursive: true });
+fs.mkdirSync(`${SHOT}/builds`, { recursive: true });
 
 // PPT <p:timing> 的逐页单击次数（P22 的 1 步 = mediacall playFrom(0)）
 const STEPS = [0, 5, 0, 0, 4, 5, 0, 0, 8, 5, 2, 3, 3, 5, 6, 4, 4, 3, 3, 0,
@@ -39,17 +46,22 @@ const MEDIA_EXEMPT = /err:?\s*4|MEDIA_ELEMENT_ERROR|DEMUXER_ERROR|not supported|
 // R22 · 会场痕迹黑名单（源码级 grep，命中即 FAIL）
 const VENUE = [/logo-woshipm/i, /logo-rte/i, /woshipm/i, /人人都是产品经理/, /起点课堂/, /春夏巡游/, /RTE\s*2026/i];
 // R22 · mono 标签零裁切名单：(页, data-sid) —— 这一族必须单行
-const MONO_ONE_LINE = [  // R24 顺延（P11 拆三 +2 · 老 P33 删 −1）
-  [2, "28"], [3, "10"], [6, "46"], [7, "4"], [19, "5"], [23, "31"], [32, "49"],   // 来源行 / 出处角标
-  [11, "a7"], [12, "b10"],                                                        // R24 新来源行
-  [4, "10"], [26, "10"], [27, "4"],                                               // ★ MONEY QUOTE
-  [4, "14"], [26, "16"], [27, "17"],                                              // 钉子 · PIN
-  [2, "2"], [3, "2"], [5, "2"], [6, "2"], [7, "2"], [8, "2"], [9, "2"], [10, "2"],
-  [11, "a2"], [12, "b2"], [13, "2"], [14, "2"], [15, "2"], [16, "2"], [17, "2"],
+const MONO_ONE_LINE = [  // R24 顺延（P11 拆三 +2 · 老 P33 删 −1）· R27 手排页换 r 系 sid
+  [2, "28"], [6, "46"], [7, "4"], [19, "5"], [23, "31"], [32, "49"],              // 来源行 / 出处角标
+  [3, "r3s"], [11, "r11s"], [12, "r12s"], [13, "r13s"],                           // R27 来源行
+  [11, "r11sp"], [11, "r11t"],                                                    // R27 P11 引文卡 speaker/会话号
+  [4, "r4k"], [26, "10"], [27, "4"],                                              // ★ MONEY QUOTE
+  [4, "r4p"], [26, "16"], [27, "17"],                                             // 钉子 · PIN
+  [2, "2"], [5, "2"], [6, "2"], [7, "2"], [8, "2"], [9, "2"], [10, "2"],
+  [14, "2"], [15, "2"], [16, "2"],
   [18, "2"], [19, "3"], [20, "2"], [21, "2"], [22, "2"], [23, "2"], [25, "2"],
-  [28, "2"], [29, "2"], [30, "2"], [31, "2"], [32, "2"], [33, "3"], [34, "2"],
-  [35, "2"], [37, "8"],                                                           // eyebrow
+  [29, "2"], [30, "2"], [31, "2"], [32, "2"], [33, "3"], [34, "2"],
+  [35, "2"],                                                                      // eyebrow（模型页）
+  [3, "r3k"], [11, "r11k"], [12, "r12k"], [13, "r13k"], [17, "r17k"],
+  [28, "r28k"], [37, "r37k"],                                                     // eyebrow（R27 手排页）
 ];
+// R27 触改页：逐 build 截图复核（交接清单「不只检查最终态」）
+const R27_PAGES = new Set([3, 4, 5, 6, 11, 12, 13, 14, 17, 19, 20, 28, 29, 37]);
 
 const fails = [], warn = [];
 const b = await chromium.launch({ executablePath: exe, args: ["--force-color-profile=srgb"] });
@@ -59,7 +71,12 @@ const THEME = process.env.THEME || "dark";   // R25：双主题各跑一遍（TH
 await pg.addInitScript((t) => { try { localStorage.setItem("colin-theme", t); } catch (e) {} }, THEME);
 const errs = [], media = [], bad404 = [];
 pg.on("pageerror", (e) => (MEDIA_EXEMPT.test(String(e)) ? media : errs).push(String(e)));
-pg.on("console", (m) => { if (m.type() === "error" && MEDIA_EXEMPT.test(m.text())) media.push(m.text()); });
+pg.on("console", (m) => {   // R27：非豁免的 console error/warning 也记 FAIL（交接清单要求双主题零告警）
+  if (/favicon\.ico/.test(m.location()?.url || "")) return;   // 裸静态服务无 favicon；生产由站点框架提供，非 deck 资源
+  if (MEDIA_EXEMPT.test(m.text())) { if (m.type() === "error") media.push(m.text()); return; }
+  if (m.type() === "error") errs.push("console.error: " + m.text());
+  if (m.type() === "warning") warn.push("console.warn: " + m.text());
+});
 pg.on("response", (r) => { if (r.status() >= 400) bad404.push(r.status() + " " + r.url()); });
 
 await pg.goto(URL, { waitUntil: "networkidle" });
@@ -101,9 +118,9 @@ covers.forEach(({ p, black, keyart, inkVar }) => {
 // ── ⑬ R24 · P11 拆三 / 老 P13 严谨化 / MQ04 删页 ─────────────────────────
 if (!/one billion words/.test(SRC)) fails.push("R24：P11 Ilya 引文缺失");
 if (!/NVIDIA GTC SPRING 2023/.test(SRC)) fails.push("R24：P11 引文来源行缺失");
-if (!/一道|四步/.test(SRC) || !/167 万分钟/.test(SRC)) fails.push("R24：P12 推演链不完整");
-if (!/我们的一生只有 0.29TB/.test(SRC)) fails.push("R24：P12 口径行缺失");
-if (!/记忆配额上限/.test(SRC)) fails.push("R24：P13 伙伴线读数缺失");
+if (!/记忆链/.test(SRC) || !/167 万分钟/.test(SRC)) fails.push("R24/R27：P12 推演链不完整");   // R27 重排后口径
+if (!/ORDER-OF-MAGNITUDE MODEL/.test(SRC) || !/0\.29/.test(SRC)) fails.push("R24/R27：P12 数量级口径行缺失");
+if (!/THE PARTNER LINE/.test(SRC) || !/关系能走多深/.test(SRC)) fails.push("R24/R27：P13 伙伴线缺失");
 if (/具身智能明天直接抄|embodied AI copies tomorrow|浪潮的第一站/.test(SRC)) fails.push("R24：MQ04 文案残留（页已删）");
 if (/2024 →/.test(SRC)) fails.push("R24：老 P13 era 标签未改（2024 → 应为 2022 →）");
 if (!/2022 →/.test(SRC) || !/ChatGPT → GPT-4o/.test(SRC)) fails.push("R24：30 年坐标严谨化未落地");
@@ -148,14 +165,15 @@ dims.forEach(({ dark, a, b }) => {
   if (!a || !b) fails.push(`R26：图加载失败 ${dark}`);
   else if (a[0] !== b[0] || a[1] !== b[1]) fails.push(`R26：尺寸不一致 ${dark} ${a} vs ${b}`);
 });
+// R27：P17 整页重排后，对比度红线落在 .r27-face-card 定色上，两主题同测
+const p17 = await pg.evaluate(() => {
+  const g = (sel) => { const el = document.querySelector(`section[data-p="17"] ${sel} h3`);
+    return el ? getComputedStyle(el).color : null; };
+  return { mid: g(".r27-face-card.mid"), right: g(".r27-face-card.deep") };
+});
+if (p17.mid !== "rgb(13, 13, 13)") fails.push(`R27：P17 中卡文字 ${p17.mid} ≠ rgb(13,13,13)`);
+if (p17.right !== "rgb(255, 255, 254)") fails.push(`R27：P17 右卡文字 ${p17.right} ≠ rgb(255,255,254)`);
 if (THEME === "light") {
-  const p17 = await pg.evaluate(() => {
-    const g = (sid) => { const el = document.querySelector(`section[data-p="17"] [data-sid="${sid}"] span`);
-      return el ? getComputedStyle(el).color : null; };
-    return { mid: g("10"), right: g("14") };
-  });
-  if (p17.mid !== "rgb(17, 17, 17)") fails.push(`R26：P17 中卡文字 ${p17.mid} ≠ rgb(17,17,17)`);
-  if (p17.right !== "rgb(255, 255, 254)") fails.push(`R26：P17 右卡文字 ${p17.right} ≠ rgb(255,255,254)`);
   const vid = await pg.evaluate(() => { const el = document.querySelector('section[data-p="24"] .sh.vid');
     const r = el.style; return { w: r.width, l: r.left, cw: el.getBoundingClientRect ? getComputedStyle(el).width : null }; });
   if (vid.cw !== "1760px") fails.push(`R26：light 下 P24 影院卡宽 ${vid.cw} ≠ 1760px`);
@@ -164,22 +182,74 @@ if (THEME === "light") {
   if (vid !== "1920px") fails.push(`R26：dark 下 P24 视频宽 ${vid} ≠ 1920px 满幅`);
 }
 
-// ── ⑨ R22 · 模板 token 在位 ─────────────────────────────────────────────
+// ── ⑨ R22 模板 token 在位 + R27 连续页码（落款域名退役）──────────────────
 const tpl = await pg.evaluate(() => ({
   flow: document.querySelectorAll(".deck-stage > .deck-flow path").length,
   grid: !!document.querySelector(".deck-stage > .deck-grid"),
   rail: document.querySelectorAll(".deck-stage > .deck-rail").length,
-  sig: [...document.querySelectorAll(".slide .sig")].map((el) => +el.closest(".slide").dataset.p),
-  sigText: (document.querySelector(".slide .sig") || {}).textContent || "",
+  sigs: [...document.querySelectorAll(".slide .sig")].map((el) => [
+    +el.closest(".slide").dataset.p, el.textContent.trim()]),
   slideBg: getComputedStyle(document.querySelector(".slide")).backgroundColor,
 }));
 if (tpl.flow !== 8) fails.push(`底流场曲线 ${tpl.flow} 条 ≠ 8`);
 if (!tpl.grid) fails.push("栏线网格 .deck-grid 缺失");
 if (tpl.rail !== 2) fails.push(`发丝导轨 ${tpl.rail} 条 ≠ 2`);
-if (tpl.sig.length !== 34) fails.push(`落款页数 ${tpl.sig.length} ≠ 34（1/24/37 三页不挂）`);
-if ([1, 24, 37].some((p) => tpl.sig.includes(p))) fails.push("落款挂到了满幅页（1/24/37）");
-if (!/colinyao\.com/i.test(tpl.sigText)) fails.push(`落款文案异常：${tpl.sigText}`);
+if (tpl.sigs.length !== n) fails.push(`R27：页码 ${tpl.sigs.length} 个 ≠ ${n}（37 页每页必挂）`);
+tpl.sigs.forEach(([p, t]) => {
+  if (t !== `${p}/${n}`) fails.push(`R27：P${p} 页码「${t}」≠ ${p}/${n}`);
+  if (/colinyao\.com/i.test(t)) fails.push(`R27：P${p} 页码残留域名落款`);
+});
 if (!/rgba\(0, 0, 0, 0\)|transparent/.test(tpl.slideBg)) fails.push(`slide 背景 ${tpl.slideBg} 不透明，底流场会被盖住`);
+
+// ── ⑯ R27 · 内容口径 + 动效锚点（交付包清单 · Fable review 修正后的定稿态）──
+if (/RETENTION SHAPE OF CONSUMER ROBOTS, 2025/.test(SRC)) fails.push("R27：P2 年份 2025 残留");
+if (!/RETENTION SHAPE OF CONSUMER ROBOTS, 2026/.test(SRC)) fails.push("R27：P2 年份 2026 缺失");
+for (const tk of ["CLUTCH CONSUMER AI SUPPORT STUDY", "N=422"])
+  if (!SRC.includes(tk)) fails.push(`R27：P3 口径缺「${tk}」`);
+const r27 = await pg.evaluate(() => {
+  const q = (s) => document.querySelector(s), qa = (s) => [...document.querySelectorAll(s)];
+  const txt = (el) => (el ? el.textContent.trim() : null);
+  return {
+    p3nums: qa('section[data-p="3"] .r27-metric .num').map((el) => el.textContent.trim()),
+    // P11 · speaker 归属（官方口径：Jensen 追问句，感叹两句是 Ilya）
+    p11: qa('section[data-p="11"] .r27-dialogue').map((el) => ({
+      who: txt(el.querySelector(".who")), say: txt(el.querySelector(".say")), step: el.dataset.step })),
+    p11quote: txt(q('section[data-p="11"] .r27-quote-card .speaker')),
+    p5sid28: (q('section[data-p="5"] [data-sid="28"]') || {}).dataset?.step,
+    p6sid44: (q('section[data-p="6"] [data-sid="44"]') || {}).dataset?.step,
+    p6sid46: (q('section[data-p="6"] [data-sid="46"]') || {}).dataset?.step,
+    p14anchor: [q('section[data-p="14"] [data-sid="2"]'), q('section[data-p="14"] [data-sid="3"]')]
+      .map((el) => el ? (el.dataset.step || "none") : "missing"),
+    p17: { strip: !!q('section[data-p="17"] .r27-face-strip img'),
+           cards: qa('section[data-p="17"] .r27-face-card').map((el) => el.dataset.step),
+           note: (q('section[data-p="17"] .r27-note') || {}).dataset?.step },
+    p28: { ms: qa('section[data-p="28"] .r27-milestone').length,
+           pins: qa('section[data-p="28"] .r27-pin').length,
+           arrows: qa('section[data-p="28"] svg .arr, section[data-p="28"] [class*="arrow"]').length },
+    p37qr: qa('section[data-p="37"] .r27-qr-card img').map((im) => im.naturalWidth > 0),
+    p37sig: txt(q('section[data-p="37"] .sig')),
+  };
+});
+if (r27.p3nums.join("|") !== "87%|67%") fails.push(`R27：P3 双环读数 ${r27.p3nums} ≠ 87/67`);
+if (r27.p11.length !== 2) fails.push(`R27：P11 对话卡 ${r27.p11.length} 张 ≠ 2`);
+else {
+  const [j, il] = r27.p11;
+  if (j.who !== "JENSEN HUANG" || !/Only one billion words\?/.test(j.say) || j.step !== "1")
+    fails.push(`R27：P11 第一张对话卡应为 JENSEN「Only one billion words?」@build1，实为 ${JSON.stringify(j)}`);
+  if (il.who !== "ILYA SUTSKEVER" || !/amazing/.test(il.say) || !/not a lot/.test(il.say) || il.step !== "2")
+    fails.push(`R27：P11 第二张对话卡应为 ILYA「That's amazing. That's not a lot.」@build2，实为 ${JSON.stringify(il)}`);
+}
+if (!/^ILYA SUTSKEVER/.test(r27.p11quote || "")) fails.push(`R27：P11 引文卡 speaker ${r27.p11quote}`);
+if (r27.p5sid28 !== "4") fails.push(`R27：P5 总结底栏 step=${r27.p5sid28} ≠ 4`);
+if (r27.p6sid44 !== "5" || r27.p6sid46 !== "5") fails.push(`R27：P6 结论面 step=${r27.p6sid44}/${r27.p6sid46} ≠ 5/5`);
+if (r27.p14anchor.join(",") !== "none,none") fails.push(`R27：P14 章节锚点应 build0 常驻，实为 ${r27.p14anchor}`);
+if (!r27.p17.strip) fails.push("R27：P17 build0 人物 strip 缺失");
+if (r27.p17.cards.join(",") !== "1,2,3" || r27.p17.note !== "4")
+  fails.push(`R27：P17 build 序列 cards=${r27.p17.cards} note=${r27.p17.note} ≠ 1,2,3 + 4`);
+if (r27.p28.ms !== 5 || r27.p28.pins !== 5) fails.push(`R27：P28 节点 ${r27.p28.ms}/pin ${r27.p28.pins} ≠ 5/5`);
+if (r27.p28.arrows) fails.push("R27：P28 大箭头残留");
+if (r27.p37qr.length !== 2 || !r27.p37qr.every(Boolean)) fails.push(`R27：P37 二维码 ${JSON.stringify(r27.p37qr)}`);
+if (r27.p37sig !== `37/${n}`) fails.push(`R27：尾页页码「${r27.p37sig}」≠ 37/${n}`);
 
 // ── ⑩ R22 · 金句连号 ────────────────────────────────────────────────────
 const mq = [...SRC.matchAll(/MONEY QUOTE · (\d+) OF (\d+)/g)].map((m) => [m[1], m[2]]);
@@ -218,6 +288,14 @@ if (lenBad.length) fails.push(`--len 与路径实长不符 ${lenBad.length} 处�
 const fillTable = [];
 for (let i = 1; i <= 37; i++) {
   await pg.evaluate((k) => window.deck.go(k), i - 1);
+  if (R27_PAGES.has(i)) {                 // R27：触改页逐 build 截图（交接清单「不只检查最终态」）
+    const ms = await pg.evaluate(() => window.deck.maxStep[window.deck.i]);
+    for (let s = 0; s <= ms; s++) {
+      await pg.evaluate((k) => { const d = window.deck; d.step = k; d.applySteps(); }, s);
+      await pg.waitForTimeout(s === 0 ? 1800 : 1050);
+      await pg.screenshot({ path: `${SHOT}/builds/p${String(i).padStart(2, "0")}-s${s}-${THEME}.png` });
+    }
+  }
   await pg.evaluate(() => { const d = window.deck; d.step = d.maxStep[d.i]; d.applySteps(); });
   await pg.waitForTimeout(2400);          // 入场 ~1.64s + dw 1.6s+0.44s 错峰 → 2.4s 才拍得到全字
   const r = await pg.evaluate(() => {
@@ -250,6 +328,16 @@ for (let i = 1; i <= 37; i++) {
         }
       });
     });
+    // R27：手排页不走 .tx/<p> 结构，同一把「出台」尺子直接量 .sh 内容（含 svg 文字）
+    sec.querySelectorAll(".sh:not(.tx)").forEach((el) => {
+      if (!el.textContent.trim()) return;
+      for (const bd of bands(el)) {
+        if (bd.bot > stage.bottom + 1 || bd.top < stage.top - 1 ||
+            bd.right > stage.right + 1 || bd.left < stage.left - 1)
+          out.over.push(["出台", el.dataset.sid || el.className.slice(3, 30),
+                         el.textContent.trim().slice(0, 18)]);
+      }
+    });
     // 填充率：所有可见 .sh 的并集面积 / 舞台面积（粗粒度，够看空/满）
     const cells = new Set();
     sec.querySelectorAll(".sh").forEach((el) => {
@@ -265,11 +353,12 @@ for (let i = 1; i <= 37; i++) {
     out.ink = Math.round((cells.size / (60 * 34)) * 100);
     // ⑪ R22 · mono 标签零裁切：点名的一族逐个量行数 + 量行盒有没有超出容器内边界
     out.mono = [];
-    sec.querySelectorAll(".tx").forEach((el) => {
+    sec.querySelectorAll(".tx, [data-sid^='r']").forEach((el) => {   // R27：r 系 sid 元素同尺续保
       const cs = getComputedStyle(el);
       const inner = { l: el.getBoundingClientRect().left + parseFloat(cs.paddingLeft || 0),
                       r: el.getBoundingClientRect().right - parseFloat(cs.paddingRight || 0) };
-      el.querySelectorAll("p").forEach((p) => {
+      const ps = el.querySelectorAll("p").length ? [...el.querySelectorAll("p")] : [el];
+      ps.forEach((p) => {
         const bd = bands(p);
         const rg = document.createRange(); rg.selectNodeContents(p);
         const rs = [...rg.getClientRects()].filter((x) => x.height > 1);
@@ -317,7 +406,8 @@ console.log("\n视频锚点:", JSON.stringify(vid));
 const h264 = await pg.evaluate(() => document.createElement("video").canPlayType('video/mp4; codecs="avc1.42E01E"') || "(空=不支持)");
 console.log("chromium H.264 支持:", h264, "· 媒体类报错（已豁免）:", media.length ? media.length + " 条，例：" + media[0].slice(0, 80) : "0 条");
 console.log("pageerrors:", errs.length ? errs : "none");
-if (errs.length) fails.push("pageerror ×" + errs.length);
+if (errs.length) fails.push("pageerror/console.error ×" + errs.length);
+if (warn.length) { console.log("console.warn:", warn.slice(0, 5)); fails.push("console.warn ×" + warn.length); }  // R27：零告警红线
 console.log("\n" + (fails.length ? "QA FAIL\n" + fails.join("\n") : `QA PASS · 37 页零溢出零 pageerror · 分步对齐 · 主题=${THEME}`));
 await b.close();
 process.exit(fails.length ? 1 : 0);

@@ -106,8 +106,8 @@ LH = 1.22             # spcPct 100% → CSS line-height（对 Source Han Sans �
 MAX_I = 5             # --i 上限：0.44s + 1.7s(dw) < 2.4s，保证 QA 截图不拍到半截
 
 # ── R22 模板层 ──────────────────────────────────────────────────────────────
-SIG = "colinyao.com"          # 右上角落款（原会场双 logo 条的槽位）
-NO_SIG = {1, 24, 37}          # P24 满幅视频；P1/P37 封面页（R23 起为 colin-deck 背景板，按封面惯例不挂 chrome）·R24 顺延
+# R27：SIG（colinyao.com 落款）与 NO_SIG（满幅页豁免）双双退役——
+#      右上角改挂连续页码 n/total，见 build_slide 里的 sig 行；想回滚落款版看 git 历史 a809814。
 
 # ── R23 · 封面背景板：P1/P36 撤峰会满幅 keyart，换 colin-deck 暗色模板层 ──────
 # Colin 2026-08-09 拍板：P1/P36 的背景板换成自家 deck 设计（此前是峰会 keyart 风格）。
@@ -663,11 +663,11 @@ def build_slide(sl):
     parts = []
     for sh in shapes:
         parts.append(shape_html(sh, step_of.get(sh["id"], 0), idx_of.get(sh["id"], 0), n))
-    # R22：版式角标（会场双 logo 条 34 页 + P22 的 RTE 巡游角标）整条撤掉，
-    #      换成 Colin 自己的 mono 落款；两页满幅图/满幅视频不挂（P1 封面、P22 视频）。
-    #      sl["logo"] 仍留在模型里，只是不再落地 —— 想回滚场次版把下面两行换回来即可。
-    if n not in NO_SIG:
-        parts.insert(0, '<div class="sig">%s</div>' % SIG)
+    # R22：版式角标（会场双 logo 条 34 页 + P22 的 RTE 巡游角标）整条撤掉。
+    #      R27：右上角落款（colinyao.com）退役，全 37 页改挂连续页码；
+    #      总数由 slide count 派生，不硬写；NO_SIG 满幅页豁免惯例随之退役
+    #      （.sig 自带 z-index:2，压得住 P24 满幅视频与封面元素）。
+    parts.insert(0, '<div class="sig">%d/%d</div>' % (n, len(MODEL["slides"])))
     maxstep = len(groups) + (1 if n == 24 else 0)  # R24：视频页顺延 22→24
     html = ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
             % (n, maxstep, "".join(p for p in parts if p)))
@@ -745,10 +745,9 @@ html[data-theme="dark"]{
 /* R25 · 浅底位图媒体卡：黑底烘死的位图在浅底上收成「暗媒体卡」——圆角 + 发丝描边，接缝变画框 */
 html:not([data-theme="dark"]) .pp .sh>img{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
 html:not([data-theme="dark"]) .pp video{border-radius:10px;outline:1px solid var(--hair);outline-offset:-1px;}
-/* R26 · 浅色资产：透明 PNG 不需要媒体卡画框；P17 卡文对比度修正；P24 视频影院卡 */
+/* R26 · 浅色资产：透明 PNG 不需要媒体卡画框；P24 视频影院卡
+   （R26 的 P17 sid 级对比度修正随 R27 整页重排退役——新卡色在 .r27-face-card 里定死） */
 html:not([data-theme="dark"]) .pp img[data-light-src]{border-radius:0!important;outline:0!important;background:transparent!important;}
-html:not([data-theme="dark"]) section[data-p="17"] :is([data-sid="10"],[data-sid="11"],[data-sid="12"]) span{color:var(--ink)!important;}
-html:not([data-theme="dark"]) section[data-p="17"] :is([data-sid="14"],[data-sid="15"],[data-sid="16"]) span{color:#fffffe!important;}
 html:not([data-theme="dark"]) section[data-p="24"] .sh.vid{left:80px!important;top:45px!important;width:1760px!important;height:990px!important;}
 html:not([data-theme="dark"]) section[data-p="24"] video{border-radius:18px!important;outline:1px solid var(--hair)!important;outline-offset:-1px!important;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -1115,6 +1114,381 @@ document.addEventListener('keydown',e=>{
 </script>"""
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# R27 · GPT 5.6 整体视觉优化合入（交付包 robot26-light-optimized/FABLE-R27-HANDOFF.md · 2026-08-11）
+# 变换层原则不变：模型 json 保持 PPT 原样，本层在 build_slide 产物上整页替换 + 精确补丁。
+# 与交付包 build-r27-preview.py 的差异（Fable review 修正，证据链见设计文档 R27 条目）：
+#   · P11 speaker 归属改回官方口径——Jensen 问「Only one billion words?」，
+#     「That's amazing. That's not a lot.」是 Ilya 自己的感叹（lifearchitect.ai 逐字稿
+#     与现行 R24 版一致；NVIDIA 官方博客亦无 Jensen 说 That's amazing 的记载；
+#     ytscribe ASR 无说话人标注，不构成反证）。交付包声称的「纠正」不成立，予以驳回。
+#   · P11 删去无法核验的「38:22–38:36」时间码，改挂可核验的 on-demand 会话号
+#   · P12 第 4 节点单位间距规范化：≈ 313 GB ≈ 0.29 TiB（交接文档自己的写法）
+#   · P3 双环 --rest 改回 .dwa 惯例（--rest=整周长；交付包写成了余弧，机检 ④ 会拦）
+#   · 资产一律走仓库相对路径（A 前缀）；浅色双源复用 R26 ASSET_LIGHT/apply(t)，
+#     不移植交付包的 wire_light_assets / R27_JS / R26 重复 CSS（禁止重复造）
+#   · 单行 mono 元素挂 data-sid（r3k/r4p/…），让 QA ⑪ 裁字机检继续覆盖新页
+# ═══════════════════════════════════════════════════════════════════════════
+
+R27_CSS = r"""<style id="robot26-r27">
+/* R27 · full-deck dual-theme polish */
+.sig{letter-spacing:.12em;padding-right:0;font-weight:500;color:var(--sig-ink);}
+.r27-kicker{font:700 20px/1 var(--f-mono);letter-spacing:.28em;color:var(--amber);}
+.r27-headline{font:700 68px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
+.r27-headline strong{color:var(--amber);}
+.r27-card{background:var(--card-bg-2);border:1px solid var(--hair);border-radius:20px;}
+.r27-label{font:700 17px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-m);}
+.r27-note{font:400 22px/1.55 var(--f-cn);color:var(--ink-m);}
+.r27-source{font:500 15px/1.35 var(--f-mono);letter-spacing:.08em;color:var(--ink-3);}
+.r27-accent{color:var(--amber);}
+.r27-hair{background:var(--hair);}
+
+/* P24 · 影院视频面上的页码取反色（浅色主题的暗 ink 会沉进黑视频帧；Fable review 增补） */
+html:not([data-theme="dark"]) section[data-p="24"] .sig{color:rgba(255,255,255,.42);}
+
+/* Global light-theme cleanup: black PPT outlines become native conf-light hairlines. */
+html:not([data-theme="dark"]) .pp .sh[style*="border:1.00px solid #0D0D0D"],
+html:not([data-theme="dark"]) .pp .sh[style*="border:1.00px solid #000000"]{
+  border-color:var(--hair)!important;
+}
+html:not([data-theme="dark"]) .pp [stroke="#101010"],
+html:not([data-theme="dark"]) .pp [stroke="#0D0D0D"],
+html:not([data-theme="dark"]) .pp [stroke="#000000"]{stroke:var(--hair)!important;}
+
+/* P5 · soften the three cases and remove the heavy bottom slab. */
+section[data-p="5"] :is([data-sid="4"],[data-sid="12"],[data-sid="20"]){
+  border:1px solid var(--hair)!important;border-radius:18px!important;background:var(--card-bg-2)!important;
+}
+section[data-p="5"] [data-sid="28"]{
+  border:0!important;border-left:5px solid var(--amber)!important;border-radius:0 14px 14px 0!important;
+  background:color-mix(in srgb,var(--card-bg-2) 88%,var(--amber) 12%)!important;
+}
+section[data-p="5"] .sh.rule path{stroke:var(--hair)!important;stroke-width:1!important;}
+
+/* P15 · remove the isolated lower-left box; keep one continuous thesis line. */
+section[data-p="15"] [data-sid="21"]{
+  background:transparent!important;border:0!important;border-top:1px solid var(--hair)!important;border-radius:0!important;
+  top:806px!important;height:170px!important;
+}
+section[data-p="15"] [data-sid="22"]{left:120px!important;top:832px!important;width:820px!important;height:122px!important;}
+
+/* P19/P20 · bottom questions must never be clipped or covered. */
+section[data-p="19"] [data-step="3"][data-sid="2"]{
+  left:120px!important;top:918px!important;width:1680px!important;height:86px!important;z-index:20!important;
+}
+section[data-p="19"] [data-step="3"][data-sid="2"] span{font-size:35px!important;line-height:1.35!important;}
+section[data-p="19"] :is([data-sid="18"],[data-sid="19"],[data-sid="20"]) span{color:#fffffe!important;}
+section[data-p="20"] [data-sid="21"]{top:896px!important;height:150px!important;border-radius:14px!important;}
+section[data-p="20"] [data-sid="22"]{
+  left:164px!important;top:924px!important;width:1588px!important;height:92px!important;z-index:20!important;
+}
+section[data-p="20"] [data-sid="22"] span{font-size:30px!important;line-height:1.42!important;}
+
+/* P29 · accent-on-accent copy gets a fixed ink color. */
+section[data-p="29"] [data-sid="29"]{border-radius:16px!important;}
+section[data-p="29"] [data-sid="31"]{left:160px!important;width:1580px!important;height:88px!important;}
+section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
+
+/* Custom R27 pages */
+.r27-metric{border-radius:28px;background:color-mix(in srgb,var(--card-bg-2) 92%,var(--amber) 8%);border:1px solid var(--hair);}
+.r27-metric svg{position:absolute;left:54px;top:42px;width:350px;height:350px;}
+.r27-metric .track{fill:none;stroke:var(--hair);stroke-width:30;}
+.r27-metric .arc{fill:none;stroke:var(--amber);stroke-width:30;stroke-linecap:round;}
+.r27-metric .num{position:absolute;left:0;top:145px;width:458px;text-align:center;font:900 118px/1 var(--f-cn);color:var(--ink);}
+.r27-metric .num b{font-size:48px;color:var(--amber);}
+.r27-metric .caption{position:absolute;left:42px;right:42px;bottom:38px;text-align:center;font:700 27px/1.35 var(--f-cn);color:var(--ink);}
+.r27-metric .caption small{display:block;margin-top:8px;font:400 18px/1.4 var(--f-cn);color:var(--ink-m);}
+
+.r27-quote-row{border-left:6px solid var(--amber);padding:16px 0 16px 44px;}
+.r27-quote-row .main{font:700 65px/1.32 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
+.r27-quote-row .main em{font-style:normal;color:var(--amber);}
+.r27-quote-row .sub{margin-top:14px;font:500 20px/1.45 var(--f-mono);letter-spacing:.08em;color:var(--ink-m);}
+
+.r27-dialogue{border-radius:18px;padding:28px 32px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-dialogue.accent{background:color-mix(in srgb,var(--card-bg-2) 82%,var(--amber) 18%);border-color:color-mix(in srgb,var(--amber) 48%,transparent);}
+.r27-dialogue .who{font:700 16px/1 var(--f-mono);letter-spacing:.16em;color:var(--amber);}
+.r27-dialogue .say{margin-top:16px;font:700 39px/1.25 var(--f-cn);color:var(--ink);}
+.r27-quote-card{padding:42px 48px;border-radius:24px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-quote-card .speaker{font:700 17px/1 var(--f-mono);letter-spacing:.15em;color:var(--amber);}
+.r27-quote-card blockquote{margin-top:30px;font:700 52px/1.32 var(--f-cn);letter-spacing:-.015em;color:var(--ink);}
+.r27-quote-card .time{margin-top:28px;font:500 16px/1 var(--f-mono);letter-spacing:.12em;color:var(--ink-3);}
+
+.r27-calc-line{height:4px;border-radius:999px;background:var(--hair);}
+.r27-calc-node{padding:28px 28px 24px;border-radius:18px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-calc-node .n{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--amber);color:#0d0d0d;font:800 18px/1 var(--f-mono);}
+.r27-calc-node h3{margin-top:22px;font:700 34px/1.25 var(--f-cn);color:var(--ink);}
+.r27-calc-node p{margin-top:14px;font:400 19px/1.45 var(--f-cn);color:var(--ink-m);}
+.r27-result{font:900 128px/.9 var(--f-cn);letter-spacing:-.05em;color:var(--amber);}
+.r27-result small{font:700 42px/1 var(--f-mono);letter-spacing:0;color:var(--ink);}
+
+.r27-chart{border-radius:22px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-chart text{font-family:var(--f-cn);fill:var(--ink-m);}
+.r27-chart .axis{stroke:var(--hair);stroke-width:2;}
+.r27-chart .curve{fill:none;stroke:var(--amber);stroke-width:7;stroke-linecap:round;}
+.r27-chart .dot{fill:var(--slide-bg);stroke:var(--amber);stroke-width:6;}
+.r27-chart .goal{fill:var(--amber);stroke:var(--amber);}
+.r27-chart .grid{stroke:var(--hair);stroke-width:1;stroke-dasharray:5 8;}
+
+.r27-face-strip{overflow:hidden;border-radius:18px;background:transparent;}
+.r27-face-strip img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 5%!important;}
+.r27-face-card{padding:26px 30px;border-radius:16px;border:1px solid var(--hair);background:var(--card-bg-2);}
+.r27-face-card.mid{background:var(--amber);border-color:var(--amber);}
+.r27-face-card.deep{background:var(--acc-deep);border-color:var(--acc-deep);}
+.r27-face-card .en{font:700 14px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-m);}
+.r27-face-card.mid :is(.en,h3,p){color:#0d0d0d;}
+.r27-face-card.deep :is(.en,h3,p){color:#fffffe;}
+.r27-face-card h3{margin-top:16px;font:700 57px/1 var(--f-cn);color:var(--ink);}
+.r27-face-card p{margin-top:16px;font:400 20px/1.5 var(--f-cn);color:var(--ink-m);}
+
+.r27-timeline-line{height:4px;border-radius:999px;background:linear-gradient(90deg,var(--hair),var(--amber));}
+.r27-milestone{padding:24px 22px;border-radius:16px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-milestone.active{background:var(--amber);border-color:var(--amber);}
+.r27-milestone .date{font:700 16px/1 var(--f-mono);letter-spacing:.11em;color:var(--amber);}
+.r27-milestone.active .date{color:#0d0d0d;}
+.r27-milestone h3{margin-top:14px;font:700 25px/1.25 var(--f-cn);color:var(--ink);}
+.r27-milestone.active h3{color:#0d0d0d;}
+.r27-milestone p{margin-top:10px;font:400 17px/1.38 var(--f-cn);color:var(--ink-m);}
+.r27-milestone.active p{color:rgba(13,13,13,.72);}
+.r27-pin{width:22px;height:22px;border-radius:50%;background:var(--slide-bg);border:5px solid var(--amber);}
+
+.r27-qr-card{padding:24px;border-radius:20px;background:var(--card-bg-2);border:1px solid var(--hair);}
+.r27-qr-card img{width:240px!important;height:240px!important;border-radius:10px!important;outline:0!important;}
+.r27-qr-card h3{margin-top:18px;font:700 25px/1.2 var(--f-cn);color:var(--ink);}
+.r27-qr-card p{margin-top:8px;font:400 16px/1.4 var(--f-cn);color:var(--ink-m);}
+</style>"""
+
+
+def _r27_sh(classes, style, body, step=None, sid=None):
+    a = ' data-sid="%s"' % sid if sid else ""
+    a += ' data-step="%d"' % step if step is not None else ""
+    return '<div class="sh %s"%s style="%s">%s</div>' % (classes, a, style, body)
+
+
+def _r27_section(page, steps, body):
+    sig = '<div class="sig">%d/%d</div>' % (page, len(MODEL["slides"]))
+    return ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s%s</div>\n</section>'
+            % (page, steps, sig, body))
+
+
+def _r27_p3():
+    # 2026 Clutch 口径（press release 2026-06-25 · N=422，Fable 已逐句核对原文）
+    C = 2 * math.pi * 150          # .dwa 惯例：--len=弧长 · --rest=整周长（机检 ④）
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:92px;width:1680px;height:28px',
+                "THE NUMBERS DON'T LIE", sid="r3k"),
+        _r27_sh('ink r27-headline', 'left:120px;top:148px;width:1680px;height:154px',
+                'AI 已经普及，<strong>糟糕体验仍在直接伤害留存。</strong>'),
+        _r27_sh('settle r27-metric', 'left:230px;top:350px;width:458px;height:500px',
+                '<svg viewBox="0 0 400 400"><circle class="track" cx="200" cy="200" r="150"/>'
+                '<circle class="arc dwa" style="--len:%.1f;--rest:%.1f;--i:1" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/></svg>'
+                '<div class="num">87<b>%%</b></div><div class="caption">经常接触 AI 客服<small>采用已经发生，体验标准没有降低</small></div>' % (C * .87, C)),
+        _r27_sh('settle r27-metric', 'left:1232px;top:350px;width:458px;height:500px',
+                '<svg viewBox="0 0 400 400"><circle class="track" cx="200" cy="200" r="150"/>'
+                '<circle class="arc dwa" style="--len:%.1f;--rest:%.1f;--i:3" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/></svg>'
+                '<div class="num">67<b>%%</b></div><div class="caption">差体验后考虑 / 停止交易<small>问题不是 AI 身份，而是关系被破坏</small></div>' % (C * .67, C)),
+        _r27_sh('flow r27-note', 'left:630px;top:905px;width:660px;height:62px;text-align:center;font-weight:700;color:var(--ink)',
+                '用户不是拒绝 AI；用户拒绝的是<strong class="r27-accent">无法建立信任的 AI</strong>。'),
+        _r27_sh('flow r27-source', 'left:120px;top:1020px;width:1680px;height:24px',
+                'SOURCE · CLUTCH CONSUMER AI SUPPORT STUDY · 2026.06 · N=422', sid="r3s"),
+    ])
+    return _r27_section(3, 0, body)
+
+
+def _r27_p4():
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:84px;width:1680px;height:28px',
+                'MONEY QUOTE · 01 OF 03', sid="r4k"),
+        _r27_sh('ink r27-quote-row', 'left:255px;top:250px;width:1410px;height:250px',
+                '<div class="main">3 天扔抽屉，不是技术故障，<br>是<em>关系破裂</em>。</div>'
+                '<div class="sub">WHEN NOVELTY ENDS, RELATIONSHIP HAS TO BEGIN.</div>'),
+        _r27_sh('flow r27-hair', 'left:255px;top:545px;width:1410px;height:1px', ''),
+        _r27_sh('ink r27-quote-row', 'left:255px;top:605px;width:1410px;height:250px',
+                '<div class="main">用户买的不是更聪明的玩具，<br>是<em>更处得来的伙伴</em>。</div>'
+                '<div class="sub">INTELLIGENCE EARNS ATTENTION. COMPANIONSHIP EARNS RETURN.</div>'),
+        _r27_sh('flow r27-label', 'left:1480px;top:995px;width:320px;height:24px;text-align:right',
+                '<span>钉子 · PIN 01</span>', sid="r4p"),
+    ])
+    return _r27_section(4, 0, body)
+
+
+def _r27_p11():
+    # 归属按官方口径（见模块头注释）：Jensen 的台词是追问，感叹两句都是 Ilya 的
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:96px;width:1680px;height:28px',
+                'A NUMBER FROM THE SOURCE · NVIDIA GTC 2023', sid="r11k"),
+        _r27_sh('ink r27-headline', 'left:120px;top:150px;width:1680px;height:150px',
+                '一生，只听得到「<strong>10 亿词</strong>」。'),
+        _r27_sh('rise r27-quote-card', 'left:120px;top:360px;width:1020px;height:470px',
+                '<div class="speaker" data-sid="r11sp">ILYA SUTSKEVER · OPENAI CO-FOUNDER &amp; CHIEF SCIENTIST (2023)</div>'
+                '<blockquote>“As human beings, we get to hear about <span class="r27-accent">one billion words</span> in our entire life.”</blockquote>'
+                '<div class="time" data-sid="r11t">NVIDIA ON-DEMAND · GTCSPRING23-S52092</div>'),
+        _r27_sh('flow r27-dialogue', 'left:1210px;top:400px;width:590px;height:170px',
+                '<div class="who">JENSEN HUANG</div><div class="say">“Only one billion words?”</div>', step=1),
+        _r27_sh('flow r27-dialogue accent', 'left:1210px;top:620px;width:590px;height:210px',
+                '<div class="who">ILYA SUTSKEVER</div><div class="say">“That’s amazing. That’s not a lot.”</div>', step=2),
+        _r27_sh('flow r27-note', 'left:120px;top:875px;width:1680px;height:60px',
+                '有限的输入，意味着<strong class="r27-accent">值得保留的上下文必须被选择</strong>。'),
+        _r27_sh('flow r27-source', 'left:120px;top:1015px;width:1680px;height:24px',
+                'SOURCE · NVIDIA GTC SPRING 2023 · FIRESIDE CHAT: AI TODAY AND VISION OF THE FUTURE · 2023.03', sid="r11s"),
+    ])
+    return _r27_section(11, 2, body)
+
+
+def _r27_p12():
+    nodes = [
+        (120, None, '1', '10 亿词', '一生听到的语言输入', 'ILYA · GTC 2023'),
+        (545, 1, '2', '× 25%', '只保留值得记住的部分', '思想实验筛选率'),
+        (970, 2, '3', '÷ 150', '换算为约 167 万分钟', '词 / 分钟'),
+        (1395, 3, '4', '× 25 kbps', '≈ 313 GB ≈ 0.29 TiB', '长期语音存储'),
+    ]
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:96px;width:1680px;height:28px',
+                'FROM WORDS TO MEMORY · A BACK-OF-THE-ENVELOPE MODEL', sid="r12k"),
+        _r27_sh('ink r27-headline', 'left:120px;top:150px;width:1680px;height:150px',
+                '把「10 亿词」折成一条<strong>可计算的记忆链</strong>。'),
+        _r27_sh('flow r27-calc-line', 'left:200px;top:455px;width:1515px;height:4px', ''),
+    ])
+    for x, step, num, title, desc, foot in nodes:
+        body += _r27_sh('rise r27-calc-node', 'left:%dpx;top:345px;width:365px;height:300px' % x,
+                        '<div class="n">%s</div><h3>%s</h3><p>%s<br><small>%s</small></p>' % (num, title, desc, foot),
+                        step=step)
+    body += ''.join([
+        _r27_sh('settle r27-result', 'left:120px;top:720px;width:820px;height:150px',
+                '0.29 <small>TB 级</small>', step=3),
+        _r27_sh('flow r27-note', 'left:960px;top:740px;width:840px;height:120px',
+                '这不是精确的人生配额，而是一个产品判断：<br><strong class="r27-accent">记忆不是无限堆积，而是持续筛选。</strong>', step=3),
+        _r27_sh('flow r27-source', 'left:120px;top:1015px;width:1680px;height:24px',
+                'ASSUMPTION · 25% RETENTION · 150 WORDS/MIN · 25 KBPS · ORDER-OF-MAGNITUDE MODEL', sid="r12s"),
+    ])
+    return _r27_section(12, 3, body)
+
+
+def _r27_p13():
+    chart = ('<svg viewBox="0 0 1030 520" width="1030" height="520" aria-label="关系深度与记忆容量概念曲线">'
+             '<line class="axis" x1="90" y1="440" x2="970" y2="440"/><line class="axis" x1="90" y1="440" x2="90" y2="60"/>'
+             '<line class="grid" x1="90" y1="330" x2="970" y2="330"/><line class="grid" x1="90" y1="220" x2="970" y2="220"/><line class="grid" x1="90" y1="110" x2="970" y2="110"/>'
+             '<path class="curve" d="M120 420 C310 408 470 370 610 300 C735 238 820 145 925 82"/>'
+             '<circle class="dot" cx="250" cy="397" r="13"/><circle class="dot" cx="470" cy="350" r="13"/><circle class="dot" cx="690" cy="252" r="13"/><circle class="dot goal" cx="925" cy="82" r="16"/>'
+             '<text x="215" y="475" font-size="24">Siri</text><text x="415" y="475" font-size="24">普通玩具</text><text x="615" y="475" font-size="24">主流 AI 玩具</text><text x="855" y="475" font-size="24">伙伴目标</text>'
+             '<text x="22" y="280" font-size="21" transform="rotate(-90 22 280)">RELATIONSHIP DEPTH</text><text x="410" y="515" font-size="21">MEMORY CAPACITY · LOG SCALE</text>'
+             '<text x="850" y="58" font-size="25" font-weight="700" style="fill:var(--amber)">0.29 TB 级</text>'
+             '</svg>')
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:96px;width:1680px;height:28px',
+                'RELATIONSHIP CAPACITY · CONCEPTUAL MODEL', sid="r13k"),
+        _r27_sh('ink r27-headline', 'left:120px;top:150px;width:1680px;height:150px',
+                '记忆容量决定了<strong>关系能走多深</strong>。'),
+        _r27_sh('rise r27-chart', 'left:120px;top:330px;width:1080px;height:590px;padding:28px 24px', chart, step=1),
+        _r27_sh('flow r27-card', 'left:1260px;top:365px;width:540px;height:250px;padding:40px',
+                '<div class="r27-label">THE PARTNER LINE</div>'
+                '<div style="margin-top:26px;font:700 43px/1.28 var(--f-cn);color:var(--ink)">伙伴不是"记得更多"，<br>而是<strong class="r27-accent">记得更对</strong>。</div>', step=2),
+        _r27_sh('flow r27-card', 'left:1260px;top:665px;width:540px;height:205px;padding:36px 40px;border-left:6px solid var(--amber)',
+                '<div class="r27-label">TAKEAWAY</div>'
+                '<div style="margin-top:22px;font:700 31px/1.38 var(--f-cn);color:var(--ink)">音频是原料，<br><span class="r27-accent">可检索的共同历史</span>才是资产。</div>', step=3),
+        _r27_sh('flow r27-source', 'left:120px;top:1015px;width:1680px;height:24px',
+                'NOTE · CONCEPTUAL MODEL, NOT AN EMPIRICAL RETENTION CURVE', sid="r13s"),
+    ])
+    return _r27_section(13, 3, body)
+
+
+def _r27_p17():
+    img = ASSET["image24.png"]                       # comfort-faces.webp
+    light = ASSET_LIGHT["image24.png"]               # comfort-faces-light.png（R26 资产复用）
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:80px;top:66px;width:1760px;height:28px', 'DEFINITION', sid="r17k"),
+        _r27_sh('ink r27-headline', 'left:80px;top:118px;width:1760px;height:130px',
+                '「活人感」不是越像人越好，<strong>是双方都能舒适。</strong>'),
+        _r27_sh('settle r27-face-strip', 'left:290px;top:250px;width:1340px;height:300px',
+                '<img src="%s" data-dark-src="%s" data-light-src="%s" alt="活人感舒适度三种状态">' % (img, img, light)),
+        _r27_sh('rise r27-face-card', 'left:80px;top:585px;width:550px;height:245px',
+                '<div class="en">TOO DRY</div><h3>太木</h3><p>正确，但没有关系温度。<br>用户不想再开口。</p>', step=1),
+        _r27_sh('rise r27-face-card mid', 'left:685px;top:585px;width:550px;height:245px',
+                '<div class="en">JUST RIGHT</div><h3>恰好</h3><p>自然、可持续相处。<br>下次还想跟它说话。</p>', step=2),
+        _r27_sh('rise r27-face-card deep', 'left:1290px;top:585px;width:550px;height:245px',
+                '<div class="en">TOO CLINGY</div><h3>太腻</h3><p>伪装成朋友的销售感。<br>三句之后想拔电源。</p>', step=3),
+        _r27_sh('flow r27-note', 'left:80px;top:900px;width:1760px;height:80px;text-align:center;font-size:29px;color:var(--ink)',
+                '消费级机器人语境下：<strong class="r27-accent">活人感 = 角色立得住 + 临场撑得住</strong>。', step=4),
+    ])
+    return _r27_section(17, 4, body)
+
+
+def _r27_p28():
+    # 五节点与「19 个月」均为老 P28（模型 n=26）原口径，内容锚定不变，只换版式
+    milestones = [
+        (120, '2024.10', 'OpenAI × Agora', 'Realtime API · RTC partner', False),
+        (458, '2024.10.24', '声网 × MiniMax', '国内 Realtime', False),
+        (796, '2025.03.06', 'ConvoAI Engine 1.0', '引擎正式发布', False),
+        (1134, '2025.10.31', '全栈能力', 'Studio + Engine 2.0 + Eval 3.0', True),
+        (1472, '2026.03.10', 'Agora Phone Agent', '电话客服智能体 · Global', False),
+    ]
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:96px;width:1680px;height:28px',
+                'CONVERSATIONAL AI MILESTONES', sid="r28k"),
+        _r27_sh('ink r27-headline', 'left:120px;top:150px;width:1680px;height:150px',
+                '19 个月，走完<strong>从 API 到全栈产品</strong>。'),
+        _r27_sh('flow r27-timeline-line', 'left:180px;top:560px;width:1560px;height:4px', ''),
+    ])
+    for i, (x, date, title, desc, active) in enumerate(milestones):
+        body += _r27_sh('rise r27-milestone' + (' active' if active else ''),
+                        'left:%dpx;top:350px;width:300px;height:170px' % x,
+                        '<div class="date">%s</div><h3>%s</h3><p>%s</p>' % (date, title, desc))
+        body += _r27_sh('pop r27-pin', 'left:%dpx;top:551px;width:22px;height:22px' % (x + 139), '')
+        body += _r27_sh('flow r27-note', 'left:%dpx;top:610px;width:300px;height:80px;text-align:center;font-size:18px' % x,
+                        '0%d / 05' % (i + 1))
+    body += _r27_sh('flow r27-card', 'left:120px;top:770px;width:1680px;height:150px;padding:34px 42px;border-left:6px solid var(--amber)',
+                    '<div class="r27-label">FROM INFRASTRUCTURE TO PRODUCT</div>'
+                    '<div style="margin-top:20px;font:700 35px/1.25 var(--f-cn);color:var(--ink)">我们已经替你把工程化的路走过一遍——接下来，轮到<strong class="r27-accent">产品体验</strong>。</div>')
+    return _r27_section(28, 0, body)
+
+
+def _r27_p37():
+    body = ''.join([
+        _r27_sh('flow r27-kicker', 'left:120px;top:110px;width:850px;height:28px', 'THANK YOU', sid="r37k"),
+        _r27_sh('settle r27-headline', 'left:120px;top:190px;width:900px;height:155px', '谢谢。'),
+        _r27_sh('flow', 'left:120px;top:390px;width:850px;height:120px;font:700 43px/1.38 var(--f-cn);color:var(--ink)',
+                '让我们一起，把消费机器人<br>从<strong class="r27-accent">玩具</strong>做成<strong class="r27-accent">伙伴</strong>。'),
+        _r27_sh('flow r27-note', 'left:120px;top:610px;width:850px;height:150px',
+                '<strong style="color:var(--ink)">Colin · 姚光华</strong><br>声网 AI 产品线负责人<br>ConvoAI · Robotics 1 开发套件'),
+        _r27_sh('rise r27-qr-card', 'left:1110px;top:250px;width:300px;height:390px',
+                '<img src="%sqr-wechat.jpg" alt="Colin 微信二维码"><h3>联系 Colin</h3><p>公众号与后续交流</p>' % A),
+        _r27_sh('rise r27-qr-card', 'left:1480px;top:250px;width:300px;height:390px',
+                '<img src="%sqr-rte.jpg" alt="RTE 开发者社区二维码"><h3>加入 RTE 社区</h3><p>消费机器人专项</p>' % A),
+        _r27_sh('flow r27-card', 'left:1110px;top:710px;width:670px;height:150px;padding:34px 40px;border-left:6px solid var(--amber)',
+                '<div class="r27-label">KEEP THE CONVERSATION GOING</div>'
+                '<div style="margin-top:20px;font:700 28px/1.35 var(--f-cn);color:var(--ink)">把现场的问题带走，<br><span class="r27-accent">把下一次对话做得更像伙伴。</span></div>'),
+    ])
+    return _r27_section(37, 0, body)
+
+
+def apply_r27(secs):
+    """R27 · 整页替换 + 精确补丁。补丁断言命中次数：builder 输出格式一变，构建期就报错。"""
+    def patch(idx, old, new):
+        hits = secs[idx].count(old)
+        assert hits == 1, "R27 补丁未命中（%d 处）@P%d: %s…" % (hits, idx + 1, old[:56])
+        secs[idx] = secs[idx].replace(old, new)
+    # P2 · 眉标年份 2025 → 2026
+    patch(1, 'RETENTION SHAPE OF CONSUMER ROBOTS, 2025',
+             'RETENTION SHAPE OF CONSUMER ROBOTS, 2026')
+    # P5 · 总结底栏延后到 build 4（不再从 step 0 起压一块空白重底）
+    patch(4, '<div class="sh rise" data-sid="28" style="left:120.0px;top:802.5px',
+             '<div class="sh rise" data-sid="28" data-step="4" style="left:120.0px;top:802.5px')
+    # P6 · 结论面 + 英文小标一起延后到 build 5，build 0–4 干净结束在对比表
+    patch(5, '<div class="sh rise" data-sid="44" style="left:120.0px;top:899.9px',
+             '<div class="sh rise" data-sid="44" data-step="5" style="left:120.0px;top:899.9px')
+    patch(5, '<div class="sh tx flow" data-sid="46" data-af="1" data-step="4" style="left:1260.0px;top:936.0px',
+             '<div class="sh tx flow" data-sid="46" data-af="1" data-step="5" style="left:1260.0px;top:936.0px')
+    # P14 · 章节眉标+标题 build 0 常驻（入页不再是纯空白帧；原 5 步保留）
+    patch(13, ' data-sid="2" data-af="1" data-step="2" style="left:120.0px;top:156.1px',
+              ' data-sid="2" data-af="1" style="left:120.0px;top:156.1px')
+    patch(13, ' data-sid="3" data-af="1" data-step="2" style="left:120.0px;top:210.1px',
+              ' data-sid="3" data-af="1" style="left:120.0px;top:210.1px')
+    # 整页重排（build_slide 产物整段替换；页码 sig 由 _r27_section 自带）
+    for page, maker in ((3, _r27_p3), (4, _r27_p4), (11, _r27_p11), (12, _r27_p12),
+                        (13, _r27_p13), (17, _r27_p17), (28, _r27_p28), (37, _r27_p37)):
+        secs[page - 1] = maker()
+    return secs
+
+
 def main():
     apply_quote_patch(MODEL)
     apply_r24(MODEL)
@@ -1140,13 +1514,15 @@ def main():
         ("background:#944AF0", "background:var(--acc-deep)"),
     ]
     secs = [_apply_map(x, R25_MAP) for x in secs]
+    # R27 · 整页替换 + 精确补丁（在 R25 变量化之后跑：R27 手排页生来就是变量色）
+    secs = apply_r27(secs)
     doc = (
         '<!DOCTYPE html>\n<html lang="zh-CN" data-theme="dark"><head>\n'
         '<script>try{if(localStorage.getItem("colin-theme")==="light")document.documentElement.removeAttribute("data-theme")}catch(e){}</script>\n'
         '<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         '<title>从玩具到伙伴 · 消费级机器人的「活人感」交互设计 · 姚光华 Colin</title>\n'
-        + FONTS + "\n" + CSS + "\n</head>\n<body>\n"
+        + FONTS + "\n" + CSS + "\n" + R27_CSS + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
         + FLOW_SVG + "\n"
         + "\n".join(secs) +
