@@ -262,7 +262,7 @@ ASSET = {
     "image40.png": A + "openai-agora.webp",
     "image41.png": A + "living-room.webp",
     "image42.jpeg": A + "qr-wechat.jpg",
-    "image43.jpeg": A + "qr-rte.jpg",
+    "image43.jpeg": A + "qr-xiaohongshu.jpg",   # R27.1b：查明实为 Colin 小红书名片卡（原名 qr-rte 是误标）
 }
 SKIP_IMG = {"image16.png"}   # 整张 alpha=0 的空图，PowerPoint 里也是不可见的
 
@@ -1454,13 +1454,13 @@ def _r27_p37():
         _r27_sh('flow r27-note', 'left:120px;top:610px;width:850px;height:150px',
                 '<strong style="color:var(--ink)">Colin · 姚光华</strong><br>声网 AI 产品线负责人<br>ConvoAI · Robotics 1 开发套件'),
         # R27.1：二维码卡加高适配竖版原图（不压缩）。
-        # TODO(R27.1b · 等 Colin 提供图)：第二张卡 RTE 社区 → 小红书——
-        #   资产落 %sqr-xiaohongshu.jpg 后，把下面第二张卡换成
-        #   <img src=qr-xiaohongshu.jpg> + <h3>我的小红书</h3><p>扫码关注</p>
+        # R27.1b：第二张图去掉方形压缩后查明——它本来就是 Colin 的小红书名片卡
+        #        （小红书号 8433211307，卡内自带二维码），旧标签「加入 RTE 社区」是误标，
+        #        资产随之改名 qr-xiaohongshu.jpg；文案按图上原话「在小红书找到我」。
         _r27_sh('rise r27-qr-card', 'left:1110px;top:220px;width:300px;height:460px',
                 '<img src="%sqr-wechat.jpg" alt="Colin 微信二维码"><h3>联系 Colin</h3><p>公众号与后续交流</p>' % A),
         _r27_sh('rise r27-qr-card', 'left:1480px;top:220px;width:300px;height:460px',
-                '<img src="%sqr-rte.jpg" alt="RTE 开发者社区二维码"><h3>加入 RTE 社区</h3><p>消费机器人专项</p>' % A),
+                '<img src="%sqr-xiaohongshu.jpg" alt="Colin 小红书名片（含二维码）"><h3>我的小红书</h3><p>扫码在小红书找到我</p>' % A),
         _r27_sh('flow r27-card', 'left:1110px;top:710px;width:670px;height:150px;padding:34px 40px;border-left:6px solid var(--amber)',
                 '<div class="r27-label">KEEP THE CONVERSATION GOING</div>'
                 '<div style="margin-top:20px;font:700 28px/1.35 var(--f-cn);color:var(--ink)">把现场的问题带走，<br><span class="r27-accent">把下一次对话做得更像伙伴。</span></div>'),
