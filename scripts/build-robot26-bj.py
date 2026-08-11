@@ -1251,10 +1251,7 @@ section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
 .r27-milestone.active p{color:rgba(13,13,13,.72);}
 .r27-pin{width:22px;height:22px;border-radius:50%;background:var(--slide-bg);border:5px solid var(--amber);}
 
-.r27-qr-card{padding:24px;border-radius:20px;background:var(--card-bg-2);border:1px solid var(--hair);}
-/* R27.1：二维码图不做强制方形（qr 素材是 600×764 / 600×819 的竖版卡，压方会变形） */
-.r27-qr-card img{width:100%!important;height:auto!important;max-height:320px!important;
-  object-fit:contain!important;object-position:center top!important;border-radius:10px!important;outline:0!important;}
+/* R27.1c：P37 名片图回归 R26 原几何裸图呈现，.r27-qr-card 白卡包装退役（越包越小） */
 .r27-qr-card h3{margin-top:18px;font:700 25px/1.2 var(--f-cn);color:var(--ink);}
 .r27-qr-card p{margin-top:8px;font:400 16px/1.4 var(--f-cn);color:var(--ink-m);}
 </style>"""
@@ -1449,21 +1446,21 @@ def _r27_p37():
     body = ''.join([
         _r27_sh('flow r27-kicker', 'left:120px;top:110px;width:850px;height:28px', 'THANK YOU', sid="r37k"),
         _r27_sh('settle r27-headline', 'left:120px;top:190px;width:900px;height:155px', '谢谢。'),
-        _r27_sh('flow', 'left:120px;top:390px;width:850px;height:120px;font:700 43px/1.38 var(--f-cn);color:var(--ink)',
+        _r27_sh('flow', 'left:120px;top:390px;width:700px;height:150px;font:700 43px/1.38 var(--f-cn);color:var(--ink)',
                 '让我们一起，把消费机器人<br>从<strong class="r27-accent">玩具</strong>做成<strong class="r27-accent">伙伴</strong>。'),
-        _r27_sh('flow r27-note', 'left:120px;top:610px;width:850px;height:150px',
+        _r27_sh('flow r27-note', 'left:120px;top:600px;width:700px;height:150px',
                 '<strong style="color:var(--ink)">Colin · 姚光华</strong><br>声网 AI 产品线负责人<br>ConvoAI · Robotics 1 开发套件'),
-        # R27.1：二维码卡加高适配竖版原图（不压缩）。
-        # R27.1b：第二张图去掉方形压缩后查明——它本来就是 Colin 的小红书名片卡
-        #        （小红书号 8433211307，卡内自带二维码），旧标签「加入 RTE 社区」是误标，
-        #        资产随之改名 qr-xiaohongshu.jpg；文案按图上原话「在小红书找到我」。
-        _r27_sh('rise r27-qr-card', 'left:1110px;top:220px;width:300px;height:460px',
-                '<img src="%sqr-wechat.jpg" alt="Colin 微信二维码"><h3>联系 Colin</h3><p>公众号与后续交流</p>' % A),
-        _r27_sh('rise r27-qr-card', 'left:1480px;top:220px;width:300px;height:460px',
-                '<img src="%sqr-xiaohongshu.jpg" alt="Colin 小红书名片（含二维码）"><h3>我的小红书</h3><p>扫码在小红书找到我</p>' % A),
-        _r27_sh('flow r27-card', 'left:1110px;top:710px;width:670px;height:150px;padding:34px 40px;border-left:6px solid var(--amber)',
+        _r27_sh('flow r27-card', 'left:120px;top:830px;width:700px;height:170px;padding:34px 40px;border-left:6px solid var(--amber)',
                 '<div class="r27-label">KEEP THE CONVERSATION GOING</div>'
                 '<div style="margin-top:20px;font:700 28px/1.35 var(--f-cn);color:var(--ink)">把现场的问题带走，<br><span class="r27-accent">把下一次对话做得更像伙伴。</span></div>'),
+        # R27.1c（Colin：找回之前的版本）：两张名片图按 R26 原几何一比一还原——
+        #   不套白卡、不加标签、原始比例大图（微信 474.8×604.7 / 小红书 443.1×604.7）。
+        #   第二张的正名不变：内容是 Colin 小红书名片卡（R27.1b 查明，原 qr-rte 是误标），
+        #   仓库同时保留 qr-rte.jpg 同内容副本，喂缓存里的旧 HTML，防「图裂」。
+        _r27_sh('pop', 'left:878.7px;top:276.6px;width:474.8px;height:604.7px',
+                '<img src="%sqr-wechat.jpg" alt="Colin 微信二维码" style="width:100%%;height:100%%;object-fit:contain">' % A),
+        _r27_sh('pop', 'left:1426.0px;top:276.7px;width:443.1px;height:604.7px',
+                '<img src="%sqr-xiaohongshu.jpg" alt="Colin 小红书名片（含二维码）" style="width:100%%;height:100%%;object-fit:contain">' % A),
     ])
     return _r27_section(37, 0, body)
 

@@ -227,7 +227,7 @@ const r27 = await pg.evaluate(() => {
     p28: { ms: qa('section[data-p="28"] .r27-milestone').length,
            pins: qa('section[data-p="28"] .r27-pin').length,
            arrows: qa('section[data-p="28"] svg .arr, section[data-p="28"] [class*="arrow"]').length },
-    p37qr: qa('section[data-p="37"] .r27-qr-card img').map((im) => im.naturalWidth > 0),
+    p37qr: qa('section[data-p="37"] .sh img').map((im) => im.naturalWidth > 0),   // R27.1c：裸图回归，白卡退役
     p37sig: txt(q('section[data-p="37"] .sig')),
   };
 });
