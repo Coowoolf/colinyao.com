@@ -221,6 +221,7 @@ const r27 = await pg.evaluate(() => {
     p14anchor: [q('section[data-p="14"] [data-sid="2"]'), q('section[data-p="14"] [data-sid="3"]')]
       .map((el) => el ? (el.dataset.step || "none") : "missing"),
     p17: { strip: !!q('section[data-p="17"] .r27-face-strip img'),
+           stripStep: (q('section[data-p="17"] .r27-face-strip') || {}).dataset?.step,
            cards: qa('section[data-p="17"] .r27-face-card').map((el) => el.dataset.step),
            note: (q('section[data-p="17"] .r27-note') || {}).dataset?.step },
     p28: { ms: qa('section[data-p="28"] .r27-milestone').length,
@@ -243,9 +244,11 @@ if (!/^ILYA SUTSKEVER/.test(r27.p11quote || "")) fails.push(`R27：P11 引文卡
 if (r27.p5sid28 !== "4") fails.push(`R27：P5 总结底栏 step=${r27.p5sid28} ≠ 4`);
 if (r27.p6sid44 !== "5" || r27.p6sid46 !== "5") fails.push(`R27：P6 结论面 step=${r27.p6sid44}/${r27.p6sid46} ≠ 5/5`);
 if (r27.p14anchor.join(",") !== "none,none") fails.push(`R27：P14 章节锚点应 build0 常驻，实为 ${r27.p14anchor}`);
-if (!r27.p17.strip) fails.push("R27：P17 build0 人物 strip 缺失");
-if (r27.p17.cards.join(",") !== "1,2,3" || r27.p17.note !== "4")
-  fails.push(`R27：P17 build 序列 cards=${r27.p17.cards} note=${r27.p17.note} ≠ 1,2,3 + 4`);
+// R27.1（Colin 反馈）：先太木@1、太腻@2，恰好与人物 strip 同拍 @3，结论 @4
+if (!r27.p17.strip) fails.push("R27：P17 人物 strip 缺失");
+if (r27.p17.stripStep !== "3") fails.push(`R27.1：P17 strip step=${r27.p17.stripStep} ≠ 3（应与恰好同拍）`);
+if (r27.p17.cards.join(",") !== "1,3,2" || r27.p17.note !== "4")
+  fails.push(`R27.1：P17 build 序列 cards=${r27.p17.cards} note=${r27.p17.note} ≠ 太木1/恰好3/太腻2 + 结论4`);
 if (r27.p28.ms !== 5 || r27.p28.pins !== 5) fails.push(`R27：P28 节点 ${r27.p28.ms}/pin ${r27.p28.pins} ≠ 5/5`);
 if (r27.p28.arrows) fails.push("R27：P28 大箭头残留");
 if (r27.p37qr.length !== 2 || !r27.p37qr.every(Boolean)) fails.push(`R27：P37 二维码 ${JSON.stringify(r27.p37qr)}`);

@@ -1252,7 +1252,9 @@ section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
 .r27-pin{width:22px;height:22px;border-radius:50%;background:var(--slide-bg);border:5px solid var(--amber);}
 
 .r27-qr-card{padding:24px;border-radius:20px;background:var(--card-bg-2);border:1px solid var(--hair);}
-.r27-qr-card img{width:240px!important;height:240px!important;border-radius:10px!important;outline:0!important;}
+/* R27.1：二维码图不做强制方形（qr 素材是 600×764 / 600×819 的竖版卡，压方会变形） */
+.r27-qr-card img{width:100%!important;height:auto!important;max-height:320px!important;
+  object-fit:contain!important;object-position:center top!important;border-radius:10px!important;outline:0!important;}
 .r27-qr-card h3{margin-top:18px;font:700 25px/1.2 var(--f-cn);color:var(--ink);}
 .r27-qr-card p{margin-top:8px;font:400 16px/1.4 var(--f-cn);color:var(--ink-m);}
 </style>"""
@@ -1398,15 +1400,17 @@ def _r27_p17():
         _r27_sh('flow r27-kicker', 'left:80px;top:66px;width:1760px;height:28px', 'DEFINITION', sid="r17k"),
         _r27_sh('ink r27-headline', 'left:80px;top:118px;width:1760px;height:130px',
                 '「活人感」不是越像人越好，<strong>是双方都能舒适。</strong>'),
-        _r27_sh('settle r27-face-strip', 'left:290px;top:250px;width:1340px;height:300px',
-                '<img src="%s" data-dark-src="%s" data-light-src="%s" alt="活人感舒适度三种状态">' % (img, img, light)),
-        _r27_sh('rise r27-face-card', 'left:80px;top:585px;width:550px;height:245px',
+        # R27.1（Colin 现场反馈）：叙事先立两种失败态（太木→太腻），恰好最后收，
+        #        人物 strip 与「恰好」同拍出现；strip 拉满三卡列宽，脸与卡逐列对位
+        _r27_sh('settle r27-face-strip', 'left:80px;top:265px;width:1760px;height:390px',
+                '<img src="%s" data-dark-src="%s" data-light-src="%s" alt="活人感舒适度三种状态">' % (img, img, light), step=3),
+        _r27_sh('rise r27-face-card', 'left:80px;top:690px;width:550px;height:245px',
                 '<div class="en">TOO DRY</div><h3>太木</h3><p>正确，但没有关系温度。<br>用户不想再开口。</p>', step=1),
-        _r27_sh('rise r27-face-card mid', 'left:685px;top:585px;width:550px;height:245px',
-                '<div class="en">JUST RIGHT</div><h3>恰好</h3><p>自然、可持续相处。<br>下次还想跟它说话。</p>', step=2),
-        _r27_sh('rise r27-face-card deep', 'left:1290px;top:585px;width:550px;height:245px',
-                '<div class="en">TOO CLINGY</div><h3>太腻</h3><p>伪装成朋友的销售感。<br>三句之后想拔电源。</p>', step=3),
-        _r27_sh('flow r27-note', 'left:80px;top:900px;width:1760px;height:80px;text-align:center;font-size:29px;color:var(--ink)',
+        _r27_sh('rise r27-face-card mid', 'left:685px;top:690px;width:550px;height:245px',
+                '<div class="en">JUST RIGHT</div><h3>恰好</h3><p>自然、可持续相处。<br>下次还想跟它说话。</p>', step=3),
+        _r27_sh('rise r27-face-card deep', 'left:1290px;top:690px;width:550px;height:245px',
+                '<div class="en">TOO CLINGY</div><h3>太腻</h3><p>伪装成朋友的销售感。<br>三句之后想拔电源。</p>', step=2),
+        _r27_sh('flow r27-note', 'left:80px;top:975px;width:1760px;height:60px;text-align:center;font-size:29px;color:var(--ink)',
                 '消费级机器人语境下：<strong class="r27-accent">活人感 = 角色立得住 + 临场撑得住</strong>。', step=4),
     ])
     return _r27_section(17, 4, body)
@@ -1449,9 +1453,13 @@ def _r27_p37():
                 '让我们一起，把消费机器人<br>从<strong class="r27-accent">玩具</strong>做成<strong class="r27-accent">伙伴</strong>。'),
         _r27_sh('flow r27-note', 'left:120px;top:610px;width:850px;height:150px',
                 '<strong style="color:var(--ink)">Colin · 姚光华</strong><br>声网 AI 产品线负责人<br>ConvoAI · Robotics 1 开发套件'),
-        _r27_sh('rise r27-qr-card', 'left:1110px;top:250px;width:300px;height:390px',
+        # R27.1：二维码卡加高适配竖版原图（不压缩）。
+        # TODO(R27.1b · 等 Colin 提供图)：第二张卡 RTE 社区 → 小红书——
+        #   资产落 %sqr-xiaohongshu.jpg 后，把下面第二张卡换成
+        #   <img src=qr-xiaohongshu.jpg> + <h3>我的小红书</h3><p>扫码关注</p>
+        _r27_sh('rise r27-qr-card', 'left:1110px;top:220px;width:300px;height:460px',
                 '<img src="%sqr-wechat.jpg" alt="Colin 微信二维码"><h3>联系 Colin</h3><p>公众号与后续交流</p>' % A),
-        _r27_sh('rise r27-qr-card', 'left:1480px;top:250px;width:300px;height:390px',
+        _r27_sh('rise r27-qr-card', 'left:1480px;top:220px;width:300px;height:460px',
                 '<img src="%sqr-rte.jpg" alt="RTE 开发者社区二维码"><h3>加入 RTE 社区</h3><p>消费机器人专项</p>' % A),
         _r27_sh('flow r27-card', 'left:1110px;top:710px;width:670px;height:150px;padding:34px 40px;border-left:6px solid var(--amber)',
                 '<div class="r27-label">KEEP THE CONVERSATION GOING</div>'
