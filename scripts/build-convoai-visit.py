@@ -54,8 +54,21 @@ DECK_CSS = """<style id="convoai-deck">
 /* 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行） */
 .pp{position:absolute;inset:0;}
 .pp .sh{position:absolute;overflow:visible;}
-:root{--l-eng:var(--accent);--l-agent:#5b8cff;--l-phys:#7b61ff;}
-html[data-theme="dark"]{--l-agent:#6e96ff;--l-phys:#b78cf0;}
+:root{--l-eng:var(--accent);--l-agent:#5b8cff;--l-phys:#7b61ff;
+  /* conf 家族 token 表里没有 --on-bg，而 components.css 的 .card.on 靠它上底色：
+     变量未定义 → 整条 background 声明作废 → 高亮卡反而丢掉 .card 的 card-bg 变成透明。
+     照 inspire26 的 13%→3% / 暗底 9%→2% 补上，颜色走 var()，并把 card-bg 垫在渐变下面。 */
+  --on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 13%,transparent),
+    color-mix(in srgb,var(--accent) 3%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 10%,transparent),
+    color-mix(in srgb,var(--coral) 2.5%,transparent)),var(--card-bg);}
+html[data-theme="dark"]{--l-agent:#6e96ff;--l-phys:#b78cf0;
+  --on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,transparent),
+    color-mix(in srgb,var(--accent) 2%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),
+    color-mix(in srgb,var(--coral) 2%,transparent)),var(--card-bg);}
+/* .card .tag（0,2,0）压过 .am（0,1,0）——高亮卡的 tag 拿不到琥珀，补一条同特异度的 */
+.card .tag.am{color:var(--amber);}
 .sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
   letter-spacing:.12em;color:var(--sig-ink);}
 /* hero-art：背景板之上、正文之下；contain 不裁切，不加底色（GPT 交接约束） */
@@ -133,8 +146,16 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 .face p{font:400 18.5px/1.5 var(--f-cn);color:var(--ink-2);}
 .face.good{border-top-color:var(--l-phys);}
 .face.good h3{color:var(--l-phys);}
-.strip{overflow:hidden;border-radius:18px;}
+/* .pp .sh{overflow:visible}（0,2,0）压得过 .strip{...}（0,1,0）——必须同特异度以上才生效，
+   否则 height:auto 的位图按原始比例撑出盒外，砸到下一排 .face 卡（遮盖报告 #1–#3）。
+   overflow 只裁「画」不裁「盒」，所以第二道同时把 img 的布局盒收进 .sh：
+   cover + object-position 顶对齐 = 与 overflow 裁切完全相同的取景（底部烤字带按设计裁掉）。 */
+.pp .sh.strip{overflow:hidden;border-radius:18px;}
 .strip img{width:100%;height:auto;max-width:none;max-height:none;display:block;}
+.pp .sh.strip img{height:100%;object-fit:cover;object-position:50% 0;}
+/* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
+   必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
+.fig svg{max-width:none;max-height:none;}
 /* 案例卡 */
 .case{border-radius:18px;overflow:hidden;border:1px solid var(--hair);
   box-shadow:0 10px 28px rgba(0,0,0,.12);background:var(--card-bg);}
@@ -203,32 +224,63 @@ page("title", 0, "".join([
        "主讲人：姚光华 Colin · 声网 AI 产品线负责人"),
 ]), hero=("three-engines", "left:860px;top:230px;width:1200px;height:675px"))
 
-# P2 · RTE 领导者（锁定文案 · 官网/IR 口径）
-page("content", 0, "".join([
+# P2 · RTE 领导者（锁定文案 · 官网/IR 口径 · dual26 p06 四卡数字墙）
+_RTE = [
+    ("市场占有率", "No.1",  "市场占有率稳居第一，份额超过第 2–8 位总和", True),
+    ("技术突破",   "50+",   "突破性自主创新技术（全球发明专利）",       False),
+    ("开发者生态", "100万+", "全球注册应用数",                         False),
+    ("生产规模",   "900亿+", "单月支撑通话分钟数",                     False),
+]
+page("content", 1, "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "序幕 · 声网 RTE · REAL-TIME ENGAGEMENT"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "RTE 行业的<strong>领导者</strong>。"),
-    sh("rise kpi", "left:120px;top:330px;width:396px;height:340px",
-       '<div class="tag">市场占有率</div><div class="num">No.1</div><div class="cap">市场占有率稳居第一，份额超过第 2–8 位总和</div>'),
-    sh("rise kpi", "left:548px;top:330px;width:396px;height:340px",
-       '<div class="tag">技术突破</div><div class="num">50<small>+</small></div><div class="cap">突破性自主创新技术（全球发明专利）</div>'),
-    sh("rise kpi", "left:976px;top:330px;width:396px;height:340px",
-       '<div class="tag">开发者生态</div><div class="num">100<small>万+</small></div><div class="cap">全球注册应用数</div>'),
-    sh("rise kpi", "left:1404px;top:330px;width:396px;height:340px",
-       '<div class="tag">生产规模</div><div class="num">900<small>亿+</small></div><div class="cap">单月支撑通话分钟数</div>'),
+    sh("", "left:120px;top:330px;width:1680px;height:268px",
+       '<div class="g4">' + "".join(
+           '<div class="card%s rise" style="--i:%d"><div class="tag%s">%s</div>'
+           '<div class="stat"><span class="v%s">%s</span><span class="l">%s</span></div></div>'
+           % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag,
+              "" if _on else " w", _v, _l)
+           for _i, (_tag, _v, _l, _on) in enumerate(_RTE)) + '</div>'),
+    sh("flow", "left:120px;top:700px;width:1680px;height:60px",
+       '<div class="note grey">注：根据 IDC 数据，声网在音视频通信（RTC）赛道的市场占有率达 '
+       '<b>43.4%</b>——超过第 2–8 位厂商总和。</div>', step=1),
+    # top 794 而非 820：content 背景板自带一条 accent 细线在 y848–852（x120–761），
+    # land 落在 820 时字形正压在线上 = 划掉的观感；抬 26px 让那条线落到文字下方当收口横线
+    sh("flow", "left:120px;top:794px;width:1680px;height:70px",
+       '<div class="land">全球最受欢迎的实时音视频云服务提供商。</div>', step=1),
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px", "SOURCE · 声网官网 / IR 口径 · 2026"),
 ]))
 
-# P3 · 全球开发者首选（锁定文案 P3）
-page("content", 0, "".join([
+# P3 · 全球开发者首选（锁定文案 P3 · 大数字 + 分账图）
+_P3FIG = (
+    '<div class="fig"><svg viewBox="0 0 1000 360" style="width:100%;height:auto">'
+    '<g class="pop" style="--i:0">'
+    '<rect x="60" y="30" width="880" height="62" rx="2" class="box" stroke-width="1"/>'
+    '<text class="lbl" x="500" y="67" text-anchor="middle">全球 Top 10,000 Apps（按 MAU）</text></g>'
+    '<path class="dw" style="--len:140;--i:1" d="M60 92 L190 142" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>'
+    '<path class="dw" style="--len:140;--i:1" d="M940 92 L810 142" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>'
+    '<g class="pop" style="--i:2">'
+    '<rect x="190" y="142" width="620" height="62" rx="2" class="box" stroke-width="1"/>'
+    '<text class="lbl" x="500" y="179" text-anchor="middle">其中集成 RTC 服务的 App</text></g>'
+    '<path class="dw" style="--len:54;--i:3" d="M250 204 V258" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>'
+    '<path class="dw" style="--len:54;--i:3" d="M750 204 V258" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>'
+    '<g class="pop" style="--i:4">'
+    '<rect x="190" y="258" width="322" height="72" rx="2" fill="var(--accent)"/>'
+    '<rect x="512" y="258" width="298" height="72" rx="2" class="box" stroke-width="1"/>'
+    # fill 只是 presentation attribute，压不过 .fig .ttl{fill:var(--ink)}（CSS 一律高于呈现属性），
+    # 必须写成内联 style 才生效——否则实心 accent 条上会印出深色字，浅底/暗底都读不出来
+    '<text class="ttl" x="351" y="303" text-anchor="middle" style="fill:var(--slide-bg)">使用声网 · 近一半</text>'
+    '<text class="txt" x="661" y="302" text-anchor="middle">其他 RTC 供应商合计</text></g>'
+    '</svg></div>')
+page("content", 1, "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "序幕 · 全球开发者首选 · TOP 10000"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px",
-       "全球最受欢迎的<strong>实时音视频云</strong>。"),
-    sh("settle", "left:120px;top:380px;width:760px;height:280px;font:900 235px/1 var(--f-cn);letter-spacing:-.04em;color:var(--accent)",
-       "近一半"),
-    sh("rise", "left:960px;top:420px;width:840px;height:220px;font:400 30px/1.7 var(--f-cn);color:var(--ink)",
-       "全球 Top 10,000（MAU）App 中——<br>集成 RTC 服务的 App 里，<strong style='color:var(--accent)'>近一半使用声网</strong>。"),
-    sh("flow mono-sm", "left:960px;top:680px;width:840px;height:48px",
-       "AMONG THE WORLD'S TOP 10,000 APPS BY MAU —<br>NEARLY HALF OF THOSE THAT EMBED RTC, EMBED AGORA."),
+       "全球开发者的<strong>共同选择</strong>。"),
+    sh("settle", "left:120px;top:392px;width:660px;height:260px",
+       '<div class="stat"><div class="v" style="font-size:150px;line-height:1;font-family:var(--f-cn)">近一半</div>'
+       '<div class="l" style="margin-top:6px">集成 RTC 的 Top 10,000 App 里，近一半使用声网</div>'
+       '<div class="u">NEARLY HALF OF RTC-EMBEDDED APPS EMBED AGORA</div></div>'),
+    sh("flow", "left:840px;top:322px;width:960px;height:346px", _P3FIG, step=1),
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px", "SOURCE · 声网官网 / IR 口径 · 2026"),
 ]))
 
@@ -248,52 +300,87 @@ page("quote", 1, "".join([
        "THE SAME ENGINE THAT POWERS OPENAI'S REALTIME API — NOW POWERS YOURS."),
 ]))
 
-# P5 · 18 个月 5 里程碑（锁定文案 P5 · 横向时间轴）
+# P5 · 18 个月 5 里程碑（锁定文案 P5 · dual26 p12 卡片式时间轴）
+#   轴 M10 60 H1590 + 5 圆点 r5 + 5 张 300×200 卡；末节点 amber 描边 + amber 字
 _MILE = [
-    (120,  "2024.10.01", "全球首个 Realtime API", "OpenAI + Agora 首批合作伙伴", False),
-    (458,  "2024.10.24", "国内首个 Realtime API", "声网 × MiniMax", False),
-    (796,  "2025.03.06", "引擎 1.0 + R1 GA", "行业首个对话式 AI 引擎与硬件开发套件", False),
-    (1134, "2025.10.31", "产品全栈发布", "Studio 1.0 + Engine 2.0 + Benchmark 3.0", True),
-    (1472, "2026.03.10", "Call Agent 全球版", "电话客服企业级智能体", False),
+    (  10, "2024.10.01", ["全球首个", "Realtime API"],  ["OpenAI + Agora", "首批合作伙伴"],       False),
+    ( 330, "2024.10.24", ["国内首个", "Realtime API"],  ["声网 × MiniMax"],                      False),
+    ( 650, "2025.03.06", ["引擎 1.0 + R1 GA"],          ["行业首个对话式 AI 引擎", "与硬件开发套件"], False),
+    ( 970, "2025.10.31", ["产品全栈发布"],              ["Studio 1.0 + Engine 2.0", "+ Benchmark 3.0"], False),
+    (1290, "2026.03.10", ["Call Agent 全球版"],         ["电话客服", "企业级智能体"],              True),
 ]
-_p5 = [
+def _mile(x, date, tt, sm, hot, i):
+    # 高亮色走内联 style（fill 属性会被 .fig .lbl/.ttl 的 CSS fill 覆盖，形同没写）
+    cx, am = x + 150, (' style="fill:var(--amber)"' if hot else "")
+    box = ('<rect x="%d" y="90" width="300" height="200" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>' % x
+           if hot else '<rect x="%d" y="90" width="300" height="200" rx="3" class="box" stroke-width="1"/>' % x)
+    ty = [186] if len(tt) == 1 else [170, 202]
+    o = ['<g class="pop" style="--i:%d">' % i,
+         '<circle cx="%d" cy="60" r="5" class="%s"/>' % (cx, "fill-am" if hot else "fill-ink"), box,
+         '<text class="lbl" x="%d" y="126" text-anchor="middle"%s>%s</text>' % (cx, am, date)]
+    o += ['<text class="ttl" x="%d" y="%d" text-anchor="middle"%s>%s</text>' % (cx, ty[k], am, t)
+          for k, t in enumerate(tt)]
+    o += ['<text class="sm" x="%d" y="%d" text-anchor="middle">%s</text>' % (cx, 240 + k * 26, s)
+          for k, s in enumerate(sm)]
+    return "".join(o) + "</g>"
+_p5fig = ('<div class="fig"><svg viewBox="0 0 1620 340" style="width:100%;height:auto">'
+          '<path class="dw" style="--len:1580;--i:0" d="M10 60 H1590" stroke="var(--hair)" stroke-width="1" fill="none"/>'
+          '<g data-step="1">' + "".join(_mile(*m, i=k) for k, m in enumerate(_MILE[:3])) + '</g>'
+          '<g data-step="2">' + "".join(_mile(*m, i=k) for k, m in enumerate(_MILE[3:])) + '</g>'
+          '</svg></div>')
+page("content", 2, "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "序幕 · CONVOAI · 18 个月 · 5 个公开里程碑"),
     sh("ink hh", "left:120px;top:148px;width:1200px;height:100px", "18 个月，我们做了 <strong>5 件事</strong>。"),
     sh("flow sub", "left:120px;top:252px;width:1200px;height:40px", "从全球首个 Realtime API 到 Call Agent 全球版"),
-    sh("flow tl-line", "left:180px;top:566px;width:1560px;height:3px", ""),
-]
-for _x, _d, _t, _c, _hot in _MILE:
-    _p5.append(sh("rise tl" + (" hot" if _hot else ""), "left:%dpx;top:360px;width:300px;height:180px" % _x,
-                  '<div class="date">%s</div><h3>%s</h3><p>%s</p>' % (_d, _t, _c)))
-    _p5.append(sh("pop tl-pin", "left:%dpx;top:557px;width:20px;height:20px" % (_x + 140), ""))
-_p5.append(sh("rise card-c", "left:120px;top:730px;width:1680px;height:140px;padding:0",
-              '<div style="padding:38px 46px;border-left:6px solid var(--accent);font:700 32px/1.4 var(--f-cn);color:var(--ink)">'
-              '18 个月 · 5 个对外里程碑——每一步都基于<strong style="color:var(--accent)">真实的市场和客户反馈</strong>。</div>', step=1))
-page("content", 1, "".join(_p5))
+    sh("flow", "left:120px;top:330px;width:1680px;height:353px", _p5fig),
+    sh("flow", "left:120px;top:760px;width:1680px;height:80px",
+       '<div class="land">18 个月 · 5 个对外里程碑——每一步都基于'
+       '<strong style="color:var(--accent)">真实的市场和客户反馈</strong>。</div>', step=2),
+]))
 
 # ═══ 矩阵 · 一张大图（P6–P8）═════════════════════════════════════════════════
 
-# P6 · 产品矩阵总览（官网分层方案口径 · 六件）
+# P6 · 产品矩阵总览（官网分层方案口径 · 六件 · inspire26 p20 架构分层图）
+#   六框 250×130 gap 20（10→1610，与底座 rect 1600@x10 右端齐平）→ 竖线 → 实时互动平台底座
 _MX = [
-    ("l-eng",   "ENGINE · 闭源商业", "对话式 AI 引擎", "已上线", "超低延迟、可打断、高自然度的语音智能体运行时。"),
-    ("l-eng",   "OPEN SOURCE",      "TEN 开源工具库", "开源",   "面向实时 Agent 开发者的开源框架与工具生态。"),
-    ("l-agent", "AGENT",            "电话客服 Agent", "Global 率先发布", "呼入 / 外呼开箱即用的智能语音客服。"),
-    ("ink-3",   "BENCHMARK",        "AI 模型评测平台", "已上线", "面向对话式 AI 的模型与系统级评测基准。"),
-    ("ink-3",   "LANGUAGE",         "实时转录翻译", "已上线", "实时语音转文字与多语种翻译，打破语言障碍。"),
-    ("l-phys",  "PHYSICAL AI",      "开发套件 / Physical AI", "已上线", "面向具身智能与物理世界交互的实时智能方案。"),
+    ("对话式 AI 引擎",  "闭源 · 已上线",       True),
+    ("TEN 开源工具库",  "开源",               False),
+    ("电话客服 Agent",  "Global 率先发布",     False),
+    ("AI 模型评测平台", "已上线",             False),
+    ("实时转录翻译",    "已上线",             False),
+    ("开发套件",        "Physical AI · 已上线", False),
 ]
-_p6 = [
+def _mxbox(i, name, form, hot):
+    x = 10 + i * 270
+    cx = x + 125
+    am = "fill:var(--amber);" if hot else ""      # 内联 style，见 _mile 注释
+    box = ('<rect x="%d" y="40" width="250" height="130" rx="3" fill="none" stroke="var(--amber)" stroke-width="2"/>' % x
+           if hot else '<rect x="%d" y="40" width="250" height="130" rx="3" class="box" stroke-width="1"/>' % x)
+    return ('<g class="pop" style="--i:%d">%s'
+            '<text class="ttl" x="%d" y="96" text-anchor="middle" style="%sfont-size:22px">%s</text>'
+            '<text class="sm" x="%d" y="130" text-anchor="middle">%s</text></g>'
+            % (i, box, cx, am, name, cx, form))
+_p6fig = ('<div class="fig"><svg viewBox="0 0 1620 430" style="width:100%;height:auto">'
+          + "".join(_mxbox(i, n, f, h) for i, (n, f, h) in enumerate(_MX))
+          + '<g data-step="1">'
+          + "".join('<path class="dw" style="--len:55;--i:0" d="M%d 170 V225" '
+                    'stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>' % (135 + i * 270)
+                    for i in range(6))
+          + '<g class="pop" style="--i:1">'
+            '<rect x="10" y="235" width="1600" height="110" rx="3" class="box" stroke-width="1"/>'
+            '<text class="lbl" x="42" y="278">实时互动平台 · REAL-TIME ENGAGEMENT</text>'
+            '<text class="txt" x="42" y="316">SD-RTN 全球实时网络——当下基本盘，托举全部对话式 AI 产品线</text>'
+            '</g></g></svg></div>')
+page("content", 2, "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "对话式 AI · <strong>产品矩阵</strong>总览。"),
-]
-for _i, (_c, _tag, _name, _st, _desc) in enumerate(_MX):
-    _x = 120 + (_i % 3) * 572
-    _y = 320 + (_i // 3) * 300
-    _p6.append(sh("rise card-c mx", "left:%dpx;top:%dpx;width:536px;height:264px;--tc:var(--%s)" % (_x, _y, _c),
-                  '<div class="tag">%s</div><h3>%s<em>%s</em></h3><p>%s</p>' % (_tag, _name, _st, _desc)))
-_p6.append(sh("flow", "left:120px;top:960px;width:1680px;height:44px;font:700 26px/1.5 var(--f-cn);color:var(--ink-2)",
-              "与实时互动平台并列的<strong style='color:var(--accent)'>两大产品引擎</strong>——未来增长曲线 + 当下基本盘。", step=1))
-page("content", 1, "".join(_p6))
+    sh("flow", "left:120px;top:300px;width:1680px;height:446px", _p6fig),
+    sh("flow", "left:120px;top:800px;width:1680px;height:56px",
+       '<div class="note">与实时互动平台并列的<strong style="color:var(--accent)">两大产品引擎</strong>'
+       '——未来增长曲线 + 当下基本盘。</div>', step=2),
+    sh("flow", "left:120px;top:890px;width:1680px;height:70px",
+       '<div class="land">六件产品，一张底网——这就是对话式 AI 的完整矩阵。</div>', step=2),
+]))
 
 # P7 · 一底座三引擎（T1 hero 全幅作图 · 分流标注三步）
 page("content", 3, "".join([
@@ -388,40 +475,89 @@ _p11.append(sh("flow mono-sm", "left:120px;top:1052px;width:1680px;height:22px",
                "SOURCE · 声网评测报告口径 · 对比对象 LiveKit Agents · 2026"))
 page("content", 1, "".join(_p11))
 
-# P12 · 三件绝活
+# P12 · 三件绝活（卡顶各一张 mini .fig · 线宽 2 · 主色 l-eng）
+_FIG_CUT = (           # ① 优雅打断：hair 波连续 / accent 波中段截断 + 竖向缺口 + pop 圆点
+    '<path class="stroke" style="stroke-width:2" d="M14 70 q28 -44 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>'
+    '<path fill="none" stroke="var(--l-eng)" stroke-width="2" d="M14 52 q28 44 56 0 t56 0 t56 0"/>'
+    '<path fill="none" stroke="var(--l-eng)" stroke-width="2" d="M238 52 q28 44 56 0 t56 0 t56 0"/>'
+    '<path d="M210 18 V104" stroke="var(--hair-strong)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>'
+    '<circle class="pop fill-am" cx="210" cy="61" r="6"/>')
+_FIG_VP = (            # ② 声纹：两组同心弧错位，左组 accent
+    '<g fill="none" stroke="var(--l-eng)" stroke-width="2">'
+    '<path d="M120 32 A18 18 0 0 1 120 68"/><path d="M120 20 A30 30 0 0 1 120 80"/>'
+    '<path d="M120 8 A42 42 0 0 1 120 92"/></g><circle class="fill-am" cx="120" cy="50" r="5"/>'
+    '<g class="stroke" style="stroke-width:2">'
+    '<path d="M300 52 A18 18 0 0 0 300 88"/><path d="M300 40 A30 30 0 0 0 300 100"/>'
+    '<path d="M300 28 A42 42 0 0 0 300 112"/></g>'
+    '<circle cx="300" cy="70" r="5" fill="var(--ink-3)"/>')
+_FIG_MEM = (           # ③ 记忆：5 节点由 .dw 线串联，末节点 accent
+    '<path class="dw stroke" style="--len:340;stroke-width:2" d="M40 60 H380"/>'
+    + "".join('<circle cx="%d" cy="60" r="8" class="box" stroke-width="1.5"/>' % x
+              for x in (40, 125, 210, 295))
+    + '<circle class="fill-am" cx="380" cy="60" r="8"/>')
 _MOVES = [
-    ("01", "优雅打断 2.0", "CAN + 语义 + 声学三路融合。从「能打断」到「打断得体」：三态人声、暂停意图、误打断防抖。"),
-    ("02", "声纹识别", "有感 / 无感双模式。多人同场分得清说话人，客服反欺诈直接可用。"),
-    ("03", "短期记忆", "会话内毫秒级上下文。转人工、转 Agent 不丢线索，多轮任务不断链。"),
+    ("01", "优雅打断 2.0", "CAN + 语义 + 声学三路融合。从「能打断」到「打断得体」：三态人声、暂停意图、误打断防抖。", _FIG_CUT),
+    ("02", "声纹识别", "有感 / 无感双模式。多人同场分得清说话人，客服反欺诈直接可用。", _FIG_VP),
+    ("03", "短期记忆", "会话内毫秒级上下文。转人工、转 Agent 不丢线索，多轮任务不断链。", _FIG_MEM),
 ]
 page("content", 0, "".join(
     [sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 三件绝活 · SIGNATURE MOVES"),
      sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "打断、声纹、记忆——<strong>三件绝活</strong>。")]
     + [sh("rise card-c", "left:%dpx;top:330px;width:536px;height:560px" % (120 + _i * 572),
           '<div style="padding:40px 42px">'
+          '<div class="fig" style="margin-bottom:24px"><svg viewBox="0 0 420 120" style="width:100%%;height:auto">%s</svg></div>'
           '<div style="font:700 64px/1 var(--f-mono);color:var(--l-eng);opacity:.55">%s</div>'
-          '<h3 style="margin:26px 0 18px;font:700 42px/1.2 var(--f-cn);color:var(--ink)">%s</h3>'
-          '<p style="font:400 22px/1.65 var(--f-cn);color:var(--ink-2)">%s</p></div>' % (_no, _n, _d))
-       for _i, (_no, _n, _d) in enumerate(_MOVES)]
+          '<h3 style="margin:22px 0 16px;font:700 42px/1.2 var(--f-cn);color:var(--ink)">%s</h3>'
+          '<p style="font:400 22px/1.65 var(--f-cn);color:var(--ink-2)">%s</p></div>' % (_f, _no, _n, _d))
+       for _i, (_no, _n, _d, _f) in enumerate(_MOVES)]
     + [sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px",
           "均已在 v2.x 公开版本发布 · 见发版说明")]))
 
-# P13 · 开放性
-_OPEN = [
-    ("多供应商开放", "ASR / LLM / TTS 全链路可替换、可兜底、可热切换——不锁死任何一家模型。"),
-    ("MCP + Function Call", "把工具与业务系统接进对话——开放栈优先，协议不私有。"),
-    ("数字人", "形象层即插即用，语音智能体一键升级为可视智能体。"),
-    ("TEN 开源生态", "闭源引擎的姊妹形态——框架开源，生态共建，不构成绑定。"),
-]
-page("content", 1, "".join(
-    [sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 开放与中立 · OPEN BY DESIGN"),
-     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "不锁死任何一家<strong>模型</strong>。")]
-    + [sh("rise card-c mx", "left:%dpx;top:%dpx;width:816px;height:280px;--tc:var(--l-eng)"
-          % (120 + (_i % 2) * 864, 330 + (_i // 2) * 312),
-          '<h3>%s</h3><p style="font-size:21px;line-height:1.6">%s</p>' % (_n, _d))
-       for _i, (_n, _d) in enumerate(_OPEN)]
-    + [sh("rise", "left:120px;top:975px;width:1680px;height:60px;font:700 30px/1.4 var(--f-cn);color:var(--ink)",
-          "模型会换代，接口不换人——<strong style='color:var(--l-eng)'>引擎替你消化供应商变化</strong>。", step=1)]))
+# P13 · 开放性（hub-spoke：左列可替换三件套 ↔ 引擎 → 右列开放栈三件）
+def _arw(x, y, ang):
+    """尖端落在 (x,y)、指向 ang 度的小三角"""
+    return ('<polygon class="fill-ink" points="-13,-6.5 0,0 -13,6.5" '
+            'transform="translate(%s %s) rotate(%s)"/>' % (x, y, ang))
+def _spoke(x, y, w=300, h=96, name=""):
+    return ('<rect x="%d" y="%d" width="%d" height="%d" rx="3" class="box" stroke-width="1"/>'
+            '<text class="ttl" x="%d" y="%d" text-anchor="middle" style="font-size:22px">%s</text>'
+            % (x, y, w, h, x + w // 2, y + h // 2 + 8, name))
+_LN = 'stroke="var(--hair-strong)" stroke-width="1.5" fill="none"'
+_p13fig = ('<div class="fig"><svg viewBox="0 0 1620 520" style="width:100%;height:auto">'
+           # 中心 · 引擎
+           '<g class="pop" style="--i:0">'
+           '<rect x="630" y="190" width="360" height="140" rx="3" '
+           'style="fill:var(--card-bg);stroke:var(--l-eng);stroke-width:2"/>'
+           '<text class="ttl" x="810" y="268" text-anchor="middle" style="font-size:28px">对话式 AI 引擎</text></g>'
+           # 左列 · 可替换三件套（双向）
+           + "".join('<g class="pop" style="--i:%d">%s</g>' % (i + 1, _spoke(60, y, name=n))
+                     for i, (y, n) in enumerate([(40, "ASR"), (212, "LLM"), (384, "TTS")]))
+           + '<path class="dw" style="--len:301;--i:1" d="M360 88 L630 220" %s/>' % _LN
+           + '<path class="dw" style="--len:270;--i:2" d="M360 260 H630" %s/>' % _LN
+           + '<path class="dw" style="--len:301;--i:3" d="M360 432 L630 300" %s/>' % _LN
+           + '<g class="pop" style="--i:4">'
+           + _arw(630, 220, 26.06) + _arw(360, 88, 206.06)
+           + _arw(630, 260, 0) + _arw(360, 260, 180)
+           + _arw(630, 300, -26.06) + _arw(360, 432, 153.94) + '</g>'
+           + '<text class="sm" x="495" y="246" text-anchor="middle">可替换 · 可兜底 · 可热切换</text>'
+           # 右列 · 开放栈三件（单向）
+           + '<g data-step="1">'
+           + "".join('<g class="pop" style="--i:%d">%s</g>' % (i, _spoke(1260, y, name=n))
+                     for i, (y, n) in enumerate([(40, "MCP + Function Call"), (212, "数字人"), (384, "TEN 开源生态")]))
+           + '<path class="dw" style="--len:301;--i:0" d="M990 220 L1260 88" %s/>' % _LN
+           + '<path class="dw" style="--len:270;--i:1" d="M990 260 H1260" %s/>' % _LN
+           + '<path class="dw" style="--len:301;--i:2" d="M990 300 L1260 432" %s/>' % _LN
+           + '<g class="pop" style="--i:3">'
+           + _arw(1260, 88, -26.06) + _arw(1260, 260, 0) + _arw(1260, 432, 26.06) + '</g>'
+           + '</g></svg></div>')
+page("content", 1, "".join([
+    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 开放与中立 · OPEN BY DESIGN"),
+    sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "不锁死任何一家<strong>模型</strong>。"),
+    sh("flow", "left:120px;top:290px;width:1680px;height:539px", _p13fig),
+    sh("flow", "left:120px;top:890px;width:1680px;height:70px",
+       '<div class="land">模型会换代，接口不换人——'
+       '<strong style="color:var(--l-eng)">引擎替你消化供应商变化</strong>。</div>', step=1),
+]))
 
 # ═══ 支流二 · AGENT（P14–P18 · 蓝）══════════════════════════════════════════
 
@@ -435,81 +571,97 @@ page("ch-agent", 0, "".join([
     sh("flow mono-sm", "left:960px;top:930px;width:800px;height:24px", "CALL AGENT · 企业级 · 用生产数据说话"),
 ]), hero=("agent-call", None))
 
-# P15 · 图灵测试 96.5%（锁定文案 · 真实生产数据 funnel）
+# P15 · 图灵测试 96.5%（锁定文案 · inspire26 p12 版式：左大数字 + 右四级 funnel）
+#   比例尺 7px / 百分点：700 / 617 / 331 / 26；前两级实心 .box，后两级空心（l-agent → coral 降级）
 _FUN = [
-    ("接听", "2,475", "100.0%", 980, False),
-    ("真人接听", "2,180", "88.1%", 863, False),
-    ("有效对话", "1,170", "47.3%", 464, False),
-    ("感知为 AI", "86", "3.5%", 92, True),
+    ( 20, 700, "接听",      "2,475 · 100.0%", 272, None),
+    ( 92, 617, "真人接听",   "2,180 · 88.1%",  272, None),
+    (164, 331, "有效对话",   "1,170 · 47.3%",  272, "var(--l-agent)"),
+    (236,  26, "感知为 AI",  "86 · 3.5%",      296, "var(--coral)"),
 ]
-_p15 = [
+def _fun(i, y, w, lab, val, vx, col):
+    bar = ('<rect x="250" y="%d" width="%d" height="52" rx="2" fill="none" stroke="%s" stroke-width="2"/>' % (y, w, col)
+           if col else '<rect x="250" y="%d" width="%d" height="52" rx="2" class="box" stroke-width="1"/>' % (y, w))
+    return ('<g class="pop" style="--i:%d">%s'
+            '<text class="lbl" x="230" y="%d" text-anchor="end">%s</text>'
+            '<text class="sm" x="%d" y="%d"%s>%s</text></g>'
+            % (i, bar, y + 32, lab, vx, y + 33,
+               (' style="fill:%s"' % col) if col else "", val))   # 内联 style，见 _mile 注释
+_p15fig = ('<div class="fig"><svg viewBox="0 0 1000 300" style="width:100%;height:auto">'
+           + "".join(_fun(i, *f) for i, f in enumerate(_FUN)) + '</svg></div>')
+page("content", 1, "".join([
     sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 图灵测试 · REAL PRODUCTION DATA"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px",
        '<strong class="ag">96.5%</strong> 的用户，以为在跟真人说话。'),
-]
-for _i, (_n, _abs, _pct, _w, _dim) in enumerate(_FUN):
-    _y = 330 + _i * 96
-    _p15.append(sh("spread fbar" + (" dim" if _dim else ""),
-                   "left:120px;top:%dpx;width:%dpx;height:66px" % (_y, _w), "", step=1))
-    _p15.append(sh("flow flab", "left:%dpx;top:%dpx;width:560px;height:66px" % (140 + _w, _y),
-                   '%s　<b>%s</b>　·　%s' % (_n, _abs, _pct), step=1))
-_p15.append(sh("rise card-c", "left:1180px;top:340px;width:620px;height:330px",
-               '<div style="padding:36px 40px">'
-               '<div class="mono-sm" style="color:var(--l-agent)">READING</div>'
-               '<p style="margin-top:18px;font:400 23px/1.7 var(--f-cn);color:var(--ink)">基于 <b>1,170</b> 通真实有效对话——'
-               '仅 <b>3.5%（86 通）</b>被用户明显感知为 AI。</p>'
-               '<p style="margin-top:14px;font:400 17px/1.6 var(--f-cn);color:var(--ink-3)">≥1 句真实用户发言才计入有效对话 · 真实生产数据，非实验室盲测</p></div>'))
-_p15 += [
-    sh("flow tl-line", "left:180px;top:830px;width:1560px;height:3px", "", step=2),
-    sh("pop tl-pin", "left:170px;top:821px;width:20px;height:20px;background:var(--l-agent);box-shadow:0 0 0 6px color-mix(in srgb,var(--l-agent) 20%,transparent)", "", step=2),
-    sh("pop tl-pin", "left:1730px;top:821px;width:20px;height:20px;background:var(--l-agent);box-shadow:0 0 0 6px color-mix(in srgb,var(--l-agent) 20%,transparent)", "", step=2),
+    sh("flow", "left:120px;top:372px;width:560px;height:200px",
+       '<div class="stat"><div class="v" style="color:var(--l-agent)">96.5%</div>'
+       '<div class="l">基于 1,170 通真实有效对话——仅 3.5%（86 通）被用户明显感知为 AI</div>'
+       '<div class="u">CONVOAI 真实生产数据 · 非实验室盲测</div></div>'),
+    sh("flow rev", "left:740px;top:330px;width:1060px;height:318px", _p15fig),
+    sh("flow", "left:120px;top:690px;width:1680px;height:90px",
+       '<div class="note">86 通「明显感知」的九维信号拆解里，情绪 / 重复 / 不耐烦一项就占 60 通——'
+       '其余 A–I 各维不超过 11 通。<br>≥1 句真实用户发言才计入有效对话。</div>'),
+    sh("flow tl-line", "left:180px;top:830px;width:1560px;height:3px", "", step=1),
+    sh("pop tl-pin", "left:170px;top:821px;width:20px;height:20px;background:var(--l-agent);box-shadow:0 0 0 6px color-mix(in srgb,var(--l-agent) 20%,transparent)", "", step=1),
+    sh("pop tl-pin", "left:1730px;top:821px;width:20px;height:20px;background:var(--l-agent);box-shadow:0 0 0 6px color-mix(in srgb,var(--l-agent) 20%,transparent)", "", step=1),
     sh("rise", "left:120px;top:870px;width:1680px;height:120px;text-align:center;font:400 26px/1.7 var(--f-cn);color:var(--ink)",
        '<b style="font-family:var(--f-mono)">1950</b> 图灵设想机器能否骗过人类 ——76 年—— '
-       '<b style="font-family:var(--f-mono)">2026</b> <strong style="color:var(--l-agent)">96.5% 的用户已经分辨不出</strong>。', step=2),
-]
-page("content", 2, "".join(_p15))
+       '<b style="font-family:var(--f-mono)">2026</b> <strong style="color:var(--l-agent)">96.5% 的用户已经分辨不出</strong>。', step=1),
+]))
 
-# P16 · 3.08% vs 1.5%（视觉高点）
+# P16 · 3.08% vs 1.5%（inspire26 p14 横向双条 · 比例尺 266.6px/百分点：400 / 821）
+_p16fig = ('<div class="fig"><svg viewBox="0 0 1620 300" style="width:100%;height:auto">'
+           '<g class="pop" style="--i:0">'
+           '<rect x="320" y="46" width="400" height="64" rx="2" class="box" stroke-width="1"/>'
+           '<text class="lbl" x="300" y="84" text-anchor="end">行业最佳人工</text>'
+           '<text class="txt" x="744" y="86">1.5% —— 受过良好培训与管理的一线销冠，行业天花板</text></g>'
+           '<g data-step="1">'
+           '<g class="pop" style="--i:0">'
+           '<rect x="320" y="150" width="821" height="64" rx="2" fill="none" stroke="var(--l-agent)" stroke-width="2"/>'
+           # Agent 章图形主色 = l-agent；一律内联 style（fill 属性压不过 .fig .lbl/.txt/.big 的 CSS fill）
+           '<text class="lbl" x="300" y="188" text-anchor="end" style="fill:var(--l-agent)">ConvoAI</text>'
+           '<text class="txt" x="1165" y="190" style="fill:var(--l-agent)">3.08% —— 真实生产数据</text></g>'
+           '<path class="dw" style="--len:120;--i:1" d="M1180 78 V182" stroke="var(--hair-strong)" '
+           'stroke-width="1" stroke-dasharray="4 8" fill="none"/>'
+           '<text class="big pop" style="--i:2;fill:var(--l-agent)" x="1230" y="146">2.05×</text>'
+           '</g>'
+           '<g data-step="2"><text class="lbl pop" style="--i:0" x="320" y="270">'
+           'AI ÷ 人 = 2.05 倍 · 日均营销转化率 · CONVOAI 电话智能体生产数据</text></g>'
+           '</svg></div>')
 page("content", 2, "".join([
     sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 日均营销转化率 · OUTPERFORMING HUMANS"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "已经超越<strong class='ag'>真人销冠</strong>。"),
     sh("flow sub", "left:120px;top:252px;width:1200px;height:40px", "真实生产数据 · 同场景同口径对比"),
-    # 左柱 · 人工 BPO
-    sh("spread", "left:400px;top:660px;width:300px;height:220px;background:var(--ink-3);opacity:.42;border-radius:14px 14px 0 0", "", step=1),
-    sh("flow", "left:330px;top:560px;width:440px;height:80px;text-align:center", (
-        '<div style="font:900 64px/1 var(--f-cn);color:var(--ink)">1.5%</div>'
-        '<div style="margin-top:10px;font:500 19px/1.4 var(--f-cn);color:var(--ink-2)">行业最佳人工 BPO</div>'), step=1),
-    sh("flow mono-sm", "left:330px;top:900px;width:440px;height:44px;text-align:center", "受过良好培训 + 管理<br>一线销冠 · 行业天花板", step=1),
-    # 右柱 · ConvoAI
-    sh("spread", "left:1220px;top:428px;width:300px;height:452px;background:var(--l-agent);border-radius:14px 14px 0 0", "", step=2),
-    sh("flow", "left:1150px;top:310px;width:440px;height:100px;text-align:center", (
-        '<div style="font:900 84px/1 var(--f-cn);color:var(--l-agent)">3.08%</div>'
-        '<div style="margin-top:10px;font:500 19px/1.4 var(--f-cn);color:var(--ink-2)">ConvoAI 电话智能体</div>'), step=2),
-    sh("flow mono-sm", "left:1150px;top:900px;width:440px;height:44px;text-align:center", "真实生产数据<br>非实验室环境", step=2),
-    # 中间比值
-    sh("pop", "left:810px;top:600px;width:300px;height:120px;text-align:center", (
-        '<div style="font:500 20px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3)">AI ÷ 人</div>'
-        '<div style="margin-top:14px;font:900 76px/1 var(--f-cn);letter-spacing:-.02em;color:var(--ink)">2.05×</div>'), step=2),
-    sh("flow", "left:400px;top:880px;width:1120px;height:3px;background:var(--hair)", ""),
+    sh("flow", "left:120px;top:360px;width:1680px;height:311px", _p16fig),
+    sh("flow", "left:120px;top:840px;width:1680px;height:110px",
+       '<div class="land">不再是「AI 能否替代人工」的问题。<br>是「人工能否追上 AI」的问题了。</div>', step=2),
 ]))
 
-# P17 · 五维金标准（锁定文案）
+# P17 · 五维金标准（锁定文案 · inspire26 p17 五行 .rows 逐字）
+#   读法：不做会出什么事故 → 我们用什么兜底；03 安全为全页唯一的红（coral）
 _FIVE = [
-    ("① RUNTIME", "运行时", "全球", "SD-RTN 200+ 节点<br>RTE 30000+ 终端适配", "海外扩容还要等几周？"),
-    ("② MEMORY", "记忆", "毫秒级", "分层记忆 + RAG<br>端到端", "5 轮对话就忘了订单号？"),
-    ("③ SECURITY", "安全", "99.99%", "SOC 2 / GDPR<br>SLA 赔付", "监管来查，审计日志拿不出？"),
-    ("④ AGENTIC", "工具", "MCP", "+ Function Call<br>开放栈优先", "「改地址」说了却没改？"),
-    ("⑤ RESILIENCE", "弹性", "900 亿", "RTE 月均分钟数<br>打底", "大促洪峰直接挂？"),
+    ("01", "运行时", "数据串租户 / 突增拖垮邻居 / 海外扩容等几周 → 全球 SD-RTN 200+ 节点 · RTE 30000+ 终端适配", False),
+    ("02", "记忆",   "5 轮就忘订单号 / 检索 1–2 秒节奏崩 / 知识更新慢念旧政策 → 毫秒级分层记忆 RAG 端到端", False),
+    ("03", "安全",   "法务风控签不了字 / 监管要审计日志拿不出 / 海外数据驻留违规 → 99.99% · SOC 2 / GDPR · SLA 赔付", True),
+    ("04", "工具",   "说了「改地址」其实啥也没改 / 出错无法回滚 / 协议私有接一个重写一次 → MCP + Function Call 开放栈", False),
+    ("05", "弹性",   "双 11 / 春节直接挂 / 单供应商挂服务全挂 / 没 SLA 赔付损失不赔 → 900 亿分钟 RTE 月均支撑", False),
 ]
-page("content", 1, "".join(
-    [sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 五维金标准 · ENTERPRISE VS PROSUMER"),
-     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "企业级智能体，必须做的 <strong class='ag'>5 件事</strong>。")]
-    + [sh("rise card-c five", "left:%dpx;top:310px;width:310px;height:560px" % (120 + _i * 342),
-          '<div class="tag">%s</div><h3>%s</h3><div class="ans">%s<small>%s</small></div>'
-          '<p style="margin-top:16px">痛点：%s</p>' % (_t, _n, _a, _s, _p))
-       for _i, (_t, _n, _a, _s, _p) in enumerate(_FIVE)]
-    + [sh("rise", "left:120px;top:945px;width:1680px;height:60px;font:700 32px/1.4 var(--f-cn);color:var(--ink)",
-          "5 件事少做一件——<strong class='ag' style='color:var(--l-agent)'>智能体就不算企业级</strong>。", step=1)]))
+page("content", 1, "".join([
+    sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px",
+       "AGENT · 五维金标准 · 不做会出什么事故 → 我们用什么兜底"),
+    sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "企业级智能体，必须做的 <strong class='ag'>5 件事</strong>。"),
+    sh("", "left:120px;top:345px;width:1680px;height:410px",
+       '<div class="rows">' + "".join(
+           '<div class="r flow%s" style="--i:%d;padding:24px 0">'
+           '<span class="n" style="color:var(--%s)">%s</span>'
+           '<span class="k" style="color:var(--%s)">%s</span><span class="v">%s</span></div>'
+           % (" hot" if _hot else "", 2 + _i, "coral" if _hot else "l-agent", _no,
+              "coral" if _hot else "l-agent", _n, _v)
+           for _i, (_no, _n, _v, _hot) in enumerate(_FIVE)) + '</div>'),
+    sh("flow", "left:120px;top:850px;width:1680px;height:70px",
+       '<div class="land">5 件事少做一件——'
+       '<strong style="color:var(--l-agent)">智能体就不算企业级</strong>。</div>', step=1),
+]))
 
 # P18 · Call Agent 12 项能力（锁定文案）
 _G12 = [
@@ -530,8 +682,11 @@ page("content", 1, "".join(
     [sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · CALL AGENT · 产品能力全景"),
      sh("ink hh", "left:120px;top:148px;width:1300px;height:100px", "12 项能力，<strong class='ag'>一体化</strong>交付。"),
      sh("flow mono-sm", "left:1440px;top:190px;width:360px;height:24px;text-align:right", "客服 + 外呼 + 全球部署")]
-    + [sh("rise card-c g12", "left:%dpx;top:%dpx;width:396px;height:178px"
-          % (120 + (_i % 4) * 428, 310 + (_i // 4) * 206),
+    # 12 卡 .rise 成对错峰（--i 2,2,3,3…7,7）从左上向右下推波；第 10 张「优雅打断 2.0」高亮
+    + [sh("rise card-c g12", "left:%dpx;top:%dpx;width:396px;height:178px;--i:%d%s"
+          % (120 + (_i % 4) * 428, 310 + (_i // 4) * 206, 2 + _i // 2,
+             ";border-color:color-mix(in srgb,var(--l-agent) 45%,transparent);"
+             "background:color-mix(in srgb,var(--l-agent) 9%,var(--card-bg))" if _i == 9 else ""),
           '<div class="no">%s</div><h3>%s</h3><p>%s</p>' % (_no, _n, _d))
        for _i, (_no, _n, _d) in enumerate(_G12)]
     + [sh("rise", "left:120px;top:958px;width:1680px;height:56px;font:700 30px/1.4 var(--f-cn);color:var(--ink)",
@@ -568,7 +723,9 @@ page("content", 4, "".join([
        "消费级机器人语境下：<strong style='color:var(--l-phys)'>活人感 = 角色立得住 + 临场撑得住</strong>。", step=4),
 ]))
 
-# P21 · R1 开发套件（Global 率先发布 · 双形态）
+# P21 · R1 开发套件（Global 率先发布 · 双形态 · 卡内 3 行 mono spec）
+_SPEC = ('<div style="margin-top:24px;font:500 15px/1.95 var(--f-mono);letter-spacing:.06em;color:var(--ink-3)">'
+         '%s</div>')
 page("content", 1, "".join([
     sh("flow kk ph", "left:120px;top:92px;width:1680px;height:28px", "PHYSICAL AI · R1 开发套件 · GLOBAL FIRST"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px",
@@ -578,34 +735,41 @@ page("content", 1, "".join([
        '<div class="mono-sm" style="color:var(--l-phys)">R1 · WI-FI · 2025.03.20 发布</div>'
        '<h3 style="margin:22px 0 16px;font:700 46px/1.2 var(--f-cn);color:var(--ink)">R1-WiFi</h3>'
        '<p style="font:400 22px/1.65 var(--f-cn);color:var(--ink-2)">面向家居与室内场景——音箱、桌宠、陪伴机器人，'
-       '插上即获得可打断、低延迟的对话能力。</p></div>'),
+       '插上即获得可打断、低延迟的对话能力。</p>'
+       + _SPEC % ('· 连接　Wi-Fi<br>· 场景　家居 / 室内<br>· 形态　音箱 · 桌宠 · 陪伴机器人') + '</div>'),
     sh("rise card-c", "left:984px;top:330px;width:816px;height:420px",
        '<div style="padding:44px 48px">'
        '<div class="mono-sm" style="color:var(--l-phys)">R1 · 4G · 2025.09.26 发布</div>'
        '<h3 style="margin:22px 0 16px;font:700 46px/1.2 var(--f-cn);color:var(--ink)">R1-4G</h3>'
        '<p style="font:400 22px/1.65 var(--f-cn);color:var(--ink-2)">走出 Wi-Fi 覆盖——户外、随身、车载与出海设备，'
-       '4G 全移动场景同样的临场体验。</p></div>'),
-    sh("rise", "left:120px;top:820px;width:1680px;height:60px;font:700 30px/1.4 var(--f-cn);color:var(--ink)",
+       '4G 全移动场景同样的临场体验。</p>'
+       + _SPEC % ('· 连接　4G 全移动<br>· 场景　户外 / 随身 / 车载<br>· 形态　出海设备 · 随身伴侣') + '</div>'),
+    # 800 而非 820：避开背景板 y848–852 的 accent 细线（见 P2 注释）
+    sh("rise", "left:120px;top:800px;width:1680px;height:60px;font:700 30px/1.4 var(--f-cn);color:var(--ink)",
        "从 Demo 到量产——R1 把「接入对话式 AI」变成<strong class='ph' style='color:var(--l-phys)'>开箱即用</strong>。", step=1),
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px", "SOURCE · 声网官网 · R1 公开发布信息"),
 ]))
 
-# P22 · Robotics 1 · 机器人的临场引擎
-page("content", 1, "".join(
-    [sh("flow kk ph", "left:120px;top:92px;width:1680px;height:28px", "PHYSICAL AI · ROBOTICS 1 · 机器人的临场引擎"),
-     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "临场感，是硬件的<strong class='ph'>生命线</strong>。")]
-    + [sh("rise card-c", "left:%dpx;top:330px;width:536px;height:440px" % (120 + _i * 572),
-          '<div style="padding:40px 42px">'
-          '<div style="font:900 54px/1.1 var(--f-cn);letter-spacing:-.02em;color:var(--l-phys)">%s</div>'
-          '<h3 style="margin:20px 0 14px;font:700 32px/1.25 var(--f-cn);color:var(--ink)">%s</h3>'
-          '<p style="font:400 21px/1.6 var(--f-cn);color:var(--ink-2)">%s</p></div>' % (_a, _n, _d))
-       for _i, (_a, _n, _d) in enumerate([
-           ("SD-RTN", "软件定义实时网", "全球 200+ 节点的实时传输网——毫秒级往返，机器人「接得上话」。"),
-           ("Last-Mile", "弱网对抗", "电梯、地库、户外弱网——最后一公里抗丢包，临场不掉线。"),
-           ("30000+", "终端适配", "芯片与整机生态适配——你的硬件形态，大概率已经在支持列表里。"),
-       ])]
-    + [sh("rise", "left:120px;top:840px;width:1680px;height:60px;font:700 30px/1.4 var(--f-cn);color:var(--ink)",
-          "你做产品与角色，我们做<strong style='color:var(--l-phys)'>临场与连接</strong>。", step=1)]))
+# P22 · Robotics 1 · 机器人的临场引擎（.g3 三数字证据行）
+_R1 = [
+    ("200+",   "",                     "全球节点 · SD-RTN 软件定义实时网", "SD-RTN"),
+    ("毫秒级",  "font-family:var(--f-cn);", "端到端往返 · 弱网最后一公里对抗", "LAST-MILE"),
+    ("30000+", "",                     "芯片与整机适配 · 你的形态大概率已支持", "DEVICE ECOSYSTEM"),
+]
+page("content", 1, "".join([
+    sh("flow kk ph", "left:120px;top:92px;width:1680px;height:28px", "PHYSICAL AI · ROBOTICS 1 · 机器人的临场引擎"),
+    sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "临场感，是硬件的<strong class='ph'>生命线</strong>。"),
+    sh("", "left:120px;top:380px;width:1680px;height:200px",
+       '<div class="g3">' + "".join(
+           '<div class="stat flow" style="--i:%d"><div class="v" style="%scolor:var(--l-phys)">%s</div>'
+           '<div class="l">%s</div><div class="u">%s</div></div>' % (2 + _i, _ff, _v, _l, _u)
+           for _i, (_v, _ff, _l, _u) in enumerate(_R1)) + '</div>'),
+    sh("flow", "left:120px;top:700px;width:1680px;height:60px",
+       '<div class="note">电梯、地库、户外弱网——临场不掉线，机器人才「接得上话」。</div>', step=1),
+    # 794 而非 820：避开背景板 y848–852 的 accent 细线（见 P2 注释）
+    sh("flow", "left:120px;top:794px;width:1680px;height:70px",
+       '<div class="land">你做产品与角色，我们做<strong style="color:var(--l-phys)">临场与连接</strong>。</div>', step=1),
+]))
 
 # ═══ 案例 · 生态与客户（P23–P26）════════════════════════════════════════════
 
@@ -658,21 +822,25 @@ page("content", 1, "".join([
     sh("pop callout-chip", "left:710px;top:610px;width:auto;height:auto", "一张网 · 三条产品线 · 同一个临场标准", step=1),
 ]), hero=("network-globe", None))
 
-# P28 · 中立性
-page("content", 1, "".join(
-    [sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "合流 · 为什么是声网 · NEUTRALITY"),
-     sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "我们<strong>不抢</strong>客户的生意。")]
-    + [sh("rise card-c", "left:120px;top:%dpx;width:1680px;height:170px" % (320 + _i * 198),
-          '<div style="padding:36px 46px;display:flex;align-items:baseline;gap:34px">'
-          '<div style="flex:0 0 430px;font:700 34px/1.25 var(--f-cn);color:var(--ink)">%s</div>'
-          '<div style="font:400 23px/1.55 var(--f-cn);color:var(--ink-2)">%s</div></div>' % (_n, _d))
-       for _i, (_n, _d) in enumerate([
-           ("不做 C 端 App", "不和你的产品竞争用户——你的用户永远是你的。"),
-           ("不做自有硬件品牌", "R1 是开发套件，不是消费品——我们停在你需要的那一层。"),
-           ("不训基座大模型", "多供应商开放，谁好用接谁——模型进步全部归你享受。"),
-       ])]
-    + [sh("rise", "left:120px;top:945px;width:1680px;height:60px;font:700 30px/1.45 var(--f-cn);color:var(--ink)",
-          "中立，是基础设施的第一美德——<strong style='color:var(--accent)'>OpenAI 选择我们，也是这个原因</strong>。", step=1)]))
+# P28 · 中立性（.rows 三行）
+_NEU = [
+    ("01", "不做 C 端 App",     "不和你的产品竞争用户——你的用户永远是你的。"),
+    ("02", "不做自有硬件品牌",   "R1 是开发套件，不是消费品——我们停在你需要的那一层。"),
+    ("03", "不训基座大模型",     "多供应商开放，谁好用接谁——模型进步全部归你享受。"),
+]
+page("content", 1, "".join([
+    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "合流 · 为什么是声网 · NEUTRALITY"),
+    sh("ink hh", "left:120px;top:148px;width:1680px;height:100px", "我们<strong>不抢</strong>客户的生意。"),
+    sh("", "left:120px;top:360px;width:1680px;height:300px",
+       '<div class="rows">' + "".join(
+           '<div class="r flow" style="--i:%d;padding:32px 0"><span class="n">%s</span>'
+           '<span class="k" style="width:300px">%s</span>'
+           '<span class="v" style="font-size:23px">%s</span></div>' % (2 + _i, _no, _n, _d)
+           for _i, (_no, _n, _d) in enumerate(_NEU)) + '</div>'),
+    sh("flow", "left:120px;top:800px;width:1680px;height:80px",
+       '<div class="land">中立，是基础设施的第一美德——'
+       '<strong style="color:var(--accent)">OpenAI 选择我们，也是这个原因</strong>。</div>', step=1),
+]))
 
 # P29 · 收束金句（回收封面句）
 page("quote", 1, "".join([
@@ -699,6 +867,12 @@ page("content", 0, "".join(
            ("STEP 2 · 两周", "PoC 共建", "工程团队陪跑，把你的第一个真实场景跑通——不是 Demo，是可上线雏形。"),
            ("STEP 3 · 一个季度", "规模化上线", "SLA、全球部署、多供应商兜底——从 PoC 进入生产，随业务弹性扩展。"),
        ])]
+    # 卡间 36px 空隙里的连接箭头（656–692 / 1228–1264），y 居卡中
+    + [sh("flow", "left:%dpx;top:560px;width:36px;height:24px" % _x,
+          '<div class="fig"><svg viewBox="0 0 60 24" style="width:100%;height:auto">'
+          '<path class="dw" style="--len:40" d="M4 12 H44" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>'
+          '<polygon class="fill-ink" points="44,5 58,12 44,19"/></svg></div>')
+       for _x in (656, 1228)]
     + [sh("flow mono-sm", "left:120px;top:900px;width:1680px;height:24px",
           "任何一步遇到问题——直接找我。")]))
 

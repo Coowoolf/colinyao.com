@@ -1,7 +1,7 @@
 // QA · convoai 初次拜访 deck（31 页 · CONF 家族 · 双主题 · hero-art 层）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
-const EXP_STEPS = [0,0,0,1,1, 1,3,1, 0,1,1,0,1, 0,2,2,1,1, 0,4,1,1, 1,0,0,0, 1,1,1, 0,0];
+const EXP_STEPS = [0,1,1,1,2, 2,3,1, 0,1,1,0,1, 0,1,2,1,1, 0,4,1,1, 1,0,0,0, 1,1,1, 0,0];
 const BOARD = {1:'title',4:'quote',8:'quote',9:'ch-eng',14:'ch-agent',19:'ch-phys',29:'quote',31:'title'};
 const HERO = {1:'three-engines',7:'three-engines',9:'engine-core',14:'agent-call',19:'physical-family',27:'network-globe'};
 const fails = [];
