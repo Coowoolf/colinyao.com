@@ -117,10 +117,7 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 .case{border-radius:14px;overflow:hidden;border:1px solid var(--hair);
   box-shadow:0 8px 22px rgba(0,0,0,.12);background:var(--card-bg);}
 .case img{width:100%;height:100%;object-fit:cover;display:block;}
-/* 图框 */
-.frame{border-radius:20px;overflow:hidden;border:1px solid var(--hair);
-  box-shadow:0 14px 40px rgba(0,0,0,.14);background:#fff;}
-.frame img{width:100%;height:100%;object-fit:cover;display:block;}
+/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 —— 现在 P7 走原生 SVG */
 .callout-chip{background:var(--ink);color:var(--bg,#fff);border-radius:12px;padding:13px 22px;
   font:700 19px/1.4 var(--f-cn);box-shadow:0 8px 24px rgba(0,0,0,.22);}
 html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
@@ -259,7 +256,7 @@ page("content", "".join([
 _MX = [
     ("对话式 AI 引擎",  "闭源 · 已上线",        True),
     ("TEN 开源工具库",  "开源",                False),
-    ("电话客服 Agent",  "Global 率先发布",      False),
+    ("企业级智能体",  "Call Agent · Global 率先发布", False),
     ("AI 模型评测平台", "已上线",              False),
     ("实时转录翻译",    "已上线",              False),
     ("开发套件",        "Physical AI · 已上线", False),
@@ -292,8 +289,8 @@ _ENG3 = [
 page("content", "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "一个平台，<strong>三台引擎</strong>。"),
-    # 区 01 · ARCHITECTURE
-    lab(120, 244, "01 · ARCHITECTURE"),
+    # 区 01 · ARCHITECTURE（分区标 y=236 = 全 deck 首分区标统一栏位）
+    lab(120, 236, "01 · ARCHITECTURE"),
     figbox(120, 276, 1680, 1620, 320, _p3fig, i=1),
     rule(628),
     # 区 02 · THREE ENGINES（左 2/3）
@@ -316,9 +313,11 @@ page("content", "".join([
        '<div style="padding:20px 26px">'
        '<div class="mono-sm">开源</div>'
        '<div style="margin-top:12px;font:700 30px/1.2 var(--f-cn);color:var(--ink)">TEN 开源工具库</div></div>'),
-    sh("flow", "left:1240px;top:914px;width:560px;height:60px;--i:5",
+    # 底行：land（左）与 note（右）文字基线对齐 —— .note 文心 = y+23.6，.land 文心 = y+31.75，
+    # 所以 note 顶比 land 顶高 8px 才是真齐（原来 914/920 差 6，实际差 14px 没对上）
+    sh("flow", "left:1240px;top:996px;width:560px;height:60px;--i:5",
        '<div class="note">与实时互动平台并列的<strong style="color:var(--accent)">两大产品引擎</strong>。</div>'),
-    sh("flow", "left:120px;top:920px;width:1080px;height:70px;--i:6",
+    sh("flow", "left:120px;top:988px;width:1080px;height:70px;--i:6",
        '<div class="land">' + dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
        + dot("l-phys") + "Physical AI 走进物理世界。</div>"),
 ]))
@@ -358,15 +357,15 @@ _MOVES = [
 _p4 = [
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 一页讲透 · SHIPPING VELOCITY"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "超低延迟、可打断、<strong>高自然度</strong>。"),
-    # 区 01 · VELOCITY（17 版 mini 轴）
-    lab(120, 246, "01 · VELOCITY"),
-    sh("flow tl-line", "left:180px;top:306px;width:1280px;height:3px;--i:1", ""),
-    sh("flow mono-sm", "left:180px;top:340px;width:460px;height:24px;--i:3", "2025.02.18 · v1.0 公测"),
-    sh("flow mono-sm", "left:1000px;top:340px;width:460px;height:24px;text-align:right;--i:3",
+    # 区 01 · VELOCITY（17 版 mini 轴）· 分区标 y=236 统一栏位，整段内容随之上移 10
+    lab(120, 236, "01 · VELOCITY"),
+    sh("flow tl-line", "left:180px;top:296px;width:1280px;height:3px;--i:1", ""),
+    sh("flow mono-sm", "left:180px;top:330px;width:460px;height:24px;--i:3", "2025.02.18 · v1.0 公测"),
+    sh("flow mono-sm", "left:1000px;top:330px;width:460px;height:24px;text-align:right;--i:3",
        "2026.08.11 · v2.11 最新"),
-    sh("settle", "left:1560px;top:258px;width:240px;height:76px;text-align:right;"
+    sh("settle", "left:1560px;top:248px;width:240px;height:76px;text-align:right;"
        "font:900 56px/1 var(--f-cn);letter-spacing:-.03em;color:var(--l-eng);--i:2", "17"),
-    sh("flow mono-sm", "left:1440px;top:340px;width:360px;height:22px;text-align:right;--i:3",
+    sh("flow mono-sm", "left:1440px;top:330px;width:360px;height:22px;text-align:right;--i:3",
        "PUBLIC RELEASES · 18 MONTHS"),
 ]
 for _i in range(17):
@@ -374,7 +373,7 @@ for _i in range(17):
     _big = _i in (0, 16)
     _p4.append(sh("pop vt" + (" big" if _big else ""),
                   "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d"
-                  % (_x, 292 if _big else 297, 5 if _big else 3, 32 if _big else 22, 1 + _i // 6), ""))
+                  % (_x, 282 if _big else 287, 5 if _big else 3, 32 if _big else 22, 1 + _i // 6), ""))
 _p4.append(rule(384))
 # 区 02 · VS LIVEKIT（左半 · 每项一行：名称 + 双条 + 两值）
 _p4.append(lab(120, 404, "02 · VS LIVEKIT"))
@@ -409,18 +408,18 @@ _p4 += [sh("rise card-c", "left:980px;top:%dpx;width:820px;height:128px;--i:%d" 
            '<div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">%s</div>'
            '</div></div>' % (_f, _no, _n, _d))
         for _i, (_no, _n, _d, _f) in enumerate(_MOVES)]
-# 区 04 · OPEN（chips 一行）
-_p4.append(rule(852))
+# 区 04 · OPEN（chips 一行）· 底分隔线统一 850（与 P5/P8 同栏位，压住背景板 y848–852 的 accent 细线）
+_p4.append(rule(850))
 _p4.append(lab(120, 874, "04 · OPEN"))
 _p4.append(sh("rise", "left:120px;top:902px;width:1680px;height:54px;--i:4",
               "".join('<span class="chip">%s</span>' % t for t in
                       ["ASR / LLM / TTS 可替换 · 可兜底 · 可热切换", "MCP + Function Call",
                        "数字人", "TEN 开源生态"])))
-_p4.append(sh("flow", "left:120px;top:978px;width:1680px;height:70px;--i:6",
+_p4.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
               '<div class="land">模型会换代，接口不换人。</div>'))
 page("content", "".join(_p4))
 
-# ═══ P5 · Agent ·「电话客服智能体 · 生产数据」（l-agent 蓝）════════════════
+# ═══ P5 · Agent ·「企业级智能体 · 生产数据」（l-agent 蓝）══════════════════
 #   01 TURING 96.5% + funnel / 02 CONVERSION 2.05× / 03 FIVE 五维 / 04 CAPABILITIES 12 项
 _FUN = [
     ( 20, 700, "接听",      "2,475 · 100.0%", 272, None),
@@ -461,9 +460,9 @@ _G12 = ["SIP / PSTN 全打通", "Warm Transfer", "WhatsApp 接入", "LATAM SIP",
         "静态填充词", "Campaign A/B", "时区 · 号码前缀", "音色复刻", "优雅打断 2.0",
         "声纹识别", "实时情绪识别"]
 page("content", "".join([
-    sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 电话客服智能体 · REAL PRODUCTION DATA"),
+    sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 企业级智能体 · REAL PRODUCTION DATA"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px",
-       '已经超越<strong class="ag">真人</strong>的电话智能体。'),
+       '已经超越<strong class="ag">真人</strong>的企业级智能体。'),
     # 区 01 · TURING（左半）
     lab(120, 236, "01 · TURING"),
     sh("settle", "left:120px;top:268px;width:760px;height:130px",
@@ -472,12 +471,12 @@ page("content", "".join([
     figbox(120, 400, 800, 1000, 300, _p5fun, i=2),
     sh("flow", "left:120px;top:660px;width:800px;height:44px;font:400 20px/1.4 var(--f-cn);color:var(--ink-2);--i:4",
        "仅 3.5%（86 通）被用户明显感知为 AI。"),
-    # 区 02 · CONVERSION（右半上）
-    lab(960, 236, "02 · CONVERSION"),
-    figbox(960, 268, 840, 840, 200, _p5conv, i=2),
+    # 区 02 · CONVERSION（右半上）· 右列起点统一到 x980（P2/P4/P6/P8 同栏位），宽 820 → 右缘仍是 1800
+    lab(980, 236, "02 · CONVERSION"),
+    figbox(980, 268, 820, 840, 200, _p5conv, i=2),
     # 区 03 · FIVE（右半下）
-    lab(960, 496, "03 · FIVE · 企业级智能体必须做的 5 件事"),
-    sh("", "left:960px;top:528px;width:840px;height:300px",
+    lab(980, 496, "03 · FIVE · 企业级智能体必须做的 5 件事"),
+    sh("", "left:980px;top:528px;width:820px;height:300px",
        '<div class="rows">' + "".join(
            '<div class="r flow%s" style="--i:%d;padding:15px 0">'
            '<span class="n" style="color:var(--%s);font-size:22px">%s</span>'
@@ -488,12 +487,12 @@ page("content", "".join([
            for _i, (_no, _n, _v, _hot) in enumerate(_FIVE)) + '</div>'),
     rule(850),
     # 区 04 · CAPABILITIES（12 项 6×2）
-    lab(120, 866, "04 · CAPABILITIES · CALL AGENT 12 项能力"),
+    lab(120, 866, "04 · CAPABILITIES · 企业级智能体 12 项能力"),
     sh("rise", "left:120px;top:890px;width:1680px;height:94px;--i:3",
        '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px">'
        + "".join('<div class="cap%s">%s</div>' % (" on" if _i == 9 else "", _t)
                  for _i, _t in enumerate(_G12)) + '</div>'),
-    sh("flow", "left:120px;top:990px;width:1680px;height:70px;--i:5",
+    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
        '<div class="land">不再是「AI 能否替代人工」——是「人工能否追上 AI」。</div>'),
 ]))
 
@@ -553,39 +552,86 @@ page("content", "".join([
            '<div class="v" style="font-size:72px;%scolor:var(--l-phys)">%s</div>'
            '<div class="l">%s</div></div>' % (2 + _i, _ff, _v, _l)
            for _i, (_v, _ff, _l) in enumerate(_ROB)) + '</div>'),
-    sh("flow", "left:120px;top:940px;width:1680px;height:70px;--i:5",
+    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
        '<div class="land">你做产品与角色，我们做<strong style="color:var(--l-phys)">临场与连接</strong>。</div>'),
 ]))
 
 # ═══ P7 · 案例 ·「已经上岗的对话式 AI」（accent）═══════════════════════════
-#   左 LANDSCAPE 生态全景图 / 右 CASES 14 张联合案例卡（4 / 5 / 5 三组）
+#   左 ECOSYSTEM 五层价值地壳（原生 SVG）/ 右 CASES 14 张联合案例卡（严格 5 列网格）
+# ── 为什么把 eco-2026.webp 位图换成原生 SVG（Colin 2026-08-12）──────────────
+#   ① 那张 4K 全景压进 980px 宽后小字全糊，讲台上根本读不出来；
+#   ② 位图是白底的，暗底主题下就是一块贴上去的白色外来物，双主题只能瞎一个；
+#   ③ 简化成五层骨架后所有颜色走 deck token，light/dark 各自成立，字也够大。
+#   完整全景仍在 /convoai 第 23 页，这里只留脚注指路。
+_CRUST = [
+    ("L4", "入口与设备",   "通用助手 · 工作入口 · 可穿戴 · 机器人", False),
+    ("L3", "应用与结果",   "CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译", False),
+    ("L2", "Agent 运行时", "声网对话式 AI 引擎 · TEN",             True),
+    ("L1", "模型与感知",   "声网 Agora · 感知与 VAD",              True),
+    ("L0", "实时基础设施", "声网 Agora · SD-RTN",                  True),
+]
+def _band(i, tag, name, desc, hot):
+    """一条地壳带 · viewBox 980×552：带高 90 + 间距 24，自上而下 L4→L0。
+       高亮三带（L2/L1/L0 = 有声网的那三层）accent 描边 sw2 + 左缘 4px accent 竖条。
+       文字 fill 一律内联 style —— 呈现属性 fill= 压不过 .fig .lbl/.ttl 的 CSS fill。"""
+    y = 3 + i * 114
+    if hot:
+        rect = ('<rect x="1.5" y="%d" width="977" height="90" rx="6" '
+                'style="fill:color-mix(in srgb,var(--accent) 7%%,var(--card-bg));'
+                'stroke:var(--accent);stroke-width:2"/>'
+                '<rect x="1.5" y="%d" width="4" height="76" rx="2" style="fill:var(--accent)"/>'
+                % (y, y + 7))
+        c_tag, c_name, c_desc = "var(--accent)", "var(--ink)", "var(--accent)"
+    else:
+        rect = '<rect x="1.5" y="%d" width="977" height="90" rx="6" class="box" stroke-width="1"/>' % y
+        c_tag, c_name, c_desc = "var(--ink-3)", "var(--ink-2)", "var(--ink-3)"
+    b = y + 53                     # tag / 名称 / 说明 共基线（24px 字在 h90 带内视觉居中）
+    return ('<g class="pop" style="--i:%d">%s'
+            '<text x="34" y="%d" style="font-family:var(--f-mono);font-weight:500;font-size:16px;'
+            'letter-spacing:.14em;fill:%s">%s</text>'
+            '<text x="88" y="%d" style="font-weight:700;font-size:24px;fill:%s">%s</text>'
+            '<text x="946" y="%d" text-anchor="end" style="font-weight:400;font-size:15px;fill:%s">%s</text>'
+            '</g>' % (1 + i, rect, b, c_tag, tag, b, c_name, name, b, c_desc, desc))
+_p7crust = "".join(_band(_i, *_c) for _i, _c in enumerate(_CRUST))
+
 _GROUPS = [
-    ("COMPANIONS",    ["jixian", "robopoet", "luwu", "pophie"]),
+    ("COMPANIONS",    ["jixian", "robopoet", "luwu", "pophie"]),        # 4 张 + 数据块 tile 补第 5 格
     ("IN-APP AGENTS", ["sensetime", "minimax", "zhipu", "xingye", "lingji"]),
     ("NEW DEVICES",   ["looktech", "heycyan", "lookee", "lianou", "doushen"]),
 ]
-# 卡 116×206（0.5626 比例照旧）· 5 列 gap16 = 644 宽，正好吃满 x1156→1800
+# 严格 5 列：卡 112×199（0.5628 ≈ 原 0.5626）· 列距 133 · x1156+i×133 → 末列右缘正好 1800
+_CASE_W, _CASE_H, _CASE_P, _CASE_X = 112, 199, 133, 1156
+_ROW_Y = [292, 535, 778]           # 行1顶 = 左列 SVG 顶；行3底 778+199=977 = 左列脚注底
+# 残格 tile：用数据块补齐 COMPANIONS 那一行，三行右缘齐平（这是原来 4/5/5 参差的病根）
+_TILE = ('<div style="padding:18px 12px;height:100%;display:flex;flex-direction:column;justify-content:center">'
+         '<div style="font:500 12px/1 var(--f-mono);letter-spacing:.16em;color:var(--ink-3)">CASES</div>'
+         '<div style="margin:14px 0 10px;font-weight:900;font-size:56px;line-height:1;'
+         'font-family:var(--f-en);letter-spacing:-.035em;color:var(--accent)">14</div>'
+         '<div style="font:400 13px/1.5 var(--f-cn);color:var(--ink-2)">官方联合案例<br>均已公开</div></div>')
 _p7 = [
     sh("flow kk nt", "left:120px;top:92px;width:1680px;height:28px", "案例 · 已经上岗的对话式 AI · IN PRODUCTION"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "对话式 AI，<strong>已经上岗</strong>。"),
-    lab(120, 238, "01 · LANDSCAPE · 2026 对话式 AI 生态全景"),
-    sh("settle frame", "left:120px;top:270px;width:980px;height:551px;--i:2",
-       '<img src="%seco-2026.webp" alt="2026 对话式 AI 生态全景">' % A),
-    sh("pop callout-chip", "left:120px;top:842px;width:auto;height:auto;--i:4",
+    # 区 01 · ECOSYSTEM（左列 · 原生 SVG 五层地壳）
+    lab(120, 236, "01 · ECOSYSTEM · 五层价值地壳，我们在哪", w=980),
+    figbox(120, 292, 980, 980, 552, _p7crust, i=1),          # 顶 292 = 右列行1卡顶；底 844
+    sh("pop callout-chip", "left:120px;top:872px;width:auto;height:auto;--i:4",
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
-    sh("flow mono-sm", "left:120px;top:918px;width:980px;height:44px;--i:5",
-       "五层价值地壳 · 代表性生态 · 事实截止 2026.08 · 研究口径见 colinyao.com 知识库"),
+    sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
+       "完整 4K 生态全景见 /convoai 第 23 页 · 事实截止 2026.08"),
+    # 区 02 · CASES（右列 · 严格 5 列网格，三行列 x 完全一致）
+    lab(1156, 236, "02 · CASES · 声网官方联合案例 14 例", w=644),
 ]
-_p7.append(lab(1156, 238, "02 · CASES · 声网官方联合案例 14 例", w=644))
 for _gi, (_gname, _names) in enumerate(_GROUPS):
-    _gy = 292 + _gi * 242              # 组标 y=_gy-26，卡 196 高 + 组间 20
-    _p7.append(lab(1156, _gy - 26, _gname, w=644, i=2 + _gi))
+    _gy = _ROW_Y[_gi]
+    _p7.append(lab(_CASE_X, _gy - 26, _gname, w=644, i=2 + _gi))       # 组标 x 与卡左缘对齐
     for _ci, _nm in enumerate(_names):
-        _p7.append(sh("rise case", "left:%dpx;top:%dpx;width:110px;height:196px;--i:%d"
-                      % (1156 + _ci * 133, _gy, 2 + _gi),
+        _p7.append(sh("rise case", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d"
+                      % (_CASE_X + _ci * _CASE_P, _gy, _CASE_W, _CASE_H, 2 + _gi),
                       '<img src="%scase-%s.webp" alt="声网联合案例 · %s">' % (A, _nm, _nm)))
+_p7.append(sh("rise card-c", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;border-radius:14px;--i:2"
+              % (_CASE_X + 4 * _CASE_P, _ROW_Y[0], _CASE_W, _CASE_H), _TILE))
 _p7.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
-              '<div class="land">声网官方联合案例 · 均已公开。</div>'))
+              '<div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div>'))
 page("content", "".join(_p7))
 
 # ═══ P8 · 合流 ·「为什么是声网 · 怎么开始」（accent）═══════════════════════
@@ -606,10 +652,10 @@ _ARROW = ('<div class="fig"><svg viewBox="0 0 20 36" style="width:100%;height:au
 page("content", "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "合流 · 为什么是声网 · 怎么开始 · ONE NET"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "三条支流，<strong>一条河</strong>。"),
-    # 区 01 · ONE NET
-    lab(120, 240, "01 · ONE NET"),
+    # 区 01 · ONE NET（分区标 y=236 统一栏位）
+    lab(120, 236, "01 · ONE NET"),
     sh("rise", "left:120px;top:274px;width:1680px;height:44px;font:700 26px/1.5 var(--f-cn);color:var(--ink-2);--i:2",
-       dot("l-eng") + "Engine 的每一次打断　" + dot("l-agent") + "Agent 的每一通电话　"
+       dot("l-eng") + "Engine 的每一次打断　" + dot("l-agent") + "Agent 的每一次交付　"
        + dot("l-phys") + "Physical AI 的每一次唤醒"),
     sh("flow", "left:120px;top:330px;width:1680px;height:50px;font:400 24px/1.6 var(--f-cn);color:var(--ink);--i:3",
        "都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上——全球 200+ 节点，端到端毫秒级。"),
@@ -637,10 +683,13 @@ page("content", "".join([
     sh("flow", "left:1380px;top:542px;width:20px;height:36px;--i:3", _ARROW),
     sh("flow", "left:1380px;top:662px;width:20px;height:36px;--i:4", _ARROW),
     rule(850),
-    # 底 · land + credit（避开背景板 y848–852 的 accent 细线，land 压到 880）
-    sh("flow", "left:120px;top:880px;width:1680px;height:80px;--i:6",
+    # 底 · land + credit 同一行：land 左（y988 = 全 deck land 统一基线），credit 右对齐、
+    # 顶 1010 让 mono 文心（1010+10.5）压住 land 文心（988+31.75），两边真齐平。
+    # 原来 land 在 880、credit 在 1004 各占一行 —— land 比其他 7 页高 108px，翻页时那根
+    # accent 竖条会跳，正是 Colin 说的「看起来没对齐」。
+    sh("flow", "left:120px;top:988px;width:1060px;height:70px;--i:6",
        '<div class="land">让每一次人机对话，都像<strong>真人</strong>一样自然。</div>'),
-    sh("flow mono-sm", "left:120px;top:1004px;width:1680px;height:24px;--i:7",
+    sh("flow mono-sm", "left:1200px;top:1010px;width:600px;height:24px;text-align:right;--i:7",
        "姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM"),
 ]))
 
