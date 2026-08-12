@@ -1165,6 +1165,19 @@ section[data-p="5"] [data-sid="28"]{
 }
 section[data-p="5"] .sh.rule path{stroke:var(--hair)!important;stroke-width:1!important;}
 
+/* P14 · GPT R27.1 增量（2026-08-12 交接）：④ 能力从突兀 amber 大方块改为带顶线的 thesis surface。
+   （同批 P17 的 build0+contain 提案与 Colin 现场拍板的「太木→太腻→恰好+图同拍」冲突，未采纳） */
+section[data-p="14"] [data-sid="11"]{
+  background:transparent!important;border:0!important;border-top:2px solid var(--amber)!important;
+  border-radius:0!important;height:110px!important;
+}
+section[data-p="14"] [data-sid="12"]{color:var(--ink-m)!important;}
+section[data-p="14"] [data-sid="13"]{color:var(--amber)!important;}
+
+/* P10 · R27.3（Colin）：「智能音箱 你叫醒我」标签框 116×58 贴字宽极限，
+   Mac PingFang 渲染下尾字被裁；加宽加高保持圆心对位（机检 ⑪ 未点名的盲区，防御性放宽） */
+section[data-p="10"] [data-sid="7"]{left:270.8px!important;width:160px!important;height:66px!important;}
+
 /* P15 · remove the isolated lower-left box; keep one continuous thesis line. */
 section[data-p="15"] [data-sid="21"]{
   background:transparent!important;border:0!important;border-top:1px solid var(--hair)!important;border-radius:0!important;
@@ -1280,7 +1293,7 @@ def _r27_p3():
         _r27_sh('settle r27-metric', 'left:230px;top:350px;width:458px;height:500px',
                 '<svg viewBox="0 0 400 400"><circle class="track" cx="200" cy="200" r="150"/>'
                 '<circle class="arc dwa" style="--len:%.1f;--rest:%.1f;--i:1" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/></svg>'
-                '<div class="num">87<b>%%</b></div><div class="caption">经常接触 AI 客服<small>采用已经发生，体验标准没有降低</small></div>' % (C * .87, C)),
+                '<div class="num">87<b>%%</b></div><div class="caption">经常接触 AI 智能体<small>采用已经发生，体验标准没有降低</small></div>' % (C * .87, C)),
         _r27_sh('settle r27-metric', 'left:1232px;top:350px;width:458px;height:500px',
                 '<svg viewBox="0 0 400 400"><circle class="track" cx="200" cy="200" r="150"/>'
                 '<circle class="arc dwa" style="--len:%.1f;--rest:%.1f;--i:3" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/></svg>'
@@ -1338,7 +1351,9 @@ def _r27_p12():
         (120, None, '1', '10 亿词', '一生听到的语言输入', 'ILYA · GTC 2023'),
         (545, 1, '2', '× 25%', '只保留值得记住的部分', '思想实验筛选率'),
         (970, 2, '3', '÷ 150', '换算为约 167 万分钟', '词 / 分钟'),
-        (1395, 3, '4', '× 25 kbps', '≈ 313 GB ≈ 0.29 TiB', '长期语音存储'),
+        # R27.3（Colin）：kbps 反算落到 0.29 TB，不做 313GB→TiB 的单位跳变
+        #   （0.29 TB ÷ 167 万分钟 ≈ 2.9e11B / 1.0e8s ≈ 23 kbps；23kbps×167万分钟=0.2875TB≈0.29 ✓）
+        (1395, 3, '4', '× 23 kbps', '≈ 0.29 TB', '长期语音存储'),
     ]
     body = ''.join([
         _r27_sh('flow r27-kicker', 'left:120px;top:96px;width:1680px;height:28px',
@@ -1357,7 +1372,7 @@ def _r27_p12():
         _r27_sh('flow r27-note', 'left:960px;top:740px;width:840px;height:120px',
                 '这不是精确的人生配额，而是一个产品判断：<br><strong class="r27-accent">记忆不是无限堆积，而是持续筛选。</strong>', step=3),
         _r27_sh('flow r27-source', 'left:120px;top:1015px;width:1680px;height:24px',
-                'ASSUMPTION · 25% RETENTION · 150 WORDS/MIN · 25 KBPS · ORDER-OF-MAGNITUDE MODEL', sid="r12s"),
+                'ASSUMPTION · 25% RETENTION · 150 WORDS/MIN · 23 KBPS · ORDER-OF-MAGNITUDE MODEL', sid="r12s"),
     ])
     return _r27_section(12, 3, body)
 
