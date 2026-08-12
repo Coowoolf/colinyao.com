@@ -1287,17 +1287,17 @@ section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
 # 默认组合四板成节奏（skill 铁律：一页一张 · 未采用候选不入仓 · 板为静态层，内容动效照旧）
 def _conf_board(n):
     """页型 → 背景板类名后缀。R28.1（Colin）：内容板按幕轮换，换板即换章——
-    全场 6 板，正好取满 skill「一场 4–6 张」上限；同幕之内不换图。"""
+    全场 5 板，落在 skill「一场 4–6 张」区间内；同幕之内不换图。
+    R29（2026-08-12 Colin）：side-rail 退役——竖杠元素与 P15/16 图形页冲突，
+    二幕回归 matrix；三幕保留 axis-map，25/28 边界仍换板"""
     if n in (1, 37):
         return "title-02"        # 封面 / 致谢 · Orbit 轨道
     if n in (4, 26, 27):
         return "quote-02"        # 金句 MQ 01–03 · Halo Rings 光环
     if n == 14:
         return "chapter-03"      # ④ THE ENGINE 章节开篇 · Constellation 星座
-    if n <= 13:
-        return "content-01"      # 第一幕 · 问题与角色三件套 · Matrix 结构网格
     if n <= 25:
-        return "content-02"      # 第二幕 · 临场引擎工程段 · Side Rail 侧轨
+        return "content-01"      # 一、二幕 · 问题角色 + 临场引擎 · Matrix 结构网格
     return "content-03"          # 第三幕 · 声网产品落地段 · Axis Map 轴线图
 
 

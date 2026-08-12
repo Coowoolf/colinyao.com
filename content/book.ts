@@ -125,7 +125,7 @@ export const volumes: Volume[] = [
     pieces: [
       { slug: "engine25" },
       { slug: "era3" },
-      { slug: "convoai" },
+      { slug: "convoai25" },
       { slug: "arch" },
       { slug: "bottleneck" },
       { slug: "dual26" },
@@ -228,7 +228,7 @@ export const pieceIndex = new Map<string, { vol: number; volZh: string; no: stri
 
 /** talks.ts num → deck slug（附录 A 年表回链） */
 export const talkNumToSlug: Record<number, string> = {
-  1: "rte24", 2: "pm24", 3: "convoai", 4: "audio25", 5: "engine25", 6: "era3",
+  1: "rte24", 2: "pm24", 3: "convoai25", 4: "audio25", 5: "engine25", 6: "era3",
   7: "prodready", 8: "pm25", 9: "vibecheck", 10: "vibesota", 11: "dual26",
   12: "robot26", 14: "inspire26", 15: "aws26",
 };

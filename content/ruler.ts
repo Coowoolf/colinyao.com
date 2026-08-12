@@ -192,7 +192,7 @@ export const rays: Ray[] = [
         tick: "1 : 10³",
         pins: [
           { slug: "csagent", reading: "第一个真金白银的场景" },
-          { slug: "convoai", reading: "引擎从内部走向市场" },
+          { slug: "convoai25", reading: "引擎从内部走向市场" },
           { slug: "elys", reading: "推荐退位 · 分身上桌" },
         ],
       },

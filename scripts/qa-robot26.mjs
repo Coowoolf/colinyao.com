@@ -209,16 +209,25 @@ const r28 = await pg.evaluate(() => {
 r28.per.forEach(({ p, boarded, bgs }) => {
   if (!boarded || bgs.length !== 1) fails.push(`R28：P${p} 背景板数 ${bgs.length}（应恰好 1 且挂 conf-boarded）`);
 });
-// R28.1（Colin）：内容板按幕轮换——P2-13 Matrix · P15-25 Side Rail · P28-36 Axis Map
+// R28.1（Colin）：内容板按幕轮换——P2-13 / P15-25 Matrix · P28-36 Axis Map
+// R29（2026-08-12 Colin）：side-rail 退役（竖杠与 P15/16 图形页冲突），二幕回归 matrix
 const BOARD_MAP = { 1: "conf-bg-title-02", 37: "conf-bg-title-02", 4: "conf-bg-quote-02",
   26: "conf-bg-quote-02", 27: "conf-bg-quote-02", 14: "conf-bg-chapter-03",
-  2: "conf-bg-content-01", 13: "conf-bg-content-01", 15: "conf-bg-content-02",
-  25: "conf-bg-content-02", 28: "conf-bg-content-03", 36: "conf-bg-content-03" };
+  2: "conf-bg-content-01", 13: "conf-bg-content-01", 15: "conf-bg-content-01",
+  25: "conf-bg-content-01", 28: "conf-bg-content-03", 36: "conf-bg-content-03" };
 for (const [p, want] of Object.entries(BOARD_MAP)) {
   const got = r28.per.find((x) => x.p === +p)?.bgs[0];
   if (got !== want) fails.push(`R28：P${p} 板 ${got} ≠ ${want}`);
 }
-if (r28.distinct.length !== 6) fails.push(`R28.1：板种类 ${r28.distinct.length} ≠ 6（${r28.distinct}）`);
+if (r28.distinct.length !== 5) fails.push(`R28.1：板种类 ${r28.distinct.length} ≠ 5（${r28.distinct}）`);
+// R29 幕边界抽查：二/三幕交界 P25→P28 仍必须换板；P14 章节板在两侧内容板之间独立成立
+const boardAt = (p) => r28.per.find((x) => x.p === p)?.bgs[0];
+if (boardAt(25) === boardAt(28))
+  fails.push(`R29：P25/P28 幕边界未换板（同为 ${boardAt(25)}）`);
+if (boardAt(14) === boardAt(13) || boardAt(14) === boardAt(15))
+  fails.push(`R29：P14 章节板未独立（P13 ${boardAt(13)} · P14 ${boardAt(14)} · P15 ${boardAt(15)}）`);
+if (r28.per.some((x) => x.bgs[0] === "conf-bg-content-02"))
+  fails.push("R29：content-02 side-rail 已从 robot26 退役，仍有页面在用");
 r28.per.slice(0, 1).forEach(({ img }) => {
   const wantSuffix = THEME === "dark" ? "-dark.png" : "-light.png";
   if (!img.includes(wantSuffix)) fails.push(`R28：${THEME} 主题下板图源 ${img.slice(0, 90)} 未切 ${wantSuffix}`);

@@ -9,15 +9,18 @@
        ③ 文字被祖先的 overflow:hidden / clip-path / mask 裁掉半行
      而且只查终态 —— 分步（build）过程中的中间态遮盖在现场照样会出现。
 
-   本扫描器：31 页 × 每页全部分步状态 × 双主题，用 Range.getClientRects()
+   本扫描器：全部页 × 每页全部分步状态 × 双主题，用 Range.getClientRects()
    取「真实字形行框」而不是元素盒，逐对判定三类命中：
      TEXT-TEXT         两块文字的字形行框相交
      TEXT-UNDER-BLOCK  文字被画序更晚的不透明块盖住
      CLIPPED           文字被画布 / overflow:hidden / clip-path / mask 裁切
 
-   用法：node scripts/occlusion-scan.mjs
+   用法：node scripts/occlusion-scan.mjs                （默认扫 convoai.html）
+         DECK_URL=http://localhost:8777/decks/convoai-info.html node scripts/occlusion-scan.mjs
    产出：/home/claude/optim/occlusion-report.md
          /home/claude/optim/occlusion-shots/pNN-sS-theme.png
+         （DECK_URL 指向别的 deck 时，产出自动改名：convoai-info → occlusion-info.md
+           + occlusion-shots-info/；默认 URL 的产出路径一字不变）
    只读 deck，不改 deck。
    ═══════════════════════════════════════════════════════════════════ */
 import { chromium } from 'playwright-core';
@@ -26,10 +29,14 @@ import { execSync } from 'child_process';
 import http from 'http';
 
 const CHROME    = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const URL       = 'http://localhost:8777/decks/convoai.html';
-const OUT_DIR   = '/home/claude/optim/occlusion-shots';
-const REPORT    = '/home/claude/optim/occlusion-report.md';
+const URL       = process.env.DECK_URL || 'http://localhost:8777/decks/convoai.html';
+const DECK      = (URL.match(/\/([^/?#]+)\.html/) || [, 'convoai'])[1];   // convoai / convoai-info
+const TAG       = DECK === 'convoai' ? '' : '-' + DECK.replace(/^convoai-/, '');
+const OUT_DIR   = process.env.OCC_SHOTS  || `/home/claude/optim/occlusion-shots${TAG}`;
+const REPORT    = process.env.OCC_REPORT || (TAG ? `/home/claude/optim/occlusion${TAG}.md`
+                                                 : '/home/claude/optim/occlusion-report.md');
 const THEMES    = ['light', 'dark'];
+let TOTAL       = 0;                       // 实际页数，扫描时从页面读回，报告里用它
 
 /* ── 判定阈值（报告里会原样注明）────────────────────────────────
    MIN_AREA  相交面积下限，低于此值视为「边缘 kiss」不报
@@ -385,6 +392,7 @@ for (const theme of THEMES) {
   await page.waitForTimeout(400);
 
   const steps = await page.evaluate(() => [...document.querySelectorAll('.slide')].map(s => +s.dataset.steps || 0));
+  TOTAL = steps.length;
   const themeTag = (await page.evaluate(() => document.documentElement.getAttribute('data-theme'))) || 'light';
   if ((theme === 'dark') !== (themeTag === 'dark')) console.log(`! 主题态异常：期望 ${theme} 实得 ${themeTag}`);
 
@@ -461,10 +469,10 @@ const byType = { 'TEXT-TEXT': 0, 'TEXT-UNDER-BLOCK': 0, 'TEXT-x-SPILL': 0, 'CLIP
 for (const r of list) byType[r.type]++;
 
 const L = [];
-L.push('# convoai.html · 文字遮盖扫描报告');
+L.push(`# ${DECK}.html · 文字遮盖扫描报告`);
 L.push('');
-L.push(`- 扫描对象：\`public/decks/convoai.html\`（31 页 · 1920×1080）`);
-L.push(`- 扫描面：31 页 × 每页全部分步状态（s=0…data-steps）× 双主题 light/dark = **${states} 个状态**`);
+L.push(`- 扫描对象：\`public/decks/${DECK}.html\`（${TOTAL} 页 · 1920×1080）`);
+L.push(`- 扫描面：${TOTAL} 页 × 每页全部分步状态（s=0…data-steps）× 双主题 light/dark = **${states} 个状态**`);
 L.push(`- 生成时间：${new Date().toISOString()}`);
 L.push(`- 扫描器：\`scripts/occlusion-scan.mjs\`（playwright-core · Range.getClientRects 取字形行框）`);
 L.push('');
@@ -498,7 +506,7 @@ L.push(`| TEXT-TEXT（文字压文字） | ${byType['TEXT-TEXT']} |`);
 L.push(`| TEXT-UNDER-BLOCK（文字被块盖） | ${byType['TEXT-UNDER-BLOCK']} |`);
 L.push(`| TEXT-x-SPILL（文字撞上越界溢出的块） | ${byType['TEXT-x-SPILL']} |`);
 L.push(`| CLIPPED（文字被裁切） | ${byType['CLIPPED']} |`);
-L.push(`| 涉及页数 | ${byPage.size} / 31 |`);
+L.push(`| 涉及页数 | ${byPage.size} / ${TOTAL} |`);
 L.push(`| 截图 | ${shots.size} 张 · \`${OUT_DIR}/\` |`);
 L.push('');
 L.push('### 按页分布');

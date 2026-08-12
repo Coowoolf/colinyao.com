@@ -18,6 +18,8 @@ export const speechDecks: Deck[] = [
   // 口径纪律：只用公开可查证数字（BPO 喂稿锁定文案 + 官网/发版说明），Phone Agent 用「Global 率先发布」。
   // 重建：python3 scripts/build-convoai-visit.py · 自检：node scripts/qa-convoai.mjs（THEME=dark 二跑）
   { slug: "convoai", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
+  // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。
+  { slug: "convoai-info", title: "声网对话式 AI · 一页一章 Infograph（拜访速讲版）", slides: 8, category: "演讲", dual: true },
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 62, category: "演讲", dual: true },
   { slug: "cowork-conf", title: "从「被托付」到「双向奔赴 · 共事」· 2026 AI 产品大会视觉版", slides: 55, category: "演讲", dual: false, locked: true },
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },
@@ -47,7 +49,9 @@ export const talkDecks: Deck[] = [
   { slug: "era3", num: "06", date: "2025.10", venue: "ConvoAI & RTE 2025", title: "Agent 交互核心引擎，重塑实时体验的第三纪元", slides: 39, category: "对外演讲", dual: true },
   { slug: "engine25", num: "05", date: "2025.08", venue: "全球产品经理大会", title: "Agent 交互核心引擎，重构人机协同体验革命", slides: 39, category: "对外演讲", dual: true },
   { slug: "audio25", num: "04", date: "2025.03", venue: "中国网络视听大会", title: "对话式 AI 驱动 AI 音频体验革新", slides: 24, category: "对外演讲", dual: true },
-  { slug: "convoai", num: "03", date: "2025.03", venue: "ConvoAI 产品发布会", title: "ConvoAI 对话式 AI 引擎 · 正式发布", slides: 27, category: "对外演讲", dual: true },
+  // R29 勘误：本条原 slug 也是 "convoai"，2026-08-12 拜访 deck 立项时文件被覆盖、slug 撞车。
+  // 档案版从 git 恢复后迁至 /convoai25（旧 /convoai 现为拜访 deck，索引/年表/尺子回链已随迁）。
+  { slug: "convoai25", num: "03", date: "2025.03", venue: "ConvoAI 产品发布会", title: "ConvoAI 对话式 AI 引擎 · 正式发布", slides: 27, category: "对外演讲", dual: true },
   { slug: "pm24", num: "02", date: "2024.12", venue: "人人都是产品经理大会 2024", title: "生成式 AI 驱动实时互动的技术变革与体验革新", slides: 32, category: "对外演讲", dual: true },
   { slug: "rte24", num: "01", date: "2024.10", venue: "RTE 2024 · 首次外部主旨", title: "生成式 AI 驱动实时互动的技术变革与体验革新", slides: 31, category: "对外演讲", dual: true },
 ];

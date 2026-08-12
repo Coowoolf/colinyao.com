@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<script>try{if(localStorage.getItem("colin-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>声网对话式 AI · 一页一章 Infograph · 姚光华 Colin</title>
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族双主题变量（对外演讲 / 大会版）
+   ───────────────────────────────────────────────────────────────────
+   :root                    = conf-light（血统：《从对话式 AI 到企业级智能体》final PPTX，
+                              2026.06 Google Cloud 开发者大会 · 文字色逐字符取自 PDF 实测）
+   html[data-theme="dark"]  = conf-dark（血统：/robot26 R22-R23 暗色模板 · 纯黑 + 淡紫）
+   ───────────────────────────────────────────────────────────────────
+   与 base colin-deck（theme-dual.css）同一套变量名 —— stage/motion/components/deck.js
+   四件机械层直接复用，只换本文件即从「网站版」切到「大会版」。
+   装配顺序：conf-theme-dual.css → stage.css → motion.css → components.css → conf-chrome.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── 底版（对齐 base colin-deck 浅色，Colin 2026-08-09 指定）── */
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+
+  /* ── 文字（取自 final PPTX 实测）── */
+  --ink:#111111;            /* 大标题 · 近黑 */
+  --ink-2:#2a2a2a;          /* 正文 */
+  --ink-3:#8e8e93;          /* chrome 灰：眉标 / 页脚 / 来源行（PPTX 最高频灰）*/
+
+  /* ── conf 强调色（浅底 = 玫红系）── */
+  --accent:#f45b8c;         /* 玫红 · 主 accent：标题重点词 / 大数字 / KPI 标签 / 页脚圆点 */
+  --accent-deep:#d8366a;    /* 深玫红 · 强调中的强调 / 风险与警示 / 漏斗末级 */
+  --accent-2:#7b61ff;       /* 紫罗兰 · 对位色：消费级 / 陪伴 / 对比阵列的另一极 */
+  --accent-3:#5b8cff;       /* 蓝 · 三色对比时的第三极（被托付 / Enterprise 卡）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(17,17,17,.16);
+  --hair-soft:rgba(17,17,17,.075);
+  --hair-strong:rgba(17,17,17,.30);
+
+  /* ── 底流场 / 栏格（流场线随 accent 走，不引第二强调色）── */
+  --flow-line:rgba(244,91,140,.30);
+  --flow-line-2:rgba(17,17,17,.13);
+  --flow-op:.40;
+  --grid-line:rgba(17,17,17,.05);
+  --rail-line:rgba(17,17,17,.10);
+  --sig-ink:rgba(17,17,17,.30);
+
+  /* ── 拱顶石 aura（conf-light 独有 · 金句/拱顶石页专用，全场 ≤3 页）── */
+  --aura-a:rgba(255,214,140,.55);   /* 暖黄 */
+  --aura-b:rgba(255,150,180,.45);   /* 粉 */
+  --aura-c:rgba(140,180,255,.45);   /* 蓝 */
+
+  /* ── base 机械层兼容别名（components.css / motion.css 直接可用）── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+
+  /* ── 字体（与 robot26 / 站内 deck 同栈）── */
+  --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+
+  /* ── 节奏（与 base 相同，调过的，别改）── */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+
+html[data-theme="dark"]{
+  /* ── 底版（robot26 口径：纯黑，不是 base dark 的 #0f0e17——
+        大会投影环境下纯黑吃杂光，且与全屏位图/视频页零接缝）── */
+  --stage-bg:#000000;
+  --slide-bg:#000000;
+  --card-bg:rgba(19,19,32,.72);
+  --card-bg-2:#131320;
+
+  /* ── 文字 ── */
+  --ink:#ffffff;
+  --ink-2:#c9c9d2;
+  --ink-3:#6f7186;
+
+  /* ── conf 强调色（暗底 = 淡紫系，robot26 实测值）── */
+  --accent:#d4b7f9;         /* 淡紫 · 主 accent */
+  --accent-deep:#944af0;    /* 深紫 · 伙伴线 / 强调中的强调 */
+  --accent-2:#b78cf0;       /* 紫罗兰暗底位（robot26 箭头族实测）*/
+  --accent-3:#6e96ff;       /* 蓝的暗底提亮位（推导值：#5b8cff 提一档保对比度）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(255,255,255,.14);
+  --hair-soft:rgba(255,255,255,.07);
+  --hair-strong:rgba(255,255,255,.28);
+
+  /* ── 底流场 / 栏格（robot26 实测值）── */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
+  --flow-op:.42;
+  --grid-line:rgba(255,255,255,.042);
+  --rail-line:rgba(255,255,255,.10);
+  --sig-ink:rgba(255,255,255,.30);
+
+  /* ── aura 在暗底禁用（金句页回归纯黑大留白）── */
+  --aura-a:transparent;
+  --aura-b:transparent;
+  --aura-c:transparent;
+
+  /* ── 兼容别名 ── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+}
+
+/* ── conf 卡片两分法 ──
+      ① 图卡（曲线/图表画布）：两个主题都用近白强对比卡 .conf-card-lit（robot26 FIG 卡先例），
+        卡内元素走图内固定色或 --cardw-* 一族（components.css 已反转好），不要写主题 ink。
+      ② KPI/内容卡：走 --card-bg-2 + 主题 ink 变量（浅底=白卡黑字，暗底=#131320 卡白字），
+        任何卡内文字禁止写死色号 —— 写死一个色号 = 两个主题里必坏一个。 */
+.conf-card-lit{background:#fffffe;border:1px solid var(--hair);}
+</style><style>/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:'Noto Sans SC','Source Han Sans SC',sans-serif;
+  --f-en:'Satoshi','Noto Sans SC',sans-serif;
+  --f-mono:'JetBrains Mono','Noto Sans SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+</style><style>/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+</style><style>/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族 chrome 层（页面骨架四件套 + mono 落款）
+   血统：/robot26 R22 模板（跑过 37 页 × 全量 QA 的生产代码，非新写）
+   挂载：本文件排在 components.css 之后；FLOW_SVG 见文件尾注释，
+        作为 .deck-stage 第一个子元素插入；.slide 背景必须 transparent。
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── ① 底流场（8 条贝塞尔 · 3 组 sway + drift）── */
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+.deck-flow .s1{animation-duration:38s;}
+.deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;}
+.deck-flow .s4{animation-duration:46s;}
+.deck-flow g{animation:sway ease-in-out infinite alternate;}
+.deck-flow g:nth-child(1){animation-duration:26s;}
+.deck-flow g:nth-child(2){animation-duration:33s;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-4000;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(0,-14px,0);}}
+
+/* ── ② 极细栏线网格（240px 律动 · 上下渐隐）── */
+.deck-grid{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 120px,var(--grid-line) 120px 121px,transparent 121px 360px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
+
+/* ── ③ 上下发丝导轨 ── */
+.deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--rail-line) 18%,var(--rail-line) 82%,transparent);}
+.deck-rail.t{top:34px;}
+.deck-rail.b{bottom:34px;}
+
+/* ── ④ mono 落款（右上 · 封面/满幅页不挂）── */
+.sig{position:absolute;right:120px;top:47px;z-index:2;
+  font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
+  letter-spacing:.24em;padding-right:.24em;color:var(--sig-ink);
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+
+/* ── ⑤ conf-light 拱顶石 aura（金句/拱顶石页专用 · 全场 ≤3 页 · 暗底自动禁用）── */
+.conf-aura{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 46% at 18% 24%,var(--aura-a),transparent 70%),
+    radial-gradient(44% 50% at 84% 30%,var(--aura-c),transparent 70%),
+    radial-gradient(46% 46% at 30% 86%,var(--aura-b),transparent 70%),
+    radial-gradient(40% 44% at 78% 82%,var(--aura-a),transparent 72%);
+  filter:blur(2px);animation:auraDrift 36s ease-in-out infinite alternate;}
+@keyframes auraDrift{0%{transform:translate3d(0,0,0) scale(1);}100%{transform:translate3d(0,-18px,0) scale(1.04);}}
+
+/* ── ⑥ conf 页脚（左下 accent 圆点 + mono 面包屑，PPTX 语汇）── */
+.conf-foot{position:absolute;left:120px;bottom:40px;z-index:2;display:flex;align-items:center;gap:12px;
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);white-space:nowrap;}
+.conf-foot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLOW_SVG（.deck-stage 第一个子元素，与 cowork-confv2 / robot26 同一份）：
+
+</style><style id="convoai-boards">
+.conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
+  background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
+.slide.conf-boarded{background:transparent!important;}
+.slide.conf-boarded>.pp{z-index:1;}
+.conf-bg-title{--conf-bg-opacity:.66;background-image:url('/decks/assets/conf-boards/title-02-orbit-light.png');}
+.conf-bg-content{--conf-bg-opacity:.42;background-image:url('/decks/assets/conf-boards/content-01-matrix-light.png');}
+html[data-theme="dark"] .conf-bg-title{background-image:url('/decks/assets/conf-boards/title-02-orbit-dark.png');}
+html[data-theme="dark"] .conf-bg-content{background-image:url('/decks/assets/conf-boards/content-01-matrix-dark.png');}
+html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
+</style><style id="convoai-info-deck">
+/* 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行） */
+.pp{position:absolute;inset:0;}
+.pp .sh{position:absolute;overflow:visible;}
+:root{--l-eng:var(--accent);--l-agent:#5b8cff;--l-phys:#7b61ff;
+  /* conf 家族 token 表里没有 --on-bg，components.css 的 .card.on 靠它上底色 */
+  --on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 13%,transparent),
+    color-mix(in srgb,var(--accent) 3%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 10%,transparent),
+    color-mix(in srgb,var(--coral) 2.5%,transparent)),var(--card-bg);}
+html[data-theme="dark"]{--l-agent:#6e96ff;--l-phys:#b78cf0;
+  --on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,transparent),
+    color-mix(in srgb,var(--accent) 2%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),
+    color-mix(in srgb,var(--coral) 2%,transparent)),var(--card-bg);}
+.card .tag.am{color:var(--amber);}
+.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
+  letter-spacing:.12em;color:var(--sig-ink);}
+/* hero-art：背景板之上、正文之下；contain 不裁切（GPT 交接约束）*/
+.hero-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  z-index:0;pointer-events:none;}
+.hero-art.dk{display:none;}
+html[data-theme="dark"] .hero-art.lt{display:none;}
+html[data-theme="dark"] .hero-art.dk{display:block;}
+.slide.visible .hero-art{animation:heroIn 1.2s cubic-bezier(.22,.61,.36,1) both;}
+@keyframes heroIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+/* 版式件 */
+.kk{font:700 20px/1 var(--f-mono);letter-spacing:.28em;color:var(--accent);}
+.kk.ag{color:var(--l-agent);}.kk.ph{color:var(--l-phys);}.kk.nt{color:var(--ink-3);}
+.hh{font:700 68px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
+.hh strong{color:var(--accent);}
+.hh strong.ag{color:var(--l-agent);}.hh strong.ph{color:var(--l-phys);}
+.sub{font:400 26px/1.55 var(--f-cn);color:var(--ink-2);}
+.mono-sm{font:500 15px/1.4 var(--f-mono);letter-spacing:.08em;color:var(--ink-3);}
+.dot{display:inline-block;width:14px;height:14px;border-radius:4px;margin:0 12px -1px 0;}
+.card-c{background:var(--card-bg);border:1px solid var(--hair);border-radius:20px;}
+/* Infograph 分区件：mono 小节标 + 1px 分隔细线 */
+.seclab{font:500 14px/20px var(--f-mono);letter-spacing:.18em;color:var(--ink-3);}
+.seclab b{font-weight:700;color:var(--ink-3);}
+.hair-rule{background:var(--hair);}
+/* 版本轴 tick（P4）*/
+.vt{width:3px;background:var(--ink-3);opacity:.55;}
+.vt.big{background:var(--l-eng);opacity:1;width:5px;}
+.tl-line{background:var(--hair);height:3px;}
+/* 主题词 chip */
+.chip{display:inline-block;margin:0 12px 12px 0;padding:11px 18px;border:1px solid var(--hair);
+  border-radius:999px;background:var(--card-bg);font:500 18px/1 var(--f-cn);color:var(--ink-2);}
+/* 能力宫格（P5 · 6×2）*/
+.cap{border:1px solid var(--hair);border-radius:999px;background:var(--card-bg);
+  font:500 16px/1 var(--f-cn);color:var(--ink-2);padding:10px 8px;text-align:center;}
+.cap.on{border-color:color-mix(in srgb,var(--l-agent) 55%,transparent);
+  background:color-mix(in srgb,var(--l-agent) 10%,var(--card-bg));color:var(--ink);}
+/* 三态卡（活人感 · P6）*/
+.face{padding:22px 24px;border-top:5px solid var(--ink-3);}
+.face .en{font:700 13px/1 var(--f-mono);letter-spacing:.2em;color:var(--ink-3);}
+.face h3{margin:10px 0 8px;font:700 30px/1.2 var(--f-cn);color:var(--ink);}
+.face p{font:400 17px/1.5 var(--f-cn);color:var(--ink-2);}
+.face.good{border-top-color:var(--l-phys);}
+.face.good h3{color:var(--l-phys);}
+/* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
+   必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
+.fig svg{max-width:none;max-height:none;}
+/* 案例卡 */
+.case{border-radius:14px;overflow:hidden;border:1px solid var(--hair);
+  box-shadow:0 8px 22px rgba(0,0,0,.12);background:var(--card-bg);}
+.case img{width:100%;height:100%;object-fit:cover;display:block;}
+/* 图框 */
+.frame{border-radius:20px;overflow:hidden;border:1px solid var(--hair);
+  box-shadow:0 14px 40px rgba(0,0,0,.14);background:#fff;}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;}
+.callout-chip{background:var(--ink);color:var(--bg,#fff);border-radius:12px;padding:13px 22px;
+  font:700 19px/1.4 var(--f-cn);box-shadow:0 8px 24px rgba(0,0,0,.22);}
+html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
+/* components.css 的 `b,strong{color:var(--ink)}`（0,0,1）压过 .callout-chip 的继承色 →
+   深底 chip 里的 <b> 会被染成 --ink（近黑）而在近黑底上隐形（原 convoai P23 就是这个哑火）。
+   同特异度以上把它拉回继承。 */
+.callout-chip b,.callout-chip strong{color:inherit;}
+/* 编辑热区（deck.js 依赖） */
+.edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);
+  border:1px solid var(--hair);border-radius:3px;padding:7px 12px;background:transparent;cursor:pointer;
+  transition:opacity .3s;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--accent);color:var(--accent);}
+@media print{.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps,.deck-swap{display:none!important;}}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+<div class="deck-grid" aria-hidden="true"></div><div class="deck-rail t" aria-hidden="true"></div><div class="deck-rail b" aria-hidden="true"></div>
+<section class="slide conf-boarded" data-p="1" data-steps="0">
+  <div class="conf-bg conf-bg-title" aria-hidden="true"></div><img class="hero-art lt" src="/decks/assets/convoai/hero/hero-three-engines-light.png" alt="" style="left:860px;top:230px;width:1200px;height:675px"><img class="hero-art dk" src="/decks/assets/convoai/hero/hero-three-engines-dark.png" alt="" style="left:860px;top:230px;width:1200px;height:675px">
+  <div class="pp"><div class="sig">1/8</div><div class="sh flow kk" style="left:120px;top:200px;width:1400px;height:28px">AGORA · 声网 · CONVERSATIONAL AI · INFOGRAPH</div><div class="sh ink" style="left:120px;top:266px;width:1100px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)">让每一次人机对话，<br>都像<strong style='color:var(--accent)'>真人</strong>一样自然。</div><div class="sh flow sub" style="left:120px;top:600px;width:1400px;height:44px">声网 · 对话式 AI —— 一页一章 · 拜访速讲版</div><div class="sh rise" style="left:120px;top:700px;width:1500px;height:56px;font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2)"><span class="dot" style="background:var(--l-eng)"></span>ENGINE<span style="margin-left:56px"></span><span class="dot" style="background:var(--l-agent)"></span>AGENT<span style="margin-left:56px"></span><span class="dot" style="background:var(--l-phys)"></span>PHYSICAL AI</div><div class="sh flow mono-sm" style="left:120px;top:930px;width:1200px;height:24px">主讲人：姚光华 Colin · 声网 AI 产品线负责人</div></div>
+</section>
+<section class="slide conf-boarded" data-p="2" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">2/8</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">公司 · 声网 RTE · ONE-PAGE BRIEF</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:80px;font-size:56px">RTE 行业领导者，<strong>一页讲完</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:620px;height:20px;--i:0">01 · SCALE</div><div class="sh " style="left:120px;top:272px;width:1680px;height:140px"><div class="g4"><div class="stat flow" style="--i:2"><span class="v" style="font-size:64px">No.1</span><span class="l" style="font-size:14px">市场占有率稳居第一，份额超过第 2–8 位总和</span></div><div class="stat flow" style="--i:3"><span class="v w" style="font-size:64px">50+</span><span class="l" style="font-size:14px">突破性自主创新技术（全球发明专利）</span></div><div class="stat flow" style="--i:4"><span class="v w" style="font-size:64px">100万+</span><span class="l" style="font-size:14px">全球注册应用数</span></div><div class="stat flow" style="--i:5"><span class="v w" style="font-size:64px">900亿+</span><span class="l" style="font-size:14px">单月支撑通话分钟数</span></div></div></div><div class="sh spread hair-rule" style="left:120px;top:420px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:452px;width:620px;height:20px;--i:0">02 · ADOPTION</div><div class="sh settle" style="left:120px;top:488px;width:780px;height:150px"><div class="stat"><div class="v" style="font-size:96px;font-family:var(--f-cn)">近一半</div><div class="l">集成 RTC 的 Top 10,000（MAU）App 里，近一半使用声网</div></div></div><div class="sh spread" style="left:120px;top:660px;width:406px;height:40px;background:var(--accent);border-radius:6px;font:700 17px/40px var(--f-cn);color:var(--slide-bg);text-align:center;--i:3">使用声网</div><div class="sh spread" style="left:526px;top:660px;width:374px;height:40px;background:var(--card-bg);border:1px solid var(--hair);border-radius:6px;font:500 17px/38px var(--f-cn);color:var(--ink-2);text-align:center;--i:4">其他 RTC</div><div class="sh flow seclab" style="left:980px;top:452px;width:620px;height:20px;--i:0">03 · ENDORSEMENT</div><div class="sh settle" style="left:980px;top:488px;width:820px;height:44px;font:700 28px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);--i:2">2024.10.01</div><div class="sh flow" style="left:980px;top:548px;width:820px;height:90px;font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:3">OpenAI Realtime API · Agora <strong style='color:var(--accent)'>全球首批合作伙伴</strong></div><div class="sh flow" style="left:980px;top:654px;width:820px;height:50px;font:500 20px/1.5 var(--f-cn);color:var(--accent);--i:4">同样的工程能力，今天用来支撑你的对话式 AI 业务。</div><div class="sh spread hair-rule" style="left:120px;top:744px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:766px;width:620px;height:20px;--i:0">04 · MILESTONES · 18 个月 · 5 个公开里程碑</div><div class="sh flow" style="left:120px;top:800px;width:1680px;height:176px;--i:2"><div class="fig"><svg viewBox="0 0 1620 170" style="width:100%;height:auto"><path class="dw" style="--len:1580;--i:0" d="M10 30 H1590" stroke="var(--hair)" stroke-width="1" fill="none"/><g class="pop" style="--i:1"><circle cx="160" cy="30" r="5" class="fill-ink"/><rect x="10" y="56" width="300" height="100" rx="3" class="box" stroke-width="1"/><text class="lbl" x="160" y="92" text-anchor="middle">2024.10.01</text><text class="ttl" x="160" y="130" text-anchor="middle" style="font-size:20px">全球首个 Realtime API</text></g><g class="pop" style="--i:2"><circle cx="480" cy="30" r="5" class="fill-ink"/><rect x="330" y="56" width="300" height="100" rx="3" class="box" stroke-width="1"/><text class="lbl" x="480" y="92" text-anchor="middle">2024.10.24</text><text class="ttl" x="480" y="130" text-anchor="middle" style="font-size:20px">国内首个 Realtime API</text></g><g class="pop" style="--i:3"><circle cx="800" cy="30" r="5" class="fill-ink"/><rect x="650" y="56" width="300" height="100" rx="3" class="box" stroke-width="1"/><text class="lbl" x="800" y="92" text-anchor="middle">2025.03.06</text><text class="ttl" x="800" y="130" text-anchor="middle" style="font-size:20px">引擎 1.0 + R1 GA</text></g><g class="pop" style="--i:4"><circle cx="1120" cy="30" r="5" class="fill-ink"/><rect x="970" y="56" width="300" height="100" rx="3" class="box" stroke-width="1"/><text class="lbl" x="1120" y="92" text-anchor="middle">2025.10.31</text><text class="ttl" x="1120" y="130" text-anchor="middle" style="font-size:20px">产品全栈发布</text></g><g class="pop" style="--i:5"><circle cx="1440" cy="30" r="5" class="fill-am"/><rect x="1290" y="56" width="300" height="100" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/><text class="lbl" x="1440" y="92" text-anchor="middle" style="fill:var(--accent)">2026.03.10</text><text class="ttl" x="1440" y="130" text-anchor="middle" style="font-size:20px;fill:var(--accent)">Call Agent 全球版</text></g></svg></div></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:5"><div class="land">全球最受欢迎的实时音视频云服务提供商。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="3" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">3/8</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">一个平台，<strong>三台引擎</strong>。</div><div class="sh flow seclab" style="left:120px;top:244px;width:620px;height:20px;--i:0">01 · ARCHITECTURE</div><div class="sh flow" style="left:120px;top:276px;width:1680px;height:332px;--i:1"><div class="fig"><svg viewBox="0 0 1620 320" style="width:100%;height:auto"><g class="pop" style="--i:0"><rect x="10" y="10" width="250" height="130" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/><text class="ttl" x="135" y="66" text-anchor="middle" style="fill:var(--accent);font-size:22px">对话式 AI 引擎</text><text class="sm" x="135" y="100" text-anchor="middle">闭源 · 已上线</text></g><g class="pop" style="--i:1"><rect x="280" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/><text class="ttl" x="405" y="66" text-anchor="middle" style="font-size:22px">TEN 开源工具库</text><text class="sm" x="405" y="100" text-anchor="middle">开源</text></g><g class="pop" style="--i:2"><rect x="550" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/><text class="ttl" x="675" y="66" text-anchor="middle" style="font-size:22px">电话客服 Agent</text><text class="sm" x="675" y="100" text-anchor="middle">Global 率先发布</text></g><g class="pop" style="--i:3"><rect x="820" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/><text class="ttl" x="945" y="66" text-anchor="middle" style="font-size:22px">AI 模型评测平台</text><text class="sm" x="945" y="100" text-anchor="middle">已上线</text></g><g class="pop" style="--i:4"><rect x="1090" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/><text class="ttl" x="1215" y="66" text-anchor="middle" style="font-size:22px">实时转录翻译</text><text class="sm" x="1215" y="100" text-anchor="middle">已上线</text></g><g class="pop" style="--i:5"><rect x="1360" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/><text class="ttl" x="1485" y="66" text-anchor="middle" style="font-size:22px">开发套件</text><text class="sm" x="1485" y="100" text-anchor="middle">Physical AI · 已上线</text></g><path class="dw" style="--len:40;--i:6" d="M135 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><path class="dw" style="--len:40;--i:7" d="M405 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><path class="dw" style="--len:40;--i:8" d="M675 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><path class="dw" style="--len:40;--i:9" d="M945 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><path class="dw" style="--len:40;--i:10" d="M1215 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><path class="dw" style="--len:40;--i:11" d="M1485 140 V180" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><g class="pop" style="--i:7"><rect x="10" y="180" width="1600" height="110" rx="3" class="box" stroke-width="1"/><text class="lbl" x="42" y="223">实时互动平台 · REAL-TIME ENGAGEMENT</text><text class="txt" x="42" y="261">SD-RTN 全球实时网络——当下基本盘，托举全部对话式 AI 产品线</text></g></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:628px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:636px;width:620px;height:20px;--i:0">02 · THREE ENGINES</div><div class="sh " style="left:120px;top:668px;width:1080px;height:170px"><div class="rows"><div class="r flow" style="--i:2;padding:12px 0"><span class="n" style="width:40px"><span class="dot" style="background:var(--l-eng)"></span></span><span class="k" style="width:210px;color:var(--l-eng);font-family:var(--f-mono);font-size:24px">ENGINE</span><span class="v" style="font-size:21px">提供能力——把「会说话」做到极致</span></div><div class="r flow" style="--i:3;padding:12px 0"><span class="n" style="width:40px"><span class="dot" style="background:var(--l-agent)"></span></span><span class="k" style="width:210px;color:var(--l-agent);font-family:var(--f-mono);font-size:24px">AGENT</span><span class="v" style="font-size:21px">交付结果——替你把任务做完</span></div><div class="r flow" style="--i:4;padding:12px 0"><span class="n" style="width:40px"><span class="dot" style="background:var(--l-phys)"></span></span><span class="k" style="width:210px;color:var(--l-phys);font-family:var(--f-mono);font-size:24px">PHYSICAL AI</span><span class="v" style="font-size:21px">打开入口——让对话走出屏幕</span></div></div></div><div class="sh flow seclab" style="left:1240px;top:636px;width:620px;height:20px;--i:0">03 · DUAL FORM</div><div class="sh rise card-c" style="left:1240px;top:668px;width:560px;height:104px;--i:3"><div style="padding:20px 26px"><div class="mono-sm" style="color:var(--accent)">闭源 · 已上线</div><div style="margin-top:12px;font:700 30px/1.2 var(--f-cn);color:var(--ink)">对话式 AI 引擎</div></div></div><div class="sh rise card-c" style="left:1240px;top:792px;width:560px;height:104px;--i:4"><div style="padding:20px 26px"><div class="mono-sm">开源</div><div style="margin-top:12px;font:700 30px/1.2 var(--f-cn);color:var(--ink)">TEN 开源工具库</div></div></div><div class="sh flow" style="left:1240px;top:914px;width:560px;height:60px;--i:5"><div class="note">与实时互动平台并列的<strong style="color:var(--accent)">两大产品引擎</strong>。</div></div><div class="sh flow" style="left:120px;top:920px;width:1080px;height:70px;--i:6"><div class="land"><span class="dot" style="background:var(--l-eng)"></span>Engine 提供能力　<span class="dot" style="background:var(--l-agent)"></span>Agent 交付结果　<span class="dot" style="background:var(--l-phys)"></span>Physical AI 走进物理世界。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="4" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">4/8</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">ENGINE · 一页讲透 · SHIPPING VELOCITY</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">超低延迟、可打断、<strong>高自然度</strong>。</div><div class="sh flow seclab" style="left:120px;top:246px;width:620px;height:20px;--i:0">01 · VELOCITY</div><div class="sh flow tl-line" style="left:180px;top:306px;width:1280px;height:3px;--i:1"></div><div class="sh flow mono-sm" style="left:180px;top:340px;width:460px;height:24px;--i:3">2025.02.18 · v1.0 公测</div><div class="sh flow mono-sm" style="left:1000px;top:340px;width:460px;height:24px;text-align:right;--i:3">2026.08.11 · v2.11 最新</div><div class="sh settle" style="left:1560px;top:258px;width:240px;height:76px;text-align:right;font:900 56px/1 var(--f-cn);letter-spacing:-.03em;color:var(--l-eng);--i:2">17</div><div class="sh flow mono-sm" style="left:1440px;top:340px;width:360px;height:22px;text-align:right;--i:3">PUBLIC RELEASES · 18 MONTHS</div><div class="sh pop vt big" style="left:180px;top:292px;width:5px;height:32px;--i:1"></div><div class="sh pop vt" style="left:260px;top:297px;width:3px;height:22px;--i:1"></div><div class="sh pop vt" style="left:340px;top:297px;width:3px;height:22px;--i:1"></div><div class="sh pop vt" style="left:420px;top:297px;width:3px;height:22px;--i:1"></div><div class="sh pop vt" style="left:500px;top:297px;width:3px;height:22px;--i:1"></div><div class="sh pop vt" style="left:580px;top:297px;width:3px;height:22px;--i:1"></div><div class="sh pop vt" style="left:660px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:740px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:820px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:900px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:980px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:1060px;top:297px;width:3px;height:22px;--i:2"></div><div class="sh pop vt" style="left:1140px;top:297px;width:3px;height:22px;--i:3"></div><div class="sh pop vt" style="left:1220px;top:297px;width:3px;height:22px;--i:3"></div><div class="sh pop vt" style="left:1300px;top:297px;width:3px;height:22px;--i:3"></div><div class="sh pop vt" style="left:1380px;top:297px;width:3px;height:22px;--i:3"></div><div class="sh pop vt big" style="left:1460px;top:292px;width:5px;height:32px;--i:3"></div><div class="sh spread hair-rule" style="left:120px;top:384px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:404px;width:620px;height:20px;--i:0">02 · VS LIVEKIT</div><div class="sh flow" style="left:120px;top:444px;width:200px;height:46px;--i:2"><div style="font:700 20px/1.25 var(--f-cn);color:var(--ink)">打断成功率</div><div style="margin-top:6px;font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--ink-3)">越高越好</div></div><div class="sh spread" style="left:328px;top:446px;width:460px;height:14px;background:var(--l-eng);border-radius:4px;--i:2"></div><div class="sh flow" style="left:800px;top:440px;width:150px;height:24px;--i:2"><span style="font:700 18px/24px var(--f-mono);color:var(--ink)">33%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">声网</span></div><div class="sh spread" style="left:328px;top:474px;width:237px;height:14px;background:var(--ink-3);opacity:.42;border-radius:4px;--i:2"></div><div class="sh flow" style="left:800px;top:468px;width:150px;height:24px;--i:2"><span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">17%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span></div><div class="sh flow" style="left:120px;top:540px;width:200px;height:46px;--i:3"><div style="font:700 20px/1.25 var(--f-cn);color:var(--ink)">词错率 WER</div><div style="margin-top:6px;font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--ink-3)">越低越好</div></div><div class="sh spread" style="left:328px;top:542px;width:309px;height:14px;background:var(--l-eng);border-radius:4px;--i:3"></div><div class="sh flow" style="left:800px;top:536px;width:150px;height:24px;--i:3"><span style="font:700 18px/24px var(--f-mono);color:var(--ink)">9.25%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">声网</span></div><div class="sh spread" style="left:328px;top:570px;width:460px;height:14px;background:var(--ink-3);opacity:.42;border-radius:4px;--i:3"></div><div class="sh flow" style="left:800px;top:564px;width:150px;height:24px;--i:3"><span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">13.77%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span></div><div class="sh flow" style="left:120px;top:636px;width:200px;height:46px;--i:4"><div style="font:700 20px/1.25 var(--f-cn);color:var(--ink)">多语种支持</div><div style="margin-top:6px;font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--ink-3)">6 语种全覆盖</div></div><div class="sh spread" style="left:328px;top:638px;width:460px;height:14px;background:var(--l-eng);border-radius:4px;--i:4"></div><div class="sh flow" style="left:800px;top:632px;width:150px;height:24px;--i:4"><span style="font:700 18px/24px var(--f-mono);color:var(--ink)">6/6</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">声网</span></div><div class="sh spread" style="left:328px;top:666px;width:6px;height:14px;background:var(--ink-3);opacity:.42;border-radius:4px;--i:4"></div><div class="sh flow" style="left:800px;top:660px;width:150px;height:24px;--i:4"><span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">0/6</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span></div><div class="sh flow" style="left:120px;top:732px;width:200px;height:46px;--i:5"><div style="font:700 20px/1.25 var(--f-cn);color:var(--ink)">抗噪误响应率</div><div style="margin-top:6px;font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--ink-3)">越低越好</div></div><div class="sh spread" style="left:328px;top:734px;width:32px;height:14px;background:var(--l-eng);border-radius:4px;--i:5"></div><div class="sh flow" style="left:800px;top:728px;width:150px;height:24px;--i:5"><span style="font:700 18px/24px var(--f-mono);color:var(--ink)">7%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">声网</span></div><div class="sh spread" style="left:328px;top:762px;width:460px;height:14px;background:var(--ink-3);opacity:.42;border-radius:4px;--i:5"></div><div class="sh flow" style="left:800px;top:756px;width:150px;height:24px;--i:5"><span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">100%</span><span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span></div><div class="sh flow seclab" style="left:980px;top:404px;width:620px;height:20px;--i:0">03 · SIGNATURE MOVES</div><div class="sh rise card-c" style="left:980px;top:440px;width:820px;height:128px;--i:3"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:26px"><div class="fig" style="width:200px;flex:none"><svg viewBox="0 0 420 120" style="width:100%;height:auto"><path class="stroke" style="stroke-width:2" d="M14 70 q28 -44 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/><path fill="none" stroke="var(--l-eng)" stroke-width="2" d="M14 52 q28 44 56 0 t56 0 t56 0"/><path fill="none" stroke="var(--l-eng)" stroke-width="2" d="M238 52 q28 44 56 0 t56 0 t56 0"/><path d="M210 18 V104" stroke="var(--hair-strong)" stroke-width="2" stroke-dasharray="4 6" fill="none"/><circle class="pop fill-am" cx="210" cy="61" r="6"/></svg></div><div style="flex:1"><div style="font:700 24px/1.2 var(--f-cn);color:var(--ink)"><span style="font:700 15px/1 var(--f-mono);color:var(--l-eng);margin-right:12px">01</span>优雅打断 2.0</div><div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">CAN + 语义 + 声学三路融合。从「能打断」到「打断得体」。</div></div></div></div><div class="sh rise card-c" style="left:980px;top:574px;width:820px;height:128px;--i:4"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:26px"><div class="fig" style="width:200px;flex:none"><svg viewBox="0 0 420 120" style="width:100%;height:auto"><g fill="none" stroke="var(--l-eng)" stroke-width="2"><path d="M120 32 A18 18 0 0 1 120 68"/><path d="M120 20 A30 30 0 0 1 120 80"/><path d="M120 8 A42 42 0 0 1 120 92"/></g><circle class="fill-am" cx="120" cy="50" r="5"/><g class="stroke" style="stroke-width:2"><path d="M300 52 A18 18 0 0 0 300 88"/><path d="M300 40 A30 30 0 0 0 300 100"/><path d="M300 28 A42 42 0 0 0 300 112"/></g><circle cx="300" cy="70" r="5" fill="var(--ink-3)"/></svg></div><div style="flex:1"><div style="font:700 24px/1.2 var(--f-cn);color:var(--ink)"><span style="font:700 15px/1 var(--f-mono);color:var(--l-eng);margin-right:12px">02</span>声纹识别</div><div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">有感 / 无感双模式。多人同场分得清说话人。</div></div></div></div><div class="sh rise card-c" style="left:980px;top:708px;width:820px;height:128px;--i:5"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:26px"><div class="fig" style="width:200px;flex:none"><svg viewBox="0 0 420 120" style="width:100%;height:auto"><path class="dw stroke" style="--len:340;stroke-width:2" d="M40 60 H380"/><circle cx="40" cy="60" r="8" class="box" stroke-width="1.5"/><circle cx="125" cy="60" r="8" class="box" stroke-width="1.5"/><circle cx="210" cy="60" r="8" class="box" stroke-width="1.5"/><circle cx="295" cy="60" r="8" class="box" stroke-width="1.5"/><circle class="fill-am" cx="380" cy="60" r="8"/></svg></div><div style="flex:1"><div style="font:700 24px/1.2 var(--f-cn);color:var(--ink)"><span style="font:700 15px/1 var(--f-mono);color:var(--l-eng);margin-right:12px">03</span>短期记忆</div><div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">会话内毫秒级上下文。转人工、转 Agent 不丢线索。</div></div></div></div><div class="sh spread hair-rule" style="left:120px;top:852px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:874px;width:620px;height:20px;--i:0">04 · OPEN</div><div class="sh rise" style="left:120px;top:902px;width:1680px;height:54px;--i:4"><span class="chip">ASR / LLM / TTS 可替换 · 可兜底 · 可热切换</span><span class="chip">MCP + Function Call</span><span class="chip">数字人</span><span class="chip">TEN 开源生态</span></div><div class="sh flow" style="left:120px;top:978px;width:1680px;height:70px;--i:6"><div class="land">模型会换代，接口不换人。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="5" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">5/8</div><div class="sh flow kk ag" style="left:120px;top:92px;width:1680px;height:28px">AGENT · 电话客服智能体 · REAL PRODUCTION DATA</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">已经超越<strong class="ag">真人</strong>的电话智能体。</div><div class="sh flow seclab" style="left:120px;top:236px;width:620px;height:20px;--i:0">01 · TURING</div><div class="sh settle" style="left:120px;top:268px;width:760px;height:130px"><div class="stat"><div class="v" style="font-size:88px;color:var(--l-agent)">96.5%</div><div class="l">用户以为在跟真人说话</div></div></div><div class="sh flow" style="left:120px;top:400px;width:800px;height:240px;--i:2"><div class="fig"><svg viewBox="0 0 1000 300" style="width:100%;height:auto"><g class="pop" style="--i:0"><rect x="250" y="20" width="700" height="52" rx="2" class="box" stroke-width="1"/><text class="lbl" x="230" y="52" text-anchor="end">接听</text><text class="sm" x="272" y="53">2,475 · 100.0%</text></g><g class="pop" style="--i:1"><rect x="250" y="92" width="617" height="52" rx="2" class="box" stroke-width="1"/><text class="lbl" x="230" y="124" text-anchor="end">真人接听</text><text class="sm" x="272" y="125">2,180 · 88.1%</text></g><g class="pop" style="--i:2"><rect x="250" y="164" width="331" height="52" rx="2" fill="none" stroke="var(--l-agent)" stroke-width="2"/><text class="lbl" x="230" y="196" text-anchor="end">有效对话</text><text class="sm" x="272" y="197" style="fill:var(--l-agent)">1,170 · 47.3%</text></g><g class="pop" style="--i:3"><rect x="250" y="236" width="26" height="52" rx="2" fill="none" stroke="var(--coral)" stroke-width="2"/><text class="lbl" x="230" y="268" text-anchor="end">感知为 AI</text><text class="sm" x="296" y="269" style="fill:var(--coral)">86 · 3.5%</text></g></svg></div></div><div class="sh flow" style="left:120px;top:660px;width:800px;height:44px;font:400 20px/1.4 var(--f-cn);color:var(--ink-2);--i:4">仅 3.5%（86 通）被用户明显感知为 AI。</div><div class="sh flow seclab" style="left:960px;top:236px;width:620px;height:20px;--i:0">02 · CONVERSION</div><div class="sh flow" style="left:960px;top:268px;width:840px;height:200px;--i:2"><div class="fig"><svg viewBox="0 0 840 200" style="width:100%;height:auto"><g class="pop" style="--i:0"><rect x="150" y="26" width="196" height="46" rx="2" class="box" stroke-width="1"/><text class="lbl" x="134" y="56" text-anchor="end">行业最佳人工</text><text class="txt" x="362" y="57">1.5% —— 行业天花板</text></g><g class="pop" style="--i:1"><rect x="150" y="104" width="402" height="46" rx="2" fill="none" stroke="var(--l-agent)" stroke-width="2"/><text class="lbl" x="134" y="134" text-anchor="end" style="fill:var(--l-agent)">ConvoAI</text><text class="txt" x="568" y="135" style="fill:var(--l-agent)">3.08% —— 真实生产数据</text></g><text class="big pop" style="--i:3;fill:var(--l-agent)" x="700" y="100" text-anchor="middle">2.05×</text><text class="lbl pop" style="--i:4" x="150" y="188">AI ÷ 人 = 2.05 倍 · 日均营销转化率</text></svg></div></div><div class="sh flow seclab" style="left:960px;top:496px;width:620px;height:20px;--i:0">03 · FIVE · 企业级智能体必须做的 5 件事</div><div class="sh " style="left:960px;top:528px;width:840px;height:300px"><div class="rows"><div class="r flow" style="--i:2;padding:15px 0"><span class="n" style="color:var(--l-agent);font-size:22px">01</span><span class="k" style="width:130px;font-size:22px;color:var(--l-agent)">运行时</span><span class="v" style="font-size:19px">全球 SD-RTN 200+ 节点</span></div><div class="r flow" style="--i:3;padding:15px 0"><span class="n" style="color:var(--l-agent);font-size:22px">02</span><span class="k" style="width:130px;font-size:22px;color:var(--l-agent)">记忆</span><span class="v" style="font-size:19px">毫秒级分层记忆 RAG 端到端</span></div><div class="r flow hot" style="--i:4;padding:15px 0"><span class="n" style="color:var(--coral);font-size:22px">03</span><span class="k" style="width:130px;font-size:22px;color:var(--coral)">安全</span><span class="v" style="font-size:19px">99.99% · SOC 2 / GDPR</span></div><div class="r flow" style="--i:5;padding:15px 0"><span class="n" style="color:var(--l-agent);font-size:22px">04</span><span class="k" style="width:130px;font-size:22px;color:var(--l-agent)">工具</span><span class="v" style="font-size:19px">MCP + Function Call 开放栈</span></div><div class="r flow" style="--i:6;padding:15px 0"><span class="n" style="color:var(--l-agent);font-size:22px">05</span><span class="k" style="width:130px;font-size:22px;color:var(--l-agent)">弹性</span><span class="v" style="font-size:19px">900 亿分钟 RTE 月均支撑</span></div></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:866px;width:620px;height:20px;--i:0">04 · CAPABILITIES · CALL AGENT 12 项能力</div><div class="sh rise" style="left:120px;top:890px;width:1680px;height:94px;--i:3"><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px"><div class="cap">SIP / PSTN 全打通</div><div class="cap">Warm Transfer</div><div class="cap">WhatsApp 接入</div><div class="cap">LATAM SIP</div><div class="cap">海外多供应商</div><div class="cap">静态填充词</div><div class="cap">Campaign A/B</div><div class="cap">时区 · 号码前缀</div><div class="cap">音色复刻</div><div class="cap on">优雅打断 2.0</div><div class="cap">声纹识别</div><div class="cap">实时情绪识别</div></div></div><div class="sh flow" style="left:120px;top:990px;width:1680px;height:70px;--i:5"><div class="land">不再是「AI 能否替代人工」——是「人工能否追上 AI」。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="6" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">6/8</div><div class="sh flow kk ph" style="left:120px;top:92px;width:1680px;height:28px">PHYSICAL AI · 对话式 AI 开发套件 · GLOBAL FIRST</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">让对话，<strong class="ph">走出屏幕</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:620px;height:20px;--i:0">01 · R1 KIT</div><div class="sh rise card-c" style="left:120px;top:266px;width:800px;height:176px;--i:2"><div style="padding:22px 30px"><div class="mono-sm" style="color:var(--l-phys)">R1 · WI-FI · 2025.03.20 发布</div><h3 style="margin:12px 0 8px;font:700 34px/1.2 var(--f-cn);color:var(--ink)">R1-WiFi</h3><div style="font:400 18px/1.5 var(--f-cn);color:var(--ink-2)">面向家居与室内场景——音箱、桌宠、陪伴机器人。</div><div style="margin-top:12px;font:500 13px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-3)">· 连接　Wi-Fi　　· 场景　家居 / 室内　　· 形态　音箱 · 桌宠 · 陪伴机器人</div></div></div><div class="sh rise card-c" style="left:120px;top:458px;width:800px;height:176px;--i:3"><div style="padding:22px 30px"><div class="mono-sm" style="color:var(--l-phys)">R1 · 4G · 2025.09.26 发布</div><h3 style="margin:12px 0 8px;font:700 34px/1.2 var(--f-cn);color:var(--ink)">R1-4G</h3><div style="font:400 18px/1.5 var(--f-cn);color:var(--ink-2)">走出 Wi-Fi 覆盖——户外、随身、车载与出海设备。</div><div style="margin-top:12px;font:500 13px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-3)">· 连接　4G 全移动　　· 场景　户外 / 随身 / 车载　　· 形态　出海设备 · 随身伴侣</div></div></div><div class="sh flow" style="left:120px;top:652px;width:800px;height:44px;font:500 22px/1.4 var(--f-cn);color:var(--l-phys);--i:4">全球率先发布的对话式 AI 硬件开发套件。</div><div class="sh flow seclab" style="left:980px;top:236px;width:620px;height:20px;--i:0">02 · LIFELIKE · 「活人感」三态</div><div class="sh rise card-c face" style="left:980px;top:266px;width:260px;height:236px;--i:2"><div class="en">TOO DRY</div><h3>太木</h3><p>正确，但没有关系温度。用户不想再开口。</p></div><div class="sh rise card-c face good" style="left:1260px;top:266px;width:260px;height:236px;--i:3"><div class="en">JUST RIGHT</div><h3>恰好</h3><p>自然、可持续相处。下次还想跟它说话。</p></div><div class="sh rise card-c face" style="left:1540px;top:266px;width:260px;height:236px;--i:4"><div class="en">TOO CLINGY</div><h3>太腻</h3><p>伪装成朋友的销售感。三句之后想拔电源。</p></div><div class="sh flow" style="left:980px;top:520px;width:820px;height:60px;--i:5"><div class="note">活人感 = <strong style="color:var(--l-phys)">角色立得住 + 临场撑得住</strong>。</div></div><div class="sh spread hair-rule" style="left:120px;top:706px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:728px;width:620px;height:20px;--i:0">03 · ROBOTICS 1 · 机器人的临场引擎</div><div class="sh " style="left:120px;top:776px;width:1680px;height:140px"><div class="g3"><div class="stat flow" style="--i:2"><div class="v" style="font-size:72px;color:var(--l-phys)">200+</div><div class="l">全球节点 · SD-RTN 软件定义实时网</div></div><div class="stat flow" style="--i:3"><div class="v" style="font-size:72px;font-family:var(--f-cn);color:var(--l-phys)">毫秒级</div><div class="l">端到端往返 · 弱网最后一公里对抗</div></div><div class="stat flow" style="--i:4"><div class="v" style="font-size:72px;color:var(--l-phys)">30000+</div><div class="l">芯片与整机适配 · 你的形态大概率已支持</div></div></div></div><div class="sh flow" style="left:120px;top:940px;width:1680px;height:70px;--i:5"><div class="land">你做产品与角色，我们做<strong style="color:var(--l-phys)">临场与连接</strong>。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="7" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">7/8</div><div class="sh flow kk nt" style="left:120px;top:92px;width:1680px;height:28px">案例 · 已经上岗的对话式 AI · IN PRODUCTION</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">对话式 AI，<strong>已经上岗</strong>。</div><div class="sh flow seclab" style="left:120px;top:238px;width:620px;height:20px;--i:0">01 · LANDSCAPE · 2026 对话式 AI 生态全景</div><div class="sh settle frame" style="left:120px;top:270px;width:980px;height:551px;--i:2"><img src="/decks/assets/convoai/eco-2026.webp" alt="2026 对话式 AI 生态全景"></div><div class="sh pop callout-chip" style="left:120px;top:842px;width:auto;height:auto;--i:4">L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b></div><div class="sh flow mono-sm" style="left:120px;top:918px;width:980px;height:44px;--i:5">五层价值地壳 · 代表性生态 · 事实截止 2026.08 · 研究口径见 colinyao.com 知识库</div><div class="sh flow seclab" style="left:1156px;top:238px;width:644px;height:20px;--i:0">02 · CASES · 声网官方联合案例 14 例</div><div class="sh flow seclab" style="left:1156px;top:266px;width:644px;height:20px;--i:2">COMPANIONS</div><div class="sh rise case" style="left:1156px;top:292px;width:110px;height:196px;--i:2"><img src="/decks/assets/convoai/case-jixian.webp" alt="声网联合案例 · jixian"></div><div class="sh rise case" style="left:1289px;top:292px;width:110px;height:196px;--i:2"><img src="/decks/assets/convoai/case-robopoet.webp" alt="声网联合案例 · robopoet"></div><div class="sh rise case" style="left:1422px;top:292px;width:110px;height:196px;--i:2"><img src="/decks/assets/convoai/case-luwu.webp" alt="声网联合案例 · luwu"></div><div class="sh rise case" style="left:1555px;top:292px;width:110px;height:196px;--i:2"><img src="/decks/assets/convoai/case-pophie.webp" alt="声网联合案例 · pophie"></div><div class="sh flow seclab" style="left:1156px;top:508px;width:644px;height:20px;--i:3">IN-APP AGENTS</div><div class="sh rise case" style="left:1156px;top:534px;width:110px;height:196px;--i:3"><img src="/decks/assets/convoai/case-sensetime.webp" alt="声网联合案例 · sensetime"></div><div class="sh rise case" style="left:1289px;top:534px;width:110px;height:196px;--i:3"><img src="/decks/assets/convoai/case-minimax.webp" alt="声网联合案例 · minimax"></div><div class="sh rise case" style="left:1422px;top:534px;width:110px;height:196px;--i:3"><img src="/decks/assets/convoai/case-zhipu.webp" alt="声网联合案例 · zhipu"></div><div class="sh rise case" style="left:1555px;top:534px;width:110px;height:196px;--i:3"><img src="/decks/assets/convoai/case-xingye.webp" alt="声网联合案例 · xingye"></div><div class="sh rise case" style="left:1688px;top:534px;width:110px;height:196px;--i:3"><img src="/decks/assets/convoai/case-lingji.webp" alt="声网联合案例 · lingji"></div><div class="sh flow seclab" style="left:1156px;top:750px;width:644px;height:20px;--i:4">NEW DEVICES</div><div class="sh rise case" style="left:1156px;top:776px;width:110px;height:196px;--i:4"><img src="/decks/assets/convoai/case-looktech.webp" alt="声网联合案例 · looktech"></div><div class="sh rise case" style="left:1289px;top:776px;width:110px;height:196px;--i:4"><img src="/decks/assets/convoai/case-heycyan.webp" alt="声网联合案例 · heycyan"></div><div class="sh rise case" style="left:1422px;top:776px;width:110px;height:196px;--i:4"><img src="/decks/assets/convoai/case-lookee.webp" alt="声网联合案例 · lookee"></div><div class="sh rise case" style="left:1555px;top:776px;width:110px;height:196px;--i:4"><img src="/decks/assets/convoai/case-lianou.webp" alt="声网联合案例 · lianou"></div><div class="sh rise case" style="left:1688px;top:776px;width:110px;height:196px;--i:4"><img src="/decks/assets/convoai/case-doushen.webp" alt="声网联合案例 · doushen"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">声网官方联合案例 · 均已公开。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="8" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">8/8</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">合流 · 为什么是声网 · 怎么开始 · ONE NET</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">三条支流，<strong>一条河</strong>。</div><div class="sh flow seclab" style="left:120px;top:240px;width:620px;height:20px;--i:0">01 · ONE NET</div><div class="sh rise" style="left:120px;top:274px;width:1680px;height:44px;font:700 26px/1.5 var(--f-cn);color:var(--ink-2);--i:2"><span class="dot" style="background:var(--l-eng)"></span>Engine 的每一次打断　<span class="dot" style="background:var(--l-agent)"></span>Agent 的每一通电话　<span class="dot" style="background:var(--l-phys)"></span>Physical AI 的每一次唤醒</div><div class="sh flow" style="left:120px;top:330px;width:1680px;height:50px;font:400 24px/1.6 var(--f-cn);color:var(--ink);--i:3">都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上——全球 200+ 节点，端到端毫秒级。</div><div class="sh spread hair-rule" style="left:120px;top:404px;width:1680px;height:1px;--i:1"></div><div class="sh flow seclab" style="left:120px;top:426px;width:620px;height:20px;--i:0">02 · NEUTRALITY</div><div class="sh " style="left:120px;top:460px;width:840px;height:186px"><div class="rows"><div class="r flow" style="--i:2;padding:16px 0"><span class="n">01</span><span class="k" style="width:230px;font-size:24px">不做 C 端 App</span><span class="v" style="font-size:18px">不和你的产品竞争用户——你的用户永远是你的。</span></div><div class="r flow" style="--i:3;padding:16px 0"><span class="n">02</span><span class="k" style="width:230px;font-size:24px">不做自有硬件品牌</span><span class="v" style="font-size:18px">R1 是开发套件，不是消费品——我们停在你需要的那一层。</span></div><div class="r flow" style="--i:4;padding:16px 0"><span class="n">03</span><span class="k" style="width:230px;font-size:24px">不训基座大模型</span><span class="v" style="font-size:18px">多供应商开放，谁好用接谁——模型进步全部归你享受。</span></div></div></div><div class="sh flow" style="left:120px;top:676px;width:840px;height:50px;font:500 24px/1.5 var(--f-cn);color:var(--accent);--i:5">OpenAI 选择我们，也是这个原因。</div><div class="sh flow seclab" style="left:980px;top:426px;width:620px;height:20px;--i:0">03 · START</div><div class="sh rise card-c" style="left:980px;top:460px;width:820px;height:76px;--i:2"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:24px"><div style="font:500 15px/1 var(--f-mono);letter-spacing:.12em;color:var(--accent);width:180px;flex:none">STEP 1 · 今天</div><div style="font:700 30px/1.2 var(--f-cn);color:var(--ink);width:172px;flex:none">注册即用</div><div style="font:400 17px/1.4 var(--f-cn);color:var(--ink-2);flex:1">免费额度，当天就能听到第一句回话</div></div></div><div class="sh rise card-c" style="left:980px;top:580px;width:820px;height:76px;--i:3"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:24px"><div style="font:500 15px/1 var(--f-mono);letter-spacing:.12em;color:var(--accent);width:180px;flex:none">STEP 2 · 两周</div><div style="font:700 30px/1.2 var(--f-cn);color:var(--ink);width:172px;flex:none">PoC 共建</div><div style="font:400 17px/1.4 var(--f-cn);color:var(--ink-2);flex:1">工程团队陪跑，把你的第一个真实场景跑通</div></div></div><div class="sh rise card-c" style="left:980px;top:700px;width:820px;height:76px;--i:4"><div style="padding:0 30px;height:100%;display:flex;align-items:center;gap:24px"><div style="font:500 15px/1 var(--f-mono);letter-spacing:.12em;color:var(--accent);width:180px;flex:none">STEP 3 · 一个季度</div><div style="font:700 30px/1.2 var(--f-cn);color:var(--ink);width:172px;flex:none">规模化上线</div><div style="font:400 17px/1.4 var(--f-cn);color:var(--ink-2);flex:1">SLA、全球部署、多供应商兜底</div></div></div><div class="sh flow" style="left:1380px;top:542px;width:20px;height:36px;--i:3"><div class="fig"><svg viewBox="0 0 20 36" style="width:100%;height:auto"><path class="dw" style="--len:22" d="M10 2 V24" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><polygon class="fill-ink" points="4,24 16,24 10,34"/></svg></div></div><div class="sh flow" style="left:1380px;top:662px;width:20px;height:36px;--i:4"><div class="fig"><svg viewBox="0 0 20 36" style="width:100%;height:auto"><path class="dw" style="--len:22" d="M10 2 V24" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/><polygon class="fill-ink" points="4,24 16,24 10,34"/></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:880px;width:1680px;height:80px;--i:6"><div class="land">让每一次人机对话，都像<strong>真人</strong>一样自然。</div></div><div class="sh flow mono-sm" style="left:120px;top:1004px;width:1680px;height:24px;--i:7">姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM</div></div>
+</section>
+  </div>
+</div>
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone" aria-hidden="true"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<button class="deck-swap" id="deckSwap">暗底</button>
+<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);border-radius:3px;padding:7px 12px;opacity:.5;transition:opacity .3s;background:transparent;cursor:pointer;}.deck-swap:hover{opacity:1;color:var(--accent);border-color:var(--accent);}@media print{.deck-swap{display:none!important;}}</style>
+<script>/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
+  }
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
+</script>
+<script>(function(){var b=document.getElementById("deckSwap");function apply(t){if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");b.textContent="浅底";}else{document.documentElement.removeAttribute("data-theme");b.textContent="暗底";}document.querySelectorAll(".strip img.lt").forEach(function(el){el.style.display=(t==="dark")?"none":"block";});document.querySelectorAll(".strip img.dk").forEach(function(el){el.style.display=(t==="dark")?"block":"none";});}var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>
+</body></html>
