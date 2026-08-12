@@ -12,6 +12,12 @@ export type Deck = {
 
 /** 隐藏 deck 库：不进导航、不进 sitemap、全部 noindex。索引页 /decks 仅自己可知。 */
 export const speechDecks: Deck[] = [
+  // convoai = 初次拜访客户工作 deck（非讲次档案）：公司信任状 + 对话式 AI 矩阵 + 三条产品线。
+  // CONF 家族 · conf-light 默认 · 单文件双主题 · 背景板节奏（title/chapter×3/quote/content）
+  // + GPT 5.6 hero-art 章视觉层（5 组双主题透明 PNG，contain 不裁切）。
+  // 口径纪律：只用公开可查证数字（BPO 喂稿锁定文案 + 官网/发版说明），Phone Agent 用「Global 率先发布」。
+  // 重建：python3 scripts/build-convoai-visit.py · 自检：node scripts/qa-convoai.mjs（THEME=dark 二跑）
+  { slug: "convoai", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 62, category: "演讲", dual: true },
   { slug: "cowork-conf", title: "从「被托付」到「双向奔赴 · 共事」· 2026 AI 产品大会视觉版", slides: 55, category: "演讲", dual: false, locked: true },
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },
