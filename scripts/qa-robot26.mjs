@@ -191,9 +191,46 @@ const tpl = await pg.evaluate(() => ({
     +el.closest(".slide").dataset.p, el.textContent.trim()]),
   slideBg: getComputedStyle(document.querySelector(".slide")).backgroundColor,
 }));
-if (tpl.flow !== 8) fails.push(`底流场曲线 ${tpl.flow} 条 ≠ 8`);
+if (tpl.flow !== 0) fails.push(`R28：流场应已退役，仍见 ${tpl.flow} 条曲线`);   // skill 2026-08-12：CONF 换背景板
 if (!tpl.grid) fails.push("栏线网格 .deck-grid 缺失");
 if (tpl.rail !== 2) fails.push(`发丝导轨 ${tpl.rail} 条 ≠ 2`);
+
+// ── ⑰ R28 · CONF 背景板（默认组合四板 · 双主题成对 · 每页一张）──────────
+const r28 = await pg.evaluate(() => {
+  const secs = [...document.querySelectorAll(".slide")];
+  const per = secs.map((s) => ({
+    p: +s.dataset.p, boarded: s.classList.contains("conf-boarded"),
+    bgs: [...s.querySelectorAll(".conf-bg")].map((el) =>
+      [...el.classList].find((c) => c.startsWith("conf-bg-")) || "?"),
+    img: s.querySelector(".conf-bg") ? getComputedStyle(s.querySelector(".conf-bg")).backgroundImage : "",
+  }));
+  return { per, distinct: [...new Set(per.flatMap((x) => x.bgs))] };
+});
+r28.per.forEach(({ p, boarded, bgs }) => {
+  if (!boarded || bgs.length !== 1) fails.push(`R28：P${p} 背景板数 ${bgs.length}（应恰好 1 且挂 conf-boarded）`);
+});
+const BOARD_MAP = { 1: "conf-bg-title-02", 37: "conf-bg-title-02", 4: "conf-bg-quote-02",
+  26: "conf-bg-quote-02", 27: "conf-bg-quote-02", 14: "conf-bg-chapter-03", 2: "conf-bg-content-01" };
+for (const [p, want] of Object.entries(BOARD_MAP)) {
+  const got = r28.per.find((x) => x.p === +p)?.bgs[0];
+  if (got !== want) fails.push(`R28：P${p} 板 ${got} ≠ ${want}`);
+}
+if (r28.distinct.length !== 4) fails.push(`R28：板种类 ${r28.distinct.length} ≠ 4（${r28.distinct}）`);
+r28.per.slice(0, 1).forEach(({ img }) => {
+  const wantSuffix = THEME === "dark" ? "-dark.png" : "-light.png";
+  if (!img.includes(wantSuffix)) fails.push(`R28：${THEME} 主题下板图源 ${img.slice(0, 90)} 未切 ${wantSuffix}`);
+});
+const boardLoad = await pg.evaluate(async () => {
+  const urls = [...new Set([...document.querySelectorAll(".conf-bg")].map((el) =>
+    getComputedStyle(el).backgroundImage.replace(/^url\("|"\)$/g, "")))];
+  const out = [];
+  for (const u of urls) {
+    const ok = await new Promise((res) => { const im = new Image(); im.onload = () => res(im.naturalWidth === 2048 && im.naturalHeight === 1152); im.onerror = () => res(false); im.src = u; });
+    out.push([u.split("/").pop(), ok]);
+  }
+  return out;
+});
+boardLoad.forEach(([f, ok]) => { if (!ok) fails.push(`R28：背景板加载/尺寸异常 ${f}（应 2048×1152）`); });
 if (tpl.sigs.length !== n) fails.push(`R27：页码 ${tpl.sigs.length} 个 ≠ ${n}（37 页每页必挂）`);
 tpl.sigs.forEach(([p, t]) => {
   if (t !== `${p}/${n}`) fails.push(`R27：P${p} 页码「${t}」≠ ${p}/${n}`);

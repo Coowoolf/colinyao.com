@@ -235,8 +235,10 @@ FLOW_SVG = """<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio
     <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
     <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
   </g>
-</svg>
-<div class="deck-grid" aria-hidden="true"></div>
+</svg>"""
+
+# R28：栏线网格 + 上下导轨从 FLOW_SVG 常量拆出——skill 新规只退役流场曲线，这三件照挂
+STAGE_CHROME = """<div class="deck-grid" aria-hidden="true"></div>
 <div class="deck-rail t" aria-hidden="true"></div>
 <div class="deck-rail b" aria-hidden="true"></div>"""
 
@@ -669,8 +671,11 @@ def build_slide(sl):
     #      （.sig 自带 z-index:2，压得住 P24 满幅视频与封面元素）。
     parts.insert(0, '<div class="sig">%d/%d</div>' % (n, len(MODEL["slides"])))
     maxstep = len(groups) + (1 if n == 24 else 0)  # R24：视频页顺延 22→24
-    html = ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s</div>\n</section>'
-            % (n, maxstep, "".join(p for p in parts if p)))
+    # R28：每页挂一张 CONF 背景板（.pp 之前 · z0；.pp z1 压其上）
+    html = ('<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
+            '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>\n'
+            '  <div class="pp">%s</div>\n</section>'
+            % (n, maxstep, _conf_board(n), "".join(p for p in parts if p)))
     if n in COVER_BG_DROP:
         # R23：黑底上黑字不可读，两页 #000000 全部翻主题变量（其余颜色原样，淡紫 accent 留任）
         html = html.replace("color:#000000", "color:var(--ink)")
@@ -1278,6 +1283,37 @@ section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
 </style>"""
 
 
+# ── R28 · CONF 背景板（2026-08-12 skill 新规：FLOW_SVG 流场退出 CONF，静态远景板上岗）──
+# 默认组合四板成节奏（skill 铁律：一页一张 · 未采用候选不入仓 · 板为静态层，内容动效照旧）
+def _conf_board(n):
+    """页型 → 背景板类名后缀（skill 默认组合）"""
+    if n in (1, 37):
+        return "title-02"        # 封面 / 致谢 · Orbit 轨道
+    if n in (4, 26, 27):
+        return "quote-02"        # 金句 MQ 01–03 · Halo Rings 光环
+    if n == 14:
+        return "chapter-03"      # ④ THE ENGINE 章节开篇 · Constellation 星座
+    return "content-01"          # 其余内容页 · Matrix 结构网格（最安静 .42）
+
+
+R28_CSS = r"""<style id="robot26-r28-conf-boards">
+/* R28 · CONF 背景板库（4 板 · 双主题成对 · 透明度梯度内置） */
+.conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
+  background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
+.slide.conf-boarded{background:transparent!important;}
+.slide.conf-boarded>.pp{z-index:1;}
+.conf-bg-title-02{--conf-bg-opacity:.66;background-image:url('/decks/assets/conf-boards/title-02-orbit-light.png');}
+.conf-bg-chapter-03{--conf-bg-opacity:.58;background-image:url('/decks/assets/conf-boards/chapter-03-constellation-light.png');}
+.conf-bg-quote-02{--conf-bg-opacity:.46;background-image:url('/decks/assets/conf-boards/quote-02-halo-rings-light.png');}
+.conf-bg-content-01{--conf-bg-opacity:.42;background-image:url('/decks/assets/conf-boards/content-01-matrix-light.png');}
+html[data-theme="dark"] .conf-bg-title-02{background-image:url('/decks/assets/conf-boards/title-02-orbit-dark.png');}
+html[data-theme="dark"] .conf-bg-chapter-03{background-image:url('/decks/assets/conf-boards/chapter-03-constellation-dark.png');}
+html[data-theme="dark"] .conf-bg-quote-02{background-image:url('/decks/assets/conf-boards/quote-02-halo-rings-dark.png');}
+html[data-theme="dark"] .conf-bg-content-01{background-image:url('/decks/assets/conf-boards/content-01-matrix-dark.png');}
+html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
+</style>"""
+
+
 def _r27_sh(classes, style, body, step=None, sid=None):
     a = ' data-sid="%s"' % sid if sid else ""
     a += ' data-step="%d"' % step if step is not None else ""
@@ -1286,8 +1322,10 @@ def _r27_sh(classes, style, body, step=None, sid=None):
 
 def _r27_section(page, steps, body):
     sig = '<div class="sig">%d/%d</div>' % (page, len(MODEL["slides"]))
-    return ('<section class="slide" data-p="%d" data-steps="%d">\n  <div class="pp">%s%s</div>\n</section>'
-            % (page, steps, sig, body))
+    return ('<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
+            '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>\n'
+            '  <div class="pp">%s%s</div>\n</section>'
+            % (page, steps, _conf_board(page), sig, body))
 
 
 def _r27_p3():
@@ -1551,9 +1589,11 @@ def main():
         '<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         '<title>从玩具到伙伴 · 消费级机器人的「活人感」交互设计 · 姚光华 Colin</title>\n'
-        + FONTS + "\n" + CSS + "\n" + R27_CSS + "\n</head>\n<body>\n"
+        + FONTS + "\n" + CSS + "\n" + R27_CSS + "\n" + R28_CSS + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
-        + FLOW_SVG + "\n"
+        # R28：FLOW_SVG 流场退出 CONF 装配（skill 2026-08-12 新规；流场是 base 站内签名，
+        #      conf 换每页静态背景板。FLOW_SVG 常量与 .deck-flow CSS 保留便于回滚）
+        + STAGE_CHROME + "\n"
         + "\n".join(secs) +
         "\n  </div>\n</div>\n"
         '<div class="deck-progress" id="deckProgress"></div>\n'
