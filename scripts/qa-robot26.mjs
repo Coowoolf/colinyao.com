@@ -209,13 +209,16 @@ const r28 = await pg.evaluate(() => {
 r28.per.forEach(({ p, boarded, bgs }) => {
   if (!boarded || bgs.length !== 1) fails.push(`R28：P${p} 背景板数 ${bgs.length}（应恰好 1 且挂 conf-boarded）`);
 });
+// R28.1（Colin）：内容板按幕轮换——P2-13 Matrix · P15-25 Side Rail · P28-36 Axis Map
 const BOARD_MAP = { 1: "conf-bg-title-02", 37: "conf-bg-title-02", 4: "conf-bg-quote-02",
-  26: "conf-bg-quote-02", 27: "conf-bg-quote-02", 14: "conf-bg-chapter-03", 2: "conf-bg-content-01" };
+  26: "conf-bg-quote-02", 27: "conf-bg-quote-02", 14: "conf-bg-chapter-03",
+  2: "conf-bg-content-01", 13: "conf-bg-content-01", 15: "conf-bg-content-02",
+  25: "conf-bg-content-02", 28: "conf-bg-content-03", 36: "conf-bg-content-03" };
 for (const [p, want] of Object.entries(BOARD_MAP)) {
   const got = r28.per.find((x) => x.p === +p)?.bgs[0];
   if (got !== want) fails.push(`R28：P${p} 板 ${got} ≠ ${want}`);
 }
-if (r28.distinct.length !== 4) fails.push(`R28：板种类 ${r28.distinct.length} ≠ 4（${r28.distinct}）`);
+if (r28.distinct.length !== 6) fails.push(`R28.1：板种类 ${r28.distinct.length} ≠ 6（${r28.distinct}）`);
 r28.per.slice(0, 1).forEach(({ img }) => {
   const wantSuffix = THEME === "dark" ? "-dark.png" : "-light.png";
   if (!img.includes(wantSuffix)) fails.push(`R28：${THEME} 主题下板图源 ${img.slice(0, 90)} 未切 ${wantSuffix}`);
