@@ -1173,6 +1173,8 @@ section[data-p="14"] [data-sid="11"]{
 }
 section[data-p="14"] [data-sid="12"]{color:var(--ink-m)!important;}
 section[data-p="14"] [data-sid="13"]{color:var(--amber)!important;}
+/* R27.4（Colin）：落点句「临场感的落点：交互」移到 thesis 顶线上方压轴（原位 1000,852 右下角） */
+section[data-p="14"] [data-sid="26"]{left:240px!important;top:600px!important;}
 
 /* P10 · R27.3（Colin）：「智能音箱 你叫醒我」标签框 116×58 贴字宽极限，
    Mac PingFang 渲染下尾字被裁；加宽加高保持圆心对位（机检 ⑪ 未点名的盲区，防御性放宽） */
@@ -1242,16 +1244,22 @@ section[data-p="29"] [data-sid="31"] span{color:#0d0d0d!important;}
 .r27-chart .goal{fill:var(--amber);stroke:var(--amber);}
 .r27-chart .grid{stroke:var(--hair);stroke-width:1;stroke-dasharray:5 8;}
 
-.r27-face-strip{overflow:hidden;border-radius:18px;background:transparent;}
-.r27-face-strip img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 5%!important;}
+/* R27.4 采纳 GPT 裁法：素材 1500×750，插画占上部 ~540px，底部两百多像素烘着与
+   HTML 卡片重复的文案带——原生宽度顶对齐，只裁掉重复行，人物头肩上身完整 */
+.pp .sh.r27-face-strip{overflow:hidden;border-radius:18px;background:transparent;}
+/* ↑ 提级到 .pp .sh 同权重之上：基础层 .pp .sh{overflow:visible} 会盖掉单类选择器——
+   GPT 预览同病（其母版里重复文案带实际没裁掉），此处按交接意图修正 */
+.r27-face-strip img{width:100%!important;height:auto!important;max-width:none!important;
+  max-height:none!important;object-fit:unset!important;display:block!important;}
+/* ↑ max-height:none 是关键：全局 reset img{max-height:100%} 会把图钳回盒高压扁（GPT 预览同病） */
 .r27-face-card{padding:26px 30px;border-radius:16px;border:1px solid var(--hair);background:var(--card-bg-2);}
 .r27-face-card.mid{background:var(--amber);border-color:var(--amber);}
 .r27-face-card.deep{background:var(--acc-deep);border-color:var(--acc-deep);}
 .r27-face-card .en{font:700 14px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-m);}
 .r27-face-card.mid :is(.en,h3,p){color:#0d0d0d;}
 .r27-face-card.deep :is(.en,h3,p){color:#fffffe;}
-.r27-face-card h3{margin-top:16px;font:700 57px/1 var(--f-cn);color:var(--ink);}
-.r27-face-card p{margin-top:16px;font:400 20px/1.5 var(--f-cn);color:var(--ink-m);}
+.r27-face-card h3{margin-top:12px;font:700 52px/1 var(--f-cn);color:var(--ink);}
+.r27-face-card p{margin-top:12px;font:400 19px/1.42 var(--f-cn);color:var(--ink-m);}
 
 .r27-timeline-line{height:4px;border-radius:999px;background:linear-gradient(90deg,var(--hair),var(--amber));}
 .r27-milestone{padding:24px 22px;border-radius:16px;background:var(--card-bg-2);border:1px solid var(--hair);}
@@ -1413,16 +1421,17 @@ def _r27_p17():
         _r27_sh('ink r27-headline', 'left:80px;top:118px;width:1760px;height:130px',
                 '「活人感」不是越像人越好，<strong>是双方都能舒适。</strong>'),
         # R27.1（Colin 现场反馈）：叙事先立两种失败态（太木→太腻），恰好最后收，
-        #        人物 strip 与「恰好」同拍出现；strip 拉满三卡列宽，脸与卡逐列对位
-        _r27_sh('settle r27-face-strip', 'left:80px;top:265px;width:1760px;height:390px',
+        #        人物 strip 与「恰好」同拍出现（时序为 Colin 拍板件，GPT 的 build0 提案不采）
+        # R27.4（GPT 裁法采纳）：strip 原生 1500 宽顶对齐、盒高 540 裁掉底部重复文案带
+        _r27_sh('settle r27-face-strip', 'left:210px;top:210px;width:1500px;height:540px',
                 '<img src="%s" data-dark-src="%s" data-light-src="%s" alt="活人感舒适度三种状态">' % (img, img, light), step=3),
-        _r27_sh('rise r27-face-card', 'left:80px;top:690px;width:550px;height:245px',
+        _r27_sh('rise r27-face-card', 'left:80px;top:755px;width:550px;height:195px',
                 '<div class="en">TOO DRY</div><h3>太木</h3><p>正确，但没有关系温度。<br>用户不想再开口。</p>', step=1),
-        _r27_sh('rise r27-face-card mid', 'left:685px;top:690px;width:550px;height:245px',
+        _r27_sh('rise r27-face-card mid', 'left:685px;top:755px;width:550px;height:195px',
                 '<div class="en">JUST RIGHT</div><h3>恰好</h3><p>自然、可持续相处。<br>下次还想跟它说话。</p>', step=3),
-        _r27_sh('rise r27-face-card deep', 'left:1290px;top:690px;width:550px;height:245px',
+        _r27_sh('rise r27-face-card deep', 'left:1290px;top:755px;width:550px;height:195px',
                 '<div class="en">TOO CLINGY</div><h3>太腻</h3><p>伪装成朋友的销售感。<br>三句之后想拔电源。</p>', step=2),
-        _r27_sh('flow r27-note', 'left:80px;top:975px;width:1760px;height:60px;text-align:center;font-size:29px;color:var(--ink)',
+        _r27_sh('flow r27-note', 'left:80px;top:985px;width:1760px;height:48px;text-align:center;font-size:25px;color:var(--ink)',
                 '消费级机器人语境下：<strong class="r27-accent">活人感 = 角色立得住 + 临场撑得住</strong>。', step=4),
     ])
     return _r27_section(17, 4, body)
