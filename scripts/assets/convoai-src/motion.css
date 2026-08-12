@@ -1,0 +1,146 @@
+/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}

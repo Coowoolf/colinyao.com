@@ -1,0 +1,44 @@
+/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:'Noto Sans SC','Source Han Sans SC',sans-serif;
+  --f-en:'Satoshi','Noto Sans SC',sans-serif;
+  --f-mono:'JetBrains Mono','Noto Sans SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}

@@ -1,86 +1,129 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark"><head>
-<meta name="robots" content="noindex, nofollow"><script>try{if(localStorage.getItem('colin-theme')==='light')document.documentElement.removeAttribute('data-theme')}catch(e){}</script><meta charset="UTF-8">
+<html lang="zh-CN"><head>
+<script>try{if(localStorage.getItem("colin-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>对话式 AI 引擎正式发布 · ConvoAI 产品发布会 · 姚光华 Colin</title>
+<title>声网对话式 AI · 公司与产品矩阵 · 姚光华 Colin</title>
 <style>
 @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
 @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
-</style>
-<style>
-/* ===========================================
-   THEME · colin-deck-light
-   浅灰白 #eff0f3 + 近黑 #0d0d0d + 暖橙 #ff8e3c
-   =========================================== */
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族双主题变量（对外演讲 / 大会版）
+   ───────────────────────────────────────────────────────────────────
+   :root                    = conf-light（血统：《从对话式 AI 到企业级智能体》final PPTX，
+                              2026.06 Google Cloud 开发者大会 · 文字色逐字符取自 PDF 实测）
+   html[data-theme="dark"]  = conf-dark（血统：/robot26 R22-R23 暗色模板 · 纯黑 + 淡紫）
+   ───────────────────────────────────────────────────────────────────
+   与 base colin-deck（theme-dual.css）同一套变量名 —— stage/motion/components/deck.js
+   四件机械层直接复用，只换本文件即从「网站版」切到「大会版」。
+   装配顺序：conf-theme-dual.css → stage.css → motion.css → components.css → conf-chrome.css
+   ═══════════════════════════════════════════════════════════════════ */
+
 :root{
+  /* ── 底版（对齐 base colin-deck 浅色，Colin 2026-08-09 指定）── */
   --stage-bg:#e2e3e8;
   --slide-bg:#eff0f3;
   --card-bg:rgba(255,255,254,.72);
   --card-bg-2:#fffffe;
-  --cardw-bg:#fffffe;
-  --cardw-ink:#0d0d0d;
-  --cardw-ink2:#3a3a3f;
-  --cardw-tag:#8b8b93;
-  --cardw-am:#c2410c;
-  --cardw-co:#b8215a;
-  --file-bg:#fffffe;
 
-  --hair:rgba(13,13,13,.16);
-  --hair-soft:rgba(13,13,13,.075);
-  --hair-strong:rgba(13,13,13,.30);
+  /* ── 文字（取自 final PPTX 实测）── */
+  --ink:#111111;            /* 大标题 · 近黑 */
+  --ink-2:#2a2a2a;          /* 正文 */
+  --ink-3:#8e8e93;          /* chrome 灰：眉标 / 页脚 / 来源行（PPTX 最高频灰）*/
 
-  --ink:#0d0d0d;
-  --ink-2:#2a2a2a;
-  --ink-3:#7a7a83;
+  /* ── conf 强调色（浅底 = 玫红系）── */
+  --accent:#f45b8c;         /* 玫红 · 主 accent：标题重点词 / 大数字 / KPI 标签 / 页脚圆点 */
+  --accent-deep:#d8366a;    /* 深玫红 · 强调中的强调 / 风险与警示 / 漏斗末级 */
+  --accent-2:#7b61ff;       /* 紫罗兰 · 对位色：消费级 / 陪伴 / 对比阵列的另一极 */
+  --accent-3:#5b8cff;       /* 蓝 · 三色对比时的第三极（被托付 / Enterprise 卡）*/
 
-  --amber:#ff8e3c;
-  --coral:#d9376e;
-  --magenta:#d9376e;
-  --mq:#ff8e3c;              /* 金句主色（浅底用暖橙，按 skill 规范） */
-  --mq-2:#d9376e;
+  /* ── 发丝线 ── */
+  --hair:rgba(17,17,17,.16);
+  --hair-soft:rgba(17,17,17,.075);
+  --hair-strong:rgba(17,17,17,.30);
 
-  --flow-line:rgba(255,142,60,.42);
-  --flow-line-2:rgba(13,13,13,.13);
+  /* ── 底流场 / 栏格（流场线随 accent 走，不引第二强调色）── */
+  --flow-line:rgba(244,91,140,.30);
+  --flow-line-2:rgba(17,17,17,.13);
   --flow-op:.40;
+  --grid-line:rgba(17,17,17,.05);
+  --rail-line:rgba(17,17,17,.10);
+  --sig-ink:rgba(17,17,17,.30);
 
-  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
-  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+  /* ── 拱顶石 aura（conf-light 独有 · 金句/拱顶石页专用，全场 ≤3 页）── */
+  --aura-a:rgba(255,214,140,.55);   /* 暖黄 */
+  --aura-b:rgba(255,150,180,.45);   /* 粉 */
+  --aura-c:rgba(140,180,255,.45);   /* 蓝 */
+
+  /* ── base 机械层兼容别名（components.css / motion.css 直接可用）── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+
+  /* ── 字体（与 robot26 / 站内 deck 同栈）── */
+  --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+
+  /* ── 节奏（与 base 相同，调过的，别改）── */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
 }
-/* DARK · token 严格取自 colin-deck-dark reference/theme.css */
+
 html[data-theme="dark"]{
-  --stage-bg:#07070b;
-  --slide-bg:#0f0e17;
-  --card-bg:#16151f;
-  --card-bg-2:#1c1b26;
-  --cardw-bg:#fffffe;
-  --cardw-ink:#0f0e17;
-  --cardw-ink2:#3d3d4e;
-  --cardw-tag:#8a8aa0;
-  --cardw-am:#c2410c;
-  --cardw-co:#d1392a;
-  --file-bg:#0a0910;
-  --hair:rgba(255,255,254,.10);
-  --hair-soft:rgba(255,255,254,.055);
-  --hair-strong:rgba(255,255,254,.20);
-  --ink:#fffffe;
-  --ink-2:#a7a9be;
+  /* ── 底版（robot26 口径：纯黑，不是 base dark 的 #0f0e17——
+        大会投影环境下纯黑吃杂光，且与全屏位图/视频页零接缝）── */
+  --stage-bg:#000000;
+  --slide-bg:#000000;
+  --card-bg:rgba(19,19,32,.72);
+  --card-bg-2:#131320;
+
+  /* ── 文字 ── */
+  --ink:#ffffff;
+  --ink-2:#c9c9d2;
   --ink-3:#6f7186;
-  --amber:#ff8906;
-  --coral:#f25f4c;
-  --magenta:#e53170;
-  --mq:#f25f4c;
-  --mq-2:#ff8906;
-  --flow-line:rgba(255,137,6,.30);
-  --flow-line-2:rgba(255,255,254,.16);
+
+  /* ── conf 强调色（暗底 = 淡紫系，robot26 实测值）── */
+  --accent:#d4b7f9;         /* 淡紫 · 主 accent */
+  --accent-deep:#944af0;    /* 深紫 · 伙伴线 / 强调中的强调 */
+  --accent-2:#b78cf0;       /* 紫罗兰暗底位（robot26 箭头族实测）*/
+  --accent-3:#6e96ff;       /* 蓝的暗底提亮位（推导值：#5b8cff 提一档保对比度）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(255,255,255,.14);
+  --hair-soft:rgba(255,255,255,.07);
+  --hair-strong:rgba(255,255,255,.28);
+
+  /* ── 底流场 / 栏格（robot26 实测值）── */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
   --flow-op:.42;
-  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
-  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+  --grid-line:rgba(255,255,255,.042);
+  --rail-line:rgba(255,255,255,.10);
+  --sig-ink:rgba(255,255,255,.30);
+
+  /* ── aura 在暗底禁用（金句页回归纯黑大留白）── */
+  --aura-a:transparent;
+  --aura-b:transparent;
+  --aura-c:transparent;
+
+  /* ── 兼容别名 ── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
 }
 
-
-/* =========================================================
+/* ── conf 卡片两分法 ──
+      ① 图卡（曲线/图表画布）：两个主题都用近白强对比卡 .conf-card-lit（robot26 FIG 卡先例），
+        卡内元素走图内固定色或 --cardw-* 一族（components.css 已反转好），不要写主题 ink。
+      ② KPI/内容卡：走 --card-bg-2 + 主题 ink 变量（浅底=白卡黑字，暗底=#131320 卡白字），
+        任何卡内文字禁止写死色号 —— 写死一个色号 = 两个主题里必坏一个。 */
+.conf-card-lit{background:#fffffe;border:1px solid var(--hair);}
+</style><style>/* =========================================================
    Colin Deck · 固定舞台 stage.css
    viewport-base.css 全文 + print/reduced-motion 降级
    注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
@@ -89,9 +132,9 @@ html[data-theme="dark"]{
    0. 基础 · 字体 · 缓动
    =========================================== */
 :root{
-  --f-cn:-apple-system,'PingFang SC','MiSans','HarmonyOS Sans SC','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif;
-  --f-en:'Satoshi',-apple-system,'PingFang SC',sans-serif;
-  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+  --f-cn:'Noto Sans SC','Source Han Sans SC',sans-serif;
+  --f-en:'Satoshi','Noto Sans SC',sans-serif;
+  --f-mono:'JetBrains Mono','Noto Sans SC',monospace;
   --pad-x:120px;
   --pad-y:88px;
   --ease:cubic-bezier(.16,1,.3,1);
@@ -124,8 +167,7 @@ img,video,canvas,svg{max-width:100%;max-height:100%;}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
   .deck-flow{display:none;}
 }
-
-/* =========================================================
+</style><style>/* =========================================================
    Colin Deck · 动效内核 motion.css
    —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
       已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
@@ -271,8 +313,7 @@ img,video,canvas,svg{max-width:100%;max-height:100%;}
 .deck-steps i.done{background:var(--amber);border-color:var(--amber);}
 .deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
   text-transform:uppercase;font-weight:400;margin-right:4px;}
-
-/* =========================================================
+</style><style>/* =========================================================
    Colin Deck · 排版与组件 components.css
    1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
    （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
@@ -539,645 +580,124 @@ table.mini thead th{font-size:14px;padding-bottom:10px;}
   font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
 .land.co{border-left-color:var(--coral);}
 .land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族 chrome 层（页面骨架四件套 + mono 落款）
+   血统：/robot26 R22 模板（跑过 37 页 × 全量 QA 的生产代码，非新写）
+   挂载：本文件排在 components.css 之后；FLOW_SVG 见文件尾注释，
+        作为 .deck-stage 第一个子元素插入；.slide 背景必须 transparent。
+   ═══════════════════════════════════════════════════════════════════ */
 
-</style></head>
+/* ── ① 底流场（8 条贝塞尔 · 3 组 sway + drift）── */
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+.deck-flow .s1{animation-duration:38s;}
+.deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;}
+.deck-flow .s4{animation-duration:46s;}
+.deck-flow g{animation:sway ease-in-out infinite alternate;}
+.deck-flow g:nth-child(1){animation-duration:26s;}
+.deck-flow g:nth-child(2){animation-duration:33s;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-4000;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(0,-14px,0);}}
+
+/* ── ② 极细栏线网格（240px 律动 · 上下渐隐）── */
+.deck-grid{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 120px,var(--grid-line) 120px 121px,transparent 121px 360px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
+
+/* ── ③ 上下发丝导轨 ── */
+.deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--rail-line) 18%,var(--rail-line) 82%,transparent);}
+.deck-rail.t{top:34px;}
+.deck-rail.b{bottom:34px;}
+
+/* ── ④ mono 落款（右上 · 封面/满幅页不挂）── */
+.sig{position:absolute;right:120px;top:47px;z-index:2;
+  font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
+  letter-spacing:.24em;padding-right:.24em;color:var(--sig-ink);
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+
+/* ── ⑤ conf-light 拱顶石 aura（金句/拱顶石页专用 · 全场 ≤3 页 · 暗底自动禁用）── */
+.conf-aura{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 46% at 18% 24%,var(--aura-a),transparent 70%),
+    radial-gradient(44% 50% at 84% 30%,var(--aura-c),transparent 70%),
+    radial-gradient(46% 46% at 30% 86%,var(--aura-b),transparent 70%),
+    radial-gradient(40% 44% at 78% 82%,var(--aura-a),transparent 72%);
+  filter:blur(2px);animation:auraDrift 36s ease-in-out infinite alternate;}
+@keyframes auraDrift{0%{transform:translate3d(0,0,0) scale(1);}100%{transform:translate3d(0,-18px,0) scale(1.04);}}
+
+/* ── ⑥ conf 页脚（左下 accent 圆点 + mono 面包屑，PPTX 语汇）── */
+.conf-foot{position:absolute;left:120px;bottom:40px;z-index:2;display:flex;align-items:center;gap:12px;
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);white-space:nowrap;}
+.conf-foot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLOW_SVG（.deck-stage 第一个子元素，与 cowork-confv2 / robot26 同一份）：
+
+</style><style id="convoai-boards">
+.conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
+  background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
+.slide.conf-boarded{background:transparent!important;}
+.slide.conf-boarded>.pp{z-index:1;}
+.conf-bg-title{--conf-bg-opacity:.66;background-image:url('/decks/assets/conf-boards/title-02-orbit-light.png');}
+.conf-bg-ch-eng{--conf-bg-opacity:.58;background-image:url('/decks/assets/conf-boards/chapter-01-giant-index-light.png');}
+.conf-bg-ch-agent{--conf-bg-opacity:.58;background-image:url('/decks/assets/conf-boards/chapter-02-window-light.png');}
+.conf-bg-ch-phys{--conf-bg-opacity:.58;background-image:url('/decks/assets/conf-boards/chapter-03-constellation-light.png');}
+.conf-bg-quote{--conf-bg-opacity:.46;background-image:url('/decks/assets/conf-boards/quote-02-halo-rings-light.png');}
+.conf-bg-content{--conf-bg-opacity:.42;background-image:url('/decks/assets/conf-boards/content-01-matrix-light.png');}
+html[data-theme="dark"] .conf-bg-title{background-image:url('/decks/assets/conf-boards/title-02-orbit-dark.png');}
+html[data-theme="dark"] .conf-bg-ch-eng{background-image:url('/decks/assets/conf-boards/chapter-01-giant-index-dark.png');}
+html[data-theme="dark"] .conf-bg-ch-agent{background-image:url('/decks/assets/conf-boards/chapter-02-window-dark.png');}
+html[data-theme="dark"] .conf-bg-ch-phys{background-image:url('/decks/assets/conf-boards/chapter-03-constellation-dark.png');}
+html[data-theme="dark"] .conf-bg-quote{background-image:url('/decks/assets/conf-boards/quote-02-halo-rings-dark.png');}
+html[data-theme="dark"] .conf-bg-content{background-image:url('/decks/assets/conf-boards/content-01-matrix-dark.png');}
+html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
+</style><style id="convoai-deck">
+/* 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行） */
+.pp{position:absolute;inset:0;}
+.pp .sh{position:absolute;overflow:visible;}
+:root{--l-eng:var(--accent);--l-agent:#5b8cff;--l-phys:#7b61ff;}
+html[data-theme="dark"]{--l-agent:#6e96ff;--l-phys:#b78cf0;}
+.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
+  letter-spacing:.12em;color:var(--sig-ink);}
+.kk{font:700 20px/1 var(--f-mono);letter-spacing:.28em;color:var(--accent);}
+.kk .dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin:0 10px -1px 0;}
+.hh{font:700 68px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
+.hh strong{color:var(--accent);}
+.sub{font:400 26px/1.55 var(--f-cn);color:var(--ink-2);}
+.mono-sm{font:500 15px/1.4 var(--f-mono);letter-spacing:.08em;color:var(--ink-3);}
+.kpi{background:var(--card-bg);border:1px solid var(--hair);border-radius:20px;padding:34px 38px;}
+.kpi .tag{font:700 15px/1 var(--f-mono);letter-spacing:.18em;color:var(--accent);}
+.kpi .num{margin-top:22px;font:900 92px/1 var(--f-cn);letter-spacing:-.03em;color:var(--ink);}
+.kpi .num small{font:700 34px/1 var(--f-cn);letter-spacing:0;}
+.kpi .cap{margin-top:14px;font:400 20px/1.45 var(--f-cn);color:var(--ink-2);}
+.line-eng{--lc:var(--l-eng)}.line-agent{--lc:var(--l-agent)}.line-phys{--lc:var(--l-phys)}
+</style>
+</head>
 <body>
 <div class="deck-viewport">
   <div class="deck-stage" id="deckStage">
-    <svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
-  <g>
-    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
-    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
-    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
-  </g>
-  <g>
-    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
-    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
-    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
-  </g>
-  <g>
-    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
-    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
-  </g>
-</svg>
-<!-- ===== P1 封面 ===== -->
-<section class="slide">
-  <div class="cover">
-    <div class="kicker flow" style="--i:0">声网 · 对话式 AI 引擎产品发布会</div>
-    <h1 class="ink" style="--i:1">对话式 AI 引擎正式发布</h1>
-    <div class="subtitle spread" style="--i:3">Conversational AI Engine · GA Release</div>
-    <div class="flow" style="--i:4;font-family:var(--f-mono);font-size:23px;letter-spacing:.24em;color:var(--ink-3);text-transform:uppercase;margin:-26px 0 42px">全球首个对话式 AI 引擎</div>
-    <div class="meta rise" style="--i:5">
-      <div><span class="k">Venue</span><span class="v">ConvoAI 产品发布会 · 声网官方</span></div>
-      <div><span class="k">Date</span><span class="v">2025.03.06</span></div>
-      <div><span class="k">Speaker</span><span class="v">姚光华 Colin · 声网 AI 产品线负责人</span></div>
-      <div><span class="k">Deck</span><span class="v">4 幕 · 27 页</span></div>
-    </div>
-    <svg class="glyph pop" style="--i:7" width="300" height="300" viewBox="0 0 300 300" fill="none">
-      <circle cx="150" cy="150" r="146" class="stroke" stroke-opacity=".26" stroke-width="1"/>
-      <path class="dw" style="--len:520;--i:8" d="M40 150 Q95 60 150 150 T260 150" stroke="var(--amber)" stroke-width="2.4" fill="none"/>
-      <path class="dw" style="--len:520;--i:9" d="M40 190 Q95 100 150 190 T260 190" stroke="var(--amber)" stroke-width="1.6" fill="none" opacity=".5"/>
-      <path class="dw" style="--len:520;--i:10" d="M40 110 Q95 20 150 110 T260 110" stroke="var(--coral)" stroke-width="1.8" fill="none" opacity=".85"/>
-    </svg>
-  </div>
+<div class="deck-grid" aria-hidden="true"></div><div class="deck-rail t" aria-hidden="true"></div><div class="deck-rail b" aria-hidden="true"></div>
+<section class="slide conf-boarded" data-p="1" data-steps="0">
+  <div class="conf-bg conf-bg-title" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">1/2</div><div class="sh flow kk" style="left:120px;top:200px;width:1400px;height:28px">AGORA · 声网 · CONVERSATIONAL AI</div><div class="sh ink" style="left:120px;top:266px;width:1560px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)">让每一次人机对话，<br>都像<strong style='color:var(--accent)'>真人</strong>一样自然。</div><div class="sh flow sub" style="left:120px;top:600px;width:1400px;height:44px">声网 · 对话式 AI 产品矩阵 —— 公司与三条产品线</div><div class="sh rise" style="left:120px;top:700px;width:1500px;height:56px;font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2)"><span class="dot" style="display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--l-eng);margin-right:12px"></span>ENGINE<span class="dot" style="display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--l-agent);margin:0 12px 0 56px"></span>AGENT<span class="dot" style="display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--l-phys);margin:0 12px 0 56px"></span>PHYSICAL AI</div><div class="sh flow mono-sm" style="left:120px;top:930px;width:1200px;height:24px">主讲人：姚光华 Colin · 声网 AI 产品线负责人</div></div>
 </section>
-
-<!-- ===== P2 本场提要 ===== -->
-<section class="slide">
-  <div class="chrome"><span>提要 · OVERVIEW</span><span>02</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">这场在讲什么</div>
-      <h2 class="ink" style="--i:1">发布了什么，以及为什么这么设计</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="250" viewBox="0 0 1620 250">
-          <path class="dw" style="--len:1420;--i:2" d="M140 132 H1480" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
-          <g data-step="1">
-            <circle class="pop" style="--i:0" cx="250" cy="132" r="9" fill="var(--hair-strong)"/>
-            <text class="lbl pop" style="--i:0" x="250" y="96" text-anchor="middle">PART 1</text>
-            <text class="ttl pop" style="--i:0" x="250" y="182" text-anchor="middle">里程碑</text>
-            <text class="sm pop" style="--i:0" x="250" y="212" text-anchor="middle">这一年是怎么走到今天的</text>
-          </g>
-          <g data-step="1">
-            <circle class="pop" style="--i:1" cx="660" cy="132" r="9" fill="var(--hair-strong)"/>
-            <text class="lbl pop" style="--i:1" x="660" y="96" text-anchor="middle">PART 2</text>
-            <text class="ttl pop" style="--i:1" x="660" y="182" text-anchor="middle">为什么这么设计</text>
-            <text class="sm pop" style="--i:1" x="660" y="212" text-anchor="middle">用户价值与四层架构</text>
-          </g>
-          <g data-step="2">
-            <circle class="pop" style="--i:0" cx="1070" cy="132" r="13" fill="var(--amber)"/>
-            <text class="lbl pop" style="--i:0" x="1070" y="96" text-anchor="middle">PART 3</text>
-            <text class="ttl pop" style="--i:0" x="1070" y="182" text-anchor="middle">多、快、好、省</text>
-            <text class="sm pop" style="--i:0" x="1070" y="212" text-anchor="middle">今天发布的能力</text>
-          </g>
-          <g data-step="2">
-            <circle class="pop" style="--i:1" cx="1450" cy="132" r="9" fill="var(--hair-strong)"/>
-            <text class="lbl pop" style="--i:1" x="1450" y="96" text-anchor="middle">PART 4</text>
-            <text class="ttl pop" style="--i:1" x="1450" y="182" text-anchor="middle">定价与生态</text>
-            <text class="sm pop" style="--i:1" x="1450" y="212" text-anchor="middle">一分钟不到一毛钱</text>
-          </g>
-        </svg>
-      </div>
-      <div class="land flow" style="--i:3">一句话概括今天：<span class="am">模型选择多、智能响应快、对话体验好、用起来省心更省钱。</span></div>
-    </div>
-  </div>
+<section class="slide conf-boarded" data-p="2" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">2/2</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">序幕 · 声网 RTE · REAL-TIME ENGAGEMENT</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:100px">RTE 行业的<strong>领导者</strong>。</div><div class="sh rise kpi" style="left:120px;top:330px;width:396px;height:340px"><div class="tag">市场占有率</div><div class="num">No.1</div><div class="cap">市场占有率稳居第一，份额超过第 2–8 位总和</div></div><div class="sh rise kpi" style="left:548px;top:330px;width:396px;height:340px"><div class="tag">技术突破</div><div class="num">50<small>+</small></div><div class="cap">突破性自主创新技术（全球发明专利）</div></div><div class="sh rise kpi" style="left:976px;top:330px;width:396px;height:340px"><div class="tag">开发者生态</div><div class="num">100<small>万+</small></div><div class="cap">全球注册应用数</div></div><div class="sh rise kpi" style="left:1404px;top:330px;width:396px;height:340px"><div class="tag">生产规模</div><div class="num">900<small>亿+</small></div><div class="cap">单月支撑通话分钟数</div></div><div class="sh flow mono-sm" style="left:120px;top:1015px;width:1680px;height:24px">SOURCE · 声网官网 / IR 口径 · 2026</div></div>
 </section>
-
-<!-- ===== P3 ACT 1 ===== -->
-<section class="slide">
-  <div class="act">
-    <div class="num flow" style="--i:0">PART 1</div>
-    <div class="en settle" style="--i:1">MILESTONES</div>
-    <div class="cn spread" style="--i:3">对话式 AI 的里程碑</div>
-    <div class="d flow" style="--i:4">从 GPT-4o 的一次演示，到今天这场发布会，中间只隔了不到十个月。</div>
-    <div class="rail">
-      <span class="cur">01 里程碑</span>
-      <span>02 为什么这么设计</span>
-      <span>03 多快好省</span>
-      <span>04 定价与生态</span>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P4 时间线 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 1 · 十个月</span><span>04</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">2024.05 – 2025.03</div>
-      <h2 class="ink" style="--i:1">六个日子，把对话式 AI 推到了台前</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="380" viewBox="0 0 1620 380">
-          <path class="dw" style="--len:1500;--i:1" d="M60 190 H1560" stroke="var(--hair-strong)" stroke-width="1" fill="none"/>
-          <g data-step="1">
-            <circle class="pop" style="--i:0" cx="180" cy="190" r="8" fill="var(--hair-strong)"/>
-            <text class="lbl pop" style="--i:0" x="180" y="150" text-anchor="middle">2024.05.13</text>
-            <text class="ttl pop" style="--i:0" x="180" y="240" text-anchor="middle">GPT-4o</text>
-            <text class="sm pop" style="--i:0" x="180" y="272" text-anchor="middle">See, Hear, and Speak</text>
-          </g>
-          <g data-step="2">
-            <circle class="pop" style="--i:0" cx="460" cy="190" r="8" fill="var(--hair-strong)"/>
-            <text class="lbl pop" style="--i:0" x="460" y="150" text-anchor="middle">2024.10.01</text>
-            <text class="ttl pop" style="--i:0" x="460" y="240" text-anchor="middle">Realtime API</text>
-            <text class="sm pop" style="--i:0" x="460" y="272" text-anchor="middle">全球首个</text>
-          </g>
-          <g data-step="3">
-            <circle class="pop" style="--i:0" cx="740" cy="190" r="8" fill="var(--amber)"/>
-            <text class="lbl pop" style="--i:0" x="740" y="150" text-anchor="middle">2024.10.24</text>
-            <text class="ttl pop" style="--i:0" x="740" y="240" text-anchor="middle">RTE 2024</text>
-            <text class="sm pop" style="--i:0" x="740" y="272" text-anchor="middle">国内首个 Realtime API</text>
-          </g>
-          <g data-step="4">
-            <circle class="pop" style="--i:0" cx="1020" cy="190" r="8" fill="var(--amber)"/>
-            <text class="lbl pop" style="--i:0" x="1020" y="150" text-anchor="middle">2025.01.28</text>
-            <text class="ttl pop" style="--i:0" x="1020" y="240" text-anchor="middle">Private Beta</text>
-            <text class="sm pop" style="--i:0" x="1020" y="272" text-anchor="middle">除夕</text>
-          </g>
-          <g data-step="5">
-            <circle class="pop" style="--i:0" cx="1290" cy="190" r="8" fill="var(--amber)"/>
-            <text class="lbl pop" style="--i:0" x="1290" y="150" text-anchor="middle">2025.02.18</text>
-            <text class="ttl pop" style="--i:0" x="1290" y="240" text-anchor="middle">Public Beta</text>
-            <text class="sm pop" style="--i:0" x="1290" y="272" text-anchor="middle">雨水</text>
-          </g>
-          <g data-step="6">
-            <circle class="pop" style="--i:0" cx="1520" cy="190" r="14" fill="var(--amber)"/>
-            <text class="lbl pop" style="--i:0" x="1520" y="150" text-anchor="middle">2025.03.06</text>
-            <text class="ttl pop" style="--i:0" x="1520" y="240" text-anchor="middle">正式发布</text>
-            <text class="sm pop" style="--i:0" x="1520" y="272" text-anchor="middle">惊蛰次日</text>
-          </g>
-          <text class="txt pop" style="--i:7" x="60" y="350" text-anchor="start">全球首个对话式 AI 引擎 —— 从别人的演示，到我们自己的发布</text>
-        </svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P5 三个节气 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 1 · 三个节气</span><span>05</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">除夕 · 雨水 · 惊蛰</div>
-      <h2 class="ink" style="--i:1">这条产品线的三次开门，都挑了节气</h2>
-    </div>
-    <div class="body">
-      <div class="rows">
-        <div class="r flow dn" style="--i:2"><span class="n">01</span><span class="k">除夕</span><span class="v">2025 年 1 月 28 日 · 声网对话式 AI 引擎 Private Beta —— 第一批客户拿到钥匙</span></div>
-        <div class="r flow dn" style="--i:3"><span class="n">02</span><span class="k">雨水</span><span class="v">2025 年 2 月 18 日 · 声网对话式 AI 引擎 Public Beta —— 所有开发者都能进来试</span></div>
-        <div class="r flow dn" style="--i:4"><span class="n">03</span><span class="k">惊蛰</span><span class="v">2025 年 3 月 5 日 · 春雷惊万物，新声自此启。次日 3 月 6 日，引擎正式发布</span></div>
-      </div>
-      <div class="land flow" style="--i:5">从 Private Beta 到 GA，只用了 37 天。<span class="s">节奏本身就是一种承诺。</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P6 金句 1 ===== -->
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 01</div>
-    <div class="q"><i class="rise" style="--i:1">春雷惊万物，</i><i class="rise" style="--i:2">新声自此启。</i></div>
-    <div class="rule"></div>
-    <div class="s flow" style="--i:4">2025 年 3 月 5 日，惊蛰。第二天，声网对话式 AI 引擎正式发布——全球首个对话式 AI 引擎。</div>
-  </div>
-</section>
-
-<!-- ===== P7 ACT 2 ===== -->
-<section class="slide">
-  <div class="act">
-    <div class="num flow" style="--i:0">PART 2</div>
-    <div class="en settle" style="--i:1">WHY</div>
-    <div class="cn spread" style="--i:3">为什么这么设计</div>
-    <div class="d flow" style="--i:4">先说清楚这个引擎为谁创造什么价值，再说它长什么样。顺序不能反。</div>
-    <div class="rail">
-      <span>01 里程碑</span>
-      <span class="cur">02 为什么这么设计</span>
-      <span>03 多快好省</span>
-      <span>04 定价与生态</span>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P8 用户价值 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 2 · 用户价值</span><span>08</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">对话式 Agent 提供哪些价值</div>
-      <h2 class="ink" style="--i:1">三种感受，对应三种价值</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="330" viewBox="0 0 1620 330">
-          <text class="lbl pop" style="--i:0" x="60" y="34" text-anchor="start">用户感受</text>
-          <rect class="box" x="60" y="55" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:1" x="250" y="100" text-anchor="middle">情感共鸣</text>
-          <rect class="box" x="60" y="145" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:1" x="250" y="190" text-anchor="middle">问题解决</text>
-          <rect class="box" x="60" y="235" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:1" x="250" y="280" text-anchor="middle">效率跃升</text>
-          <path class="dw" style="--len:250;--i:2" d="M450 90 H690" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
-          <path class="dw" style="--len:250;--i:2" d="M450 180 H690" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
-          <path class="dw" style="--len:250;--i:2" d="M450 270 H690" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>
-          <rect x="700" y="55" width="220" height="250" rx="6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-          <text class="ttl pop" style="--i:3" x="810" y="172" text-anchor="middle">对话式</text>
-          <text class="ttl pop" style="--i:3" x="810" y="206" text-anchor="middle">Agent</text>
-          <path class="dw" style="--len:250;--i:4" d="M930 90 H1170" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <path class="dw" style="--len:250;--i:4" d="M930 180 H1170" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <path class="dw" style="--len:250;--i:4" d="M930 270 H1170" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <text class="lbl pop" style="--i:5" x="1180" y="34" text-anchor="start">用户价值</text>
-          <rect class="box" x="1180" y="55" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:5" x="1370" y="100" text-anchor="middle">情绪价值</text>
-          <rect class="box" x="1180" y="145" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:5" x="1370" y="190" text-anchor="middle">智能价值</text>
-          <rect class="box" x="1180" y="235" width="380" height="70" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:5" x="1370" y="280" text-anchor="middle">时间价值</text>
-        </svg>
-      </div>
-      <div class="note flow" style="--i:3">陪伴类智能体（Companion Agents）主要交付<b>情绪价值</b>，服务类智能体（Service Agents）主要交付<b>智能价值</b>与<b>时间价值</b>。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P9 四层架构 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 2 · 架构</span><span>09</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">From Perception to Intelligence</div>
-      <h2 class="ink" style="--i:1">从感知到智能，一个 Agent 有四层</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="400" viewBox="0 0 1620 400">
-          <g data-step="4">
-            <rect class="box" x="40" y="16" width="1140" height="80" rx="4" stroke-width="1.5"/>
-            <text class="ttl pop" style="--i:0" x="80" y="52" text-anchor="start">顶层智能层</text>
-            <text class="sm pop" style="--i:0" x="80" y="80" text-anchor="start">Top-tier Intelligence Layer · 高级认知与学习能力，并具备超高情商</text>
-          </g>
-          <g data-step="3">
-            <rect class="box" x="40" y="108" width="1140" height="80" rx="4" stroke-width="1.5"/>
-            <text class="ttl pop" style="--i:0" x="80" y="144" text-anchor="start">任务处理层</text>
-            <text class="sm pop" style="--i:0" x="80" y="172" text-anchor="start">Task Processing Layer · 面向目标的行动与处理能力，具备超高智商</text>
-          </g>
-          <g data-step="2">
-            <rect x="40" y="200" width="1140" height="80" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-            <text class="ttl pop" style="--i:0" x="80" y="236" text-anchor="start">模态融合层</text>
-            <text class="sm pop" style="--i:0" x="80" y="264" text-anchor="start">Modal Fusion Layer · 针对感知后的内容进行统一的多模态理解和透传</text>
-          </g>
-          <g data-step="1">
-            <rect x="40" y="292" width="1140" height="80" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-            <text class="ttl pop" style="--i:0" x="80" y="328" text-anchor="start">模态感知层</text>
-            <text class="sm pop" style="--i:0" x="80" y="356" text-anchor="start">Modal Perception Layer · 基础的视觉与音频处理和转换</text>
-          </g>
-          <path class="dw" style="--len:200;--i:3" d="M1230 372 V200" stroke="var(--amber)" stroke-width="2.5" fill="none"/>
-          <text class="txt pop" style="--i:5" x="1270" y="300" text-anchor="start">对话式 AI 引擎</text>
-          <text class="sm pop" style="--i:5" x="1270" y="332" text-anchor="start">Conversational AI Engine</text>
-          <text class="lbl pop" style="--i:6" x="1270" y="60" text-anchor="start">SERVICE AGENTS · 智能价值</text>
-          <text class="lbl pop" style="--i:6" x="1270" y="98" text-anchor="start">COMPANION AGENTS · 情绪价值</text>
-        </svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P10 RTE + AI ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 2 · RTE + AI</span><span>10</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">产品架构</div>
-      <h2 class="ink" style="--i:1">两股能力合流，才有这个引擎</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="330" viewBox="0 0 1620 330">
-          <rect class="box" x="60" y="40" width="400" height="100" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:0" x="260" y="82" text-anchor="middle">RTE</text>
-          <text class="sm pop" style="--i:0" x="260" y="114" text-anchor="middle">实时传输 · 音频算法 · 抗弱网</text>
-          <rect class="box" x="60" y="190" width="400" height="100" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:1" x="260" y="232" text-anchor="middle">AI</text>
-          <text class="sm pop" style="--i:1" x="260" y="264" text-anchor="middle">ASR · LLM · TTS · 多模态理解</text>
-          <path class="dw" style="--len:320;--i:2" d="M470 90 L740 150" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <path class="dw" style="--len:320;--i:2" d="M470 240 L740 180" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <rect x="760" y="80" width="440" height="170" rx="6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-          <text class="ttl pop" style="--i:3" x="980" y="140" text-anchor="middle">对话式 AI 引擎</text>
-          <text class="txt pop" style="--i:3" x="980" y="180" text-anchor="middle">模态感知</text>
-          <text class="txt pop" style="--i:3" x="980" y="216" text-anchor="middle">模态融合</text>
-          <path class="dw" style="--len:140;--i:4" d="M1210 165 H1340" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <rect class="box" x="1350" y="105" width="210" height="120" rx="4" stroke-width="1.5"/>
-          <text class="txt pop" style="--i:5" x="1455" y="155" text-anchor="middle">服务类智能体</text>
-          <text class="txt pop" style="--i:5" x="1455" y="192" text-anchor="middle">陪伴类智能体</text>
-          <text class="lbl pop" style="--i:6" x="60" y="320" text-anchor="start">引擎承担的是底下两层：把现实世界的声音变成模型能用的输入，再把模型的输出变回自然的声音</text>
-        </svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P11 ACT 3 ===== -->
-<section class="slide">
-  <div class="act">
-    <div class="num flow" style="--i:0">PART 3</div>
-    <div class="en settle" style="--i:1">RELEASE</div>
-    <div class="cn spread" style="--i:3">多、快、好、省</div>
-    <div class="d flow" style="--i:4">模型选择多、智能响应快、对话体验好、用起来省心更省钱。今天发布的全部内容，就是这四个字。</div>
-    <div class="rail">
-      <span>01 里程碑</span>
-      <span>02 为什么这么设计</span>
-      <span class="cur">03 多快好省</span>
-      <span>04 定价与生态</span>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P12 多快好省总览 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 3 · 总览</span><span>12</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">不是简单的文字游戏</div>
-      <h2 class="ink" style="--i:1">四个字，每个字后面都有硬指标</h2>
-    </div>
-    <div class="body">
-      <div class="g4">
-        <div class="card rise" style="--i:2"><div class="n">多</div><div class="t">智能多、音色多</div><div class="d">全球几乎所有大模型厂商 + 全球主流语音合成供应商，任意切换</div></div>
-        <div class="card rise" style="--i:3"><div class="n">快</div><div class="t">响应快、打断快</div><div class="d">响应延迟中位数 650ms，打断延迟中位数 340ms</div></div>
-        <div class="card rise" style="--i:4"><div class="n">好</div><div class="t">情商高、真拟人</div><div class="d">优雅打断、选择性注意力锁定、无惧噪声弱网</div></div>
-        <div class="card on rise" style="--i:5"><div class="n">省</div><div class="t">开发省心更省钱</div><div class="d">2 行代码 + 15 分钟接入，一分钟不到一毛钱</div></div>
-      </div>
-      <div class="land flow" style="--i:6">选择权交给开发者，话筒交给 Agent，账单交给一个大家算得过来的数字。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P13 多 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 3 · 多</span><span>13</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">多 · 选择权交给开发者</div>
-      <h2 class="ink" style="--i:1">模型都能选，音色也都能选</h2>
-    </div>
-    <div class="body">
-      <div class="g2">
-        <div class="card flow" style="--i:2"><div class="tag">LLM</div><div class="t">支持全球几乎所有大模型厂商</div><div class="d">只要和 OpenAI 接口协议兼容的模型厂商，<b>今天起，全部原生支持</b>。不需要为换一个模型重写一遍接入。</div></div>
-        <div class="card flow rev" style="--i:3"><div class="tag">TTS</div><div class="t">语音合成自由选择和定制</div><div class="d">支持全球主流语音合成供应商任意切换；客户在供应商处<b>定制、克隆</b>的自定义音色，也能直接上线。</div></div>
-      </div>
-      <div class="land flow" style="--i:4">我们不替开发者选模型。<span class="s">引擎该做的，是让「换一个」这件事没有成本。</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P14 快 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 3 · 快</span><span>14</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">快 · 由奢入俭难</div>
-      <h2 class="ink" style="--i:1">响应快是基本盘，打断快才是分水岭</h2>
-    </div>
-    <div class="body">
-      <div class="g3">
-        <div class="stat flow" style="--i:2"><span class="v">650</span><span class="u">MS · 响应延迟中位数</span><span class="l">超低延时方案，中、美、欧、东南亚主要城市实测</span></div>
-        <div class="stat flow" style="--i:3"><span class="v">340</span><span class="u">MS · 打断延迟中位数</span><span class="l">任意方案，均可以获得这个打断延时</span></div>
-        <div class="stat flow" style="--i:4"><span class="v w">1</span><span class="u">S · 高智能方案响应</span><span class="l">超高智能 + 超强表现力方案，全球主要城市实测低至 1s</span></div>
-      </div>
-      <div class="note co flow" style="--i:5">延时会根据不同供应商的选择而浮动。<b>这条口径写在这里，是为了让客户拿去做自己的验收标准，而不是拿去做宣传。</b></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P15 好 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 3 · 好</span><span>15</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">好 · 情商高、真拟人、无惧噪声弱网</div>
-      <h2 class="ink" style="--i:1">三件事决定了它像不像一个能聊的人</h2>
-    </div>
-    <div class="body">
-      <div class="g3">
-        <div class="card on rise" style="--i:2"><div class="n">01</div><div class="t">优雅打断</div><div class="d">任意模型接入即可做到「嘘」、「等等」、「闭嘴」的对话体验。根据人的对话节奏与内容，做出最拟人化的打断响应——「更懂你」。</div></div>
-        <div class="card on rise" style="--i:3"><div class="n">02</div><div class="t">选择性注意力锁定</div><div class="d">对话人声锁定。现实环境里有别人的说话声时，模型要准确识别谁在和自己讲话——「听谁的」。</div></div>
-        <div class="card on rise" style="--i:4"><div class="n">03</div><div class="t">抗丢包、抗抖动</div><div class="d">人模对话场景，除了抗丢包 80% 外，断网 3–5s 依旧流畅对话。人人对话场景，抗上下行丢包已达到 80%。</div></div>
-      </div>
-      <div class="land flow" style="--i:5">情商不是形容词。<span class="s">它是「什么时候闭嘴」和「听谁的」这两个可测量的判断。</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P16 金句 2 ===== -->
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 02</div>
-    <div class="q"><i class="rise" style="--i:1">把话筒，</i><i class="rise" style="--i:2">交给 Agent。</i></div>
-    <div class="rule"></div>
-    <div class="s flow" style="--i:4">优雅打断解决「它什么时候该停」，选择性注意力锁定解决「它该听谁的」。两件事做到了，话筒才敢递过去。</div>
-  </div>
-</section>
-
-<!-- ===== P17 省 · 开发 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 3 · 省</span><span>17</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">省 · 开发省心</div>
-      <h2 class="ink" style="--i:1">2 行代码 + 15 分钟，让任意模型对你开口</h2>
-    </div>
-    <div class="body">
-      <div class="fig flow" style="--i:2">
-        <svg width="1620" height="270" viewBox="0 0 1620 270">
-          <rect class="box" x="15" y="50" width="240" height="110" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:0" x="135" y="98" text-anchor="middle">Console</text>
-          <text class="sm pop" style="--i:0" x="135" y="130" text-anchor="middle">登录 Playground</text>
-          <path class="dw" style="--len:40;--i:1" d="M258 105 H288" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
-          <rect class="box" x="291" y="50" width="240" height="110" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:1" x="411" y="98" text-anchor="middle">LLM</text>
-          <text class="sm pop" style="--i:1" x="411" y="130" text-anchor="middle">填入 Key &amp; URL</text>
-          <path class="dw" style="--len:40;--i:2" d="M534 105 H564" stroke="var(--hair-strong)" stroke-width="2" fill="none"/>
-          <rect class="box" x="567" y="50" width="240" height="110" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:2" x="687" y="98" text-anchor="middle">TTS</text>
-          <text class="sm pop" style="--i:2" x="687" y="130" text-anchor="middle">填入 Key &amp; URL</text>
-          <path class="dw" style="--len:40;--i:3" d="M810 105 H840" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <rect x="843" y="50" width="240" height="110" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-          <text class="ttl pop" style="--i:3" x="963" y="98" text-anchor="middle">立即体验</text>
-          <text class="sm pop" style="--i:3" x="963" y="130" text-anchor="middle">实测智能与音色</text>
-          <path class="dw" style="--len:40;--i:4" d="M1086 105 H1116" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <rect x="1119" y="50" width="240" height="110" rx="4" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-          <text class="ttl pop" style="--i:4" x="1239" y="98" text-anchor="middle">View Code</text>
-          <text class="sm pop" style="--i:4" x="1239" y="130" text-anchor="middle">生成服务端代码</text>
-          <path class="dw" style="--len:40;--i:5" d="M1362 105 H1392" stroke="var(--amber)" stroke-width="2" fill="none"/>
-          <rect class="box" x="1365" y="50" width="240" height="110" rx="4" stroke-width="1.5"/>
-          <text class="ttl pop" style="--i:5" x="1485" y="98" text-anchor="middle">Server API</text>
-          <text class="sm pop" style="--i:5" x="1485" y="130" text-anchor="middle">复制 · 调用 · Debug</text>
-          <path class="dw" style="--len:1590;--i:6" d="M15 210 H1605" stroke="var(--hair)" stroke-width="1" fill="none"/>
-          <text class="txt pop" style="--i:7" x="15" y="252" text-anchor="start">在你的服务器调用这些代码，就可以直接在任意 App 中商用</text>
-        </svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P18 ACT 4 ===== -->
-<section class="slide">
-  <div class="act">
-    <div class="num flow" style="--i:0">PART 4</div>
-    <div class="en settle" style="--i:1">PRICE</div>
-    <div class="cn spread" style="--i:3">定价与生态</div>
-    <div class="d flow" style="--i:4">能不能真正做到「物美价廉」？先看看人人沟通的时代，计费模型是怎么走过来的。</div>
-    <div class="rail">
-      <span>01 里程碑</span>
-      <span>02 为什么这么设计</span>
-      <span>03 多快好省</span>
-      <span class="cur">04 定价与生态</span>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P19 电信资费三十年 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 参照系</span><span>19</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">人人沟通时代的计费模型</div>
-      <h2 class="ink" style="--i:1">三十年，一分钟的价格是怎么走下来的</h2>
-    </div>
-    <div class="body">
-      <div class="rows">
-        <div class="r flow dn" style="--i:2"><span class="n">01</span><span class="k">1995 年</span><span class="v">本地 0.6 元 / 分钟，漫游 1.1 元 / 分钟（跨省通话叠加长途费）。入网还要 6000 元</span></div>
-        <div class="r flow dn" style="--i:3"><span class="n">02</span><span class="k">2010 年</span><span class="v">本地 0.22 元 / 分钟，传统长途 0.89 元 / 分钟（含本地接入费）</span></div>
-        <div class="r flow dn" style="--i:4"><span class="n">03</span><span class="k">2025 年</span><span class="v">套餐外语音 0.15 元 / 分钟，国际通话（欧美）<span class="co">1.99 元 / 分钟</span></span></div>
-      </div>
-      <div class="land flow" style="--i:5">人人沟通花了三十年，把一分钟从 6 毛降到 1 毛 5。<span class="s">那么人模对话的第一天，应该定在哪儿？</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P20 定价表 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 定价</span><span>20</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">今天公布的价格</div>
-      <h2 class="ink" style="--i:1">一分钟不到一毛钱</h2>
-    </div>
-    <div class="body">
-      <table>
-        <thead><tr><th>计费大类</th><th>计费项目</th><th>单价</th><th>免费额度</th></tr></thead>
-        <tbody>
-          <tr class="flow dn" style="--i:2"><td>语音通话费用</td><td>智能体通话</td><td><b class="am">0.098 元 / 分钟</b></td><td>1000 分钟总量（一次性赠予）</td></tr>
-          <tr class="flow dn" style="--i:3"><td>增值服务费用</td><td>优雅打断</td><td><b class="am">0.042 元 / 分钟</b></td><td><b class="co">无</b></td></tr>
-        </tbody>
-      </table>
-      <div class="note flow" style="--i:4">优雅打断单独计价，是因为它是一项<b>可以被选择的增值能力</b>，不是所有场景都需要——把选择权和账单一起交给开发者。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P21 成本账 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 算给客户听</span><span>21</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">按真实使用频次折算</div>
-      <h2 class="ink" style="--i:1">一次 3 分钱，一年 5 块钱</h2>
-    </div>
-    <div class="body">
-      <div class="g3">
-        <div class="stat flow" style="--i:2"><span class="v">0.03</span><span class="u">元 · 次均成本</span><span class="l">平均约 3 轮对话，平均对话时长 21.1s —— 一次仅需 3 分钱</span></div>
-        <div class="stat flow" style="--i:3"><span class="v">0.45</span><span class="u">元 · 月均成本</span><span class="l">每月对话次数约 15 次 —— 一个月不到 5 毛钱</span></div>
-        <div class="stat flow" style="--i:4"><span class="v">5.4</span><span class="u">元 · 年均成本</span><span class="l">一年活跃 12 个月 —— 一年只要 5 块钱</span></div>
-      </div>
-      <div class="land flow" style="--i:5">这个数字要能被创业者一次算清楚，才叫真的「省」。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P22 金句 3 ===== -->
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 03</div>
-    <div class="q"><i class="rise" style="--i:1">每年，</i><i class="rise" style="--i:2">请你的用户喝杯奶茶。</i></div>
-    <div class="rule"></div>
-    <div class="s flow" style="--i:4">一个活跃用户一整年的对话成本约 5.4 元。定价能不能成立，取决于它有没有小到可以不被讨论。</div>
-  </div>
-</section>
-
-<!-- ===== P23 回归用户价值 ===== -->
-<section class="slide">
-  <div class="chrome"><span>PART 4 · 收束</span><span>23</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">回归用户价值</div>
-      <h2 class="ink" style="--i:1">声网为客户创造的价值，只有一句</h2>
-    </div>
-    <div class="body">
-      <div class="g3">
-        <div class="card rise" style="--i:2"><div class="tag">情感共鸣</div><div class="t">情绪价值</div><div class="d">陪伴类智能体交付的东西，是对方愿意继续说下去。</div></div>
-        <div class="card rise" style="--i:3"><div class="tag">问题解决</div><div class="t">智能价值</div><div class="d">服务类智能体交付的东西，是这件事真的办成了。</div></div>
-        <div class="card rise" style="--i:4"><div class="tag">效率跃升</div><div class="t">时间价值</div><div class="d">把原本要等、要排队、要重复的过程压掉。</div></div>
-      </div>
-      <div class="land flow" style="--i:5">对话式 Agent，创业者最好的选择。<span class="s">多、快、好、省这四个字，最终都要落回这三种价值上。</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P24 金句 4 ===== -->
-<section class="slide">
-  <div class="mq">
-    <div class="mark flow" style="--i:0">MONEY QUOTE · 04</div>
-    <div class="q"><i class="rise" style="--i:1">你的 Agent，</i><i class="rise" style="--i:2">由你定义。</i></div>
-    <div class="rule"></div>
-    <div class="s flow" style="--i:4">咖啡馆老板可以用情绪识别模块做会员关怀 AI，医生可以结合医疗知识库做分诊助手，小学生都能训练宠物陪伴机器人。我们不定义 Agent 的形态——声网引擎要做的，只是让每个垂直场景都拥有自主进化的 AI 生命体。</div>
-  </div>
-</section>
-
-<!-- ===== P25 圆桌 ===== -->
-<section class="slide">
-  <div class="chrome"><span>发布会 · 圆桌</span><span>25</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow grey flow" style="--i:0">圆桌对话</div>
-      <h2 class="ink" style="--i:1">从生成到对话：多模态 AI 重塑人机交互</h2>
-    </div>
-    <div class="body">
-      <div class="quotes">
-        <div class="r flow dn" style="--i:2"><span class="who">声网</span><span class="say">姚光华 Colin</span><span class="src">AI 产品负责人</span></div>
-        <div class="r flow dn" style="--i:3"><span class="who">MiniMax</span><span class="say">冯雯</span><span class="src">解决方案高级总监</span></div>
-        <div class="r flow dn" style="--i:4"><span class="who">阿里云</span><span class="say">辛晓剑</span><span class="src">通义千问高级产品架构师</span></div>
-        <div class="r flow dn" style="--i:5"><span class="who">腾讯云</span><span class="say">曹超</span><span class="src">AI 产品架构师总监</span></div>
-      </div>
-      <div class="note flow" style="--i:6">发布会当天同步开放<b>公开体验版</b>与 DEMO 体验环节：从 Console 进去，十五分钟之内就能听到自己选的模型开口说话。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P26 带走页 ===== -->
-<section class="slide">
-  <div class="chrome"><span>带走 · TAKEAWAYS</span><span>26</span></div>
-  <div class="wrap">
-    <div class="head">
-      <div class="eyebrow flow" style="--i:0">今天能带走的三件事</div>
-      <h2 class="ink" style="--i:1">如果只记三句</h2>
-    </div>
-    <div class="body">
-      <div class="g3">
-        <div class="card rise" style="--i:2"><div class="n">01</div><div class="t">选择权不在引擎手里</div><div class="d">模型、音色都能换。引擎的价值不是替你选，而是让「换一个」不产生成本。</div></div>
-        <div class="card rise" style="--i:3"><div class="n">02</div><div class="t">情商是可测量的</div><div class="d">优雅打断 340ms、注意力锁定、抗丢包 80%。拟人不是形容词，是一组能验收的数。</div></div>
-        <div class="card on rise" style="--i:4"><div class="n">03</div><div class="t">价格要小到不被讨论</div><div class="d">0.098 元 / 分钟，一个活跃用户一年 5.4 元。定价是产品设计的一部分。</div></div>
-      </div>
-      <div class="land flow" style="--i:5">2025 年 3 月 6 日，全球首个对话式 AI 引擎正式发布。<span class="s">从这一天起，Agent 的形态由开发者定义。</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== P27 末页 ===== -->
-<section class="slide">
-  <div class="cover">
-    <div class="kicker flow" style="--i:0">ConvoAI 产品发布会 · 发布结束</div>
-    <h1 class="ink" style="--i:1">新声自此启</h1>
-    <div class="subtitle spread" style="--i:3">声网 · 对话式 AI 引擎</div>
-    <div class="meta rise" style="--i:4">
-      <div><span class="k">Venue</span><span class="v">ConvoAI 产品发布会 · 声网官方</span></div>
-      <div><span class="k">Date</span><span class="v">2025.03.06</span></div>
-      <div><span class="k">Archive</span><span class="v">演讲档案 03 · 原稿 31 页</span></div>
-      <div><span class="k">Note</span><span class="v">本 deck 已剔除空页与 DEMO 占位页，按主线重排</span></div>
-    </div>
-  </div>
-</section>
-
   </div>
 </div>
 <div class="deck-progress" id="deckProgress"></div>
 <div class="deck-steps" id="deckSteps"></div>
-<div class="edit-hotzone"></div>
-<button class="edit-toggle" id="editToggle">EDIT</button>
-<script>
-/* ===========================================
+<button class="deck-swap" id="deckSwap">暗底</button>
+<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);border-radius:3px;padding:7px 12px;opacity:.5;transition:opacity .3s;background:transparent;cursor:pointer;}.deck-swap:hover{opacity:1;color:var(--accent);border-color:var(--accent);}@media print{.deck-swap{display:none!important;}}</style>
+<script>/* ===========================================
    固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
    =========================================== */
 class SlidePresentation{
@@ -1317,97 +837,6 @@ document.addEventListener('keydown',e=>{
   if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
   if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
 });
-
 </script>
-
-<style>
-.deck-swap{position:fixed;left:26px;bottom:22px;z-index:1000;
-  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink-3);border:1px solid var(--hair);border-radius:2px;
-  padding:7px 13px;opacity:.5;transition:opacity .3s,color .3s,border-color .3s;
-  background:transparent;cursor:pointer;}
-.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
-@media print{.deck-swap{display:none!important;}}
-</style>
-<button class="deck-swap" id="deckSwap">浅底</button>
-<script>
-(function(){
-  var b=document.getElementById('deckSwap');
-  function apply(t){
-    if(t==='light'){document.documentElement.removeAttribute('data-theme');b.textContent='暗底';}
-    else{document.documentElement.setAttribute('data-theme','dark');b.textContent='浅底';}
-  }
-  var cur='dark';
-  try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
-  apply(cur);
-  b.addEventListener('click',function(){
-    cur=(cur==='dark')?'light':'dark';
-    try{localStorage.setItem('colin-theme',cur);}catch(e){}
-    apply(cur);
-  });
-})();
-</script>
-
-<style>
-/* deck-ruler · 顶线即尺子：整体进度 + 跳页（hover 出刻度齿，点击/拖动直达，数字+Enter 跳页） */
-.deck-progress,#progress{display:none!important;}
-.deck-ruler{position:fixed;top:0;left:0;right:0;height:20px;z-index:1200;cursor:pointer;}
-.dr-track{position:absolute;top:0;left:0;right:0;height:2px;background:var(--hair,rgba(128,128,128,.22));transition:height .25s ease;}
-.dr-fill{position:absolute;top:0;left:0;height:2px;width:0;background:var(--amber,#ff8906);transition:width .45s cubic-bezier(.22,.9,.24,1),height .25s ease;}
-.dr-teeth{position:absolute;top:0;left:0;right:0;height:7px;opacity:0;transition:opacity .25s ease;pointer-events:none;}
-.dr-teeth i{position:absolute;top:0;width:1px;height:4px;background:var(--ink-3,#8a8a99);opacity:.55;}
-.dr-teeth i.maj{height:7px;opacity:.95;}
-.deck-ruler:hover .dr-track,.deck-ruler:hover .dr-fill{height:6px;}
-.deck-ruler:hover .dr-teeth{opacity:1;}
-.dr-tip{position:absolute;top:13px;left:50%;transform:translateX(-50%);
-  font-family:var(--f-mono,monospace);font-size:11px;line-height:1;letter-spacing:.1em;
-  color:var(--ink,#fff);background:var(--card-bg-2,var(--panel,#1c1b26));
-  border:1px solid var(--hair,rgba(128,128,128,.25));border-radius:2px;padding:5px 8px;
-  opacity:0;transition:opacity .2s;white-space:nowrap;pointer-events:none;}
-.deck-ruler:hover .dr-tip{opacity:1;}
-@media print{.deck-ruler{display:none!important;}}
-</style>
-<div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
-<script>
-(function(){
-  var slides=document.querySelectorAll('.slide');var N=slides.length;if(!N)return;
-  var ruler=document.getElementById('deckRuler'),fill=ruler.querySelector('.dr-fill'),
-      tip=ruler.querySelector('.dr-tip'),teeth=ruler.querySelector('.dr-teeth');
-  /* 刻度齿：页多自动抽稀（≤96 根），每 5 根一长齿 */
-  var step=Math.max(1,Math.ceil(N/96));
-  for(var i=0;i<N;i+=step){var t=document.createElement('i');
-    if((i/step)%5===0)t.className='maj';t.style.left=(((i+0.5)/N)*100)+'%';teeth.appendChild(t);}
-  function cur(){for(var i=0;i<N;i++)if(slides[i].classList.contains('active'))return i;return 0;}
-  function paint(){fill.style.width=(((cur()+1)/N)*100)+'%';}
-  var mo=new MutationObserver(paint);
-  slides.forEach(function(s){mo.observe(s,{attributes:true,attributeFilter:['class']});});
-  paint();
-  function target(e){var r=ruler.getBoundingClientRect();
-    var x=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX);
-    var f=(x-r.left)/r.width;return Math.max(0,Math.min(N-1,Math.floor(f*N)));}
-  function jump(n){
-    if(window.deck&&typeof window.deck.go==='function'){window.deck.go(n);return;}
-    var d=n-cur(),key=d>0?'ArrowRight':'ArrowLeft';
-    for(var i=0;i<Math.abs(d);i++)document.dispatchEvent(new KeyboardEvent('keydown',{key:key,bubbles:true}));
-  }
-  var dragging=false;
-  ruler.addEventListener('mousemove',function(e){var n=target(e);
-    tip.textContent=(n+1)+' / '+N;tip.style.left=(((n+0.5)/N)*100)+'%';if(dragging)jump(n);});
-  ruler.addEventListener('mousedown',function(e){dragging=true;jump(target(e));e.preventDefault();});
-  addEventListener('mouseup',function(){dragging=false;});
-  ruler.addEventListener('click',function(e){jump(target(e));});
-  ruler.addEventListener('touchstart',function(e){jump(target(e));e.preventDefault();},{passive:false});
-  ruler.addEventListener('touchmove',function(e){jump(target(e));e.preventDefault();},{passive:false});
-  /* 数字键 + Enter 直达 */
-  var buf='',bufT=null;
-  document.addEventListener('keydown',function(e){
-    if(e.target&&e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true')return;
-    if(e.key>='0'&&e.key<='9'){buf+=e.key;clearTimeout(bufT);bufT=setTimeout(function(){buf='';tip.style.opacity='';},1600);
-      tip.textContent=buf+' / '+N;tip.style.left='50%';tip.style.opacity='1';}
-    else if(e.key==='Enter'&&buf){var n=parseInt(buf,10);buf='';tip.style.opacity='';
-      if(n>=1&&n<=N)jump(n-1);}
-    else if(buf){buf='';tip.style.opacity='';}
-  });
-})();
-</script>
+<script>(function(){var b=document.getElementById("deckSwap");function apply(t){if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");b.textContent="浅底";}else{document.documentElement.removeAttribute("data-theme");b.textContent="暗底";}}var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>
 </body></html>

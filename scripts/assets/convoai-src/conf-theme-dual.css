@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族双主题变量（对外演讲 / 大会版）
+   ───────────────────────────────────────────────────────────────────
+   :root                    = conf-light（血统：《从对话式 AI 到企业级智能体》final PPTX，
+                              2026.06 Google Cloud 开发者大会 · 文字色逐字符取自 PDF 实测）
+   html[data-theme="dark"]  = conf-dark（血统：/robot26 R22-R23 暗色模板 · 纯黑 + 淡紫）
+   ───────────────────────────────────────────────────────────────────
+   与 base colin-deck（theme-dual.css）同一套变量名 —— stage/motion/components/deck.js
+   四件机械层直接复用，只换本文件即从「网站版」切到「大会版」。
+   装配顺序：conf-theme-dual.css → stage.css → motion.css → components.css → conf-chrome.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── 底版（对齐 base colin-deck 浅色，Colin 2026-08-09 指定）── */
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+
+  /* ── 文字（取自 final PPTX 实测）── */
+  --ink:#111111;            /* 大标题 · 近黑 */
+  --ink-2:#2a2a2a;          /* 正文 */
+  --ink-3:#8e8e93;          /* chrome 灰：眉标 / 页脚 / 来源行（PPTX 最高频灰）*/
+
+  /* ── conf 强调色（浅底 = 玫红系）── */
+  --accent:#f45b8c;         /* 玫红 · 主 accent：标题重点词 / 大数字 / KPI 标签 / 页脚圆点 */
+  --accent-deep:#d8366a;    /* 深玫红 · 强调中的强调 / 风险与警示 / 漏斗末级 */
+  --accent-2:#7b61ff;       /* 紫罗兰 · 对位色：消费级 / 陪伴 / 对比阵列的另一极 */
+  --accent-3:#5b8cff;       /* 蓝 · 三色对比时的第三极（被托付 / Enterprise 卡）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(17,17,17,.16);
+  --hair-soft:rgba(17,17,17,.075);
+  --hair-strong:rgba(17,17,17,.30);
+
+  /* ── 底流场 / 栏格（流场线随 accent 走，不引第二强调色）── */
+  --flow-line:rgba(244,91,140,.30);
+  --flow-line-2:rgba(17,17,17,.13);
+  --flow-op:.40;
+  --grid-line:rgba(17,17,17,.05);
+  --rail-line:rgba(17,17,17,.10);
+  --sig-ink:rgba(17,17,17,.30);
+
+  /* ── 拱顶石 aura（conf-light 独有 · 金句/拱顶石页专用，全场 ≤3 页）── */
+  --aura-a:rgba(255,214,140,.55);   /* 暖黄 */
+  --aura-b:rgba(255,150,180,.45);   /* 粉 */
+  --aura-c:rgba(140,180,255,.45);   /* 蓝 */
+
+  /* ── base 机械层兼容别名（components.css / motion.css 直接可用）── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+
+  /* ── 字体（与 robot26 / 站内 deck 同栈）── */
+  --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
+
+  /* ── 节奏（与 base 相同，调过的，别改）── */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+
+html[data-theme="dark"]{
+  /* ── 底版（robot26 口径：纯黑，不是 base dark 的 #0f0e17——
+        大会投影环境下纯黑吃杂光，且与全屏位图/视频页零接缝）── */
+  --stage-bg:#000000;
+  --slide-bg:#000000;
+  --card-bg:rgba(19,19,32,.72);
+  --card-bg-2:#131320;
+
+  /* ── 文字 ── */
+  --ink:#ffffff;
+  --ink-2:#c9c9d2;
+  --ink-3:#6f7186;
+
+  /* ── conf 强调色（暗底 = 淡紫系，robot26 实测值）── */
+  --accent:#d4b7f9;         /* 淡紫 · 主 accent */
+  --accent-deep:#944af0;    /* 深紫 · 伙伴线 / 强调中的强调 */
+  --accent-2:#b78cf0;       /* 紫罗兰暗底位（robot26 箭头族实测）*/
+  --accent-3:#6e96ff;       /* 蓝的暗底提亮位（推导值：#5b8cff 提一档保对比度）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(255,255,255,.14);
+  --hair-soft:rgba(255,255,255,.07);
+  --hair-strong:rgba(255,255,255,.28);
+
+  /* ── 底流场 / 栏格（robot26 实测值）── */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
+  --flow-op:.42;
+  --grid-line:rgba(255,255,255,.042);
+  --rail-line:rgba(255,255,255,.10);
+  --sig-ink:rgba(255,255,255,.30);
+
+  /* ── aura 在暗底禁用（金句页回归纯黑大留白）── */
+  --aura-a:transparent;
+  --aura-b:transparent;
+  --aura-c:transparent;
+
+  /* ── 兼容别名 ── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+}
+
+/* ── conf 卡片两分法 ──
+      ① 图卡（曲线/图表画布）：两个主题都用近白强对比卡 .conf-card-lit（robot26 FIG 卡先例），
+        卡内元素走图内固定色或 --cardw-* 一族（components.css 已反转好），不要写主题 ink。
+      ② KPI/内容卡：走 --card-bg-2 + 主题 ink 变量（浅底=白卡黑字，暗底=#131320 卡白字），
+        任何卡内文字禁止写死色号 —— 写死一个色号 = 两个主题里必坏一个。 */
+.conf-card-lit{background:#fffffe;border:1px solid var(--hair);}

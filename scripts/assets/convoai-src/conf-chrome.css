@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族 chrome 层（页面骨架四件套 + mono 落款）
+   血统：/robot26 R22 模板（跑过 37 页 × 全量 QA 的生产代码，非新写）
+   挂载：本文件排在 components.css 之后；FLOW_SVG 见文件尾注释，
+        作为 .deck-stage 第一个子元素插入；.slide 背景必须 transparent。
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── ① 底流场（8 条贝塞尔 · 3 组 sway + drift）── */
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+.deck-flow .s1{animation-duration:38s;}
+.deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;}
+.deck-flow .s4{animation-duration:46s;}
+.deck-flow g{animation:sway ease-in-out infinite alternate;}
+.deck-flow g:nth-child(1){animation-duration:26s;}
+.deck-flow g:nth-child(2){animation-duration:33s;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-4000;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(0,-14px,0);}}
+
+/* ── ② 极细栏线网格（240px 律动 · 上下渐隐）── */
+.deck-grid{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 120px,var(--grid-line) 120px 121px,transparent 121px 360px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
+
+/* ── ③ 上下发丝导轨 ── */
+.deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--rail-line) 18%,var(--rail-line) 82%,transparent);}
+.deck-rail.t{top:34px;}
+.deck-rail.b{bottom:34px;}
+
+/* ── ④ mono 落款（右上 · 封面/满幅页不挂）── */
+.sig{position:absolute;right:120px;top:47px;z-index:2;
+  font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
+  letter-spacing:.24em;padding-right:.24em;color:var(--sig-ink);
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+
+/* ── ⑤ conf-light 拱顶石 aura（金句/拱顶石页专用 · 全场 ≤3 页 · 暗底自动禁用）── */
+.conf-aura{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 46% at 18% 24%,var(--aura-a),transparent 70%),
+    radial-gradient(44% 50% at 84% 30%,var(--aura-c),transparent 70%),
+    radial-gradient(46% 46% at 30% 86%,var(--aura-b),transparent 70%),
+    radial-gradient(40% 44% at 78% 82%,var(--aura-a),transparent 72%);
+  filter:blur(2px);animation:auraDrift 36s ease-in-out infinite alternate;}
+@keyframes auraDrift{0%{transform:translate3d(0,0,0) scale(1);}100%{transform:translate3d(0,-18px,0) scale(1.04);}}
+
+/* ── ⑥ conf 页脚（左下 accent 圆点 + mono 面包屑，PPTX 语汇）── */
+.conf-foot{position:absolute;left:120px;bottom:40px;z-index:2;display:flex;align-items:center;gap:12px;
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);white-space:nowrap;}
+.conf-foot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLOW_SVG（.deck-stage 第一个子元素，与 cowork-confv2 / robot26 同一份）：
+
+<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+<div class="deck-grid" aria-hidden="true"></div>
+<div class="deck-rail t" aria-hidden="true"></div>
+<div class="deck-rail b" aria-hidden="true"></div>
+
+   落款（非封面/满幅页，插进每页 section 首）：
+<div class="sig">colinyao.com</div>
+   ═══════════════════════════════════════════════════════════════════ */
