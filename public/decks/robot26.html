@@ -496,7 +496,7 @@ html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
 </section>
 <section class="slide conf-boarded" data-p="24" data-steps="1">
   <div class="conf-bg conf-bg-content-01" aria-hidden="true"></div>
-  <div class="pp"><div class="sig">24/37</div><div class="sh vid" style="left:1.2px;top:0.7px;width:1920.0px;height:1080.0px;--i:0"><video data-play-step="1" src="/decks/assets/robot26/demo.mp4" poster="/decks/assets/robot26/demo-poster.jpg" preload="none" playsinline muted controls></video></div></div>
+  <div class="pp"><div class="sig">24/37</div><div class="sh vid" style="left:1.2px;top:0.7px;width:1920.0px;height:1080.0px;--i:0"><video data-play-step="1" src="/decks/assets/robot26/demo.mp4" poster="/decks/assets/robot26/demo-poster.jpg" preload="none" playsinline muted></video></div></div>
 </section>
 <section class="slide conf-boarded" data-p="25" data-steps="0">
   <div class="conf-bg conf-bg-content-01" aria-hidden="true"></div>
@@ -574,7 +574,7 @@ class SlidePresentation{
       const els=[...s.querySelectorAll('[data-step]')];
       return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
     });
-    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();this.wireMediaHover();
     this.go(this.readHash(),true);
     window.addEventListener('hashchange',()=>this.go(this.readHash()));
   }
@@ -638,6 +638,13 @@ class SlidePresentation{
     for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
     this.stepsEl.innerHTML=h;
     this.stepsEl.classList.add('on');
+  }
+  /* 原生控制条默认隐藏（transform 缩放下会错位），悬停呼出供排练手控；移出即收 */
+  wireMediaHover(){
+    document.querySelectorAll('video[data-play-step]').forEach(v=>{
+      v.addEventListener('mouseenter',()=>v.setAttribute('controls',''));
+      v.addEventListener('mouseleave',()=>v.removeAttribute('controls'));
+    });
   }
   /* PPT 的 mediacall：P22 单击一次 = playFrom(0)；离页即停并归零 */
   syncMedia(){

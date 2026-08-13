@@ -605,10 +605,13 @@ def shape_html(sh, step, i, sn):
         if not src:
             return ""
         # 视频页（老 P22 → R24 起 P24）：PPT 里这张图就是 media1.mp4 的封面帧，单击播放
+        # 2026-08-13 Colin：默认不带 controls——Blink 原生控制条在 .deck-stage 的
+        # transform:scale(≠1) 下布局错乱（条宽/位置按未缩放坐标系渲染，Colin 截图实锤，
+        # 1300×815@2x 复现）。播放本由 syncMedia 步进驱动；悬停时 JS 呼出 controls 供排练手控。
         if sn == 24:
             return ('<div class="sh vid"%s style="%s;--i:%d">'
                     '<video data-play-step="1" src="%sdemo.mp4" poster="%s" preload="none" playsinline'
-                    ' muted controls></video></div>' % (attr, ";".join(base), i, A, src))
+                    ' muted></video></div>' % (attr, ";".join(base), i, A, src))
         # R26：浅色资产双源（默认 src=暗版；主题切换脚本按 data-*-src 同步）
         light_src = ASSET_LIGHT.get(img)
         theme_attr = (' data-dark-src="%s" data-light-src="%s"' % (src, light_src)) if light_src else ""
@@ -987,7 +990,7 @@ class SlidePresentation{
       const els=[...s.querySelectorAll('[data-step]')];
       return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
     });
-    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();this.wireMediaHover();
     this.go(this.readHash(),true);
     window.addEventListener('hashchange',()=>this.go(this.readHash()));
   }
@@ -1051,6 +1054,13 @@ class SlidePresentation{
     for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
     this.stepsEl.innerHTML=h;
     this.stepsEl.classList.add('on');
+  }
+  /* 原生控制条默认隐藏（transform 缩放下会错位），悬停呼出供排练手控；移出即收 */
+  wireMediaHover(){
+    document.querySelectorAll('video[data-play-step]').forEach(v=>{
+      v.addEventListener('mouseenter',()=>v.setAttribute('controls',''));
+      v.addEventListener('mouseleave',()=>v.removeAttribute('controls'));
+    });
   }
   /* PPT 的 mediacall：P22 单击一次 = playFrom(0)；离页即停并归零 */
   syncMedia(){

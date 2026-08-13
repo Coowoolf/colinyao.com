@@ -179,7 +179,10 @@ if (p17.right !== "rgb(255, 255, 254)") fails.push(`R27：P17 右卡文字 ${p17
 const vfs = await pg.evaluate(() => { const el = document.querySelector('section[data-p="24"] .sh.vid');
   const v = document.querySelector('section[data-p="24"] video'); const cs = getComputedStyle(v);
   return { cw: getComputedStyle(el).width, l: getComputedStyle(el).left, t: getComputedStyle(el).top,
-           vw: cs.width, vh: cs.height, fit: cs.objectFit }; });
+           vw: cs.width, vh: cs.height, fit: cs.objectFit, ctl: v.hasAttribute('controls') }; });
+/* 2026-08-13：原生 controls 默认必须关（Blink 控制条在 .deck-stage transform 缩放下错位，
+   Colin 截图实锤）；播放走 syncMedia 步进，悬停才呼出。 */
+if (vfs.ctl) fails.push('P24 video 静置态不应带 controls（transform 缩放错位回归）');
 if (vfs.cw !== "1920px") fails.push(`P24 容器宽 ${vfs.cw} ≠ 1920px 满幅`);
 if (vfs.l !== "0px" || vfs.t !== "0px") fails.push(`P24 容器未贴 0,0（${vfs.l},${vfs.t}）`);
 if (vfs.vw !== "1920px" || vfs.vh !== "1080px") fails.push(`P24 video 本体 ${vfs.vw}×${vfs.vh} ≠ 1920×1080（.pp/.slide 命中回归）`);
