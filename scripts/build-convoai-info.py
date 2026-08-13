@@ -148,7 +148,7 @@ html[data-theme="dark"] .eco-art.dk{display:block;}
 /* 行距 83 = 带高 67 + 16 净空：行间、与 kicker（top22 · 12px）之间都不许互压 */
 .eco-layer.l4{top:54px;}.eco-layer.l3{top:137px;}.eco-layer.l2{top:220px;}
 .eco-layer.l1{top:303px;}.eco-layer.l0{top:386px;}
-html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.52);}
+html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.86);}
 /* 案例墙 v2：3 张精选大卡 + 11 张证据小卡；客户名走 DOM 文本，不靠海报正文缩略 */
 .case-wall-v2{height:100%;border:1px solid var(--hair);border-radius:20px;padding:20px 18px 16px;
   background:color-mix(in srgb,var(--card-bg) 74%,transparent);box-shadow:0 18px 44px rgba(11,14,28,.10);}
@@ -182,11 +182,11 @@ html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.52);}
 .case-mini{position:relative;height:124px;border:1px solid var(--hair);border-radius:10px;
   overflow:hidden;background:#171928;}
 .case-mini img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 38%;
-  filter:saturate(.7) contrast(1.05);}
+  filter:saturate(.58) contrast(1.02) brightness(.82);}
 .case-mini:after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 34%,rgba(10,12,24,.5) 66%,rgba(10,12,24,.88) 100%);}
 .case-mini span{position:absolute;left:9px;right:7px;bottom:8px;z-index:1;color:#fff;
-  font:600 11px/1 var(--f-mono);letter-spacing:.04em;
+  font:700 13px/1.35 var(--f-mono);letter-spacing:.035em;text-shadow:0 1px 6px rgba(0,0,0,.9);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media print{.eco-visual,.case-wall-v2{box-shadow:none;}}
 /* 案例卡（旧 5 列缩略图网格，随 R1 案例墙退役；.case 保留给回滚基线） */
@@ -210,6 +210,11 @@ html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
 .edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
 .edit-toggle.active{border-color:var(--accent);color:var(--accent);}
 @media print{.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps,.deck-swap{display:none!important;}}
+/* polish-v3：仅提升投影距离下的 P5 可读性，不改内容/数据/布局 */
+[data-p="5"] .seclab{color:var(--ink-2);font-weight:600;}
+[data-p="5"] .fig .lbl{fill:var(--ink-2);font-weight:600;}
+[data-p="5"] .fig .sm,[data-p="5"] .fig .txt,[data-p="5"] .rows .r .v{font-weight:400;}
+[data-p="5"] .fig .box{fill:color-mix(in srgb,var(--card-bg) 90%,var(--ink) 10%);stroke:color-mix(in srgb,var(--ink) 26%,transparent);}
 </style>"""
 
 # ── 组装件 ──────────────────────────────────────────────────────────────────
@@ -246,7 +251,7 @@ page("title", "".join([
     sh("flow kk", "left:120px;top:200px;width:1400px;height:28px",
        "AGORA · 声网 · CONVERSATIONAL AI · INFOGRAPH"),
     sh("ink", "left:120px;top:266px;width:1100px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
-       "让每一次人机对话，<br>都像<strong style='color:var(--accent)'>真人</strong>一样自然。"),
+       "让陪伴自然，<br>让生意<strong style='color:var(--accent)'>成单</strong>。"),
     sh("flow sub", "left:120px;top:600px;width:1400px;height:44px",
        "声网 · 对话式 AI —— 一页一章 · 拜访速讲版"),
     sh("rise", "left:120px;top:700px;width:1500px;height:56px;font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2)",
@@ -760,7 +765,7 @@ page("content", "".join([
     # 原来 land 在 880、credit 在 1004 各占一行 —— land 比其他 7 页高 108px，翻页时那根
     # accent 竖条会跳，正是 Colin 说的「看起来没对齐」。
     sh("flow", "left:120px;top:988px;width:1060px;height:70px;--i:6",
-       '<div class="land">让每一次人机对话，都像<strong>真人</strong>一样自然。</div>'),
+       '<div class="land">让陪伴自然，让生意<strong>成单</strong>。</div>'),
     sh("flow mono-sm", "left:1200px;top:1010px;width:600px;height:24px;text-align:right;--i:7",
        "姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM"),
 ]))
@@ -809,8 +814,10 @@ def build():
         '<button class="deck-swap" id="deckSwap">暗底</button>\n'
         '<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);'
         'font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);'
-        'border-radius:3px;padding:7px 12px;opacity:.5;transition:opacity .3s;background:transparent;cursor:pointer;}'
-        '.deck-swap:hover{opacity:1;color:var(--accent);border-color:var(--accent);}'
+        'border-radius:3px;padding:7px 12px;opacity:0;transition:opacity .3s;background:transparent;cursor:pointer;}'
+        '.deck-swap:hover,.deck-swap:focus-visible{opacity:.9;color:var(--accent);border-color:var(--accent);}'
+        '.deck-swap:focus:not(:focus-visible){outline:none;box-shadow:none;}'
+        '@media (hover:none){.deck-swap{opacity:.4;}}'
         '@media print{.deck-swap{display:none!important;}}</style>\n'
         "<script>" + (SRC / "deck.js").read_text(encoding="utf-8") + "</script>\n"
         '<script>(function(){var b=document.getElementById("deckSwap");'
