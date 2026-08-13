@@ -753,8 +753,14 @@ html:not([data-theme="dark"]) .pp video{border-radius:10px;outline:1px solid var
 /* R26 · 浅色资产：透明 PNG 不需要媒体卡画框；P24 视频影院卡
    （R26 的 P17 sid 级对比度修正随 R27 整页重排退役——新卡色在 .r27-face-card 里定死） */
 html:not([data-theme="dark"]) .pp img[data-light-src]{border-radius:0!important;outline:0!important;background:transparent!important;}
-html:not([data-theme="dark"]) section[data-p="24"] .sh.vid{left:80px!important;top:45px!important;width:1760px!important;height:990px!important;}
-html:not([data-theme="dark"]) section[data-p="24"] video{border-radius:18px!important;outline:1px solid var(--hair)!important;outline-offset:-1px!important;}
+/* 2026-08-13 Colin：P24 视频改全屏。两处修复：
+   ① 根因——通用填充规则写的是 `.pp video`，robot26 段落是 .slide，从未命中，
+     视频一直按素材原生 1280×720 裸渲染（≈2/3 舞台宽）；此处补命中的 P24 规则，
+     16:9 同比 cover 满幅无裁切。
+   ② R26 的浅色 1760×990 影院内框 + 18px 圆角随「全屏」指令退役（要回滚恢复上两行即可，见 git）。 */
+section[data-p="24"] .sh.vid{left:0!important;top:0!important;width:1920px!important;height:1080px!important;}
+section[data-p="24"] video{display:block;width:100%;height:100%;object-fit:cover;background:#000;border-radius:0;outline:0;}
+html:not([data-theme="dark"]) section[data-p="24"] video{border-radius:0!important;outline:0!important;}
 *{margin:0;padding:0;box-sizing:border-box;}
 
 /* ---- 固定舞台（viewport-base，与全站 deck 同源）---- */
@@ -1352,7 +1358,7 @@ def _r27_p3():
         _r27_sh('settle r27-metric', 'left:1232px;top:350px;width:458px;height:500px',
                 '<svg viewBox="0 0 400 400"><circle class="track" cx="200" cy="200" r="150"/>'
                 '<circle class="arc dwa" style="--len:%.1f;--rest:%.1f;--i:3" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/></svg>'
-                '<div class="num">67<b>%%</b></div><div class="caption">差体验后考虑 / 停止交易<small>问题不是 AI 身份，而是关系被破坏</small></div>' % (C * .67, C)),
+                '<div class="num">67<b>%%</b></div><div class="caption">差体验后不想继续使用<small>问题不是 AI 身份，而是关系被破坏</small></div>' % (C * .67, C)),
         _r27_sh('flow r27-note', 'left:630px;top:905px;width:660px;height:62px;text-align:center;font-weight:700;color:var(--ink)',
                 '用户不是拒绝 AI；用户拒绝的是<strong class="r27-accent">无法建立信任的 AI</strong>。'),
         _r27_sh('flow r27-source', 'left:120px;top:1020px;width:1680px;height:24px',

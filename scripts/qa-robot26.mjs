@@ -173,14 +173,17 @@ const p17 = await pg.evaluate(() => {
 });
 if (p17.mid !== "rgb(13, 13, 13)") fails.push(`R27：P17 中卡文字 ${p17.mid} ≠ rgb(13,13,13)`);
 if (p17.right !== "rgb(255, 255, 254)") fails.push(`R27：P17 右卡文字 ${p17.right} ≠ rgb(255,255,254)`);
-if (THEME === "light") {
-  const vid = await pg.evaluate(() => { const el = document.querySelector('section[data-p="24"] .sh.vid');
-    const r = el.style; return { w: r.width, l: r.left, cw: el.getBoundingClientRect ? getComputedStyle(el).width : null }; });
-  if (vid.cw !== "1760px") fails.push(`R26：light 下 P24 影院卡宽 ${vid.cw} ≠ 1760px`);
-} else {
-  const vid = await pg.evaluate(() => getComputedStyle(document.querySelector('section[data-p="24"] .sh.vid')).width);
-  if (vid !== "1920px") fails.push(`R26：dark 下 P24 视频宽 ${vid} ≠ 1920px 满幅`);
-}
+/* 2026-08-13 Colin「P24 全屏」：R26 浅色影院卡（1760×990）退役，双主题统一断言满幅。
+   同时断言 <video> 本体计算尺寸 = 1920×1080 —— 根因回归项：`.pp video` 填充规则在
+   robot26（.slide 段落）从未命中，视频曾按素材原生 1280×720 裸渲染。 */
+const vfs = await pg.evaluate(() => { const el = document.querySelector('section[data-p="24"] .sh.vid');
+  const v = document.querySelector('section[data-p="24"] video'); const cs = getComputedStyle(v);
+  return { cw: getComputedStyle(el).width, l: getComputedStyle(el).left, t: getComputedStyle(el).top,
+           vw: cs.width, vh: cs.height, fit: cs.objectFit }; });
+if (vfs.cw !== "1920px") fails.push(`P24 容器宽 ${vfs.cw} ≠ 1920px 满幅`);
+if (vfs.l !== "0px" || vfs.t !== "0px") fails.push(`P24 容器未贴 0,0（${vfs.l},${vfs.t}）`);
+if (vfs.vw !== "1920px" || vfs.vh !== "1080px") fails.push(`P24 video 本体 ${vfs.vw}×${vfs.vh} ≠ 1920×1080（.pp/.slide 命中回归）`);
+if (vfs.fit !== "cover") fails.push(`P24 video object-fit=${vfs.fit} ≠ cover`);
 
 // ── ⑨ R22 模板 token 在位 + R27 连续页码（落款域名退役）──────────────────
 const tpl = await pg.evaluate(() => ({
