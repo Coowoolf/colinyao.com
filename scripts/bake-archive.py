@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""Bake a deck HTML into a self-contained archive: inline /decks/assets/* and /fonts/* as data URLs."""
+import re, base64, sys, pathlib
+
+ROOT = pathlib.Path('/home/claude/colinyao.com/public')
+MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg',
+        '.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.gif':'image/gif'}
+
+def bake(src, dst):
+    html = pathlib.Path(src).read_text(encoding='utf-8')
+    refs = sorted(set(re.findall(r'/(?:decks/assets|fonts)/[^"\')\s>]+', html)), key=len, reverse=True)
+    miss = []
+    for ref in refs:
+        p = ROOT / ref.lstrip('/')
+        if not p.exists():
+            miss.append(ref); continue
+        mime = MIME.get(p.suffix.lower())
+        if not mime:
+            miss.append(ref+' (mime?)'); continue
+        data = 'data:%s;base64,%s' % (mime, base64.b64encode(p.read_bytes()).decode())
+        html = html.replace(ref, data)
+    left = re.findall(r'/(?:decks/assets|fonts)/[^"\')\s>]+', html)
+    ext = re.findall(r'(?:src|href)="https?://[^"]+"', html)
+    pathlib.Path(dst).write_text(html, encoding='utf-8')
+    print(f'{dst}: {len(refs)-len(miss)} inlined, miss={miss}, left={len(left)}, ext={ext[:5]}, size={pathlib.Path(dst).stat().st_size:,}')
+
+bake(ROOT/'decks/convoai-info.html', '/home/claude/eco-review/convoai-info-速讲版-8p.html')
+bake(ROOT/'decks/convoai.html',      '/home/claude/eco-review/convoai-初次拜访版-31p.html')
