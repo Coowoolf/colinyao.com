@@ -70,6 +70,7 @@ export const essayDecks: Deck[] = [
   { slug: "77days", num: "11", title: "种子与森林：一个 Side Project 的 77 天", slides: 30, category: "公众号", dual: true },
   { slug: "csagent", num: "12", title: "客服 Agent 的胜负手，不在模型——从 Bret Taylor 和 Sierra 身上验证的 6 件事", slides: 39, category: "公众号", dual: true },
   { slug: "arch", num: "13", title: "胜负手不在模型，在架构——最懂端到端的 ElevenLabs，为什么押注「级联」", slides: 34, category: "公众号", dual: true },
+  { slug: "gptlive", num: "15", title: "「端到端」正在被泛化成一个营销标签——拆解 GPT-Live", slides: 40, category: "公众号", dual: true },
   { slug: "demolies", num: "17", title: "你的 demo 在骗你——一场 6 家 STT 的横评", slides: 35, category: "公众号", dual: true },
   { slug: "turns", num: "18", title: "每一轮都对，整段却错了——客服 Agent 的四种死法", slides: 34, category: "公众号", dual: true },
   { slug: "evalprd", num: "19", title: "评测即 PRD——AI 时代，产品经理的交付物变了", slides: 39, category: "公众号", dual: true },
