@@ -450,9 +450,9 @@ page("content", 1, "".join(_p10))
 # P11 · 对 LiveKit 四项（评测报告口径 · 拍板5 点名）
 _CMP = [
     ("打断成功率", "越高越好", 900, 464, "33%", "17%"),
-    ("词错率 WER", "越低越好", 605, 900, "9.25%", "13.77%"),
-    ("多语种支持", "6 语种全覆盖", 900, 10, "6/6", "0/6"),
-    ("抗噪误响应率", "越低越好", 63, 900, "7%", "100%"),
+    ("词错率 WER", "理想条件 · 越低越好", 605, 900, "9.25%", "13.77%"),
+    ("误响应率", "50dB 人声噪声 · 越低越好", 63, 900, "7%", "100%"),
+    ("多语种", "开箱默认 · 中/西/法/俄/阿/日", 900, 150, "6/6", "仅英文"),
 ]
 _p11 = [
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 评测口径 · AGORA VS LIVEKIT AGENTS"),
@@ -470,9 +470,9 @@ for _i, (_n, _dir, _wo, _wt, _vo, _vt) in enumerate(_CMP):
     ]
 _p11.append(sh("rise card-c", "left:120px;top:930px;width:1680px;height:110px",
                '<div style="padding:30px 46px;border-left:6px solid var(--l-eng);font:700 28px/1.4 var(--f-cn);color:var(--ink)">'
-               '打断更稳 · 听得更准 · 语种更全 · 噪声更扛——这是引擎的「体验分」。</div>', step=1))
+               '打断更稳 · 听得更准 · 噪声更扛 · 多语种开箱即用——这是引擎的「体验分」。</div>', step=1))
 _p11.append(sh("flow mono-sm", "left:120px;top:1052px;width:1680px;height:22px",
-               "SOURCE · 声网评测报告口径 · 对比对象 LiveKit Agents · 2026"))
+               "SOURCE · 声网同题评测 · 2026-03 Web Demo · LiveKit=Deepgram Nova-3+GPT-4.1-mini · TTS 同用 11Labs ｜ 打断/语种为当期默认配置，LiveKit TD v1.0（2026-06）后待复测"))
 page("content", 1, "".join(_p11))
 
 # P12 · 三件绝活（卡顶各一张 mini .fig · 线宽 2 · 主色 l-eng）
