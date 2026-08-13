@@ -711,11 +711,87 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 /* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
    必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
 .fig svg{max-width:none;max-height:none;}
-/* 案例卡 */
+/* ═══ 视觉升级 R1（GPT 5.6 · 合入 2026-08-13）· P7 生态全景 + 案例墙 ═══════
+   生态图回到位图，但和 2026-08-12 退役的那张 eco-2026.webp 有三点不同：
+     ① 浅/深两张同构双源，走 .hero-art 的同一套 CSS 主题切换（不是烧死主题的单图）；
+     ② 图本身不承载小字：五层 L4–L0 的中英文全部是 DOM 叠层，字号可控、可维护；
+     ③ 只做远景底纹，正文对比度由 .eco-layer 的半透明卡背 + backdrop-blur 兜。 */
+:root{--eco-surface:#f8f9fc;}
+html[data-theme="dark"]{--eco-surface:#10111c;}
+.eco-visual{position:relative;border:1px solid var(--hair);border-radius:20px;
+  background:var(--eco-surface);box-shadow:0 18px 44px rgba(11,14,28,.10);}
+/* `.pp .sh{overflow:visible}`（0,2,0）压过 `.eco-visual{overflow:hidden}`（0,1,0）→
+   底图四角会戳出 20px 圆角边框。同特异度以上把裁切拿回来。 */
+.pp .sh.eco-visual{overflow:hidden;}
+/* .eco-art 与 .hero-art 同机制：双源 + CSS 控可见性（deckSwap 的 JS 只管 .strip） */
+.eco-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:none;pointer-events:none;}
+.eco-art.lt{display:block;opacity:.94;}
+html[data-theme="dark"] .eco-art.lt{display:none;}
+html[data-theme="dark"] .eco-art.dk{display:block;}
+/* kicker 的尾巴正落在全景图那排设备剪影上（文字压图不算遮盖，但会掉对比度）：
+   给一圈和面板底色同色的柔光，两主题下都把字从图里拎出来。 */
+.eco-kicker{position:absolute;left:28px;top:22px;font:600 12px/1 var(--f-mono);
+  letter-spacing:.2em;color:var(--ink-3);text-shadow:0 0 7px var(--eco-surface),0 0 3px var(--eco-surface);}
+.eco-layer{position:absolute;left:24px;right:24px;height:67px;padding:12px 18px;
+  display:grid;grid-template-columns:58px 230px 1fr;align-items:center;gap:12px;
+  border:1px solid color-mix(in srgb,var(--ink-3) 22%,transparent);border-radius:12px;
+  background:color-mix(in srgb,var(--card-bg) 70%,transparent);backdrop-filter:blur(8px);}
+.eco-layer .eco-code{font:600 13px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
+.eco-layer b{font:700 22px/1 var(--f-cn);color:var(--ink);}
+.eco-layer small{font:400 13px/1.35 var(--f-cn);color:var(--ink-2);text-align:right;}
+.eco-layer.l2,.eco-layer.l1,.eco-layer.l0{border-color:color-mix(in srgb,var(--accent) 55%,transparent);}
+.eco-layer.l2 .eco-code,.eco-layer.l2 b,.eco-layer.l1 .eco-code,.eco-layer.l1 b,
+.eco-layer.l0 .eco-code,.eco-layer.l0 b{color:var(--accent);}
+/* 行距 83 = 带高 67 + 16 净空：行间、与 kicker（top22 · 12px）之间都不许互压 */
+.eco-layer.l4{top:54px;}.eco-layer.l3{top:137px;}.eco-layer.l2{top:220px;}
+.eco-layer.l1{top:303px;}.eco-layer.l0{top:386px;}
+html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.52);}
+/* 案例墙 v2：3 张精选大卡 + 11 张证据小卡；客户名走 DOM 文本，不靠海报正文缩略 */
+.case-wall-v2{height:100%;border:1px solid var(--hair);border-radius:20px;padding:20px 18px 16px;
+  background:color-mix(in srgb,var(--card-bg) 74%,transparent);box-shadow:0 18px 44px rgba(11,14,28,.10);}
+.case-wall-head{display:flex;align-items:baseline;gap:12px;height:38px;color:var(--ink-3);
+  font:600 12px/1 var(--f-mono);letter-spacing:.16em;}
+.case-wall-head b{margin-left:auto;font:900 42px/.8 var(--f-en);letter-spacing:-.04em;color:var(--accent);}
+.case-wall-head small{font:400 12px/1.3 var(--f-cn);letter-spacing:0;color:var(--ink-2);}
+.case-feature-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:2px;}
+.case-feature{position:relative;height:238px;border:1px solid var(--hair);border-radius:14px;
+  overflow:hidden;background:#151727;}
+.case-feature img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 68%;
+  filter:saturate(.86) contrast(1.04);}
+/* 底部压幕：升级版原式（transparent 42%→.84）在 caption 那一带只压到 .58，
+   海报自己烧录的品牌名正好在同一位置，和 DOM caption 叠成重影。加一段中间色标，
+   把最后 ~20% 压到 .93，海报文字变淡影、白字浮出来。 */
+.case-feature:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 38%,rgba(10,12,24,.5) 68%,rgba(10,12,24,.93) 100%);}
+.case-feature-caption{position:absolute;left:12px;right:10px;bottom:10px;z-index:1;color:#fff;}
+/* components.css 的 `b,strong{color:var(--ink)}`（0,0,1）直接命中这个 b，压过 caption 的
+   继承白 —— 浅底主题下客户名会被染成近黑，正好压在深色幕布上隐形（.callout-chip 同一个坑）。*/
+.case-feature-caption b{display:block;font:700 16px/1.15 var(--f-cn);color:inherit;}
+.case-feature-caption span{display:block;margin-top:4px;font:500 10px/1 var(--f-mono);
+  letter-spacing:.1em;color:rgba(255,255,255,.7);}
+.case-index{display:flex;align-items:center;gap:10px;margin:17px 0 9px;
+  font:500 11px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
+.case-index:after{content:"";height:1px;flex:1;background:var(--hair);}
+/* 4 列 × 3 行（升级版是 6×2 · 94×83）：11 张卡在 644 宽的墙里排 6 列时，
+   墙底会空出 217px 的白洞，而且 9px 的客户名在讲台上读不出来。
+   改 4 列 145×124 后墙高正好落在 977（= 左列脚注底 = 我版基线），名字提到 11px。 */
+.case-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.case-mini{position:relative;height:124px;border:1px solid var(--hair);border-radius:10px;
+  overflow:hidden;background:#171928;}
+.case-mini img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 38%;
+  filter:saturate(.7) contrast(1.05);}
+.case-mini:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 34%,rgba(10,12,24,.5) 66%,rgba(10,12,24,.88) 100%);}
+.case-mini span{position:absolute;left:9px;right:7px;bottom:8px;z-index:1;color:#fff;
+  font:600 11px/1 var(--f-mono);letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media print{.eco-visual,.case-wall-v2{box-shadow:none;}}
+/* 案例卡（旧 5 列缩略图网格，随 R1 案例墙退役；.case 保留给回滚基线） */
 .case{border-radius:14px;overflow:hidden;border:1px solid var(--hair);
   box-shadow:0 8px 22px rgba(0,0,0,.12);background:var(--card-bg);}
 .case img{width:100%;height:100%;object-fit:cover;display:block;}
-/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 —— 现在 P7 走原生 SVG */
+/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 */
 .callout-chip{background:var(--ink);color:var(--bg,#fff);border-radius:12px;padding:13px 22px;
   font:700 19px/1.4 var(--f-cn);box-shadow:0 8px 24px rgba(0,0,0,.22);}
 html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
@@ -739,7 +815,7 @@ html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
   <div class="deck-stage" id="deckStage">
 <div class="deck-grid" aria-hidden="true"></div><div class="deck-rail t" aria-hidden="true"></div><div class="deck-rail b" aria-hidden="true"></div>
 <section class="slide conf-boarded" data-p="1" data-steps="0">
-  <div class="conf-bg conf-bg-title" aria-hidden="true"></div><img class="hero-art lt" src="/decks/assets/convoai/hero/hero-three-engines-light.png" alt="" style="left:860px;top:230px;width:1200px;height:675px"><img class="hero-art dk" src="/decks/assets/convoai/hero/hero-three-engines-dark.png" alt="" style="left:860px;top:230px;width:1200px;height:675px">
+  <div class="conf-bg conf-bg-title" aria-hidden="true"></div><img class="hero-art lt" src="/decks/assets/convoai/info-v2/hero-cover-v2-light.png" alt="" style="left:720px;top:220px;width:1200px;height:675px"><img class="hero-art dk" src="/decks/assets/convoai/info-v2/hero-cover-v2-dark.png" alt="" style="left:720px;top:220px;width:1200px;height:675px">
   <div class="pp"><div class="sig">1/8</div><div class="sh flow kk" style="left:120px;top:200px;width:1400px;height:28px">AGORA · 声网 · CONVERSATIONAL AI · INFOGRAPH</div><div class="sh ink" style="left:120px;top:266px;width:1100px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)">让每一次人机对话，<br>都像<strong style='color:var(--accent)'>真人</strong>一样自然。</div><div class="sh flow sub" style="left:120px;top:600px;width:1400px;height:44px">声网 · 对话式 AI —— 一页一章 · 拜访速讲版</div><div class="sh rise" style="left:120px;top:700px;width:1500px;height:56px;font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2)"><span class="dot" style="background:var(--l-eng)"></span>ENGINE<span style="margin-left:56px"></span><span class="dot" style="background:var(--l-agent)"></span>AGENT<span style="margin-left:56px"></span><span class="dot" style="background:var(--l-phys)"></span>PHYSICAL AI</div><div class="sh flow mono-sm" style="left:120px;top:930px;width:1200px;height:24px">主讲人：姚光华 Colin · 声网 AI 产品线负责人</div></div>
 </section>
 <section class="slide conf-boarded" data-p="2" data-steps="0">
@@ -764,7 +840,7 @@ html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
 </section>
 <section class="slide conf-boarded" data-p="7" data-steps="0">
   <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
-  <div class="pp"><div class="sig">7/8</div><div class="sh flow kk nt" style="left:120px;top:92px;width:1680px;height:28px">案例 · 已经上岗的对话式 AI · IN PRODUCTION</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">对话式 AI，<strong>已经上岗</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:980px;height:20px;--i:0">01 · ECOSYSTEM · 五层价值地壳，我们在哪</div><div class="sh flow" style="left:120px;top:292px;width:980px;height:552px;--i:1"><div class="fig"><svg viewBox="0 0 980 552" style="width:100%;height:auto"><g class="pop" style="--i:1"><rect x="1.5" y="3" width="977" height="90" rx="6" class="box" stroke-width="1"/><text x="34" y="56" style="font-family:var(--f-mono);font-weight:500;font-size:16px;letter-spacing:.14em;fill:var(--ink-3)">L4</text><text x="88" y="56" style="font-weight:700;font-size:24px;fill:var(--ink-2)">入口与设备</text><text x="946" y="56" text-anchor="end" style="font-weight:400;font-size:15px;fill:var(--ink-3)">通用助手 · 工作入口 · 可穿戴 · 机器人</text></g><g class="pop" style="--i:2"><rect x="1.5" y="117" width="977" height="90" rx="6" class="box" stroke-width="1"/><text x="34" y="170" style="font-family:var(--f-mono);font-weight:500;font-size:16px;letter-spacing:.14em;fill:var(--ink-3)">L3</text><text x="88" y="170" style="font-weight:700;font-size:24px;fill:var(--ink-2)">应用与结果</text><text x="946" y="170" text-anchor="end" style="font-weight:400;font-size:15px;fill:var(--ink-3)">CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译</text></g><g class="pop" style="--i:3"><rect x="1.5" y="231" width="977" height="90" rx="6" style="fill:color-mix(in srgb,var(--accent) 7%,var(--card-bg));stroke:var(--accent);stroke-width:2"/><rect x="1.5" y="238" width="4" height="76" rx="2" style="fill:var(--accent)"/><text x="34" y="284" style="font-family:var(--f-mono);font-weight:500;font-size:16px;letter-spacing:.14em;fill:var(--accent)">L2</text><text x="88" y="284" style="font-weight:700;font-size:24px;fill:var(--ink)">Agent 运行时</text><text x="946" y="284" text-anchor="end" style="font-weight:400;font-size:15px;fill:var(--accent)">声网对话式 AI 引擎 · TEN</text></g><g class="pop" style="--i:4"><rect x="1.5" y="345" width="977" height="90" rx="6" style="fill:color-mix(in srgb,var(--accent) 7%,var(--card-bg));stroke:var(--accent);stroke-width:2"/><rect x="1.5" y="352" width="4" height="76" rx="2" style="fill:var(--accent)"/><text x="34" y="398" style="font-family:var(--f-mono);font-weight:500;font-size:16px;letter-spacing:.14em;fill:var(--accent)">L1</text><text x="88" y="398" style="font-weight:700;font-size:24px;fill:var(--ink)">模型与感知</text><text x="946" y="398" text-anchor="end" style="font-weight:400;font-size:15px;fill:var(--accent)">声网 Agora · 感知与 VAD</text></g><g class="pop" style="--i:5"><rect x="1.5" y="459" width="977" height="90" rx="6" style="fill:color-mix(in srgb,var(--accent) 7%,var(--card-bg));stroke:var(--accent);stroke-width:2"/><rect x="1.5" y="466" width="4" height="76" rx="2" style="fill:var(--accent)"/><text x="34" y="512" style="font-family:var(--f-mono);font-weight:500;font-size:16px;letter-spacing:.14em;fill:var(--accent)">L0</text><text x="88" y="512" style="font-weight:700;font-size:24px;fill:var(--ink)">实时基础设施</text><text x="946" y="512" text-anchor="end" style="font-weight:400;font-size:15px;fill:var(--accent)">声网 Agora · SD-RTN</text></g></svg></div></div><div class="sh pop callout-chip" style="left:120px;top:872px;width:auto;height:auto;--i:4">L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b></div><div class="sh flow mono-sm" style="left:120px;top:953px;width:980px;height:24px;--i:5">完整 4K 生态全景见 /convoai 第 23 页 · 事实截止 2026.08</div><div class="sh flow seclab" style="left:1156px;top:236px;width:644px;height:20px;--i:0">02 · CASES · 声网官方联合案例 14 例</div><div class="sh flow seclab" style="left:1156px;top:266px;width:644px;height:20px;--i:2">COMPANIONS</div><div class="sh rise case" style="left:1156px;top:292px;width:112px;height:199px;--i:2"><img src="/decks/assets/convoai/case-jixian.webp" alt="声网联合案例 · jixian"></div><div class="sh rise case" style="left:1289px;top:292px;width:112px;height:199px;--i:2"><img src="/decks/assets/convoai/case-robopoet.webp" alt="声网联合案例 · robopoet"></div><div class="sh rise case" style="left:1422px;top:292px;width:112px;height:199px;--i:2"><img src="/decks/assets/convoai/case-luwu.webp" alt="声网联合案例 · luwu"></div><div class="sh rise case" style="left:1555px;top:292px;width:112px;height:199px;--i:2"><img src="/decks/assets/convoai/case-pophie.webp" alt="声网联合案例 · pophie"></div><div class="sh flow seclab" style="left:1156px;top:509px;width:644px;height:20px;--i:3">IN-APP AGENTS</div><div class="sh rise case" style="left:1156px;top:535px;width:112px;height:199px;--i:3"><img src="/decks/assets/convoai/case-sensetime.webp" alt="声网联合案例 · sensetime"></div><div class="sh rise case" style="left:1289px;top:535px;width:112px;height:199px;--i:3"><img src="/decks/assets/convoai/case-minimax.webp" alt="声网联合案例 · minimax"></div><div class="sh rise case" style="left:1422px;top:535px;width:112px;height:199px;--i:3"><img src="/decks/assets/convoai/case-zhipu.webp" alt="声网联合案例 · zhipu"></div><div class="sh rise case" style="left:1555px;top:535px;width:112px;height:199px;--i:3"><img src="/decks/assets/convoai/case-xingye.webp" alt="声网联合案例 · xingye"></div><div class="sh rise case" style="left:1688px;top:535px;width:112px;height:199px;--i:3"><img src="/decks/assets/convoai/case-lingji.webp" alt="声网联合案例 · lingji"></div><div class="sh flow seclab" style="left:1156px;top:752px;width:644px;height:20px;--i:4">NEW DEVICES</div><div class="sh rise case" style="left:1156px;top:778px;width:112px;height:199px;--i:4"><img src="/decks/assets/convoai/case-looktech.webp" alt="声网联合案例 · looktech"></div><div class="sh rise case" style="left:1289px;top:778px;width:112px;height:199px;--i:4"><img src="/decks/assets/convoai/case-heycyan.webp" alt="声网联合案例 · heycyan"></div><div class="sh rise case" style="left:1422px;top:778px;width:112px;height:199px;--i:4"><img src="/decks/assets/convoai/case-lookee.webp" alt="声网联合案例 · lookee"></div><div class="sh rise case" style="left:1555px;top:778px;width:112px;height:199px;--i:4"><img src="/decks/assets/convoai/case-lianou.webp" alt="声网联合案例 · lianou"></div><div class="sh rise case" style="left:1688px;top:778px;width:112px;height:199px;--i:4"><img src="/decks/assets/convoai/case-doushen.webp" alt="声网联合案例 · doushen"></div><div class="sh rise card-c" style="left:1688px;top:292px;width:112px;height:199px;border-radius:14px;--i:2"><div style="padding:18px 12px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:500 12px/1 var(--f-mono);letter-spacing:.16em;color:var(--ink-3)">CASES</div><div style="margin:14px 0 10px;font-weight:900;font-size:56px;line-height:1;font-family:var(--f-en);letter-spacing:-.035em;color:var(--accent)">14</div><div style="font:400 13px/1.5 var(--f-cn);color:var(--ink-2)">官方联合案例<br>均已公开</div></div></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div></div></div>
+  <div class="pp"><div class="sig">7/8</div><div class="sh flow kk nt" style="left:120px;top:92px;width:1680px;height:28px">案例 · 已经上岗的对话式 AI · IN PRODUCTION</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">对话式 AI，<strong>已经上岗</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:980px;height:20px;--i:0">01 · ECOSYSTEM · 五层价值地壳，我们在哪</div><div class="sh flow eco-visual" style="left:120px;top:292px;width:980px;height:552px;--i:1"><img class="eco-art lt" src="/decks/assets/convoai/info-v2/eco-panorama-v2-light.webp" alt=""><img class="eco-art dk" src="/decks/assets/convoai/info-v2/eco-panorama-v2-dark.webp" alt=""><div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div><div class="eco-layer l4"><span class="eco-code">L4</span><b>入口与设备</b><small>通用助手 · 工作入口 · 可穿戴 · 机器人</small></div><div class="eco-layer l3"><span class="eco-code">L3</span><b>应用与结果</b><small>CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译</small></div><div class="eco-layer l2"><span class="eco-code">L2</span><b>Agent 运行时</b><small>声网对话式 AI 引擎 · TEN</small></div><div class="eco-layer l1"><span class="eco-code">L1</span><b>模型与感知</b><small>声网 Agora · 感知与 VAD</small></div><div class="eco-layer l0"><span class="eco-code">L0</span><b>实时基础设施</b><small>声网 Agora · SD-RTN</small></div></div><div class="sh pop callout-chip" style="left:120px;top:872px;width:auto;height:auto;--i:4">L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b></div><div class="sh flow mono-sm" style="left:120px;top:953px;width:980px;height:24px;--i:5">从 SD‑RTN 到设备，每一层都由声网托住 · 完整 4K 全景见 /convoai P23 · 事实截止 2026.08</div><div class="sh flow" style="left:1156px;top:236px;width:644px;height:741px;--i:2"><div class="case-wall-v2"><div class="case-wall-head"><span>02 · CASES · OFFICIAL PUBLIC CASES</span><b>14</b><small>声网联合案例 · 均已公开</small></div><div class="case-feature-row"><div class="case-feature"><img src="/decks/assets/convoai/info-v2/case-feature-jixian.webp" alt="声网联合案例 · 集贤科技"><div class="case-feature-caption"><b>集贤科技</b><span>AI 玩具</span></div></div><div class="case-feature"><img src="/decks/assets/convoai/info-v2/case-feature-robopoet.webp" alt="声网联合案例 · Robopoet"><div class="case-feature-caption"><b>Robopoet</b><span>AI 陪伴机器人</span></div></div><div class="case-feature"><img src="/decks/assets/convoai/info-v2/case-feature-luwu.webp" alt="声网联合案例 · luwu"><div class="case-feature-caption"><b>luwu</b><span>桌面级情感陪伴机器人</span></div></div></div><div class="case-index">+ 11 个公开联合案例</div><div class="case-mini-grid"><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-pophie.webp" alt="声网联合案例 · Pophie"><span>Pophie</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-sensetime.webp" alt="声网联合案例 · 商汤"><span>商汤</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-minimax.webp" alt="声网联合案例 · MiniMax"><span>MiniMax</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-zhipu.webp" alt="声网联合案例 · 智谱清言"><span>智谱清言</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-xingye.webp" alt="声网联合案例 · 星野"><span>星野</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-lingji.webp" alt="声网联合案例 · 灵机一动"><span>灵机一动</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-looktech.webp" alt="声网联合案例 · LOOKTECH"><span>LOOKTECH</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-heycyan.webp" alt="声网联合案例 · HeyCyan"><span>HeyCyan</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-lookee.webp" alt="声网联合案例 · LOOKEE"><span>LOOKEE</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-lianou.webp" alt="声网联合案例 · 莲偶科技"><span>莲偶科技</span></div><div class="case-mini"><img src="/decks/assets/convoai/info-v2/case-mini-doushen.webp" alt="声网联合案例 · 豆神 AI"><span>豆神 AI</span></div></div></div></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div></div></div>
 </section>
 <section class="slide conf-boarded" data-p="8" data-steps="0">
   <div class="conf-bg conf-bg-content" aria-hidden="true"></div>

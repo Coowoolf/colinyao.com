@@ -113,11 +113,87 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 /* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
    必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
 .fig svg{max-width:none;max-height:none;}
-/* 案例卡 */
+/* ═══ 视觉升级 R1（GPT 5.6 · 合入 2026-08-13）· P7 生态全景 + 案例墙 ═══════
+   生态图回到位图，但和 2026-08-12 退役的那张 eco-2026.webp 有三点不同：
+     ① 浅/深两张同构双源，走 .hero-art 的同一套 CSS 主题切换（不是烧死主题的单图）；
+     ② 图本身不承载小字：五层 L4–L0 的中英文全部是 DOM 叠层，字号可控、可维护；
+     ③ 只做远景底纹，正文对比度由 .eco-layer 的半透明卡背 + backdrop-blur 兜。 */
+:root{--eco-surface:#f8f9fc;}
+html[data-theme="dark"]{--eco-surface:#10111c;}
+.eco-visual{position:relative;border:1px solid var(--hair);border-radius:20px;
+  background:var(--eco-surface);box-shadow:0 18px 44px rgba(11,14,28,.10);}
+/* `.pp .sh{overflow:visible}`（0,2,0）压过 `.eco-visual{overflow:hidden}`（0,1,0）→
+   底图四角会戳出 20px 圆角边框。同特异度以上把裁切拿回来。 */
+.pp .sh.eco-visual{overflow:hidden;}
+/* .eco-art 与 .hero-art 同机制：双源 + CSS 控可见性（deckSwap 的 JS 只管 .strip） */
+.eco-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:none;pointer-events:none;}
+.eco-art.lt{display:block;opacity:.94;}
+html[data-theme="dark"] .eco-art.lt{display:none;}
+html[data-theme="dark"] .eco-art.dk{display:block;}
+/* kicker 的尾巴正落在全景图那排设备剪影上（文字压图不算遮盖，但会掉对比度）：
+   给一圈和面板底色同色的柔光，两主题下都把字从图里拎出来。 */
+.eco-kicker{position:absolute;left:28px;top:22px;font:600 12px/1 var(--f-mono);
+  letter-spacing:.2em;color:var(--ink-3);text-shadow:0 0 7px var(--eco-surface),0 0 3px var(--eco-surface);}
+.eco-layer{position:absolute;left:24px;right:24px;height:67px;padding:12px 18px;
+  display:grid;grid-template-columns:58px 230px 1fr;align-items:center;gap:12px;
+  border:1px solid color-mix(in srgb,var(--ink-3) 22%,transparent);border-radius:12px;
+  background:color-mix(in srgb,var(--card-bg) 70%,transparent);backdrop-filter:blur(8px);}
+.eco-layer .eco-code{font:600 13px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
+.eco-layer b{font:700 22px/1 var(--f-cn);color:var(--ink);}
+.eco-layer small{font:400 13px/1.35 var(--f-cn);color:var(--ink-2);text-align:right;}
+.eco-layer.l2,.eco-layer.l1,.eco-layer.l0{border-color:color-mix(in srgb,var(--accent) 55%,transparent);}
+.eco-layer.l2 .eco-code,.eco-layer.l2 b,.eco-layer.l1 .eco-code,.eco-layer.l1 b,
+.eco-layer.l0 .eco-code,.eco-layer.l0 b{color:var(--accent);}
+/* 行距 83 = 带高 67 + 16 净空：行间、与 kicker（top22 · 12px）之间都不许互压 */
+.eco-layer.l4{top:54px;}.eco-layer.l3{top:137px;}.eco-layer.l2{top:220px;}
+.eco-layer.l1{top:303px;}.eco-layer.l0{top:386px;}
+html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.52);}
+/* 案例墙 v2：3 张精选大卡 + 11 张证据小卡；客户名走 DOM 文本，不靠海报正文缩略 */
+.case-wall-v2{height:100%;border:1px solid var(--hair);border-radius:20px;padding:20px 18px 16px;
+  background:color-mix(in srgb,var(--card-bg) 74%,transparent);box-shadow:0 18px 44px rgba(11,14,28,.10);}
+.case-wall-head{display:flex;align-items:baseline;gap:12px;height:38px;color:var(--ink-3);
+  font:600 12px/1 var(--f-mono);letter-spacing:.16em;}
+.case-wall-head b{margin-left:auto;font:900 42px/.8 var(--f-en);letter-spacing:-.04em;color:var(--accent);}
+.case-wall-head small{font:400 12px/1.3 var(--f-cn);letter-spacing:0;color:var(--ink-2);}
+.case-feature-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:2px;}
+.case-feature{position:relative;height:238px;border:1px solid var(--hair);border-radius:14px;
+  overflow:hidden;background:#151727;}
+.case-feature img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 68%;
+  filter:saturate(.86) contrast(1.04);}
+/* 底部压幕：升级版原式（transparent 42%→.84）在 caption 那一带只压到 .58，
+   海报自己烧录的品牌名正好在同一位置，和 DOM caption 叠成重影。加一段中间色标，
+   把最后 ~20% 压到 .93，海报文字变淡影、白字浮出来。 */
+.case-feature:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 38%,rgba(10,12,24,.5) 68%,rgba(10,12,24,.93) 100%);}
+.case-feature-caption{position:absolute;left:12px;right:10px;bottom:10px;z-index:1;color:#fff;}
+/* components.css 的 `b,strong{color:var(--ink)}`（0,0,1）直接命中这个 b，压过 caption 的
+   继承白 —— 浅底主题下客户名会被染成近黑，正好压在深色幕布上隐形（.callout-chip 同一个坑）。*/
+.case-feature-caption b{display:block;font:700 16px/1.15 var(--f-cn);color:inherit;}
+.case-feature-caption span{display:block;margin-top:4px;font:500 10px/1 var(--f-mono);
+  letter-spacing:.1em;color:rgba(255,255,255,.7);}
+.case-index{display:flex;align-items:center;gap:10px;margin:17px 0 9px;
+  font:500 11px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
+.case-index:after{content:"";height:1px;flex:1;background:var(--hair);}
+/* 4 列 × 3 行（升级版是 6×2 · 94×83）：11 张卡在 644 宽的墙里排 6 列时，
+   墙底会空出 217px 的白洞，而且 9px 的客户名在讲台上读不出来。
+   改 4 列 145×124 后墙高正好落在 977（= 左列脚注底 = 我版基线），名字提到 11px。 */
+.case-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.case-mini{position:relative;height:124px;border:1px solid var(--hair);border-radius:10px;
+  overflow:hidden;background:#171928;}
+.case-mini img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 38%;
+  filter:saturate(.7) contrast(1.05);}
+.case-mini:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 34%,rgba(10,12,24,.5) 66%,rgba(10,12,24,.88) 100%);}
+.case-mini span{position:absolute;left:9px;right:7px;bottom:8px;z-index:1;color:#fff;
+  font:600 11px/1 var(--f-mono);letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media print{.eco-visual,.case-wall-v2{box-shadow:none;}}
+/* 案例卡（旧 5 列缩略图网格，随 R1 案例墙退役；.case 保留给回滚基线） */
 .case{border-radius:14px;overflow:hidden;border:1px solid var(--hair);
   box-shadow:0 8px 22px rgba(0,0,0,.12);background:var(--card-bg);}
 .case img{width:100%;height:100%;object-fit:cover;display:block;}
-/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 —— 现在 P7 走原生 SVG */
+/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 */
 .callout-chip{background:var(--ink);color:var(--bg,#fff);border-radius:12px;padding:13px 22px;
   font:700 19px/1.4 var(--f-cn);box-shadow:0 8px 24px rgba(0,0,0,.22);}
 html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
@@ -179,7 +255,13 @@ page("title", "".join([
        + dot("l-phys") + 'PHYSICAL AI'),
     sh("flow mono-sm", "left:120px;top:930px;width:1200px;height:24px",
        "主讲人：姚光华 Colin · 声网 AI 产品线负责人"),
-]), hero=("three-engines", "left:860px;top:230px;width:1200px;height:675px"))
+]), hero=("info-v2/hero-cover-v2", "left:720px;top:220px;width:1200px;height:675px"))
+# ── P1 hero 盒（视觉升级 R1）─────────────────────────────────────────────────
+#   原盒 left860+width1200=2060 出画布 140px，右侧被舞台裁掉 → 收到 720+1200=1920 正好齐右缘。
+#   主标保持原句（Fable 裁定 #1）：升级版改的「让陪伴自然，让生意成单。」是未申报的内容改动，
+#   且和 P8 收尾回收的同一句断裂，不采。
+#   新图 2048×1152 透明底、右重心：实际墨迹从图内 x669 起（= 屏幕 x1112），
+#   主标两行各 9 个全角字、右缘 x≈967 —— 中间还剩 145px 净空，宽标题与图不相撞。
 
 # ═══ P2 · 公司 ·「RTE 领导者」（accent）════════════════════════════════════
 #   01 SCALE 四数字 / 02 ADOPTION 近一半 + 分账条 / 03 ENDORSEMENT OpenAI / 04 MILESTONES 五节点
@@ -557,81 +639,71 @@ page("content", "".join([
 ]))
 
 # ═══ P7 · 案例 ·「已经上岗的对话式 AI」（accent）═══════════════════════════
-#   左 ECOSYSTEM 五层价值地壳（原生 SVG）/ 右 CASES 14 张联合案例卡（严格 5 列网格）
-# ── 为什么把 eco-2026.webp 位图换成原生 SVG（Colin 2026-08-12）──────────────
-#   ① 那张 4K 全景压进 980px 宽后小字全糊，讲台上根本读不出来；
-#   ② 位图是白底的，暗底主题下就是一块贴上去的白色外来物，双主题只能瞎一个；
-#   ③ 简化成五层骨架后所有颜色走 deck token，light/dark 各自成立，字也够大。
-#   完整全景仍在 /convoai 第 23 页，这里只留脚注指路。
-_CRUST = [
-    ("L4", "入口与设备",   "通用助手 · 工作入口 · 可穿戴 · 机器人", False),
-    ("L3", "应用与结果",   "CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译", False),
-    ("L2", "Agent 运行时", "声网对话式 AI 引擎 · TEN",             True),
-    ("L1", "模型与感知",   "声网 Agora · 感知与 VAD",              True),
-    ("L0", "实时基础设施", "声网 Agora · SD-RTN",                  True),
+#   左 01 ECOSYSTEM 五层实时智能生态（双源全景底图 + DOM 五层叠标）
+#   右 02 CASES 案例墙 v2（3 张精选大卡 + 11 张证据小卡 = 14 例）
+# ── 视觉升级 R1（GPT 5.6 · 合入 2026-08-13）─────────────────────────────────
+#   2026-08-12 把 eco-2026.webp 换成原生 SVG，是因为那张 4K 全景压进 980px 后小字全糊、
+#   而且白底在暗主题里是块外来物。R1 把位图请回来，但三条病根都治了：
+#     ① 浅/深同构双源，走 .hero-art 的同一套 CSS 主题切换；
+#     ② 图只做远景底纹，L4–L0 的字全部是 DOM（.eco-layer），字号可控；
+#     ③ 半透明卡背 + backdrop-blur 保证两主题下标签都压得住底图。
+#   完整 4K 全景仍在 /convoai 第 23 页，脚注指路（裁定 #3 合并两版为一行）。
+_ECO = [
+    ("l4", "L4", "入口与设备",   "通用助手 · 工作入口 · 可穿戴 · 机器人"),
+    ("l3", "L3", "应用与结果",   "CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译"),
+    ("l2", "L2", "Agent 运行时", "声网对话式 AI 引擎 · TEN"),
+    ("l1", "L1", "模型与感知",   "声网 Agora · 感知与 VAD"),
+    ("l0", "L0", "实时基础设施", "声网 Agora · SD-RTN"),
 ]
-def _band(i, tag, name, desc, hot):
-    """一条地壳带 · viewBox 980×552：带高 90 + 间距 24，自上而下 L4→L0。
-       高亮三带（L2/L1/L0 = 有声网的那三层）accent 描边 sw2 + 左缘 4px accent 竖条。
-       文字 fill 一律内联 style —— 呈现属性 fill= 压不过 .fig .lbl/.ttl 的 CSS fill。"""
-    y = 3 + i * 114
-    if hot:
-        rect = ('<rect x="1.5" y="%d" width="977" height="90" rx="6" '
-                'style="fill:color-mix(in srgb,var(--accent) 7%%,var(--card-bg));'
-                'stroke:var(--accent);stroke-width:2"/>'
-                '<rect x="1.5" y="%d" width="4" height="76" rx="2" style="fill:var(--accent)"/>'
-                % (y, y + 7))
-        c_tag, c_name, c_desc = "var(--accent)", "var(--ink)", "var(--accent)"
-    else:
-        rect = '<rect x="1.5" y="%d" width="977" height="90" rx="6" class="box" stroke-width="1"/>' % y
-        c_tag, c_name, c_desc = "var(--ink-3)", "var(--ink-2)", "var(--ink-3)"
-    b = y + 53                     # tag / 名称 / 说明 共基线（24px 字在 h90 带内视觉居中）
-    return ('<g class="pop" style="--i:%d">%s'
-            '<text x="34" y="%d" style="font-family:var(--f-mono);font-weight:500;font-size:16px;'
-            'letter-spacing:.14em;fill:%s">%s</text>'
-            '<text x="88" y="%d" style="font-weight:700;font-size:24px;fill:%s">%s</text>'
-            '<text x="946" y="%d" text-anchor="end" style="font-weight:400;font-size:15px;fill:%s">%s</text>'
-            '</g>' % (1 + i, rect, b, c_tag, tag, b, c_name, name, b, c_desc, desc))
-_p7crust = "".join(_band(_i, *_c) for _i, _c in enumerate(_CRUST))
+_p7eco = ('<img class="eco-art lt" src="%(A)sinfo-v2/eco-panorama-v2-light.webp" alt="">'
+          '<img class="eco-art dk" src="%(A)sinfo-v2/eco-panorama-v2-dark.webp" alt="">'
+          '<div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div>' % {"A": A}
+          + "".join('<div class="eco-layer %s"><span class="eco-code">%s</span>'
+                    '<b>%s</b><small>%s</small></div>' % _l for _l in _ECO))
 
-_GROUPS = [
-    ("COMPANIONS",    ["jixian", "robopoet", "luwu", "pophie"]),        # 4 张 + 数据块 tile 补第 5 格
-    ("IN-APP AGENTS", ["sensetime", "minimax", "zhipu", "xingye", "lingji"]),
-    ("NEW DEVICES",   ["looktech", "heycyan", "lookee", "lianou", "doushen"]),
+# ── 裁定 #2 · 客户名逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）──
+#   升级版写错四处，此处修正：极限→集贤科技 / LUWUU→luwu / SenseTime→商汤 /
+#   智谱→智谱清言 / Heycyan→HeyCyan / 联欧→莲偶科技。案例事实与数量（14）不变。
+_FEATURE = [
+    ("jixian",   "集贤科技",   "AI 玩具"),
+    ("robopoet", "Robopoet",   "AI 陪伴机器人"),
+    ("luwu",     "luwu",       "桌面级情感陪伴机器人"),
 ]
-# 严格 5 列：卡 112×199（0.5628 ≈ 原 0.5626）· 列距 133 · x1156+i×133 → 末列右缘正好 1800
-_CASE_W, _CASE_H, _CASE_P, _CASE_X = 112, 199, 133, 1156
-_ROW_Y = [292, 535, 778]           # 行1顶 = 左列 SVG 顶；行3底 778+199=977 = 左列脚注底
-# 残格 tile：用数据块补齐 COMPANIONS 那一行，三行右缘齐平（这是原来 4/5/5 参差的病根）
-_TILE = ('<div style="padding:18px 12px;height:100%;display:flex;flex-direction:column;justify-content:center">'
-         '<div style="font:500 12px/1 var(--f-mono);letter-spacing:.16em;color:var(--ink-3)">CASES</div>'
-         '<div style="margin:14px 0 10px;font-weight:900;font-size:56px;line-height:1;'
-         'font-family:var(--f-en);letter-spacing:-.035em;color:var(--accent)">14</div>'
-         '<div style="font:400 13px/1.5 var(--f-cn);color:var(--ink-2)">官方联合案例<br>均已公开</div></div>')
+_MINI = [
+    ("pophie", "Pophie"), ("sensetime", "商汤"), ("minimax", "MiniMax"),
+    ("zhipu", "智谱清言"), ("xingye", "星野"), ("lingji", "灵机一动"),
+    ("looktech", "LOOKTECH"), ("heycyan", "HeyCyan"), ("lookee", "LOOKEE"),
+    ("lianou", "莲偶科技"), ("doushen", "豆神 AI"),
+]
+_p7wall = (
+    '<div class="case-wall-v2">'
+    '<div class="case-wall-head"><span>02 · CASES · OFFICIAL PUBLIC CASES</span>'
+    '<b>14</b><small>声网联合案例 · 均已公开</small></div>'
+    '<div class="case-feature-row">'
+    + "".join('<div class="case-feature"><img src="%sinfo-v2/case-feature-%s.webp" alt="声网联合案例 · %s">'
+              '<div class="case-feature-caption"><b>%s</b><span>%s</span></div></div>'
+              % (A, _f, _n, _n, _k) for _f, _n, _k in _FEATURE)
+    + '</div><div class="case-index">+ 11 个公开联合案例</div><div class="case-mini-grid">'
+    + "".join('<div class="case-mini"><img src="%sinfo-v2/case-mini-%s.webp" alt="声网联合案例 · %s">'
+              '<span>%s</span></div>' % (A, _f, _n, _n) for _f, _n in _MINI)
+    + '</div></div>')
+
 _p7 = [
     sh("flow kk nt", "left:120px;top:92px;width:1680px;height:28px", "案例 · 已经上岗的对话式 AI · IN PRODUCTION"),
     sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "对话式 AI，<strong>已经上岗</strong>。"),
-    # 区 01 · ECOSYSTEM（左列 · 原生 SVG 五层地壳）
+    # 区 01 · ECOSYSTEM（左列 · 全景底图 + 五层 DOM 叠标；顶 292 / 底 844 与我版逐像素同）
     lab(120, 236, "01 · ECOSYSTEM · 五层价值地壳，我们在哪", w=980),
-    figbox(120, 292, 980, 980, 552, _p7crust, i=1),          # 顶 292 = 右列行1卡顶；底 844
+    sh("flow eco-visual", "left:120px;top:292px;width:980px;height:552px;--i:1", _p7eco),
     sh("pop callout-chip", "left:120px;top:872px;width:auto;height:auto;--i:4",
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
+    # 裁定 #3：合并我版「完整 4K 全景见 /convoai P23」与升级版「每一层都由声网托住」为一行
     sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
-       "完整 4K 生态全景见 /convoai 第 23 页 · 事实截止 2026.08"),
-    # 区 02 · CASES（右列 · 严格 5 列网格，三行列 x 完全一致）
-    lab(1156, 236, "02 · CASES · 声网官方联合案例 14 例", w=644),
+       "从 SD‑RTN 到设备，每一层都由声网托住 · 完整 4K 全景见 /convoai P23 · 事实截止 2026.08"),
+    # 区 02 · CASES（右列 · 案例墙 v2；顶 236 与左列 seclab 齐，底 977 与左列脚注底齐）
+    sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall),
+    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
+       '<div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div>'),
 ]
-for _gi, (_gname, _names) in enumerate(_GROUPS):
-    _gy = _ROW_Y[_gi]
-    _p7.append(lab(_CASE_X, _gy - 26, _gname, w=644, i=2 + _gi))       # 组标 x 与卡左缘对齐
-    for _ci, _nm in enumerate(_names):
-        _p7.append(sh("rise case", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d"
-                      % (_CASE_X + _ci * _CASE_P, _gy, _CASE_W, _CASE_H, 2 + _gi),
-                      '<img src="%scase-%s.webp" alt="声网联合案例 · %s">' % (A, _nm, _nm)))
-_p7.append(sh("rise card-c", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;border-radius:14px;--i:2"
-              % (_CASE_X + 4 * _CASE_P, _ROW_Y[0], _CASE_W, _CASE_H), _TILE))
-_p7.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
-              '<div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div>'))
 page("content", "".join(_p7))
 
 # ═══ P8 · 合流 ·「为什么是声网 · 怎么开始」（accent）═══════════════════════
@@ -703,8 +775,9 @@ def build():
         if hero:
             name, style = hero
             st = ' style="%s"' % style if style else ""
-            hero_html = ('<img class="hero-art lt" src="%shero/hero-%s-light.png" alt=""%s>'
-                         '<img class="hero-art dk" src="%shero/hero-%s-dark.png" alt=""%s>'
+            # name = 资产 basename（不含 -light/-dark 与扩展名），相对 /decks/assets/convoai/
+            hero_html = ('<img class="hero-art lt" src="%s%s-light.png" alt=""%s>'
+                         '<img class="hero-art dk" src="%s%s-dark.png" alt=""%s>'
                          % (A, name, st, A, name, st))
         secs.append(
             '<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
