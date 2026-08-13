@@ -128,7 +128,9 @@ html[data-theme="dark"]{--eco-surface:#10111c;}
 /* .eco-art 与 .hero-art 同机制：双源 + CSS 控可见性（deckSwap 的 JS 只管 .strip） */
 .eco-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   display:none;pointer-events:none;}
-.eco-art.lt{display:block;opacity:.94;}
+/* polish-v4：.94 是全景底纹时代的柔化（图只当远景纹理，压低免得抢字）。
+   换成专门生成的五层生态主视觉后，图本身就是这一列的主角，必须全锐度出图。 */
+.eco-art.lt{display:block;opacity:1;}
 html[data-theme="dark"] .eco-art.lt{display:none;}
 html[data-theme="dark"] .eco-art.dk{display:block;}
 /* kicker 的尾巴正落在全景图那排设备剪影上（文字压图不算遮盖，但会掉对比度）：
@@ -138,7 +140,8 @@ html[data-theme="dark"] .eco-art.dk{display:block;}
 .eco-layer{position:absolute;left:24px;right:24px;height:67px;padding:12px 18px;
   display:grid;grid-template-columns:58px 230px 1fr;align-items:center;gap:12px;
   border:1px solid color-mix(in srgb,var(--ink-3) 22%,transparent);border-radius:12px;
-  background:color-mix(in srgb,var(--card-bg) 70%,transparent);backdrop-filter:blur(8px);}
+  /* 玻璃模糊会把生态底图磨成不可读的雾；改用不透明层，保留底图锐度与层级。（该规则实际已被下方 P7 override 全透明化，留作兜底） */
+  background:color-mix(in srgb,var(--card-bg) 88%,transparent);backdrop-filter:none;}
 .eco-layer .eco-code{font:600 13px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
 .eco-layer b{font:700 22px/1 var(--f-cn);color:var(--ink);}
 .eco-layer small{font:400 13px/1.35 var(--f-cn);color:var(--ink-2);text-align:right;}
@@ -215,6 +218,58 @@ html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
 [data-p="5"] .fig .lbl{fill:var(--ink-2);font-weight:600;}
 [data-p="5"] .fig .sm,[data-p="5"] .fig .txt,[data-p="5"] .rows .r .v{font-weight:400;}
 [data-p="5"] .fig .box{fill:color-mix(in srgb,var(--card-bg) 90%,var(--ink) 10%);stroke:color-mix(in srgb,var(--ink) 26%,transparent);}
+/* polish-v4 · P7：完整五层生态主视觉 + 左右留白 DOM 标注，不再用五条高不透明卡片遮图。
+   仲裁适配：v4 原稿用 background-image 承载底图，此处改回 .eco-art 双源 img（保 QA ⑩ 缺图断言与 P1 hero 同机制），视觉等价。 */
+[data-p="7"] .eco-visual{
+  border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);
+  background-color:#f8f9fc;
+  box-shadow:0 18px 44px rgba(11,14,28,.08);}
+html[data-theme="dark"] [data-p="7"] .eco-visual{
+  background-color:#050713;}
+/* token 清账：五行文字的柔光 text-shadow 用 --eco-surface，深色下旧值 #10111c 是全景图时代的
+   面板底；v4 面板底改 #050713 后在 P7 范围内对齐，避免字周柔光比底亮一档。 */
+html[data-theme="dark"] [data-p="7"]{--eco-surface:#050713;}
+[data-p="7"] .eco-visual::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,
+    rgba(248,249,252,.99) 0%,rgba(248,249,252,.90) 18%,rgba(248,249,252,.18) 34%,
+    rgba(248,249,252,.08) 66%,rgba(248,249,252,.88) 82%,rgba(248,249,252,.99) 100%);}
+html[data-theme="dark"] [data-p="7"] .eco-visual::after{
+  background:linear-gradient(90deg,
+    rgba(5,7,19,.99) 0%,rgba(5,7,19,.90) 18%,rgba(5,7,19,.16) 34%,
+    rgba(5,7,19,.08) 66%,rgba(5,7,19,.88) 82%,rgba(5,7,19,.99) 100%);}
+[data-p="7"] .eco-kicker{
+  z-index:3;left:24px;top:20px;font-size:12px;letter-spacing:.18em;
+  color:var(--ink-3);text-shadow:none;}
+[data-p="7"] .eco-layer{
+  z-index:3;left:24px;right:24px;height:64px;padding:0;
+  grid-template-columns:42px 205px minmax(0,1fr);gap:0;
+  border:0;border-radius:0;background:transparent;backdrop-filter:none;}
+html[data-theme="dark"] [data-p="7"] .eco-layer{background:transparent;}
+[data-p="7"] .eco-layer .eco-code{
+  font:700 13px/1 var(--f-mono);letter-spacing:.12em;
+  color:var(--ink-3);text-shadow:0 0 12px var(--eco-surface);}
+[data-p="7"] .eco-layer b{
+  font:700 23px/1.12 var(--f-cn);color:var(--ink);
+  text-shadow:0 0 14px var(--eco-surface),0 0 5px var(--eco-surface);}
+[data-p="7"] .eco-layer small{
+  justify-self:end;max-width:360px;font:500 15px/1.3 var(--f-cn);
+  color:var(--ink-2);text-align:right;
+  text-shadow:0 0 14px var(--eco-surface),0 0 5px var(--eco-surface);}
+[data-p="7"] .eco-layer.l2 .eco-code,[data-p="7"] .eco-layer.l2 b,
+[data-p="7"] .eco-layer.l1 .eco-code,[data-p="7"] .eco-layer.l1 b,
+[data-p="7"] .eco-layer.l0 .eco-code,[data-p="7"] .eco-layer.l0 b{color:var(--accent);}
+[data-p="7"] .eco-layer.l4{top:50px;}
+[data-p="7"] .eco-layer.l3{top:157px;}
+[data-p="7"] .eco-layer.l2{top:264px;}
+[data-p="7"] .eco-layer.l1{top:361px;}
+[data-p="7"] .eco-layer.l0{top:449px;}
+[data-p="7"] .callout-chip{
+  padding:7px 0 7px 20px;border-radius:0;border-left:3px solid var(--accent);
+  background:transparent;color:var(--ink);box-shadow:none;}
+html[data-theme="dark"] [data-p="7"] .callout-chip{
+  background:transparent;color:var(--ink);}
+[data-p="7"] .callout-chip b{color:var(--accent);}
 </style>"""
 
 # ── 组装件 ──────────────────────────────────────────────────────────────────
@@ -660,8 +715,8 @@ _ECO = [
     ("l1", "L1", "模型与感知",   "声网 Agora · 感知与 VAD"),
     ("l0", "L0", "实时基础设施", "声网 Agora · SD-RTN"),
 ]
-_p7eco = ('<img class="eco-art lt" src="%(A)sinfo-v2/eco-panorama-v2-light.webp" alt="">'
-          '<img class="eco-art dk" src="%(A)sinfo-v2/eco-panorama-v2-dark.webp" alt="">'
+_p7eco = ('<img class="eco-art lt" src="%(A)sinfo-v2/ecosystem-stack-v4-light.webp" alt="">'
+          '<img class="eco-art dk" src="%(A)sinfo-v2/ecosystem-stack-v4-dark.webp" alt="">'
           '<div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div>' % {"A": A}
           + "".join('<div class="eco-layer %s"><span class="eco-code">%s</span>'
                     '<b>%s</b><small>%s</small></div>' % _l for _l in _ECO))

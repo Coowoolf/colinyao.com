@@ -11,7 +11,7 @@ const N = 8;
 const EXP_STEPS = [0, 0, 0, 0, 0, 0, 0, 0];
 const BOARD = { 1: 'title' };            // 其余一律 content
 const HERO = { 1: 'hero-cover-v2' };     // hero-art 只上封面
-const ECO = { 7: 'eco-panorama-v2' };    // eco-art 只上 P7 生态全景
+const ECO = { 7: 'ecosystem-stack-v4' }; // eco-art 只上 P7 生态主视觉（polish-v4 换稿）
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
@@ -118,7 +118,8 @@ for (let i = 1; i <= N; i++) {
     if (ev[0]) {
       ok(ev[0].cls.includes(THEME === 'dark' ? 'dk' : 'lt'), `⑩ P${i} eco-art 主题错 ${ev[0].cls}`);
       ok(ev[0].src.includes(`${ECO[i]}-${THEME}.webp`), `⑩ P${i} eco-art 源不符 ${ev[0].src}`);
-      ok(ev[0].w === 2048, `⑩ P${i} eco-art 未加载`);
+      // polish-v4 后底图不再是 2048 宽的全景（v4 主视觉 1672×941）：断言退回「真加载」语义
+      ok(ev[0].w > 0, `⑩ P${i} eco-art 未加载 naturalWidth=${ev[0].w}`);
       ok(ev[0].fit === 'cover', `⑩ P${i} eco-art fit=${ev[0].fit}`);
     }
   } else {
