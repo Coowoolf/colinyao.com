@@ -1,725 +1,906 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN"><head>
+<script>try{if(localStorage.getItem("colin-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>声网 · 对话式 AI 引擎 · 产品介绍</title>
 <style>
-  :root{
-    --ink:#1d1d1f; --ink-soft:#6e6e73; --ink-faint:#a1a1a6;
-    --bg:#ffffff; --bg-alt:#f5f5f7; --line:#e5e5ea;
-    --accent:#0a84ff; --accent-deep:#0057d9; --ok:#1a9c5b;
-    --dark-bg:#0a0a0f; --dark-ink:#f5f5f7;
-    --radius:18px; --maxw:1120px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
-    color:var(--ink);background:var(--bg);
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  }
-  .deck{height:100vh;display:flex;flex-direction:row;align-items:center;
-    overflow-x:scroll;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;
-    background:#e6e6eb;padding:0 5vw;gap:2.2vw;}
-  .slide{flex:0 0 90vw;max-width:1600px;height:90vh;scroll-snap-align:center;
-    display:flex;flex-direction:column;justify-content:center;padding:5vh 5.5vw;
-    position:relative;overflow-y:auto;background:var(--bg);border-radius:22px;
-    box-shadow:0 18px 60px rgba(0,0,0,.16);}
-  .inner{width:100%;max-width:var(--maxw);margin:0 auto;}
-  .slide.dark{background:var(--dark-bg);color:var(--dark-ink);}
-  .slide.dark .eyebrow{color:var(--accent);}
-  .slide.alt{background:var(--bg-alt);}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族双主题变量（对外演讲 / 大会版）
+   ───────────────────────────────────────────────────────────────────
+   :root                    = conf-light（血统：《从对话式 AI 到企业级智能体》final PPTX，
+                              2026.06 Google Cloud 开发者大会 · 文字色逐字符取自 PDF 实测）
+   html[data-theme="dark"]  = conf-dark（血统：/robot26 R22-R23 暗色模板 · 纯黑 + 淡紫）
+   ───────────────────────────────────────────────────────────────────
+   与 base colin-deck（theme-dual.css）同一套变量名 —— stage/motion/components/deck.js
+   四件机械层直接复用，只换本文件即从「网站版」切到「大会版」。
+   装配顺序：conf-theme-dual.css → stage.css → motion.css → components.css → conf-chrome.css
+   ═══════════════════════════════════════════════════════════════════ */
 
-  .eyebrow{font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--accent);font-weight:600;margin-bottom:1.1rem;}
-  h1{font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.04;font-weight:700;letter-spacing:-.02em;}
-  h2{font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.1;font-weight:650;letter-spacing:-.015em;margin-bottom:1.6rem;}
-  h2 .accent{color:var(--accent);}
-  .lead{font-size:clamp(1.1rem,1.7vw,1.45rem);color:var(--ink-soft);line-height:1.5;max-width:46ch;}
-  .dark .lead{color:#c7c7cc;}
+:root{
+  /* ── 底版（对齐 base colin-deck 浅色，Colin 2026-08-09 指定）── */
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
 
-  .cover-brand{display:flex;align-items:center;gap:.7rem;margin-bottom:2.4rem;font-weight:600;letter-spacing:.02em;}
-  .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 22px var(--accent);}
-  .cover-sub{margin-top:1.8rem;font-size:clamp(1.05rem,1.7vw,1.4rem);color:#c7c7cc;max-width:42ch;line-height:1.5;}
-  .cover-meta{position:absolute;left:8vw;bottom:6vh;font-size:.85rem;color:var(--ink-faint);letter-spacing:.04em;}
+  /* ── 文字（取自 final PPTX 实测）── */
+  --ink:#111111;            /* 大标题 · 近黑 */
+  --ink-2:#2a2a2a;          /* 正文 */
+  --ink-3:#8e8e93;          /* chrome 灰：眉标 / 页脚 / 来源行（PPTX 最高频灰）*/
 
-  .grid{display:grid;gap:1.1rem;}
-  .g2{grid-template-columns:repeat(2,1fr);}
-  .g3{grid-template-columns:repeat(3,1fr);}
-  .g4{grid-template-columns:repeat(4,1fr);}
-  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
-    padding:1.5rem 1.6rem;transition:transform .2s;}
-  .alt .card{background:#fff;}
-  .card h3{font-size:1.18rem;font-weight:650;margin-bottom:.55rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.55rem;}
-  .card p{font-size:.98rem;color:var(--ink-soft);line-height:1.55;}
-  .card .num{font-size:.8rem;font-weight:700;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:.7rem;}
-  .statnum{font-size:clamp(2.6rem,4vw,3.4rem);font-weight:700;color:var(--accent);letter-spacing:-.02em;line-height:1;}
-  .statnum .u{font-size:1.3rem;font-weight:600;color:var(--ink-soft);margin-left:.15rem;}
+  /* ── conf 强调色（浅底 = 玫红系）── */
+  --accent:#f45b8c;         /* 玫红 · 主 accent：标题重点词 / 大数字 / KPI 标签 / 页脚圆点 */
+  --accent-deep:#d8366a;    /* 深玫红 · 强调中的强调 / 风险与警示 / 漏斗末级 */
+  --accent-2:#7b61ff;       /* 紫罗兰 · 对位色：消费级 / 陪伴 / 对比阵列的另一极 */
+  --accent-3:#5b8cff;       /* 蓝 · 三色对比时的第三极（被托付 / Enterprise 卡）*/
 
-  .statement{font-size:clamp(1.9rem,4vw,3.2rem);line-height:1.28;font-weight:600;letter-spacing:-.015em;max-width:26ch;}
-  .statement .hl{color:var(--accent);}
-  .kicker{margin-top:2.2rem;font-size:1.15rem;color:#c7c7cc;font-weight:400;max-width:40ch;line-height:1.5;}
-  .kicker strong{color:#fff;font-weight:600;}
+  /* ── 发丝线 ── */
+  --hair:rgba(17,17,17,.16);
+  --hair-soft:rgba(17,17,17,.075);
+  --hair-strong:rgba(17,17,17,.30);
 
-  .chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.2rem;}
-  .chip{background:#fff;border:1px solid var(--line);border-radius:30px;padding:.5rem 1rem;font-size:.92rem;color:var(--ink-soft);}
-  .alt .chip{background:var(--bg-alt);}
-  .dark .chip{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#d7d7dc;}
+  /* ── 底流场 / 栏格（流场线随 accent 走，不引第二强调色）── */
+  --flow-line:rgba(244,91,140,.30);
+  --flow-line-2:rgba(17,17,17,.13);
+  --flow-op:.40;
+  --grid-line:rgba(17,17,17,.05);
+  --rail-line:rgba(17,17,17,.10);
+  --sig-ink:rgba(17,17,17,.30);
 
-  .callout{margin-top:1.4rem;font-size:1rem;color:var(--ink-soft);line-height:1.55;
-    border-left:3px solid var(--accent);padding:.2rem 0 .2rem 1rem;}
-  .dark .callout{color:#c7c7cc;}
-  .note{margin-top:1.3rem;font-size:.86rem;color:var(--ink-faint);line-height:1.5;}
+  /* ── 拱顶石 aura（conf-light 独有 · 金句/拱顶石页专用，全场 ≤3 页）── */
+  --aura-a:rgba(255,214,140,.55);   /* 暖黄 */
+  --aura-b:rgba(255,150,180,.45);   /* 粉 */
+  --aura-c:rgba(140,180,255,.45);   /* 蓝 */
 
-  .figwrap{margin-top:1.2rem;width:100%;}
-  .figwrap svg{width:100%;height:auto;display:block;}
+  /* ── base 机械层兼容别名（components.css / motion.css 直接可用）── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
 
-  .ico{width:26px;height:26px;flex:0 0 auto;stroke:var(--accent);stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  /* ── 字体（与 robot26 / 站内 deck 同栈）── */
+  --f-cn:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Noto Sans CJK SC','Source Han Sans SC','MiSans','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'PingFang SC',monospace;
 
-  .foot{position:absolute;left:8vw;bottom:3.4vh;font-size:.78rem;color:var(--ink-faint);letter-spacing:.03em;}
-  .dark .foot{color:#6b6b72;}
-  .pageno{position:absolute;right:8vw;bottom:3.4vh;font-size:.78rem;color:var(--ink-faint);font-variant-numeric:tabular-nums;letter-spacing:.05em;}
-  .dark .pageno{color:#6b6b72;}
-  .rail{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:row;gap:10px;z-index:50;}
-  .rail button{width:9px;height:9px;border-radius:50%;border:none;background:#c3c3ca;padding:0;cursor:pointer;transition:all .2s;}
-  .rail button.on{background:var(--accent);transform:scale(1.35);}
-  .hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);font-size:.72rem;color:var(--ink-faint);z-index:40;opacity:.8;}
+  /* ── 节奏（与 base 相同，调过的，别改）── */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
 
-  @media (max-width:760px){
-    .g3,.g4,.g2{grid-template-columns:1fr;}
-    .rail{display:none;}
-    .deck{padding:0 4vw;gap:4vw;}
-    .slide{flex-basis:92vw;padding:5vh 6vw;}
-  }
-  @media print{
-    @page{size:13.333in 8in;margin:0;}
-    html{scroll-behavior:auto;}
-    html,body{background:#fff !important;}
-    .deck{display:block !important;height:auto !important;overflow:visible !important;padding:0 !important;gap:0 !important;background:#fff !important;}
-    .slide{flex:none !important;width:100% !important;max-width:none !important;height:auto !important;min-height:7.4in !important;justify-content:center !important;padding:0.4in 0.7in !important;border-radius:0 !important;box-shadow:none !important;overflow:visible !important;break-after:page;page-break-after:always;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .slide:last-child{break-after:auto;page-break-after:auto;}
-    .rail,.hint{display:none !important;}
-    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  }
+html[data-theme="dark"]{
+  /* ── 底版（robot26 口径：纯黑，不是 base dark 的 #0f0e17——
+        大会投影环境下纯黑吃杂光，且与全屏位图/视频页零接缝）── */
+  --stage-bg:#000000;
+  --slide-bg:#000000;
+  --card-bg:rgba(19,19,32,.72);
+  --card-bg-2:#131320;
+
+  /* ── 文字 ── */
+  --ink:#ffffff;
+  --ink-2:#c9c9d2;
+  --ink-3:#6f7186;
+
+  /* ── conf 强调色（暗底 = 淡紫系，robot26 实测值）── */
+  --accent:#d4b7f9;         /* 淡紫 · 主 accent */
+  --accent-deep:#944af0;    /* 深紫 · 伙伴线 / 强调中的强调 */
+  --accent-2:#b78cf0;       /* 紫罗兰暗底位（robot26 箭头族实测）*/
+  --accent-3:#6e96ff;       /* 蓝的暗底提亮位（推导值：#5b8cff 提一档保对比度）*/
+
+  /* ── 发丝线 ── */
+  --hair:rgba(255,255,255,.14);
+  --hair-soft:rgba(255,255,255,.07);
+  --hair-strong:rgba(255,255,255,.28);
+
+  /* ── 底流场 / 栏格（robot26 实测值）── */
+  --flow-line:rgba(212,183,249,.30);
+  --flow-line-2:rgba(255,255,255,.11);
+  --flow-op:.42;
+  --grid-line:rgba(255,255,255,.042);
+  --rail-line:rgba(255,255,255,.10);
+  --sig-ink:rgba(255,255,255,.30);
+
+  /* ── aura 在暗底禁用（金句页回归纯黑大留白）── */
+  --aura-a:transparent;
+  --aura-b:transparent;
+  --aura-c:transparent;
+
+  /* ── 兼容别名 ── */
+  --amber:var(--accent);
+  --coral:var(--accent-deep);
+  --magenta:var(--accent-deep);
+  --mq:var(--accent);
+}
+
+/* ── conf 卡片两分法 ──
+      ① 图卡（曲线/图表画布）：两个主题都用近白强对比卡 .conf-card-lit（robot26 FIG 卡先例），
+        卡内元素走图内固定色或 --cardw-* 一族（components.css 已反转好），不要写主题 ink。
+      ② KPI/内容卡：走 --card-bg-2 + 主题 ink 变量（浅底=白卡黑字，暗底=#131320 卡白字），
+        任何卡内文字禁止写死色号 —— 写死一个色号 = 两个主题里必坏一个。 */
+.conf-card-lit{background:#fffffe;border:1px solid var(--hair);}
+</style><style>/* =========================================================
+   Colin Deck · 固定舞台 stage.css
+   viewport-base.css 全文 + print/reduced-motion 降级
+   注意：.slide 背景必须 transparent，底色和流场都挂在 .deck-stage 上
+   ========================================================= */
+/* ===========================================
+   0. 基础 · 字体 · 缓动
+   =========================================== */
+:root{
+  --f-cn:'Noto Sans SC','Source Han Sans SC',sans-serif;
+  --f-en:'Satoshi','Noto Sans SC',sans-serif;
+  --f-mono:'JetBrains Mono','Noto Sans SC',monospace;
+  --pad-x:120px;
+  --pad-y:88px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);
+  --step:88ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   1. FIXED 16:9 STAGE —— viewport-base.css 全文（强制内嵌）
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;filter:none!important;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls,.deck-flow,.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps{display:none!important;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle,[data-step]{opacity:1!important;transform:none!important;filter:none!important;
+    clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.2s!important;}
+  .deck-flow{display:none;}
+}
+</style><style>/* =========================================================
+   Colin Deck · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+.slide{background:transparent;}
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+.slide::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+.slide > *{position:relative;z-index:1;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .slide.visible 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.slide.visible .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.slide.visible .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.slide.visible .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* 换页交叠 */
+.slide{transition:opacity .52s var(--ease),filter .52s var(--ease),visibility 0s linear .52s;}
+.slide.visible{transition:opacity .5s var(--ease),filter .5s var(--ease),visibility 0s;filter:none;}
+.slide:not(.visible){filter:blur(16px);}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.slide.visible [data-step]:not(.on) .flow,
+.slide.visible .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.slide.visible [data-step]:not(.on) .flow.rev,
+.slide.visible .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.slide.visible [data-step]:not(.on) .rise,
+.slide.visible .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.slide.visible [data-step]:not(.on) .spread,
+.slide.visible .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.slide.visible [data-step]:not(.on) .settle,
+.slide.visible .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.slide.visible [data-step]:not(.on) .pop,
+.slide.visible .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.slide.visible [data-step]:not(.on) .dw,
+.slide.visible .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.slide.visible [data-step]:not(.on) .ink,
+.slide.visible .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.slide.visible [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.slide.visible [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+</style><style>/* =========================================================
+   Colin Deck · 排版与组件 components.css
+   1920×1080 固定舞台坐标下的字号 / 卡片 / 表格 / 五种页型
+   （封面 cover · 幕扉页 act · 金句页 mq · 灵魂拷问页 ask · demo）
+   ========================================================= */
+/* ===========================================
+   5. 排版
+   =========================================== */
+.slide{font-family:var(--f-cn);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;}
+
+.chrome{position:absolute;left:var(--pad-x);right:var(--pad-x);top:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;z-index:2;}
+
+.eyebrow{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.eyebrow::before{content:'';width:34px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.grey{color:var(--ink-3);} .eyebrow.grey::before{background:var(--ink-3);}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+
+h1{font-size:104px;line-height:1.08;font-weight:900;letter-spacing:-.018em;padding-right:.08em;}
+h2{font-size:60px;line-height:1.18;font-weight:700;letter-spacing:-.012em;padding-right:.08em;}
+h3{font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.008em;}
+.sub{font-size:27px;line-height:1.62;color:var(--ink-2);font-weight:300;max-width:1340px;}
+p{font-size:23px;line-height:1.66;color:var(--ink-2);font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+em{font-style:normal;color:var(--amber);font-weight:500;}
+.am{color:var(--amber);} .co{color:var(--coral);} .mg{color:var(--magenta);}
+.mono{font-family:var(--f-mono);} .dim{color:var(--ink-3);}
+
+.head{margin-bottom:38px;}
+.head .eyebrow{margin-bottom:22px;}
+.head h2{margin-bottom:16px;}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;justify-content:center;}
+
+/* ===========================================
+   6. 组件
+   =========================================== */
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:4px;
+  padding:30px 32px;display:flex;flex-direction:column;gap:13px;min-height:0;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card.warn{border-color:color-mix(in srgb,var(--coral) 45%,transparent);background:var(--warn-bg);}
+.card .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--amber);}
+.card .t{font-size:27px;font-weight:700;line-height:1.3;color:var(--ink);}
+.card .d{font-size:20px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.card .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card.sm{padding:20px 22px;gap:9px;}
+.card.sm .t{font-size:23px;line-height:1.28;}
+.card.sm .d{font-size:18px;line-height:1.52;}
+.card.sm .tag{font-size:13px;}
+.card.sm .hd{display:flex;align-items:baseline;gap:13px;}
+.card.sm .hd .n{font-size:27px;}
+
+.card-w{background:var(--cardw-bg);color:var(--cardw-ink);border-radius:4px;padding:30px 32px;
+  display:flex;flex-direction:column;gap:12px;border:1px solid var(--hair);}
+.card-w .t{font-size:26px;font-weight:900;color:var(--cardw-ink);line-height:1.3;}
+.card-w .d{font-size:20px;line-height:1.6;color:var(--cardw-ink2);font-weight:400;}
+.card-w .tag{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--cardw-tag);}
+.card-w .n{font-family:var(--f-en);font-size:38px;font-weight:900;line-height:1;color:var(--cardw-co);}
+.card-w b,.card-w strong{color:var(--cardw-ink);font-weight:900;}
+.card-w .am,.card-w b.am{color:var(--cardw-am);}
+.card-w .co,.card-w b.co{color:var(--cardw-co);}
+.card-w .dim{color:var(--cardw-tag);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+.g-38{display:grid;grid-template-columns:.62fr 1fr;gap:44px;}
+.g-83{display:grid;grid-template-columns:1fr .62fr;gap:44px;}
+.gfill{flex:1;min-height:0;}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:22px;}
+
+table{width:100%;border-collapse:collapse;font-size:21px;}
+thead th{font-family:var(--f-mono);font-size:17px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);text-align:left;
+  padding:0 20px 14px 0;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:19px 20px 19px 0;border-bottom:1px solid var(--hair-soft);
+  color:var(--ink-2);font-weight:300;line-height:1.5;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:700;white-space:nowrap;}
+td .k{color:var(--ink);font-weight:500;}
+table.tight tbody td{padding:14px 18px 14px 0;font-size:20px;}
+table.big tbody td{font-size:22px;}
+table.mini tbody td{padding:11px 14px 11px 0;font-size:18px;line-height:1.45;}
+table.mini thead th{font-size:14px;padding-bottom:10px;}
+
+.stat{display:flex;flex-direction:column;gap:8px;}
+.stat .v{font-family:var(--f-en);font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.035em;color:var(--amber);}
+.stat .v.co{color:var(--coral);} .stat .v.w{color:var(--ink);}
+.stat .l{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.45;}
+.stat .u{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+
+.note{border-left:3px solid var(--amber);padding:6px 0 6px 24px;
+  font-size:22px;line-height:1.6;color:var(--ink-2);font-weight:300;}
+.note.co{border-left-color:var(--coral);}
+.note.grey{border-left-color:var(--ink-3);}
+
+.steps{display:flex;gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.steps .s{flex:1;font-size:20px;padding:24px 24px 24px 0;display:flex;flex-direction:column;gap:10px;}
+.steps .s + .s{padding-left:24px;border-left:1px solid var(--hair-soft);}
+.steps .s .i{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;color:var(--amber);}
+.steps .s .t{font-size:25px;font-weight:700;color:var(--ink);line-height:1.3;}
+.steps .s .d{font-size:19px;color:var(--ink-2);font-weight:300;line-height:1.55;}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.vs .col{padding:28px 30px;display:flex;flex-direction:column;gap:15px;background:var(--card-bg);}
+.vs .col + .col{border-left:1px solid var(--hair);background:var(--on-bg);}
+.vs .col .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.vs .col + .col .h{color:var(--amber);}
+.vs .line{font-size:21px;line-height:1.58;color:var(--ink-2);font-weight:300;padding-left:34px;position:relative;}
+.vs .line .num{position:absolute;left:0;top:2px;font-family:var(--f-mono);font-size:16px;color:var(--ink-3);}
+.vs .col + .col .line .num{color:var(--amber);}
+
+.file{background:var(--file-bg);border:1px solid var(--hair);border-radius:4px;padding:24px 26px;
+  font-family:var(--f-mono);font-size:18px;line-height:1.85;color:var(--ink-2);overflow:hidden;white-space:pre;}
+.file .c{color:var(--ink-3);} .file .h{color:var(--amber);}
+.file .w{color:var(--ink);} .file .r{color:var(--coral);}
+
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:14px;
+  letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--hair);border-radius:2px;color:var(--ink-3);}
+.pill.on{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 42%,transparent);}
+
+.layer{display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.layer:last-child{border-bottom:none;}
+.layer .idx{font-family:var(--f-en);font-size:32px;font-weight:900;color:var(--amber);width:50px;flex:none;line-height:1;}
+.layer .nm{font-size:25px;font-weight:700;color:var(--ink);width:172px;flex:none;}
+.layer .ds{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.layer .fr{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);width:110px;flex:none;text-align:right;}
+.layer.hot .idx{color:var(--coral);} .layer.hot .fr{color:var(--coral);}
+
+/* ===========================================
+   7. 特殊页型
+   =========================================== */
+.cover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);}
+.cover .kicker{font-family:var(--f-mono);font-size:18px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:42px;}
+.cover h1{font-size:116px;margin-bottom:24px;}
+.cover .subtitle{font-size:44px;font-weight:500;color:var(--amber);letter-spacing:-.008em;margin-bottom:50px;padding-right:.1em;}
+.cover .meta{display:flex;gap:52px;align-items:baseline;padding-top:32px;border-top:1px solid var(--hair);}
+.cover .meta div{display:flex;flex-direction:column;gap:8px;}
+.cover .meta .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.cover .meta .v{font-size:23px;color:var(--ink);font-weight:500;}
+.cover .glyph{position:absolute;right:110px;top:50%;transform:translateY(-50%);}
+
+.act{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:24px;}
+.act .num{font-family:var(--f-mono);font-size:19px;letter-spacing:.34em;color:var(--amber);text-transform:uppercase;}
+.act .en{font-family:var(--f-en);font-size:152px;font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--ink);padding-right:.06em;}
+.act .cn{font-size:50px;font-weight:700;color:var(--ink);letter-spacing:-.008em;padding-right:.08em;}
+.act .d{font-size:25px;color:var(--ink-2);font-weight:300;line-height:1.62;max-width:1020px;}
+.act .rail{position:absolute;right:var(--pad-x);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;align-items:flex-end;}
+.act .rail span{font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;}
+.act .rail span.cur{color:var(--amber);}
+.act .rail span.cur::after{content:'';display:inline-block;width:44px;height:1px;background:var(--amber);margin-left:14px;vertical-align:middle;}
+
+.mq{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 190px;gap:36px;}
+.mq .mark{font-family:var(--f-mono);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);}
+.mq .q{font-size:80px;line-height:1.28;font-weight:900;color:var(--mq);letter-spacing:-.018em;padding:0 .06em;}
+.mq .q.am{color:var(--mq-2);}
+.mq .q.w{color:var(--ink);}
+.mq .q i{font-style:normal;display:block;}
+.mq .rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;}
+.slide.visible .mq .rule{width:76px;}
+.mq .s{font-size:24px;color:var(--ink-3);font-weight:300;line-height:1.6;max-width:1120px;}
+
+.ask{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);gap:34px;}
+.ask .badge{font-family:var(--f-mono);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:16px;}
+.ask .badge::before{content:'';width:56px;height:1px;background:var(--amber);}
+.ask .qn{font-family:var(--f-en);font-size:132px;font-weight:900;line-height:1;color:var(--hair-strong);position:absolute;right:var(--pad-x);top:120px;letter-spacing:-.045em;}
+.ask .q{font-size:66px;line-height:1.32;font-weight:900;color:var(--ink);letter-spacing:-.018em;max-width:1420px;padding-right:.06em;}
+.ask .q .hl{color:var(--amber);}
+.ask .hint{display:flex;gap:44px;align-items:flex-start;padding-top:30px;border-top:1px solid var(--hair);max-width:1420px;}
+.ask .hint .col{flex:1;display:flex;flex-direction:column;gap:10px;}
+.ask .hint .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.ask .hint .v{font-size:22px;line-height:1.58;color:var(--ink-2);font-weight:300;}
+.ask .cue{position:absolute;left:var(--pad-x);bottom:76px;font-size:21px;color:var(--ink-3);font-weight:300;display:flex;align-items:center;gap:14px;}
+.ask .cue::before{content:'';width:26px;height:26px;border:1px solid var(--amber);border-radius:50%;flex:none;}
+
+.demo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 200px;text-align:center;}
+.demo .badge{font-family:var(--f-mono);font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);padding:12px 26px;border-radius:2px;}
+
+.fig{display:flex;align-items:center;justify-content:center;}
+.fig svg{overflow:visible;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:24px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:19px;font-weight:300;fill:var(--ink-2);}
+.fig .sm{font-size:16px;font-weight:300;fill:var(--ink-2);}
+.fig .big{font-family:var(--f-en);font-size:44px;font-weight:900;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;}
+.fig .stroke-am{stroke:var(--amber);fill:none;}
+.fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* ===========================================
+   8. 舞台外 chrome
+   =========================================== */
+.deck-progress{position:fixed;left:0;bottom:0;height:2px;background:var(--amber);z-index:1000;transition:width .45s var(--ease);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;background:var(--card-bg-2);color:var(--ink);border:1px solid var(--hair);
+  border-radius:3px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber);}
+[contenteditable="true"]{outline:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);outline-offset:4px;}
+
+/* ===========================================
+   9. 长文演讲页型（V9.1 验收沉淀）
+   适用于 40 页以上的主题演讲：分幕跃迁、单点承重、
+   多方引语、准入清单、两栏对照、页尾收束
+   =========================================== */
+
+/* 9.1 跃迁页 .leap —— 幕与幕之间的转场，编号巨字 + 一句转换 + 生长横线 */
+.leap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:38px;}
+.leap .badge{font-family:var(--f-en);font-size:104px;font-weight:900;line-height:1;
+  color:var(--hair-strong);letter-spacing:-.04em;}
+.leap .q{font-size:70px;line-height:1.34;font-weight:900;color:var(--ink);letter-spacing:-.018em;
+  max-width:1500px;padding-right:.06em;}
+.leap .q i{font-style:normal;display:block;}
+.leap .q .hl{color:var(--amber);}
+.leap .sub2{font-size:25px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1280px;}
+.leap .rule{width:0;height:2px;background:var(--amber);transition:width 1.1s var(--ease-flow) .5s;}
+.slide.visible .leap .rule{width:120px;}
+
+/* 9.2 承重页 .mega —— 全场只留一个数字 / 一句压场的话，236px 巨字 */
+.mega{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--pad-x);gap:30px;}
+.mega .num{font-family:var(--f-en);font-size:236px;font-weight:900;line-height:.9;
+  letter-spacing:-.05em;color:var(--amber);}
+.mega .num.co{color:var(--coral);}
+.mega .cap{font-size:30px;line-height:1.5;color:var(--ink);font-weight:500;max-width:1400px;}
+.mega .foot{font-size:22px;line-height:1.65;color:var(--ink-2);font-weight:300;max-width:1400px;}
+
+/* 9.3 引语行 .quotes —— 多方声音收敛到同一结论：who / say / src 三栏 */
+.quotes{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair);}
+.quotes .r{display:flex;align-items:baseline;gap:28px;padding:20px 0;border-bottom:1px solid var(--hair-soft);}
+.quotes .r .who{font-family:var(--f-mono);font-size:15px;letter-spacing:.12em;color:var(--ink-3);
+  width:190px;flex:none;text-transform:uppercase;}
+.quotes .r .say{font-size:25px;font-weight:700;color:var(--ink);line-height:1.4;flex:1;}
+.quotes .r .src{font-size:18px;color:var(--ink-3);font-weight:300;width:330px;flex:none;text-align:right;}
+
+/* 9.4 清单行 .rows —— 准入线 / 分级爬梯：编号 n + 键 k + 值 v；.hot 标红那一档 */
+.rows{display:flex;flex-direction:column;}
+.rows .r{display:flex;align-items:center;gap:26px;padding:19px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r:last-child{border-bottom:none;}
+.rows .r .k{font-size:27px;font-weight:700;color:var(--ink);width:190px;flex:none;}
+.rows .r .v{font-size:21px;color:var(--ink-2);font-weight:300;line-height:1.5;flex:1;}
+.rows .r .n{font-family:var(--f-en);font-size:26px;font-weight:900;color:var(--amber);width:56px;flex:none;}
+.rows .r.hot .k{color:var(--coral);} .rows .r.hot .n{color:var(--coral);}
+
+/* 9.5 两栏对照 .duo —— 旧做法 / 新做法，右栏自带 --on-bg 高亮 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+.duo > div{padding:30px 34px;display:flex;flex-direction:column;gap:12px;background:var(--card-bg);}
+.duo > div + div{border-left:1px solid var(--hair);background:var(--on-bg);}
+.duo .h{font-family:var(--f-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.duo > div + div .h{color:var(--amber);}
+.duo .b{font-size:30px;font-weight:700;color:var(--ink);line-height:1.38;}
+.duo .s{font-size:20px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+
+/* 9.6 收束条 .land —— 每页落点金句，4px 左边框；.co 用于坏消息 */
+.land{border-left:4px solid var(--amber);padding:10px 0 10px 26px;
+  font-size:29px;line-height:1.5;color:var(--ink);font-weight:700;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:22px;font-weight:300;color:var(--ink-2);margin-top:8px;}
+</style><style>/* ═══════════════════════════════════════════════════════════════════
+   colin-deck · CONF 家族 chrome 层（页面骨架四件套 + mono 落款）
+   血统：/robot26 R22 模板（跑过 37 页 × 全量 QA 的生产代码，非新写）
+   挂载：本文件排在 components.css 之后；FLOW_SVG 见文件尾注释，
+        作为 .deck-stage 第一个子元素插入；.slide 背景必须 transparent。
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── ① 底流场（8 条贝塞尔 · 3 组 sway + drift）── */
+.deck-flow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+.deck-flow .s1{animation-duration:38s;}
+.deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;}
+.deck-flow .s4{animation-duration:46s;}
+.deck-flow g{animation:sway ease-in-out infinite alternate;}
+.deck-flow g:nth-child(1){animation-duration:26s;}
+.deck-flow g:nth-child(2){animation-duration:33s;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-4000;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(0,-14px,0);}}
+
+/* ── ② 极细栏线网格（240px 律动 · 上下渐隐）── */
+.deck-grid{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 120px,var(--grid-line) 120px 121px,transparent 121px 360px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 86%,transparent 100%);}
+
+/* ── ③ 上下发丝导轨 ── */
+.deck-rail{position:absolute;left:120px;right:120px;height:1px;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--rail-line) 18%,var(--rail-line) 82%,transparent);}
+.deck-rail.t{top:34px;}
+.deck-rail.b{bottom:34px;}
+
+/* ── ④ mono 落款（右上 · 封面/满幅页不挂）── */
+.sig{position:absolute;right:120px;top:47px;z-index:2;
+  font-family:var(--f-mono);font-size:15px;font-weight:400;line-height:1;
+  letter-spacing:.24em;padding-right:.24em;color:var(--sig-ink);
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+
+/* ── ⑤ conf-light 拱顶石 aura（金句/拱顶石页专用 · 全场 ≤3 页 · 暗底自动禁用）── */
+.conf-aura{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 46% at 18% 24%,var(--aura-a),transparent 70%),
+    radial-gradient(44% 50% at 84% 30%,var(--aura-c),transparent 70%),
+    radial-gradient(46% 46% at 30% 86%,var(--aura-b),transparent 70%),
+    radial-gradient(40% 44% at 78% 82%,var(--aura-a),transparent 72%);
+  filter:blur(2px);animation:auraDrift 36s ease-in-out infinite alternate;}
+@keyframes auraDrift{0%{transform:translate3d(0,0,0) scale(1);}100%{transform:translate3d(0,-18px,0) scale(1.04);}}
+
+/* ── ⑥ conf 页脚（左下 accent 圆点 + mono 面包屑，PPTX 语汇）── */
+.conf-foot{position:absolute;left:120px;bottom:40px;z-index:2;display:flex;align-items:center;gap:12px;
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.22em;color:var(--ink-3);white-space:nowrap;}
+.conf-foot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLOW_SVG（.deck-stage 第一个子元素，与 cowork-confv2 / robot26 同一份）：
+
+</style><style id="convoai-boards">
+.conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
+  background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
+.slide.conf-boarded{background:transparent!important;}
+.slide.conf-boarded>.pp{z-index:1;}
+.conf-bg-title{--conf-bg-opacity:.66;background-image:url('/decks/assets/conf-boards/title-02-orbit-light.png');}
+.conf-bg-content{--conf-bg-opacity:.42;background-image:url('/decks/assets/conf-boards/content-01-matrix-light.png');}
+html[data-theme="dark"] .conf-bg-title{background-image:url('/decks/assets/conf-boards/title-02-orbit-dark.png');}
+html[data-theme="dark"] .conf-bg-content{background-image:url('/decks/assets/conf-boards/content-01-matrix-dark.png');}
+html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
+</style><style id="convoai-engine-deck">
+/* 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行） */
+.pp{position:absolute;inset:0;}
+.pp .sh{position:absolute;overflow:visible;}
+/* conf 家族 token 表里没有 --on-bg，components.css 的 .card.on 靠它上底色 */
+:root{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 13%,transparent),
+    color-mix(in srgb,var(--accent) 3%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 10%,transparent),
+    color-mix(in srgb,var(--coral) 2.5%,transparent)),var(--card-bg);}
+html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,transparent),
+    color-mix(in srgb,var(--accent) 2%,transparent)),var(--card-bg);
+  --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),
+    color-mix(in srgb,var(--coral) 2%,transparent)),var(--card-bg);}
+.card .tag.am{color:var(--accent);}
+.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
+  letter-spacing:.12em;color:var(--sig-ink);}
+/* 版式件（与 convoai-info 同源） */
+.kk{font:700 20px/1 var(--f-mono);letter-spacing:.28em;color:var(--accent);}
+.hh{font:700 68px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
+.hh strong{color:var(--accent);}
+.sub{font:400 26px/1.55 var(--f-cn);color:var(--ink-2);}
+.mono-sm{font:500 15px/1.4 var(--f-mono);letter-spacing:.08em;color:var(--ink-3);}
+.card-c{background:var(--card-bg);border:1px solid var(--hair);border-radius:20px;}
+.card-c.on{border-color:color-mix(in srgb,var(--accent) 52%,transparent);}
+/* Infograph 分区件：mono 小节标 + 1px 分隔细线 */
+.seclab{font:500 14px/20px var(--f-mono);letter-spacing:.18em;color:var(--ink-3);}
+.seclab b{font-weight:700;color:var(--ink-3);}
+.hair-rule{background:var(--hair);}
+/* 主题词 chip */
+.chip{display:inline-block;margin:0 12px 12px 0;padding:11px 18px;border:1px solid var(--hair);
+  border-radius:999px;background:var(--card-bg);font:500 18px/1 var(--f-cn);color:var(--ink-2);}
+/* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
+   必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
+.fig svg{max-width:none;max-height:none;}
+/* 深色面板里的 b：components.css 的 b,strong{color:var(--ink)}（0,0,1）会把它染成主题墨色，
+   在深底上等于隐形。本 deck 目前没有烧死深底的面板，规则留作护栏。 */
+.on-dark b,.on-dark strong{color:inherit;}
+/* 编辑热区（deck.js 依赖） */
+.edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);
+  border:1px solid var(--hair);border-radius:3px;padding:7px 12px;background:transparent;cursor:pointer;
+  transition:opacity .3s;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--accent);color:var(--accent);}
+@media print{.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps,.deck-swap{display:none!important;}}
 </style>
 </head>
 <body>
-<div class="deck" id="deck">
-
-  <!-- 01 封面 -->
-  <section class="slide dark">
-    <div class="inner">
-      <div class="cover-brand"><span class="dot"></span> 声网 · 对话式 AI 引擎</div>
-      <h1>2 行代码<br>构建自然流畅的对话体验</h1>
-      <p class="cover-sub">让人和智能体像真人一样自然对话——低延时、可打断、听得清。</p>
-    </div>
-    <div class="cover-meta">仅供方案交流参考</div>
-  </section>
-
-  <!-- 02 大脑隐喻：对话是实时决策 -->
-  <section class="slide dark" style="overflow:hidden;">
-    <div class="inner" style="max-width:1220px;">
-      <div class="eyebrow">Real-time Decision · 边听边说</div>
-      <h2 style="color:#f5f5f7;">对话，是一个<span class="accent">实时决策</span>的过程</h2>
-      <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:2.4rem;align-items:center;margin-top:.3rem;">
-        <div>
-          <div style="display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1.05rem;">
-            <span style="flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:rgba(56,189,248,.16);color:#38bdf8;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;">01</span>
-            <div><div style="font-weight:650;font-size:1.06rem;color:#f5f5f7;">听清 · 认人 · 懂内容</div><div style="font-size:.9rem;color:#9aa0aa;margin-top:.2rem;line-height:1.5;">分离目标人声、识别说话人，同时理解在说什么</div></div>
-          </div>
-          <div style="display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1.05rem;">
-            <span style="flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:rgba(168,85,247,.16);color:#c084fc;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;">02</span>
-            <div><div style="font-weight:650;font-size:1.06rem;color:#f5f5f7;">带入对象、场景与情绪</div><div style="font-size:.9rem;color:#9aa0aa;margin-top:.2rem;line-height:1.5;">结合上下文理解言外之意，而不只是逐字转写</div></div>
-          </div>
-          <div style="display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1.05rem;">
-            <span style="flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:rgba(52,211,153,.16);color:#34d399;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;">03</span>
-            <div><div style="font-weight:650;font-size:1.06rem;color:#f5f5f7;">持续判断：继续听，还是开口</div><div style="font-size:.9rem;color:#9aa0aa;margin-top:.2rem;line-height:1.5;">实时权衡时机，不必等一句话彻底说完</div></div>
-          </div>
-          <div style="display:flex;gap:.9rem;align-items:flex-start;">
-            <span style="flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:rgba(245,158,11,.16);color:#fbbf24;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;">04</span>
-            <div><div style="font-weight:650;font-size:1.06rem;color:#f5f5f7;">边说边听，灵活调整节奏</div><div style="font-size:.9rem;color:#9aa0aa;margin-top:.2rem;line-height:1.5;">表达的同时仍在倾听，随时被打断、随时接上</div></div>
-          </div>
-          <p style="margin-top:1.5rem;font-size:.98rem;color:#c7c7cc;line-height:1.6;border-left:3px solid #0a84ff;padding-left:1rem;">自然对话不是"听完再回答"，而是边说边听、持续判断——这正是引擎要还原的能力。</p>
-        </div>
-        <div>
-          <svg viewBox="-8 40 726 470" role="img" aria-label="大脑实时对话决策模型：蓝色输入代表持续在听，绿色输出代表同时在说，前额叶判断环持续决定继续听还是开口" style="width:100%;height:auto;font-family:-apple-system,'PingFang SC',sans-serif;">
-            <defs>
-              <radialGradient id="boFill" cx="50%" cy="45%" r="60%"><stop offset="0%" stop-color="#1b2436"/><stop offset="100%" stop-color="#0f1626"/></radialGradient>
-              <linearGradient id="boInput" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-              <linearGradient id="boOutput" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#34d399" stop-opacity="0"/></linearGradient>
-            </defs>
-            <path d="M232 96c-58 4-104 44-118 96-40 14-70 52-70 96 0 30 14 58 38 76 6 44 44 78 92 80 20 30 56 48 94 44 22 26 58 38 92 30" fill="url(#boFill)" stroke="#2b3d5c" stroke-width="2"/>
-            <path d="M232 96c46-30 108-32 156-6 34 18 56 50 62 88 30 22 48 58 44 96-2 34-22 64-52 80-4 40-38 72-80 76-24 22-58 30-90 22" fill="none" stroke="#2b3d5c" stroke-width="2"/>
-            <path d="M232 96c0 88 0 240 2 328" stroke="#2b3d5c" stroke-width="1.4" stroke-dasharray="5 6" opacity="0.55"/>
-            <path d="M662 356H470c-40 0-70-8-104-30" stroke="url(#boInput)" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M212 300c-40 20-84 34-150 34" stroke="url(#boOutput)" stroke-width="3.5" stroke-linecap="round"/>
-            <circle cx="150" cy="180" r="46" fill="none" stroke="#34d399" stroke-width="2.5" stroke-dasharray="6 8"/>
-            <circle cx="470" cy="356" r="7" fill="#38bdf8"/>
-            <circle cx="452" cy="430" r="6" fill="#7dd3fc"/>
-            <circle cx="352" cy="392" r="6" fill="#a855f7"/>
-            <circle cx="150" cy="180" r="7" fill="#34d399"/>
-            <circle cx="120" cy="360" r="6" fill="#34d399"/>
-            <circle cx="250" cy="430" r="5" fill="#f59e0b"/>
-            <text x="640" y="352" text-anchor="end" font-size="14.5" font-weight="600" fill="#e6f4ff">听清 · 认人</text>
-            <text x="640" y="373" text-anchor="end" font-size="11.5" fill="#7dd3fc">声纹 · 目标说话人</text>
-            <text x="486" y="452" font-size="13.5" fill="#cbd5e1">理解内容</text>
-            <text x="352" y="410" text-anchor="middle" font-size="13.5" fill="#d8b4fe">对象 · 场景 · 情绪</text>
-            <text x="150" y="132" text-anchor="middle" font-size="14.5" font-weight="600" fill="#86efac">判断何时开口</text>
-            <text x="40" y="392" font-size="13.5" font-weight="600" fill="#86efac">开口表达</text>
-            <text x="150" y="474" text-anchor="middle" font-size="12.5" fill="#fcd34d">控制节奏</text>
-            <text x="340" y="66" text-anchor="middle" font-size="12" fill="#94a3b8" letter-spacing="2">同一时刻</text>
-          </svg>
-        </div>
-      </div>
-    </div>
-    <div class="pageno">02</div>
-  </section>
-
-  <!-- 03 三个关键数字 -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Real-time Voice · 极致实时语音体验</div>
-      <h2>把三件事，<span class="accent">做到极致</span></h2>
-      <div class="grid g3" style="margin-top:.4rem;">
-        <div class="card">
-          <div class="statnum">650<span class="u">ms</span></div>
-          <h3 style="font-size:1.05rem;margin-top:.7rem;">端到端响应延时</h3>
-          <p>从说完话到智能体开口，全链路深度优化，低至 650ms。</p>
-        </div>
-        <div class="card">
-          <div class="statnum">340<span class="u">ms</span></div>
-          <h3 style="font-size:1.05rem;margin-top:.7rem;">极速打断响应</h3>
-          <p>随时插话即时收声，模拟真人对话节奏。</p>
-        </div>
-        <div class="card">
-          <div class="statnum">95<span class="u">%</span></div>
-          <h3 style="font-size:1.05rem;margin-top:.7rem;">环境干扰屏蔽</h3>
-          <p>选择性注意力锁定，嘈杂环境也能精准听清对话人声。</p>
-        </div>
-      </div>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">03</div>
-  </section>
-
-  <!-- 04 实时语音链路 SVG -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Pipeline · 实时语音链路</div>
-      <h2>一条深度优化的<span class="accent">端到端链路</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 300" role="img" aria-label="实时语音链路：人声输入经 AI-VAD、ASR、LLM、TTS 到语音输出，端到端 650ms">
-          <defs>
-            <linearGradient id="flowLine" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#0a84ff"/><stop offset="1" stop-color="#0057d9"/>
-            </linearGradient>
-            <filter id="soft" x="-20%" y="-40%" width="140%" height="180%">
-              <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#0a84ff" flood-opacity="0.12"/>
-            </filter>
-          </defs>
-          <line x1="70" y1="120" x2="1050" y2="120" stroke="url(#flowLine)" stroke-width="3"/>
-          <g font-family="-apple-system,PingFang SC" text-anchor="middle">
-            <g filter="url(#soft)">
-              <circle cx="70" cy="120" r="34" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <path d="M70 106a9 9 0 0 1 9 9v6a9 9 0 0 1-18 0v-6a9 9 0 0 1 9-9z M58 121a12 12 0 0 0 24 0 M70 133v6" stroke="#0a84ff" stroke-width="2" fill="none" stroke-linecap="round"/>
-            </g>
-            <text x="70" y="185" font-size="15" font-weight="650" fill="#1d1d1f">人声输入</text>
-            <g filter="url(#soft)"><rect x="180" y="92" width="120" height="56" rx="14" fill="#fff" stroke="#e5e5ea"/></g>
-            <text x="240" y="118" font-size="15" font-weight="700" fill="#0a84ff">AI-VAD</text>
-            <text x="240" y="138" font-size="11.5" fill="#6e6e73">智能人声检测</text>
-            <text x="240" y="185" font-size="12.5" fill="#a1a1a6">判断谁在说</text>
-            <g filter="url(#soft)"><rect x="360" y="92" width="120" height="56" rx="14" fill="#fff" stroke="#e5e5ea"/></g>
-            <text x="420" y="118" font-size="16" font-weight="700" fill="#0a84ff">ASR</text>
-            <text x="420" y="138" font-size="11.5" fill="#6e6e73">语音转写</text>
-            <text x="420" y="185" font-size="12.5" fill="#a1a1a6">听清说什么</text>
-            <g filter="url(#soft)"><rect x="500" y="84" width="130" height="72" rx="16" fill="#0a84ff"/></g>
-            <text x="565" y="116" font-size="17" font-weight="700" fill="#fff">LLM</text>
-            <text x="565" y="138" font-size="11.5" fill="#dbeaff">大模型理解</text>
-            <text x="565" y="192" font-size="12.5" fill="#a1a1a6">想怎么答</text>
-            <g filter="url(#soft)"><rect x="650" y="92" width="120" height="56" rx="14" fill="#fff" stroke="#e5e5ea"/></g>
-            <text x="710" y="118" font-size="16" font-weight="700" fill="#0a84ff">TTS</text>
-            <text x="710" y="138" font-size="11.5" fill="#6e6e73">语音合成</text>
-            <text x="710" y="185" font-size="12.5" fill="#a1a1a6">开口说话</text>
-            <g filter="url(#soft)"><rect x="830" y="92" width="130" height="56" rx="14" fill="#fff" stroke="#e5e5ea" stroke-dasharray="5 4"/></g>
-            <text x="895" y="116" font-size="14.5" font-weight="700" fill="#0a84ff">数字人</text>
-            <text x="895" y="136" font-size="11" fill="#6e6e73">口型 / 表情</text>
-            <text x="895" y="185" font-size="12.5" fill="#a1a1a6">可选</text>
-            <g filter="url(#soft)">
-              <circle cx="1050" cy="120" r="34" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <path d="M1040 112h-8v16h8l12 10V102z M1058 114a8 8 0 0 1 0 12 M1062 109a14 14 0 0 1 0 22" stroke="#0a84ff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-            <text x="1050" y="185" font-size="15" font-weight="650" fill="#1d1d1f">语音输出</text>
-          </g>
-          <g>
-            <line x1="70" y1="248" x2="1050" y2="248" stroke="#0a84ff" stroke-width="1.5" stroke-dasharray="2 5"/>
-            <path d="M70 243v10 M1050 243v10" stroke="#0a84ff" stroke-width="1.5"/>
-            <rect x="490" y="232" width="140" height="32" rx="16" fill="#0a84ff"/>
-            <text x="560" y="253" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">端到端 650ms</text>
-          </g>
-        </svg>
-      </div>
-      <p class="callout">AI-VAD、ASR、LLM、TTS 逐环节协同优化——用户体感是一句接一句，几乎无等待。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">04</div>
-  </section>
-
-  <!-- 05 优雅打断 SVG -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Interruption · 优雅打断</div>
-      <h2>想插话就插话，<span class="accent">340ms 即时收声</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 340" role="img" aria-label="打断时序：智能体说话时用户插话，340ms 内智能体停止并转为倾听">
-          <defs>
-            <linearGradient id="aiBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4aa3ff"/><stop offset="1" stop-color="#0a84ff"/></linearGradient>
-            <linearGradient id="userBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34c76a"/><stop offset="1" stop-color="#1a9c5b"/></linearGradient>
-          </defs>
-          <g font-family="-apple-system,PingFang SC">
-            <text x="30" y="86" font-size="15" font-weight="650" fill="#0a84ff">智能体</text>
-            <text x="30" y="240" font-size="15" font-weight="650" fill="#1a9c5b">用户</text>
-            <g fill="url(#aiBar)">
-              <rect x="120" y="62" width="7" height="30" rx="3.5"/><rect x="134" y="50" width="7" height="54" rx="3.5"/>
-              <rect x="148" y="70" width="7" height="14" rx="3.5"/><rect x="162" y="44" width="7" height="66" rx="3.5"/>
-              <rect x="176" y="58" width="7" height="38" rx="3.5"/><rect x="190" y="66" width="7" height="22" rx="3.5"/>
-              <rect x="204" y="48" width="7" height="58" rx="3.5"/><rect x="218" y="60" width="7" height="34" rx="3.5"/>
-              <rect x="232" y="54" width="7" height="46" rx="3.5"/><rect x="246" y="68" width="7" height="18" rx="3.5"/>
-              <rect x="260" y="52" width="7" height="50" rx="3.5"/><rect x="274" y="64" width="7" height="26" rx="3.5"/>
-              <rect x="288" y="58" width="7" height="38" rx="3.5"/><rect x="302" y="70" width="7" height="14" rx="3.5"/>
-            </g>
-            <g fill="#d8d8de">
-              <rect x="470" y="72" width="7" height="10" rx="3.5"/><rect x="484" y="74" width="7" height="6" rx="3"/><rect x="498" y="73" width="7" height="8" rx="3.5"/>
-            </g>
-            <line x1="360" y1="34" x2="360" y2="300" stroke="#ff453a" stroke-width="2" stroke-dasharray="5 4"/>
-            <circle cx="360" cy="34" r="5" fill="#ff453a"/>
-            <text x="372" y="30" font-size="13.5" font-weight="650" fill="#ff453a">用户插话</text>
-            <rect x="360" y="300" width="110" height="30" rx="15" fill="#0a84ff"/>
-            <text x="415" y="320" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">340ms</text>
-            <line x1="470" y1="34" x2="470" y2="300" stroke="#0a84ff" stroke-width="1.5" stroke-dasharray="3 4"/>
-            <text x="482" y="30" font-size="13.5" font-weight="650" fill="#0a84ff">智能体收声</text>
-            <g fill="url(#userBar)">
-              <rect x="380" y="200" width="7" height="28" rx="3.5"/><rect x="394" y="188" width="7" height="52" rx="3.5"/>
-              <rect x="408" y="206" width="7" height="16" rx="3.5"/><rect x="422" y="182" width="7" height="64" rx="3.5"/>
-              <rect x="436" y="196" width="7" height="36" rx="3.5"/><rect x="450" y="204" width="7" height="20" rx="3.5"/>
-              <rect x="464" y="186" width="7" height="56" rx="3.5"/><rect x="478" y="198" width="7" height="32" rx="3.5"/>
-              <rect x="492" y="190" width="7" height="48" rx="3.5"/><rect x="506" y="206" width="7" height="16" rx="3.5"/>
-              <rect x="520" y="194" width="7" height="40" rx="3.5"/><rect x="534" y="200" width="7" height="28" rx="3.5"/>
-              <rect x="548" y="188" width="7" height="52" rx="3.5"/><rect x="562" y="202" width="7" height="24" rx="3.5"/>
-              <rect x="576" y="196" width="7" height="36" rx="3.5"/><rect x="590" y="206" width="7" height="16" rx="3.5"/>
-            </g>
-            <text x="700" y="120" font-size="14" fill="#6e6e73">智能体正在说话</text>
-            <text x="700" y="146" font-size="14" fill="#6e6e73">用户随时可插话</text>
-            <text x="700" y="172" font-size="14" fill="#1d1d1f" font-weight="650">340ms 内即时收声、转为倾听</text>
-            <text x="700" y="198" font-size="14" fill="#6e6e73">对话像真人一样你来我往</text>
-          </g>
-        </svg>
-      </div>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">05</div>
-  </section>
-
-  <!-- 07 选择性注意力锁定 SVG -->
-  <section class="slide alt">
-    <div class="inner">
-      <div class="eyebrow">Selective Attention (SAL) · 选择性注意力锁定</div>
-      <h2>嘈杂环境里，<span class="accent">只听该听的人</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 360" role="img" aria-label="选择性注意力锁定：智能体锁定目标人声，屏蔽旁人交谈、环境噪声、背景音乐">
-          <defs>
-            <radialGradient id="core" cx="0.5" cy="0.4" r="0.7"><stop offset="0" stop-color="#4aa3ff"/><stop offset="1" stop-color="#0057d9"/></radialGradient>
-          </defs>
-          <g font-family="-apple-system,PingFang SC">
-            <circle cx="560" cy="180" r="72" fill="url(#core)"/>
-            <circle cx="560" cy="180" r="88" fill="none" stroke="#0a84ff" stroke-opacity="0.25" stroke-width="2"/>
-            <circle cx="560" cy="180" r="104" fill="none" stroke="#0a84ff" stroke-opacity="0.12" stroke-width="2"/>
-            <text x="560" y="174" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">智能体</text>
-            <text x="560" y="196" text-anchor="middle" font-size="12" fill="#dbeaff">声纹锁定</text>
-            <g>
-              <line x1="215" y1="180" x2="480" y2="180" stroke="#1a9c5b" stroke-width="3"/>
-              <polygon points="480,180 466,173 466,187" fill="#1a9c5b"/>
-              <circle cx="150" cy="180" r="46" fill="#fff" stroke="#1a9c5b" stroke-width="2.5"/>
-              <path d="M150 164a8 8 0 0 1 8 8v5a8 8 0 0 1-16 0v-5a8 8 0 0 1 8-8z M139 178a11 11 0 0 0 22 0 M150 189v6" stroke="#1a9c5b" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <text x="150" y="238" text-anchor="middle" font-size="13.5" font-weight="650" fill="#1a9c5b">目标人声</text>
-              <text x="150" y="256" text-anchor="middle" font-size="11.5" fill="#6e6e73">锁定 · 精准识别</text>
-            </g>
-            <g opacity="0.6">
-              <line x1="905" y1="90" x2="665" y2="150" stroke="#c7c7cc" stroke-width="2.5" stroke-dasharray="6 5"/>
-              <circle cx="955" cy="78" r="34" fill="#f0f0f4" stroke="#c7c7cc" stroke-width="1.5"/>
-              <text x="955" y="83" text-anchor="middle" font-size="19" fill="#a1a1a6">✕</text>
-              <text x="955" y="130" text-anchor="middle" font-size="12.5" fill="#8e8e93">旁人交谈</text>
-            </g>
-            <g opacity="0.6">
-              <line x1="945" y1="185" x2="660" y2="182" stroke="#c7c7cc" stroke-width="2.5" stroke-dasharray="6 5"/>
-              <circle cx="990" cy="188" r="34" fill="#f0f0f4" stroke="#c7c7cc" stroke-width="1.5"/>
-              <text x="990" y="193" text-anchor="middle" font-size="19" fill="#a1a1a6">✕</text>
-              <text x="1040" y="192" text-anchor="middle" font-size="12.5" fill="#8e8e93">环境噪声</text>
-            </g>
-            <g opacity="0.6">
-              <line x1="905" y1="285" x2="665" y2="212" stroke="#c7c7cc" stroke-width="2.5" stroke-dasharray="6 5"/>
-              <circle cx="955" cy="298" r="34" fill="#f0f0f4" stroke="#c7c7cc" stroke-width="1.5"/>
-              <text x="955" y="303" text-anchor="middle" font-size="19" fill="#a1a1a6">✕</text>
-              <text x="955" y="345" text-anchor="middle" font-size="12.5" fill="#8e8e93">背景音乐</text>
-            </g>
-            <g>
-              <rect x="470" y="292" width="180" height="40" rx="20" fill="#0a84ff"/>
-              <text x="560" y="318" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">屏蔽 95% 干扰</text>
-            </g>
-          </g>
-        </svg>
-      </div>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">06</div>
-  </section>
-
-  <!-- 08 弱网抗丢包 -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Weak Network · 弱网也能聊</div>
-      <h2>网络在抖，<span class="accent">对话不断</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 300" role="img" aria-label="弱网抗丢包：网络大量丢包与瞬时断网时，对话音频依然连续流畅">
-          <defs>
-            <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34c76a"/><stop offset="1" stop-color="#1a9c5b"/></linearGradient>
-          </defs>
-          <g font-family="-apple-system,PingFang SC">
-            <text x="60" y="52" font-size="14" font-weight="650" fill="#8e8e93">网络 · 大量丢包 + 瞬时断网</text>
-            <rect x="60" y="66" width="22" height="30" rx="5" fill="#0a84ff"/>
-            <rect x="270" y="66" width="22" height="30" rx="5" fill="#0a84ff"/>
-            <rect x="420" y="66" width="22" height="30" rx="5" fill="#0a84ff"/>
-            <rect x="510" y="66" width="22" height="30" rx="5" fill="#0a84ff"/>
-            <g fill="none" stroke="#c7c7cc" stroke-width="1.5" stroke-dasharray="3 3">
-              <rect x="90" y="66" width="22" height="30" rx="5"/><rect x="120" y="66" width="22" height="30" rx="5"/>
-              <rect x="150" y="66" width="22" height="30" rx="5"/><rect x="180" y="66" width="22" height="30" rx="5"/>
-              <rect x="210" y="66" width="22" height="30" rx="5"/><rect x="240" y="66" width="22" height="30" rx="5"/>
-              <rect x="300" y="66" width="22" height="30" rx="5"/><rect x="390" y="66" width="22" height="30" rx="5"/>
-              <rect x="450" y="66" width="22" height="30" rx="5"/><rect x="480" y="66" width="22" height="30" rx="5"/>
-            </g>
-            <text x="345" y="86" font-size="12.5" fill="#ff453a" text-anchor="middle" font-weight="600">✕ 断网</text>
-            <line x1="300" y1="106" x2="300" y2="146" stroke="#0a84ff" stroke-width="2"/>
-            <polygon points="300,146 294,136 306,136" fill="#0a84ff"/>
-            <rect x="212" y="146" width="176" height="40" rx="12" fill="#0a0a0f"/>
-            <text x="300" y="171" text-anchor="middle" font-size="14" font-weight="650" fill="#fff">抗丢包引擎</text>
-            <line x1="300" y1="186" x2="300" y2="218" stroke="#1a9c5b" stroke-width="2"/>
-            <polygon points="300,218 294,208 306,208" fill="#1a9c5b"/>
-            <text x="60" y="212" font-size="14" font-weight="650" fill="#1a9c5b">对话 · 连续不卡顿</text>
-            <path d="M60 250 Q 105 222 150 250 T 240 250 T 330 250 T 420 250 T 510 250 T 600 250 T 690 250" fill="none" stroke="url(#wave)" stroke-width="3.5" stroke-linecap="round"/>
-            <circle cx="690" cy="250" r="5" fill="#1a9c5b"/>
-            <rect x="770" y="66" width="300" height="72" rx="16" fill="#eaf3ff"/>
-            <text x="800" y="112" font-size="30" font-weight="700" fill="#0057d9">80%</text>
-            <text x="892" y="100" font-size="14.5" fill="#1d1d1f" font-weight="600">丢包率下</text>
-            <text x="892" y="122" font-size="13.5" fill="#6e6e73">稳定对话</text>
-            <rect x="770" y="152" width="300" height="72" rx="16" fill="#eaf6ee"/>
-            <text x="800" y="198" font-size="30" font-weight="700" fill="#1a9c5b">3–5s</text>
-            <text x="892" y="186" font-size="14.5" fill="#1d1d1f" font-weight="600">瞬时断网</text>
-            <text x="892" y="208" font-size="13.5" fill="#6e6e73">自如响应</text>
-          </g>
-        </svg>
-      </div>
-      <p class="callout">极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">07</div>
-  </section>
-
-  <!-- 09 多模态辐射图 -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Beyond Voice · 不止于听清</div>
-      <h2>看得见、认得人的<span class="accent">多模态对话</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 392" role="img" aria-label="多模态能力辐射：对话引擎一套接入声纹锁定、看图识景、数字人、SIP 电话">
-          <defs>
-            <radialGradient id="hub9" cx="0.5" cy="0.4" r="0.75"><stop offset="0%" stop-color="#4aa3ff"/><stop offset="100%" stop-color="#0057d9"/></radialGradient>
-          </defs>
-          <g font-family="-apple-system,PingFang SC" text-anchor="middle">
-            <g stroke="#0a84ff" stroke-width="2" stroke-opacity="0.28">
-              <line x1="560" y1="189" x2="230" y2="90"/>
-              <line x1="560" y1="189" x2="890" y2="90"/>
-              <line x1="560" y1="189" x2="230" y2="288"/>
-              <line x1="560" y1="189" x2="890" y2="288"/>
-            </g>
-            <circle cx="560" cy="189" r="88" fill="none" stroke="#0a84ff" stroke-opacity="0.12" stroke-width="2"/>
-            <circle cx="560" cy="189" r="72" fill="url(#hub9)"/>
-            <text x="560" y="183" font-size="18" font-weight="700" fill="#fff">对话引擎</text>
-            <text x="560" y="207" font-size="12.5" fill="#dbeaff">一套接入</text>
-            <g transform="translate(230,90)">
-              <circle r="44" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <g stroke="#0a84ff" stroke-width="2.6" stroke-linecap="round"><path d="M0 -13V13 M-9 -7V7 M9 -7V7 M-17 -3V3 M17 -3V3"/></g>
-            </g>
-            <text x="230" y="162" font-size="15" font-weight="650" fill="#1d1d1f">声纹锁定</text>
-            <text x="230" y="182" font-size="11.5" fill="#6e6e73">认准说话人</text>
-            <g transform="translate(890,90)">
-              <circle r="44" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <g stroke="#0a84ff" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round">
-                <rect x="-15" y="-12" width="30" height="24" rx="4"/>
-                <path d="M-14 8 l9 -8 5 4 5 -5 9 8"/>
-              </g>
-              <circle cx="-6" cy="-3" r="2.6" fill="#0a84ff"/>
-            </g>
-            <text x="890" y="162" font-size="15" font-weight="650" fill="#1d1d1f">看图识景</text>
-            <text x="890" y="182" font-size="11.5" fill="#6e6e73">理解图片视频</text>
-            <g transform="translate(230,288)">
-              <circle r="44" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <g stroke="#0a84ff" stroke-width="2.2" fill="none" stroke-linecap="round">
-                <circle cx="0" cy="-6" r="8"/>
-                <path d="M-13 15 a13 13 0 0 1 26 0"/>
-              </g>
-            </g>
-            <text x="230" y="360" font-size="15" font-weight="650" fill="#1d1d1f">数字人</text>
-            <text x="230" y="380" font-size="11.5" fill="#6e6e73">口型表情同步</text>
-            <g transform="translate(890,288)">
-              <circle r="44" fill="#fff" stroke="#0a84ff" stroke-width="2"/>
-              <path d="M-13 -11 c0 13 9 22 22 22 v-6 l-6 -2 -2 3 a13 13 0 0 1 -9 -9 l3 -2 -2 -6 z" fill="#0a84ff"/>
-            </g>
-            <text x="890" y="360" font-size="15" font-weight="650" fill="#1d1d1f">SIP 电话</text>
-            <text x="890" y="380" font-size="11.5" fill="#6e6e73">接呼叫中心</text>
-          </g>
-        </svg>
-      </div>
-      <p class="callout">同一套引擎，语音、视觉、声纹、电话一并接入——对话不再只是"听和说"。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">08</div>
-  </section>
-
-  <!-- 10 灵活扩展编排图 -->
-  <section class="slide alt">
-    <div class="inner">
-      <div class="eyebrow">Open & Flexible · 灵活扩展</div>
-      <h2>你的模型自由组合，<span class="accent">引擎负责编排</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 336" role="img" aria-label="引擎编排：左侧可替换的 ASR/LLM/TTS/数字人 模型经对话引擎编排，右侧叠加视觉理解、知识库、RAG 等高阶能力">
-          <g font-family="-apple-system,PingFang SC">
-            <text x="195" y="34" text-anchor="middle" font-size="13" font-weight="650" fill="#0057d9">可自由替换 · 模型层</text>
-            <text x="925" y="34" text-anchor="middle" font-size="13" font-weight="650" fill="#0057d9">按需叠加 · 高阶能力</text>
-            <g stroke="#0a84ff" stroke-width="2" stroke-opacity="0.45" fill="none">
-              <path d="M300 82 C 380 82, 380 170, 445 170"/>
-              <path d="M300 138 C 385 138, 400 170, 445 170"/>
-              <path d="M300 194 C 385 194, 400 170, 445 170"/>
-              <path d="M300 250 C 380 250, 380 170, 445 170"/>
-            </g>
-            <g stroke="#0a84ff" stroke-width="2" stroke-opacity="0.45" fill="none">
-              <path d="M675 170 C 745 170, 745 104, 815 104"/>
-              <path d="M675 170 C 745 170, 760 169, 815 169"/>
-              <path d="M675 170 C 745 170, 745 234, 815 234"/>
-            </g>
-            <g>
-              <rect x="90" y="60" width="210" height="44" rx="12" fill="#fff" stroke="#0a84ff" stroke-opacity="0.4"/>
-              <text x="195" y="87" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1d1d1f">ASR 语音识别</text>
-              <rect x="90" y="116" width="210" height="44" rx="12" fill="#fff" stroke="#0a84ff" stroke-opacity="0.4"/>
-              <text x="195" y="143" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1d1d1f">LLM 大模型</text>
-              <rect x="90" y="172" width="210" height="44" rx="12" fill="#fff" stroke="#0a84ff" stroke-opacity="0.4"/>
-              <text x="195" y="199" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1d1d1f">TTS 语音合成</text>
-              <rect x="90" y="228" width="210" height="44" rx="12" fill="#fff" stroke="#0a84ff" stroke-opacity="0.4"/>
-              <text x="195" y="255" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1d1d1f">数字人</text>
-            </g>
-            <rect x="445" y="90" width="230" height="160" rx="22" fill="#0a0a0f"/>
-            <text x="560" y="152" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">对话引擎</text>
-            <text x="560" y="182" text-anchor="middle" font-size="13" fill="#8ec2ff">实时编排</text>
-            <text x="560" y="206" text-anchor="middle" font-size="13" fill="#8a8a92">调试 · 一键发布</text>
-            <g>
-              <rect x="815" y="82" width="215" height="44" rx="12" fill="#eaf3ff"/>
-              <text x="922" y="109" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0057d9">视觉理解</text>
-              <rect x="815" y="147" width="215" height="44" rx="12" fill="#eaf3ff"/>
-              <text x="922" y="174" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0057d9">知识库</text>
-              <rect x="815" y="212" width="215" height="44" rx="12" fill="#eaf3ff"/>
-              <text x="922" y="239" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0057d9">RAG</text>
-            </g>
-          </g>
-        </svg>
-      </div>
-      <p class="callout">快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">09</div>
-  </section>
-
-  <!-- 11 三方接入架构 SVG -->
-  <section class="slide">
-    <div class="inner">
-      <div class="eyebrow">Architecture · 接入架构</div>
-      <h2>2 行代码，<span class="accent">三方协同即可上线</span></h2>
-      <div class="figwrap">
-        <svg viewBox="0 0 1120 360" role="img" aria-label="接入架构：终端集成声网 SDK，客户业务服务器负责鉴权与业务，声网引擎编排语音链路">
-          <defs>
-            <filter id="soft2" x="-20%" y="-30%" width="140%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#0a1020" flood-opacity="0.1"/></filter>
-          </defs>
-          <g font-family="-apple-system,PingFang SC">
-            <g filter="url(#soft2)"><rect x="40" y="70" width="270" height="200" rx="20" fill="#fff" stroke="#e5e5ea"/></g>
-            <rect x="40" y="70" width="270" height="46" rx="20" fill="#f5f5f7"/>
-            <rect x="40" y="96" width="270" height="20" fill="#f5f5f7"/>
-            <text x="66" y="100" font-size="16" font-weight="700" fill="#1d1d1f">终端设备</text>
-            <text x="66" y="146" font-size="13.5" fill="#6e6e73">App / 智能硬件 / Web</text>
-            <g><rect x="66" y="166" width="218" height="42" rx="10" fill="#eaf3ff" stroke="#0a84ff"/>
-            <text x="175" y="192" text-anchor="middle" font-size="14" font-weight="650" fill="#0057d9">集成声网 SDK</text></g>
-            <text x="66" y="236" font-size="12.5" fill="#a1a1a6">采集人声 · 播放语音 / 数字人</text>
-            <g filter="url(#soft2)"><rect x="425" y="70" width="270" height="200" rx="20" fill="#fff" stroke="#e5e5ea"/></g>
-            <rect x="425" y="70" width="270" height="46" rx="20" fill="#f5f5f7"/>
-            <rect x="425" y="96" width="270" height="20" fill="#f5f5f7"/>
-            <text x="451" y="100" font-size="16" font-weight="700" fill="#1d1d1f">客户业务服务器</text>
-            <text x="451" y="150" font-size="13.5" fill="#6e6e73">· 鉴权签名，密钥不下发终端</text>
-            <text x="451" y="176" font-size="13.5" fill="#6e6e73">· 创建 / 控制智能体</text>
-            <text x="451" y="202" font-size="13.5" fill="#6e6e73">· 业务逻辑 · 知识库</text>
-            <text x="451" y="240" font-size="12.5" fill="#a1a1a6">通过 REST 调用引擎</text>
-            <g filter="url(#soft2)"><rect x="810" y="70" width="270" height="200" rx="20" fill="#0a0a0f"/></g>
-            <text x="836" y="104" font-size="16" font-weight="700" fill="#fff">声网对话式 AI 引擎</text>
-            <g>
-              <rect x="836" y="126" width="100" height="34" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.16)"/>
-              <text x="886" y="148" text-anchor="middle" font-size="13" fill="#dbeaff">ASR</text>
-              <rect x="948" y="126" width="106" height="34" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.16)"/>
-              <text x="1001" y="148" text-anchor="middle" font-size="13" fill="#dbeaff">LLM</text>
-              <rect x="836" y="170" width="100" height="34" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.16)"/>
-              <text x="886" y="192" text-anchor="middle" font-size="13" fill="#dbeaff">TTS</text>
-              <rect x="948" y="170" width="106" height="34" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.16)"/>
-              <text x="1001" y="192" text-anchor="middle" font-size="13" fill="#dbeaff">数字人</text>
-            </g>
-            <text x="836" y="236" font-size="12.5" fill="#8a8a92">实时编排 · 低延时传输</text>
-            <path d="M310 150 C 360 150, 360 40, 560 40" fill="none" stroke="#0a84ff" stroke-width="2.5"/>
-            <path d="M560 40 C 760 40, 760 150, 810 150" fill="none" stroke="#0a84ff" stroke-width="2.5"/>
-            <polygon points="810,150 796,143 796,157" fill="#0a84ff"/>
-            <polygon points="310,150 324,143 324,157" fill="#0a84ff"/>
-            <rect x="470" y="24" width="180" height="30" rx="15" fill="#eaf3ff"/>
-            <text x="560" y="44" text-anchor="middle" font-size="13" font-weight="650" fill="#0057d9">实时音视频流</text>
-            <line x1="310" y1="210" x2="425" y2="210" stroke="#a1a1a6" stroke-width="2.5"/>
-            <polygon points="425,210 411,203 411,217" fill="#a1a1a6"/>
-            <polygon points="310,210 324,203 324,217" fill="#a1a1a6"/>
-            <text x="367" y="200" text-anchor="middle" font-size="11.5" fill="#8e8e93">取 Token</text>
-            <line x1="695" y1="290" x2="945" y2="290" stroke="#1a9c5b" stroke-width="2.5"/>
-            <polygon points="945,290 931,283 931,297" fill="#1a9c5b"/>
-            <text x="820" y="280" text-anchor="middle" font-size="11.5" fill="#1a9c5b">服务端签名 · 创建智能体</text>
-          </g>
-        </svg>
-      </div>
-      <p class="callout">终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">10</div>
-  </section>
-
-  <!-- 12 典型场景 -->
-  <section class="slide alt">
-    <div class="inner">
-      <div class="eyebrow">Scenarios · 典型场景</div>
-      <h2>一套引擎，<span class="accent">支撑多类场景</span></h2>
-      <div class="grid g3" style="margin-top:.4rem;">
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#0a84ff,#0057d9);box-shadow:0 8px 20px rgba(10,132,255,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c0 9 6 15 15 15v-3l-4-2-2 2a11 11 0 0 1-6-6l2-2-2-4H4z"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">AI 外呼</h3>
-          <p>客服、营销、风控、调研、关怀通知，成本效率全面提升。</p>
-        </div>
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#22c3d6,#0a95b8);box-shadow:0 8px 20px rgba(16,160,184,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">智能硬件</h3>
-          <p>嵌入设备，让设备开口说话，语音控制与智能陪伴。</p>
-        </div>
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#ff6f91,#e84a6f);box-shadow:0 8px 20px rgba(232,74,111,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">虚拟陪伴</h3>
-          <p>情感化对话与互动，24 小时无缝语音陪伴。</p>
-        </div>
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#ffa64d,#f47b20);box-shadow:0 8px 20px rgba(244,123,32,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 3z"/><path d="M9 10h6 M9 13h4"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">口语陪练</h3>
-          <p>模拟真实对话场景，实时反馈与纠正。</p>
-        </div>
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#35c56a,#1a9c5b);box-shadow:0 8px 20px rgba(26,156,91,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">智能客服</h3>
-          <p>代替人工坐席，7×24 小时无等候即时响应。</p>
-        </div>
-        <div class="card" style="text-align:center;padding:1.6rem 1.3rem;">
-          <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#8a92ff,#5b63d9);box-shadow:0 8px 20px rgba(91,99,217,.28);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14 M5 12h14"/></svg>
-          </div>
-          <h3 style="justify-content:center;font-size:1.12rem;">更多场景</h3>
-          <p>语音助手、教育、金融、政企……按业务快速落地。</p>
-        </div>
-      </div>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">11</div>
-  </section>
-
-  <!-- 13 底座实力 · 信任 -->
-  <section class="slide alt">
-    <div class="inner">
-      <div class="eyebrow">Why Agora · 底座实力</div>
-      <h2>跑在声网<span class="accent">实时互动底座</span>之上</h2>
-      <div class="grid g4" style="margin-top:.4rem;">
-        <div class="card"><div class="statnum">No.1</div><h3 style="font-size:1rem;margin-top:.6rem;display:block;font-weight:600;">对话式 AI 引擎市场占有率</h3></div>
-        <div class="card"><div class="statnum">93<span class="u">万+</span></div><h3 style="font-size:1rem;margin-top:.6rem;display:block;font-weight:600;">全球注册应用数</h3></div>
-        <div class="card"><div class="statnum">700<span class="u">亿+</span></div><h3 style="font-size:1rem;margin-top:.6rem;display:block;font-weight:600;">单月支持通话分钟</h3></div>
-        <div class="card"><div class="statnum">200<span class="u">+</span></div><h3 style="font-size:1rem;margin-top:.6rem;display:block;font-weight:600;">覆盖场景 · 20+ 行业</h3></div>
-      </div>
-      <p class="callout">2014 年成立，全球实时音视频云服务开创者——语音智能体，跑在经海量流量锤炼的底座上。</p>
-      <p class="note">数据来源：声网官方公开数据。</p>
-    </div>
-    <div class="foot">声网对话式 AI 引擎 · 产品介绍</div><div class="pageno">12</div>
-  </section>
-
-  <!-- 14 金句收尾 -->
-  <section class="slide dark" style="overflow:hidden;">
-    <svg style="position:absolute;top:50%;right:-6%;transform:translateY(-50%);width:50%;height:auto;pointer-events:none;" viewBox="0 0 600 600" aria-hidden="true">
-      <defs>
-        <radialGradient id="glow14" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#0a84ff" stop-opacity="0.45"/><stop offset="1" stop-color="#0a84ff" stop-opacity="0"/></radialGradient>
-      </defs>
-      <circle cx="300" cy="300" r="300" fill="url(#glow14)"/>
-      <g fill="none" stroke="#0a84ff">
-        <circle cx="300" cy="300" r="88" stroke-opacity="0.38"/>
-        <circle cx="300" cy="300" r="140" stroke-opacity="0.3"/>
-        <circle cx="300" cy="300" r="196" stroke-opacity="0.22"/>
-        <circle cx="300" cy="300" r="252" stroke-opacity="0.14"/>
-        <circle cx="300" cy="300" r="300" stroke-opacity="0.08"/>
-      </g>
-    </svg>
-    <div class="inner" style="position:relative;z-index:1;">
-      <p class="statement">最好的对话式 AI，<span class="hl">让人忘了它是 AI</span>。</p>
-      <p class="kicker">低延时、可打断、听得清、看得见——<strong>把技术藏进体验里。</strong></p>
-    </div>
-    <div class="cover-meta">仅供方案交流参考</div>
-  </section>
-
+<div class="deck-viewport">
+  <div class="deck-stage" id="deckStage">
+<div class="deck-grid" aria-hidden="true"></div><div class="deck-rail t" aria-hidden="true"></div><div class="deck-rail b" aria-hidden="true"></div>
+<section class="slide conf-boarded" data-p="1" data-steps="0">
+  <div class="conf-bg conf-bg-title" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">1/13</div><div class="sh flow kk" style="left:120px;top:200px;width:1500px;height:28px">AGORA · CONVERSATIONAL AI ENGINE · 产品介绍</div><div class="sh ink" style="left:120px;top:266px;width:1500px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)"><strong style='color:var(--accent)'>2 行代码</strong>，<br>构建自然流畅的对话体验。</div><div class="sh spread" style="left:120px;top:572px;width:120px;height:4px;background:var(--accent);border-radius:2px;--i:3"></div><div class="sh flow sub" style="left:120px;top:624px;width:1500px;height:48px;--i:4">让人和智能体像真人一样自然对话——低延时、可打断、听得清。</div><div class="sh flow mono-sm" style="left:120px;top:930px;width:1400px;height:24px;--i:6">仅供方案交流参考 · 事实截止 2026.08</div></div>
+</section>
+<section class="slide conf-boarded" data-p="2" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">2/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">REAL-TIME DECISION · 边听边说</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">对话，是一个<strong>实时决策</strong>的过程。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · FOUR MOVES · 同一时刻发生</div><div class="sh " style="left:120px;top:272px;width:1680px;height:250px"><div class="g4" style="height:100%"><div class="card rise" style="--i:2;justify-content:center"><div class="n" style="font-size:34px">01</div><div class="t" style="font-size:24px">听清 · 认人 · 懂内容</div><div class="d" style="font-size:18px">分离目标人声、识别说话人，同时理解在说什么</div></div><div class="card rise" style="--i:3;justify-content:center"><div class="n" style="font-size:34px">02</div><div class="t" style="font-size:24px">带入对象、场景与情绪</div><div class="d" style="font-size:18px">结合上下文理解言外之意，而不只是逐字转写</div></div><div class="card rise" style="--i:4;justify-content:center"><div class="n" style="font-size:34px">03</div><div class="t" style="font-size:24px">持续判断：继续听，还是开口</div><div class="d" style="font-size:18px">实时权衡时机，不必等一句话彻底说完</div></div><div class="card rise" style="--i:5;justify-content:center"><div class="n" style="font-size:34px">04</div><div class="t" style="font-size:24px">边说边听，灵活调整节奏</div><div class="d" style="font-size:18px">表达的同时仍在倾听，随时被打断、随时接上</div></div></div></div><div class="sh flow seclab" style="left:120px;top:588px;width:680px;height:20px;--i:0">02 · SAME MOMENT · 边说边听</div><div class="sh flow" style="left:120px;top:620px;width:1680px;height:200px;--i:3"><div class="fig"><svg viewBox="0 0 1680 200" style="width:100%;height:auto"><text class="ttl" x="10" y="70" style="font-size:21px;fill:var(--accent)">持续在听</text><text class="ttl" x="10" y="158" style="font-size:21px;fill:var(--ink-2)">同时在说</text><path class="dw" style="--len:1172;--i:1" d="M210 62 H1382" stroke="var(--accent)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="1390,62 1379,56 1379,68"/><text class="sm" x="430" y="40" text-anchor="middle" style="font-size:17px">听清 · 认人</text><text class="sm" x="900" y="40" text-anchor="middle" style="font-size:17px">对象 · 场景 · 情绪</text><path class="dw" style="--len:1172;--i:2" d="M1382 150 H210" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="202,150 213,144 213,156"/><text class="sm" x="430" y="182" text-anchor="middle" style="font-size:17px">开口表达</text><text class="sm" x="900" y="182" text-anchor="middle" style="font-size:17px">控制节奏</text><rect class="pop" style="--i:3" x="1418" y="30" width="252" height="152" rx="8" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="1544" y="92" text-anchor="middle" style="font-size:24px;fill:var(--accent)">判断</text><text class="sm" x="1544" y="130" text-anchor="middle" style="font-size:18px">何时开口</text></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">自然对话不是“听完再回答”，而是边说边听、持续判断——这正是引擎要还原的能力。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="3" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">3/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">REAL-TIME VOICE · 极致实时语音体验</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">把三件事，<strong>做到极致</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · THREE EXTREMES</div><div class="sh rise card-c" style="left:120px;top:300px;width:520px;height:500px;--i:2"><div style="padding:44px 40px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">01 · LATENCY</div><div style="margin-top:28px;font:900 132px/.92 var(--f-en);letter-spacing:-.035em;color:var(--accent)">650<span style="font-size:.38em;letter-spacing:0">ms</span></div><div style="margin-top:28px;font:700 32px/1.25 var(--f-cn);color:var(--ink)">端到端响应延时</div><div style="margin-top:14px;font:400 20px/1.65 var(--f-cn);color:var(--ink-2)">从说完话到智能体开口，全链路深度优化，低至 650ms。</div></div></div><div class="sh rise card-c" style="left:700px;top:300px;width:520px;height:500px;--i:3"><div style="padding:44px 40px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">02 · BARGE-IN</div><div style="margin-top:28px;font:900 132px/.92 var(--f-en);letter-spacing:-.035em;color:var(--accent)">340<span style="font-size:.38em;letter-spacing:0">ms</span></div><div style="margin-top:28px;font:700 32px/1.25 var(--f-cn);color:var(--ink)">极速打断响应</div><div style="margin-top:14px;font:400 20px/1.65 var(--f-cn);color:var(--ink-2)">随时插话即时收声，模拟真人对话节奏。</div></div></div><div class="sh rise card-c" style="left:1280px;top:300px;width:520px;height:500px;--i:4"><div style="padding:44px 40px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">03 · SHIELD</div><div style="margin-top:28px;font:900 132px/.92 var(--f-en);letter-spacing:-.035em;color:var(--accent)">95<span style="font-size:.38em;letter-spacing:0">%</span></div><div style="margin-top:28px;font:700 32px/1.25 var(--f-cn);color:var(--ink)">环境干扰屏蔽</div><div style="margin-top:14px;font:400 20px/1.65 var(--f-cn);color:var(--ink-2)">选择性注意力锁定，嘈杂环境也能精准听清对话人声。</div></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow mono-sm" style="left:120px;top:988px;width:1680px;height:24px;--i:7">END-TO-END 650MS · BARGE-IN 340MS · NOISE SHIELD 95%</div></div>
+</section>
+<section class="slide conf-boarded" data-p="4" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">4/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">PIPELINE · 实时语音链路</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">一条深度优化的<strong>端到端链路</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · SIGNAL PATH</div><div class="sh flow" style="left:120px;top:290px;width:1680px;height:430px;--i:1"><div class="fig"><svg viewBox="0 0 1680 430" style="width:100%;height:auto"><circle class="pop box" style="--i:0" cx="70" cy="185" r="44" stroke-width="1.4"/><path class="pop" style="--i:0" d="M70 165a10 10 0 0 1 10 10v10a10 10 0 0 1-20 0v-10a10 10 0 0 1 10-10z M56 183a14 14 0 0 0 28 0 M70 197v9" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/><text class="ttl" x="70" y="288" text-anchor="middle" style="font-size:20px">人声输入</text><circle class="pop box" style="--i:6" cx="1610" cy="185" r="44" stroke-width="1.4"/><path class="pop" style="--i:6" d="M1600 173h-10v24h10l16 13V160z M1624 176a10 10 0 0 1 0 18 M1631 169a18 18 0 0 1 0 32" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><text class="ttl" x="1610" y="288" text-anchor="middle" style="font-size:20px">语音输出</text><rect class="pop" style="--i:1" x="180" y="120" width="220" height="130" rx="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="290" y="178" text-anchor="middle" style="font-size:26px;fill:var(--accent)">AI-VAD</text><text class="sm" x="290" y="214" text-anchor="middle" style="font-size:17px">智能人声检测</text><text class="lbl" x="290" y="290" text-anchor="middle" style="font-size:15px">判断谁在说</text><rect class="pop box" style="--i:2" x="446" y="120" width="220" height="130" rx="6" stroke-width="1.4"/><text class="ttl" x="556" y="178" text-anchor="middle" style="font-size:26px">ASR</text><text class="sm" x="556" y="214" text-anchor="middle" style="font-size:17px">语音转写</text><text class="lbl" x="556" y="290" text-anchor="middle" style="font-size:15px">听清说什么</text><rect class="pop box" style="--i:3" x="712" y="120" width="220" height="130" rx="6" stroke-width="1.4"/><text class="ttl" x="822" y="178" text-anchor="middle" style="font-size:26px">LLM</text><text class="sm" x="822" y="214" text-anchor="middle" style="font-size:17px">大模型理解</text><text class="lbl" x="822" y="290" text-anchor="middle" style="font-size:15px">想怎么答</text><rect class="pop box" style="--i:4" x="978" y="120" width="220" height="130" rx="6" stroke-width="1.4"/><text class="ttl" x="1088" y="178" text-anchor="middle" style="font-size:26px">TTS</text><text class="sm" x="1088" y="214" text-anchor="middle" style="font-size:17px">语音合成</text><text class="lbl" x="1088" y="290" text-anchor="middle" style="font-size:15px">开口说话</text><rect class="pop box" style="--i:5" x="1244" y="120" width="220" height="130" rx="6" stroke-width="1.4" stroke-dasharray="7 6"/><text class="ttl" x="1354" y="178" text-anchor="middle" style="font-size:26px">数字人</text><text class="sm" x="1354" y="214" text-anchor="middle" style="font-size:17px">口型 / 表情</text><text class="lbl" x="1354" y="290" text-anchor="middle" style="font-size:15px">可选</text><path class="dw" style="--len:45;--i:0" d="M118 185 H163" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="172,185 161,179 161,191"/><path class="dw" style="--len:25;--i:1" d="M406 185 H431" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="440,185 429,179 429,191"/><path class="dw" style="--len:25;--i:2" d="M672 185 H697" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="706,185 695,179 695,191"/><path class="dw" style="--len:25;--i:3" d="M938 185 H963" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="972,185 961,179 961,191"/><path class="dw" style="--len:25;--i:4" d="M1204 185 H1229" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="1238,185 1227,179 1227,191"/><path class="dw" style="--len:79;--i:5" d="M1470 185 H1549" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="1558,185 1547,179 1547,191"/><text class="ttl" x="840" y="372" text-anchor="middle" style="font-size:28px;fill:var(--accent);font-weight:700">端到端 650ms</text><path class="pop" style="--i:6" d="M70 400 H1610" stroke="var(--accent)" stroke-width="1.6" fill="none" stroke-dasharray="3 8"/><path class="dw" style="--len:20;--i:6" d="M70 390 V410" stroke="var(--accent)" stroke-width="1.6" fill="none"/><path class="dw" style="--len:20;--i:6" d="M1610 390 V410" stroke="var(--accent)" stroke-width="1.6" fill="none"/></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">AI-VAD、ASR、LLM、TTS 逐环节协同优化——用户体感是一句接一句，几乎无等待。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="5" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">5/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">INTERRUPTION · 优雅打断</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">想插话就插话，<strong>340ms 即时收声</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · TIMELINE</div><div class="sh flow" style="left:120px;top:285px;width:1680px;height:420px;--i:1"><div class="fig"><svg viewBox="0 0 1680 420" style="width:100%;height:auto"><text class="ttl" x="10" y="118" style="font-size:22px;fill:var(--accent)">智能体</text><text class="ttl" x="10" y="318" style="font-size:22px;fill:var(--ink-2)">用户</text><rect class="pop" style="--i:1;fill:var(--accent)" x="170" y="95" width="8" height="30" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="187" y="83" width="8" height="54" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="204" y="102" width="8" height="16" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="221" y="77" width="8" height="66" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="238" y="91" width="8" height="38" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="255" y="99" width="8" height="22" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="272" y="81" width="8" height="58" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="289" y="93" width="8" height="34" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="306" y="87" width="8" height="46" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="323" y="101" width="8" height="18" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="340" y="85" width="8" height="50" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="357" y="97" width="8" height="26" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="374" y="90" width="8" height="40" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="391" y="103" width="8" height="14" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="408" y="79" width="8" height="62" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="425" y="95" width="8" height="30" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="442" y="88" width="8" height="44" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="459" y="100" width="8" height="20" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="476" y="82" width="8" height="56" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="493" y="92" width="8" height="36" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="510" y="95" width="8" height="30" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="527" y="83" width="8" height="54" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="544" y="102" width="8" height="16" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="561" y="77" width="8" height="66" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="578" y="91" width="8" height="38" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="595" y="99" width="8" height="22" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="612" y="81" width="8" height="58" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="629" y="93" width="8" height="34" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="646" y="87" width="8" height="46" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="663" y="101" width="8" height="18" rx="4"/><rect class="pop" style="--i:3;fill:var(--accent)" x="680" y="85" width="8" height="50" rx="4"/><rect class="pop" style="--i:4;fill:var(--accent)" x="697" y="97" width="8" height="26" rx="4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="714" y="90" width="8" height="40" rx="4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="731" y="103" width="8" height="14" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-3);opacity:.45" x="820" y="97" width="8" height="26" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-3);opacity:.45" x="837" y="90" width="8" height="40" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-3);opacity:.45" x="854" y="103" width="8" height="14" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-3);opacity:.45" x="871" y="79" width="8" height="62" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-3);opacity:.45" x="888" y="95" width="8" height="30" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-3);opacity:.45" x="905" y="88" width="8" height="44" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-3);opacity:.45" x="922" y="100" width="8" height="20" rx="4"/><path class="pop" style="--i:1" d="M800 40 V350" stroke="var(--accent-deep)" stroke-width="2" fill="none" stroke-dasharray="6 6"/><text class="sm" x="812" y="32" style="font-size:18px;fill:var(--accent-deep);font-weight:700">用户插话</text><path class="pop" style="--i:2" d="M960 40 V350" stroke="var(--accent)" stroke-width="2" fill="none" stroke-dasharray="6 6"/><text class="sm" x="972" y="32" style="font-size:18px;fill:var(--accent);font-weight:700">智能体收声</text><rect class="pop" style="--i:1;fill:var(--ink-2)" x="990" y="277" width="8" height="66" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1007" y="291" width="8" height="38" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1024" y="299" width="8" height="22" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1041" y="281" width="8" height="58" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1058" y="293" width="8" height="34" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1075" y="287" width="8" height="46" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1092" y="301" width="8" height="18" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1109" y="285" width="8" height="50" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1126" y="297" width="8" height="26" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1143" y="290" width="8" height="40" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1160" y="303" width="8" height="14" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1177" y="279" width="8" height="62" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1194" y="295" width="8" height="30" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1211" y="288" width="8" height="44" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1228" y="300" width="8" height="20" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1245" y="282" width="8" height="56" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1262" y="292" width="8" height="36" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1279" y="295" width="8" height="30" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1296" y="283" width="8" height="54" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1313" y="302" width="8" height="16" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1330" y="277" width="8" height="66" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1347" y="291" width="8" height="38" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1364" y="299" width="8" height="22" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1381" y="281" width="8" height="58" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1398" y="293" width="8" height="34" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1415" y="287" width="8" height="46" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1432" y="301" width="8" height="18" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1449" y="285" width="8" height="50" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1466" y="297" width="8" height="26" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1483" y="290" width="8" height="40" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1500" y="303" width="8" height="14" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1517" y="279" width="8" height="62" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1534" y="295" width="8" height="30" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1551" y="288" width="8" height="44" rx="4"/><rect class="pop" style="--i:3;fill:var(--ink-2)" x="1568" y="300" width="8" height="20" rx="4"/><rect class="pop" style="--i:4;fill:var(--ink-2)" x="1585" y="282" width="8" height="56" rx="4"/><rect class="pop" style="--i:1;fill:var(--ink-2)" x="1602" y="292" width="8" height="36" rx="4"/><rect class="pop" style="--i:2;fill:var(--ink-2)" x="1619" y="295" width="8" height="30" rx="4"/><text class="ttl" x="880" y="358" text-anchor="middle" style="font-size:24px;fill:var(--accent);font-weight:700">340ms</text><path class="dw" style="--len:160;--i:3" d="M800 380 H960" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:16;--i:3" d="M800 372 V388" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:16;--i:3" d="M960 372 V388" stroke="var(--accent)" stroke-width="2" fill="none"/></svg></div></div><div class="sh flow seclab" style="left:120px;top:742px;width:680px;height:20px;--i:0">02 · WHAT HAPPENS</div><div class="sh rise" style="left:120px;top:774px;width:1680px;height:54px;--i:4"><span class="chip">智能体正在说话</span><span class="chip">用户随时可插话</span><span class="chip">340ms 内即时收声、转为倾听</span></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">对话像真人一样你来我往。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="6" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">6/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">SELECTIVE ATTENTION (SAL) · 选择性注意力锁定</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">嘈杂环境里，<strong>只听该听的人</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · LOCK ON</div><div class="sh flow" style="left:120px;top:285px;width:1680px;height:500px;--i:1"><div class="fig"><svg viewBox="0 0 1680 500" style="width:100%;height:auto"><circle class="pop box" style="--i:1" cx="180" cy="210" r="72" stroke-width="2"/><path class="pop" style="--i:1" d="M180 182a12 12 0 0 1 12 12v10a12 12 0 0 1-24 0v-10a12 12 0 0 1 12-12z M163 204a17 17 0 0 0 34 0 M180 221v11" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/><text class="ttl" x="180" y="330" text-anchor="middle" style="font-size:22px;fill:var(--accent)">目标人声</text><text class="sm" x="180" y="362" text-anchor="middle" style="font-size:17px">锁定 · 精准识别</text><path class="dw" style="--len:402;--i:2" d="M258 210 H660" stroke="var(--accent)" stroke-width="3" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="672,210 661,204 661,216"/><circle class="pop" style="--i:0;fill:var(--card-bg-2);stroke:var(--accent)" cx="780" cy="210" r="100" stroke-width="3"/><text class="ttl" x="780" y="202" text-anchor="middle" style="font-size:28px">智能体</text><text class="sm" x="780" y="240" text-anchor="middle" style="font-size:18px;fill:var(--accent)">声纹锁定</text><path class="pop" style="--i:3" d="M978 60 V360" stroke="var(--accent)" stroke-width="2.5" fill="none" stroke-dasharray="10 9"/><circle class="pop box" style="--i:4" cx="1400" cy="90" r="52" stroke-width="1.4"/><text class="ttl" x="1400" y="100" text-anchor="middle" style="font-size:30px;fill:var(--ink-3)">✕</text><text class="sm" x="1478" y="98" style="font-size:19px">旁人交谈</text><path class="pop" style="--i:5" d="M1346 90 H990" stroke="var(--hair-strong)" stroke-width="2" fill="none" stroke-dasharray="7 7"/><circle class="pop box" style="--i:4" cx="1400" cy="210" r="52" stroke-width="1.4"/><text class="ttl" x="1400" y="220" text-anchor="middle" style="font-size:30px;fill:var(--ink-3)">✕</text><text class="sm" x="1478" y="218" style="font-size:19px">环境噪声</text><path class="pop" style="--i:5" d="M1346 210 H990" stroke="var(--hair-strong)" stroke-width="2" fill="none" stroke-dasharray="7 7"/><circle class="pop box" style="--i:4" cx="1400" cy="330" r="52" stroke-width="1.4"/><text class="ttl" x="1400" y="340" text-anchor="middle" style="font-size:30px;fill:var(--ink-3)">✕</text><text class="sm" x="1478" y="338" style="font-size:19px">背景音乐</text><path class="pop" style="--i:5" d="M1346 330 H990" stroke="var(--hair-strong)" stroke-width="2" fill="none" stroke-dasharray="7 7"/><rect class="pop" style="--i:6" x="600" y="402" width="360" height="62" rx="31" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="780" y="442" text-anchor="middle" style="font-size:26px;fill:var(--accent);font-weight:700">屏蔽 95% 干扰</text></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow mono-sm" style="left:120px;top:988px;width:1680px;height:24px;--i:7">SELECTIVE ATTENTION LOCK · 95% INTERFERENCE SHIELDED</div></div>
+</section>
+<section class="slide conf-boarded" data-p="7" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">7/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">WEAK NETWORK · 弱网也能聊</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">网络在抖，<strong>对话不断</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · PACKET LOSS</div><div class="sh flow" style="left:120px;top:280px;width:1080px;height:470px;--i:1"><div class="fig"><svg viewBox="0 0 1080 470" style="width:100%;height:auto"><text class="lbl" x="10" y="40" style="font-size:15px">网络 · 大量丢包 + 瞬时断网</text><rect class="pop" style="--i:1;fill:var(--accent)" x="20" y="64" width="34" height="44" rx="6"/><rect class="pop" style="--i:2" x="72" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:3" x="124" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1" x="176" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:2" x="228" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:3" x="280" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="332" y="64" width="34" height="44" rx="6"/><rect class="pop" style="--i:2" x="384" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:3" x="436" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1" x="488" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:2" x="540" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:3" x="592" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1;fill:var(--accent)" x="644" y="64" width="34" height="44" rx="6"/><rect class="pop" style="--i:2" x="696" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:3" x="748" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1" x="800" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:2;fill:var(--accent)" x="852" y="64" width="34" height="44" rx="6"/><rect class="pop" style="--i:3" x="904" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:1" x="956" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><rect class="pop" style="--i:2" x="1008" y="64" width="34" height="44" rx="6" fill="none" stroke="var(--hair-strong)" stroke-width="1.4" stroke-dasharray="4 4"/><text class="sm" x="540" y="146" text-anchor="middle" style="font-size:17px;fill:var(--accent-deep);font-weight:700">✕ 断网</text><path class="dw" style="--len:30;--i:2" d="M540 166 V196" stroke="var(--accent)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="540,206 534,195 546,195"/><rect class="pop" style="--i:3" x="370" y="216" width="340" height="76" rx="10" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="540" y="264" text-anchor="middle" style="font-size:26px;fill:var(--accent)">抗丢包引擎</text><path class="dw" style="--len:30;--i:4" d="M540 300 V330" stroke="var(--accent)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="540,340 534,329 546,329"/><text class="ttl" x="10" y="386" style="font-size:21px;fill:var(--accent)">对话 · 连续不卡顿</text><path class="dw" style="--len:1100;--i:5" d="M20 428 Q 80 392 140 428 T 260 428 T 380 428 T 500 428 T 620 428 T 740 428 T 860 428 T 980 428 T 1040 428" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/><circle class="pop" style="--i:6;fill:var(--accent)" cx="1044" cy="428" r="7"/></svg></div></div><div class="sh flow seclab" style="left:1280px;top:236px;width:680px;height:20px;--i:0">02 · RESILIENCE</div><div class="sh rise card-c" style="left:1280px;top:300px;width:520px;height:230px;--i:2"><div style="padding:36px 40px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:900 92px/.92 var(--f-en);letter-spacing:-.035em;color:var(--accent)">80<span style="font-size:.42em;letter-spacing:0">%</span></div><div style="margin-top:18px;font:400 22px/1.4 var(--f-cn);color:var(--ink-2)">丢包率下稳定对话</div></div></div><div class="sh rise card-c" style="left:1280px;top:560px;width:520px;height:230px;--i:3"><div style="padding:36px 40px;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font:900 92px/.92 var(--f-en);letter-spacing:-.035em;color:var(--accent)">3–5<span style="font-size:.42em;letter-spacing:0">s</span></div><div style="margin-top:18px;font:400 22px/1.4 var(--f-cn);color:var(--ink-2)">瞬时断网自如响应</div></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="8" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">8/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">BEYOND VOICE · 不止于听清</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">看得见、认得人的<strong>多模态对话</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · ONE ENGINE, FOUR SENSES</div><div class="sh rise card-c on" style="left:660px;top:284px;width:600px;height:130px;--i:1"><div style="height:100%;display:flex;align-items:center;justify-content:center;gap:24px"><div style="font:700 38px/1.2 var(--f-cn);color:var(--ink)">对话引擎</div><div style="width:1px;height:38px;background:var(--hair)"></div><div style="font:500 18px/1 var(--f-mono);letter-spacing:.16em;color:var(--accent)">一套接入</div></div></div><div class="sh flow" style="left:120px;top:424px;width:1680px;height:100px;--i:2"><div class="fig"><svg viewBox="0 0 1680 100" style="width:100%;height:auto"><path class="dw" style="--len:42;--i:1" d="M840 0 V42" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:1275;--i:2" d="M202 42 H1477" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:46;--i:3" d="M202 42 V88" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:46;--i:3" d="M627 42 V88" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:46;--i:3" d="M1052 42 V88" stroke="var(--accent)" stroke-width="2" fill="none"/><path class="dw" style="--len:46;--i:3" d="M1477 42 V88" stroke="var(--accent)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="202,96 196,87 208,87"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="627,96 621,87 633,87"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="1052,96 1046,87 1058,87"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="1477,96 1471,87 1483,87"/></svg></div></div><div class="sh " style="left:120px;top:534px;width:1680px;height:250px"><div class="g4" style="height:100%"><div class="card rise" style="--i:3;justify-content:center"><div class="tag">VOICEPRINT</div><div class="t" style="font-size:26px">声纹锁定</div><div class="d" style="font-size:18px">认准说话人</div></div><div class="card rise" style="--i:4;justify-content:center"><div class="tag">VISION</div><div class="t" style="font-size:26px">看图识景</div><div class="d" style="font-size:18px">理解图片视频</div></div><div class="card rise" style="--i:5;justify-content:center"><div class="tag">AVATAR</div><div class="t" style="font-size:26px">数字人</div><div class="d" style="font-size:18px">口型表情同步</div></div><div class="card rise" style="--i:6;justify-content:center"><div class="tag">SIP</div><div class="t" style="font-size:26px">SIP 电话</div><div class="d" style="font-size:18px">接呼叫中心</div></div></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">同一套引擎，语音、视觉、声纹、电话一并接入——对话不再只是“听和说”。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="9" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">9/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">OPEN & FLEXIBLE · 灵活扩展</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">你的模型自由组合，<strong>引擎负责编排</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · ORCHESTRATION</div><div class="sh flow" style="left:120px;top:290px;width:1680px;height:480px;--i:1"><div class="fig"><svg viewBox="0 0 1680 480" style="width:100%;height:auto"><text class="lbl" x="230" y="32" text-anchor="middle" style="font-size:16px;fill:var(--accent)">可自由替换 · 模型层</text><text class="lbl" x="1450" y="32" text-anchor="middle" style="font-size:16px;fill:var(--accent)">按需叠加 · 高阶能力</text><rect class="pop box" style="--i:1" x="40" y="70" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="230" y="114" text-anchor="middle" style="font-size:22px">ASR 语音识别</text><path class="dw" style="--len:230;--i:2" d="M420 105 C 530 105, 530 240, 620 240" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/><rect class="pop box" style="--i:2" x="40" y="168" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="230" y="212" text-anchor="middle" style="font-size:22px">LLM 大模型</text><path class="dw" style="--len:230;--i:3" d="M420 203 C 530 203, 530 240, 620 240" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/><rect class="pop box" style="--i:3" x="40" y="266" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="230" y="310" text-anchor="middle" style="font-size:22px">TTS 语音合成</text><path class="dw" style="--len:230;--i:4" d="M420 301 C 530 301, 530 240, 620 240" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/><rect class="pop box" style="--i:4" x="40" y="364" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="230" y="408" text-anchor="middle" style="font-size:22px">数字人</text><path class="dw" style="--len:230;--i:5" d="M420 399 C 530 399, 530 240, 620 240" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/><rect class="pop" style="--i:0" x="620" y="140" width="440" height="200" rx="16" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="840" y="218" text-anchor="middle" style="font-size:36px;fill:var(--accent)">对话引擎</text><text class="txt" x="840" y="262" text-anchor="middle" style="font-size:21px">实时编排</text><text class="sm" x="840" y="300" text-anchor="middle" style="font-size:18px">调试 · 一键发布</text><rect class="pop box" style="--i:3" x="1260" y="120" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="1450" y="164" text-anchor="middle" style="font-size:22px">视觉理解</text><path class="dw" style="--len:230;--i:3" d="M1060 240 C 1150 240, 1150 155, 1260 155" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/><rect class="pop box" style="--i:4" x="1260" y="218" width="380" height="70" rx="8" stroke-width="1.4"/><text class="ttl" x="1450" y="262" text-anchor="middle" style="font-size:22px">知识库 · RAG</text><path class="dw" style="--len:230;--i:4" d="M1060 240 C 1150 240, 1150 253, 1260 253" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="10" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">10/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">ARCHITECTURE · 接入架构</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px"><strong>2 行代码</strong>，三方协同即可上线。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · THREE PARTIES</div><div class="sh flow" style="left:120px;top:285px;width:1680px;height:500px;--i:1"><div class="fig"><svg viewBox="0 0 1680 500" style="width:100%;height:auto"><rect class="pop box" style="--i:1" x="40" y="120" width="460" height="300" rx="14" stroke-width="1.4"/><text class="ttl" x="72" y="176" style="font-size:26px">终端设备</text><text class="sm" x="72" y="224" style="font-size:18px">App / 智能硬件 / Web</text><rect class="pop" style="--i:2" x="72" y="250" width="396" height="56" rx="10" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="270" y="286" text-anchor="middle" style="font-size:21px;fill:var(--accent)">集成声网 SDK</text><text class="lbl" x="72" y="352" style="font-size:15px">采集人声 · 播放语音 / 数字人</text><rect class="pop box" style="--i:3" x="610" y="120" width="460" height="300" rx="14" stroke-width="1.4"/><text class="ttl" x="642" y="176" style="font-size:26px">客户业务服务器</text><text class="sm" x="642" y="228" style="font-size:18px">· 鉴权签名，密钥不下发终端</text><text class="sm" x="642" y="266" style="font-size:18px">· 创建 / 控制智能体</text><text class="sm" x="642" y="304" style="font-size:18px">· 业务逻辑 · 知识库</text><text class="lbl" x="642" y="386" style="font-size:15px">通过 REST 调用引擎</text><rect class="pop" style="--i:4" x="1180" y="120" width="460" height="300" rx="14" fill="none" stroke="var(--accent)" stroke-width="2.5"/><text class="ttl" x="1212" y="176" style="font-size:26px;fill:var(--accent)">声网对话式 AI 引擎</text><rect class="pop box" style="--i:5" x="1212" y="210" width="186" height="52" rx="8" stroke-width="1.4"/><text class="sm" x="1305" y="244" text-anchor="middle" style="font-size:19px">ASR</text><rect class="pop box" style="--i:5" x="1414" y="210" width="186" height="52" rx="8" stroke-width="1.4"/><text class="sm" x="1507" y="244" text-anchor="middle" style="font-size:19px">LLM</text><rect class="pop box" style="--i:5" x="1212" y="276" width="186" height="52" rx="8" stroke-width="1.4"/><text class="sm" x="1305" y="310" text-anchor="middle" style="font-size:19px">TTS</text><rect class="pop box" style="--i:5" x="1414" y="276" width="186" height="52" rx="8" stroke-width="1.4"/><text class="sm" x="1507" y="310" text-anchor="middle" style="font-size:19px">数字人</text><text class="lbl" x="1212" y="386" style="font-size:15px">实时编排 · 低延时传输</text><text class="sm" x="840" y="46" text-anchor="middle" style="font-size:19px;fill:var(--accent);font-weight:700">实时音视频流</text><path class="dw" style="--len:1500;--i:2" d="M512 180 C 600 180, 620 68, 840 68 C 1060 68, 1080 180, 1168 180" fill="none" stroke="var(--accent)" stroke-width="2.5"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="1176,180 1165,174 1165,186"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="504,180 515,174 515,186"/><text class="sm" x="555" y="258" text-anchor="middle" style="font-size:15px;fill:var(--ink-3)">取 Token</text><path class="dw" style="--len:82;--i:3" d="M514 286 H596" stroke="var(--hair-strong)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="606,286 595,280 595,292"/><polygon class="pop" style="--i:2;fill:var(--ink-3)" points="504,286 515,280 515,292"/><text class="sm" x="1320" y="446" text-anchor="middle" style="font-size:17px">服务端签名 · 创建智能体</text><path class="dw" style="--len:478;--i:4" d="M1070 470 H1548" stroke="var(--accent)" stroke-width="2" fill="none"/><polygon class="pop" style="--i:2;fill:var(--accent)" points="1560,470 1549,464 1549,476"/></svg></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow" style="left:120px;top:988px;width:1680px;height:70px;--i:6"><div class="land">终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。</div></div></div>
+</section>
+<section class="slide conf-boarded" data-p="11" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">11/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">SCENARIOS · 典型场景</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">一套引擎，<strong>支撑多类场景</strong>。</div><div class="sh flow seclab" style="left:120px;top:236px;width:680px;height:20px;--i:0">01 · SIX SCENARIOS</div><div class="sh " style="left:120px;top:274px;width:1680px;height:536px"><div class="g3" style="height:100%"><div class="card rise" style="--i:2;justify-content:center"><div class="tag">01 · OUTBOUND</div><div class="t" style="font-size:30px">AI 外呼</div><div class="d" style="font-size:19px">客服、营销、风控、调研、关怀通知，成本效率全面提升。</div></div><div class="card rise" style="--i:3;justify-content:center"><div class="tag">02 · DEVICE</div><div class="t" style="font-size:30px">智能硬件</div><div class="d" style="font-size:19px">嵌入设备，让设备开口说话，语音控制与智能陪伴。</div></div><div class="card rise" style="--i:4;justify-content:center"><div class="tag">03 · COMPANION</div><div class="t" style="font-size:30px">虚拟陪伴</div><div class="d" style="font-size:19px">情感化对话与互动，24 小时无缝语音陪伴。</div></div><div class="card rise" style="--i:5;justify-content:center"><div class="tag">04 · TUTOR</div><div class="t" style="font-size:30px">口语陪练</div><div class="d" style="font-size:19px">模拟真实对话场景，实时反馈与纠正。</div></div><div class="card rise" style="--i:6;justify-content:center"><div class="tag">05 · SERVICE</div><div class="t" style="font-size:30px">智能客服</div><div class="d" style="font-size:19px">代替人工坐席，7×24 小时无等候即时响应。</div></div><div class="card rise" style="--i:7;justify-content:center"><div class="tag">06 · MORE</div><div class="t" style="font-size:30px">更多场景</div><div class="d" style="font-size:19px">语音助手、教育、金融、政企……按业务快速落地。</div></div></div></div><div class="sh spread hair-rule" style="left:120px;top:850px;width:1680px;height:1px;--i:1"></div><div class="sh flow mono-sm" style="left:120px;top:988px;width:1680px;height:24px;--i:7">AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE</div></div>
+</section>
+<section class="slide conf-boarded" data-p="12" data-steps="0">
+  <div class="conf-bg conf-bg-content" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">12/13</div><div class="sh flow kk" style="left:120px;top:92px;width:1680px;height:28px">WHY AGORA · 底座实力</div><div class="sh ink hh" style="left:120px;top:148px;width:1680px;height:90px">跑在声网<strong>实时互动底座</strong>之上。</div><div class="sh " style="left:120px;top:300px;width:1680px;height:280px"><div class="g4" style="height:100%"><div class="card on rise" style="--i:2;justify-content:center"><div class="tag am">市场占有率</div><div class="stat"><span class="v" style="font-size:80px">No.1</span><span class="l">稳居第一 · 份额超过第 2–8 位总和</span></div></div><div class="card rise" style="--i:3;justify-content:center"><div class="tag">技术突破</div><div class="stat"><span class="v w" style="font-size:80px">50+</span><span class="l">突破性自主创新技术（全球发明专利）</span></div></div><div class="card rise" style="--i:4;justify-content:center"><div class="tag">开发者生态</div><div class="stat"><span class="v w" style="font-size:80px">100万+</span><span class="l">全球注册应用数</span></div></div><div class="card rise" style="--i:5;justify-content:center"><div class="tag">生产规模</div><div class="stat"><span class="v w" style="font-size:80px">900亿+</span><span class="l">单月支撑通话分钟数</span></div></div></div></div><div class="sh flow" style="left:120px;top:650px;width:1680px;height:60px;--i:5"><div class="note grey">注：根据 IDC 数据，声网在音视频通信（RTC）赛道的市场占有率达 <b>43.4%</b>——超过第 2–8 位厂商总和。</div></div><div class="sh flow" style="left:120px;top:794px;width:1680px;height:70px;--i:6"><div class="land">2014 年成立，全球最受欢迎的实时音视频云服务提供商——语音智能体，跑在经海量流量锤炼的底座上。</div></div><div class="sh flow mono-sm" style="left:120px;top:1015px;width:1680px;height:24px;--i:7">SOURCE · 声网官网 / IR 公开口径 · IDC</div></div>
+</section>
+<section class="slide conf-boarded" data-p="13" data-steps="0">
+  <div class="conf-bg conf-bg-title" aria-hidden="true"></div>
+  <div class="pp"><div class="sig">13/13</div><div class="sh ink" style="left:120px;top:320px;width:1560px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)">最好的对话式 AI，<br>让人<strong style='color:var(--accent)'>忘了它是 AI</strong>。</div><div class="sh spread" style="left:120px;top:626px;width:120px;height:4px;background:var(--accent);border-radius:2px;--i:3"></div><div class="sh flow sub" style="left:120px;top:678px;width:1500px;height:48px;--i:4">低延时、可打断、听得清、看得见——把技术藏进体验里。</div><div class="sh flow mono-sm" style="left:120px;top:930px;width:1400px;height:24px;--i:6">仅供方案交流参考</div></div>
+</section>
+  </div>
 </div>
-
-<div class="rail" id="rail"></div>
-<div class="hint">← → / 空格 · 左右翻页</div>
-
-<script>
-  const deck=document.getElementById('deck');
-  const slides=[...document.querySelectorAll('.slide')];
-  const rail=document.getElementById('rail');
-  slides.forEach((s,i)=>{
-    const b=document.createElement('button');
-    b.setAttribute('aria-label','第 '+(i+1)+' 页');
-    b.onclick=()=>go(i);
-    rail.appendChild(b);
-  });
-  const dots=[...rail.children];
-  const io=new IntersectionObserver((es)=>{
-    es.forEach(e=>{if(e.isIntersecting){const i=slides.indexOf(e.target);dots.forEach((d,j)=>d.classList.toggle('on',j===i));}});
-  },{threshold:.6});
-  slides.forEach(s=>io.observe(s));
-  function cur(){
-    const c=deck.scrollLeft+deck.clientWidth/2;
-    let best=0,bd=Infinity;
-    slides.forEach((s,i)=>{const m=s.offsetLeft+s.offsetWidth/2,d=Math.abs(m-c);if(d<bd){bd=d;best=i;}});
-    return best;
+<div class="deck-progress" id="deckProgress"></div>
+<div class="deck-steps" id="deckSteps"></div>
+<div class="edit-hotzone" aria-hidden="true"></div>
+<button class="edit-toggle" id="editToggle">EDIT</button>
+<button class="deck-swap" id="deckSwap">暗底</button>
+<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);border-radius:3px;padding:7px 12px;opacity:0;transition:opacity .3s;background:transparent;cursor:pointer;}.deck-swap:hover,.deck-swap:focus-visible{opacity:.9;color:var(--accent);border-color:var(--accent);}.deck-swap:focus:not(:focus-visible){outline:none;box-shadow:none;}@media (hover:none){.deck-swap{opacity:.4;}}@media print{.deck-swap{display:none!important;}}</style>
+<script>/* ===========================================
+   固定舞台演示控制器 —— 1920×1080 整体缩放 + 分步展开
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('deckProgress');
+    this.stepsEl=document.getElementById('deckSteps');
+    this.i=0;this.step=0;
+    /* 预先算好每页的分步数 */
+    this.maxStep=this.slides.map(s=>{
+      const els=[...s.querySelectorAll('[data-step]')];
+      return els.length?Math.max(...els.map(e=>+e.dataset.step||0)):0;
+    });
+    this.setupScale();this.setupKeys();this.setupTouch();this.setupWheel();
+    this.go(this.readHash(),true);
+    window.addEventListener('hashchange',()=>this.go(this.readHash()));
   }
-  function go(n){const i=Math.max(0,Math.min(slides.length-1,n));slides[i].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}
-  window.addEventListener('keydown',(e)=>{
-    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(cur()+1);}
-    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(cur()-1);}
-    else if(e.key==='Home'){e.preventDefault();go(0);}
-    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
-  });
-  deck.addEventListener('wheel',(e)=>{
-    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();deck.scrollLeft+=e.deltaY;}
-  },{passive:false});
+  readHash(){const n=parseInt((location.hash||'').replace('#',''),10);return isNaN(n)?0:n-1;}
+
+  setupScale(){
+    const scale=()=>{
+      const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+      const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+      this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();window.addEventListener('resize',scale);
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable'))return;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+      if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.go(0);}
+      if(e.key==='End'){e.preventDefault();this.go(this.slides.length-1);}
+      /* n / p 跳整页，跳过分步 */
+      if(e.key==='n'){e.preventDefault();this.go(this.i+1);}
+      if(e.key==='p'){e.preventDefault();this.go(this.i-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null,y0=null;
+    document.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?this.next():this.prev();}
+      x0=null;y0=null;
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    document.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<18)return;
+      lock=true;setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+
+  /* —— 前进：先把本页的分步走完，再翻页 —— */
+  next(){
+    if(this.step<this.maxStep[this.i]){this.step++;this.applySteps();return;}
+    this.go(this.i+1);
+  }
+  /* —— 后退：先退分步；退到 0 再回上一页，并展开到那一页的最后一步 —— */
+  prev(){
+    if(this.step>0){this.step--;this.applySteps();return;}
+    this.go(this.i-1,false,true);
+  }
+
+  applySteps(){
+    const cur=this.slides[this.i];
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    this.renderSteps();
+  }
+  renderSteps(){
+    const max=this.maxStep[this.i];
+    if(!max){this.stepsEl.classList.remove('on');this.stepsEl.innerHTML='';return;}
+    let h='<b>build</b>';
+    for(let k=1;k<=max;k++)h+=`<i class="${k<=this.step?'done':''}"></i>`;
+    this.stepsEl.innerHTML=h;
+    this.stepsEl.classList.add('on');
+  }
+
+  go(n,init,toEnd){
+    const target=Math.max(0,Math.min(n,this.slides.length-1));
+    this.i=target;
+    this.step=toEnd?this.maxStep[target]:0;
+    this.slides.forEach((s,k)=>{
+      const on=(k===this.i);
+      s.classList.toggle('active',on);
+      if(!on)s.classList.remove('visible');
+    });
+    const cur=this.slides[this.i];
+    /* 先按当前 step 归位，再触发入场，保证分步元素不会闪一下 */
+    cur.querySelectorAll('[data-step]').forEach(el=>{
+      el.classList.toggle('on',(+el.dataset.step||0)<=this.step);
+    });
+    void cur.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cur.classList.add('visible')));
+    this.renderSteps();
+    this.progress.style.width=((this.i+1)/this.slides.length*100)+'%';
+    history.replaceState(null,'','#'+(this.i+1));
+  }
+}
+const deck=new SlidePresentation();
+window.deck=deck;
+
+/* ===========================================
+   就地编辑（E 键 / 左上角热区）
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);
+    if(this.isActive)btn.classList.add('show');
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .t,.slide .d,.slide .q,.slide .s,.slide .l,.slide .sub,.slide .note,.slide td,.slide th,.slide .ds,.slide .v')
+      .forEach(el=>el.setAttribute('contenteditable',this.isActive));
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('deck-edits',document.getElementById('deckStage').innerHTML);}catch(e){}}
+};
+const hotzone=document.querySelector('.edit-hotzone');
+const editToggle=document.getElementById('editToggle');
+let hideT=null;
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideT);editToggle.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('mouseenter',()=>clearTimeout(hideT));
+editToggle.addEventListener('mouseleave',()=>{hideT=setTimeout(()=>{if(!editor.isActive)editToggle.classList.remove('show');},400);});
+editToggle.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable'))){editor.toggle();}
+  if(e.key==='s'&&(e.metaKey||e.ctrlKey)&&editor.isActive){e.preventDefault();editor.save();}
+});
 </script>
-</body>
-</html>
+<script>(function(){var b=document.getElementById("deckSwap");function apply(t){if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");b.textContent="浅底";}else{document.documentElement.removeAttribute("data-theme");b.textContent="暗底";}}var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>
+</body></html>
