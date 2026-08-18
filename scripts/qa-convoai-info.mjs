@@ -4,9 +4,14 @@
 // 视觉升级 R1（2026-08-13）加两条：
 //   ⑨ P1 hero 盒 left+width ≤ 1920（原 860+1200=2060 把图右侧顶出画布，防回归）
 //   ⑩ P7 .eco-art 双源可见性与主题（和 ⑤ 的 hero-art 断言同一写法）
+// 引擎详解抽屉（2026-08-18）再加一条：
+//   ⑪ P4 的 #engineExpand chip + Enter 展开 / Esc 收回的 overlay + 引擎 deck 自身可达
+//      （浅色跑全套；深色只跑 chip 可见 —— overlay 是主题无关层）
 // 用法：node scripts/qa-convoai-info.mjs        （THEME=dark 二跑）
+//      BASE=http://localhost:8899 node scripts/qa-convoai-info.mjs   （换端口）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
+const BASE = process.env.BASE || 'http://localhost:8777';
 const N = 8;
 const EXP_STEPS = [0, 0, 0, 0, 0, 0, 0, 0];
 const BOARD = { 1: 'title' };            // 其余一律 content
@@ -22,7 +27,7 @@ pg.on('console', m => {
   if (m.type() === 'error' && !(m.location()?.url || '').includes('favicon')) errs.push(m.text());
 });
 if (THEME === 'dark') await pg.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
-await pg.goto('http://localhost:8777/decks/convoai-info.html#1', { waitUntil: 'load' });
+await pg.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
 await pg.waitForTimeout(900);
 
 // ① 页数 + noindex + sig + 主题态
@@ -158,6 +163,62 @@ ok(flipped === 'dark' ? (sw.lt === 'none' && sw.dk === 'block') : (sw.dk === 'no
 ok(flipped === 'dark' ? (sw.elt === 'none' && sw.edk === 'block') : (sw.edk === 'none' && sw.elt === 'block'),
    `⑩ 切换后 eco 双源 ${sw.elt}/${sw.edk}`);
 await pg.click('#deckSwap'); await pg.waitForTimeout(250);
+
+// ⑪ 引擎详解抽屉：chip → Enter 展开 → Esc 收回 → deck 按键恢复 → 引擎 deck 自身可达
+// 先把焦点从 #deckSwap 上摘掉（抽屉的全局 Enter 拦截会把 deckSwap 的 Enter 让回给按钮），
+// 再用 hashchange 正经导航到 P4（deck.go 会把 .active 摆对）。
+await pg.evaluate(() => { document.activeElement?.blur(); location.hash = '#4'; });
+await pg.waitForTimeout(2400);       // 等整页入场走完：.slide 的 visibility 有 .52s 延迟，.rise --i:4 约 1.2s
+const chip = await pg.evaluate(() => {
+  const c = document.getElementById('engineExpand');
+  if (!c) return null;
+  const r = c.getBoundingClientRect(), cs = getComputedStyle(c);
+  const p4 = document.querySelector('.slide[data-p="4"]');
+  return {
+    txt: c.textContent, w: r.width, h: r.height,
+    vis: cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > .01,
+    inP4: !!p4 && p4.contains(c), cur: document.querySelector('.slide.active')?.dataset.p,
+  };
+});
+ok(!!chip, '⑪ P4 缺 #engineExpand');
+if (chip) {
+  ok(chip.inP4, '⑪ #engineExpand 不在 P4 内');
+  ok(chip.cur === '4', `⑪ 导航到 P4 失败，当前 P${chip.cur}`);
+  ok(chip.vis && chip.w > 0 && chip.h > 0, `⑪ chip 不可见 ${chip.w}×${chip.h}`);
+  ok(chip.txt.includes('引擎产品详解'), `⑪ chip 文案不符「${chip.txt}」`);
+}
+if (THEME !== 'dark') {                       // overlay 是主题无关层：全套只在浅色跑一遍
+  await pg.keyboard.press('Enter');           // ② Enter 展开
+  await pg.waitForTimeout(200);
+  const opened = await pg.evaluate(() => document.getElementById('engineOverlay').hidden);
+  ok(opened === false, '⑪ Enter 未展开 overlay');
+  const secs = await pg.waitForFunction(() => {
+    const f = document.getElementById('engineFrame');
+    const d = f && f.contentDocument;
+    return (d && d.readyState === 'complete' && d.querySelectorAll('section').length)
+      ? d.querySelectorAll('section').length : false;
+  }, null, { timeout: 8000 }).then(h => h.jsonValue()).catch(() => 0);
+  ok(secs === 13, `⑪ iframe 内 section 数 ${secs} != 13`);
+  const focused = await pg.evaluate(() => document.activeElement?.id);
+  ok(focused === 'engineFrame', `⑪ 展开后焦点不在 iframe（${focused}）`);
+
+  await pg.keyboard.press('Escape');          // ③ Esc 收回（焦点在 iframe 内）
+  await pg.waitForTimeout(250);
+  ok(await pg.evaluate(() => document.getElementById('engineOverlay').hidden) === true,
+     '⑪ Esc 未收回 overlay');
+  await pg.keyboard.press('ArrowRight');      // deck 按键必须回来：P4 → P5
+  await pg.waitForTimeout(350);
+  const after = await pg.evaluate(() => document.querySelector('.slide.active')?.dataset.p);
+  ok(after === '5', `⑪ Esc 后方向键失灵，当前 P${after}`);
+
+  // ④ 引擎 deck 本体：200 + noindex + 13 页
+  const res = await fetch(BASE + '/decks/convoai-engine.html');
+  const html = await res.text();
+  ok(res.status === 200, `⑪ convoai-engine.html HTTP ${res.status}`);
+  ok(/noindex/.test(html), '⑪ convoai-engine.html 缺 noindex');
+  const n13 = (html.match(/<section/g) || []).length;
+  ok(n13 === 13, `⑪ convoai-engine.html section 数 ${n13} != 13`);
+}
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')

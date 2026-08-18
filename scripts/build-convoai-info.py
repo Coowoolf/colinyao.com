@@ -270,6 +270,28 @@ html[data-theme="dark"] [data-p="7"] .eco-layer{background:transparent;}
 html[data-theme="dark"] [data-p="7"] .callout-chip{
   background:transparent;color:var(--ink);}
 [data-p="7"] .callout-chip b{color:var(--accent);}
+/* ═══ 引擎详解抽屉（2026-08-18）· P4 「04 · OPEN」行的第 5 个 chip + 视口级 overlay ═══ */
+/* 触发 chip：形制与 .chip 家族一字不差，只把描边/文字换成 accent，把「可点」说清楚。
+   全部走 token（--accent / --card-bg），浅深两主题同一套规则各自成立。 */
+.chip-expand{border-color:color-mix(in srgb,var(--accent) 52%,transparent);
+  color:var(--accent);cursor:pointer;-webkit-user-select:none;user-select:none;
+  transition:background .15s ease,border-color .15s ease;}
+.chip-expand:hover,.chip-expand:focus-visible{
+  background:color-mix(in srgb,var(--accent) 14%,var(--card-bg));
+  border-color:color-mix(in srgb,var(--accent) 80%,transparent);}
+/* 引擎详解抽屉：视口级 overlay（避开舞台 transform，原生控件/iframe 都不吃缩放坐标系的亏） */
+/* z 必须盖过 .deck-progress(1000)/.deck-swap(1100)/.edit-hotzone(10001)——
+   抽屉开着时进度条不上浮、编辑热区不可误触（Opus 自查发现，Fable 裁定收） */
+#engineOverlay{position:fixed;inset:0;z-index:10002;}
+#engineOverlay[hidden]{display:none;}
+.eo-scrim{position:absolute;inset:0;background:rgba(6,8,18,.78);}
+.eo-sheet{position:absolute;inset:26px;border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 90px rgba(0,0,0,.5);background:#e6e6eb;}
+.eo-sheet iframe{display:block;width:100%;height:100%;border:0;}
+.eo-close{position:absolute;top:14px;right:16px;font:600 12px/1 var(--f-mono);letter-spacing:.14em;
+  color:#f5f5f7;background:rgba(10,10,15,.55);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:9px 14px;cursor:pointer;}
+.eo-close:hover{background:rgba(10,10,15,.8);}
 </style>"""
 
 # ── 组装件 ──────────────────────────────────────────────────────────────────
@@ -556,7 +578,10 @@ _p4.append(lab(120, 874, "04 · OPEN"))
 _p4.append(sh("rise", "left:120px;top:902px;width:1680px;height:54px;--i:4",
               "".join('<span class="chip">%s</span>' % t for t in
                       ["ASR / LLM / TTS 可替换 · 可兜底 · 可热切换", "MCP + Function Call",
-                       "数字人", "TEN 开源生态"])))
+                       "数字人", "TEN 开源生态"])
+              # 第 5 个 chip = 「引擎产品详解」抽屉的触发件（Enter 或点击 → 视口级 overlay）
+              + '<span class="chip chip-expand" id="engineExpand" role="button" tabindex="0">'
+                '⤢ 引擎产品详解 · 13 页 · ⏎</span>'))
 _p4.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
               '<div class="land">模型会换代，接口不换人。</div>'))
 page("content", "".join(_p4))
@@ -825,6 +850,58 @@ page("content", "".join([
        "姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM"),
 ]))
 
+# ═══ 引擎详解抽屉的行为层（独立 <script>，不碰共享的 deck.js）═════════════════
+#   触发：P4 上按 Enter，或点击 / Enter 聚焦态的 #engineExpand chip
+#   收回：Esc（父窗口或 iframe 内都认）、点 scrim、点 ESC 按钮
+#   键盘纪律：window 的 capture 阶段拦一层 —— 抽屉开着时除 Esc 外全部吞掉，
+#             免得按键漏进 deck.js 把底下的 deck 翻页（点过 ESC 按钮、焦点
+#             回到父窗口之后，这层是唯一的兜底）。
+#   iframe 懒加载，关闭不清 src：二次展开接着上次的位置，Q&A 现场友好。
+ENGINE_DRAWER_JS = """<script>(function(){
+var ov=document.getElementById("engineOverlay"),
+    fr=document.getElementById("engineFrame"),
+    chip=document.getElementById("engineExpand");
+if(!ov||!fr||!chip)return;
+var scrim=ov.querySelector(".eo-scrim"),btn=ov.querySelector(".eo-close"),loaded=false;
+function isOpen(){return !ov.hidden;}
+function bindInner(){
+  var w=null;try{w=fr.contentWindow;}catch(e){}
+  if(!w||w.__engineEscBound)return;   /* 标志位挂在内层 window 上：每次 load 换新 window 自动失效 */
+  w.__engineEscBound=true;
+  w.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){e.preventDefault();closeDrawer();}
+  });
+}
+function focusInner(){try{fr.contentWindow.focus();}catch(e){}bindInner();}
+fr.addEventListener("load",function(){loaded=true;if(isOpen())focusInner();});
+function openDrawer(){
+  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 13 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
+  ov.hidden=false;
+  if(loaded)focusInner();
+}
+function closeDrawer(){ov.hidden=true;window.focus();}
+chip.addEventListener("click",openDrawer);
+chip.addEventListener("keydown",function(e){
+  if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer();}
+});
+scrim.addEventListener("click",closeDrawer);
+btn.addEventListener("click",closeDrawer);
+window.addEventListener("keydown",function(e){
+  if(isOpen()){
+    if(e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();closeDrawer();return;}
+    e.stopImmediatePropagation();return;   /* 抽屉开着：其余按键一律不许漏进 deck.js */
+  }
+  if(e.key!=="Enter")return;
+  var t=e.target;
+  if(t&&t.getAttribute&&t.getAttribute("contenteditable"))return;   /* 就地编辑态不抢 Enter */
+  if(t&&t.id==="deckSwap")return;                                   /* 主题按钮的 Enter 归它自己 */
+  var cur=document.querySelector(".slide.active");
+  if(!cur||cur.dataset.p!=="4")return;                              /* 只在 P4 认 Enter */
+  e.preventDefault();e.stopImmediatePropagation();openDrawer();
+},true);
+})();</script>
+"""
+
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
 def build():
     total = len(PAGES)
@@ -862,6 +939,15 @@ def build():
         + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
         + chrome + "\n" + "\n".join(secs) + "\n  </div>\n</div>\n"
+        # 引擎详解抽屉：必须与 .deck-viewport 平级 —— 塞进 .deck-stage 就会吃到舞台的
+        # translate+scale，iframe 内的原生滚动/点击坐标系全歪。
+        '<div id="engineOverlay" hidden>\n'
+        '  <div class="eo-scrim"></div>\n'
+        '  <div class="eo-sheet">\n'
+        '    <iframe id="engineFrame" data-src="/decks/convoai-engine.html" '
+        'title="声网 · 对话式 AI 引擎 · 产品介绍"></iframe>\n'
+        '    <button class="eo-close" type="button">ESC · 收回</button>\n'
+        '  </div>\n</div>\n'
         '<div class="deck-progress" id="deckProgress"></div>\n'
         '<div class="deck-steps" id="deckSteps"></div>\n'
         '<div class="edit-hotzone" aria-hidden="true"></div>\n'
@@ -883,6 +969,7 @@ def build():
         'var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);'
         'b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";'
         'try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>\n'
+        + ENGINE_DRAWER_JS +
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     assert total == 8, "页数漂移：%d != 8" % total

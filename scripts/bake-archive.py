@@ -6,8 +6,19 @@ ROOT = pathlib.Path('/home/claude/colinyao.com/public')
 MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg',
         '.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.gif':'image/gif'}
 
+def inline_engine_iframe(html):
+    """convoai-info 的引擎抽屉：归档态把 iframe 改 srcdoc 内联（srcdoc 继承父源，
+    离线可展开且 Esc 键路由照常；drawer JS 已有无 data-src 守卫）。"""
+    marker = 'data-src="/decks/convoai-engine.html"'
+    if marker not in html:
+        return html
+    eng = (ROOT / 'decks/convoai-engine.html').read_text(encoding='utf-8')
+    esc = eng.replace('&', '&amp;').replace('"', '&quot;')
+    return html.replace(marker, 'srcdoc="%s"' % esc)
+
 def bake(src, dst):
     html = pathlib.Path(src).read_text(encoding='utf-8')
+    html = inline_engine_iframe(html)
     refs = sorted(set(re.findall(r'/(?:decks/assets|fonts)/[^"\')\s>]+', html)), key=len, reverse=True)
     miss = []
     for ref in refs:
