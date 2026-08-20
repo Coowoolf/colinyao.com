@@ -36,4 +36,4 @@ def bake(src, dst):
     print(f'{dst}: {len(refs)-len(miss)} inlined, miss={miss}, left={len(left)}, ext={ext[:5]}, size={pathlib.Path(dst).stat().st_size:,}')
 
 bake(ROOT/'decks/convoai-info.html', '/home/claude/eco-review/convoai-info-速讲版-8p.html')
-bake(ROOT/'decks/convoai.html',      '/home/claude/eco-review/convoai-初次拜访版-31p.html')
+bake(ROOT/'decks/convoai-visit.html', '/home/claude/eco-review/convoai-初次拜访版-31p.html')

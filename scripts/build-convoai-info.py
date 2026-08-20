@@ -783,7 +783,7 @@ _p7 = [
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
     # 裁定 #3：合并我版「完整 4K 全景见 /convoai P23」与升级版「每一层都由声网托住」为一行
     sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
-       "从 SD‑RTN 到设备，每一层都由声网托住 · 完整 4K 全景见 /convoai P23 · 事实截止 2026.08"),
+       "从 SD‑RTN 到设备，每一层都由声网托住 · 完整 4K 全景见 /convoai-visit P23 · 事实截止 2026.08"),
     # 区 02 · CASES（右列 · 案例墙 v2；顶 236 与左列 seclab 齐，底 977 与左列脚注底齐）
     sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall),
     sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",

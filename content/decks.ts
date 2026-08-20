@@ -16,8 +16,12 @@ export const speechDecks: Deck[] = [
   // CONF 家族 · conf-light 默认 · 单文件双主题 · 背景板节奏（title/chapter×3/quote/content）
   // + GPT 5.6 hero-art 章视觉层（5 组双主题透明 PNG，contain 不裁切）。
   // 口径纪律：只用公开可查证数字（BPO 喂稿锁定文案 + 官网/发版说明），Phone Agent 用「Global 率先发布」。
-  // 重建：python3 scripts/build-convoai-visit.py · 自检：node scripts/qa-convoai.mjs（THEME=dark 二跑）
-  { slug: "convoai", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
+  // 2026-08-13 Colin：/convoai 换装引擎 13 页（产品介绍）；31p 拜访版迁 /convoai-visit 保持可达。
+  // 重建：python3 scripts/build-convoai-engine.py（双生同写 /decks/convoai-engine.html 别名，抽屉 iframe 指它）
+  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P12 口径锁）
+  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 13, category: "演讲", dual: true },
+  // 31p 初次拜访版（原 /convoai）：重建 build-convoai-visit.py · 自检 qa-convoai.mjs（THEME=dark 二跑）
+  { slug: "convoai-visit", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
   // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。
   { slug: "convoai-info", title: "声网对话式 AI · 一页一章 Infograph（拜访速讲版）", slides: 8, category: "演讲", dual: true },
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 62, category: "演讲", dual: true },

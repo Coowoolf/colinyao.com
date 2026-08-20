@@ -151,4 +151,15 @@ ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
                          : `✓ PASS ${THEME} · ${N} 页全绿 · 全页 data-steps=0 · P12 口径已锁`);
 await b.close();
+/* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
+{
+  const [a, b] = await Promise.all([
+    fetch(BASE + '/decks/convoai.html').then(r => r.text()),
+    fetch(BASE + '/decks/convoai-engine.html').then(r => r.text()),
+  ]);
+  if (a !== b) { console.error('✗ 双生不一致：convoai.html ≠ convoai-engine.html'); process.exit(1); }
+  console.log('✓ 双生一致 · convoai.html == convoai-engine.html');
+}
+
 process.exit(fails.length ? 1 : 0);
+

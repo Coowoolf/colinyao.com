@@ -13,7 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "scripts" / "assets" / "convoai-src"
-OUT = ROOT / "public" / "decks" / "convoai.html"
+# 2026-08-13 Colin：/convoai 换装引擎 13 页；本 31p 拜访版迁 /convoai-visit 保持可达（旧资产不删）
+OUT = ROOT / "public" / "decks" / "convoai-visit.html"
 A = "/decks/assets/convoai/"
 R26 = "/decks/assets/robot26/"
 B = "/decks/assets/conf-boards/"
@@ -946,7 +947,7 @@ def build():
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     assert total == 31, "页数漂移：%d != 31" % total
-    print("convoai.html · %d 页 · %dKB · conf-light 默认" % (total, len(doc) // 1024))
+    print("convoai-visit.html · %d 页 · %dKB · conf-light 默认" % (total, len(doc) // 1024))
 
 if __name__ == "__main__":
     build()

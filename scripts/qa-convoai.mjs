@@ -14,7 +14,7 @@ pg.on('console', m => {
   if (m.type() === 'error' && !(m.location()?.url || '').includes('favicon')) errs.push(m.text());
 });
 if (THEME === 'dark') await pg.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
-await pg.goto('http://localhost:8777/decks/convoai.html#1', { waitUntil: 'load' });
+await pg.goto('http://localhost:8777/decks/convoai-visit.html#1', { waitUntil: 'load' });
 await pg.waitForTimeout(900);
 
 // ① 页数 + noindex + sig

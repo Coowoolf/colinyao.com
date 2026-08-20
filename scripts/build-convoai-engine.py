@@ -37,7 +37,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "scripts" / "assets" / "convoai-src"
-OUT = ROOT / "public" / "decks" / "convoai-engine.html"
+# 2026-08-13 Colin：/convoai 主路由换装本 deck；convoai-engine.html 保留为别名
+# （抽屉 iframe/已外发链接指它），双生同字节由本 builder 一次写出，杜绝漂移。
+OUT = ROOT / "public" / "decks" / "convoai.html"
+OUT_ALIAS = ROOT / "public" / "decks" / "convoai-engine.html"
 B = "/decks/assets/conf-boards/"
 
 def css(name):
@@ -684,9 +687,10 @@ def build():
         'try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>\n'
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
+    OUT_ALIAS.write_text(doc, encoding="utf-8")
     assert total == 13, "页数漂移：%d != 13" % total
     assert doc.count("<section") == 13, "section 数漂移：%d" % doc.count("<section")
-    print("convoai-engine.html · %d 页 · %dKB · conf-light 默认 · 全页 data-steps=0" % (total, len(doc) // 1024))
+    print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 全页 data-steps=0" % (total, len(doc) // 1024))
 
 if __name__ == "__main__":
     build()
