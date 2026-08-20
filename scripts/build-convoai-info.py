@@ -581,7 +581,7 @@ _p4.append(sh("rise", "left:120px;top:902px;width:1680px;height:54px;--i:4",
                        "数字人", "TEN 开源生态"])
               # 第 5 个 chip = 「引擎产品详解」抽屉的触发件（Enter 或点击 → 视口级 overlay）
               + '<span class="chip chip-expand" id="engineExpand" role="button" tabindex="0">'
-                '⤢ 引擎产品详解 · 13 页 · ⏎</span>'))
+                '⤢ 引擎产品详解 · 16 页 · ⏎</span>'))
 _p4.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
               '<div class="land">模型会换代，接口不换人。</div>'))
 page("content", "".join(_p4))
@@ -875,7 +875,7 @@ function bindInner(){
 function focusInner(){try{fr.contentWindow.focus();}catch(e){}bindInner();}
 fr.addEventListener("load",function(){loaded=true;if(isOpen())focusInner();});
 function openDrawer(){
-  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 13 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
+  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 16 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
   ov.hidden=false;
   if(loaded)focusInner();
 }

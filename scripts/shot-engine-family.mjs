@@ -1,4 +1,4 @@
-// 终审素材 · convoai-engine 13 页 × 浅/深 全量截图
+// 终审素材 · convoai-engine 16 页 × 浅/深 全量截图（页数从 DOM 读，扩页不用改本文件）
 // 用法：node scripts/shot-engine-family.mjs        （产出 /tmp/eng-shots/pNN-{light,dark}.png）
 //      BASE=... OUTDIR=... 可换
 import { chromium } from 'playwright-core';

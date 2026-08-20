@@ -1,17 +1,21 @@
-// QA · convoai-engine 引擎产品详解（13 页 · CONF 家族 · 双主题 · 全页 data-steps=0）
-// 从 qa-convoai-info.mjs 改：N=13 / EXP_STEPS 全 0 / BOARD = {1:title, 13:title}，其余 content /
+// QA · convoai-engine 引擎产品详解（16 页 · CONF 家族 · 双主题 · 全页 data-steps=0）
+// 从 qa-convoai-info.mjs 改：N=16 / EXP_STEPS 全 0 / BOARD = {1:title, 16:title}，其余 content /
 // 删掉 hero-art（⑤⑨）、eco-art（⑩）、抽屉（⑪）三组断言 —— 引擎 deck 不带位图资产，也不带抽屉。
 // 新增：
-//   ⑧ P12 数据修正闸 —— 必须含「100万+」「900亿+」「43.4%」，
+//   ⑧ P15 数据修正闸 —— 必须含「100万+」「900亿+」「43.4%」，
 //      必须不含旧错误口径「93万」「700亿」「覆盖场景 · 20+」「对话式 AI 引擎市场占有率」
+//   ⑩ 三张新机理页的内容闸（2026-08-20 扩页 13→16）：
+//      P3 双工三模式「不能插话」/「选择不插话」· P4 全双工「AEC」/「340ms」·
+//      P7 VAD「ten-vad」/「WebRTC VAD」/「语义判停」/「Apache 2.0」，且 P7 不许出现「MIT」
+//      （TEN VAD 是 Apache-2.0，写成 MIT 是常见错写，这一条钉死）
 // 用法：node scripts/qa-convoai-engine.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-engine.mjs   （换端口）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
-const N = 13;
+const N = 16;
 const EXP_STEPS = new Array(N).fill(0);
-const BOARD = { 1: 'title', 13: 'title' };      // 其余一律 content
+const BOARD = { 1: 'title', 16: 'title' };      // 其余一律 content
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
@@ -40,7 +44,7 @@ const meta = await pg.evaluate(() => ({
 ok(meta.n === N, `① 页数 ${meta.n} != ${N}`);
 ok(meta.secs === N, `① section 数 ${meta.secs} != ${N}`);
 ok(meta.noindex, '① 缺 noindex');
-ok(meta.sigs.length === N && meta.sigs.every((s, i) => s === `${i + 1}/${N}`), '① 页码 sig 不齐（应为 N/13）');
+ok(meta.sigs.length === N && meta.sigs.every((s, i) => s === `${i + 1}/${N}`), '① 页码 sig 不齐（应为 N/16）');
 ok(THEME === 'dark' ? meta.theme === 'dark' : meta.theme !== 'dark', `① 主题态异常 ${meta.theme}`);
 ok(meta.title === '声网 · 对话式 AI 引擎 · 产品介绍', `① title 漂移「${meta.title}」`);
 
@@ -88,27 +92,41 @@ for (let i = 1; i <= N; i++) {
   await pg.waitForTimeout(50);
 }
 
-// ⑤ 页内必有 kicker + 标题（title 板的 P13 没有 kicker，单独放行）
+// ⑤ 页内必有 kicker + 标题（title 板的 P16 没有 kicker，单独放行）
 const shape = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map((s, i) => ({
   p: i + 1, kk: !!s.querySelector('.kk'), hh: !!s.querySelector('.hh, .ink'),
 })));
 shape.forEach(v => {
   ok(v.hh, `⑤ P${v.p} 缺主标题`);
-  if (v.p !== 13) ok(v.kk || v.p === 13, `⑤ P${v.p} 缺 kicker`);
+  if (v.p !== 16) ok(v.kk || v.p === 16, `⑤ P${v.p} 缺 kicker`);
 });
 
-// ⑧ P12 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
-const p12 = await pg.evaluate(() => document.querySelector('.slide[data-p="12"]').textContent.replace(/\s+/g, ' '));
+// ⑧ P15 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
+//    （扩页 13→16 后 Why Agora 从 P12 挪到 P15，内容一字未动）
+const p15 = await pg.evaluate(() => document.querySelector('.slide[data-p="15"]').textContent.replace(/\s+/g, ' '));
 const all = await pg.evaluate(() => document.getElementById('deckStage').textContent.replace(/\s+/g, ' '));
 [['No.1', 1], ['100万+', 1], ['900亿+', 1], ['43.4%', 1], ['50+', 1],
  ['市场占有率', 1], ['单月支撑通话分钟数', 1], ['全球注册应用数', 1]].forEach(([s]) => {
-  ok(p12.includes(s), `⑧ P12 缺「${s}」`);
+  ok(p15.includes(s), `⑧ P15 缺「${s}」`);
 });
 ['93万', '700亿', '覆盖场景 · 20+', '覆盖场景', '对话式 AI 引擎市场占有率', '20+ 行业'].forEach(s => {
   ok(!all.includes(s), `⑧ 旧错误口径回归：「${s}」`);
 });
-ok(p12.includes('SOURCE · 声网官网 / IR 公开口径 · IDC'), '⑧ P12 缺 SOURCE 行');
-ok(p12.includes('2014 年成立'), '⑧ P12 缺收尾行');
+ok(p15.includes('SOURCE · 声网官网 / IR 公开口径 · IDC'), '⑧ P15 缺 SOURCE 行');
+ok(p15.includes('2014 年成立'), '⑧ P15 缺收尾行');
+
+// ⑩ 三张新机理页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD）
+const pageText = async (p) => pg.evaluate((k) =>
+  document.querySelector(`.slide[data-p="${k}"]`).textContent.replace(/\s+/g, ' '), p);
+const [p3, p4, p7] = await Promise.all([pageText(3), pageText(4), pageText(7)]);
+[['不能插话', p3, 'P3'], ['选择不插话', p3, 'P3'],
+ ['单工', p3, 'P3'], ['半双工', p3, 'P3'], ['全双工', p3, 'P3'],
+ ['AEC', p4, 'P4'], ['340ms', p4, 'P4'], ['全双工', p4, 'P4'],
+ ['WebRTC VAD', p7, 'P7'], ['语义判停', p7, 'P7'], ['TEN VAD', p7, 'P7'],
+].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑩ ${tag} 缺「${needle}」`));
+ok(/ten-vad/i.test(p7), '⑩ P7 缺 ten-vad 仓库地址');
+ok(/apache\s*2\.0/i.test(p7), '⑩ P7 缺「Apache 2.0」—— TEN VAD 的开源协议必须写明');
+ok(!/\bMIT\b/.test(p7), '⑩ P7 出现「MIT」—— TEN VAD 是 Apache-2.0，不是 MIT');
 
 // ⑦ 主题切换：deckSwap 按钮真实切换（板源跟着翻）
 await pg.evaluate(() => {
@@ -149,7 +167,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 全页 data-steps=0 · P12 口径已锁`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 全页 data-steps=0 · P15 口径已锁 · 新三页内容闸通过`);
 await b.close();
 /* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
 {

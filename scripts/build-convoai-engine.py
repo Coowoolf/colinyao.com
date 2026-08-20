@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
-# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》13 页
+# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》16 页
 # CONF 家族 · conf-light 默认 · 单文件双主题 —— 以 build-convoai-info.py 为母版克隆
 #   （同一套 DECK_CSS token / conf-light·dark 背景板 / deck.js 运行时 / noindex / 双主题）
 #
 # 这份 deck 是 convoai-info P4「引擎产品详解」抽屉的内容（iframe 载入）。
 # 2026-08-18 重建：旧版是 Apple 风格 13 页横滚（git 历史里可回溯），
 # 内容 1:1 移植、版式用家族语法重绘，只有 P12 的数字口径按 Colin 指错做了修正。
+# 2026-08-20 扩为 16 页：补三张「机理」页（双工三模式 / 全双工工作原理 / VAD），
+#   全部复用既有家族件（sh/rule/lab/figbox/head/land/rail/box/txt/hline/ah_*/dline/
+#   .g3 .g4 .card .card-c .chip .note .mono-sm .seclab .land .table.mini），未开新体系。
 #
-# 结构（13 页 · 全部 data-steps=0，讲者不分步）：
-#   P1  封面（title 板）        P2  实时决策        P3  三件极致
-#   P4  实时语音链路            P5  优雅打断        P6  SAL 选择性注意力
-#   P7  弱网                    P8  多模态          P9  开放编排
-#   P10 接入架构                P11 典型场景        P12 Why Agora（数据修正）
-#   P13 收尾（title 板）
+# 结构（16 页 · 全部 data-steps=0，讲者不分步；★ = 2026-08-20 新增）：
+#   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
+#   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路
+#   P7  VAD ★                   P8  优雅打断        P9  SAL 选择性注意力
+#   P10 弱网                    P11 多模态          P12 开放编排
+#   P13 接入架构                P14 典型场景        P15 Why Agora（数据修正 · 内容零改动）
+#   P16 收尾（title 板）
 #
-# ── P12 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
+# ── P15 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
 #   旧（错）：No.1 对话式 AI 引擎市场占有率 / 93万+ / 700亿+ / 200+ 覆盖场景 · 20+ 行业
 #   新（对）：No.1 市场占有率 / 50+ 技术突破 / 100万+ 注册应用 / 900亿+ 单月分钟数
 #            + IDC 43.4% 注 + SOURCE 行
@@ -99,6 +103,8 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
 /* 主题词 chip */
 .chip{display:inline-block;margin:0 12px 12px 0;padding:11px 18px;border:1px solid var(--hair);
   border-radius:999px;background:var(--card-bg);font:500 18px/1 var(--f-cn);color:var(--ink-2);}
+/* chip 的 accent 变体（与 .card.on / .card-c.on 同一套「这一枚是重点」的约定） */
+.chip.on{border-color:color-mix(in srgb,var(--accent) 52%,transparent);color:var(--accent);}
 /* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
    必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
 .fig svg{max-width:none;max-height:none;}
@@ -266,7 +272,115 @@ page("content", "".join([
     land("自然对话不是“听完再回答”，而是边说边听、持续判断——这正是引擎要还原的能力。"),
 ]))
 
-# ═══ P3 · 三件极致 ·「把三件事，做到极致」══════════════════════════════════
+# ═══ P3 · 双工三模式 ·「一次对话，线路先分三种」════════════════════════════
+#   01 三列等宽卡（120 / 700 / 1280 · w520 —— 与 P5「三件极致」同一栅格）：
+#      英文小标 + 模式名 + 极简时序小图 + 机理一句 + 实例一句（末列 .card-c.on = 引擎所在）
+#   02 table.mini 两行差异（话轮归属 / 能否插话），末列走 accent
+def _duplex_fig(mode):
+    """极简时序小图（vb 460×106）：A ── B 两端之间的箭头形态，三种模式各一张"""
+    o = [txt(2, 62, "A", "ttl", size=24), txt(458, 62, "B", "ttl", size=24, anchor="end")]
+    if mode == "simplex":          # 单向：只有 A→B 一条常亮
+        o += [hline(42, 406, 54, AC, 2.5, 1), ah_r(418, 54, AC)]
+    elif mode == "half":           # 分时：A→B 在上（占线中）、B→A 在下（虚线=等着），中间「切换」闸
+        o += [hline(42, 406, 24, AC, 2.5, 1), ah_r(418, 24, AC),
+              box(176, 38, 108, 30, 15, i=2),
+              txt(230, 58, "切换", "sm", size=15, anchor="middle", col="var(--ink-3)"),
+              dline("M406 84 H54", HS, 2.5, 3, dash="7 6"), ah_l(42, 84, "var(--ink-3)")]
+    else:                          # 全双工：两条反向箭头同时常亮
+        o += [hline(42, 406, 30, AC, 2.5, 1), ah_r(418, 30, AC),
+              hline(406, 54, 78, AC, 2.5, 2), ah_l(42, 78, AC)]
+    return "".join(o)
+_DUPLEX = [
+    ("SIMPLEX", "单工", "simplex",
+     "信号只走一个方向，另一端永远只能听",
+     "广播 · IVR 语音播报——只能被告知，无法开口", False),
+    ("HALF-DUPLEX", "半双工", "half",
+     "两个方向轮流占线：必须先把你的话切成完整一段，才轮到它想和说；它说话时，没在听你",
+     "对讲机的『Over』 · 传统语音助手的回合制", False),
+    ("FULL-DUPLEX", "全双工", "full",
+     "两个方向同时在走：边听边说，每一瞬间都在判断要不要出声",
+     "人类打电话 · 声网对话式 AI 引擎", True),
+]
+_DIFF = [
+    ("谁掌握话轮", "线路", "静音检测器", "双方实时协商"),
+    ("能否插话",   "不能", "等它说完",   "随时"),
+]
+page("content", "".join([
+    head("DUPLEX MODES · 单工 / 半双工 / 全双工", "一次对话，线路先分<strong>三种</strong>。"),
+    lab(120, 236, "01 · THREE MODES"),
+    ] + [
+    sh("rise card-c%s" % (" on" if _on else ""),
+       "left:%dpx;top:270px;width:520px;height:376px;--i:%d" % (120 + _i * 580, 2 + _i),
+       '<div style="padding:26px 30px;height:100%%;display:flex;flex-direction:column">'
+       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:%s">%s</div>'
+       '<div style="margin-top:12px;font:700 38px/1.15 var(--f-cn);color:var(--ink)">%s</div>'
+       '<div class="fig" style="margin-top:16px">'
+       '<svg viewBox="0 0 460 106" style="width:100%%;height:auto">%s</svg></div>'
+       '<div style="margin-top:16px;font:400 19px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
+       '<div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--hair);'
+       'font:400 17px/1.5 var(--f-cn);color:var(--ink-3)">%s</div></div>'
+       % (AC if _on else "var(--ink-3)", _tag, _name, _duplex_fig(_k), _mech, _ex))
+    for _i, (_tag, _name, _k, _mech, _ex, _on) in enumerate(_DUPLEX)
+    ] + [
+    lab(120, 666, "02 · KEY DIFFERENCE · 差异在哪", i=5),
+    sh("rise", "left:120px;top:710px;width:1680px;height:130px;--i:6",
+       '<table class="mini"><thead><tr><th style="width:230px"></th>'
+       '<th style="width:483px">SIMPLEX</th><th style="width:483px">HALF-DUPLEX</th>'
+       '<th style="width:484px;color:var(--accent)">FULL-DUPLEX</th></tr></thead><tbody>'
+       + "".join('<tr><td>%s</td><td>%s</td><td>%s</td>'
+                 '<td style="color:var(--accent)">%s</td></tr>' % _r for _r in _DIFF)
+       + '</tbody></table>'),
+    rule(850),
+    land("二代是「不能插话」，三代是「选择不插话」——一个是线路的物理限制，一个是实时决策。"),
+]))
+
+# ═══ P4 · 全双工工作原理 ·「同时在听、在想、在说」══════════════════════════
+#   01 三条并行泳道（横向常亮的 accent 线 + NOW 播放头 = 同一瞬间三件事都在跑）
+#   02 两枚 hot 标注（.card-c.on）：AEC / 打断快路径；再一条 .note 说清半双工的成因
+_LANES = [
+    ("1", "听", "LISTEN", "连续拾音 · VAD 持续检测 · 流式 ASR——不切段，不等你说完"),
+    ("2", "想", "THINK",  "增量理解 · 每一瞬间都在判断：现在要不要出声"),
+    ("3", "说", "SPEAK",  "流式 TTS · 随时可收声让位"),
+]
+_MECHS = ["AEC 回声消除——不把自己的声音听成用户", "打断快路径——用户插话 340ms 内收声"]
+def _duplex_lanes():
+    o = []
+    for i, (num, cn, en, body) in enumerate(_LANES):
+        y = 66 + i * 110
+        o.append('<circle class="pop box" style="--i:%d" cx="24" cy="%d" r="16" stroke-width="2"/>'
+                 % (i + 1, y - 4))
+        o.append(txt(24, y + 3, num, "ttl", size=18, anchor="middle", col=AC))
+        o.append(txt(54, y + 4, cn, "ttl", size=28))
+        o.append(txt(54, y + 30, en, "lbl", size=13))
+        o.append(txt(152, y - 20, body, "txt", size=24))
+        o.append(hline(150, 1640, y, AC, 2.5, i + 1))
+        o.append(ah_r(1652, y, AC))
+    # 播放头：一条竖虚线穿过三条泳道 —— 「同一瞬间」的可视化（避开三条泳道的文字尾部）
+    o.append(dline("M1200 22 V320", AC, 1.6, 5, dash="4 8"))
+    o.append(txt(1200, 14, "NOW", "lbl", size=14, anchor="middle", col=AC))
+    return "".join(o)
+page("content", "".join([
+    head("FULL-DUPLEX MECHANICS · 工作原理", "<strong>同时</strong>在听、在想、在说。"),
+    lab(120, 236, "01 · THREE LANES · 同时在跑"),
+    figbox(120, 272, 1680, 1680, 340, _duplex_lanes(), i=1),
+    lab(120, 636, "02 · TWO MECHANISMS · 两个关键机构", i=4),
+    ] + [
+    sh("rise card-c on", "left:%dpx;top:668px;width:820px;height:74px;--i:%d" % (120 + _i * 860, 5 + _i),
+       '<div style="height:100%%;display:flex;align-items:center;gap:18px;padding:0 30px">'
+       '<span style="width:10px;height:10px;border-radius:50%%;background:var(--accent);'
+       'flex:none"></span>'
+       '<span style="font:500 23px/1.4 var(--f-cn);color:var(--ink)">%s</span></div>' % _m)
+    for _i, _m in enumerate(_MECHS)
+    ] + [
+    sh("flow", "left:120px;top:766px;width:1680px;height:54px;--i:7",
+       '<div class="note grey">半双工的成因：系统必须先靠静音检测把话「切」成完整一段才开始想'
+       '——你停顿一下，它就以为你说完了。</div>'),
+    rule(850),
+    land("全双工是「时间」维度的能力，与「端到端 / 级联」的链路选型正交"
+         "——级联链路同样做到全双工，这正是引擎的做法。"),
+]))
+
+# ═══ P5 · 三件极致 ·「把三件事，做到极致」══════════════════════════════════
 _EXTREMES = [
     ("01 · LATENCY",  "650", "ms", "端到端响应延时", "从说完话到智能体开口，全链路深度优化，低至 650ms。"),
     ("02 · BARGE-IN", "340", "ms", "极速打断响应",   "随时插话即时收声，模拟真人对话节奏。"),
@@ -290,7 +404,7 @@ page("content", "".join([
     rail("END-TO-END 650MS · BARGE-IN 340MS · NOISE SHIELD 95%"),
 ]))
 
-# ═══ P4 · 实时语音链路 ·「一条深度优化的端到端链路」════════════════════════
+# ═══ P6 · 实时语音链路 ·「一条深度优化的端到端链路」════════════════════════
 _PIPE = [
     # hot 落 AI-VAD：链路里唯一声网自研差异化环节；LLM 是可替换第三方件，高亮它=错误的强调声明
     ("AI-VAD", "智能人声检测", "判断谁在说", True,  False),
@@ -299,7 +413,7 @@ _PIPE = [
     ("TTS",    "语音合成",     "开口说话",   False, False),
     ("数字人", "口型 / 表情",  "可选",       False, True),
 ]
-def _p4():
+def _pipe_fig():
     o = []
     # 入口 / 出口的圆（麦克风 · 喇叭）
     o.append('<circle class="pop box" style="--i:0" cx="70" cy="185" r="44" stroke-width="1.4"/>')
@@ -334,12 +448,92 @@ def _p4():
 page("content", "".join([
     head("PIPELINE · 实时语音链路", "一条深度优化的<strong>端到端链路</strong>。"),
     lab(120, 236, "01 · SIGNAL PATH"),
-    figbox(120, 290, 1680, 1680, 430, _p4(), i=1),
+    figbox(120, 290, 1680, 1680, 430, _pipe_fig(), i=1),
     rule(850),
     land("AI-VAD、ASR、LLM、TTS 逐环节协同优化——用户体感是一句接一句，几乎无等待。"),
 ]))
 
-# ═══ P5 · 优雅打断 ·「想插话就插话，340ms 即时收声」════════════════════════
+# ═══ P7 · VAD ·「让机器知道，你在说话」════════════════════════════════════
+#   01 横向 4 节点 timeline（末节点 hot = 语义判停）  02 工作原理 strip（card-c 单条）
+#   03 两张并排卡：开源 TEN VAD / 商业 AI-VAD 进阶版（后者 .card-c.on）
+#   04 TEN 生态 chips（尾 chip .chip.on = 商业进阶）  + SOURCE 行
+_VADEVO = [
+    ("能量 / 过零率", "规则阈值 · 环境一嘈杂就失灵",                        False),
+    ("统计模型",      "GMM · WebRTC VAD 一代标配",                          False),
+    ("深度学习",      "帧级神经网络 · Silero 等",                            False),
+    ("语义判停",      "不只「有没有声」，而是「说完了没有」· SOS/EOS + 语义", True),
+]
+def _vad_evo():
+    """发展 timeline（vb 1680×126）：一条主线 + 4 个节点，末节点填实走 accent"""
+    o = [hline(38, 1642, 30, HS, 2, 1), ah_r(1654, 30, "var(--ink-3)")]
+    for i, (n, d, hot) in enumerate(_VADEVO):
+        x = 30 + i * 400
+        cx = x + 8
+        if hot:
+            o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="30" r="10"/>' % (i + 2, AC, cx))
+        else:
+            o.append('<circle class="pop box" style="--i:%d" cx="%d" cy="30" r="9" stroke-width="2"/>' % (i + 2, cx))
+        o.append(vline(cx, 40, 52, AC if hot else HS, 1.6, i + 2))
+        o.append(txt(x, 84, n, "ttl", size=26, col=AC if hot else None))
+        o.append(txt(x, 114, d, "sm", size=16))
+    return "".join(o)
+_VADSTEP = ["16kHz 分帧（10/16ms）", "每帧输出语音概率", "平滑 / 滞回", "SOS / EOS 事件"]
+_VADCARDS = [
+    (False, "OPEN SOURCE · APACHE 2.0", "我们开源的帧级实时 VAD",
+     ["精度优于 WebRTC VAD 与 Silero VAD（公开测试集 PR 曲线）",
+      "说→停转换毫秒级捕捉——Silero 有数百 ms 拖尾",
+      "RTF 0.015 · 306KB 起 · 全平台 · Python/C/Java/Go/JS"],
+     "github.com/ten-framework/ten-vad"),
+    (True, "IN ENGINE · 进阶版", "引擎内建的进阶版：声学之上，加语义",
+     ["CAN + 语义 + 声学三路融合的判停",
+      "三态人声 · 暂停意图 · 误打断防抖",
+      "随对话式 AI 引擎交付，免调优开箱"],
+     ""),
+]
+_TENCHIPS = [("TEN Framework", False), ("TEN VAD", False), ("Turn Detection", False),
+             ("Agent Examples", False), ("ConvoAI Engine（商业进阶）", True)]
+page("content", "".join([
+    head("VOICE ACTIVITY DETECTION · 从能量检测到语义判停",
+         "VAD：让机器知道，<strong>你在说话</strong>。"),
+    lab(120, 236, "01 · EVOLUTION · 发展"),
+    figbox(120, 268, 1680, 1680, 126, _vad_evo(), i=1),
+    lab(120, 414, "02 · HOW IT WORKS · 工作原理", i=3),
+    sh("rise card-c", "left:120px;top:446px;width:1680px;height:56px;--i:4",
+       '<div style="height:100%;display:flex;align-items:center;justify-content:center">'
+       + "".join('<span style="font:500 22px/1.4 var(--f-cn);color:var(--ink)">%s</span>%s' %
+                 (_s, '' if _k == len(_VADSTEP) - 1 else
+                  '<span style="margin:0 26px;font:500 22px/1.4 var(--f-mono);'
+                  'color:var(--accent)">&#8594;</span>')
+                 for _k, _s in enumerate(_VADSTEP))
+       + '</div>'),
+    lab(120, 522, "03 · OPEN SOURCE × IN ENGINE", i=4),
+    ] + [
+    sh("rise card-c%s" % (" on" if _on else ""),
+       "left:%dpx;top:554px;width:820px;height:226px;--i:%d" % (120 + _i * 860, 5 + _i),
+       '<div style="padding:22px 30px;height:100%%;display:flex;flex-direction:column">'
+       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:%s">%s</div>'
+       '<div style="margin-top:9px;font:700 26px/1.25 var(--f-cn);color:var(--ink)">%s</div>'
+       '<div style="margin-top:11px;display:flex;flex-direction:column;gap:5px">%s</div>%s</div>'
+       % (AC if _on else "var(--ink-3)", _tag, _ttl,
+          "".join('<div style="display:flex;gap:11px;align-items:baseline">'
+                  '<span style="color:var(--accent);font:700 15px/1.5 var(--f-mono)">&#8212;</span>'
+                  '<span style="font:400 18px/1.5 var(--f-cn);color:var(--ink-2)">%s</span></div>' % _b
+                  for _b in _bul),
+          ('<div style="margin-top:auto;padding-top:12px;font:500 15px/1 var(--f-mono);'
+           'letter-spacing:.06em;color:var(--ink-3)">%s</div>' % _foot) if _foot else ""))
+    for _i, (_on, _tag, _ttl, _bul, _foot) in enumerate(_VADCARDS)
+    ] + [
+    sh("rise", "left:120px;top:790px;width:1680px;height:52px;--i:8",
+       '<div style="display:flex;align-items:center;gap:22px">'
+       '<span class="seclab" style="flex:none">04 · TEN 生态</span><div style="flex:1">'
+       + "".join('<span class="chip%s">%s</span>' % (" on" if _o else "", _c)
+                 for _c, _o in _TENCHIPS) + '</div></div>'),
+    rule(850),
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:9",
+       "SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD · TEN ECOSYSTEM · 引擎发版说明 V2.6"),
+]))
+
+# ═══ P8 · 优雅打断 ·「想插话就插话，340ms 即时收声」════════════════════════
 def _bars(x0, n, cy, col, seed=0, gap=17, w=8, op=None):
     hs = [30, 54, 16, 66, 38, 22, 58, 34, 46, 18, 50, 26, 40, 14, 62, 30, 44, 20, 56, 36]
     o = []
@@ -376,7 +570,7 @@ page("content", "".join([
     land("对话像真人一样你来我往。"),
 ]))
 
-# ═══ P6 · SAL ·「嘈杂环境里，只听该听的人」═══════════════════════════════
+# ═══ P9 · SAL ·「嘈杂环境里，只听该听的人」═══════════════════════════════
 _NOISE = [("旁人交谈", 90), ("环境噪声", 210), ("背景音乐", 330)]
 _P6FIG = "".join(
     # 目标人声（左）
@@ -412,8 +606,8 @@ page("content", "".join([
     rail("SELECTIVE ATTENTION LOCK · 95% INTERFERENCE SHIELDED"),
 ]))
 
-# ═══ P7 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
-def _p7():
+# ═══ P10 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
+def _weaknet_fig():
     o = [txt(10, 40, "网络 · 大量丢包 + 瞬时断网", "lbl", size=15)]
     got = {0, 6, 12, 16}
     for i in range(20):
@@ -441,7 +635,7 @@ _P7STAT = [("80", "%", "丢包率下稳定对话"), ("3–5", "s", "瞬时断网
 page("content", "".join([
     head("WEAK NETWORK · 弱网也能聊", "网络在抖，<strong>对话不断</strong>。"),
     lab(120, 236, "01 · PACKET LOSS"),
-    figbox(120, 280, 1080, 1080, 470, _p7(), i=1),
+    figbox(120, 280, 1080, 1080, 470, _weaknet_fig(), i=1),
     lab(1280, 236, "02 · RESILIENCE"),
     ] + [
     sh("rise card-c", "left:1280px;top:%dpx;width:520px;height:230px;--i:%d" % (300 + _i * 260, 2 + _i),
@@ -456,7 +650,7 @@ page("content", "".join([
     land("极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。"),
 ]))
 
-# ═══ P8 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
+# ═══ P11 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
 _CAPS = [
     ("VOICEPRINT", "声纹锁定", "认准说话人"),
     ("VISION",     "看图识景", "理解图片视频"),
@@ -489,10 +683,10 @@ page("content", "".join([
     land("同一套引擎，语音、视觉、声纹、电话一并接入——对话不再只是“听和说”。"),
 ]))
 
-# ═══ P9 · 开放编排 ·「你的模型自由组合，引擎负责编排」══════════════════════
+# ═══ P12 · 开放编排 ·「你的模型自由组合，引擎负责编排」══════════════════════
 _MODELS = ["ASR 语音识别", "LLM 大模型", "TTS 语音合成", "数字人"]
 _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 是一项能力，不拆
-def _p9():
+def _orch_fig():
     o = [txt(230, 32, "可自由替换 · 模型层", "lbl", size=16, anchor="middle", col=AC),
          txt(1450, 32, "按需叠加 · 高阶能力", "lbl", size=16, anchor="middle", col=AC)]
     for i, n in enumerate(_MODELS):
@@ -515,13 +709,13 @@ def _p9():
 page("content", "".join([
     head("OPEN & FLEXIBLE · 灵活扩展", "你的模型自由组合，<strong>引擎负责编排</strong>。"),
     lab(120, 236, "01 · ORCHESTRATION"),
-    figbox(120, 290, 1680, 1680, 480, _p9(), i=1),
+    figbox(120, 290, 1680, 1680, 480, _orch_fig(), i=1),
     rule(850),
     land("快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。"),
 ]))
 
-# ═══ P10 · 接入架构 ·「2 行代码，三方协同即可上线」═════════════════════════
-def _p10():
+# ═══ P13 · 接入架构 ·「2 行代码，三方协同即可上线」═════════════════════════
+def _arch_fig():
     o = []
     # ① 终端设备
     o.append(box(40, 120, 460, 300, 14, i=1))
@@ -564,12 +758,12 @@ def _p10():
 page("content", "".join([
     head("ARCHITECTURE · 接入架构", "<strong>2 行代码</strong>，三方协同即可上线。"),
     lab(120, 236, "01 · THREE PARTIES"),
-    figbox(120, 285, 1680, 1680, 500, _p10(), i=1),
+    figbox(120, 285, 1680, 1680, 500, _arch_fig(), i=1),
     rule(850),
     land("终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。"),
 ]))
 
-# ═══ P11 · 典型场景 ·「一套引擎，支撑多类场景」════════════════════════════
+# ═══ P14 · 典型场景 ·「一套引擎，支撑多类场景」════════════════════════════
 _SCENES = [
     ("01 · OUTBOUND", "AI 外呼",   "客服、营销、风控、调研、关怀通知，成本效率全面提升。"),
     ("02 · DEVICE",   "智能硬件",  "嵌入设备，让设备开口说话，语音控制与智能陪伴。"),
@@ -592,8 +786,9 @@ page("content", "".join([
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
 ]))
 
-# ═══ P12 · Why Agora ·「跑在声网实时互动底座之上」═════════════════════════
+# ═══ P15 · Why Agora ·「跑在声网实时互动底座之上」═════════════════════════
 #   数据修正页：四数字与 note / SOURCE 全部与 31 页拜访版 P2 一字对齐。
+#   2026-08-20 扩页时整块原样搬运（页号 12 → 15），内容一字未动。
 #   禁止回归的旧错误数字：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」
 _WHY = [
     ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
@@ -622,7 +817,7 @@ page("content", "".join([
        "SOURCE · 声网官网 / IR 公开口径 · IDC"),
 ]))
 
-# ═══ P13 · 收尾（title 板）═══════════════════════════════════════════════
+# ═══ P16 · 收尾（title 板）═══════════════════════════════════════════════
 page("title", "".join([
     sh("ink", "left:120px;top:320px;width:1560px;height:250px;"
        "font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
@@ -688,8 +883,8 @@ def build():
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     OUT_ALIAS.write_text(doc, encoding="utf-8")
-    assert total == 13, "页数漂移：%d != 13" % total
-    assert doc.count("<section") == 13, "section 数漂移：%d" % doc.count("<section")
+    assert total == 16, "页数漂移：%d != 16" % total
+    assert doc.count("<section") == 16, "section 数漂移：%d" % doc.count("<section")
     print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 全页 data-steps=0" % (total, len(doc) // 1024))
 
 if __name__ == "__main__":
