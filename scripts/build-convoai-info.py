@@ -2,10 +2,10 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # build-convoai-info.py · 《声网对话式 AI · 一页一章 Infograph》拜访速讲版 deck
 # CONF 家族 · conf-light 默认 · 单文件双主题 · 三线三色 —— 与 build-convoai-visit.py 同源
-# 结构（8 页 · 讲者不翻页、不点击，一页讲透一章）：
+# 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
 #   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 合流
 # 与 31 页版的差别只有三条：
-#   ① 全部 data-steps=0（入场只靠 flow/rise/settle + --i 错峰，没有任何分步）
+#   ① 分步克制：只有 P4/P5/P7 各一步（2026-08-20 加），其余页 data-steps=0
 #   ② 背景板只用两张：P1 title / P2–P8 content（最安静的 matrix .42）
 #   ③ hero-art 只留 P1 的 three-engines 盒装
 # 口径纪律：所有数字与句子从 build-convoai-visit.py 逐字复制，一个不新造。
@@ -288,10 +288,17 @@ html[data-theme="dark"] [data-p="7"] .callout-chip{
 .eo-sheet{position:absolute;inset:26px;border-radius:18px;overflow:hidden;
   border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 90px rgba(0,0,0,.5);background:#e6e6eb;}
 .eo-sheet iframe{display:block;width:100%;height:100%;border:0;}
-.eo-close{position:absolute;top:14px;right:16px;font:600 12px/1 var(--f-mono);letter-spacing:.14em;
+/* 收回按钮挪到左上：iframe 内的引擎 deck 右上角是页码 sig（120px 内边距），
+   ESC 胶囊压在右上会和页码叠在一起；左上是 iframe 的编辑热区（透明、无视觉），不冲突。 */
+.eo-close{position:absolute;top:14px;left:16px;font:600 12px/1 var(--f-mono);letter-spacing:.14em;
   color:#f5f5f7;background:rgba(10,10,15,.55);border:1px solid rgba(255,255,255,.22);
   border-radius:999px;padding:9px 14px;cursor:pointer;}
 .eo-close:hover{background:rgba(10,10,15,.8);}
+/* 鼠标点击后不留 focus ring（键盘 Tab 仍然给 :focus-visible 的可见焦点） */
+.eo-close:focus:not(:focus-visible){outline:none;box-shadow:none;}
+@media print{#engineOverlay,.deck-swap{display:none!important;}}
+/* polish · P7 浅色生态图对比度：底图在浅底下偏灰，抬 ~14% 对比 + 6% 饱和；深色零改动 */
+html:not([data-theme="dark"]) [data-p="7"] .eco-art.lt{filter:contrast(1.14) saturate(1.06);}
 </style>"""
 
 # ── 组装件 ──────────────────────────────────────────────────────────────────
@@ -307,10 +314,11 @@ def rule(y, x=120, w=1680, i=1):
     """分区之间的 1px 细线（高度 1px → 扫描器不当它是覆盖块）"""
     return sh("spread hair-rule", "left:%dpx;top:%dpx;width:%dpx;height:1px;--i:%d" % (x, y, w, i), "")
 
-def lab(x, y, txt, w=620, col=None, i=0):
+def lab(x, y, txt, w=620, col=None, i=0, step=None):
     """mono 小节标：「01 · SCALE」"""
     c = ";color:%s" % col if col else ""
-    return sh("flow seclab", "left:%dpx;top:%dpx;width:%dpx;height:20px;--i:%d%s" % (x, y, w, i, c), txt)
+    return sh("flow seclab", "left:%dpx;top:%dpx;width:%dpx;height:20px;--i:%d%s" % (x, y, w, i, c),
+              txt, step=step)
 
 def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0):
     """SVG 装盒：.sh 高度按 viewBox 等比算死，svg 一律 width:100%;height:auto"""
@@ -320,8 +328,9 @@ def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0):
               % (vbw, vbh, inner))
 
 PAGES = []          # (board, steps, body_html, hero)
-def page(board, body, hero=None):
-    PAGES.append((board, 0, body, hero))     # 速讲版：全部 data-steps=0
+def page(board, body, hero=None, steps=0):
+    # 2026-08-20：P4 / P5 / P7 各加一步 presenter-controlled build，其余页仍为 0
+    PAGES.append((board, steps, body, hero))
 
 # ═══ P1 · 封面（title 板 + hero 盒；照抄 convoai P1，只改 kk 尾巴与 sub）═════
 page("title", "".join([
@@ -356,7 +365,9 @@ _RTE = [
 # 五节点卡片时间轴 mini：P5 原图 viewBox 1620×340 / 框 300×200 太高，
 # 按 spec 重排成 viewBox 1620×170 / 框 300×100，文字两行（日期 + 名称），细节行删
 _MILE = [
-    (  10, "2024.10.01", "全球首个 Realtime API", False),
+    # 2026-08-20 仲裁 P0：「全球首个 Realtime API」是 OpenAI 的事，不是声网的事——
+    # 而且和同页 03 · ENDORSEMENT 的「全球首批合作伙伴」自相矛盾。改为首批口径。
+    (  10, "2024.10.01", "全球首批 Realtime API", False),
     ( 330, "2024.10.24", "国内首个 Realtime API", False),
     ( 650, "2025.03.06", "引擎 1.0 + R1 GA",      False),
     ( 970, "2025.10.31", "产品全栈发布",           False),
@@ -411,19 +422,29 @@ page("content", "".join([
     # 区 04 · MILESTONES（五节点卡片时间轴 mini · 末框 accent 描边）
     lab(120, 766, "04 · MILESTONES · 18 个月 · 5 个公开里程碑"),
     figbox(120, 800, 1680, 1620, 170, _p2mile, i=2),
-    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
+    # land 收窄到 900，右侧同一基线放 SOURCE 行（照 P8 的 land + credit 双栏做法），
+    # 这样 land 仍落在全 deck 统一的 y988 基线上。数字一个不动，只补出处。
+    sh("flow", "left:120px;top:988px;width:900px;height:70px;--i:5",
        '<div class="land">全球最受欢迎的实时音视频云服务提供商。</div>'),
+    sh("flow mono-sm", "left:1030px;top:1010px;width:770px;height:24px;text-align:right;--i:6",
+       "SOURCE · 声网官网 / IR · IDC 中国视频云市场报告 · 公司批准口径 · 事实截止 2026.08"),
 ]))
 
-# ═══ P3 · 矩阵 ·「一个平台，三台引擎」（accent）════════════════════════════
-#   01 ARCHITECTURE 分层图 / 02 THREE ENGINES 三行三色 / 03 DUAL FORM 双形态
+# ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（accent）══════════════════════
+#   01 ARCHITECTURE 分层图 / 02 THREE PRODUCT LINES 三行三色 / 03 ENGINE DELIVERY FORMS
+# ── 2026-08-20 仲裁 P0：口径统一（只动文案与标签层级，版式一像素未动）───────
+#   旧说法「一个平台，三台引擎」＋「与实时互动平台并列的两大产品引擎」自相矛盾：
+#   到底是三台还是两台？评测/翻译又算第几台？统一成一条三层链：
+#     底座（SD-RTN / RTE）→ 三条产品线（Engine / Agent / Physical AI）
+#                        → Engine 的两种交付形态（闭源引擎 / 开源 TEN）
+#   评测平台、实时转录翻译降级为「配套能力 · 工具」，不与产品线并列。
 _MX = [
-    ("对话式 AI 引擎",  "闭源 · 已上线",        True),
-    ("TEN 开源工具库",  "开源",                False),
-    ("企业级智能体",  "Call Agent · Global 率先发布", False),
-    ("AI 模型评测平台", "已上线",              False),
-    ("实时转录翻译",    "已上线",              False),
-    ("开发套件",        "Physical AI · 已上线", False),
+    ("对话式 AI 引擎",  "产品线 · Engine · 闭源", True),
+    ("TEN 开源工具库",  "Engine 交付形态 · 开源", False),
+    ("企业级智能体",    "产品线 · Agent",         False),
+    ("AI 模型评测平台", "配套能力 · 工具",        False),
+    ("实时转录翻译",    "配套能力 · 工具",        False),
+    ("开发套件",        "产品线 · Physical AI",   False),
 ]
 def _mxbox(i, name, form, hot):
     # 原图 viewBox 1620×430；按 spec 把底座条与框间距收 30px、整体压到 1620×320
@@ -442,8 +463,8 @@ _p3fig = ("".join(_mxbox(i, n, f, h) for i, (n, f, h) in enumerate(_MX))
                     for i in range(6))
           + '<g class="pop" style="--i:7">'
             '<rect x="10" y="180" width="1600" height="110" rx="3" class="box" stroke-width="1"/>'
-            '<text class="lbl" x="42" y="223">实时互动平台 · REAL-TIME ENGAGEMENT</text>'
-            '<text class="txt" x="42" y="261">SD-RTN 全球实时网络——当下基本盘，托举全部对话式 AI 产品线</text>'
+            '<text class="lbl" x="42" y="223">实时底座 · RTE · REAL-TIME ENGAGEMENT</text>'
+            '<text class="txt" x="42" y="261">SD-RTN 全球实时网络——一个实时底座，托举上面三条产品线与全部配套能力</text>'
             '</g>')
 _ENG3 = [
     ("l-eng",   "ENGINE",      "提供能力——把「会说话」做到极致"),
@@ -452,13 +473,14 @@ _ENG3 = [
 ]
 page("content", "".join([
     sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "一个平台，<strong>三台引擎</strong>。"),
+    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px",
+       "一个实时底座，<strong>三条产品线</strong>。"),
     # 区 01 · ARCHITECTURE（分区标 y=236 = 全 deck 首分区标统一栏位）
     lab(120, 236, "01 · ARCHITECTURE"),
     figbox(120, 276, 1680, 1620, 320, _p3fig, i=1),
     rule(628),
-    # 区 02 · THREE ENGINES（左 2/3）
-    lab(120, 636, "02 · THREE ENGINES"),
+    # 区 02 · THREE PRODUCT LINES（左 2/3）
+    lab(120, 636, "02 · THREE PRODUCT LINES"),
     sh("", "left:120px;top:668px;width:1080px;height:170px",
        '<div class="rows">' + "".join(
            '<div class="r flow" style="--i:%d;padding:12px 0">'
@@ -467,8 +489,8 @@ page("content", "".join([
            '<span class="v" style="font-size:21px">%s</span></div>'
            % (2 + _i, dot(_c), _c, _n, _d)
            for _i, (_c, _n, _d) in enumerate(_ENG3)) + '</div>'),
-    # 区 03 · DUAL FORM（右 1/3）
-    lab(1240, 636, "03 · DUAL FORM"),
+    # 区 03 · ENGINE DELIVERY FORMS（右 1/3）
+    lab(1240, 636, "03 · ENGINE DELIVERY FORMS"),
     sh("rise card-c", "left:1240px;top:668px;width:560px;height:104px;--i:3",
        '<div style="padding:20px 26px">'
        '<div class="mono-sm" style="color:var(--accent)">闭源 · 已上线</div>'
@@ -480,7 +502,8 @@ page("content", "".join([
     # 底行：land（左）与 note（右）文字基线对齐 —— .note 文心 = y+23.6，.land 文心 = y+31.75，
     # 所以 note 顶比 land 顶高 8px 才是真齐（原来 914/920 差 6，实际差 14px 没对上）
     sh("flow", "left:1240px;top:996px;width:560px;height:60px;--i:5",
-       '<div class="note">与实时互动平台并列的<strong style="color:var(--accent)">两大产品引擎</strong>。</div>'),
+       '<div class="note">Engine 的<strong style="color:var(--accent)">两种交付形态</strong>'
+       '：闭源引擎 · 开源 TEN。</div>'),
     sh("flow", "left:120px;top:988px;width:1080px;height:70px;--i:6",
        '<div class="land">' + dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
        + dot("l-phys") + "Physical AI 走进物理世界。</div>"),
@@ -560,8 +583,10 @@ for _i, (_n, _dir, _wo, _wt, _vo, _vt) in enumerate(_CMP):
            '<span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">%s</span>'
            '<span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span>' % _vt),
     ]
-# 区 03 · SIGNATURE MOVES（右半 · 三张 mini 卡）
-_p4.append(lab(980, 404, "03 · SIGNATURE MOVES"))
+# 区 03 · SIGNATURE MOVES（右半 · 三张 mini 卡）· step1
+#   2026-08-20：P4 加一步 build —— 先讲完左半的版本速度与同题评测（客观数），
+#   再一步把「三绝活 + 开放栈」推上来（主观牌）。
+_p4.append(lab(980, 404, "03 · SIGNATURE MOVES", step=1))
 _p4 += [sh("rise card-c", "left:980px;top:%dpx;width:820px;height:128px;--i:%d" % (440 + _i * 134, 3 + _i),
            '<div style="padding:0 30px;height:100%%;display:flex;align-items:center;gap:26px">'
            '<div class="fig" style="width:200px;flex:none">'
@@ -570,21 +595,22 @@ _p4 += [sh("rise card-c", "left:980px;top:%dpx;width:820px;height:128px;--i:%d" 
            '<div style="font:700 24px/1.2 var(--f-cn);color:var(--ink)">'
            '<span style="font:700 15px/1 var(--f-mono);color:var(--l-eng);margin-right:12px">%s</span>%s</div>'
            '<div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">%s</div>'
-           '</div></div>' % (_f, _no, _n, _d))
+           '</div></div>' % (_f, _no, _n, _d), step=1)
         for _i, (_no, _n, _d, _f) in enumerate(_MOVES)]
 # 区 04 · OPEN（chips 一行）· 底分隔线统一 850（与 P5/P8 同栏位，压住背景板 y848–852 的 accent 细线）
+#   rule(850) 不入步：一条分隔线在 step0/step1 之间闪现比不闪现更扎眼。
 _p4.append(rule(850))
-_p4.append(lab(120, 874, "04 · OPEN"))
+_p4.append(lab(120, 874, "04 · OPEN", step=1))
 _p4.append(sh("rise", "left:120px;top:902px;width:1680px;height:54px;--i:4",
               "".join('<span class="chip">%s</span>' % t for t in
                       ["ASR / LLM / TTS 可替换 · 可兜底 · 可热切换", "MCP + Function Call",
                        "数字人", "TEN 开源生态"])
               # 第 5 个 chip = 「引擎产品详解」抽屉的触发件（Enter 或点击 → 视口级 overlay）
               + '<span class="chip chip-expand" id="engineExpand" role="button" tabindex="0">'
-                '⤢ 引擎产品详解 · 16 页 · ⏎</span>'))
+                '⤢ 引擎产品详解 · 17 页 · ⏎</span>', step=1))
 _p4.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
               '<div class="land">模型会换代，接口不换人。</div>'))
-page("content", "".join(_p4))
+page("content", "".join(_p4), steps=1)
 
 # ═══ P5 · Agent ·「企业级智能体 · 生产数据」（l-agent 蓝）══════════════════
 #   01 TURING 96.5% + funnel / 02 CONVERSION 2.05× / 03 FIVE 五维 / 04 CAPABILITIES 12 项
@@ -619,7 +645,9 @@ _p5conv = ('<g class="pop" style="--i:0">'
 _FIVE = [
     ("01", "运行时", "全球 SD-RTN 200+ 节点",     False),
     ("02", "记忆",   "毫秒级分层记忆 RAG 端到端",  False),
-    ("03", "安全",   "99.99% · SOC 2 / GDPR",     True),
+    # 2026-08-20 仲裁 P0：混合 chip 拆成三段各自成立的表述。
+    # SOC 2 保持原措辞（builder 里查不到「Type II」的既有依据，不擅自升格）——待 Colin 确认。
+    ("03", "安全",   "99.99% SLA · SOC 2 · 支持 GDPR 合规", True),
     ("04", "工具",   "MCP + Function Call 开放栈", False),
     ("05", "弹性",   "900 亿分钟 RTE 月均支撑",   False),
 ]
@@ -633,8 +661,10 @@ page("content", "".join([
     # 区 01 · TURING（左半）
     lab(120, 236, "01 · TURING"),
     sh("settle", "left:120px;top:268px;width:760px;height:130px",
+       # 2026-08-20 仲裁 P0：「用户以为在跟真人说话」是对 96.5% 的过度解读——
+       # 数据本身是「没有出现用户明确识别 AI 的信号」，是「未被识破」而不是「以为是真人」。
        '<div class="stat"><div class="v" style="font-size:88px;color:var(--l-agent)">96.5%</div>'
-       '<div class="l">用户以为在跟真人说话</div></div>'),
+       '<div class="l">通话未出现用户明确识别 AI 的信号</div></div>'),
     figbox(120, 400, 800, 1000, 300, _p5fun, i=2),
     sh("flow", "left:120px;top:660px;width:800px;height:44px;font:400 20px/1.4 var(--f-cn);color:var(--ink-2);--i:4",
        "仅 3.5%（86 通）被用户明显感知为 AI。"),
@@ -653,15 +683,17 @@ page("content", "".join([
               "coral" if _hot else "l-agent", _n, _v)
            for _i, (_no, _n, _v, _hot) in enumerate(_FIVE)) + '</div>'),
     rule(850),
-    # 区 04 · CAPABILITIES（12 项 6×2）
-    lab(120, 866, "04 · CAPABILITIES · 企业级智能体 12 项能力"),
+    # 区 04 · CAPABILITIES（12 项 6×2）· step1
+    #   2026-08-20：P5 加一步 build —— 先把 96.5% / 2.05× / 五件事这三块主证据讲透，
+    #   再一步推出 12 项能力这层次级证据（它是清单，不是论点）。
+    lab(120, 866, "04 · CAPABILITIES · 企业级智能体 12 项能力", step=1),
     sh("rise", "left:120px;top:890px;width:1680px;height:94px;--i:3",
        '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px">'
        + "".join('<div class="cap%s">%s</div>' % (" on" if _i == 9 else "", _t)
-                 for _i, _t in enumerate(_G12)) + '</div>'),
+                 for _i, _t in enumerate(_G12)) + '</div>', step=1),
     sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
        '<div class="land">不再是「AI 能否替代人工」——是「人工能否追上 AI」。</div>'),
-]))
+]), steps=1)
 
 # ═══ P6 · PhysicalAI ·「让对话走出屏幕」（l-phys 紫）══════════════════════
 #   01 R1 KIT 双形态 / 02 LIFELIKE 活人感三态 / 03 ROBOTICS 1 三数字
@@ -781,15 +813,18 @@ _p7 = [
     sh("flow eco-visual", "left:120px;top:292px;width:980px;height:552px;--i:1", _p7eco),
     sh("pop callout-chip", "left:120px;top:872px;width:auto;height:auto;--i:4",
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
-    # 裁定 #3：合并我版「完整 4K 全景见 /convoai P23」与升级版「每一层都由声网托住」为一行
+    # 2026-08-20 仲裁 P1：脚注里的「/convoai-visit P23」是内部指针 —— 客户看不到那份 deck，
+    # 写在对外页上只会让人问「P23 在哪」。去掉指针，只留这一层的落点句。
     sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
-       "从 SD‑RTN 到设备，每一层都由声网托住 · 完整 4K 全景见 /convoai-visit P23 · 事实截止 2026.08"),
-    # 区 02 · CASES（右列 · 案例墙 v2；顶 236 与左列 seclab 齐，底 977 与左列脚注底齐）
-    sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall),
+       "从 SD‑RTN 到设备，每一层都由声网托住 · 事实截止 2026.08"),
+    # 区 02 · CASES（右列 · 案例墙 v2；顶 236 与左列 seclab 齐，底 977 与左列脚注底齐）· step1
+    #   2026-08-20：P7 加一步 build —— 先讲清「五层价值地壳，我们在哪」，
+    #   再一步把 14 个已公开案例整墙推上来（先讲结构，再上证据）。
+    sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall, step=1),
     sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
        '<div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div>'),
 ]
-page("content", "".join(_p7))
+page("content", "".join(_p7), steps=1)
 
 # ═══ P8 · 合流 ·「为什么是声网 · 怎么开始」（accent）═══════════════════════
 #   01 ONE NET 一张网 / 02 NEUTRALITY 中立三条 / 03 START 三步 / 底 land + credit
@@ -801,7 +836,9 @@ _NEU = [
 _STEP = [
     ("STEP 1 · 今天",     "注册即用",   "免费额度，当天就能听到第一句回话"),
     ("STEP 2 · 两周",     "PoC 共建",   "工程团队陪跑，把你的第一个真实场景跑通"),
-    ("STEP 3 · 一个季度", "规模化上线", "SLA、全球部署、多供应商兜底"),
+    # 2026-08-20 仲裁 P1：「一个季度规模化上线」是承诺口吻，补限定词降成典型节奏
+    ("STEP 3 · 一个季度", "规模化上线",
+     "SLA、全球部署、多供应商兜底<br>（典型节奏，视场景与合规而定）"),
 ]
 _ARROW = ('<div class="fig"><svg viewBox="0 0 20 36" style="width:100%;height:auto">'
           '<path class="dw" style="--len:22" d="M10 2 V24" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>'
@@ -825,8 +862,9 @@ page("content", "".join([
            '<span class="k" style="width:230px;font-size:24px">%s</span>'
            '<span class="v" style="font-size:18px">%s</span></div>' % (2 + _i, _no, _n, _d)
            for _i, (_no, _n, _d) in enumerate(_NEU)) + '</div>'),
+    # 2026-08-20 仲裁 P0：「OpenAI 选择我们」是不可核实的因果叙述，改为可核实的事实陈述
     sh("flow", "left:120px;top:676px;width:840px;height:50px;font:500 24px/1.5 var(--f-cn);color:var(--accent);--i:5",
-       "OpenAI 选择我们，也是这个原因。"),
+       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
     # 区 03 · START（右半 · 三步竖排，箭头连接）
     lab(980, 426, "03 · START"),
     ] + [
@@ -844,6 +882,9 @@ page("content", "".join([
     # 顶 1010 让 mono 文心（1010+10.5）压住 land 文心（988+31.75），两边真齐平。
     # 原来 land 在 880、credit 在 1004 各占一行 —— land 比其他 7 页高 108px，翻页时那根
     # accent 竖条会跳，正是 Colin 说的「看起来没对齐」。
+    # CTA 行：三步之下补一条真实入口（纯 mono 文本，不做假链接样式）
+    sh("flow mono-sm", "left:980px;top:800px;width:820px;height:24px;--i:6",
+       "DEMO / 文档 · agora.io › 对话式 AI · 联系团队"),
     sh("flow", "left:120px;top:988px;width:1060px;height:70px;--i:6",
        '<div class="land">让陪伴自然，让生意<strong>成单</strong>。</div>'),
     sh("flow mono-sm", "left:1200px;top:1010px;width:600px;height:24px;text-align:right;--i:7",
@@ -864,6 +905,24 @@ var ov=document.getElementById("engineOverlay"),
 if(!ov||!fr||!chip)return;
 var scrim=ov.querySelector(".eo-scrim"),btn=ov.querySelector(".eo-close"),loaded=false;
 function isOpen(){return !ov.hidden;}
+/* ── 主题实时联动（2026-08-20）────────────────────────────────────────────
+   iframe 首帧靠 <head> 里读 localStorage("colin-theme") 自跟随；但抽屉开着时
+   宿主再点 deckSwap，iframe 已经加载完、不会二次读 localStorage —— 底下是深色、
+   抽屉里还是浅色。这里用 MutationObserver 盯宿主 html[data-theme]，
+   一变就把 iframe 的 documentElement 与它自己的 localStorage 一起对齐。
+   引擎 deck 暴露了 window.__setTheme（同时管 data-theme 与按钮文案），优先走它。 */
+function hostTheme(){return document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";}
+function syncTheme(){
+  var t=hostTheme(),w=null;
+  try{w=fr.contentWindow;}catch(e){}
+  if(!w||!w.document||!w.document.documentElement)return;
+  try{w.localStorage.setItem("colin-theme",t);}catch(e){}
+  if(typeof w.__setTheme==="function"){try{w.__setTheme(t);return;}catch(e){}}
+  if(t==="dark")w.document.documentElement.setAttribute("data-theme","dark");
+  else w.document.documentElement.removeAttribute("data-theme");
+}
+try{new MutationObserver(function(){if(loaded)syncTheme();})
+      .observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
 function bindInner(){
   var w=null;try{w=fr.contentWindow;}catch(e){}
   if(!w||w.__engineEscBound)return;   /* 标志位挂在内层 window 上：每次 load 换新 window 自动失效 */
@@ -873,19 +932,19 @@ function bindInner(){
   });
 }
 function focusInner(){try{fr.contentWindow.focus();}catch(e){}bindInner();}
-fr.addEventListener("load",function(){loaded=true;if(isOpen())focusInner();});
+fr.addEventListener("load",function(){loaded=true;syncTheme();if(isOpen())focusInner();});
 function openDrawer(){
-  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 16 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
+  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 17 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
   ov.hidden=false;
-  if(loaded)focusInner();
+  if(loaded){syncTheme();focusInner();}                 /* 每次展开都以宿主当前主题为准重新对齐 */
 }
 function closeDrawer(){ov.hidden=true;window.focus();}
-chip.addEventListener("click",openDrawer);
+chip.addEventListener("click",function(){chip.blur();openDrawer();});
 chip.addEventListener("keydown",function(e){
   if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer();}
 });
 scrim.addEventListener("click",closeDrawer);
-btn.addEventListener("click",closeDrawer);
+btn.addEventListener("click",function(){btn.blur();closeDrawer();});   /* 点完就摘焦点，不留 ring */
 window.addEventListener("keydown",function(e){
   if(isOpen()){
     if(e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();closeDrawer();return;}
@@ -967,13 +1026,21 @@ def build():
         'document.querySelectorAll(".strip img.lt").forEach(function(el){el.style.display=(t==="dark")?"none":"block";});'
         'document.querySelectorAll(".strip img.dk").forEach(function(el){el.style.display=(t==="dark")?"block":"none";});}'
         'var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);'
-        'b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";'
-        'try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>\n'
+        # 点击时从 DOM 现场读当前态（不吃闭包变量的陈旧值）：宿主抽屉会从外部改这份文档的
+        # data-theme，闭包里的 cur 会过期，再点就把主题切反。
+        'window.__setTheme=apply;'
+        'b.addEventListener("click",function(){b.blur();'
+        'var now=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";'
+        'var nxt=(now==="dark")?"light":"dark";'
+        'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
         + ENGINE_DRAWER_JS +
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     assert total == 8, "页数漂移：%d != 8" % total
-    print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 全页 data-steps=0" % (total, len(doc) // 1024))
+    steps_map = {i: s for i, (_b, s, _y, _h) in enumerate(PAGES, 1) if s}
+    assert steps_map == {4: 1, 5: 1, 7: 1}, "分步页漂移：%r" % steps_map
+    print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r"
+          % (total, len(doc) // 1024, steps_map))
 
 if __name__ == "__main__":
     build()

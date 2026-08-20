@@ -1,4 +1,5 @@
-// 终审素材 · convoai-engine 16 页 × 浅/深 全量截图（页数从 DOM 读，扩页不用改本文件）
+// 终审素材 · convoai-engine 全量截图 × 浅/深（页数从 DOM 读，扩页不用改本文件）
+// 分步页一律拍「build 走完」的终态：contact sheet 是给终审看内容全貌的，不是看步态的。
 // 用法：node scripts/shot-engine-family.mjs        （产出 /tmp/eng-shots/pNN-{light,dark}.png）
 //      BASE=... OUTDIR=... 可换
 import { chromium } from 'playwright-core';
@@ -21,6 +22,9 @@ for (const theme of ['light', 'dark']) {
         el.classList.toggle('active', j === k - 1);
         el.classList.toggle('visible', j === k - 1);
       });
+      // 分步页展开到最后一步（终审看的是内容全貌）
+      document.querySelectorAll('.slide')[k - 1]
+        .querySelectorAll('[data-step]').forEach(el => el.classList.add('on'));
     }, i);
     await pg.waitForTimeout(2600);            // 让入场动效走完再拍（.dw 生长线最慢，1.2s 不够）
     await pg.screenshot({ path: `${OUT}/p${String(i).padStart(2, '0')}-${theme}.png`,

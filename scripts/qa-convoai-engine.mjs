@@ -1,21 +1,27 @@
-// QA · convoai-engine 引擎产品详解（16 页 · CONF 家族 · 双主题 · 全页 data-steps=0）
-// 从 qa-convoai-info.mjs 改：N=16 / EXP_STEPS 全 0 / BOARD = {1:title, 16:title}，其余 content /
+// QA · convoai-engine 引擎产品详解（17 页 · CONF 家族 · 双主题 · P6/P7/P14 各 1 步 build）
+// 从 qa-convoai-info.mjs 改：BOARD = {1:title, 17:title}，其余 content /
 // 删掉 hero-art（⑤⑨）、eco-art（⑩）、抽屉（⑪）三组断言 —— 引擎 deck 不带位图资产，也不带抽屉。
 // 新增：
-//   ⑧ P15 数据修正闸 —— 必须含「100万+」「900亿+」「43.4%」，
-//      必须不含旧错误口径「93万」「700亿」「覆盖场景 · 20+」「对话式 AI 引擎市场占有率」
-//   ⑩ 三张新机理页的内容闸（2026-08-20 扩页 13→16）：
+//   ⑧ P16 数据修正闸 —— 必须含「100万+」「900亿+」「IDC 中国视频云市场报告」，
+//      必须不含旧错误口径「93万」「700亿」「覆盖场景 · 20+」「对话式 AI 引擎市场占有率」，
+//      也不许回归未批准的「43.4%」具体份额数字
+//   ⑩ 机理页 + 大图页内容闸：
 //      P3 双工三模式「不能插话」/「选择不插话」· P4 全双工「AEC」/「340ms」·
 //      P7 VAD「ten-vad」/「WebRTC VAD」/「语义判停」/「Apache 2.0」，且 P7 不许出现「MIT」
 //      （TEN VAD 是 Apache-2.0，写成 MIT 是常见错写，这一条钉死）
+//      P8 产品架构大图「AEC」/「打断快路径」/「SOS / EOS」/「SD-RTN」/「650ms」
+//   ② 分步闸改为逐页比对 data-steps 与页内实际 [data-step] 的最大值（不再要求全 0）
+// 2026-08-20 二轮：VAD 之后插入 P8 产品架构大图，原 P8–P16 全部 +1。
 // 用法：node scripts/qa-convoai-engine.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-engine.mjs   （换端口）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
-const N = 16;
+const N = 17;
+// 分步页：P6 实时语音链路 / P7 VAD / P14 接入架构，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
-const BOARD = { 1: 'title', 16: 'title' };      // 其余一律 content
+[6, 7, 14].forEach(p => { EXP_STEPS[p - 1] = 1; });
+const BOARD = { 1: 'title', 17: 'title' };      // 其余一律 content
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
@@ -44,16 +50,20 @@ const meta = await pg.evaluate(() => ({
 ok(meta.n === N, `① 页数 ${meta.n} != ${N}`);
 ok(meta.secs === N, `① section 数 ${meta.secs} != ${N}`);
 ok(meta.noindex, '① 缺 noindex');
-ok(meta.sigs.length === N && meta.sigs.every((s, i) => s === `${i + 1}/${N}`), '① 页码 sig 不齐（应为 N/16）');
+ok(meta.sigs.length === N && meta.sigs.every((s, i) => s === `${i + 1}/${N}`), `① 页码 sig 不齐（应为 N/${N}）`);
 ok(THEME === 'dark' ? meta.theme === 'dark' : meta.theme !== 'dark', `① 主题态异常 ${meta.theme}`);
 ok(meta.title === '声网 · 对话式 AI 引擎 · 产品介绍', `① title 漂移「${meta.title}」`);
 
-// ② 分步数：全 0，且页内不许残留任何 data-step
+// ② 分步数：逐页比对 data-steps 与页内 [data-step] 的最大值 —— 两边必须自洽，
+//    声明了 N 步却没有第 N 步的元素（或反过来）都是现场翻不出来的哑火
 const steps = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map(s => +s.dataset.steps));
 EXP_STEPS.forEach((e, i) => ok(steps[i] === e, `② P${i + 1} steps ${steps[i]} != ${e}`));
-const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide')]
-  .map((s, i) => [i + 1, s.querySelectorAll('[data-step]').length]).filter(([, n]) => n));
-stray.forEach(([p, n]) => fails.push(`② P${p} 残留 data-step ×${n}（这份 deck 不许分步）`));
+const stepMax = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map((s) => {
+  const els = [...s.querySelectorAll('[data-step]')];
+  return els.length ? Math.max(...els.map(e => +e.dataset.step || 0)) : 0;
+}));
+EXP_STEPS.forEach((e, i) => ok(stepMax[i] === e,
+  `② P${i + 1} 页内 [data-step] 最大值 ${stepMax[i]} != data-steps ${e}`));
 
 // ③④⑥ 逐页：板（数 / 类 / 主题源）、图加载、溢出（画布溢出 + 卡内溢出）
 for (let i = 1; i <= N; i++) {
@@ -62,6 +72,7 @@ for (let i = 1; i <= N; i++) {
       el.classList.toggle('active', k === n - 1); el.classList.toggle('visible', k === n - 1);
     });
     const s = document.querySelectorAll('.slide')[n - 1];
+    s.querySelectorAll('[data-step]').forEach(el => el.classList.add('on'));   // 量终态
     const bgs = [...s.querySelectorAll('.conf-bg')];
     const bgCls = bgs.length === 1 ? [...bgs[0].classList].find(c => c.startsWith('conf-bg-')) : null;
     const bgUrl = bgs.length === 1 ? getComputedStyle(bgs[0]).backgroundImage : '';
@@ -92,41 +103,63 @@ for (let i = 1; i <= N; i++) {
   await pg.waitForTimeout(50);
 }
 
-// ⑤ 页内必有 kicker + 标题（title 板的 P16 没有 kicker，单独放行）
+// ⑤ 页内必有 kicker + 标题（title 板的末页没有 kicker，单独放行）
 const shape = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map((s, i) => ({
   p: i + 1, kk: !!s.querySelector('.kk'), hh: !!s.querySelector('.hh, .ink'),
 })));
 shape.forEach(v => {
   ok(v.hh, `⑤ P${v.p} 缺主标题`);
-  if (v.p !== 16) ok(v.kk || v.p === 16, `⑤ P${v.p} 缺 kicker`);
+  if (v.p !== N) ok(v.kk, `⑤ P${v.p} 缺 kicker`);
 });
 
-// ⑧ P15 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
-//    （扩页 13→16 后 Why Agora 从 P12 挪到 P15，内容一字未动）
-const p15 = await pg.evaluate(() => document.querySelector('.slide[data-p="15"]').textContent.replace(/\s+/g, ' '));
+// ⑧ P16 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
+//    （二轮扩页 16→17 后 Why Agora 从 P15 挪到 P16，四张 KPI 数字一字未动；
+//     43.4% 具体份额未取得公司批准口径，改为定性表述 + 报告名写全）
+const p16 = await pg.evaluate(() => document.querySelector('.slide[data-p="16"]').textContent.replace(/\s+/g, ' '));
 const all = await pg.evaluate(() => document.getElementById('deckStage').textContent.replace(/\s+/g, ' '));
-[['No.1', 1], ['100万+', 1], ['900亿+', 1], ['43.4%', 1], ['50+', 1],
- ['市场占有率', 1], ['单月支撑通话分钟数', 1], ['全球注册应用数', 1]].forEach(([s]) => {
-  ok(p15.includes(s), `⑧ P15 缺「${s}」`);
+['No.1', '100万+', '900亿+', '50+',
+ '市场占有率', '单月支撑通话分钟数', '全球注册应用数',
+ 'IDC 中国视频云市场报告', '份额超过第 2–8 位厂商总和'].forEach((s) => {
+  ok(p16.includes(s), `⑧ P16 缺「${s}」`);
 });
-['93万', '700亿', '覆盖场景 · 20+', '覆盖场景', '对话式 AI 引擎市场占有率', '20+ 行业'].forEach(s => {
-  ok(!all.includes(s), `⑧ 旧错误口径回归：「${s}」`);
+['93万', '700亿', '覆盖场景 · 20+', '覆盖场景', '对话式 AI 引擎市场占有率', '20+ 行业',
+ '43.4%'].forEach(s => {
+  ok(!all.includes(s), `⑧ 旧 / 未批准口径回归：「${s}」`);
 });
-ok(p15.includes('SOURCE · 声网官网 / IR 公开口径 · IDC'), '⑧ P15 缺 SOURCE 行');
-ok(p15.includes('2014 年成立'), '⑧ P15 缺收尾行');
+ok(p16.includes('SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08'),
+   '⑧ P16 SOURCE 行不符');
+ok(p16.includes('2014 年成立'), '⑧ P16 缺收尾行');
 
-// ⑩ 三张新机理页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD）
+// ⑩ 机理页 + 大图页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD / P8 产品架构大图）
 const pageText = async (p) => pg.evaluate((k) =>
   document.querySelector(`.slide[data-p="${k}"]`).textContent.replace(/\s+/g, ' '), p);
-const [p3, p4, p7] = await Promise.all([pageText(3), pageText(4), pageText(7)]);
+const [p3, p4, p7, p8] = await Promise.all([pageText(3), pageText(4), pageText(7), pageText(8)]);
 [['不能插话', p3, 'P3'], ['选择不插话', p3, 'P3'],
  ['单工', p3, 'P3'], ['半双工', p3, 'P3'], ['全双工', p3, 'P3'],
  ['AEC', p4, 'P4'], ['340ms', p4, 'P4'], ['全双工', p4, 'P4'],
  ['WebRTC VAD', p7, 'P7'], ['语义判停', p7, 'P7'], ['TEN VAD', p7, 'P7'],
+ // ── P8 产品架构大图：四个可读性锚点 + 底座，一个都不能掉 ──
+ ['AEC', p8, 'P8'], ['打断快路径', p8, 'P8'], ['SOS / EOS', p8, 'P8'],
+ ['SD-RTN', p8, 'P8'], ['650ms', p8, 'P8'],
+ ['AI-VAD', p8, 'P8'], ['不经过 LLM', p8, 'P8'], ['参考信号', p8, 'P8'],
+ ['客户业务服务器', p8, 'P8'], ['终端设备', p8, 'P8'], ['声网引擎云', p8, 'P8'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑩ ${tag} 缺「${needle}」`));
 ok(/ten-vad/i.test(p7), '⑩ P7 缺 ten-vad 仓库地址');
 ok(/apache\s*2\.0/i.test(p7), '⑩ P7 缺「Apache 2.0」—— TEN VAD 的开源协议必须写明');
 ok(!/\bMIT\b/.test(p7), '⑩ P7 出现「MIT」—— TEN VAD 是 Apache-2.0，不是 MIT');
+ok(p7.includes('SOS/EOS 判停重构自 V2.6'), '⑩ P7 SOURCE 行未改成「判停重构自 V2.6」口径');
+// ⑩ P5 / P11 的 SOURCE 行（三个极致数字 + 弱网数字必须自带出处与「典型值」限定）
+const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
+[[p5, 'P5'], [p11, 'P11']].forEach(([txt, tag]) =>
+  ok(txt.includes('SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08'),
+     `⑩ ${tag} 缺 SOURCE 行（典型值口径）`));
+// ⑩ P6：数字人已移出串行主链（标题也从「端到端链路」改成「实时语音链路」）
+const p6 = await pageText(6);
+ok(p6.includes('一条深度优化的实时语音链路'), '⑩ P6 标题未改成「实时语音链路」');
+ok(p6.includes('数字人 · 可选'), '⑩ P6 缺「数字人 · 可选」虚线支路');
+// ⑩ P17：收尾页 CTA 行
+const p17 = await pageText(17);
+ok(p17.includes('agora.io › 对话式 AI 引擎'), '⑩ P17 缺 CTA 行');
 
 // ⑦ 主题切换：deckSwap 按钮真实切换（板源跟着翻）
 await pg.evaluate(() => {
@@ -167,7 +200,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 全页 data-steps=0 · P15 口径已锁 · 新三页内容闸通过`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P14 各 1 步 · P16 口径已锁 · P8 大图内容闸通过`);
 await b.close();
 /* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
 {

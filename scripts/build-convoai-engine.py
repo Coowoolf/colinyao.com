@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
-# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》16 页
+# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》17 页
 # CONF 家族 · conf-light 默认 · 单文件双主题 —— 以 build-convoai-info.py 为母版克隆
 #   （同一套 DECK_CSS token / conf-light·dark 背景板 / deck.js 运行时 / noindex / 双主题）
 #
@@ -10,16 +10,19 @@
 # 2026-08-20 扩为 16 页：补三张「机理」页（双工三模式 / 全双工工作原理 / VAD），
 #   全部复用既有家族件（sh/rule/lab/figbox/head/land/rail/box/txt/hline/ah_*/dline/
 #   .g3 .g4 .card .card-c .chip .note .mono-sm .seclab .land .table.mini），未开新体系。
+# 2026-08-20（二轮 · 已仲裁）扩为 17 页：VAD 之后插入「产品架构大图」，
+#   并给 P6 / P7 / P14 各加一步 presenter-controlled build（data-steps + [data-step]）。
 #
-# 结构（16 页 · 全部 data-steps=0，讲者不分步；★ = 2026-08-20 新增）：
+# 结构（17 页；★ = 2026-08-20 一轮新增，☆ = 二轮新增）：
 #   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
-#   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路
-#   P7  VAD ★                   P8  优雅打断        P9  SAL 选择性注意力
-#   P10 弱网                    P11 多模态          P12 开放编排
-#   P13 接入架构                P14 典型场景        P15 Why Agora（数据修正 · 内容零改动）
-#   P16 收尾（title 板）
+#   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路（build ×1）
+#   P7  VAD ★（build ×1）       P8  产品架构大图 ☆  P9  优雅打断
+#   P10 SAL 选择性注意力        P11 弱网            P12 多模态
+#   P13 开放编排                P14 接入架构（build ×1）
+#   P15 典型场景                P16 Why Agora（口径锁）
+#   P17 收尾（title 板）
 #
-# ── P15 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
+# ── P16 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
 #   旧（错）：No.1 对话式 AI 引擎市场占有率 / 93万+ / 700亿+ / 200+ 覆盖场景 · 20+ 行业
 #   新（对）：No.1 市场占有率 / 50+ 技术突破 / 100万+ 注册应用 / 900亿+ 单月分钟数
 #            + IDC 43.4% 注 + SOURCE 行
@@ -136,17 +139,18 @@ def vrule(x, y, h, i=1):
     """竖向 1px 细线（分栏用）"""
     return sh("spread hair-rule", "left:%dpx;top:%dpx;width:1px;height:%dpx;--i:%d" % (x, y, h, i), "")
 
-def lab(x, y, txt, w=680, col=None, i=0):
+def lab(x, y, txt, w=680, col=None, i=0, step=None):
     """mono 小节标：「01 · SIGNAL PATH」"""
     c = ";color:%s" % col if col else ""
-    return sh("flow seclab", "left:%dpx;top:%dpx;width:%dpx;height:20px;--i:%d%s" % (x, y, w, i, c), txt)
+    return sh("flow seclab", "left:%dpx;top:%dpx;width:%dpx;height:20px;--i:%d%s" % (x, y, w, i, c),
+              txt, step=step)
 
-def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0):
+def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0, step=None):
     """SVG 装盒：.sh 高度按 viewBox 等比算死，svg 一律 width:100%;height:auto"""
     h = round(w * vbh / vbw)
     return sh(cls, "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
               '<div class="fig"><svg viewBox="0 0 %d %d" style="width:100%%;height:auto">%s</svg></div>'
-              % (vbw, vbh, inner))
+              % (vbw, vbh, inner), step=step)
 
 def head(kicker, title, kw=1680):
     """每页统一的页眉：kicker y92 / 标题 y148 起（家族版式纪律）"""
@@ -175,6 +179,10 @@ def ah_d(x, y, col, s=9):
     return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
         col, x, y, x - 6, y - s - 2, x + 6, y - s - 2)
 
+def ah_u(x, y, col, s=9):
+    return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
+        col, x, y, x - 6, y + s + 2, x + 6, y + s + 2)
+
 def hline(x1, x2, y, col="var(--hair-strong)", w=2, i=1, dash=None):
     d = ' stroke-dasharray="%s"' % dash if dash else ""
     return ('<path class="dw" style="--len:%d;--i:%d" d="M%d %d H%d" '
@@ -200,19 +208,24 @@ def box(x, y, w, h, r=4, hot=False, dashed=False, i=0):
     return ('<rect class="pop box" style="--i:%d" x="%d" y="%d" width="%d" height="%d" rx="%d" '
             'stroke-width="1.4"%s/>' % (i, x, y, w, h, r, d))
 
-def txt(x, y, s, cls="txt", size=None, anchor=None, col=None, weight=None, i=None):
+def txt(x, y, s, cls="txt", size=None, anchor=None, col=None, weight=None, i=None,
+        mono=False, ls=None):
     st = []
     if size:   st.append("font-size:%dpx" % size)
     if col:    st.append("fill:%s" % col)
     if weight: st.append("font-weight:%d" % weight)
+    # mono：.lbl 是唯一自带 mono 的类，但它带 text-transform:uppercase（会把「Token 签名」
+    # 烧成「TOKEN 签名」）。要 mono 又要保留大小写时走这一路。
+    if mono:   st.append("font-family:var(--f-mono)")
+    if ls is not None: st.append("letter-spacing:%s" % ls)
     a = ' text-anchor="%s"' % anchor if anchor else ""
     g = ' class="%s"' % cls if cls else ""
     sty = ' style="%s"' % ";".join(st) if st else ""
     return '<text%s x="%d" y="%d"%s%s>%s</text>' % (g, x, y, a, sty, s)
 
-PAGES = []          # (board, body_html)
-def page(board, body):
-    PAGES.append((board, body))
+PAGES = []          # (board, steps, body_html)
+def page(board, body, steps=0):
+    PAGES.append((board, steps, body))
 
 AC = "var(--accent)"
 AD = "var(--accent-deep)"
@@ -401,18 +414,26 @@ page("content", "".join([
     for _i, (_tag, _v, _u, _n, _d) in enumerate(_EXTREMES)
     ] + [
     rule(850),
-    rail("END-TO-END 650MS · BARGE-IN 340MS · NOISE SHIELD 95%"),
+    # 原 rail（纯英文口号）替换为 SOURCE 行：三个数字是全 deck 被引用最多的口径，
+    # 必须自带出处与「典型值」限定（2026-08-20 仲裁 P0）。
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
+       "SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08"),
 ]))
 
-# ═══ P6 · 实时语音链路 ·「一条深度优化的端到端链路」════════════════════════
+# ═══ P6 · 实时语音链路 ·「一条深度优化的实时语音链路」══════════════════════
+#   2026-08-20 仲裁 P0：数字人移出串行主链 —— TTS 之后分两路并行，
+#   主路「语音输出」直达喇叭，虚线支路「数字人 · 可选」挂在主路之外，
+#   端到端 650ms 的跨度线因此只跨主路（原版把数字人串在 TTS 与喇叭之间，
+#   等于宣称数字人也在 650ms 预算内，与 P5 口径打架）。
+#   分步：step1 = 分叉支路与数字人（讲者先讲通主链，再展开可选件）。
 _PIPE = [
     # hot 落 AI-VAD：链路里唯一声网自研差异化环节；LLM 是可替换第三方件，高亮它=错误的强调声明
-    ("AI-VAD", "智能人声检测", "判断谁在说", True,  False),
-    ("ASR",    "语音转写",     "听清说什么", False, False),
-    ("LLM",    "大模型理解",   "想怎么答",   False, False),
-    ("TTS",    "语音合成",     "开口说话",   False, False),
-    ("数字人", "口型 / 表情",  "可选",       False, True),
+    ("AI-VAD", "智能人声检测", "判断谁在说", True),
+    ("ASR",    "语音转写",     "听清说什么", False),
+    ("LLM",    "大模型理解",   "想怎么答",   False),
+    ("TTS",    "语音合成",     "开口说话",   False),
 ]
+_PIPE_X = [180, 470, 760, 1050]     # 每框 w220，间距 70
 def _pipe_fig():
     o = []
     # 入口 / 出口的圆（麦克风 · 喇叭）
@@ -425,33 +446,41 @@ def _pipe_fig():
              'M1631 169a18 18 0 0 1 0 32" fill="none" stroke="%s" stroke-width="2.4" '
              'stroke-linecap="round" stroke-linejoin="round"/>' % AC)
     o.append(txt(1610, 288, "语音输出", "ttl", size=20, anchor="middle"))
-    # 五个环节
-    for i, (n, sub, foot, hot, dashed) in enumerate(_PIPE):
-        x = 180 + i * 266
+    # 四个串行环节
+    for i, (n, sub, foot, hot) in enumerate(_PIPE):
+        x = _PIPE_X[i]
         cx = x + 110
-        o.append(box(x, 120, 220, 130, 6, hot=hot, dashed=dashed, i=i + 1))
+        o.append(box(x, 120, 220, 130, 6, hot=hot, i=i + 1))
         o.append(txt(cx, 178, n, "ttl", size=26, anchor="middle",
                      col=AC if hot else None))
         o.append(txt(cx, 214, sub, "sm", size=17, anchor="middle"))
         o.append(txt(cx, 290, foot, "lbl", size=15, anchor="middle"))
-    # 连接箭头
-    for x1, x2, k in [(118, 172, 0), (406, 440, 1), (672, 706, 2), (938, 972, 3),
-                      (1204, 1238, 4), (1470, 1558, 5)]:
-        o.append(hline(x1, x2 - 9, 185, HS, 2, k))
+    # 主路连接箭头（末段 TTS → 喇叭，中途在 x1415 分叉）
+    for x1, x2, k in [(118, 180, 0), (400, 470, 1), (690, 760, 2), (980, 1050, 3), (1270, 1566, 4)]:
+        o.append(hline(x1, x2 - 12, 185, HS, 2, k))
         o.append(ah_r(x2, 185, "var(--ink-3)"))
-    # 端到端跨度标注（文字在线上方，绝不压线）
+    # ── step1：分叉点 + 虚线支路 + 数字人（可选件，不在主路上）──
+    o.append('<g data-step="1">')
+    o.append('<circle class="pop" style="--i:1;fill:%s" cx="1415" cy="185" r="6"/>' % AC)
+    o.append(dline("M1415 193 V276", HS, 2, 2, dash="6 6"))
+    o.append(ah_d(1415, 290, "var(--ink-3)", 7))
+    o.append(box(1270, 292, 290, 70, 6, dashed=True, i=3))
+    o.append(txt(1415, 322, "数字人 · 可选", "ttl", size=21, anchor="middle"))
+    o.append(txt(1415, 348, "口型 / 表情 · 与主路并行", "sm", size=14, anchor="middle"))
+    o.append('</g>')
+    # 端到端跨度标注（文字在线上方，绝不压线）· 只跨主路，数字人支路在线之上、不计入
     o.append(txt(840, 372, "端到端 650ms", "ttl", size=28, anchor="middle", col=AC, weight=700))
     o.append(dline("M70 400 H1610", AC, 1.6, 6, dash="3 8"))
     o.append(vline(70, 390, 410, AC, 1.6, 6))
     o.append(vline(1610, 390, 410, AC, 1.6, 6))
     return "".join(o)
 page("content", "".join([
-    head("PIPELINE · 实时语音链路", "一条深度优化的<strong>端到端链路</strong>。"),
+    head("PIPELINE · 实时语音链路", "一条深度优化的<strong>实时语音</strong>链路。"),
     lab(120, 236, "01 · SIGNAL PATH"),
     figbox(120, 290, 1680, 1680, 430, _pipe_fig(), i=1),
     rule(850),
     land("AI-VAD、ASR、LLM、TTS 逐环节协同优化——用户体感是一句接一句，几乎无等待。"),
-]))
+]), steps=1)
 
 # ═══ P7 · VAD ·「让机器知道，你在说话」════════════════════════════════════
 #   01 横向 4 节点 timeline（末节点 hot = 语义判停）  02 工作原理 strip（card-c 单条）
@@ -506,7 +535,8 @@ page("content", "".join([
                   'color:var(--accent)">&#8594;</span>')
                  for _k, _s in enumerate(_VADSTEP))
        + '</div>'),
-    lab(120, 522, "03 · OPEN SOURCE × IN ENGINE", i=4),
+    # ── step1：区 03 两卡 + 区 04 chips（先讲清「什么是判停」，再展开开源 / 商业两条腿）──
+    lab(120, 522, "03 · OPEN SOURCE × IN ENGINE", i=4, step=1),
     ] + [
     sh("rise card-c%s" % (" on" if _on else ""),
        "left:%dpx;top:554px;width:820px;height:226px;--i:%d" % (120 + _i * 860, 5 + _i),
@@ -520,20 +550,181 @@ page("content", "".join([
                   '<span style="font:400 18px/1.5 var(--f-cn);color:var(--ink-2)">%s</span></div>' % _b
                   for _b in _bul),
           ('<div style="margin-top:auto;padding-top:12px;font:500 15px/1 var(--f-mono);'
-           'letter-spacing:.06em;color:var(--ink-3)">%s</div>' % _foot) if _foot else ""))
+           'letter-spacing:.06em;color:var(--ink-3)">%s</div>' % _foot) if _foot else ""),
+       step=1)
     for _i, (_on, _tag, _ttl, _bul, _foot) in enumerate(_VADCARDS)
     ] + [
     sh("rise", "left:120px;top:790px;width:1680px;height:52px;--i:8",
        '<div style="display:flex;align-items:center;gap:22px">'
        '<span class="seclab" style="flex:none">04 · TEN 生态</span><div style="flex:1">'
        + "".join('<span class="chip%s">%s</span>' % (" on" if _o else "", _c)
-                 for _c, _o in _TENCHIPS) + '</div></div>'),
+                 for _c, _o in _TENCHIPS) + '</div></div>', step=1),
     rule(850),
+    # 判停重构落在 V2.6，但 SOS/EOS 是「自 V2.6 起重构」而非「V2.6 才有 VAD」——
+    # 原写法「引擎发版说明 V2.6」会被读成后者（2026-08-20 仲裁 P1）。
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:9",
-       "SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD · TEN ECOSYSTEM · 引擎发版说明 V2.6"),
+       "SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD · TEN ECOSYSTEM · "
+       "引擎发版说明 · SOS/EOS 判停重构自 V2.6"),
+]), steps=1)
+
+# ═══ P8 · 产品架构大图 ·「一张图，看懂全双工引擎」（2026-08-20 新增）═════════
+#   全 deck 唯一一张「大图页」：静置全量、不分步 —— 一张图就要一眼全。
+#   viewBox 1680×660 与 .sh 同尺寸 ⇒ 1 svg 单位 = 1 屏幕像素，所有坐标可直接对表。
+#   三秒可读性的四个锚点（验收标准）：
+#     ① 上行 / 下行两条 accent 车道同时贯穿 → 两件事同时在跑
+#     ② AI-VAD 是最大的一只 hot 盒，坐在上行车道正中 → 它是路口
+#     ③ accent-deep 粗线从 AI-VAD 垂直插进「语音输出」，旁注「不经过 LLM」→ 打断是快路径
+#     ④ 点线从下行车道弯回 AEC，标「参考信号」→ 所以听不见自己
+#   版式雷区：content 背景板自带 accent 细线在屏幕 y848–852（= svg y566–570），
+#   底部 SD-RTN 条从 y566 起，正好把它压在条内，不会横穿任何文字。
+def _bigmap():
+    o = []
+    # ── 域分隔（两条竖直 hairline；三域底标见 ⑥ 之上一行）──
+    #   走细虚线而不是实线：舞台底纹 .slide::before 每 240px 有一条实心竖 hairline，
+    #   实线域分隔会和它撞成同一种东西，读者分不清哪条是「域」。
+    o += [dline("M361 96 V562", HS, 1, 0, dash="3 9"),
+          dline("M1307 96 V562", HS, 1, 0, dash="3 9")]
+
+    # ── ① 顶部控制面（客户服务器域 · 虚线横条）──
+    o.append(box(260, 4, 1390, 62, 8, dashed=True, i=1))
+    o.append(txt(284, 42, "客户服务器", "sm", size=14, col="var(--ink-3)", mono=True))
+    o.append(txt(955, 32, "客户业务服务器 · REST 控制面", "ttl", size=22, anchor="middle"))
+    o.append(txt(955, 58, "Token 签名 · 创建/控制 Agent · Function Call 回调",
+                 "sm", size=14, anchor="middle", mono=True))
+    o.append(ah_u(1498, 68, "var(--ink-3)", 6))
+    o.append(dline("M1498 78 V106", HS, 2, 2, dash="6 6"))
+    o.append(ah_d(1498, 114, "var(--ink-3)", 6))
+    o.append(txt(1520, 96, "控制 / 事件", "sm", size=15))
+
+    # ── ② 上行车道（左 → 右 · 实线音频流）──
+    o.append(txt(150, 108, "上行 · 边听 &#8594;", "sm", size=15, col=AC, mono=True))
+    o.append('<circle class="pop box" style="--i:1" cx="70" cy="176" r="38" stroke-width="1.4"/>')
+    o.append('<path class="pop" style="--i:1" d="M70 158a9 9 0 0 1 9 9v9a9 9 0 0 1-18 0v-9a9 9 0 0 1 9-9z '
+             'M57 174a13 13 0 0 0 26 0 M70 187v8" fill="none" stroke="%s" stroke-width="2.2" '
+             'stroke-linecap="round"/>' % AC)
+    o.append(txt(70, 236, "MIC", "lbl", size=14, anchor="middle"))
+    o.append(box(150, 132, 190, 88, 6, i=2))
+    o.append(txt(245, 172, "AEC 回声消除", "ttl", size=21, anchor="middle"))
+    o.append(txt(245, 198, "减掉自己的声音", "sm", size=15, anchor="middle"))
+    o.append(box(382, 132, 210, 88, 6, i=3))
+    o.append(txt(487, 172, "SAL 声纹锁定", "ttl", size=21, anchor="middle"))
+    o.append(txt(487, 198, "降噪 · 只留目标人声", "sm", size=15, anchor="middle"))
+    # 全图核心件：AI-VAD 大号 hot 盒
+    o.append(box(634, 116, 430, 128, 8, hot=True, i=4))
+    o.append(txt(849, 158, "AI-VAD 进阶判停", "ttl", size=30, anchor="middle", col=AC))
+    o.append(txt(849, 192, "TEN VAD 声学内核 · 帧级 10/16ms · 开源", "sm", size=16, anchor="middle"))
+    o.append(txt(849, 220, "+ 语义判停 · CAN 三路融合 · 商业进阶", "sm", size=16, anchor="middle", col=AC))
+    # 角标压在盒的左上角（而不是右上角）：右上角紧邻「→ ASR」那支箭头，读者会把它当箭头的注解
+    o.append(txt(640, 106, "帧级 10/16ms", "sm", size=14, col=AC, mono=True))
+    o.append(box(1106, 132, 180, 88, 6, i=5))
+    o.append(txt(1196, 172, "流式 ASR", "ttl", size=21, anchor="middle"))
+    o.append(txt(1196, 198, "增量文本", "sm", size=15, anchor="middle"))
+    for x1, x2, k in [(110, 150, 1), (340, 382, 2), (592, 634, 3), (1064, 1106, 4), (1286, 1328, 5)]:
+        o.append(hline(x1, x2 - 14, 176, AC, 2.5, k))
+        o.append(ah_r(x2, 176, AC))
+
+    # ── ③ 右侧中枢（想）：实时编排 ⇄ LLM ──
+    o.append(box(1328, 116, 340, 132, 8, hot=True, i=4))
+    o.append(txt(1498, 158, "实时编排 · 轮次决策", "ttl", size=25, anchor="middle", col=AC))
+    o.append(txt(1498, 194, "此刻要不要出声", "sm", size=16, anchor="middle"))
+    o.append(txt(1498, 220, "要不要让位", "sm", size=16, anchor="middle"))
+    o.append(ah_u(1498, 252, AC, 6))
+    o.append(vline(1498, 262, 312, AC, 2, 5))
+    o.append(ah_d(1498, 322, AC, 6))
+    o.append(box(1328, 324, 340, 88, 6, i=5))
+    o.append(txt(1498, 362, "LLM", "ttl", size=26, anchor="middle"))
+    o.append(txt(1498, 392, "MCP · Function Call · 知识库 RAG", "sm", size=14, anchor="middle"))
+    # AI-VAD → 编排 的第二类输出：虚线事件（SOS / EOS · 打断），绕开 ASR 从下方走
+    o.append(dline("M1030 250 C 1120 316, 1330 316, 1420 258", HS, 2, 5, dash="7 6"))
+    o.append(ah_u(1420, 250, "var(--ink-3)", 6))
+    o.append(txt(1100, 276, "SOS / EOS · 打断事件", "sm", size=15, mono=True))
+
+    # ── ④ 下行车道（右 → 左 · 实线音频流）──
+    o.append(txt(150, 310, "&#8592; 下行 · 边说", "sm", size=15, col=AC, mono=True))
+    o.append(box(1106, 324, 180, 88, 6, i=4))
+    o.append(txt(1196, 364, "流式 TTS", "ttl", size=21, anchor="middle"))
+    o.append(txt(1196, 390, "增量合成 · 随时可截断", "sm", size=14, anchor="middle"))
+    o.append(box(620, 324, 210, 88, 6, i=5))
+    o.append(txt(725, 376, "语音输出", "ttl", size=22, anchor="middle"))
+    o.append('<circle class="pop box" style="--i:6" cx="70" cy="368" r="38" stroke-width="1.4"/>')
+    o.append('<path class="pop" style="--i:6" d="M62 358h-9v21h9l14 11V347z M83 361a9 9 0 0 1 0 15 '
+             'M89 355a16 16 0 0 1 0 27" fill="none" stroke="%s" stroke-width="2.2" '
+             'stroke-linecap="round" stroke-linejoin="round"/>' % AC)
+    o.append(txt(70, 428, "SPK", "lbl", size=14, anchor="middle"))
+    o.append(hline(1328, 1300, 368, AC, 2.5, 5))
+    o.append(ah_l(1286, 368, AC))
+    o.append(hline(1106, 844, 368, AC, 2.5, 6))
+    o.append(ah_l(830, 368, AC))
+    o.append(hline(620, 122, 368, AC, 2.5, 7))
+    o.append(ah_l(108, 368, AC))
+    # 分叉：主路继续向左，虚线支路向下挂数字人（不在 650ms 主路上）
+    o.append('<circle class="pop" style="--i:6;fill:%s" cx="1000" cy="368" r="6"/>' % AC)
+    o.append(dline("M1000 374 V434", HS, 2, 6, dash="6 6"))
+    o.append(ah_d(1000, 446, "var(--ink-3)", 7))
+    o.append(box(850, 446, 300, 62, 6, dashed=True, i=7))
+    o.append(txt(1000, 476, "数字人", "ttl", size=21, anchor="middle"))
+    o.append(txt(1000, 499, "口型 / 表情 · 可选", "sm", size=14, anchor="middle"))
+    o.append(txt(1170, 484, "不在 650ms 主路上", "sm", size=14, col="var(--ink-3)"))
+
+    # ── ⑤ 两条闭环（全图的灵魂）──
+    # (a) AEC 参考环：点线，从下行车道弯回 AEC —— 所以听不见自己
+    #     3px 而不是 2.2px：点线本来就比实线弱一档，两个主题下都要一眼看见；
+    #     标签压在弯道的「肘部」正上方（不是甩到最左），才读得出它注解的是这条线。
+    o.append('<circle class="pop" style="--i:7;fill:%s" cx="560" cy="368" r="6"/>' % AD)
+    o.append(dline("M560 362 C 470 320, 360 280, 300 234", AD, 3, 7, dash="3 8"))
+    o.append(ah_u(300, 222, AD, 7))
+    o.append(txt(372, 252, "参考信号——所以听不见自己", "sm", size=15, col=AD))
+    # (b) 打断快路径：accent 粗线，从 AI-VAD 垂直直插「语音输出」，不经过 LLM
+    o.append(vline(700, 248, 314, AD, 5, 6))
+    o.append(ah_d(700, 324, AD, 8))
+    o.append(txt(716, 274, "用户插话 → 340ms 收声", "ttl", size=18, col=AD, weight=700))
+    o.append(txt(716, 300, "不经过 LLM", "sm", size=15, col=AD))
+
+    # ── ⑦ 端到端计时标（只跨主路：MIC → 上行 → 中枢 → 下行 → SPK）──
+    o.append(txt(500, 514, "端到端 650ms", "ttl", size=24, anchor="middle", col=AC, weight=700))
+    o.append(dline("M70 528 H1498", AC, 1.6, 8, dash="3 8"))
+    o.append(vline(70, 518, 538, AC, 1.6, 8))
+    o.append(vline(1498, 518, 538, AC, 1.6, 8))
+
+    # ── 三域底标 ──
+    for _cx, _s in [(180, "终端设备"), (834, "声网引擎云 · 实时音频链路"),
+                    (1498, "声网引擎云 · 编排与模型")]:
+        o.append(txt(_cx, 560, _s, "sm", size=16, anchor="middle", col="var(--ink-3)"))
+
+    # ── ⑥ 底座横条：SD-RTN ──
+    #   这一条必须走不透明的 --card-bg-2（不是 72% 透明的 --card-bg）：
+    #   content 背景板自带的 accent 细线正好在 y566–570，半透明条会让它从条里透出来，
+    #   看着像条子长了半截粉色上边框。
+    o.append('<rect class="pop" style="--i:8;fill:var(--card-bg-2)" x="0" y="566" '
+             'width="1668" height="70" rx="8" stroke="var(--hair)" stroke-width="1.4"/>')
+    o.append(txt(34, 608, "SD-RTN · 软件定义实时网", "ttl", size=24))
+    o.append(ah_l(420, 601, "var(--ink-3)"))
+    o.append(hline(432, 1148, 601, HS, 2, 8))
+    o.append(ah_r(1160, 601, "var(--ink-3)"))
+    o.append(txt(1634, 608, "端 ↔ 云 双向音频流", "sm", size=16, anchor="end"))
+
+    # ── ⑧ 图例行（figbox 底内 · 与 land 分层）──
+    o.append(hline(0, 40, 649, AC, 2.5, 9))
+    o.append(txt(50, 654, "音频流", "sm", size=14))
+    o.append(dline("M150 649 H190", HS, 2, 9, dash="6 5"))
+    o.append(txt(200, 654, "事件 / 控制", "sm", size=14))
+    o.append(dline("M340 649 H380", AD, 2.2, 9, dash="2 6"))
+    o.append(txt(390, 654, "AEC 参考", "sm", size=14))
+    o.append(hline(520, 560, 649, AD, 5, 9))
+    o.append(txt(570, 654, "打断快路径", "sm", size=14))
+    return "".join(o)
+
+page("content", "".join([
+    head("PRODUCT ARCHITECTURE · FULL-DUPLEX × AI-VAD · DATA FLOW",
+         "<strong>一张图</strong>，看懂全双工引擎。"),
+    lab(120, 246, "01 · ONE PICTURE · 上行 / 中枢 / 下行 · 两条闭环"),
+    figbox(120, 282, 1680, 1680, 660, _bigmap(), i=1),
+    land("听的车道永不关闭，说的车道随时让行——中间站着 AI-VAD。", y=944),
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:9",
+       "SOURCE · 引擎发版说明 · TEN ECOSYSTEM · 打断/延时口径见 P5"),
 ]))
 
-# ═══ P8 · 优雅打断 ·「想插话就插话，340ms 即时收声」════════════════════════
+# ═══ P9 · 优雅打断 ·「想插话就插话，340ms 即时收声」════════════════════════
 def _bars(x0, n, cy, col, seed=0, gap=17, w=8, op=None):
     hs = [30, 54, 16, 66, 38, 22, 58, 34, 46, 18, 50, 26, 40, 14, 62, 30, 44, 20, 56, 36]
     o = []
@@ -570,7 +761,7 @@ page("content", "".join([
     land("对话像真人一样你来我往。"),
 ]))
 
-# ═══ P9 · SAL ·「嘈杂环境里，只听该听的人」═══════════════════════════════
+# ═══ P10 · SAL ·「嘈杂环境里，只听该听的人」═══════════════════════════════
 _NOISE = [("旁人交谈", 90), ("环境噪声", 210), ("背景音乐", 330)]
 _P6FIG = "".join(
     # 目标人声（左）
@@ -606,7 +797,7 @@ page("content", "".join([
     rail("SELECTIVE ATTENTION LOCK · 95% INTERFERENCE SHIELDED"),
 ]))
 
-# ═══ P10 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
+# ═══ P11 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
 def _weaknet_fig():
     o = [txt(10, 40, "网络 · 大量丢包 + 瞬时断网", "lbl", size=15)]
     got = {0, 6, 12, 16}
@@ -647,10 +838,14 @@ page("content", "".join([
     for _i, (_v, _u, _l) in enumerate(_P7STAT)
     ] + [
     rule(850),
-    land("极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。"),
+    # land 收窄到 1000，右侧让出 SOURCE 行（同一基线两栏，照 convoai-info P8 的做法），
+    # 这样 land 仍落在全 deck 统一的 y988 基线上，翻页时那根 accent 竖条不跳。
+    land("极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。", w=1000),
+    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
+       "SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08"),
 ]))
 
-# ═══ P11 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
+# ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
 _CAPS = [
     ("VOICEPRINT", "声纹锁定", "认准说话人"),
     ("VISION",     "看图识景", "理解图片视频"),
@@ -683,7 +878,7 @@ page("content", "".join([
     land("同一套引擎，语音、视觉、声纹、电话一并接入——对话不再只是“听和说”。"),
 ]))
 
-# ═══ P12 · 开放编排 ·「你的模型自由组合，引擎负责编排」══════════════════════
+# ═══ P13 · 开放编排 ·「你的模型自由组合，引擎负责编排」══════════════════════
 _MODELS = ["ASR 语音识别", "LLM 大模型", "TTS 语音合成", "数字人"]
 _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 是一项能力，不拆
 def _orch_fig():
@@ -714,7 +909,7 @@ page("content", "".join([
     land("快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。"),
 ]))
 
-# ═══ P13 · 接入架构 ·「2 行代码，三方协同即可上线」═════════════════════════
+# ═══ P14 · 接入架构 ·「2 行代码，三方协同即可上线」═════════════════════════
 def _arch_fig():
     o = []
     # ① 终端设备
@@ -738,6 +933,9 @@ def _arch_fig():
         o.append(box(bx, by, 186, 52, 8, i=5))
         o.append(txt(bx + 93, by + 34, s, "sm", size=19, anchor="middle"))
     o.append(txt(1212, 386, "实时编排 · 低延时传输", "lbl", size=15))
+    # ── step1：三方之间的标注层（实时流 / 取 Token / 服务端签名 · 创建智能体）──
+    #   讲者先摆三个盒子说清「谁是谁」，再一步把三条连线与标注推上来。
+    o.append('<g data-step="1">')
     # 连线：终端 ⇄ 引擎（实时音视频流，走顶弧）
     o.append(txt(840, 46, "实时音视频流", "sm", size=19, anchor="middle", col=AC, weight=700))
     o.append('<path class="dw" style="--len:1500;--i:2" d="M512 180 C 600 180, 620 68, 840 68 '
@@ -754,6 +952,7 @@ def _arch_fig():
     o.append(txt(1320, 446, "服务端签名 · 创建智能体", "sm", size=17, anchor="middle"))
     o.append(hline(1070, 1548, 470, AC, 2, 4))
     o.append(ah_r(1560, 470, AC))
+    o.append('</g>')
     return "".join(o)
 page("content", "".join([
     head("ARCHITECTURE · 接入架构", "<strong>2 行代码</strong>，三方协同即可上线。"),
@@ -761,9 +960,9 @@ page("content", "".join([
     figbox(120, 285, 1680, 1680, 500, _arch_fig(), i=1),
     rule(850),
     land("终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。"),
-]))
+]), steps=1)
 
-# ═══ P14 · 典型场景 ·「一套引擎，支撑多类场景」════════════════════════════
+# ═══ P15 · 典型场景 ·「一套引擎，支撑多类场景」════════════════════════════
 _SCENES = [
     ("01 · OUTBOUND", "AI 外呼",   "客服、营销、风控、调研、关怀通知，成本效率全面提升。"),
     ("02 · DEVICE",   "智能硬件",  "嵌入设备，让设备开口说话，语音控制与智能陪伴。"),
@@ -786,7 +985,7 @@ page("content", "".join([
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
 ]))
 
-# ═══ P15 · Why Agora ·「跑在声网实时互动底座之上」═════════════════════════
+# ═══ P16 · Why Agora ·「跑在声网实时互动底座之上」═════════════════════════
 #   数据修正页：四数字与 note / SOURCE 全部与 31 页拜访版 P2 一字对齐。
 #   2026-08-20 扩页时整块原样搬运（页号 12 → 15），内容一字未动。
 #   禁止回归的旧错误数字：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」
@@ -806,18 +1005,20 @@ page("content", "".join([
            % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag,
               "" if _on else " w", _v, _l)
            for _i, (_tag, _v, _l, _on) in enumerate(_WHY)) + '</div>'),
+    # 2026-08-20 仲裁 P0：43.4% 这个具体数字未取得公司批准口径，改为「份额超过第 2–8 位
+    # 厂商总和」的定性表述并把报告名写全；四张 KPI 卡的数字一个都不动。
     sh("flow", "left:120px;top:650px;width:1680px;height:60px;--i:5",
-       '<div class="note grey">注：根据 IDC 数据，声网在音视频通信（RTC）赛道的市场占有率达 '
-       '<b>43.4%</b>——超过第 2–8 位厂商总和。</div>'),
+       '<div class="note grey">注：IDC《中国视频云市场报告》音视频通信（RTC）赛道 · '
+       '<b>份额超过第 2–8 位厂商总和</b></div>'),
     # top 794 而非 820：content 背景板自带一条 accent 细线在 y848–852（x120–761），
     # land 落在 820 时字形正压在线上 = 划掉的观感；抬到 794 让那条线落到文字下方当收口横线
     land("2014 年成立，全球最受欢迎的实时音视频云服务提供商——语音智能体，"
          "跑在经海量流量锤炼的底座上。", y=794),
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
-       "SOURCE · 声网官网 / IR 公开口径 · IDC"),
+       "SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
-# ═══ P16 · 收尾（title 板）═══════════════════════════════════════════════
+# ═══ P17 · 收尾（title 板）═══════════════════════════════════════════════
 page("title", "".join([
     sh("ink", "left:120px;top:320px;width:1560px;height:250px;"
        "font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
@@ -826,6 +1027,9 @@ page("title", "".join([
        "border-radius:2px;--i:3", ""),
     sh("flow sub", "left:120px;top:678px;width:1500px;height:48px;--i:4",
        "低延时、可打断、听得清、看得见——把技术藏进体验里。"),
+    # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线/悬停态）
+    sh("flow mono-sm", "left:120px;top:790px;width:1500px;height:24px;--i:5",
+       "DEMO / 文档 · agora.io › 对话式 AI 引擎 · 联系团队"),
     sh("flow mono-sm", "left:120px;top:930px;width:1400px;height:24px;--i:6",
        "仅供方案交流参考"),
 ]))
@@ -834,12 +1038,12 @@ page("title", "".join([
 def build():
     total = len(PAGES)
     secs = []
-    for i, (board, body) in enumerate(PAGES, 1):
+    for i, (board, steps, body) in enumerate(PAGES, 1):
         sig = '<div class="sig">%d/%d</div>' % (i, total)
         secs.append(
-            '<section class="slide conf-boarded" data-p="%d" data-steps="0">\n'
+            '<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
             '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>\n'
-            '  <div class="pp">%s%s</div>\n</section>' % (i, board, sig, body))
+            '  <div class="pp">%s%s</div>\n</section>' % (i, steps, board, sig, body))
     chrome = ('<div class="deck-grid" aria-hidden="true"></div>'
               '<div class="deck-rail t" aria-hidden="true"></div>'
               '<div class="deck-rail b" aria-hidden="true"></div>')
@@ -878,14 +1082,23 @@ def build():
         'function apply(t){if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");b.textContent="浅底";}'
         'else{document.documentElement.removeAttribute("data-theme");b.textContent="暗底";}}'
         'var cur="light";try{cur=localStorage.getItem("colin-theme")||"light";}catch(e){}apply(cur);'
-        'b.addEventListener("click",function(){cur=(cur==="dark")?"light":"dark";'
-        'try{localStorage.setItem("colin-theme",cur);}catch(e){}apply(cur);});})();</script>\n'
+        # __setTheme：宿主（convoai-info 的引擎详解抽屉）切主题时会隔着 iframe 调它，
+        # 一次把 data-theme 与按钮文案都对齐。点击时也从 DOM 现场读当前态，
+        # 免得闭包里的 cur 被外部改动搞成陈旧值、再点把主题切反。
+        'window.__setTheme=apply;'
+        'b.addEventListener("click",function(){b.blur();'
+        'var now=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";'
+        'var nxt=(now==="dark")?"light":"dark";'
+        'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     OUT_ALIAS.write_text(doc, encoding="utf-8")
-    assert total == 16, "页数漂移：%d != 16" % total
-    assert doc.count("<section") == 16, "section 数漂移：%d" % doc.count("<section")
-    print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 全页 data-steps=0" % (total, len(doc) // 1024))
+    assert total == 17, "页数漂移：%d != 17" % total
+    assert doc.count("<section") == 17, "section 数漂移：%d" % doc.count("<section")
+    steps_map = {i: s for i, (_b, s, _y) in enumerate(PAGES, 1) if s}
+    assert steps_map == {6: 1, 7: 1, 14: 1}, "分步页漂移：%r" % steps_map
+    print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 分步 %r"
+          % (total, len(doc) // 1024, steps_map))
 
 if __name__ == "__main__":
     build()
