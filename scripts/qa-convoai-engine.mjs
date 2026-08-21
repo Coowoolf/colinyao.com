@@ -1,8 +1,8 @@
-// QA · convoai-engine 引擎产品详解（18 页 · CONF 家族 · 双主题 · P6/P7/P15 各 1 步 build）
-// 从 qa-convoai-info.mjs 改：BOARD = {1:title, 18:title}，其余 content /
+// QA · convoai-engine 引擎产品详解（22 页 · CONF 家族 · 双主题 · P6/P7/P14/P20 各 1 步 build）
+// 从 qa-convoai-info.mjs 改：BOARD = {1:title, 22:title}，其余 content /
 // 删掉 hero-art（⑤⑨）、eco-art（⑩）、抽屉（⑪）三组断言 —— 引擎 deck 不带抽屉。
 // 新增：
-//   ⑧ P17 数据修正闸 —— 必须含「100万+」「900亿+」「IDC 中国视频云市场报告」，
+//   ⑧ P21 数据修正闸 —— 必须含「100万+」「900亿+」「IDC 中国视频云市场报告」，
 //      必须不含旧错误口径「93万」「700亿」「覆盖场景 · 20+」「对话式 AI 引擎市场占有率」，
 //      也不许回归未批准的「43.4%」具体份额数字
 //   ⑩ 机理页 + 大图页内容闸：
@@ -19,25 +19,48 @@
 //   口径锁跟着搬到 data-p=17）；原 P19 OpenAI → P18 并升为末页（logo 锁定版 + 继承 CTA 行）。
 //   随之改动的断言：⑥ P13 两张 R1 实拍图必须真加载；⑦ deckSwap 改常显 chip（不再验隐身）；
 //   ⑫ P18 lt/dk 双 logo 的双主题显隐；删掉 P14 案例名闸与 P20 CTA 闸（CTA 断言搬到 P18）。
+// 2026-08-21 Call Agent 章 18 → 21（本文件当前口径）：新增 P16 登场 · 成绩单 /
+//   P17 五个大脑 · Agent Harness / P18 Loop Engineering · 成长飞轮；页序按 Colin 指令
+//   「场景之后接 Call Agent，Call Agent 之后接 R1」重排 ——
+//   原 14 编排→13 / 原 15 接入→14 / 原 16 场景→15 / 原 13 R1→19 / 原 17 Why→20 / 原 18 OpenAI→21。
+//   随之：N=21、BOARD={1,21}、分步 [6,7,14]、口径锁 data-p=20、实拍图闸 data-p=19、
+//   OpenAI logo 闸 data-p=21；新增 ⑬ Call Agent 三页内容闸 + 价格 / staging 反向闸。
+// 2026-08-21 视频页 21 → 22（本文件当前口径）：R1（P19）之后插入 P20 无人机秀全屏视频页
+//   （robot26 #24 同款机制），Why Agora → P21、OpenAI 末页 → P22。
+//   随之：N=22、BOARD={1,22}、分步 [6,7,14,20]、口径锁 data-p=21、logo 闸 data-p=22；
+//   新增 ⑭ 视频页闸（video 在位 / 静置态无 controls / muted+playsinline+preload=none+poster /
+//   data-play-step=1 / 容器贴 0,0 满幅 / video 计算尺寸 1920×1080 且 object-fit:cover）；
+//   ⑤ 版式闸给 P20 开豁免（纯片子页没有 kicker 也没有标题，robot26 #24 同款）；
+//   console / pageerror 加媒体类豁免 —— 本容器 chromium 无 H.264，play() 必然 reject，
+//   那是环境不是页面（豁免正则抄 qa-robot26.mjs 的 MEDIA_EXEMPT）。
 // 用法：node scripts/qa-convoai-engine.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-engine.mjs   （换端口）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
-const N = 18;
-// 分步页：P6 实时语音链路 / P7 VAD / P15 接入架构，各一步；其余 0
+const N = 22;
+// 分步页：P6 实时语音链路 / P7 VAD / P14 接入架构 / P20 视频页，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
-[6, 7, 15].forEach(p => { EXP_STEPS[p - 1] = 1; });
-// title 板两页：P1 封面 / P18 OpenAI 合作（末页 · quote 语域 · logo 锁定版）
-const BOARD = { 1: 'title', 18: 'title' };                   // 其余一律 content
+[6, 7, 14, 20].forEach(p => { EXP_STEPS[p - 1] = 1; });
+// title 板两页：P1 封面 / P22 OpenAI 合作（末页 · quote 语域 · logo 锁定版）
+const BOARD = { 1: 'title', 22: 'title' };                   // 其余一律 content
+// 纯全屏视频页：没有 kicker、没有标题（robot26 #24 同款「一页只有一支片子」）
+const VIDEO_PAGE = 20;
+// 媒体类报错豁免：CI 容器的 chromium 不带 H.264 解码器，video.play() 必然 reject、
+// 资源解码必然报 DEMUXER_ERROR —— 那是环境的事，不是页面的事（同 qa-robot26.mjs）
+const MEDIA_EXEMPT = /err:?\s*4|MEDIA_ELEMENT_ERROR|DEMUXER_ERROR|not supported|NotSupportedError|play\(\) request|no supported source/i;
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const pg = await b.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 const errs = [];
-pg.on('pageerror', e => errs.push('PAGEERROR ' + e.message));
+const mediaErrs = [];
+pg.on('pageerror', e => (MEDIA_EXEMPT.test(String(e)) ? mediaErrs : errs).push('PAGEERROR ' + e.message));
 pg.on('console', m => {
-  if (m.type() === 'error' && !(m.location()?.url || '').includes('favicon')) errs.push(m.text());
+  if (m.type() !== 'error') return;
+  if ((m.location()?.url || '').includes('favicon')) return;
+  if (MEDIA_EXEMPT.test(m.text())) { mediaErrs.push(m.text()); return; }
+  errs.push(m.text());
 });
 if (THEME === 'dark') await pg.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
 await pg.goto(BASE + '/decks/convoai-engine.html#1', { waitUntil: 'load' });
@@ -89,9 +112,13 @@ for (let i = 1; i <= N; i++) {
     const out = [];
     s.querySelectorAll('.pp .sh').forEach(el => {
       const r0 = el.getBoundingClientRect();
+      // 满幅件（.sh.vid 视频页）贴边就是它的规格：版心件要求离画布底 6px，满幅件只验「不出画布」。
+      // 不给它开这个口子的话，一只 0,0→1920×1080 的片子会稳报一条假溢出。
+      const full = el.classList.contains('vid');
+      const bMax = full ? 1080.5 : 1080 - 6, rMax = full ? 1920.5 : 1920 + 6, lMin = full ? -0.5 : -6;
       [...el.children].forEach(ch => {
         const r1 = ch.getBoundingClientRect();
-        if (r1.bottom > 1080 - 6 || r1.right > 1920 + 6 || r1.left < -6) out.push('canvas:' + (el.className || '').slice(0, 40));
+        if (r1.bottom > bMax || r1.right > rMax || r1.left < lMin) out.push('canvas:' + (el.className || '').slice(0, 40));
       });
       // 网格容器 height:100% 之后，卡片不许冲出所属 .sh 盒（TEXT-x-SPILL 的源头）
       if (el.className.match(/card-c|g4|g3|g2/) || el.querySelector(':scope > .g4,:scope > .g3,:scope > .g2')) {
@@ -116,27 +143,31 @@ const shape = await pg.evaluate(() => [...document.querySelectorAll('.slide')].m
   p: i + 1, kk: !!s.querySelector('.kk'), hh: !!s.querySelector('.hh, .ink'),
 })));
 shape.forEach(v => {
+  if (v.p === VIDEO_PAGE) {          // 纯片子页：无 kicker 无标题就是它的规格，反过来验
+    ok(!v.kk && !v.hh, `⑤ P${v.p} 视频页不该带 kicker / 标题（robot26 #24 是纯片子）`);
+    return;
+  }
   ok(v.hh, `⑤ P${v.p} 缺主标题`);
   if (v.p !== N) ok(v.kk, `⑤ P${v.p} 缺 kicker`);
 });
 
-// ⑧ P17 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
-//    （页号 16 → 18 → 17，四张 KPI 数字一字未动；
+// ⑧ P20 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
+//    （页号 16 → 18 → 17 → 20，四张 KPI 数字一字未动；
 //     43.4% 具体份额未取得公司批准口径，改为定性表述 + 报告名写全）
-const p17 = await pg.evaluate(() => document.querySelector('.slide[data-p="17"]').textContent.replace(/\s+/g, ' '));
+const p21 = await pg.evaluate(() => document.querySelector('.slide[data-p="21"]').textContent.replace(/\s+/g, ' '));
 const all = await pg.evaluate(() => document.getElementById('deckStage').textContent.replace(/\s+/g, ' '));
 ['No.1', '100万+', '900亿+', '50+',
  '市场占有率', '单月支撑通话分钟数', '全球注册应用数',
  'IDC 中国视频云市场报告', '份额超过第 2–8 位厂商总和'].forEach((s) => {
-  ok(p17.includes(s), `⑧ P17 缺「${s}」`);
+  ok(p21.includes(s), `⑧ P21 缺「${s}」`);
 });
 ['93万', '700亿', '覆盖场景 · 20+', '覆盖场景', '对话式 AI 引擎市场占有率', '20+ 行业',
  '43.4%'].forEach(s => {
   ok(!all.includes(s), `⑧ 旧 / 未批准口径回归：「${s}」`);
 });
-ok(p17.includes('SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08'),
-   '⑧ P17 SOURCE 行不符');
-ok(p17.includes('2014 年成立'), '⑧ P17 缺收尾行');
+ok(p21.includes('SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08'),
+   '⑧ P21 SOURCE 行不符');
+ok(p21.includes('2014 年成立'), '⑧ P21 缺收尾行');
 
 // ⑩ 机理页 + 大图页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD / P8 产品架构大图）
 const pageText = async (p) => pg.evaluate((k) =>
@@ -165,13 +196,14 @@ const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
 const p6 = await pageText(6);
 ok(p6.includes('一条深度优化的实时语音链路'), '⑩ P6 标题未改成「实时语音链路」');
 ok(p6.includes('数字人 · 可选'), '⑩ P6 缺「数字人 · 可选」虚线支路');
-// ⑩ P18 末页：从被删的原 P20 收尾页继承来的 CTA 行（真实入口不许随页消失）
-const p18 = await pageText(18);
-ok(p18.includes('agora.io › 对话式 AI 引擎'), '⑩ P18 缺 CTA 行（原 P20 收尾页继承）');
+// ⑩ P22 末页：从被删的原 P20 收尾页继承来的 CTA 行（真实入口不许随页消失）
+const p22 = await pageText(22);
+ok(p22.includes('agora.io › 对话式 AI 引擎'), '⑩ P22 缺 CTA 行（原 P20 收尾页继承）');
 
 // ⑪ 2026-08-21 两轮（大内容轮 + 收束轮）的内容闸
-const [p10, p12, p13, p14] = await Promise.all(
-  [10, 12, 13, 14].map(pageText));   // p11 / p18 上面已取过，复用
+const [p10, p12, p19, p13] = await Promise.all(
+  [10, 12, 19, 13].map(pageText));   // p11 / p22 上面已取过，复用
+                                     // 页号位移：R1 = 今 P19（原 13）、编排 = 今 P13（原 14）
 [// P10 · 三种噪声 · 三层方案（噪声名 + 方案名一个都不能掉，land 是 Colin aiot26 定稿）
  ['稳态', p10, 'P10'], ['瞬态', p10, 'P10'], ['非对话人', p10, 'P10'],
  ['传统降噪', p10, 'P10'], ['AI 降噪', p10, 'P10'], ['SAL', p10, 'P10'],
@@ -184,58 +216,166 @@ const [p10, p12, p13, p14] = await Promise.all(
  ['看图识景', p12, 'P12'], ['智能眼镜', p12, 'P12'], ['数字人', p12, 'P12'],
  ['声纹锁定', p12, 'P12'], ['SIP 电话', p12, 'P12'], ['前文已述', p12, 'P12'],
  ['让对话，走出屏幕', p12, 'P12'],
- // P13 · R1 开发套件（双源 canon：31p 拜访版 P21 + robot26 #32）
- ['R1-WiFi', p13, 'P13'], ['R1-4G', p13, 'P13'],
- ['2025.03.20', p13, 'P13'], ['2025.09.26', p13, 'P13'],
- ['BK7258', p13, 'P13'], ['UNISOC 8910', p13, 'P13'], ['单芯片一体化', p13, 'P13'],
- ['30000+', p13, 'P13'], ['拿来即用的伙伴感地基', p13, 'P13'],
- ['你做产品与角色', p13, 'P13'],
- // P13 带图重排后新增的两枚角标 / 图注（robot26 #32 原措辞）
- ['[ R1 WI-FI ]', p13, 'P13'], ['[ R1 4G ]', p13, 'P13'],
- ['带「灵动眼睛」PCB', p13, 'P13'], ['带 4G 天线 · 一体化', p13, 'P13'],
- // P14 · 编排（原 P15；箭头语义修后，图例必须自证只有两种插入线型 + 一个换装件）
- ['插入 · 指向引擎', p14, 'P14'], ['按需插入', p14, 'P14'], ['可替换 · 换装', p14, 'P14'],
- ['实时调试', p14, 'P14'],
- // P18 · OpenAI 合作 · 末页（Colin 指令口径：底座 = 对话式 AI 引擎底座；泛化为对话式智能体）
- ['对话式 AI 引擎底座', p18, 'P18'], ['全球最强的 Voice Agent 团队', p18, 'P18'],
- ['对话式智能体', p18, 'P18'], ['全球首批合作伙伴', p18, 'P18'],
- ['A QUIET ENDORSEMENT', p18, 'P18'],
+ // P19 · R1 开发套件（原 P13；双源 canon：31p 拜访版 P21 + robot26 #32）
+ ['R1-WiFi', p19, 'P19'], ['R1-4G', p19, 'P19'],
+ ['2025.03.20', p19, 'P19'], ['2025.09.26', p19, 'P19'],
+ ['BK7258', p19, 'P19'], ['UNISOC 8910', p19, 'P19'], ['单芯片一体化', p19, 'P19'],
+ ['30000+', p19, 'P19'], ['拿来即用的伙伴感地基', p19, 'P19'],
+ ['你做产品与角色', p19, 'P19'],
+ // R1 带图重排后新增的两枚角标 / 图注（robot26 #32 原措辞）
+ ['[ R1 WI-FI ]', p19, 'P19'], ['[ R1 4G ]', p19, 'P19'],
+ ['带「灵动眼睛」PCB', p19, 'P19'], ['带 4G 天线 · 一体化', p19, 'P19'],
+ // P13 · 编排（原 P14；箭头语义修后，图例必须自证只有两种插入线型 + 一个换装件）
+ ['插入 · 指向引擎', p13, 'P13'], ['按需插入', p13, 'P13'], ['可替换 · 换装', p13, 'P13'],
+ ['实时调试', p13, 'P13'],
+ // P22 · OpenAI 合作 · 末页（Colin 指令口径：底座 = 对话式 AI 引擎底座；泛化为对话式智能体）
+ ['对话式 AI 引擎底座', p22, 'P22'], ['全球最强的 Voice Agent 团队', p22, 'P22'],
+ ['对话式智能体', p22, 'P22'], ['全球首批合作伙伴', p22, 'P22'],
+ ['A QUIET ENDORSEMENT', p22, 'P22'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑪ ${tag} 缺「${needle}」`));
 // ⑪ 反向闸：Colin 明确点掉的两处措辞不许回流
-ok(!p18.includes('实时通信底座'), '⑪ P18 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
-ok(!p18.includes('消费机器人'), '⑪ P18 出现「消费机器人」—— robot26 原句已按指令泛化为「对话式智能体」');
-ok(!p18.includes('全球首个'), '⑪ P18 出现「全球首个」—— 首批口径已钉死（info 二轮仲裁 P0）');
+ok(!p22.includes('实时通信底座'), '⑪ P22 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
+ok(!p22.includes('消费机器人'), '⑪ P22 出现「消费机器人」—— robot26 原句已按指令泛化为「对话式智能体」');
+ok(!p22.includes('全球首个'), '⑪ P22 出现「全球首个」—— 首批口径已钉死（info 二轮仲裁 P0）');
 // ⑪ 收束轮删页闸：案例墙（P14）与旧收尾页（P20）的内容一律不许残留在任何一页
 ['集贤科技', 'Robopoet', 'luwu', 'Pophie', 'LOOKTECH', 'HeyCyan', 'LOOKEE',
  '你的场景，多半能对上号', '忘了它是 AI', '把技术藏进体验里'].forEach(nd =>
   ok(!all.includes(nd), `⑪ 已删页内容回流：「${nd}」`));
-// ⑪ P13 的 R1 日期只有两枚 canon（robot26 #32 / 31p 拜访版 P21 双源一致），
+// ⑪ P19 的 R1 日期只有两枚 canon（robot26 #32 / 31p 拜访版 P21 双源一致），
 //    页面上出现的任何 yyyy.mm.dd 都必须落在这两枚里 —— 防止后续改稿写进第三个日期
-const _p13dates = [...new Set(p13.match(/\d{4}\.\d{2}\.\d{2}/g) || [])];
-ok(_p13dates.every(d => d === '2025.03.20' || d === '2025.09.26'),
-   `⑪ P13 出现未授权的 R1 日期：${_p13dates.join(' / ')}`);
-// ⑫ P13 两张 R1 实拍图 + P18 双源 logo：跨 deck 引用 robot26 资产，必须真的解出像素
+const _p19dates = [...new Set(p19.match(/\d{4}\.\d{2}\.\d{2}/g) || [])];
+ok(_p19dates.every(d => d === '2025.03.20' || d === '2025.09.26'),
+   `⑪ P19 出现未授权的 R1 日期：${_p19dates.join(' / ')}`);
+// ⑫ P19 两张 R1 实拍图 + P22 双源 logo：跨 deck 引用 robot26 资产，必须真的解出像素
 const media = await pg.evaluate(() => {
   const one = (sel) => [...document.querySelectorAll(sel)].map(im => ({
     src: im.getAttribute('src'), w: im.naturalWidth,
     shown: getComputedStyle(im).display !== 'none',
   }));
-  return { r1: one('.slide[data-p="13"] .r1-shot img'), lk: one('.slide[data-p="18"] .lock img') };
+  return { r1: one('.slide[data-p="19"] .r1-shot img'), lk: one('.slide[data-p="22"] .lock img') };
 });
-ok(media.r1.length === 2, `⑫ P13 实拍图数 ${media.r1.length} != 2`);
+ok(media.r1.length === 2, `⑫ P19 实拍图数 ${media.r1.length} != 2`);
 media.r1.forEach((im, i) => {
-  ok(im.w > 0, `⑫ P13 实拍图 ${i + 1} 未解码（${im.src}）`);
+  ok(im.w > 0, `⑫ P19 实拍图 ${i + 1} 未解码（${im.src}）`);
   ok(/\/decks\/assets\/robot26\/r1-(wifi|4g)\.webp$/.test(im.src || ''),
-     `⑫ P13 实拍图 ${i + 1} 路径不是 robot26 跨引用：${im.src}`);
+     `⑫ P19 实拍图 ${i + 1} 路径不是 robot26 跨引用：${im.src}`);
 });
-ok(media.lk.length === 2, `⑫ P18 logo 锁定版应为 lt/dk 双 img，实测 ${media.lk.length}`);
-media.lk.forEach((im, i) => ok(im.w > 0, `⑫ P18 logo ${i + 1} 未解码（${im.src}）`));
+ok(media.lk.length === 2, `⑫ P22 logo 锁定版应为 lt/dk 双 img，实测 ${media.lk.length}`);
+media.lk.forEach((im, i) => ok(im.w > 0, `⑫ P22 logo ${i + 1} 未解码（${im.src}）`));
 {
   const lt = media.lk[0], dk = media.lk[1];
-  ok(/openai-agora-light\.png$/.test(lt.src || ''), `⑫ P18 浅色源不符 ${lt.src}`);
-  ok(/openai-agora\.webp$/.test(dk.src || ''), `⑫ P18 深色源不符 ${dk.src}`);
+  ok(/openai-agora-light\.png$/.test(lt.src || ''), `⑫ P22 浅色源不符 ${lt.src}`);
+  ok(/openai-agora\.webp$/.test(dk.src || ''), `⑫ P22 深色源不符 ${dk.src}`);
   ok(THEME === 'dark' ? (!lt.shown && dk.shown) : (lt.shown && !dk.shown),
-     `⑫ P18 logo 双主题显隐反了（theme=${THEME} lt=${lt.shown} dk=${dk.shown}）`);
+     `⑫ P22 logo 双主题显隐反了（theme=${THEME} lt=${lt.shown} dk=${dk.shown}）`);
+}
+
+// ⑬ Call Agent 章（2026-08-21 新增三页）内容闸 + 红线反向闸
+//    正向：三页各自的关键口径一个都不能掉；96.5% 与「32,000」必须同页出现
+//    （盲测口径与 convoai-info P5 的 2,475 通生产口径是两个不同数据集，
+//     只写 96.5% 不写 32,000 就等于把两个数据集混成一个）。
+//    反向：价格数字（¥8,500 / ¥2,999 / ¥5,501）与 staging URL 全 deck 不许出现 ——
+//    商务数字易变、staging 是内部地址，两者上页都是事故。
+const [ca16, ca17, ca18] = await Promise.all([16, 17, 18].map(pageText));
+[['96.5%', ca16, 'P16'], ['32,000', ca16, 'P16'], ['1,000+', ca16, 'P16'],
+ ['句句过审', ca16, 'P16'], ['把线索聊成订单', ca16, 'P16'], ['1/3', ca16, 'P16'],
+ ['盲测', ca16, 'P16'], ['第 10,000 通依旧满格', ca16, 'P16'],
+ ['五个大脑', ca17, 'P17'], ['动态话术策略选择', ca17, 'P17'],
+ ['选择性注意力锁定', ca17, 'P17'], ['真实意图识别', ca17, 'P17'],
+ ['情绪感知和生成', ca17, 'P17'], ['大模型流式语音识别', ca17, 'P17'],
+ ['0.8 秒', ca17, 'P17'], ['见 P8', ca17, 'P17'], ['Agent Harness', ca17, 'P17'],
+ ['快一千倍', ca18, 'P18'], ['留资率提升 12%', ca18, 'P18'], ['2 倍', ca18, 'P18'],
+ ['定向微调', ca18, 'P18'], ['DAY 15', ca18, 'P18'], ['DAY 30', ca18, 'P18'],
+ ['复盘', ca18, 'P18'], ['迭代', ca18, 'P18'],
+].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑬ ${tag} 缺「${needle}」`));
+ok(/SOURCE · 声网 CALL AGENT 官网 · 外呼智能体 · 事实截止 2026\.08/.test(ca16),
+   '⑬ P16 缺 Call Agent SOURCE 行');
+ok(/SOURCE · 声网 CALL AGENT 官网 · 外呼智能体 · 事实截止 2026\.08/.test(ca18),
+   '⑬ P18 缺 Call Agent SOURCE 行');
+['¥2,999', '¥8,500', '¥5,501', 'staging'].forEach(nd =>
+  ok(!all.includes(nd), `⑬ Call Agent 红线：全 deck 出现「${nd}」`));
+// ⑬ 章序闸：场景（P15）→ Call Agent（16–18）→ R1（P19），Colin 的排序指令钉在这里
+const p15 = await pageText(15);
+ok(p15.includes('一套引擎'), '⑬ P15 不是「典型场景」页 —— 章序被改动了？');
+ok(p19.includes('R1-4G'), '⑬ P19 不是「R1 开发套件」页 —— 章序被改动了？');
+
+// ⑭ P20 视频页闸（robot26 #24 同款机制，逐条对上；这些坑 robot26 都踩过一遍）
+//    静置态必须是干净画面：**没有 controls 属性**（Blink 控制条在 .deck-stage 的
+//    transform:scale(≠1) 下按未缩放坐标系渲染，条宽与位置全错 —— Colin 截图实锤）。
+const vid = await pg.evaluate((vp) => {
+  const sec = document.querySelector(`.slide[data-p="${vp}"]`);
+  const box = sec && sec.querySelector('.sh.vid');
+  const v = sec && sec.querySelector('video');
+  if (!sec || !box || !v) return null;
+  const bs = getComputedStyle(box), vs = getComputedStyle(v);
+  const br = box.getBoundingClientRect();
+  return {
+    src: v.getAttribute('src'), poster: v.getAttribute('poster'),
+    ctl: v.hasAttribute('controls'),
+    muted: v.hasAttribute('muted'), inline: v.hasAttribute('playsinline'),
+    preload: v.getAttribute('preload'), playStep: v.dataset.playStep,
+    boxStep: box.dataset.step,
+    bx: Math.round(br.left), by: Math.round(br.top),
+    bw: Math.round(br.width), bh: Math.round(br.height),
+    bl: bs.left, bt: bs.top, ov: bs.overflow,
+    vw: vs.width, vh: vs.height, fit: vs.objectFit, bg: vs.backgroundColor,
+    others: sec.querySelectorAll('.pp > .sh').length,
+  };
+}, VIDEO_PAGE);
+ok(!!vid, `⑭ P${VIDEO_PAGE} 缺 .sh.vid / video`);
+if (vid) {
+  ok(vid.src === '/decks/assets/robot26/demo.mp4', `⑭ 视频 src 不是 robot26 跨引用：${vid.src}`);
+  ok(vid.poster === '/decks/assets/robot26/demo-poster.jpg', `⑭ poster 不符：${vid.poster}`);
+  ok(!vid.ctl, '⑭ 静置态带 controls —— transform 缩放下控制条会错位（robot26 实锤）');
+  ok(vid.muted, '⑭ video 缺 muted —— 不静音浏览器直接拒绝自动播放');
+  ok(vid.inline, '⑭ video 缺 playsinline');
+  ok(vid.preload === 'none', `⑭ preload 应为 none（翻到才拉 3MB），实测 ${vid.preload}`);
+  ok(vid.playStep === '1', `⑭ data-play-step 应为 1，实测 ${vid.playStep}`);
+  ok(vid.boxStep === '1', `⑭ 容器 data-step 应为 1（本页 data-steps=1 靠它），实测 ${vid.boxStep}`);
+  ok(vid.bl === '0px' && vid.bt === '0px', `⑭ 容器未贴 0,0（${vid.bl},${vid.bt}）`);
+  ok(vid.bw === 1920 && vid.bh === 1080, `⑭ 容器不是满幅 1920×1080（${vid.bw}×${vid.bh}）`);
+  ok(vid.bx === 0 && vid.by === 0, `⑭ 容器左上角不在舞台原点（${vid.bx},${vid.by}）`);
+  ok(vid.ov === 'hidden', `⑭ 容器 overflow 应为 hidden，实测 ${vid.ov}`);
+  ok(vid.vw === '1920px' && vid.vh === '1080px', `⑭ video 计算尺寸 ${vid.vw}×${vid.vh} != 1920×1080`);
+  ok(vid.fit === 'cover', `⑭ video object-fit 应为 cover，实测 ${vid.fit}`);
+  ok(/rgb\(0, 0, 0\)/.test(vid.bg), `⑭ video 底色应为 #000（poster 解码前别闪白），实测 ${vid.bg}`);
+  ok(vid.others === 1, `⑭ 纯片子页只该有一只 .sh（实测 ${vid.others}）`);
+}
+// ⑭ 悬停呼出：mouseenter 挂 controls、mouseleave 收回（排练手控的唯一入口）
+{
+  await pg.evaluate((vp) => {
+    document.querySelectorAll('.slide').forEach((el, k) => el.classList.toggle('active', k === vp - 1));
+  }, VIDEO_PAGE);
+  const el = await pg.$(`.slide[data-p="${VIDEO_PAGE}"] video`);
+  await el.dispatchEvent('mouseenter');
+  const on = await pg.evaluate((vp) => document.querySelector(`.slide[data-p="${vp}"] video`).hasAttribute('controls'), VIDEO_PAGE);
+  await el.dispatchEvent('mouseleave');
+  const off = await pg.evaluate((vp) => document.querySelector(`.slide[data-p="${vp}"] video`).hasAttribute('controls'), VIDEO_PAGE);
+  ok(on, '⑭ mouseenter 未呼出 controls（排练时没法手控）');
+  ok(!off, '⑭ mouseleave 未收回 controls');
+}
+// ⑭ 播放挂钩：翻到该页且分步就位 ⇒ 脚本应当尝试 play()（本容器无 H.264，
+//    play() 必然 reject —— 所以验的是「有没有发起」而不是「有没有播成」：
+//    用 v.play 被调用过来判定，避免把环境缺编解码器算成页面的错。
+{
+  const fired = await pg.evaluate((vp) => new Promise((res) => {
+    const v = document.querySelector(`.slide[data-p="${vp}"] video`);
+    let called = false;
+    const orig = v.play.bind(v);
+    v.play = () => { called = true; return orig().catch(() => {}); };
+    document.querySelectorAll('.slide').forEach((el, k) => {
+      el.classList.toggle('active', k === vp - 1);
+    });
+    v.closest('[data-step]').classList.add('on');
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => res(called), 120)));
+  }), VIDEO_PAGE);
+  ok(fired, '⑭ 翻到视频页 + 分步就位后没有发起 play()（播放挂钩没接上）');
+  const paused = await pg.evaluate((vp) => new Promise((res) => {
+    const v = document.querySelector(`.slide[data-p="${vp}"] video`);
+    document.querySelectorAll('.slide').forEach((el, k) => el.classList.toggle('active', k === 0));
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => res(v.paused && v.currentTime === 0), 120)));
+  }), VIDEO_PAGE);
+  ok(paused, '⑭ 离开视频页后没有 pause + 归零');
 }
 
 // ⑦ 主题切换：deckSwap 按钮真实切换（板源跟着翻）
@@ -284,7 +424,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P15 各 1 步 · P17 口径已锁 · P8 大图闸 · P13 实拍图 + P18 双源 logo 闸 · deckSwap 常显`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P14/P20 各 1 步 · P21 口径已锁 · P8 大图闸 · P19 实拍图 + P22 双源 logo 闸 · Call Agent 三页闸 · P20 视频页闸 · deckSwap 常显`);
 await b.close();
 /* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
 {

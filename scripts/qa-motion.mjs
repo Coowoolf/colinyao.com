@@ -4,6 +4,8 @@
 //   ② 动效元素不携带文字：任何挂了原语类的元素，自身与子树里不得有非空文本节点
 //   ③ 非当前页一律 animation-play-state:paused
 //   ④ prefers-reduced-motion / print 全关：装饰件 display:none、真几何件 animation:none
+//   ⑥ 运动件名册：哪几页带常驻动效是**声明**出来的，不是随缘的 —— 页序重排（Call Agent 章
+//      把 R1 从 P13 搬到 P19）或某页动效被误删，这一闸当场报出来。
 //   ⑤ 逐页「保守克制」双闸：**原语种类** ≤ 6（就是全集，防止把新动画偷偷塞进来）+
 //      **DOM 运动元素** ≤ 30（防糊满）。注意一件事可能是多个元素：P11 的 25 根包雨是一件事，
 //      P6 的 5 段接头包为了恒速各带各的 duration，也是一件事。
@@ -11,6 +13,13 @@
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
+// 运动件名册（21 页口径 · 2026-08-21 Call Agent 章）：
+//   P2 实时决策 / P4 全双工 / P6 语音链路 / P7 VAD / P8 大图 / P9 打断 / P10 SAL /
+//   P11 弱网 / P12 多模态 / P13 编排 / P14 接入架构 / P17 五个大脑 ■ / P18 成长飞轮 ■
+// 不入册（纯版式 / 图片页，本来就没有常驻动效）：
+//   P1 封面 · P3 双工三模式 · P5 三件极致 · P15 场景 · P16 Call Agent 成绩单 ■ ·
+//   P19 R1 实拍 · P20 Why Agora · P21 OpenAI 末页
+const ROSTER = [2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18];
 const SEL = '.mo-packet,.mo-drift,.mo-cycle,.mo-pulse,.mo-breathe,.mo-halo';
 const fails = [];
 const ok = (c, m) => { if (!c) fails.push(m); };
@@ -55,6 +64,10 @@ async function open(opts = {}) {
   ok(r.withText.length === 0, `② 动效元素携带文字：${r.withText.join(' / ')}`);
   console.log('· 逐页运动件（原语种类 / DOM 元素）：'
     + Object.entries(r.perPage).map(([p, n]) => `P${p}:${n}/${r.perPageEl[p]}`).join(' '));
+  // ⑥ 名册比对：多一页少一页都算漂移（新页忘挂动效 / 老页动效被误删 / 页序重排没同步）
+  const live = Object.keys(r.perPage).map(Number).sort((a, b) => a - b);
+  ok(live.join(',') === ROSTER.join(','),
+     `⑥ 运动件名册漂移：实测 [${live}] != 名册 [${ROSTER}]`);
   // ③ 非当前页暂停
   const play = await pg.evaluate((sel) => {
     document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('active', i === 7));

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
-# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》18 页
+# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》22 页
 # CONF 家族 · conf-light 默认 · 单文件双主题 —— 以 build-convoai-info.py 为母版克隆
 #   （同一套 DECK_CSS token / conf-light·dark 背景板 / deck.js 运行时 / noindex / 双主题）
 #
@@ -11,7 +11,7 @@
 #   全部复用既有家族件（sh/rule/lab/figbox/head/land/rail/box/txt/hline/ah_*/dline/
 #   .g3 .g4 .card .card-c .chip .note .mono-sm .seclab .land .table.mini），未开新体系。
 # 2026-08-20（二轮 · 已仲裁）扩为 17 页：VAD 之后插入「产品架构大图」，
-#   并给 P6 / P7 / P14（今 P15 接入架构）各加一步 build（data-steps + [data-step]）。
+#   并给 P6 / P7 / P14（今 P14 接入架构）各加一步 build（data-steps + [data-step]）。
 # 2026-08-21（大内容轮）扩为 20 页：P10 SAL 重做（三种噪声 · 三层方案 + 双层防御环）／
 #   P11 弱网重做（补 AI QoS 断网续播机理）／P12 多模态改造（聚焦视觉模态）／
 #   新增 P13 Physical AI · R1 开发套件、P14 Physical AI · 已经上岗（案例墙）、
@@ -27,36 +27,58 @@
 # 2026-08-21（动效全覆盖轮）三件事，页数不变（仍 18）：
 #   ① P10 的常驻动效升格为 **deck 级运动语言**：五个原语（flow-packet / dash-drift /
 #      pulse / breathe / cycle）做成可复用类，写在 DECK_CSS 顶部（连纪律一起写在那儿），
-#      P2/P4/P6/P7/P8/P9/P11/P12/P14/P15 各按页情套用，P10 自己改用同一套类（视觉零变化）。
+#      P2/P4/P6/P7/P8/P9/P11/P12/P13/P14 各按页情套用，P10 自己改用同一套类（视觉零变化）。
 #      纪律：100% 帧 = 静态原图 / 动效元素不携带文字 / reduced-motion + print 全关 /
 #      非当前页 animation-play-state:paused。自证工具：scripts/qa-motion.mjs（四闸）
 #      与 scripts/pinned-diff.mjs（RM=1 两版逐像素比对，全页 0 差异）。
-#   ② P13 产品图完整显示（Colin：「图片展示不全，比例看看」）：图在上 / 规格在下的竖卡
+#   ② R1 产品图完整显示（Colin：「图片展示不全，比例看看」）：图在上 / 规格在下的竖卡
 #      改成图左 / 规格右的横卡，图窗 380×510 让 cover 由高定标 ⇒ 4:3 原片纵向整幅入画，
-#      两块板四边一格不缺。腾挪账见 DECK_CSS 的 .r1-card 段与 P13 页头注释。
+#      两块板四边一格不缺。腾挪账见 DECK_CSS 的 .r1-card 段与 R1 页头注释。
 #   ③ P3 三张小图改「对话版」：A 在左 / B 在右、时间竖直向下（Colin：「对话 AB 上下关系，
 #      左右是不是更贴切？试试看」）。差异两行表与 land 不动；卡高与其后所有 y 不动。
+# 2026-08-21（Call Agent 章）18 → 21 页 —— 加三页 + 一次整章重排，两件事：
+#   ① 新增 Call Agent 三页（■）：P16 登场 · 成绩单 / P17 五个大脑 · Agent Harness /
+#      P18 Loop Engineering · 成长飞轮。文案全部是 Call Agent 官网定稿逐字使用
+#      （Colin 已核），红线四条写在 P16 页头：不出价格 / 不出 staging URL /
+#      不出四位智能体人名 / 96.5% 必须带「盲测 32,000 名真实客户」口径。
+#   ② 页序按 Colin 指令重排：**场景之后接 Call Agent，Call Agent 之后接 R1**。
+#      位移对照（正文一个字节没动，只是换了位置）：
+#        原 14 编排 → 13 ／ 原 15 接入架构 → 14 ／ 原 16 场景 → 15 ／
+#        原 13 R1 → 19 ／ 原 17 Why Agora → 20 ／ 原 18 OpenAI → 21。
+#      因此分步页从 [6,7,15] 变成 [6,7,14]，口径锁页从 17 变成 20，
+#      title 板两页从 {1,18} 变成 {1,21} —— 三处闸门同步改在 build() 与 qa 里。
+#      P12 的 land「让对话，走出屏幕」保留原句（它现在遥指 P19 R1，Colin 已认可）。
+# 2026-08-21（视频页）21 → 22 页：Colin 指令「R1 之后再插一页 robot26 #24 同款全屏视频页」——
+#   新 P20 = 无人机秀 demo 全屏片子（跨引用 robot26 的 demo.mp4 + demo-poster.jpg），
+#   Why Agora → P21、OpenAI 末页 → P22。机制整套复刻 robot26 #24（不带 controls 属性 /
+#   悬停呼出 / preload=none / muted+playsinline / data-play-step 步进开播），
+#   播放挂钩写在 build() 的内联脚本里 —— **不改共享 deck.js**（那份 runtime 三份 deck 共用）。
+#   连带：分步 [6,7,14] → [6,7,14,20]、口径锁 20 → 21、title 板 {1,21} → {1,22}；
+#   bake-archive 把 demo.mp4 换成线上绝对地址（3.1MB 不进 base64，poster 照常内联）。
 #
-# 结构（18 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 新增 / 重做）：
+# 结构（22 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 新增 / 重做，■ = Call Agent 章）：
 #   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
 #   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路（build ×1）
 #   P7  VAD ★（build ×1）       P8  产品架构大图 ☆  P9  优雅打断
 #   P10 SAL 三噪声三方案 ◆（常驻动效 ◆）P11 弱网 · AI QoS ◆
-#   P12 多模态 · 聚焦视觉 ◆     P13 Physical AI · R1 ◆（带实拍图）
-#   P14 开放编排（箭头语义修 ◆）P15 接入架构（build ×1）
-#   P16 典型场景                P17 Why Agora（口径锁）
-#   P18 OpenAI 合作 ◆（title 板 · 末页 · logo 锁定版 + CTA）
+#   P12 多模态 · 聚焦视觉 ◆     P13 开放编排（箭头语义修 ◆）
+#   P14 接入架构（build ×1）    P15 典型场景
+#   P16 Call Agent 登场 · 成绩单 ■     P17 五个大脑 · Agent Harness ■（架构页 · P8 语言）
+#   P18 Loop Engineering · 成长飞轮 ■  P19 Physical AI · R1 ◆（带实拍图）
+#   P20 无人机秀 DEMO ▶（全屏视频页 · robot26 #24 同款 · build ×1）
+#   P21 Why Agora（口径锁）
+#   P22 OpenAI 合作 ◆（title 板 · 末页 · logo 锁定版 + CTA）
 #
-# ── P14 箭头语义修（2026-08-21 · Colin：「箭头流向会让大家懵逼」）────────────
+# ── P13 箭头语义修（2026-08-21 · Colin：「箭头流向会让大家懵逼」）────────────
 #   旧版同屏三种箭头语义、两种阅读方向：① 槽内 ⇄ 换装小箭头（accent，与主流同色同粗）
 #   ② 左列四条交叉贝塞尔 → 引擎（指右）③ 引擎 → 右列两条贝塞尔（也指右）——
 #   ②③ 视觉方向一致而语义相反（进 / 出），引擎被读成「过路站」而非「插槽机」。
 #   新版：插槽语义只保留一种阅读方向 =「模块插入引擎」，左右两列的连线一律指向引擎，
 #   贝塞尔全部换成正交总线（不交叉）；⇄ 换装只以小号灰件出现在模块块上方；
 #   引擎 → 发布带改为无箭头细连线（它是附属说明，不是第三种流向）。
-#   同屏箭头语义 = 2（插入 / 换装），图例逐条对上。（该页页号 13 → 15 → 14）
+#   同屏箭头语义 = 2（插入 / 换装），图例逐条对上。（该页页号 13 → 15 → 14 → 13）
 #
-# ── P17 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
+# ── P21 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
 #   旧（错）：No.1 对话式 AI 引擎市场占有率 / 93万+ / 700亿+ / 200+ 覆盖场景 · 20+ 行业
 #   新（对）：No.1 市场占有率 / 50+ 技术突破 / 100万+ 注册应用 / 900亿+ 单月分钟数
 #            + IDC 43.4% 注 + SOURCE 行
@@ -94,7 +116,7 @@ FONTS = """<style>
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
 </style>"""
 
-# ── 背景板（两张：title 给 P1/P18，content 给其余）─────────────────────────
+# ── 背景板（两张：title 给 P1/P22，content 给其余）─────────────────────────
 BOARDS_CSS = """<style id="convoai-boards">
 .conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
   background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
@@ -184,7 +206,7 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
        100% 帧上 —— 这一条保证「动效关掉 = 原图逐像素」，几何零漂移。
      · 动效元素不携带文字：文字要么在动效件之外，要么单拆一枚静态 text。
      · prefers-reduced-motion 与 print 全关（装饰件摘掉、真几何件停帧）。
-     · 非当前页一律 animation-play-state:paused —— 18 页动画同时跑没有意义。 */
+     · 非当前页一律 animation-play-state:paused —— 22 页动画同时跑没有意义。 */
 @keyframes moFlow{to{stroke-dashoffset:var(--mo-off,-200);}}
 @keyframes moPulse{0%,100%{opacity:var(--mo-hi,1);}45%{opacity:var(--mo-lo,.35);}}
 @keyframes moBreathe{0%,100%{transform:scale(1);}50%{transform:scale(var(--mo-sc,1.03));}}
@@ -221,7 +243,12 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
    智能体圆片 / 光晕走 .mo-breathe 默认的 fill-box 中心：整圆的 fill-box 中心 =
    圆心 (300,196)，与旧版写死的 view-box 原点逐像素等价（带缺口的弧才需要写死原点，
    那两条本来就不缩放）。 */
-/* ── R1 实拍图卡（P13 · 2026-08-21「完整显示」轮重排）──────────────────────
+/* ── Call Agent 章 · 差异三行表（P16）─────────────────────────────────────
+   table.mini 的 td 上下 padding 是 11px（1 表头 + 2 行 = 130，见 P3），三行就顶到 176、
+   越过 rule(850) 这条收口线。这里只把上下 padding 收到 9px（字号与行高一字不动）：
+   1 表头 + 3 行 = 166，落回 168 的盒里。改行数必须重算这一笔。 */
+.ca-diff tbody td{padding:9px 16px 9px 0;font-size:19px;}
+/* ── R1 实拍图卡（P19 · 2026-08-21「完整显示」轮重排）──────────────────────
    Colin：「图片展示不全，比例看看」。旧版是 620 宽 × 296 高的横图窗（≈2.1:1），
    对 1000×750（4:3）的实拍做 cover 裁切 —— cover 由**宽**定标（scale=.62），
    纵向只看得见 750 里的 477 行：4G 那张的天线顶端、两张的板底排线全被切在窗外。
@@ -259,7 +286,25 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
    给一圈发丝内描边把图从纸面上拎起来（实拍不翻色，只压一档饱和度免得抢页面主色）。 */
 html:not([data-theme="dark"]) .r1-shot{box-shadow:inset 0 0 0 1px rgba(17,17,17,.12);}
 html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
-/* ── OpenAI × Agora logo 锁定版（P18 末页）───────────────────────────────
+/* ── 全屏视频页（P20 无人机秀 · robot26 #24 同款）─────────────────────────
+   .sh.vid 是唯一一只贴 0,0 的满幅盒（其余 .sh 都在 120 版心里）。整幅 overflow:hidden：
+   1280×720 与 1920×1080 同 16:9，cover 理论上不裁一格，但浏览器的取整会差半像素，
+   裁掉半像素总比让它顶出舞台强。
+   video 一律 background:#000 —— poster 还没解码的那一帧，浅色主题下会露出纸白底，
+   在一支夜景片子前面闪一下白，比黑场难看得多。
+   ⚠ 不要给 video 加 controls 属性（Blink 控制条在 transform:scale 下错位，robot26 实锤）；
+     悬停呼出由 build() 里的内联脚本挂，静置态必须干净。 */
+.pp .sh.vid{overflow:hidden;}
+.sh.vid video{display:block;width:100%;height:100%;object-fit:cover;background:#000;
+  border-radius:0;outline:0;}
+/* 页码 sig 落在片子的右上角：这支片子的右上角是纯黑（实测亮度 1/255），
+   浅色主题的 --sig-ink 是 rgba(17,17,17,.30) ⇒ 黑压黑，页码等于没有。
+   两个主题都改成半透明白（robot26 #24 同款处理）。选择器用 :has(~ .sh.vid) 从兄弟
+   反查视频页 —— 不写 [data-p="20"]，页序一动就失效（本 deck 半个月里已经重排三次了）。
+   :has() 的浏览器门槛（Chrome 105）低于本 deck 已经在用的 color-mix()（Chrome 111），
+   不构成新的兼容负担。 */
+.pp .sig:has(~ .sh.vid){color:rgba(255,255,255,.42);}
+/* ── OpenAI × Agora logo 锁定版（P22 末页）───────────────────────────────
    双源同构图，走 convoai-info 的 .hero-art / .eco-art 同一套「CSS 控显隐」机制，
    不用 robot26 的 data-*-src 换源脚本：抽屉 iframe 里宿主切主题只改 html[data-theme]，
    CSS 机制天然跟随，脚本机制还得在 iframe 里再跑一遍换源代码。
@@ -451,7 +496,7 @@ def lg_fast(x, y, col=AD, w=5, i=9):
 _LGK = {"solid": lg_solid, "dash": lg_dash, "dot": lg_dot, "fast": lg_fast}
 
 def step_badge(x, y, n, r=16, i=2, halo=None):
-    """握手序号徽标（P15 接入架构）：不透明圆片 + accent 序号，压在连线上、线从徽标底下穿过。
+    """握手序号徽标（P14 接入架构）：不透明圆片 + accent 序号，压在连线上、线从徽标底下穿过。
        fill 必须是 --card-bg-2（#fffffe / #131320）——  --card-bg 是 72% 透明，
        半透明徽标会让连线从数字里透出来，读成「数字被划掉」。"""
     ring = ('<circle class="mo-halo" style="--mo-sc:2;--mo-op:.5;--mo-dur:3.6s;--mo-del:%s" '
@@ -466,7 +511,7 @@ def legend(x, y, items, i=9, gap=54):
        kind ∈ solid / dash / dot / fast / fill / swap。
        第三项给线宽：图例样线必须与页内真线同粗，否则「粗一档」在图例里读不出来。
        第四项给颜色：同一线型靠「粗细 + 灰度」分主次时（P12 加重 / 弱化），图例必须跟着降级。
-       fill = 面色块样本（P11 缓存余量）；swap = ⇄ 换装小件（P14）——都不是「线型」，
+       fill = 面色块样本（P11 缓存余量）；swap = ⇄ 换装小件（P13）——都不是「线型」，
        但同屏出现就必须进图例，否则读者要自己猜。
        步进按标签字数估宽（CJK 14px/字），够松，不会互相压。"""
     o, cx = [], x
@@ -489,12 +534,12 @@ def legend(x, y, items, i=9, gap=54):
     return "".join(o)
 
 def swap_mark(x, y, col="var(--ink-3)", i=2, w=34, sty=None):
-    """⇄ 换装小件（P14 开放编排）：两支对开的细小箭头，灰度 + 小号 —— 与「插入」主线不同重量级，
+    """⇄ 换装小件（P13 开放编排）：两支对开的细小箭头，灰度 + 小号 —— 与「插入」主线不同重量级，
        一眼读成注记而不是流向。画真箭头，不用字符 ⇄（字体缺字会掉成豆腐块）。"""
     g = "".join([
         hline(x, x + w - 8, y - 5, col, 1.3, i), ah_r(x + w, y - 5, col, 5),
         hline(x + w, x + 8, y + 5, col, 1.3, i), ah_l(x, y + 5, col, 5)])
-    # sty 给运动原语 ③（P14 槽上的 ⇄ 极轻脉冲）：整组一起呼吸，不逐条错峰
+    # sty 给运动原语 ③（P13 槽上的 ⇄ 极轻脉冲）：整组一起呼吸，不逐条错峰
     return ('<g class="mo-pulse" style="%s">%s</g>' % (sty, g)) if sty else g
 
 # ═══ P1 · 封面（title 板）══════════════════════════════════════════════════
@@ -1528,7 +1573,7 @@ page("content", "".join([
 # ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
 # 2026-08-21 改造 · 聚焦视觉模态：
 #   标题与中心 hub 保留；辐条重新配重 —— 四条等粗辐条读起来是「四件并列的功能」，
-#   而全 deck 的叙事此刻要往 Physical AI（P13）走，视觉这一路才是引子。
+#   而全 deck 的叙事此刻要往 Physical AI（今 P19）走，视觉这一路才是引子。
 #     加重（大卡 + 粗线 3.5）：IN 看图识景（端点例 智能眼镜）／ OUT 数字人（端点 语音配合数字人表达）
 #     弱化（小 chip + 灰细线 1.6）：声纹锁定（P10 已讲）／ SIP 电话 · VoIP（前序已讲），
 #       降为底部次级带并挂 mono 小注「前文已述」——不删，只降权重。
@@ -1591,71 +1636,7 @@ page("content", "".join([
     land("同一套引擎，看得见、说得出——让对话，走出屏幕。"),
 ]))
 
-# ═══ P13 · Physical AI · R1 开发套件（2026-08-21 新增 · 同日 R1 带图重排）═════
-#   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
-#   两版规格逐字对齐：R1-WiFi 2025.03.20 · BK7258 ／ R1-4G 2025.09.26 · UNISOC 8910 Cat.1。
-#   唯一 hot = R1-4G 卡（.card-c.on）与它的「单芯片一体化」规格行 —— robot26 注明这是关键卖点。
-#   2026-08-21 重排（Colin：「借鉴 robot26 的展示方式，那个有图片」）：
-#     纯文字双卡 → 两张带实拍图的大图卡，资产跨 deck 引用 robot26 原片。
-#   2026-08-21「完整显示」轮（Colin：「图片展示不全，比例看看」）：图在上 / 规格在下的
-#     竖卡改成 **图左 / 规格右** 的横卡（820 宽 ×510 高，两张占满 1680 版心）——
-#     图窗 400×510 让 cover 由高定标，整张 4:3 原片纵向全在窗内，两块板四边一格不缺。
-#     腾挪账（版心高度是守恒的，图窗要长高就得有人让位）：
-#       · 「共同能力」竖排 chip 右栏 → 横排 chips 落到收口线之下的页脚带（P7 同款破例）
-#       · 「30000+」note → 与收口句同一基线的右半区（收口句实占 ≈800，右边本来就是空的）
-#       · 角标 / 图注 → 右栏底部的图注行（原位会压住 4G 的天线，见 DECK_CSS 的 .r1-shot 段）
-#     卡高 510 / 卡顶 262 / 收口句 786 / rule 850 / land 988 全部原值不动。
-_R1KIT = [
-    ("R1 · WI-FI · 2025.03.20 发布", "R1-WiFi", "主控 BK7258 · Wi-Fi 联网",
-     "面向家居与室内——音箱 · 桌宠 · 陪伴机器人",
-     "r1-wifi.webp", "[ R1 WI-FI ]", "带「灵动眼睛」PCB", False),
-    ("R1 · 4G · 2025.09.26 发布", "R1-4G", "UNISOC 8910 · Cat.1 单芯片一体化",
-     "面向户外 / 随身 / 车载 / 出海设备",
-     "r1-4g.webp", "[ R1 4G ]", "带 4G 天线 · 一体化", True),
-]
-_R1CAPS = ["对话式 AI", "视觉理解", "本地唤醒", "灵动眼睛", "陀螺仪 / NFC / 振动"]
-_R26 = "/decks/assets/robot26/"
-page("content", "".join([
-    head("PHYSICAL AI · R1 开发套件 · GLOBAL FIRST",
-         "全球率先发布的<strong>对话式 AI 硬件开发套件</strong>。"),
-    lab(120, 236, "01 · TWO FORMATS"),
-    ] + [
-    sh("rise card-c r1-card r1-%s%s" % ("ab"[_i], " on" if _on else ""),
-       "left:%dpx;top:262px;width:820px;height:510px;--i:%d" % (120 + _i * 860, 2 + _i),
-       '<div class="r1-shot"><img src="%s%s" alt="声网 R1 开发套件 · %s 实拍"></div>'
-       '<div class="r1-body"><div class="r1-main">'
-       '<div class="mono-sm" style="color:%s">%s</div>'
-       '<h3 style="margin:12px 0 0;font:700 40px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
-       '<div style="margin-top:16px;font:700 21px/1.4 var(--f-cn);color:%s">%s</div>'
-       '<div style="margin-top:16px;font:400 18px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
-       '</div><div class="r1-cap"><span class="bdg">%s</span><span class="cap">%s</span></div>'
-       '</div>'
-       % (_R26, _img, _nm,
-          AC if _on else "var(--ink-3)", _tag, _nm,
-          AC if _on else "var(--ink)", _spec, _desc, _bdg, _cap))
-    for _i, (_tag, _nm, _spec, _desc, _img, _bdg, _cap, _on) in enumerate(_R1KIT)
-    ] + [
-    # 786 而不是 848：content 背景板自带一条 accent 细线在 y848–852（x120–761），
-    # 30px 大字压上去就是「被划掉」的观感 —— 那一带只留给 rule(850) 当收口线。
-    sh("rise", "left:120px;top:786px;width:1000px;height:52px;"
-       "font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:6",
-       "临场引擎 + 硬件参考设计 = <strong style='color:var(--accent)'>拿来即用的伙伴感地基</strong>。"),
-    # note 与收口句同一基线的右半区：收口句实占 ≈800px，1180 起是这一行本来就空着的一半
-    sh("flow", "left:1180px;top:786px;width:620px;height:52px;--i:6",
-       '<div class="note"><b>30000+</b> 芯片与整机适配——你的形态大概率已支持</div>'),
-    rule(850),
-    # 02 落在收口线之下当页脚能力带：seclab + 横排 chips 同一行（P7「04 · TEN 生态」同款）
-    sh("rise", "left:120px;top:884px;width:1680px;height:56px;--i:7",
-       '<div style="display:flex;align-items:center;gap:24px">'
-       '<span class="seclab" style="flex:none">02 · SHARED CAPABILITIES</span>'
-       '<div style="flex:1">'
-       + "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS) + '</div></div>'),
-    land("你做产品与角色，我们做<strong style='color:var(--accent)'>临场与连接</strong>。", w=1000),
-    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
-       "SOURCE · 声网官网 · R1 公开发布信息 · 事实截止 2026.08"),
-]))
-
-# ═══ P14 · 开放编排 ·「你的模型自由组合，引擎负责编排」（原 P13 → 15 → 14）═══
+# ═══ P13 · 开放编排 ·「你的模型自由组合，引擎负责编排」（页号 13→15→14→13）══
 _MODELS = ["ASR 语音识别", "LLM 大模型", "TTS 语音合成", "数字人"]
 _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 是一项能力，不拆
 # 2026-08-20 三轮升维：两列盒子 + 曲线 → 一台「插槽机」。
@@ -1728,7 +1709,7 @@ page("content", "".join([
     land("快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。"),
 ]))
 
-# ═══ P15 · 接入架构 ·「2 行代码，三方协同即可上线」（原 P14 → 16 → 15）═══════
+# ═══ P14 · 接入架构 ·「2 行代码，三方协同即可上线」（页号 14→16→15→14）═════
 def _arch_fig():
     o = []
     # ── 2026-08-20 三轮：与 P8 对齐的一致性 pass ──
@@ -1811,7 +1792,7 @@ page("content", "".join([
     land("终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。"),
 ]), steps=1)
 
-# ═══ P16 · 典型场景 ·「一套引擎，支撑多类场景」（原 P15 → 17 → 16）════════════
+# ═══ P15 · 典型场景 ·「一套引擎，支撑多类场景」（页号 15→17→16→15）═════════
 _SCENES = [
     ("01 · OUTBOUND", "AI 外呼",   "客服、营销、风控、调研、关怀通知，成本效率全面提升。"),
     ("02 · DEVICE",   "智能硬件",  "嵌入设备，让设备开口说话，语音控制与智能陪伴。"),
@@ -1834,9 +1815,327 @@ page("content", "".join([
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
 ]))
 
-# ═══ P17 · Why Agora ·「跑在声网实时互动底座之上」（原 P16 → 18 → 17）═════════
+# ═══ P16 · Call Agent 登场 · 成绩单（2026-08-21「Call Agent 章」新增 ◆）════
+#   Colin 的章序指令：场景（P15）之后接 Call Agent 三页，Call Agent 之后才接 R1（P19）。
+#   文案全部来自声网 Call Agent 官网定稿（Colin 已逐字核过）——只排版、不改写、不外推。
+#   本章三页共用的红线（改稿之前先读这四条）：
+#     · 不出现任何价格数字（商务数字易变；「1/3 成本」的定性表述已经覆盖这层意思）
+#     · 不出现 staging URL、不出现四位智能体的人名 / 头像
+#     · 96.5% 的注必须钉住「盲测 32,000 名真实客户」口径 —— 它与 convoai-info P5 的
+#       「2,475 通生产数据」是两个**不同数据集**，混写就是造假
+#     · 数字只用官网已有的四个（96.5% / 32,000 / 1,000+ / 150 / 1/3），不发明第五个
+#   hot 卡 = 96.5%：任务书逐项标注的「——hot」落在它身上，P17 的收口 mono 也回指这一枚
+#   （所以没有把 hot 给中间那张卡 —— 三页里只有这一个数字被后一页当论据引用）。
+_CA_SRC = "SOURCE · 声网 CALL AGENT 官网 · 外呼智能体 · 事实截止 2026.08"
+_CA_STAT = [
+    ("01 · TURING", "96.5%", "的客户听不出 TA 是 AI",
+     "盲测 32,000 名真实客户：每 100 人里，只有不到 4 人听出对面是 AI", True),
+    ("02 · THROUGHPUT", "1,000+", "通 / 天 · 多路并发",
+     "真人销冠约 150 通——TA 的一天 = 销冠的一周", False),
+    ("03 · COST", "1/3", "成本",
+     "用三分之一的成本，实现一支销冠团队的产能", False),
+]
+_CA_DIFF = [
+    ("状态", "会累、会烦躁", "第 10,000 通依旧满格"),
+    ("合规", "即兴发挥，难管控", "句句过审，全程可质检"),
+    ("沉淀", "离职即清零", "一处进化，全队同步"),
+]
+page("content", "".join([
+    head("CALL AGENT · 企业级智能体 · AI 外呼",
+         "Agent 替你打电话，<strong>把线索聊成订单</strong>。"),
+    sh("flow sub", "left:120px;top:246px;width:1680px;height:42px;--i:1",
+       "给 Agent 一份客户名单，剩下的交给 TA：懂沟通、能应变、擅转化。"),
+    lab(120, 306, "01 · SCORECARD"),
+    ] + [
+    # 三张成绩单卡：数字 → 说明 → 注。注走 margin-top:auto 钉在卡底 ⇒ 三张卡的注共一条基线，
+    # 卡高（270）因此不用迁就最长的那条注 —— 注长一行短一行都不会把上面的大字顶下去。
+    sh("rise card-c%s" % (" on" if _on else ""),
+       "left:%dpx;top:340px;width:540px;height:270px;--i:%d" % (120 + _i * 570, 2 + _i),
+       '<div style="padding:28px 30px;height:100%%;display:flex;flex-direction:column">'
+       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:%s">%s</div>'
+       '<div style="margin-top:16px;font:900 70px/.92 var(--f-en);letter-spacing:-.035em;'
+       'color:var(--accent)">%s</div>'
+       '<div style="margin-top:12px;font:700 26px/1.3 var(--f-cn);color:var(--ink)">%s</div>'
+       '<div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--hair);'
+       'min-height:48px;font:400 16px/1.5 var(--f-cn);color:var(--ink-3)">%s</div></div>'
+       % (AC if _on else "var(--ink-3)", _tag, _v, _l, _n))
+    for _i, (_tag, _v, _l, _n, _on) in enumerate(_CA_STAT)
+    ] + [
+    lab(120, 640, "02 · KEY DIFFERENCE · 真人 vs 外呼智能体", i=5),
+    # 差异三行走 table.mini + 页级 .ca-diff（把 td 上下 padding 从 11 收到 9）：
+    # 三行 + 表头正好落在 168 的盒里，不碰 rule(850) 这条收口线。
+    sh("rise", "left:120px;top:676px;width:1680px;height:168px;--i:6",
+       '<table class="mini ca-diff"><thead><tr><th style="width:200px"></th>'
+       '<th style="width:700px">真人</th>'
+       '<th style="width:780px;color:var(--accent)">外呼智能体</th></tr></thead><tbody>'
+       + "".join('<tr><td>%s</td><td>%s</td><td style="color:var(--accent)">%s</td></tr>' % _r
+                 for _r in _CA_DIFF) + '</tbody></table>'),
+    rule(850),
+    land("TA 不疲惫、不带情绪、句句合规。", y=944),
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7", _CA_SRC),
+]))
+
+# ═══ P17 · 五个大脑 · Agent Harness（2026-08-21「Call Agent 章」新增 ◆）════
+#   架构页，语言与 P8 产品架构大图对齐：viewBox 宽 = .sh 宽 ⇒ 1 svg 单位 = 1 屏幕像素，
+#   坐标可直接对表；类型线 + 图例照家族纪律（本页真正用到两种：实线 = 并行处理流、
+#   粗 accent-deep = 合成输出）。
+#   三秒可读性的三个锚点（验收标准）：
+#     ① 五条横带**同时**从左贯到右 → 并行，不是流水线（五条包各跑各的速度就是这个意思）
+#     ② 五带右端收进同一个点、再由一条粗线插进 hot 盒 → 五路只合成**一次**输出
+#     ③ hot 盒左上角标「每 0.8 秒」→ 节拍钉死，读者不用猜「多久一次」
+#   带序：任务书按「自下而上」给（大模型流式语音识别在最下），画布 y 自上而下长，
+#   所以 _CA_BRAINS 自上而下写 05 → 01。改动顺序前先想清楚这一层反转。
+#   动效（全部走 deck 级原语，无私有 keyframes）：
+#     · 五带各一条 .mo-packet，duration 2.0/2.3/2.6/2.9/3.2s 略错开 —— 同向而不同步，
+#       「并行」是这么读出来的；同步了就退化成一条流水线的五个分身。
+#     · 汇聚点 .mo-pulse 1.6s 一拍（不追求精确 0.8s：0.8s 在 1920 宽的屏上会读成闪烁，
+#       任务书也写明「读得出持续合成即可」）。
+#     · hot 盒 .mo-breathe + .mo-halo（本页唯一 hot 件，符合「每页至多一处呼吸」）。
+_CA_BRAINS = [                      # 自上而下画 = 自下而上读
+    ("05", "动态话术策略选择"),
+    ("04", "情绪感知和生成"),
+    ("03", "真实意图识别"),
+    ("02", "选择性注意力锁定"),
+    ("01", "大模型流式语音识别"),
+]
+_CA_BY0, _CA_BH, _CA_BGAP = 26, 72, 26          # 首带顶 / 带高 / 带距
+_CA_MID = _CA_BY0 + 2 * (_CA_BH + _CA_BGAP) + _CA_BH // 2      # 中轴 = 第三带中心 = 258
+_CA_DUR = ["2.0s", "2.3s", "2.6s", "2.9s", "3.2s"]
+def _harness_fig():
+    o = []
+    ys = [_CA_BY0 + k * (_CA_BH + _CA_BGAP) for k in range(5)]
+    cys = [y + _CA_BH // 2 for y in ys]
+    # ── ① 输入件：客户语音波形（左端）──
+    o.append(box(0, 180, 170, 156, 6, i=1))
+    o.append(txt(85, 208, "INPUT", "lbl", size=13, anchor="middle"))
+    o.append(_bars(30, 7, 250, AC, seed=2, gap=17, w=8))
+    o.append(txt(85, 314, "客户语音", "sm", size=16, anchor="middle"))
+    # ── ② 分流：同一路输入同时进五个大脑（五条细实线扇出，箭头钉在带盒左缘）──
+    for k, cy in enumerate(cys):
+        o.append('<path class="dw" style="--len:130;--i:1" d="M170 %d C 214 %d, 226 %d, 266 %d" '
+                 'fill="none" stroke="%s" stroke-width="2"/>' % (_CA_MID, _CA_MID, cy, cy, AC))
+        o.append(ah_r(280, cy, AC, 7))
+    # ── ③ 五条大脑层横带 + 各自的处理车道 ──
+    for k, (idx, name) in enumerate(_CA_BRAINS):
+        y, cy = ys[k], cys[k]
+        o.append(box(280, y, 470, _CA_BH, 6, i=2 + k))
+        o.append(txt(306, cy + 5, idx, "sm", size=15, col="var(--ink-3)", mono=True))
+        o.append(txt(348, cy + 9, name, "ttl", size=26))
+        # 车道：出带盒 → 直行 → 收束到汇聚点。包只跑在车道上，**不横穿带盒**
+        # （带盒是半透明 --card-bg，包穿过去会在带名下面留一道荧光笔式的粉块 —— P8 实测实锤）。
+        _ln = "M766 %d H1010 C1110 %d, 1190 %d, 1270 %d" % (cy, cy, _CA_MID, _CA_MID)
+        o.append(packet(_ln, 560, seg=26, w=13, op=".36", dur=_CA_DUR[k], i=2 + k))
+        o.append('<path class="dw" style="--len:560;--i:%d" d="%s" fill="none" stroke="%s" '
+                 'stroke-width="2.5"/>' % (2 + k, _ln, AC))
+        o.append(ah_r(890, cy, AC, 8))          # 方向标钉在同一条 x 上 = 五路同向
+    # ── ④ 汇聚点 → 合成输出（粗 accent-deep 快路径）→ hot 盒 ──
+    o.append('<circle class="pop mo-pulse" style="--i:7;--mo-dur:1.6s;--mo-lo:.34;fill:%s" '
+             'cx="1270" cy="%d" r="9"/>' % (AC, _CA_MID))
+    o.append(hline(1278, 1352, _CA_MID, AD, 5, 7))
+    o.append(ah_r(1364, _CA_MID, AD, 8))
+    o.append(halo_rect(1372, 174, 290, 168, 8, sc="1.05", op=".28", dur="3.4s"))
+    o.append(box(1372, 174, 290, 168, 8, hot=True, i=8, cls="mo-breathe", sty="--mo-dur:3.4s"))
+    o.append(txt(1517, 268, "输出 · 最佳回复", "ttl", size=26, anchor="middle", col=AC))
+    # 角标压在盒的左上角外沿（P8 同款）：压在盒内会跟大字抢那 168px 的高度
+    o.append(txt(1378, 164, "每 0.8 秒", "sm", size=14, col=AC, mono=True))
+    # ── ⑤ 图例行 + 连接注（同一条基线：左图例 / 右连接注）──
+    o.append(legend(0, 552, [("solid", "并行处理流"), ("fast", "合成输出")]))
+    o.append(txt(1662, 557, "跑在对话式 AI 引擎的全双工链路上 · 见 P8", "sm", size=15,
+                 anchor="end", col="var(--ink-3)", mono=True))
+    return "".join(o)
+page("content", "".join([
+    head("AGENT HARNESS · 五个大脑 · 并行",
+         "客户说话的每一秒里，<strong>五个大脑</strong>在并行工作。"),
+    lab(120, 246, "01 · FIVE BRAINS IN PARALLEL"),
+    figbox(120, 282, 1680, 1680, 580, _harness_fig(), i=1),
+    sh("flow", "left:120px;top:876px;width:1680px;height:52px;--i:6",
+       '<div class="note">我们把 Agent Harness 带进实时语音交互——五个大脑并行，'
+       '每 0.8 秒合成一句恰到好处的回复，自然从容到听不出是 AI。</div>'),
+    land("听清、听懂、想透、决断——同时发生。", y=944),
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
+       "为什么 96.5% 的客户听不出对面是 AI——答案在这五层。"),
+]))
+
+# ═══ P18 · Loop Engineering · 成长飞轮（2026-08-21「Call Agent 章」新增 ◆）══
+#   左 = 成长曲线（DAY 1 → 30，智能体上扬 vs 真人销冠平线，Day 15 穿越、Day 30 拉开到 2 倍位）
+#   右 = 小环图（复盘 → 定位 → 迭代 → 训练，官网 Day 1 的 loop 意象，持续绕行）
+#   下 = 三张里程碑卡，DAY 30 是 hot（「2 倍」按任务书用 accent 大字压在句尾）
+#   曲线的坐标账（改图前先算这一笔，否则「2 倍」就不是 2 倍了）：
+#     基线（零）y=250 · 真人销冠平线 y=160 ⇒ 一倍 = 90px · 两倍 = 180px ⇒ 曲线终点 y=70。
+#     穿越点必须**恰好**落在 (700,160)：第二段三次贝塞尔的终点就写死在那里。
+#   动效：曲线 .mo-packet（成长在跑）· 平线 .mo-drift（基准线也是活的，只是不长）·
+#        穿越点 .mo-pulse · 终点 .mo-breathe + .mo-halo · 小环 .mo-cycle（dash 绕圈，
+#        环几何不转 —— 与 P10 双层防御环同一条页级硬约束）。
+_CA_MILE = [
+    ("DAY 07", "跑完首批数千通迭代 Loop",
+     "每一通不理想的电话都被自动分析、改写话术、重新训练、重新仿真测试，留资率提升 12%", False),
+    ("DAY 15", "反超真人销冠",
+     "黄金时段的转化率正式越过最好的销售，而且差距还在随每一个 Loop 继续拉开", False),
+    ("DAY 30", "Loop 沉淀为一轮定向微调",
+     "30 天通话数据沉淀为一轮定向微调反哺模型，转化效果稳定拉开到真人销冠的"
+     "<b style=\"font:700 26px/1 var(--f-cn);color:var(--accent)\">2 倍</b>", True),
+]
+_CA_CURVE = ("M150 232 C 260 224, 340 214, 420 204 C 520 192, 620 176, 700 160 "
+             "C 830 134, 960 108, 1060 70")
+def _loopcurve_fig():
+    o = []
+    # ── 坐标轴（y 轴只画一截 + 一个箭头 = 「越高越好」，不标刻度：这页讲趋势不讲绝对值）──
+    o.append(ah_u(110, 28, HS, 6))
+    o.append(vline(110, 40, 250, HS, 1.4, 1))
+    o.append(txt(126, 44, "转化效果", "sm", size=15, col="var(--ink-3)", mono=True))
+    o.append(hline(110, 1150, 250, HS, 1.4, 1))
+    for _x, _d in [(150, "DAY 01"), (420, "DAY 07"), (700, "DAY 15"), (1060, "DAY 30")]:
+        o.append(vline(_x, 250, 259, HS, 1.4, 1))
+        o.append(txt(_x, 280, _d, "lbl", size=14, anchor="middle"))
+    # ── 真人销冠平线（基准）──
+    o.append(dline("M150 160 H1060", HS, 2, 2, dash="7 6",
+                   cls="mo-drift", sty="--mo-off:-39;--mo-dur:3.4s"))
+    o.append(txt(1075, 166, "真人销冠", "sm", size=17, col="var(--ink-3)"))
+    # ── 外呼智能体成长曲线 ──
+    o.append(packet(_CA_CURVE, 980, seg=28, w=12, op=".32", dur="2.6s", i=3))
+    o.append('<path class="dw" style="--len:1020;--i:3" d="%s" fill="none" stroke="%s" '
+             'stroke-width="3.4" stroke-linecap="round"/>' % (_CA_CURVE, AC))
+    o.append(txt(1075, 76, "外呼智能体", "sm", size=17, col=AC, weight=700))
+    # ── 穿越点（DAY 15）：标签甩到点的左上，曲线在那一带是从右下往左下走的，不打架 ──
+    o.append('<circle class="pop mo-pulse" style="--i:4;--mo-dur:2.2s;--mo-lo:.34;fill:%s" '
+             'cx="700" cy="160" r="9"/>' % AC)
+    o.append(txt(688, 138, "反超", "sm", size=18, anchor="end", col=AD, weight=700))
+    # ── 终点（DAY 30）：2 倍位 ──
+    o.append('<circle class="mo-halo" style="--mo-sc:2.2;--mo-op:.45;--mo-dur:3.2s" '
+             'cx="1060" cy="70" r="10" fill="none" stroke="%s" stroke-width="2.5" opacity="0"/>' % AC)
+    o.append('<circle class="pop mo-breathe" style="--i:5;--mo-dur:3.2s;fill:%s" '
+             'cx="1060" cy="70" r="10"/>' % AC)
+    o.append(txt(1060, 42, "2 倍", "ttl", size=26, anchor="middle", col=AC, weight=700))
+    o.append(legend(0, 302, [("solid", "外呼智能体"), ("dash", "真人销冠基准")]))
+    return "".join(o)
+_CA_LOOP = [(190, 59, "复盘"), (286, 155, "定位"), (190, 251, "迭代"), (94, 155, "训练")]
+def _loopring_fig():
+    o = []
+    # 环只让 dash 绕圈（.mo-cycle），几何不转：四个节点是钉在钟面位置上的，一转就乱套。
+    # 周长 2πr = 603.2；dash「8 7」周期 15，--mo-off 取 600（= 40 个整周期）⇒ 100% 帧 = 原图。
+    o.append('<circle class="pop mo-cycle" style="--i:2;--mo-off:-600;--mo-dur:9s" '
+             'cx="190" cy="155" r="96" fill="none" stroke="%s" stroke-width="2.4" '
+             'stroke-dasharray="8 7"/>' % AC)
+    for _deg in (45, 135, 225, 315):            # 四个缺口上的顺时针方向标
+        o.append('<g transform="rotate(%d 190 155)">%s</g>' % (_deg, ah_d(286, 155, AC, 7)))
+    for _i, (_x, _y, _nm) in enumerate(_CA_LOOP):
+        o.append('<circle class="pop" style="--i:%d;fill:var(--card-bg-2)" cx="%d" cy="%d" r="40" '
+                 'stroke="%s" stroke-width="1.6"/>' % (3 + _i, _x, _y, AC))
+        o.append(txt(_x, _y + 7, _nm, "ttl", size=20, anchor="middle"))
+    o.append(txt(190, 162, "LOOP", "lbl", size=16, anchor="middle"))
+    return "".join(o)
+page("content", "".join([
+    head("LOOP ENGINEERING · 自学习 · 自迭代",
+         "和销冠一样擅长复盘成长，只是<strong>快一千倍</strong>。"),
+    lab(120, 246, "01 · DAY 1 → DAY 30 · 成长曲线"),
+    lab(1420, 246, "02 · THE LOOP", w=380, i=1),
+    figbox(120, 276, 1240, 1240, 310, _loopcurve_fig(), i=1),
+    figbox(1420, 276, 380, 380, 310, _loopring_fig(), i=2),
+    lab(120, 612, "03 · THREE MILESTONES", i=4),
+    ] + [
+    sh("rise card-c%s" % (" on" if _on else ""),
+       "left:%dpx;top:646px;width:540px;height:190px;--i:%d" % (120 + _i * 570, 5 + _i),
+       '<div style="padding:24px 26px;height:100%%;display:flex;flex-direction:column">'
+       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.18em;color:%s">%s</div>'
+       '<div style="margin-top:10px;font:700 25px/1.25 var(--f-cn);color:%s">%s</div>'
+       '<div style="margin-top:10px;font:400 18px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
+       '</div>' % (AC if _on else "var(--ink-3)", _day, AC if _on else "var(--ink)", _t, _d))
+    for _i, (_day, _t, _d, _on) in enumerate(_CA_MILE)
+    ] + [
+    rule(850),
+    land("通话内容自学习，转化效果自迭代。", y=944),
+    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:8", _CA_SRC),
+]))
+# ═══ P19 · Physical AI · R1 开发套件（带实拍图 · 页号 13→19）════════════
+#   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
+#   两版规格逐字对齐：R1-WiFi 2025.03.20 · BK7258 ／ R1-4G 2025.09.26 · UNISOC 8910 Cat.1。
+#   唯一 hot = R1-4G 卡（.card-c.on）与它的「单芯片一体化」规格行 —— robot26 注明这是关键卖点。
+#   2026-08-21 重排（Colin：「借鉴 robot26 的展示方式，那个有图片」）：
+#     纯文字双卡 → 两张带实拍图的大图卡，资产跨 deck 引用 robot26 原片。
+#   2026-08-21「完整显示」轮（Colin：「图片展示不全，比例看看」）：图在上 / 规格在下的
+#     竖卡改成 **图左 / 规格右** 的横卡（820 宽 ×510 高，两张占满 1680 版心）——
+#     图窗 400×510 让 cover 由高定标，整张 4:3 原片纵向全在窗内，两块板四边一格不缺。
+#     腾挪账（版心高度是守恒的，图窗要长高就得有人让位）：
+#       · 「共同能力」竖排 chip 右栏 → 横排 chips 落到收口线之下的页脚带（P7 同款破例）
+#       · 「30000+」note → 与收口句同一基线的右半区（收口句实占 ≈800，右边本来就是空的）
+#       · 角标 / 图注 → 右栏底部的图注行（原位会压住 4G 的天线，见 DECK_CSS 的 .r1-shot 段）
+#     卡高 510 / 卡顶 262 / 收口句 786 / rule 850 / land 988 全部原值不动。
+_R1KIT = [
+    ("R1 · WI-FI · 2025.03.20 发布", "R1-WiFi", "主控 BK7258 · Wi-Fi 联网",
+     "面向家居与室内——音箱 · 桌宠 · 陪伴机器人",
+     "r1-wifi.webp", "[ R1 WI-FI ]", "带「灵动眼睛」PCB", False),
+    ("R1 · 4G · 2025.09.26 发布", "R1-4G", "UNISOC 8910 · Cat.1 单芯片一体化",
+     "面向户外 / 随身 / 车载 / 出海设备",
+     "r1-4g.webp", "[ R1 4G ]", "带 4G 天线 · 一体化", True),
+]
+_R1CAPS = ["对话式 AI", "视觉理解", "本地唤醒", "灵动眼睛", "陀螺仪 / NFC / 振动"]
+_R26 = "/decks/assets/robot26/"
+page("content", "".join([
+    head("PHYSICAL AI · R1 开发套件 · GLOBAL FIRST",
+         "全球率先发布的<strong>对话式 AI 硬件开发套件</strong>。"),
+    lab(120, 236, "01 · TWO FORMATS"),
+    ] + [
+    sh("rise card-c r1-card r1-%s%s" % ("ab"[_i], " on" if _on else ""),
+       "left:%dpx;top:262px;width:820px;height:510px;--i:%d" % (120 + _i * 860, 2 + _i),
+       '<div class="r1-shot"><img src="%s%s" alt="声网 R1 开发套件 · %s 实拍"></div>'
+       '<div class="r1-body"><div class="r1-main">'
+       '<div class="mono-sm" style="color:%s">%s</div>'
+       '<h3 style="margin:12px 0 0;font:700 40px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
+       '<div style="margin-top:16px;font:700 21px/1.4 var(--f-cn);color:%s">%s</div>'
+       '<div style="margin-top:16px;font:400 18px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
+       '</div><div class="r1-cap"><span class="bdg">%s</span><span class="cap">%s</span></div>'
+       '</div>'
+       % (_R26, _img, _nm,
+          AC if _on else "var(--ink-3)", _tag, _nm,
+          AC if _on else "var(--ink)", _spec, _desc, _bdg, _cap))
+    for _i, (_tag, _nm, _spec, _desc, _img, _bdg, _cap, _on) in enumerate(_R1KIT)
+    ] + [
+    # 786 而不是 848：content 背景板自带一条 accent 细线在 y848–852（x120–761），
+    # 30px 大字压上去就是「被划掉」的观感 —— 那一带只留给 rule(850) 当收口线。
+    sh("rise", "left:120px;top:786px;width:1000px;height:52px;"
+       "font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:6",
+       "临场引擎 + 硬件参考设计 = <strong style='color:var(--accent)'>拿来即用的伙伴感地基</strong>。"),
+    # note 与收口句同一基线的右半区：收口句实占 ≈800px，1180 起是这一行本来就空着的一半
+    sh("flow", "left:1180px;top:786px;width:620px;height:52px;--i:6",
+       '<div class="note"><b>30000+</b> 芯片与整机适配——你的形态大概率已支持</div>'),
+    rule(850),
+    # 02 落在收口线之下当页脚能力带：seclab + 横排 chips 同一行（P7「04 · TEN 生态」同款）
+    sh("rise", "left:120px;top:884px;width:1680px;height:56px;--i:7",
+       '<div style="display:flex;align-items:center;gap:24px">'
+       '<span class="seclab" style="flex:none">02 · SHARED CAPABILITIES</span>'
+       '<div style="flex:1">'
+       + "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS) + '</div></div>'),
+    land("你做产品与角色，我们做<strong style='color:var(--accent)'>临场与连接</strong>。", w=1000),
+    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
+       "SOURCE · 声网官网 · R1 公开发布信息 · 事实截止 2026.08"),
+]))
+
+# ═══ P20 · 无人机秀 DEMO · 全屏视频页（2026-08-21 · robot26 #24 同款机制）══
+#   Colin 指令：R1（P19）之后插一页 robot26 #24 同款全屏视频页。
+#   **纯片子**：无 kicker、无标题、无 land —— 一页只有一支片子，讲者按一下就播。
+#   复刻的是 robot26 #24 已经踩平的那套机制，逐条对上（改这页之前先读完）：
+#     ① 资产跨 deck 引用 robot26 目录，不复制文件（bake 的资产内联按路径全匹配，跨引用照吃）。
+#        demo.mp4 3.1MB 不进归档内联 —— bake-archive 里换成线上绝对地址（见那份脚本的
+#        _mask_media / MEDIA_ABS），离线打开退回已内联的 poster，在线打开照播。
+#     ② **不带 controls 属性**：Blink 的原生控制条在 .deck-stage 的 transform:scale(≠1) 下
+#        按未缩放坐标系渲染，条宽与位置全错（robot26 Colin 截图实锤）。悬停才由 JS 呼出，
+#        供排练手控；静置态必须是干净画面，qa 的 ⑭ 闸盯着这一条。
+#     ③ preload="none"：21 页的 deck 一打开就预拉 3MB 视频是没道理的，翻到才拉。
+#     ④ muted + playsinline：不 muted 浏览器会拒绝自动播放（play() 直接 reject）。
+#     ⑤ 分步：容器挂 data-step="1" ⇒ 本页 data-steps=1，「翻到 + 按一下」才开播；
+#        视频挂 data-play-step="1" 供播放脚本识别。容器**不挂入场类**（.rise/.flow…），
+#        所以 step0 就是整幅 poster 静置，按一下才是「开播」而不是「图片飞进来」。
+#   1280×720 的片子与 1920×1080 舞台同 16:9 ⇒ object-fit:cover 不裁一格。
+_VID = "/decks/assets/robot26/"
+page("content",
+     sh("vid", "left:0;top:0;width:1920px;height:1080px;z-index:0",
+        '<video data-play-step="1" src="%sdemo.mp4" poster="%sdemo-poster.jpg" '
+        'preload="none" playsinline muted></video>' % (_VID, _VID), step=1),
+     steps=1)
+
+# ═══ P21 · Why Agora ·「跑在声网实时互动底座之上」（页号 16→18→17→20→21）═══
 #   数据修正页：四数字与 note / SOURCE 全部与 31 页拜访版 P2 一字对齐。
-#   2026-08-20 扩页时整块原样搬运（页号 12 → 15 → 16 → 18 → 17），内容一字未动。
+#   2026-08-20 起整块原样搬运（页号 12 → 15 → 16 → 18 → 17 → 20 → 21），内容一字未动。
 #   禁止回归的旧错误数字：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」
 _WHY = [
     ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
@@ -1867,7 +2166,7 @@ page("content", "".join([
        "SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
-# ═══ P18 · OpenAI 合作 · 末页（2026-08-21 新增 · 同日升为收尾页）════════════
+# ═══ P22 · OpenAI 合作 · 末页（logo 锁定版 + CTA · 页号 19→18→21→22）═══════
 #   参照 robot26 #33「A QUIET ENDORSEMENT」，按 Colin 指令泛化两处：
 #     ①「实时通信底座」→「对话式 AI 引擎底座」（本 deck 讲的是引擎，不是 RTC 管道）
 #     ②「你的消费机器人」→「你的对话式智能体」（本 deck 的听众不限于机器人客户）
@@ -1969,16 +2268,57 @@ def build():
         'var now=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";'
         'var nxt=(now==="dark")?"light":"dark";'
         'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
+        # ── 视频页播放挂钩（P20 无人机秀）─────────────────────────────────────
+        #   共享 deck.js 是 CONF 全家共用的 runtime，里面没有 robot26 那套 syncMedia，
+        #   **也不去改它**（改一份 runtime 会波及 convoai-info / visit 三份 deck）。
+        #   这里在 deck.js 之后套一层壳，两道保险各管一段：
+        #     ① 包 deck.go / deck.applySteps —— 实例上写同名属性遮蔽原型方法，
+        #        原方法照跑，跑完补一次 sync()。这是**现场翻页**走的路。
+        #     ② MutationObserver 盯 .slide 与分步容器的 class —— qa / occlusion-scan /
+        #        截图脚本是直接 classList.toggle 的，根本不经过 deck.go，
+        #        只有这一道才盯得住。rAF 去抖，一次翻页最多算一次。
+        #   判活一律**从 DOM 读**（.active + [data-step].on），不读 deck.i / deck.step：
+        #   两条路径共用同一套判据，就不会出现「现场在播、截图里没播」这种分叉。
+        '<script>(function(){'
+        'var vids=[].slice.call(document.querySelectorAll("video[data-play-step]"));'
+        'if(!vids.length||!window.deck)return;'
+        # 原生控制条只在悬停时挂（transform:scale 下的错位见 DECK_CSS 的 .sh.vid 段）
+        'vids.forEach(function(v){'
+        'v.addEventListener("mouseenter",function(){v.setAttribute("controls","");});'
+        'v.addEventListener("mouseleave",function(){v.removeAttribute("controls");});});'
+        'function sync(){vids.forEach(function(v){'
+        'var sec=v.closest(".slide"),box=v.closest("[data-step]");'
+        'var live=!!sec&&sec.classList.contains("active")&&(!box||box.classList.contains("on"));'
+        # 两道钩子会对同一次翻页各触发一次，这里按当前状态短路 ⇒ 同一次翻页只真的动一次。
+        # play() 在没有 H.264 解码器的环境里会 reject（CI 容器就是），吞掉即可 —— 那不是页面的错；
+        # reject 之后 v.paused 会翻回 true，下一次 sync 自然会再试，不需要额外的重试逻辑。
+        'if(live){if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}}'
+        'else if(!v.paused||v.currentTime){try{v.pause();v.currentTime=0;}catch(e){}}});}'
+        '["go","applySteps"].forEach(function(m){var f=window.deck[m];'
+        'window.deck[m]=function(){var r=f.apply(this,arguments);sync();return r;};});'
+        'var pend=false;var mo=new MutationObserver(function(){if(pend)return;pend=true;'
+        'requestAnimationFrame(function(){pend=false;sync();});});'
+        'vids.forEach(function(v){var sec=v.closest(".slide"),box=v.closest("[data-step]");'
+        'if(sec)mo.observe(sec,{attributes:true,attributeFilter:["class"]});'
+        'if(box)mo.observe(box,{attributes:true,attributeFilter:["class"]});});'
+        'sync();})();</script>\n'
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     OUT_ALIAS.write_text(doc, encoding="utf-8")
-    assert total == 18, "页数漂移：%d != 18" % total
-    assert doc.count("<section") == 18, "section 数漂移：%d" % doc.count("<section")
+    assert total == 22, "页数漂移：%d != 22" % total
+    assert doc.count("<section") == 22, "section 数漂移：%d" % doc.count("<section")
     boards = {i: b for i, (b, _s, _y) in enumerate(PAGES, 1)}
-    assert {i for i, b in boards.items() if b == "title"} == {1, 18}, \
+    assert {i for i, b in boards.items() if b == "title"} == {1, 22}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y) in enumerate(PAGES, 1) if s}
-    assert steps_map == {6: 1, 7: 1, 15: 1}, "分步页漂移：%r" % steps_map
+    assert steps_map == {6: 1, 7: 1, 14: 1, 20: 1}, "分步页漂移：%r" % steps_map
+    # 视频页红线：controls 属性绝不许出现在产物里（悬停呼出是 JS 的活儿，不是属性的活儿）
+    assert doc.count('<video ') == 1, "视频件数漂移：%d" % doc.count('<video ')
+    assert " controls" not in doc.split('<video ')[1].split('>')[0], \
+        "视频页写死了 controls —— transform:scale 下会错位（robot26 实锤）"
+    # Call Agent 章红线（三条，构建期就拦住，别等到 qa）：价格数字 / staging URL 一律不许上页
+    for _bad in ("¥8,500", "¥2,999", "¥5,501", "staging"):
+        assert _bad not in doc, "Call Agent 红线：全 deck 不许出现「%s」" % _bad
     print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 分步 %r"
           % (total, len(doc) // 1024, steps_map))
 

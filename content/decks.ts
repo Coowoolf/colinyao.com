@@ -25,10 +25,30 @@ export const speechDecks: Deck[] = [
   //   （末页金句与封面同义，重复收尾等于没收尾），其唯一不可替代的 CTA 行继承到新末页页脚；
   //   P13 R1 改带实拍图（跨引用 robot26 资产）、P18 OpenAI 合作升为末页并加双源 logo 锁定版；
   //   deckSwap 主题键从「hover 才呼出」改为常显 chip（对外发链接的 deck 不能藏切换键）。
+  // 2026-08-21（Call Agent 章）18 → 21 页，两件事：
+  //   ① 新增 Call Agent 三页：P16 登场 · 成绩单（96.5% / 1,000+ / 1/3 + 真人 vs 智能体三行）、
+  //      P17 五个大脑 · Agent Harness（架构页 · 走 P8 大图语言 · 五带并行汇聚 hot 盒）、
+  //      P18 Loop Engineering · 成长飞轮（DAY 1→30 曲线穿越平线 + 复盘/定位/迭代/训练小环）。
+  //      文案是 Call Agent 官网定稿逐字使用；红线：不出价格、不出 staging URL、不出智能体人名，
+  //      96.5% 必须带「盲测 32,000 名真实客户」口径（与 convoai-info P5 的 2,475 通生产口径是
+  //      两个不同数据集，不许混写）——build() 里已有构建期红线断言。
+  //   ② 页序按 Colin 指令重排：**场景之后接 Call Agent，Call Agent 之后接 R1**。
+  //      位移（正文逐字节未动，只换位置）：原 14 编排→13 / 原 15 接入→14 / 原 16 场景→15 /
+  //      原 13 R1→19 / 原 17 Why Agora→20 / 原 18 OpenAI→21。
+  //      连带：分步页 [6,7,15] → [6,7,14]、口径锁页 17 → 20、title 板 {1,18} → {1,21}。
+  // 2026-08-21（视频页）21 → 22：Colin 指令「R1 之后再插一页 robot26 #24 同款全屏视频页」——
+  //   新 P20 = 无人机秀 demo 纯全屏片子（跨引用 robot26 的 demo.mp4 + demo-poster.jpg，不复制文件），
+  //   Why Agora → P21、OpenAI 末页 → P22。机制整套复刻 robot26 #24：不带 controls 属性
+  //   （Blink 控制条在 .deck-stage 的 transform:scale 下错位，Colin 截图实锤）、悬停才呼出、
+  //   preload=none、muted+playsinline、data-play-step 步进开播；播放挂钩写在 builder 的内联脚本里，
+  //   **不改共享 deck.js**（那份 runtime 是 convoai / info / visit 三份 deck 共用的）。
+  //   归档口径：bake-archive 把 demo.mp4 换成 https://colinyao.com/... 绝对地址（3.1MB 不进 base64），
+  //   poster 照常内联 —— 在线可播、离线退回整幅静帧。
   // 重建：python3 scripts/build-convoai-engine.py（双生同写 /decks/convoai-engine.html 别名，抽屉 iframe 指它）
-  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P17 口径锁 + P8 大图闸
-  //   + P13 实拍图闸 + P18 双源 logo 显隐闸 + deckSwap 常显闸 + 已删两页的内容回流闸）
-  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 18, category: "演讲", dual: true },
+  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P21 口径锁 + P8 大图闸
+  //   + P19 实拍图闸 + P22 双源 logo 显隐闸 + deckSwap 常显闸 + 已删两页的内容回流闸
+  //   + Call Agent 三页内容闸与价格 / staging 反向闸 + P20 视频页闸）
+  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 22, category: "演讲", dual: true },
   // 31p 初次拜访版（原 /convoai）：重建 build-convoai-visit.py · 自检 qa-convoai.mjs（THEME=dark 二跑）
   { slug: "convoai-visit", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
   // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。

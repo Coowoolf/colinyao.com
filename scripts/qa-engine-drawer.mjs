@@ -1,18 +1,20 @@
 // 抽屉实测 · convoai-info P4 → Enter → 引擎 deck iframe
 // 断言：
-//   ① iframe 内 .pp / section 数 == 18；iframe 内 html[data-theme] 与宿主一致（浅浅 / 深深各一组）
+//   ① iframe 内 .pp / section 数 == 22；iframe 内 html[data-theme] 与宿主一致（浅浅 / 深深各一组）
 //   ② 主题实时联动（2026-08-20 新增）：抽屉开着时点宿主的 deckSwap，
 //      iframe 的 data-theme 必须跟着翻（不是只在首帧读一次 localStorage）
 //   ③ eo-close 收回按钮在左上（避让 iframe 右上角的页码 sig）
 // 2026-08-20：引擎 deck 二轮扩页 16 → 17（VAD 之后插入产品架构大图）
 // 2026-08-21：大内容轮 17 → 20（SAL / 弱网 / 多模态重做 + Physical AI 两页 + OpenAI 一页）
 // 2026-08-21 收束轮：20 → 18（删案例墙与旧收尾页，OpenAI 合作升为末页）。
+// 2026-08-21 Call Agent 章：18 → 21（新增 Call Agent 三页 + 场景 → Call Agent → R1 重排）。
+// 2026-08-21 视频页：21 → 22（R1 之后插 robot26 #24 同款全屏视频页）。
 //   同轮引擎 deck 的 deckSwap 改成常显 chip —— 抽屉里它也跟着可见，
 //   这是预期行为（抽屉里能切主题合理），主题实时联动逻辑不变，② 仍逐条验。
 // 用法：node scripts/qa-engine-drawer.mjs        （BASE 默认 8777）
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8777';
-const N = 18;
+const N = 22;
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const fails = [];
 for (const theme of ['light', 'dark']) {

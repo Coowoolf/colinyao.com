@@ -200,7 +200,7 @@ if (chip) {
   ok(chip.cur === '4', `⑪ 导航到 P4 失败，当前 P${chip.cur}`);
   ok(chip.vis && chip.w > 0 && chip.h > 0, `⑪ chip 不可见 ${chip.w}×${chip.h}`);
   ok(chip.txt.includes('引擎产品详解'), `⑪ chip 文案不符「${chip.txt}」`);
-  ok(chip.txt.includes('18 页'), `⑪ chip 页数口径未跟随引擎 deck 收束（应含「18 页」）「${chip.txt}」`);
+  ok(chip.txt.includes('22 页'), `⑪ chip 页数口径未跟随引擎 deck 扩章（应含「22 页」）「${chip.txt}」`);
 }
 if (THEME !== 'dark') {                       // overlay 是主题无关层：全套只在浅色跑一遍
   await pg.keyboard.press('Enter');           // ② Enter 展开
@@ -213,7 +213,7 @@ if (THEME !== 'dark') {                       // overlay 是主题无关层：�
     return (d && d.readyState === 'complete' && d.querySelectorAll('section').length)
       ? d.querySelectorAll('section').length : false;
   }, null, { timeout: 8000 }).then(h => h.jsonValue()).catch(() => 0);
-  ok(secs === 18, `⑪ iframe 内 section 数 ${secs} != 18`);
+  ok(secs === 22, `⑪ iframe 内 section 数 ${secs} != 22`);
   const focused = await pg.evaluate(() => document.activeElement?.id);
   ok(focused === 'engineFrame', `⑪ 展开后焦点不在 iframe（${focused}）`);
 
@@ -226,13 +226,13 @@ if (THEME !== 'dark') {                       // overlay 是主题无关层：�
   const after = await pg.evaluate(() => document.querySelector('.slide.active')?.dataset.p);
   ok(after === '5', `⑪ Esc 后方向键失灵，当前 P${after}`);
 
-  // ④ 引擎 deck 本体：200 + noindex + 18 页（2026-08-21 收束轮 20 → 18）
+  // ④ 引擎 deck 本体：200 + noindex + 22 页（2026-08-21 Call Agent 章 18 → 21 → 视频页 22）
   const res = await fetch(BASE + '/decks/convoai-engine.html');
   const html = await res.text();
   ok(res.status === 200, `⑪ convoai-engine.html HTTP ${res.status}`);
   ok(/noindex/.test(html), '⑪ convoai-engine.html 缺 noindex');
   const nSec = (html.match(/<section/g) || []).length;
-  ok(nSec === 18, `⑪ convoai-engine.html section 数 ${nSec} != 18`);
+  ok(nSec === 22, `⑪ convoai-engine.html section 数 ${nSec} != 22`);
 }
 
 // ⑫ 口径闸（2026-08-20 仲裁）：分类学统一 / 主数据措辞 / SOURCE 行 / 去内部指针 / CTA
