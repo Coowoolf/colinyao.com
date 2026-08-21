@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
 # build-convoai-info.py · 《声网对话式 AI · 一页一章 Infograph》拜访速讲版 deck
-# CONF 家族 · conf-light 默认 · 单文件双主题 · 三线三色 —— 与 build-convoai-visit.py 同源
+# CONF 家族 · conf-light 默认 · 单文件双主题 · 三线三色
 # 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
 #   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 合流
 # 与 31 页版的差别只有三条：
 #   ① 分步克制：只有 P4/P5/P7 各一步（2026-08-20 加），其余页 data-steps=0
 #   ② 背景板只用两张：P1 title / P2–P8 content（最安静的 matrix .42）
 #   ③ hero-art 只留 P1 的 three-engines 盒装
-# 口径纪律：所有数字与句子从 build-convoai-visit.py 逐字复制，一个不新造。
+# 口径纪律：所有数字与句子沿用已核定的拜访版 canon 逐字复制，一个不新造。
 # Infograph 版式语言：页内 2–4 个分区，分区间 1px var(--hair) 细线，
 #   每分区一个 mono 小节标（「01 · SCALE」14px letter-spacing .18em ink-3）。
 # ── 踩过的坑（移植 SVG 必守，见 optim/mining-report.md §6）───────────────────
@@ -813,7 +813,7 @@ _p7 = [
     sh("flow eco-visual", "left:120px;top:292px;width:980px;height:552px;--i:1", _p7eco),
     sh("pop callout-chip", "left:120px;top:872px;width:auto;height:auto;--i:4",
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
-    # 2026-08-20 仲裁 P1：脚注里的「/convoai-visit P23」是内部指针 —— 客户看不到那份 deck，
+    # 2026-08-20 仲裁 P1：脚注里那条指向拜访版 P23 的内部指针 —— 客户看不到那份 deck，
     # 写在对外页上只会让人问「P23 在哪」。去掉指针，只留这一层的落点句。
     sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
        "从 SD‑RTN 到设备，每一层都由声网托住 · 事实截止 2026.08"),

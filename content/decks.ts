@@ -16,7 +16,7 @@ export const speechDecks: Deck[] = [
   // CONF 家族 · conf-light 默认 · 单文件双主题 · 背景板节奏（title/chapter×3/quote/content）
   // + GPT 5.6 hero-art 章视觉层（5 组双主题透明 PNG，contain 不裁切）。
   // 口径纪律：只用公开可查证数字（BPO 喂稿锁定文案 + 官网/发版说明），Phone Agent 用「Global 率先发布」。
-  // 2026-08-13 Colin：/convoai 换装引擎产品介绍；31p 拜访版迁 /convoai-visit 保持可达。
+  // 2026-08-13 Colin：/convoai 换装引擎产品介绍；31p 拜访版迁出独立路由保持可达（已于 2026-08-21 退役，见下）。
   // 2026-08-20：13 → 16 页（补三张机理页）→ 17 页（VAD 之后插入产品架构大图）。
   // 2026-08-21：17 → 20 页 —— P10 SAL 重做（三种噪声 · 三层方案）/ P11 弱网补 AI QoS 断网续播 /
   //   P12 多模态聚焦视觉模态；新增 P13 Physical AI · R1 开发套件、P14 Physical AI 案例墙、
@@ -49,8 +49,9 @@ export const speechDecks: Deck[] = [
   //   + P19 实拍图闸 + P22 双源 logo 显隐闸 + deckSwap 常显闸 + 已删两页的内容回流闸
   //   + Call Agent 三页内容闸与价格 / staging 反向闸 + P20 视频页闸）
   { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 22, category: "演讲", dual: true },
-  // 31p 初次拜访版（原 /convoai）：重建 build-convoai-visit.py · 自检 qa-convoai.mjs（THEME=dark 二跑）
-  { slug: "convoai-visit", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
+  // 2026-08-21 Colin：拜访版退役下线，终版单文件已归档 Vault。
+  //   31 页初次拜访版（builder / 产物 / 专属 QA 三件一并删除）的文案 canon 仍活在两处：
+  //   引擎 deck 的 R1 页（双源 canon 溯源注释）与本速讲版 8 页 —— 内容不随路由消失。
   // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。
   { slug: "convoai-info", title: "声网对话式 AI · 一页一章 Infograph（拜访速讲版）", slides: 8, category: "演讲", dual: true },
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 62, category: "演讲", dual: true },

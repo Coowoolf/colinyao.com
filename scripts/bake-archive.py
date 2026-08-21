@@ -72,4 +72,4 @@ def bake(src, dst):
           f'ext={ext[:5]}, media→线上={media_out}, size={pathlib.Path(dst).stat().st_size:,}')
 
 bake(ROOT/'decks/convoai-info.html', '/home/claude/eco-review/convoai-info-速讲版-8p.html')
-bake(ROOT/'decks/convoai-visit.html', '/home/claude/eco-review/convoai-初次拜访版-31p.html')
+# 2026-08-21 Colin：31 页初次拜访版退役下线，本清单只剩速讲版一行（终版归档已在 Vault）。
