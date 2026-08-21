@@ -303,6 +303,12 @@ ok(p19.includes('R1-4G'), '⑬ P19 不是「R1 开发套件」页 —— 章序�
 //    静置态必须是干净画面：**没有 controls 属性**（Blink 控制条在 .deck-stage 的
 //    transform:scale(≠1) 下按未缩放坐标系渲染，条宽与位置全错 —— Colin 截图实锤）。
 const vid = await pg.evaluate((vp) => {
+  // 先把视频页摆成**现场静置态**（active + visible + step 0）再量 ——
+  // .slide 的 visibility 由 .visible 控制，只 toggle .active 量到的会是 hidden（假阴性）。
+  document.querySelectorAll('.slide').forEach((el, k) => {
+    el.classList.toggle('active', k === vp - 1); el.classList.toggle('visible', k === vp - 1);
+    el.querySelectorAll('[data-step]').forEach(x => x.classList.remove('on'));
+  });
   const sec = document.querySelector(`.slide[data-p="${vp}"]`);
   const box = sec && sec.querySelector('.sh.vid');
   const v = sec && sec.querySelector('video');
@@ -314,10 +320,14 @@ const vid = await pg.evaluate((vp) => {
     ctl: v.hasAttribute('controls'),
     muted: v.hasAttribute('muted'), inline: v.hasAttribute('playsinline'),
     preload: v.getAttribute('preload'), playStep: v.dataset.playStep,
-    boxStep: box.dataset.step,
     bx: Math.round(br.left), by: Math.round(br.top),
     bw: Math.round(br.width), bh: Math.round(br.height),
     bl: bs.left, bt: bs.top, ov: bs.overflow,
+    boxOpacity: bs.opacity, boxVis: bs.visibility, boxDisplay: bs.display, vOpacity: vs.opacity,
+    boxStep: box.getAttribute('data-step'),
+    cueStep: (sec.querySelector('.vid-cue') || {}).dataset?.step,
+    cueBox: (() => { const c = sec.querySelector('.vid-cue'); if (!c) return null;
+      const r = c.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}`; })(),
     vw: vs.width, vh: vs.height, fit: vs.objectFit, bg: vs.backgroundColor,
     others: sec.querySelectorAll('.pp > .sh').length,
   };
@@ -331,7 +341,15 @@ if (vid) {
   ok(vid.inline, '⑭ video 缺 playsinline');
   ok(vid.preload === 'none', `⑭ preload 应为 none（翻到才拉 3MB），实测 ${vid.preload}`);
   ok(vid.playStep === '1', `⑭ data-play-step 应为 1，实测 ${vid.playStep}`);
-  ok(vid.boxStep === '1', `⑭ 容器 data-step 应为 1（本页 data-steps=1 靠它），实测 ${vid.boxStep}`);
+  // ⑭ 空页回归闸（2026-08-21 Colin：「P19 之后多了一个空页面」）：
+  //    motion.css 末尾那条兜底规则会把 step0 的「裸容器」摁成 opacity:0 ——
+  //    满幅视频盒一旦挂上 data-step，整幅 poster 连同页面一起消失。这两条钉死它。
+  ok(!vid.boxStep, '⑭ .sh.vid 又挂上了 data-step —— 这就是「空页」的根因（step0 会被摁成 opacity:0）');
+  ok(vid.cueStep === '1', `⑭ 缺零尺寸分步 cue（[data-step="1"]，deck.js 的 maxStep 只认它），实测 ${vid.cueStep}`);
+  ok(vid.cueBox === '0x0', `⑭ 分步 cue 不是零尺寸（会在页面上留一块），实测 ${vid.cueBox}`);
+  ok(vid.boxOpacity === '1' && vid.boxVis === 'visible' && vid.boxDisplay !== 'none',
+     `⑭ 静置态容器不可见（opacity=${vid.boxOpacity} visibility=${vid.boxVis}）—— 空页回归`);
+  ok(vid.vOpacity === '1', `⑭ 静置态 video 不可见（opacity=${vid.vOpacity}）`);
   ok(vid.bl === '0px' && vid.bt === '0px', `⑭ 容器未贴 0,0（${vid.bl},${vid.bt}）`);
   ok(vid.bw === 1920 && vid.bh === 1080, `⑭ 容器不是满幅 1920×1080（${vid.bw}×${vid.bh}）`);
   ok(vid.bx === 0 && vid.by === 0, `⑭ 容器左上角不在舞台原点（${vid.bx},${vid.by}）`);
@@ -340,6 +358,57 @@ if (vid) {
   ok(vid.fit === 'cover', `⑭ video object-fit 应为 cover，实测 ${vid.fit}`);
   ok(/rgb\(0, 0, 0\)/.test(vid.bg), `⑭ video 底色应为 #000（poster 解码前别闪白），实测 ${vid.bg}`);
   ok(vid.others === 1, `⑭ 纯片子页只该有一只 .sh（实测 ${vid.others}）`);
+}
+// ⑭ poster 自证：文件真的 200、真的解出像素、而且画面里**有东西**（不是一片纯色）。
+//    「翻到 P20 只看见一张白纸」这种事必须在 CI 里被抓住，不能靠人眼。
+{
+  const res = await fetch(BASE + '/decks/assets/robot26/demo-poster.jpg');
+  ok(res.status === 200, `⑭ poster HTTP ${res.status}`);
+  const st = await pg.evaluate(async (src) => {
+    const img = new Image(); img.src = src;
+    try { await img.decode(); } catch (e) { return { err: String(e) }; }
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height).data;
+    let n = 0, s = 0, s2 = 0, mx = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const l = .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2];
+      n++; s += l; s2 += l * l; if (l > mx) mx = l;
+    }
+    const m = s / n;
+    return { w: img.naturalWidth, h: img.naturalHeight, mean: +m.toFixed(2),
+             sd: +Math.sqrt(Math.max(0, s2 / n - m * m)).toFixed(2), max: Math.round(mx) };
+  }, '/decks/assets/robot26/demo-poster.jpg');
+  ok(!st.err, `⑭ poster 解码失败：${st.err}`);
+  ok(st.w === 1600 && st.h === 900, `⑭ poster 尺寸 ${st.w}×${st.h} != 1600×900`);
+  ok(st.sd > 4 && st.max > 60, `⑭ poster 是一片纯色（sd=${st.sd} max=${st.max}）—— 页面等于空的`);
+}
+// ⑭ 整页非空：静置态（step 0）整幅截图必须是那支夜景片子，不是主题底板。
+//    浅色空页回归时整页平均亮度 239（实测），这一条当场抓住。
+{
+  await pg.evaluate((vp) => {
+    document.querySelectorAll('.slide').forEach((el, k) => {
+      el.classList.toggle('active', k === vp - 1); el.classList.toggle('visible', k === vp - 1);
+      el.querySelectorAll('[data-step]').forEach(x => x.classList.remove('on'));   // 回到 step 0
+    });
+  }, VIDEO_PAGE);
+  await pg.waitForTimeout(300);
+  const b64 = (await pg.screenshot({ clip: { x: 0, y: 0, width: 1920, height: 1080 } })).toString('base64');
+  const st = await pg.evaluate(async (s) => {
+    const img = new Image(); img.src = 'data:image/png;base64,' + s; await img.decode();
+    const c = document.createElement('canvas'); c.width = 480; c.height = 270;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0, 480, 270);
+    const d = x.getImageData(0, 0, 480, 270).data;
+    let n = 0, s1 = 0, s2 = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const l = .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]; n++; s1 += l; s2 += l * l;
+    }
+    const m = s1 / n;
+    return { mean: +m.toFixed(2), sd: +Math.sqrt(Math.max(0, s2 / n - m * m)).toFixed(2) };
+  }, b64);
+  ok(st.mean < 60, `⑭ P${VIDEO_PAGE} 静置态整页平均亮度 ${st.mean} —— 片子没盖住页面（空页回归）`);
+  ok(st.sd > 2, `⑭ P${VIDEO_PAGE} 静置态整页是一片纯色（sd=${st.sd}）`);
 }
 // ⑭ 悬停呼出：mouseenter 挂 controls、mouseleave 收回（排练手控的唯一入口）
 {
@@ -366,7 +435,8 @@ if (vid) {
     document.querySelectorAll('.slide').forEach((el, k) => {
       el.classList.toggle('active', k === vp - 1);
     });
-    v.closest('[data-step]').classList.add('on');
+    // 分步 cue 现在是 video 的兄弟（不再是祖先）—— 页内按 data-play-step 找那一枚
+    v.closest('.slide').querySelector(`[data-step="${+v.dataset.playStep || 1}"]`).classList.add('on');
     requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => res(called), 120)));
   }), VIDEO_PAGE);
   ok(fired, '⑭ 翻到视频页 + 分步就位后没有发起 play()（播放挂钩没接上）');

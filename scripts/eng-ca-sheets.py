@@ -10,7 +10,7 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 REV = Path("/home/claude/eco-review"); REV.mkdir(parents=True, exist_ok=True)
-SHOTS = Path("/tmp/eng-ca")
+SHOTS = Path("/tmp/eng-v22")
 TMP = Path("/tmp/eng-ca-cells"); TMP.mkdir(parents=True, exist_ok=True)
 
 FONTS = ["/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
@@ -61,9 +61,9 @@ def sheet(cells, cols, cell_w, out, pad=18, lab_h=34, title=None, title_h=0, cel
 # ═══ ① 双帧同格（P17 / P18）════════════════════════════════════════════════
 # 裁「动效落点最密」的图区：整幅缩进格子里位移只有几像素，裁紧了才看得出在动。
 ROI = {
-    17: ((120, 282, 1810, 866),
-         "P17 五个大脑 · 五条车道 flow-packet 各自速度（2.0/2.3/2.6/2.9/3.2s）= 并行不同步 · "
-         "汇聚点 pulse · hot 盒 breathe + halo"),
+    17: ((480, 300, 1810, 900),
+         "P17 大脑五区 · 五区 fill 各自周期放电（2.4/2.7/3.0/3.3/3.6s 错峰）· "
+         "8 枚神经火花沿突触弧线穿行 · 额叶→输出盒 1.6s 重拍 · hot 盒 breathe + halo"),
     18: ((120, 276, 1810, 600),
          "P18 成长飞轮 · 曲线 flow-packet 顺着长 · 基准平线 dash-drift · 反超点 pulse · "
          "2 倍终点 breathe + halo · 右侧四节点 Loop cycle 绕行"),

@@ -15,11 +15,15 @@ const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
 // 运动件名册（21 页口径 · 2026-08-21 Call Agent 章）：
 //   P2 实时决策 / P4 全双工 / P6 语音链路 / P7 VAD / P8 大图 / P9 打断 / P10 SAL /
-//   P11 弱网 / P12 多模态 / P13 编排 / P14 接入架构 / P17 五个大脑 ■ / P18 成长飞轮 ■
+//   P11 弱网 / P12 多模态 / P13 编排 / P14 接入架构 / P17 大脑五区 ■ / P18 成长飞轮 ■
+//   P17（2026-08-21 重做成大脑侧视图）是全 deck 动效最重的一页：五区放电脉动 ×5 +
+//   神经火花 ×8 + 输出重拍 + hot 盒 breathe/halo + 输入常驻包 = 17 件 / 4 种原语。
+//   给它单加一条**下限**闸：低于 12 件就说明「五区一起工作」的编排被改瘦了。
 // 不入册（纯版式 / 图片页，本来就没有常驻动效）：
 //   P1 封面 · P3 双工三模式 · P5 三件极致 · P15 场景 · P16 Call Agent 成绩单 ■ ·
 //   P19 R1 实拍 · P20 Why Agora · P21 OpenAI 末页
 const ROSTER = [2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18];
+const FLOOR = { 17: 12 };      // 指定页的运动件下限（只此一页，别泛化成全表配额）
 const SEL = '.mo-packet,.mo-drift,.mo-cycle,.mo-pulse,.mo-breathe,.mo-halo';
 const fails = [];
 const ok = (c, m) => { if (!c) fails.push(m); };
@@ -68,6 +72,8 @@ async function open(opts = {}) {
   const live = Object.keys(r.perPage).map(Number).sort((a, b) => a - b);
   ok(live.join(',') === ROSTER.join(','),
      `⑥ 运动件名册漂移：实测 [${live}] != 名册 [${ROSTER}]`);
+  Object.entries(FLOOR).forEach(([p, n]) => ok((r.perPageEl[p] || 0) >= n,
+    `⑥ P${p} 运动件只剩 ${r.perPageEl[p] || 0} 个（下限 ${n}）—— 编排被改瘦了`));
   // ③ 非当前页暂停
   const play = await pg.evaluate((sel) => {
     document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('active', i === 7));

@@ -295,6 +295,11 @@ html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
    ⚠ 不要给 video 加 controls 属性（Blink 控制条在 transform:scale 下错位，robot26 实锤）；
      悬停呼出由 build() 里的内联脚本挂，静置态必须干净。 */
 .pp .sh.vid{overflow:hidden;}
+/* 分步 cue：零宽零高，只为给 deck.js 的 maxStep 提供一枚 [data-step] 元素。
+   它自己会被 motion.css 的「裸容器 step0 → opacity:0」兜底规则摁成透明 —— 正合适，
+   本来就不该看见。**绝不要把 data-step 挂回 .sh.vid**（那条兜底规则会连 poster 一起摁没，
+   就是 2026-08-21「P19 之后多了一个空页面」的根因）。 */
+.vid-cue{position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;pointer-events:none;}
 .sh.vid video{display:block;width:100%;height:100%;object-fit:cover;background:#000;
   border-radius:0;outline:0;}
 /* 页码 sig 落在片子的右上角：这支片子的右上角是纯黑（实测亮度 1/255），
@@ -1875,85 +1880,202 @@ page("content", "".join([
     sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7", _CA_SRC),
 ]))
 
-# ═══ P17 · 五个大脑 · Agent Harness（2026-08-21「Call Agent 章」新增 ◆）════
-#   架构页，语言与 P8 产品架构大图对齐：viewBox 宽 = .sh 宽 ⇒ 1 svg 单位 = 1 屏幕像素，
-#   坐标可直接对表；类型线 + 图例照家族纪律（本页真正用到两种：实线 = 并行处理流、
-#   粗 accent-deep = 合成输出）。
-#   三秒可读性的三个锚点（验收标准）：
-#     ① 五条横带**同时**从左贯到右 → 并行，不是流水线（五条包各跑各的速度就是这个意思）
-#     ② 五带右端收进同一个点、再由一条粗线插进 hot 盒 → 五路只合成**一次**输出
-#     ③ hot 盒左上角标「每 0.8 秒」→ 节拍钉死，读者不用猜「多久一次」
-#   带序：任务书按「自下而上」给（大模型流式语音识别在最下），画布 y 自上而下长，
-#   所以 _CA_BRAINS 自上而下写 05 → 01。改动顺序前先想清楚这一层反转。
-#   动效（全部走 deck 级原语，无私有 keyframes）：
-#     · 五带各一条 .mo-packet，duration 2.0/2.3/2.6/2.9/3.2s 略错开 —— 同向而不同步，
-#       「并行」是这么读出来的；同步了就退化成一条流水线的五个分身。
-#     · 汇聚点 .mo-pulse 1.6s 一拍（不追求精确 0.8s：0.8s 在 1920 宽的屏上会读成闪烁，
-#       任务书也写明「读得出持续合成即可」）。
-#     · hot 盒 .mo-breathe + .mo-halo（本页唯一 hot 件，符合「每页至多一处呼吸」）。
-_CA_BRAINS = [                      # 自上而下画 = 自下而上读
-    ("05", "动态话术策略选择"),
-    ("04", "情绪感知和生成"),
-    ("03", "真实意图识别"),
-    ("02", "选择性注意力锁定"),
-    ("01", "大模型流式语音识别"),
+# ═══ P17 · 五个大脑 · Agent Harness（2026-08-21「Call Agent 章」新增 ◆ · 同日重做）══
+#   2026-08-21 Colin：「不够 fancy —— 要一个脑子、五个区域一起工作、炫酷动起来」。
+#   初版是五条并行横带（信息对，但读起来像交换机背板），本轮废弃，改**大脑侧视图**：
+#   纯 SVG 手绘贝塞尔的 editorial 线稿（禁位图 / 禁 emoji），一颗脑分五区，五区同时在放电。
+#
+#   ── 解剖构图（侧视 · 鼻朝右 · 占 viewBox 的 x400–1140 / y40–520）──────────
+#   轮廓一条 2.5px 主线闭合：额叶前凸（右）→ 圆润顶盖 → 后枕圆收（左）→ 颞叶下垂叶（下）；
+#   小脑半球与脑干各自一只闭合小形，塞在枕叶之下 —— 分开画而不是并进主轮廓，
+#   因为「大脑 / 小脑」之间那道裂隙本身就是这张图最容易被读懂的解剖特征。
+#   分区边界走**脑沟**（S 形柔和曲线，不是直线切分）：
+#     SUL1 中央沟   分开 05 额叶 与 03 顶叶
+#     SUL2 外侧裂   分开上方（03/05）与颞叶
+#     SUL3 颞上沟   分开 02 颞叶上部 与 01 颞叶下部
+#   五区功能映射（区名文案逐字未改，用点线引线拉到脑外左右两栏）：
+#     01 大模型流式语音识别 —— 颞叶下部（听觉皮层位，最靠「耳」，输入就从这里进）
+#     02 选择性注意力锁定   —— 颞叶上部
+#     03 真实意图识别       —— 顶叶（含枕区）
+#     04 情绪感知和生成     —— 脑中心深部：画成一枚**环形**小区（边缘系统位，
+#                              evenodd 双子路径挖空，画在皮层之上 = 它在皮层之下）
+#     05 动态话术策略选择   —— 额叶（最前，输出从它的前缘发出）
+#   区内各 2–3 条 0.8px 脑回纹理，低透明 —— 有质感但抢不过主轮廓。
+#   所有区填色 / 纹理都 clip 在轮廓里（clipPath），所以 blob 可以画得糙、边界由轮廓裁。
+#
+#   ── 动效编排（全 deck 最炫的一页，但四条纪律一条不破）─────────────────────
+#     ① 五区放电：每区一层 accent 柔和 fill 脉动（静态 .05 → 峰值 .15），
+#        周期 2.4/2.7/3.0/3.3/3.6s 各不同 + 错峰负 delay ⇒ 五区肉眼可见全在工作、节奏互异。
+#        走 .mo-pulse 但把 --mo-hi 设成**静态值 .05**、--mo-lo 设成峰值 .15 ⇒ 0%/100% 帧
+#        = 静态原图（这正是原语文档里「载体自带 opacity 时」那一条的用法，不是反用）。
+#     ② 神经火花：8 枚小圆点粒子沿 6 条突触弧线穿行（01→02→03→04→05 的链 + 两条跨区捷径），
+#        .mo-packet 的小半径变体（seg 8 / w 8 / round cap ⇒ 一枚带拖尾的光点），速度错峰。
+#     ③ 输出节拍：额叶前缘 → 输出盒的粗线 1.6s 一个重拍 .mo-pulse；hot 盒 breathe + halo。
+#     ④ 输入常驻：耳位波形 → 颞叶下部的入线一枚常驻 .mo-packet。
+#     ⑤ 深色霓虹：主轮廓下面垫一层 12px、低透明的 accent 软描边（**静态**，不带动画 ⇒
+#        不进运动件账本，静态帧照样是它）——暗底上整颗脑因此有一圈自然的辉光。
+#   运动件合计 17 个 / 4 种原语（原语全集 6，DOM 上限 30，都在线内）。
+_BRAIN = (                                   # 大脑半球侧视轮廓（鼻朝右）
+    "M1132 262 "
+    "C1130 186 1076 116 986 84 "               # 额上隆起
+    "C892 50 776 52 690 88 "                   # 顶盖
+    "C598 126 530 182 496 244 "                # 后上
+    "C466 296 476 330 508 352 "                # 枕极收尖（朝左）
+    "C532 368 566 376 600 380 "                # 枕下 → 脑底
+    "C632 384 654 402 674 428 "                # 转进颞叶
+    "C702 464 774 484 842 478 "                # 颞叶底（下垂叶）
+    "C902 472 956 442 984 400 "                # 颞叶前缘
+    "C996 380 1000 366 990 356 "               # 颞极上折
+    "C972 344 958 336 962 326 "                # 外侧裂切口（浅 · 只咬进 35px）
+    "C968 314 990 310 1016 312 "               # 出切口
+    "C1064 316 1104 306 1132 262 Z")           # 额下缘 → 回额极
+_CEREB = ("M496 348 C540 374 590 388 628 402 C656 412 664 440 648 462 "
+          "C626 486 578 490 540 476 C498 460 478 422 482 390 C484 364 488 350 496 348 Z")
+_STEM = ("M660 388 C682 412 696 448 698 480 C700 502 678 508 668 492 "
+         "C652 462 644 424 648 390 Z")
+_SUL1 = "M876 54 C844 122 856 192 894 242 C918 274 930 300 936 318"        # 中央沟
+_SUL2 = "M962 326 C904 336 838 348 776 358 C712 368 656 372 612 366"       # 外侧裂（脑内延长）
+_SUL3 = "M988 384 C930 396 866 410 806 420 C744 430 700 430 674 420"       # 颞上沟
+# 五区 blob：边界逐段抄上面三条脑沟 ⇒ 填色与沟线严丝合缝
+#（首版没对齐，五块低透明色叠在一起，整颗脑糊成一团均匀的粉 —— 分区当场读不出来）
+_ZONES = [
+    ("M876 40 C990 10 1110 100 1160 250 C1170 292 1140 322 1090 318 "
+     "C1030 316 968 314 962 326 "
+     "C950 320 942 318 936 318 C930 300 918 274 894 242 "
+     "C856 192 844 122 876 54 Z", "2.4s", "-0.0s"),                                   # 05 额叶
+    ("M876 40 C780 14 720 40 676 78 C580 120 508 178 476 244 "
+     "C444 300 458 342 500 360 C548 380 580 376 612 366 "
+     "C656 372 712 368 776 358 C838 348 904 336 962 326 "
+     "C950 320 942 318 936 318 C930 300 918 274 894 242 "
+     "C856 192 844 122 876 54 Z", "3.0s", "-1.1s"),                                   # 03 顶叶+枕
+    ("M962 326 C904 336 838 348 776 358 C712 368 656 372 612 366 "
+     "C632 384 654 402 674 428 C700 430 744 430 806 420 "
+     "C866 410 930 396 988 384 C998 372 992 360 990 356 "
+     "C972 344 958 336 962 326 Z", "2.7s", "-0.5s"),                                  # 02 颞叶上
+    ("M988 384 C930 396 866 410 806 420 C744 430 700 430 674 420 "
+     "C700 476 776 502 848 494 C910 488 968 452 1002 398 Z", "3.3s", "-1.7s"),         # 01 颞叶下
+    ("M800 186 C858 186 900 214 900 250 C900 286 858 314 800 314 "
+     "C742 314 700 286 700 250 C700 214 742 186 800 186 Z "
+     "M800 218 C762 218 734 232 734 250 C734 268 762 282 800 282 "
+     "C838 282 866 268 866 250 C866 232 838 218 800 218 Z", "3.6s", "-2.3s"),         # 04 深部环
 ]
-_CA_BY0, _CA_BH, _CA_BGAP = 26, 72, 26          # 首带顶 / 带高 / 带距
-_CA_MID = _CA_BY0 + 2 * (_CA_BH + _CA_BGAP) + _CA_BH // 2      # 中轴 = 第三带中心 = 258
-_CA_DUR = ["2.0s", "2.3s", "2.6s", "2.9s", "3.2s"]
-def _harness_fig():
-    o = []
-    ys = [_CA_BY0 + k * (_CA_BH + _CA_BGAP) for k in range(5)]
-    cys = [y + _CA_BH // 2 for y in ys]
-    # ── ① 输入件：客户语音波形（左端）──
-    o.append(box(0, 180, 170, 156, 6, i=1))
-    o.append(txt(85, 208, "INPUT", "lbl", size=13, anchor="middle"))
-    o.append(_bars(30, 7, 250, AC, seed=2, gap=17, w=8))
-    o.append(txt(85, 314, "客户语音", "sm", size=16, anchor="middle"))
-    # ── ② 分流：同一路输入同时进五个大脑（五条细实线扇出，箭头钉在带盒左缘）──
-    for k, cy in enumerate(cys):
-        o.append('<path class="dw" style="--len:130;--i:1" d="M170 %d C 214 %d, 226 %d, 266 %d" '
-                 'fill="none" stroke="%s" stroke-width="2"/>' % (_CA_MID, _CA_MID, cy, cy, AC))
-        o.append(ah_r(280, cy, AC, 7))
-    # ── ③ 五条大脑层横带 + 各自的处理车道 ──
-    for k, (idx, name) in enumerate(_CA_BRAINS):
-        y, cy = ys[k], cys[k]
-        o.append(box(280, y, 470, _CA_BH, 6, i=2 + k))
-        o.append(txt(306, cy + 5, idx, "sm", size=15, col="var(--ink-3)", mono=True))
-        o.append(txt(348, cy + 9, name, "ttl", size=26))
-        # 车道：出带盒 → 直行 → 收束到汇聚点。包只跑在车道上，**不横穿带盒**
-        # （带盒是半透明 --card-bg，包穿过去会在带名下面留一道荧光笔式的粉块 —— P8 实测实锤）。
-        _ln = "M766 %d H1010 C1110 %d, 1190 %d, 1270 %d" % (cy, cy, _CA_MID, _CA_MID)
-        o.append(packet(_ln, 560, seg=26, w=13, op=".36", dur=_CA_DUR[k], i=2 + k))
-        o.append('<path class="dw" style="--len:560;--i:%d" d="%s" fill="none" stroke="%s" '
-                 'stroke-width="2.5"/>' % (2 + k, _ln, AC))
-        o.append(ah_r(890, cy, AC, 8))          # 方向标钉在同一条 x 上 = 五路同向
-    # ── ④ 汇聚点 → 合成输出（粗 accent-deep 快路径）→ hot 盒 ──
-    o.append('<circle class="pop mo-pulse" style="--i:7;--mo-dur:1.6s;--mo-lo:.34;fill:%s" '
-             'cx="1270" cy="%d" r="9"/>' % (AC, _CA_MID))
-    o.append(hline(1278, 1352, _CA_MID, AD, 5, 7))
-    o.append(ah_r(1364, _CA_MID, AD, 8))
-    o.append(halo_rect(1372, 174, 290, 168, 8, sc="1.05", op=".28", dur="3.4s"))
-    o.append(box(1372, 174, 290, 168, 8, hot=True, i=8, cls="mo-breathe", sty="--mo-dur:3.4s"))
-    o.append(txt(1517, 268, "输出 · 最佳回复", "ttl", size=26, anchor="middle", col=AC))
-    # 角标压在盒的左上角外沿（P8 同款）：压在盒内会跟大字抢那 168px 的高度
-    o.append(txt(1378, 164, "每 0.8 秒", "sm", size=14, col=AC, mono=True))
-    # ── ⑤ 图例行 + 连接注（同一条基线：左图例 / 右连接注）──
-    o.append(legend(0, 552, [("solid", "并行处理流"), ("fast", "合成输出")]))
-    o.append(txt(1662, 557, "跑在对话式 AI 引擎的全双工链路上 · 见 P8", "sm", size=15,
-                 anchor="end", col="var(--ink-3)", mono=True))
+# 区内脑回纹理（0.8px · ink-3 低透明）：顺着各区走向排，密度压着，抢不过主轮廓
+_GYRI = [
+    "M556 176 C626 142 700 126 768 128", "M516 236 C588 202 664 186 736 188",
+    "M500 296 C562 268 632 258 700 262", "M534 344 C588 326 646 320 700 324",
+    "M934 102 C996 138 1046 190 1076 254", "M912 158 C972 196 1018 248 1044 306",
+    "M902 236 C946 274 982 318 1002 356",
+    "M700 382 C766 366 838 350 900 340", "M694 410 C760 394 830 378 892 366",
+    "M700 440 C766 460 838 462 900 440", "M726 462 C784 480 848 480 900 462",
+]
+_ARCS = [   # (d, 长度近似, 周期, delay) —— 01→02→03→04→05 链 + 两条跨区捷径
+    ("M856 442 C830 424 806 406 792 392", 90,  "2.2s", "-0.0s"),
+    ("M782 378 C720 340 660 282 620 232", 210, "2.6s", "-0.9s"),
+    ("M626 226 C672 232 716 240 748 246", 130, "2.4s", "-1.5s"),
+    ("M868 252 C920 238 980 220 1030 210", 180, "2.8s", "-0.4s"),
+    ("M854 436 C848 380 838 320 828 300", 145, "3.2s", "-1.2s"),   # 捷径 01→04
+    ("M616 208 C700 132 900 124 1036 192", 460, "3.6s", "-2.1s"),  # 捷径 03→05
+]
+_ARC_EXTRA = [(1, "-1.8s"), (3, "-1.9s")]      # 这两条弧各再加一枚粒子 ⇒ 合计 8 枚
+_LEADS = [  # (区序号, 引线 d, 标签 x, 标签 y, anchor, 区名)
+    ("03", "M606 208 C520 172 440 136 376 116", 366, 122, "end",  "真实意图识别"),
+    ("04", "M700 258 C600 272 470 286 376 292", 366, 298, "end",  "情绪感知和生成"),
+    ("05", "M1054 212 C1092 190 1126 164 1150 148", 1160, 154, "start", "动态话术策略选择"),
+    ("02", "M960 356 C1030 388 1098 422 1146 442", 1160, 448, "start", "选择性注意力锁定"),
+    ("01", "M930 462 C1018 486 1094 506 1146 514", 1160, 520, "start", "大模型流式语音识别"),
+]
+_NUMS = [("01", 860, 456), ("02", 770, 392), ("03", 610, 222), ("04", 800, 256), ("05", 1040, 212)]
+def _brain_fig():
+    o = ['<defs><clipPath id="p17clip"><path d="%s"/></clipPath></defs>' % _BRAIN]
+    # ── ⑤ 霓虹底层（静态 · 不带动画 ⇒ 不进运动件账本）──
+    o.append('<path d="%s" fill="none" stroke="%s" stroke-width="12" opacity=".07" '
+             'stroke-linejoin="round"/>' % (_BRAIN, AC))
+    # ── 小脑 / 脑干：先画（= 在大脑之后 / 之下），大脑的填色与轮廓随后压过它们的上缘 ──
+    for _d in (_CEREB, _STEM):
+        o.append('<path d="%s" fill="var(--card-bg-2)" opacity=".95"/>' % _d)
+        o.append('<path d="%s" fill="%s" opacity=".045"/>' % (_d, AC))
+        o.append('<path class="dw" style="--len:900;--i:2" d="%s" fill="none" '
+                 'stroke="var(--ink-2)" stroke-width="2.2" stroke-linejoin="round"/>' % _d)
+    # ── ① 五区放电（全部 clip 在轮廓里）──
+    o.append('<g clip-path="url(#p17clip)">')
+    for _d, _dur, _del in _ZONES:
+        o.append('<path class="mo-pulse" style="--mo-hi:.05;--mo-lo:.15;--mo-dur:%s;--mo-del:%s" '
+                 'd="%s" fill="%s" fill-rule="evenodd" opacity=".04"/>' % (_dur, _del, _d, AC))
+    # 区内脑回纹理
+    for _g in _GYRI:
+        o.append('<path d="%s" fill="none" stroke="var(--ink-3)" stroke-width=".8" opacity=".42"/>' % _g)
+    # 脑沟（分区边界）：比纹理重一档、比主轮廓轻一档
+    for _s in (_SUL1, _SUL2, _SUL3):
+        o.append('<path class="dw" style="--len:520;--i:3" d="%s" fill="none" '
+                 'stroke="var(--ink-2)" stroke-width="2" opacity=".85"/>' % _s)
+    # ── ② 突触弧线 + 神经火花（也 clip 在脑内 —— 火花不该跑到脑外去）──
+    for _d, _ln, _dur, _del in _ARCS:
+        o.append(dline(_d, AD, 1.2, 4, dash="2 7"))
+        o.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
+                        delay=_del, cap="round"))
+    for _k, _del in _ARC_EXTRA:
+        _d, _ln, _dur, _ = _ARCS[_k]
+        o.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
+                        delay=_del, cap="round"))
+    o.append('</g>')
+    # ── 主轮廓 + 小脑 + 脑干（画在填色之上 ⇒ 线稿永远压得住色块）──
+    o.append('<path class="dw" style="--len:2600;--i:1" d="%s" fill="none" stroke="var(--ink-2)" '
+             'stroke-width="2.5" stroke-linejoin="round"/>' % _BRAIN)
+    o.append('<path d="M494 382 C534 400 578 412 616 424" fill="none" stroke="var(--ink-3)" '
+             'stroke-width=".8" opacity=".5"/>')
+    o.append('<path d="M486 418 C526 438 570 452 610 458" fill="none" stroke="var(--ink-3)" '
+             'stroke-width=".8" opacity=".5"/>')
+    o.append('<path d="M492 448 C528 466 568 476 604 480" fill="none" stroke="var(--ink-3)" '
+             'stroke-width=".8" opacity=".5"/>')
+    # 04 环形深部小区：补一圈描边，让「深部结构」读得出是一枚独立器件
+    o.append('<g clip-path="url(#p17clip)"><path d="%s" fill="none" stroke="%s" '
+             'stroke-width="1.8" opacity=".6" fill-rule="evenodd"/></g>' % (_ZONES[4][0], AC))
+    # ── 区序号（静态文字，绝不挂在动效件上）──
+    for _n, _x, _y in _NUMS:
+        o.append(txt(_x, _y, _n, "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
+    # ── 引线 + 区名标签 ──
+    for _n, _d, _lx, _ly, _anc, _nm in _LEADS:
+        o.append(dline(_d, "var(--ink-3)", 1.2, 5, dash="2 5"))
+        o.append('<circle class="pop" style="--i:5;fill:%s" cx="%s" cy="%s" r="3.4"/>'
+                 % (AC, _d.split()[0][1:], _d.split()[1]))
+        o.append(txt(_lx, _ly, _nm, "ttl", size=21, anchor=_anc))
+        o.append(txt(_lx + (-0 if _anc == "end" else 0), _ly - 26, _n, "sm", size=13,
+                     anchor=_anc, col="var(--ink-3)", mono=True))
+    # ── ④ 输入：耳位波形 → 颞叶下部（01 区）──
+    o.append(txt(104, 392, "INPUT", "lbl", size=13, anchor="middle"))
+    o.append(_bars(46, 7, 436, AC, seed=3, gap=17, w=8))
+    o.append(txt(104, 492, "客户语音", "sm", size=16, anchor="middle"))
+    _IN = "M206 462 C330 526 452 566 572 566 C662 566 726 532 752 496"
+    o.append(packet(_IN, 620, col=AC, w=11, seg=22, dur="2.6s", op=".34", i=2))
+    o.append('<path class="dw" style="--len:620;--i:2" d="%s" fill="none" stroke="%s" '
+             'stroke-width="2.5"/>' % (_IN, AC))
+    o.append(ah_u(756, 486, AC, 8))
+    # ── ③ 输出：额叶前缘 → hot 盒（粗 accent-deep 快路径 + 1.6s 重拍）──
+    o.append('<g class="mo-pulse" style="--mo-lo:.38;--mo-dur:1.6s">%s%s</g>'
+             % (hline(1140, 1372, 268, AD, 5, 6), ah_r(1388, 268, AD, 8)))
+    o.append(halo_rect(1400, 198, 262, 140, 8, sc="1.06", op=".3", dur="3.4s"))
+    o.append(box(1400, 198, 262, 140, 8, hot=True, i=7, cls="mo-breathe", sty="--mo-dur:3.4s"))
+    o.append(txt(1531, 278, "输出 · 最佳回复", "ttl", size=24, anchor="middle", col=AC))
+    o.append(txt(1406, 188, "每 0.8 秒", "sm", size=14, col=AC, mono=True))
     return "".join(o)
 page("content", "".join([
     head("AGENT HARNESS · 五个大脑 · 并行",
          "客户说话的每一秒里，<strong>五个大脑</strong>在并行工作。"),
-    lab(120, 246, "01 · FIVE BRAINS IN PARALLEL"),
-    figbox(120, 282, 1680, 1680, 580, _harness_fig(), i=1),
+    lab(120, 246, "01 · FIVE BRAIN REGIONS · 同时放电"),
+    # 图例挪到页眉行右半区（P3「差异表 + 图例同一基线」同款破例）：
+    # 主图是一颗满幅的脑，底下留不出图例带 —— 与其把脑压小，不如把图例上提。
+    figbox(1090, 238, 710, 710, 30,
+           legend(0, 16, [("solid", "输入 · 主通路"), ("fast", "合成输出"),
+                          ("dot", "突触弧线"), ("dot", "标注引线", 1.2, "var(--ink-3)")]), i=5),
+    figbox(120, 282, 1680, 1680, 580, _brain_fig(), i=1),
     sh("flow", "left:120px;top:876px;width:1680px;height:52px;--i:6",
        '<div class="note">我们把 Agent Harness 带进实时语音交互——五个大脑并行，'
        '每 0.8 秒合成一句恰到好处的回复，自然从容到听不出是 AI。</div>'),
     land("听清、听懂、想透、决断——同时发生。", y=944),
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
+    sh("flow mono-sm", "left:120px;top:1015px;width:1000px;height:24px;--i:7",
        "为什么 96.5% 的客户听不出对面是 AI——答案在这五层。"),
+    sh("flow mono-sm", "left:1100px;top:1015px;width:700px;height:24px;text-align:right;--i:7",
+       "跑在对话式 AI 引擎的全双工链路上 · 见 P8"),
 ]))
 
 # ═══ P18 · Loop Engineering · 成长飞轮（2026-08-21「Call Agent 章」新增 ◆）══
@@ -2122,15 +2244,23 @@ page("content", "".join([
 #        供排练手控；静置态必须是干净画面，qa 的 ⑭ 闸盯着这一条。
 #     ③ preload="none"：21 页的 deck 一打开就预拉 3MB 视频是没道理的，翻到才拉。
 #     ④ muted + playsinline：不 muted 浏览器会拒绝自动播放（play() 直接 reject）。
-#     ⑤ 分步：容器挂 data-step="1" ⇒ 本页 data-steps=1，「翻到 + 按一下」才开播；
-#        视频挂 data-play-step="1" 供播放脚本识别。容器**不挂入场类**（.rise/.flow…），
-#        所以 step0 就是整幅 poster 静置，按一下才是「开播」而不是「图片飞进来」。
+#     ⑤ 分步：**容器绝不许挂 data-step** —— 2026-08-21 Colin 报「P19 之后多了一个空页面」，
+#        根因就在这里：motion.css 末尾有一条兜底规则
+#          .slide.visible [data-step]:not(.on):not(.flow):not(.rise)…{opacity:0}
+#        「没有动效类的裸容器」在 step0 一律 opacity:0 —— 满幅视频盒连同 poster 整幅被摁成
+#        透明，翻到 P20 就是一张白纸（浅色实测整页平均亮度 239）。此前误以为「没挂入场类
+#        就不会被步进隐藏」，那条兜底规则正是专门管这种裸容器的。
+#        改法：容器常显（poster 整幅静置可见），另起一枚**零尺寸 cue** 承载 data-step="1" ——
+#        deck.js 的 maxStep 是从 [data-step] 元素算的（不读 section 的 dataset.steps，实测过），
+#        所以这一枚是「本页有一步 build」的唯一依据；它零宽零高，两种步态都不可见。
+#        视频挂 data-play-step="1"，播放脚本按「同一页里 [data-step=N] 是否 .on」判步。
 #   1280×720 的片子与 1920×1080 舞台同 16:9 ⇒ object-fit:cover 不裁一格。
 _VID = "/decks/assets/robot26/"
 page("content",
      sh("vid", "left:0;top:0;width:1920px;height:1080px;z-index:0",
         '<video data-play-step="1" src="%sdemo.mp4" poster="%sdemo-poster.jpg" '
-        'preload="none" playsinline muted></video>' % (_VID, _VID), step=1),
+        'preload="none" playsinline muted></video>' % (_VID, _VID))
+     + '<i class="vid-cue" data-step="1" aria-hidden="true"></i>',
      steps=1)
 
 # ═══ P21 · Why Agora ·「跑在声网实时互动底座之上」（页号 16→18→17→20→21）═══
@@ -2287,8 +2417,9 @@ def build():
         'v.addEventListener("mouseenter",function(){v.setAttribute("controls","");});'
         'v.addEventListener("mouseleave",function(){v.removeAttribute("controls");});});'
         'function sync(){vids.forEach(function(v){'
-        'var sec=v.closest(".slide"),box=v.closest("[data-step]");'
-        'var live=!!sec&&sec.classList.contains("active")&&(!box||box.classList.contains("on"));'
+        'var sec=v.closest(".slide");'
+        'var cue=sec&&sec.querySelector(\'[data-step="\'+(+v.dataset.playStep||1)+\'"]\');'
+        'var live=!!sec&&sec.classList.contains("active")&&(!cue||cue.classList.contains("on"));'
         # 两道钩子会对同一次翻页各触发一次，这里按当前状态短路 ⇒ 同一次翻页只真的动一次。
         # play() 在没有 H.264 解码器的环境里会 reject（CI 容器就是），吞掉即可 —— 那不是页面的错；
         # reject 之后 v.paused 会翻回 true，下一次 sync 自然会再试，不需要额外的重试逻辑。
@@ -2298,9 +2429,10 @@ def build():
         'window.deck[m]=function(){var r=f.apply(this,arguments);sync();return r;};});'
         'var pend=false;var mo=new MutationObserver(function(){if(pend)return;pend=true;'
         'requestAnimationFrame(function(){pend=false;sync();});});'
-        'vids.forEach(function(v){var sec=v.closest(".slide"),box=v.closest("[data-step]");'
-        'if(sec)mo.observe(sec,{attributes:true,attributeFilter:["class"]});'
-        'if(box)mo.observe(box,{attributes:true,attributeFilter:["class"]});});'
+        'vids.forEach(function(v){var sec=v.closest(".slide");if(!sec)return;'
+        'mo.observe(sec,{attributes:true,attributeFilter:["class"]});'
+        'sec.querySelectorAll("[data-step]").forEach(function(c){'
+        'mo.observe(c,{attributes:true,attributeFilter:["class"]});});});'
         'sync();})();</script>\n'
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
