@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
-# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》17 页
+# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》20 页
 # CONF 家族 · conf-light 默认 · 单文件双主题 —— 以 build-convoai-info.py 为母版克隆
 #   （同一套 DECK_CSS token / conf-light·dark 背景板 / deck.js 运行时 / noindex / 双主题）
 #
@@ -12,15 +12,29 @@
 #   .g3 .g4 .card .card-c .chip .note .mono-sm .seclab .land .table.mini），未开新体系。
 # 2026-08-20（二轮 · 已仲裁）扩为 17 页：VAD 之后插入「产品架构大图」，
 #   并给 P6 / P7 / P14 各加一步 presenter-controlled build（data-steps + [data-step]）。
+# 2026-08-21（大内容轮）扩为 20 页：P10 SAL 重做（三种噪声 · 三层方案 + 双层防御环）／
+#   P11 弱网重做（补 AI QoS 断网续播机理）／P12 多模态改造（聚焦视觉模态）／
+#   新增 P13 Physical AI · R1 开发套件、P14 Physical AI · 已经上岗（案例墙）、
+#   P19 OpenAI 合作（title 板 quote 语域）；原 P13 编排 → P15 并做「箭头语义修」。
 #
-# 结构（17 页；★ = 2026-08-20 一轮新增，☆ = 二轮新增）：
+# 结构（20 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 大内容轮新增 / 重做）：
 #   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
 #   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路（build ×1）
 #   P7  VAD ★（build ×1）       P8  产品架构大图 ☆  P9  优雅打断
-#   P10 SAL 选择性注意力        P11 弱网            P12 多模态
-#   P13 开放编排                P14 接入架构（build ×1）
-#   P15 典型场景                P16 Why Agora（口径锁）
-#   P17 收尾（title 板）
+#   P10 SAL 三噪声三方案 ◆      P11 弱网 · AI QoS ◆ P12 多模态 · 聚焦视觉 ◆
+#   P13 Physical AI · R1 ◆      P14 Physical AI · 案例墙 ◆
+#   P15 开放编排（箭头语义修 ◆）P16 接入架构（build ×1）
+#   P17 典型场景                P18 Why Agora（口径锁）
+#   P19 OpenAI 合作 ◆（title 板）P20 收尾（title 板）
+#
+# ── P15 箭头语义修（2026-08-21 · Colin：「箭头流向会让大家懵逼」）────────────
+#   旧版同屏三种箭头语义、两种阅读方向：① 槽内 ⇄ 换装小箭头（accent，与主流同色同粗）
+#   ② 左列四条交叉贝塞尔 → 引擎（指右）③ 引擎 → 右列两条贝塞尔（也指右）——
+#   ②③ 视觉方向一致而语义相反（进 / 出），引擎被读成「过路站」而非「插槽机」。
+#   新版：插槽语义只保留一种阅读方向 =「模块插入引擎」，左右两列的连线一律指向引擎，
+#   贝塞尔全部换成正交总线（不交叉）；⇄ 换装只以小号灰件出现在模块块上方；
+#   引擎 → 发布带改为无箭头细连线（它是附属说明，不是第三种流向）。
+#   同屏箭头语义 = 2（插入 / 换装），图例逐条对上。
 #
 # ── P16 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
 #   旧（错）：No.1 对话式 AI 引擎市场占有率 / 93万+ / 700亿+ / 200+ 覆盖场景 · 20+ 行业
@@ -60,7 +74,7 @@ FONTS = """<style>
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
 </style>"""
 
-# ── 背景板（两张：title 给 P1/P13，content 给 P2–P12）────────────────────────
+# ── 背景板（两张：title 给 P1/P19/P20，content 给其余）───────────────────────
 BOARDS_CSS = """<style id="convoai-boards">
 .conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
   background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
@@ -114,6 +128,49 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
 /* 深色面板里的 b：components.css 的 b,strong{color:var(--ink)}（0,0,1）会把它染成主题墨色，
    在深底上等于隐形。本 deck 目前没有烧死深底的面板，规则留作护栏。 */
 .on-dark b,.on-dark strong{color:inherit;}
+/* ── P10 三种噪声阶梯（.rows 的页级档）───────────────────────────────────
+   噪声 / 例子 在同一顶线，方案另起一行并按 01→03 逐级右移 —— 缩进本身就是「递进」。
+   .rows .r.hot 在 components.css 里取 --coral（= --accent-deep）；本 deck 的 hot 语汇
+   一律是 --accent，这里同权重覆写（两边都是 0,4,0，本表写在 components.css 之后 ⇒ 本表胜）。*/
+.nrow .r{padding:44px 0;align-items:flex-start;}
+.nrow .r .n{font-size:24px;line-height:1.3;}
+.nrow .r .k{font-size:27px;line-height:1.3;width:196px;}
+.nrow .r .ex{display:block;font:500 14px/1.5 var(--f-mono);letter-spacing:.06em;color:var(--ink-3);}
+.nrow .r .sol{display:block;margin-top:9px;font:400 20px/1.35 var(--f-cn);color:var(--ink-2);}
+.nrow .r .sol b{font-weight:700;color:var(--ink);}
+.nrow .r .sol i{display:inline-block;margin-left:12px;font-style:normal;
+  font:400 15px/1.35 var(--f-cn);color:var(--ink-3);}
+.nrow .r.hot .k,.nrow .r.hot .n{color:var(--accent);}
+.nrow .r.hot .sol b{color:var(--accent);}
+/* ── 案例卡（P14 Physical AI 案例墙）──────────────────────────────────────
+   样式抄自 build-convoai-info.py 的 .case-feature / .case-mini「成熟版」，
+   只按本页更大的卡面等比放大字号；不引用 info 的 CSS 文件（两份 deck 各自自包含）。
+   info 踩过并已修好的三个坑，这里一并继承：
+     ① components.css 的 `b,strong{color:var(--ink)}`（0,0,1）会命中 caption 里的 b，
+        把客户名染成主题墨色 —— 浅底下等于在深色压幕上隐形 ⇒ 必须写 color:inherit
+     ② 客户名走 DOM 文本 + text-shadow，不靠海报自己烧录的品牌字（缩略后读不出）
+     ③ 小卡降噪滤镜（saturate/brightness 压一档）：11 张彩色缩略图并排会盖过页面主色 */
+.case-feature{position:relative;height:100%;border:1px solid var(--hair);border-radius:16px;
+  overflow:hidden;background:#151727;}
+.case-feature img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 68%;
+  filter:saturate(.86) contrast(1.04);}
+.case-feature:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 38%,rgba(10,12,24,.5) 68%,rgba(10,12,24,.93) 100%);}
+.case-feature-caption{position:absolute;left:22px;right:18px;bottom:18px;z-index:1;color:#fff;}
+.case-feature-caption b{display:block;font:700 26px/1.18 var(--f-cn);color:inherit;
+  text-shadow:0 1px 8px rgba(0,0,0,.75);}
+.case-feature-caption span{display:block;margin-top:7px;font:500 14px/1 var(--f-mono);
+  letter-spacing:.12em;color:rgba(255,255,255,.72);}
+.case-mini{position:relative;height:100%;border:1px solid var(--hair);border-radius:12px;
+  overflow:hidden;background:#171928;}
+.case-mini img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 55%;
+  filter:saturate(.58) contrast(1.02) brightness(.82);}
+.case-mini:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 34%,rgba(10,12,24,.5) 66%,rgba(10,12,24,.88) 100%);}
+.case-mini span{position:absolute;left:18px;right:14px;bottom:14px;z-index:1;color:#fff;
+  font:700 19px/1.35 var(--f-mono);letter-spacing:.035em;text-shadow:0 1px 6px rgba(0,0,0,.9);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media print{.case-feature,.case-mini{box-shadow:none;}}
 /* 编辑热区（deck.js 依赖） */
 .edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
 .edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
@@ -267,17 +324,38 @@ def step_badge(x, y, n, r=16, i=2):
             'stroke="%s" stroke-width="2"/>' % (i, x, y, r, AC)
             + txt(x, y + 7, str(n), "ttl", size=20, anchor="middle", col=AC, weight=700))
 def legend(x, y, items, i=9, gap=54):
-    """图例行：items = [(kind, 标签)] 或 [(kind, 标签, 线宽)]；kind ∈ solid / dash / dot / fast。
+    """图例行：items = [(kind, 标签)] / [(kind, 标签, 线宽)] / [(kind, 标签, 线宽, 颜色)]；
+       kind ∈ solid / dash / dot / fast / fill / swap。
        第三项给线宽：图例样线必须与页内真线同粗，否则「粗一档」在图例里读不出来。
+       第四项给颜色：同一线型靠「粗细 + 灰度」分主次时（P12 加重 / 弱化），图例必须跟着降级。
+       fill = 面色块样本（P11 缓存余量）；swap = ⇄ 换装小件（P15）——都不是「线型」，
+       但同屏出现就必须进图例，否则读者要自己猜。
        步进按标签字数估宽（CJK 14px/字），够松，不会互相压。"""
     o, cx = [], x
     for it in items:
         kind, label = it[0], it[1]
         w = it[2] if len(it) > 2 else None
-        o.append(_LGK[kind](cx, y, i=i) if w is None else _LGK[kind](cx, y, w=w, i=i))
+        col = it[3] if len(it) > 3 else None
+        if kind == "fill":
+            o.append('<rect class="pop" style="--i:%d;fill:%s;opacity:.25" x="%d" y="%d" '
+                     'width="40" height="13" rx="3"/>' % (i, col or AC, cx, y - 6))
+        elif kind == "swap":
+            o.append(swap_mark(cx, y, i=i))
+        else:
+            kw = {"i": i}
+            if w is not None: kw["w"] = w
+            if col is not None: kw["col"] = col
+            o.append(_LGK[kind](cx, y, **kw))
         o.append(txt(cx + 50, y + 5, label, "sm", size=14, i=i))
         cx += 50 + int(len(label) * 13.2) + gap
     return "".join(o)
+
+def swap_mark(x, y, col="var(--ink-3)", i=2, w=34):
+    """⇄ 换装小件（P15）：两支对开的细小箭头，灰度 + 小号 —— 与「插入」主线不同重量级，
+       一眼读成注记而不是流向。画真箭头，不用字符 ⇄（字体缺字会掉成豆腐块）。"""
+    return "".join([
+        hline(x, x + w - 8, y - 5, col, 1.3, i), ah_r(x + w, y - 5, col, 5),
+        hline(x + w, x + 8, y + 5, col, 1.3, i), ah_l(x, y + 5, col, 5)])
 
 # ═══ P1 · 封面（title 板）══════════════════════════════════════════════════
 page("title", "".join([
@@ -1025,111 +1103,181 @@ page("content", "".join([
 ]))
 
 # ═══ P10 · SAL ·「嘈杂环境里，只听该听的人」═══════════════════════════════
-# 2026-08-20 三轮升维：一排「干扰 → 竖墙」改成一个真正的空间场景 ——
-#   中心是智能体（唯一 hot 件），左侧一条实线波束从目标人声直达中心（屏蔽环在这一侧留缺口），
-#   右侧三路干扰用点线波束射向中心，全部撞在屏蔽环上打 ✕。
-#   屏蔽环 = 本页的闭环感：它把「只听该听的人」画成一个可以指着讲的东西。
-_NOISE = [("旁人交谈", 40), ("环境噪声", 240), ("背景音乐", 440)]
-_SCX, _SCY, _SR = 760, 240, 190      # 场景中心 / 屏蔽环半径
+# 2026-08-21 重做 ·「三种噪声 · 三层方案」：
+#   旧版把「嘈杂」当成一个问题（一环挡三路），讲不出 SAL 到底进阶在哪。
+#   新版左右分工：
+#     左 = 三行阶梯（噪声 → 例子 → 方案），方案逐级右移 = 手段一层比一层进阶；
+#          03「非对话人人声」是 hot ——它才是 SAL 要解的那一类。
+#     右 = 双层防御环：外环「降噪层」滤掉 01/02 两类点线波束（撞环 ✕），
+#          03 的点线波束穿过外环（外环在交点处开一个洞，肉眼看得见「穿过去了」），
+#          在内环「SAL 声纹层」被挡（✕）；只有目标人声的实线波束从左侧缺口穿两环直达智能体。
+#   数字只留既有的「屏蔽 95% 干扰」，不发明第二个。
+#   land 源自 Colin aiot26 定稿「前两类是信号问题，第三类是产品判断问题」。
+_NOISES = [
+    ("01", "稳态背景噪声", "STATIONARY · 例：空调 · 风扇 · 路噪",
+     0, "传统降噪算法", "工程成熟 · 稳定手段", False),
+    ("02", "瞬态突发", "TRANSIENT · 例：关门 · 犬吠 · 键盘 · 碰撞",
+     30, "AI 降噪算法", "模型识别突发形态", False),
+    ("03", "非对话人人声", "NON-TARGET SPEECH · 例：电视人声 · 旁人聊天 · 多人同说",
+     60, "选择性注意力锁定 SAL · 进阶", "声纹锁定目标人，其余按背景处理", True),
+]
+_SCX, _SCY = 300, 196                # 场景中心（左移一档：给右侧三束点线让出可读长度）
+_SR2, _SR1, _SAG = 138, 86, 54       # 外环（降噪层）/ 内环（SAL 声纹层）/ 智能体
+def _ring(r, gap, i, col, dash):
+    """左侧留缺口的防御环：缺口正对目标人声波束，所以「只有它能进来」是画出来的，不是说出来的"""
+    import math
+    dx = math.sqrt(r * r - gap * gap)
+    return ('<path class="pop" style="--i:%d" d="M%.1f %d A %d %d 0 1 1 %.1f %d" fill="none" '
+            'stroke="%s" stroke-width="2.4" stroke-dasharray="%s"/>'
+            % (i, _SCX - dx, _SCY - gap, r, r, _SCX - dx, _SCY + gap, col, dash))
 def _sal_fig():
+    import math
     o = []
-    # ── 屏蔽环：左侧 ±8° 留缺口，正好让目标人声的波束穿进来 ──
-    o.append('<path class="pop" style="--i:3" d="M%d %d A %d %d 0 1 1 %d %d" fill="none" '
-             'stroke="%s" stroke-width="2.5" stroke-dasharray="10 9"/>'
-             % (_SCX - 188, _SCY - 26, _SR, _SR, _SCX - 188, _SCY + 26, AC))
-    # ── 目标人声（左）──
-    o.append('<circle class="pop box" style="--i:1" cx="150" cy="240" r="62" stroke-width="2"/>')
-    o.append('<path class="pop" style="--i:1" d="M150 214a11 11 0 0 1 11 11v9a11 11 0 0 1-22 0v-9a11 11 0 0 1 11-11z '
-             'M134 234a16 16 0 0 0 32 0 M150 250v10" fill="none" stroke="%s" stroke-width="2.6" '
-             'stroke-linecap="round"/>' % AC)
-    o.append(txt(150, 346, "目标人声", "ttl", size=22, anchor="middle", col=AC))
-    o.append(txt(150, 378, "锁定 · 精准识别", "sm", size=17, anchor="middle"))
-    o.append(hline(212, 628, 240, AC, 3.5, 2)); o.append(ah_r(640, 240, AC))
-    o.append(txt(420, 216, "声纹锁定 · 只留目标人声", "sm", size=17, anchor="middle", col=AC))
+    # ── 双层防御环 ──
+    # 缺口开到 ±40 / ±34：一来目标人声的波束进得来，二来「声纹锁定 · 只留目标人声」
+    # 这行标注要落在缺口里，缺口小于文字高度时弧线会从字上划过去（= 划掉的观感）。
+    o.append(_ring(_SR2, 40, 3, HS, "9 8"))
+    o.append(_ring(_SR1, 34, 3, AC, "8 7"))
+    o.append(txt(_SCX, 26, "降噪层 · 传统 + AI 降噪", "sm", size=15, anchor="middle",
+                 col="var(--ink-3)", mono=True, ls=".08em"))
+    o.append(txt(_SCX, 310, "SAL 声纹层", "sm", size=16, anchor="middle", col=AC,
+                 mono=True, ls=".1em"))
+    # ── 目标人声（左）· 实线波束穿两环直达中心 ──
+    o.append('<circle class="pop box" style="--i:1" cx="58" cy="%d" r="35" stroke-width="2"/>' % _SCY)
+    o.append('<path class="pop" style="--i:1" d="M58 %da10 10 0 0 1 10 10v8a10 10 0 0 1-20 0v-8a10 10 0 0 1 10-10z '
+             'M43 %da15 15 0 0 0 30 0 M58 %dv9" fill="none" stroke="%s" stroke-width="2.4" '
+             'stroke-linecap="round"/>' % (_SCY - 22, _SCY - 4, _SCY + 6, AC))
+    o.append(txt(58, 254, "目标人声", "ttl", size=20, anchor="middle", col=AC))
+    o.append(txt(58, 280, "锁定 · 精准识别", "sm", size=14, anchor="middle"))
+    o.append(hline(96, 234, _SCY, AC, 3.5, 2)); o.append(ah_r(246, _SCY, AC))
+    o.append(txt(140, 170, "声纹锁定 · 只留目标人声", "sm", size=14, anchor="middle", col=AC))
     # ── 智能体（中 · 唯一 hot 件）──
     o.append('<circle class="pop" style="--i:0;fill:var(--card-bg-2);stroke:%s" cx="%d" cy="%d" '
-             'r="110" stroke-width="3"/>' % (AC, _SCX, _SCY))
-    o.append(txt(_SCX, 232, "智能体", "ttl", size=28, anchor="middle"))
-    o.append(txt(_SCX, 270, "声纹锁定", "sm", size=18, anchor="middle", col=AC))
-    # ── 三路干扰：点线波束 → 撞在屏蔽环上 ✕ ──
-    for n, sy in _NOISE:
-        dx, dy = 1520 - _SCX, sy - _SCY
-        ln = (dx * dx + dy * dy) ** .5
-        ux, uy = dx / ln, dy / ln
-        ex, ey = 1520 - ux * 48, sy - uy * 48                  # 干扰源圆边
-        rx, ry = _SCX + ux * _SR, _SCY + uy * _SR              # 屏蔽环交点
-        o.append('<circle class="pop box" style="--i:4" cx="1520" cy="%d" r="48" stroke-width="1.4"/>' % sy)
-        o.append(txt(1520, sy + 8, n, "sm", size=17, anchor="middle"))
-        o.append(dline("M%d %d L%d %d" % (ex, ey, rx + ux * 14, ry + uy * 14), HS, 2.4, 5, dash="2 7"))
-        o.append(txt(rx, ry + 10, "✕", "ttl", size=28, anchor="middle", col=AD))
-    # ── 屏蔽环的名牌：压在环底，不透明底把弧线遮住，读者知道这一圈叫什么 ──
-    o.append('<rect class="pop" style="--i:6;fill:var(--card-bg-2)" x="%d" y="%d" width="360" '
-             'height="60" rx="30" stroke="%s" stroke-width="2.5"/>' % (_SCX - 180, _SCY + 172, AC))
-    o.append(txt(_SCX, _SCY + 210, "屏蔽 95% 干扰", "ttl", size=26, anchor="middle", col=AC, weight=700))
-    o.append(legend(0, 486, [("solid", "目标人声"), ("dot", "干扰 · 被屏蔽")]))
+             'r="%d" stroke-width="3"/>' % (AC, _SCX, _SCY, _SAG))
+    o.append(txt(_SCX, _SCY - 4, "智能体", "ttl", size=25, anchor="middle"))
+    o.append(txt(_SCX, _SCY + 26, "声纹锁定", "sm", size=16, anchor="middle", col=AC))
+    # ── 三路噪声点线波束：01/02 撞外环 ✕，03 穿外环、撞内环 ✕ ──
+    _SRC = [("稳态背景噪声", 50, _SR2), ("瞬态突发", 196, _SR2), ("非对话人人声", 342, _SR1)]
+    for n, sy, stop in _SRC:
+        dx, dy = _SCX - 613, _SCY - sy
+        ln = math.sqrt(dx * dx + dy * dy) or 1
+        ux, uy = dx / ln, dy / ln                              # 单位向量：噪声源 → 中心
+        o.append('<rect class="pop box" style="--i:4" x="510" y="%d" width="206" height="52" '
+                 'rx="26" stroke-width="1.4"/>' % (sy - 26))
+        o.append(txt(613, sy + 6, n, "sm", size=17, anchor="middle"))
+        px, py = _SCX - ux * stop, _SCY - uy * stop            # 被拦下的那一层的交点
+        if stop == _SR1:
+            # 穿过外环：在交点上打一个不透明的洞，点线从洞里穿过去 —— 不写字也读得出「过了」
+            ox, oy = _SCX - ux * _SR2, _SCY - uy * _SR2
+            o.append('<circle class="pop" style="--i:4;fill:var(--card-bg-2)" cx="%.1f" cy="%.1f" '
+                     'r="11"/>' % (ox, oy))
+        o.append(dline("M%.1f %.1f L%.1f %.1f" % (613 + ux * 96, sy + uy * 96,
+                                                  px - ux * 12, py - uy * 12), HS, 2.4, 5, dash="2 7"))
+        o.append(txt(px, py + 10, "✕", "ttl", size=26, anchor="middle", col=AD))
+    # ── 名牌：压在两环之下，读者知道这一整套叫什么 ──
+    o.append('<rect class="pop" style="--i:6;fill:var(--card-bg-2)" x="150" y="372" width="300" '
+             'height="56" rx="28" stroke="%s" stroke-width="2.5"/>' % AC)
+    o.append(txt(_SCX, 408, "屏蔽 95% 干扰", "ttl", size=24, anchor="middle", col=AC, weight=700))
+    o.append(legend(0, 452, [("solid", "目标人声"), ("dot", "干扰 · 被屏蔽")]))
     return "".join(o)
 page("content", "".join([
-    head("SELECTIVE ATTENTION (SAL) · 选择性注意力锁定", "嘈杂环境里，<strong>只听该听的人</strong>。"),
-    lab(120, 236, "01 · LOCK ON"),
-    figbox(120, 285, 1680, 1680, 500, _sal_fig(), i=1),
+    head("SELECTIVE ATTENTION · 三种噪声 · 三层方案", "嘈杂环境里，<strong>只听该听的人</strong>。"),
+    lab(120, 240, "01 · THREE NOISES", w=940),
+    sh("rise", "left:120px;top:296px;width:940px;height:440px;--i:2",
+       '<div class="rows nrow">' + "".join(
+           '<div class="r%s"><span class="n">%s</span><span class="k">%s</span><span class="v">'
+           '<span class="ex">%s</span>'
+           '<span class="sol" style="padding-left:%dpx">&#8594; <b>%s</b><i>%s</i></span>'
+           '</span></div>' % (" hot" if _h else "", _n, _k, _ex, _pad, _sol, _note)
+           for _n, _k, _ex, _pad, _sol, _note, _h in _NOISES) + '</div>'),
+    lab(1080, 240, "02 · TWO-LAYER DEFENSE", w=720),
+    figbox(1080, 296, 720, 720, 470, _sal_fig(), i=1),
     rule(850),
-    rail("SELECTIVE ATTENTION LOCK · 95% INTERFERENCE SHIELDED"),
+    land("前两类是信号问题，第三类是「谁在和我说话」的判断问题——这正是 SAL 的进阶所在。"),
 ]))
 
 # ═══ P11 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
 # 2026-08-20 三轮升维：一条丢包条 + 一条波浪 → 上下两条对齐的时间带。
 #   上带 = 网络状况（正常 → 80% 丢包高密段 → 3–5s 瞬时断网空洞段 → 恢复），
-#   下带 = 对话连续性（一条永不中断的音频带，在上带最恶劣区间下方依然连续），
-#   两带之间坐着唯一 hot 件「抗丢包引擎」：上面吸收锯齿，下面吐出平滑。
-#   数字只用现有两枚 stat（80% / 3–5s），不发明第三个。
+#   下带 = 对话连续性（一条永不中断的音频带，在上带最恶劣区间下方依然连续）。
+# 2026-08-21 重做 · 补「AI QoS」机理：
+#   旧版中间只坐着一个「抗丢包引擎」黑盒 —— 它解释得了 80% 丢包，解释不了「断网 3–5s
+#   还能继续说话」（丢包可以靠冗余补，断网时根本没有包可补）。新版把机制层拆成两个盒，
+#   各自对位自己的战场，并且把 AI QoS 的机理画出来：
+#     ① 抗丢包引擎（对位 80% 丢包段）· 常规盒 · FEC 前向纠错等冗余手段
+#     ② AI QoS · 断网续播（对位断网空洞段）· 本页唯一 hot
+#        机理 = 下行 AI 语音包「密集流」持续注入「本地缓存」蓄水条；断网段没有新包进来，
+#        缓存条递减放水，下带播放依旧连续；恢复后重新充盈。
+#        why 注是 Colin 原话定稿：AI 的语音包幅度与频率远大于人，网络好时多下发的包，
+#        够断网时继续播 —— 这一句是本页真正的「因果标注」。
+#   两枚数字（80% / 3–5s）与 land 原样，不发明第三个。
 _WN_SEGS = [(0, 9, 1), (256, 10, 8), (536, 6, 6), (716, 12, 1)]   # (x0, 包数, 丢包数)
+_WN_LOSS = (250, 262)      # 丢包域（x, w）—— 与 seg2 的包条 256–508 对齐
+_WN_DARK = (526, 164)      # 断网域（x, w）—— 与 seg3 的空洞 536–676 对齐
 def _weaknet_fig():
-    o = [txt(0, 24, "网络 · 大量丢包 + 瞬时断网", "lbl", size=15)]
-    # 最恶劣区间的竖向对照带：上带最烂的地方，正对着下带最平的地方
-    o.append('<rect class="pop" style="--i:1;fill:%s;opacity:.06" x="252" y="36" width="428" '
-             'height="330" rx="6"/>' % AD)
+    o = [txt(0, 18, "网络 · 大量丢包 + 瞬时断网", "lbl", size=15)]
+    # ── 域分带（P8 语法）：两段战场从上带一路贯到机制盒，「谁治谁」不用连线也读得出 ──
+    o.append('<rect class="pop" style="--i:1;fill:%s;opacity:.055" x="%d" y="28" width="%d" '
+             'height="318" rx="6"/>' % (AD, _WN_LOSS[0], _WN_LOSS[1]))
+    o.append('<rect class="pop" style="--i:1;fill:%s;opacity:.10" x="%d" y="28" width="%d" '
+             'height="318" rx="6"/>' % (AC, _WN_DARK[0], _WN_DARK[1]))
     for x0, n, lost in _WN_SEGS:
         for k in range(n):
             x = x0 + k * 28
             if k < n - lost:
-                o.append('<rect class="pop" style="--i:%d;fill:%s" x="%d" y="44" width="22" '
+                o.append('<rect class="pop" style="--i:%d;fill:%s" x="%d" y="32" width="22" '
                          'height="60" rx="5"/>' % (1 + k % 3, AC, x))
             else:
-                o.append('<rect class="pop" style="--i:%d" x="%d" y="44" width="22" height="60" '
+                o.append('<rect class="pop" style="--i:%d" x="%d" y="32" width="22" height="60" '
                          'rx="5" fill="none" stroke="%s" stroke-width="1.4" stroke-dasharray="4 4"/>'
                          % (1 + k % 3, x, HS))
-    o.append(txt(382, 128, "80% 丢包", "ttl", size=20, anchor="middle", col=AD, weight=700))
-    o.append(txt(606, 128, "3–5s 瞬时断网", "ttl", size=20, anchor="middle", col=AD, weight=700))
-    o.append(txt(606, 84, "✕ 断网", "ttl", size=20, anchor="middle", col=AD))
-    # ── 吸收：整段坏区收进来（点线漏斗）+ 一段锯齿 = 网络给的是什么样的东西 ──
-    for k in range(7):
-        x = 400 + k * 42
-        o.append(dline("M%d 142 L%d 164" % (x, 540 + (x - 526) // 5), AD, 1.6, 2, dash="3 5"))
-    _saw = " ".join("L%d %d" % (470 + k * 10, 168 if k % 2 == 0 else 184) for k in range(16))
-    o.append('<path class="pop" style="--i:2" d="M462 176 %s" fill="none" stroke="%s" '
-             'stroke-width="2" stroke-linejoin="round"/>' % (_saw, AD))
-    o.append(box(370, 194, 340, 76, 10, hot=True, i=3))
-    o.append(txt(540, 242, "抗丢包引擎", "ttl", size=26, anchor="middle", col=AC))
-    # ── 输出：一段平滑波 = 引擎吐出来的是什么样的东西 ──
-    o.append('<path class="pop" style="--i:4" d="M460 292 Q 480 280 500 292 T 540 292 T 580 292 '
-             'T 620 292" fill="none" stroke="%s" stroke-width="2.5" stroke-linecap="round"/>' % AC)
-    o.append(vline(540, 302, 334, AC, 2.5, 4))
-    o.append(ah_d(540, 348, AC))
+    o.append(txt(606, 70, "✕ 断网", "ttl", size=19, anchor="middle", col=AD))
+    o.append(txt(382, 114, "80% 丢包", "ttl", size=20, anchor="middle", col=AD, weight=700))
+    o.append(txt(606, 114, "3–5s 瞬时断网", "ttl", size=20, anchor="middle", col=AD, weight=700))
+    # ── 下行 AI 语音包密集流：注入缓存的那一场雨；断网段（526–690）没有雨 ──
+    o.append(txt(0, 112, "下行 AI 语音包 · 密集下发", "lbl", size=14))
+    for k in range(31):
+        x = 120 + k * 30
+        if 512 <= x <= 700:
+            continue
+        o.append(vline(x, 128, 158, AC, 2, 2))
+        o.append(ah_d(x, 168, AC, 7))
+    # ── 本地缓存：蓄水条。正常段充盈 → 断网段递减放水 → 恢复后重新充盈 ──
+    o.append(txt(0, 210, "本地缓存", "lbl", size=15))
+    o.append('<rect class="pop" style="--i:3" x="110" y="176" width="914" height="56" rx="8" '
+             'fill="none" stroke="%s" stroke-width="1.4"/>' % HS)
+    o.append('<path class="pop" style="--i:3;fill:%s;opacity:.26" d="M114 228 L114 182 L526 182 '
+             'L690 224 L764 182 L1020 182 L1020 228 Z"/>' % AC)
+    # ── 机制层：两个盒各占自己的域（左右各贴着域边，不用连线） ──
+    o.append(box(_WN_LOSS[0], 250, _WN_LOSS[1], 96, 10, i=4))
+    o.append(txt(_WN_LOSS[0] + _WN_LOSS[1] // 2, 292, "抗丢包引擎", "ttl", size=25, anchor="middle"))
+    o.append(txt(_WN_LOSS[0] + _WN_LOSS[1] // 2, 322, "FEC 前向纠错等 · 冗余对抗丢包", "sm", size=14,
+                 anchor="middle"))
+    o.append(box(_WN_DARK[0], 250, _WN_DARK[1], 96, 10, hot=True, i=5))
+    o.append(txt(_WN_DARK[0] + _WN_DARK[1] // 2, 288, "AI QoS", "sm", size=18, anchor="middle",
+                 col=AC, mono=True, ls=".12em"))
+    o.append(txt(_WN_DARK[0] + _WN_DARK[1] // 2, 324, "断网续播", "ttl", size=24, anchor="middle",
+                 col=AC, weight=700))
+    # ── why 注（Colin 原话定稿）：AI QoS 为什么可能 ──
+    o.append('<rect class="pop" style="--i:6;fill:%s" x="720" y="254" width="3" height="88" rx="2"/>' % AC)
+    o.append(txt(742, 288, "AI 说话的语音包幅度与频率远大于人——", "sm", size=16))
+    o.append(txt(742, 318, "网络好时多下发的包，够断网时继续播。", "sm", size=16))
     # ── 下带：一条连续不断的音频带，横贯全程 ──
-    o.append(txt(0, 344, "对话 · 连续不卡顿", "ttl", size=21, col=AC))
-    o.append('<rect class="pop" style="--i:5;fill:%s;opacity:.14" x="0" y="358" width="1060" '
+    o.append(txt(0, 386, "对话 · 连续不卡顿", "ttl", size=21, col=AC))
+    o.append('<rect class="pop" style="--i:7;fill:%s;opacity:.14" x="0" y="398" width="1024" '
              'height="56" rx="8"/>' % AC)
-    o.append('<path class="dw" style="--len:1200;--i:5" d="M12 386 Q 72 356 132 386 T 252 386 '
-             'T 372 386 T 492 386 T 612 386 T 732 386 T 852 386 T 972 386 T 1044 386" fill="none" '
+    o.append('<path class="dw" style="--len:1200;--i:7" d="M12 426 Q 72 396 132 426 T 252 426 '
+             'T 372 426 T 492 426 T 612 426 T 732 426 T 852 426 T 972 426 T 1012 426" fill="none" '
              'stroke="%s" stroke-width="4" stroke-linecap="round"/>' % AC)
-    o.append('<circle class="pop" style="--i:6;fill:%s" cx="1048" cy="386" r="7"/>' % AC)
-    o.append(legend(0, 442, [("solid", "对话音频流"), ("dash", "丢包 / 断网")]))
+    o.append('<circle class="pop" style="--i:8;fill:%s" cx="1016" cy="426" r="7"/>' % AC)
+    o.append(legend(0, 486, [("solid", "音频流 · 语音包"), ("dash", "丢包 / 断网"),
+                             ("fill", "本地缓存余量")]))
     return "".join(o)
 _P7STAT = [("80", "%", "丢包率下稳定对话"), ("3–5", "s", "瞬时断网自如响应")]
 page("content", "".join([
     head("WEAK NETWORK · 弱网也能聊", "网络在抖，<strong>对话不断</strong>。"),
-    lab(120, 236, "01 · PACKET LOSS"),
-    figbox(120, 280, 1080, 1080, 470, _weaknet_fig(), i=1),
+    lab(120, 236, "01 · PACKET LOSS · AI QoS", w=1080),
+    figbox(120, 280, 1080, 1080, 510, _weaknet_fig(), i=1),
     lab(1280, 236, "02 · RESILIENCE", w=520),
     ] + [
     sh("rise card-c", "left:1280px;top:%dpx;width:520px;height:230px;--i:%d" % (300 + _i * 260, 2 + _i),
@@ -1149,109 +1297,199 @@ page("content", "".join([
 ]))
 
 # ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
-_CAPS = [
-    ("VOICEPRINT", "声纹锁定", "认准说话人"),
-    ("VISION",     "看图识景", "理解图片视频"),
-    ("AVATAR",     "数字人",   "口型表情同步"),
-    ("SIP",        "SIP 电话", "接呼叫中心"),
-]
-# 2026-08-20 三轮升维：hub + 四张并排卡 → 一个有方向的 IO 辐条图。
-#   四张能力卡文案一字不改，只是从「一排卡」变成「辐条端点卡」，并按 IO 方向分域：
-#     左 = 感知 · IN（箭头指向 hub）／右 = 表达 · OUT（箭头离开 hub）／底 = 接入通道（双向）
-#   这是视觉分组，不改任何产品分类文案。hot 件唯一 = 中心 hub。
-def _p12_card(x, y, w, h, tag, name, desc, i=2):
-    o = [box(x, y, w, h, 10, i=i)]
-    if tag:
-        o.append(txt(x + 26, y + 34, tag, "lbl", size=13))
-    o.append(txt(x + 26, y + (72 if tag else 50), name, "ttl", size=26))
-    if desc:
-        o.append(txt(x + 26, y + 106, desc, "sm", size=18))
+# 2026-08-21 改造 · 聚焦视觉模态：
+#   标题与中心 hub 保留；辐条重新配重 —— 四条等粗辐条读起来是「四件并列的功能」，
+#   而全 deck 的叙事此刻要往 Physical AI（P13/P14）走，视觉这一路才是引子。
+#     加重（大卡 + 粗线 3.5）：IN 看图识景（端点例 智能眼镜）／ OUT 数字人（端点 语音配合数字人表达）
+#     弱化（小 chip + 灰细线 1.6）：声纹锁定（P10 已讲）／ SIP 电话 · VoIP（前序已讲），
+#       降为底部次级带并挂 mono 小注「前文已述」——不删，只降权重。
+#   线型只有一种（实线 = 主数据流），主次靠「粗细 + 灰度」分，图例跟着降级列两档。
+def _p12_card(x, y, w, h, tag, name, desc, i=2, hot=False):
+    o = [box(x, y, w, h, 12, hot=hot, i=i)]
+    o.append(txt(x + 30, y + 40, tag, "lbl", size=14))
+    o.append(txt(x + 30, y + 92, name, "ttl", size=34, col=AC if hot else None))
+    o.append(txt(x + 30, y + 132, desc, "sm", size=20))
     return "".join(o)
+def _p12_chip(x, y, w, name, i=5, on=False):
+    """端点 chip。on=True 是加重辐条的端点（accent 描边 + 主墨字），
+       on=False 是次级带的弱化件（灰描边 + 灰字）—— 两者必须区分开，
+       否则「端点例」和「前文已述」看起来是同一个重量级，配重就白做了。"""
+    return ("".join([
+        '<rect class="pop" style="--i:%d" x="%d" y="%d" width="%d" height="56" rx="28" '
+        'fill="none" stroke="%s" stroke-width="%s"/>' % (i, x, y, w, AC if on else HS,
+                                                        1.8 if on else 1.4),
+        txt(x + w // 2, y + 36, name, "sm", size=19, anchor="middle",
+            col="var(--ink-2)" if on else "var(--ink-3)")]))
 def _io_fig():
     o = []
-    # ── 中心 hub（hot）──
-    o.append(box(630, 180, 420, 140, 14, hot=True, i=1))
-    o.append(txt(840, 240, "对话引擎", "ttl", size=38, anchor="middle"))
-    o.append(txt(840, 282, "一套接入", "sm", size=18, anchor="middle", col=AC, mono=True, ls=".16em"))
-    # ── 左：感知 · IN ──
-    o.append(txt(40, 34, "感知 · IN", "sm", size=15, col=AC, mono=True, ls=".18em"))
-    o.append(_p12_card(40, 60, 390, 130, *_CAPS[0], i=2))
-    o.append(_p12_card(40, 230, 390, 130, *_CAPS[1], i=3))
-    for cy, hy in [(125, 205), (295, 275)]:
-        o.append('<path class="dw" style="--len:300;--i:3" d="M430 %d H540 V%d H606" fill="none" '
-                 'stroke="%s" stroke-width="2.5"/>' % (cy, hy, AC))
-        o.append(ah_r(618, hy, AC))
-    # ── 右：表达 · OUT ──
-    o.append(txt(1640, 34, "表达 · OUT", "sm", size=15, col=AC, anchor="end", mono=True, ls=".18em"))
-    o.append(_p12_card(1250, 82, 390, 86, "", "语音", "", i=2))
-    o.append(_p12_card(1250, 230, 390, 130, *_CAPS[2], i=3))
-    for cy, hy in [(125, 205), (295, 275)]:
-        o.append('<path class="dw" style="--len:300;--i:4" d="M1050 %d H1160 V%d H1238" '
-                 'fill="none" stroke="%s" stroke-width="2.5"/>' % (hy, cy, AC))
-        o.append(ah_r(1250, cy, AC))
-    # ── 底：接入通道（双向）──
-    o.append(_p12_card(630, 400, 420, 130, *_CAPS[3], i=5))
-    o.append(txt(1080, 462, "接入通道", "sm", size=15, col=AC, mono=True, ls=".18em"))
-    o.append(vline(840, 334, 386, AC, 2.5, 5))
-    o.append(ah_d(840, 398, AC)); o.append(ah_u(840, 322, AC))
-    o.append(legend(0, 548, [("solid", "主数据流 · 单向 / 双向")]))
+    # ── 中心 hub（hot）· 尺寸与三轮版一致，整体上提一档收掉图顶那条空带 ──
+    o.append(box(630, 85, 420, 140, 14, hot=True, i=1))
+    o.append(txt(840, 145, "对话引擎", "ttl", size=38, anchor="middle"))
+    o.append(txt(840, 187, "一套接入", "sm", size=18, anchor="middle", col=AC, mono=True, ls=".16em"))
+    # ── 左：感知 · IN（加重）· 端点设备 → 能力大卡 → 引擎 ──
+    o.append(txt(20, 30, "感知 · IN", "sm", size=15, col=AC, mono=True, ls=".18em"))
+    o.append(_p12_chip(20, 127, 180, "智能眼镜", i=2, on=True))
+    o.append(hline(200, 236, 155, AC, 3.5, 2)); o.append(ah_r(248, 155, AC, 7))
+    o.append(_p12_card(256, 70, 316, 170, "VISION", "看图识景", "理解图片视频", i=2))
+    o.append(hline(572, 610, 155, AC, 3.5, 3)); o.append(ah_r(622, 155, AC))
+    # ── 右：表达 · OUT（加重）· 引擎 → 能力大卡 → 表达端点 ──
+    o.append(txt(1660, 30, "表达 · OUT", "sm", size=15, col=AC, anchor="end", mono=True, ls=".18em"))
+    o.append(hline(1050, 1090, 155, AC, 3.5, 3)); o.append(ah_r(1102, 155, AC))
+    o.append(_p12_card(1110, 70, 316, 170, "AVATAR", "数字人", "口型表情同步", i=2))
+    o.append(hline(1426, 1448, 155, AC, 3.5, 4)); o.append(ah_r(1460, 155, AC, 7))
+    o.append(_p12_chip(1468, 127, 212, "语音配合数字人表达", i=4, on=True))
+    # ── 底：次级带（弱化）· 前文已述 ──
+    o.append(vline(840, 225, 277, "var(--ink-3)", 1.6, 5))
+    o.append(hline(600, 1080, 277, "var(--ink-3)", 1.6, 5))
+    o.append(txt(840, 306, "前文已述", "sm", size=14, anchor="middle", col="var(--ink-3)",
+                 mono=True, ls=".16em"))
+    for cx, w, n in [(600, 220, "声纹锁定"), (1080, 260, "SIP 电话 / VoIP")]:
+        o.append(vline(cx, 277, 314, "var(--ink-3)", 1.6, 5))
+        o.append(_p12_chip(cx - w // 2, 316, w, n, i=6))
+    o.append(legend(0, 424, [("solid", "本页重点模态", 3.5),
+                             ("solid", "前文已述 · 次级", 1.6, "var(--ink-3)")]))
     return "".join(o)
 page("content", "".join([
     head("BEYOND VOICE · 不止于听清", "看得见、认得人的<strong>多模态对话</strong>。"),
-    lab(120, 236, "01 · ONE ENGINE, FOUR SENSES"),
-    figbox(120, 276, 1680, 1680, 560, _io_fig(), i=1),
+    lab(120, 236, "01 · SEE & SPEAK"),
+    figbox(120, 292, 1680, 1680, 450, _io_fig(), i=1),
     rule(850),
-    land("同一套引擎，语音、视觉、声纹、电话一并接入——对话不再只是“听和说”。"),
+    land("同一套引擎，看得见、说得出——让对话，走出屏幕。"),
 ]))
 
-# ═══ P13 · 开放编排 ·「你的模型自由组合，引擎负责编排」══════════════════════
+# ═══ P13 · Physical AI · R1 开发套件（2026-08-21 新增）═════════════════════
+#   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
+#   两版规格逐字对齐：R1-WiFi 2025.03.20 · BK7258 ／ R1-4G 2025.09.26 · UNISOC 8910 Cat.1。
+#   唯一 hot = R1-4G 卡（.card-c.on）与它的「单芯片一体化」规格行 —— robot26 注明这是关键卖点。
+_R1KIT = [
+    ("R1 · WI-FI · 2025.03.20 发布", "R1-WiFi", "主控 BK7258 · Wi-Fi 联网",
+     "面向家居与室内——音箱 · 桌宠 · 陪伴机器人", False),
+    ("R1 · 4G · 2025.09.26 发布", "R1-4G", "UNISOC 8910 · Cat.1 单芯片一体化",
+     "面向户外 / 随身 / 车载 / 出海设备", True),
+]
+_R1CAPS = ["对话式 AI", "视觉理解", "本地唤醒", "灵动眼睛", "陀螺仪 / NFC / 振动"]
+page("content", "".join([
+    head("PHYSICAL AI · R1 开发套件 · GLOBAL FIRST",
+         "全球率先发布的<strong>对话式 AI 硬件开发套件</strong>。"),
+    lab(120, 236, "01 · TWO FORMATS"),
+    ] + [
+    sh("rise card-c%s" % (" on" if _on else ""),
+       "left:%dpx;top:280px;width:820px;height:300px;--i:%d" % (120 + _i * 860, 2 + _i),
+       '<div style="padding:38px 44px;height:100%%;display:flex;flex-direction:column">'
+       '<div class="mono-sm" style="color:%s">%s</div>'
+       '<h3 style="margin:20px 0 0;font:700 52px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
+       '<div style="margin-top:20px;font:700 24px/1.4 var(--f-cn);color:%s">%s</div>'
+       '<div style="margin-top:auto;font:400 21px/1.6 var(--f-cn);color:var(--ink-2)">%s</div></div>'
+       % (AC if _on else "var(--ink-3)", _tag, _nm,
+          AC if _on else "var(--ink)", _spec, _desc))
+    for _i, (_tag, _nm, _spec, _desc, _on) in enumerate(_R1KIT)
+    ] + [
+    lab(120, 616, "02 · SHARED CAPABILITIES"),
+    sh("rise", "left:120px;top:652px;width:1680px;height:56px;--i:4",
+       "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS)),
+    sh("flow", "left:120px;top:726px;width:1680px;height:52px;--i:5",
+       '<div class="note"><b>30000+</b> 芯片与整机适配——你的形态大概率已支持</div>'),
+    sh("rise", "left:120px;top:790px;width:1680px;height:52px;"
+       "font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:6",
+       "临场引擎 + 硬件参考设计 = <strong style='color:var(--accent)'>拿来即用的伙伴感地基</strong>。"),
+    rule(850),
+    land("你做产品与角色，我们做<strong style='color:var(--accent)'>临场与连接</strong>。", w=1000),
+    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
+       "SOURCE · 声网官网 · R1 公开发布信息 · 事实截止 2026.08"),
+]))
+
+# ═══ P14 · Physical AI · 已经上岗（2026-08-21 新增 · 案例墙）════════════════
+#   资产复用 convoai-info 的 info-v2 目录（不新增、不重绘）；客户名逐字照 info 的裁定 #2
+#   （集贤科技 / Robopoet / luwu / Pophie / LOOKTECH / HeyCyan / LOOKEE，一字不能错）。
+#   本页只是硬件子集，不写案例总数 —— 14 是全品类数，写在这里会被读成「硬件有 14 个」。
+_P14FEAT = [
+    ("jixian",   "集贤科技", "AI 玩具"),
+    ("robopoet", "Robopoet", "AI 陪伴机器人"),
+    ("luwu",     "luwu",     "桌面级情感陪伴机器人"),
+]
+_P14MINI = [("pophie", "Pophie"), ("looktech", "LOOKTECH"),
+            ("heycyan", "HeyCyan"), ("lookee", "LOOKEE")]
+_ASSET = "/decks/assets/convoai/info-v2/"
+page("content", "".join([
+    head("PHYSICAL AI · IN PRODUCTION · 官方联合案例 · 均已公开",
+         "已经上岗的 <strong>Physical AI</strong>。"),
+    lab(120, 236, "01 · FEATURED"),
+    ] + [
+    sh("rise", "left:%dpx;top:276px;width:546px;height:316px;--i:%d" % (120 + _i * 567, 2 + _i),
+       '<div class="case-feature"><img src="%scase-feature-%s.webp" alt="声网联合案例 · %s">'
+       '<div class="case-feature-caption"><b>%s</b><span>%s</span></div></div>'
+       % (_ASSET, _f, _n, _n, _k))
+    for _i, (_f, _n, _k) in enumerate(_P14FEAT)
+    ] + [
+    lab(120, 624, "02 · HARDWARE"),
+    ] + [
+    sh("rise", "left:%dpx;top:660px;width:320px;height:170px;--i:%d" % (120 + _i * 453, 5 + _i),
+       '<div class="case-mini"><img src="%scase-mini-%s.webp" alt="声网联合案例 · %s">'
+       '<span>%s</span></div>' % (_ASSET, _f, _n, _n))
+    for _i, (_f, _n) in enumerate(_P14MINI)
+    ] + [
+    rule(850),
+    land("你的场景，多半能对上号。"),
+]))
+
+# ═══ P15 · 开放编排 ·「你的模型自由组合，引擎负责编排」（原 P13）═════════════
 _MODELS = ["ASR 语音识别", "LLM 大模型", "TTS 语音合成", "数字人"]
 _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 是一项能力，不拆
 # 2026-08-20 三轮升维：两列盒子 + 曲线 → 一台「插槽机」。
-#   每个模型不再是一只盒子，而是「槽框 + 可拔出的模块块 + ⇄ 换装箭头」——一眼看出可插拔；
-#   槽列下方一道集体括号标「可替换 · 可兜底 · 可热切换」（convoai-info P4 既有 chip 原文）；
-#   右列两个高阶能力走虚线槽框 = 按需叠加；底部一条小流程带收在「实时调试 → 一键发布」。
+# 2026-08-21「箭头语义修」（Colin：箭头流向会让大家懵逼）——见文件头的诊断与修法。
+#   插槽语义只保留一种阅读方向：模块「插入」引擎。
+#     · 左右两列的连线一律指向引擎（左列指右、右列指左 ⇒ 全部收敛到中心，不可能被读成穿流）
+#     · 贝塞尔全删，改正交总线：每个槽出一条短支线汇到列总线，总线一条主干进引擎（不交叉）
+#     · ⇄ 换装件移到模块块「上方」，小号 + 灰度（注记语域，不与流向线抢重量）
+#     · 引擎 → 发布带改成无箭头细连线：它是引擎的附属说明，不是第三种流向
+#   同屏箭头语义共 2 种（插入 / 换装），图例逐条对上；线型 2 种（实线主链 / 虚线按需）。
 def _slot(x, y, w, h, name, i=1, dashed=False):
-    """插槽：外槽框（可虚线）+ 内模块块 + 右侧 ⇄ 换装箭头"""
+    """插槽：槽框（可虚线）+ 内模块块 + 块上方的 ⇄ 换装小件（灰、小号 = 注记，不是流向）"""
     o = [box(x, y, w, h, 8, dashed=dashed, i=i)]
     o.append('<rect class="pop" style="--i:%d;fill:var(--card-bg-2)" x="%d" y="%d" width="%d" '
              'height="%d" rx="6" stroke="%s" stroke-width="1.4"/>'
-             % (i, x + 14, y + 12, w - 80, h - 24, HS))
-    o.append(txt(x + 14 + (w - 80) // 2, y + h // 2 + 8, name, "ttl", size=22, anchor="middle"))
-    sx, cy = x + w - 58, y + h // 2
-    o.append(hline(sx, sx + 22, cy - 8, AC, 1.6, i)); o.append(ah_r(sx + 30, cy - 8, AC, 6))
-    o.append(hline(sx + 30, sx + 8, cy + 8, AC, 1.6, i)); o.append(ah_l(sx, cy + 8, AC, 6))
+             % (i, x + 14, y + 12, w - 28, h - 24, HS))
+    o.append(txt(x + w // 2, y + h // 2 + 8, name, "ttl", size=22, anchor="middle"))
+    o.append(swap_mark(x + w - 46, y - 14, i=i))
     return "".join(o)
 def _orch_fig():
     o = [txt(250, 26, "可自由替换 · 模型层", "lbl", size=16, anchor="middle", col=AC),
          txt(1430, 26, "按需叠加 · 高阶能力", "lbl", size=16, anchor="middle", col=AC)]
+    # ── 左列：四个模型槽 → 支线汇到 x540 总线 → 一条主干进引擎（唯一一枚箭头落在引擎口）──
+    _LY = [60, 168, 276, 384]
     for i, n in enumerate(_MODELS):
-        y = 56 + i * 112
-        o.append(_slot(60, y, 380, 72, n, i=i + 1))
-        o.append('<path class="dw" style="--len:230;--i:%d" d="M452 %d C 540 %d, 540 260, 604 260" '
-                 'fill="none" stroke="%s" stroke-width="2" opacity=".55"/>' % (i + 2, y + 36, y + 36, AC))
-    o.append(ah_r(616, 260, AC))
+        y = _LY[i]
+        o.append(_slot(60, y, 380, 68, n, i=i + 1))
+        o.append(hline(440, 528, y + 34, AC, 2, i + 2)); o.append(ah_r(540, y + 34, AC, 7))
+    o.append(vline(540, _LY[0] + 34, _LY[3] + 34, AC, 2, 5))
+    o.append(hline(540, 606, 260, AC, 2.5, 5)); o.append(ah_r(618, 260, AC))
     # 集体括号：四个槽共享的一条产品承诺
-    o.append(hline(60, 440, 480, AC, 2, 6))
-    o.append(vline(60, 468, 480, AC, 2, 6)); o.append(vline(440, 468, 480, AC, 2, 6))
-    o.append(txt(250, 508, "可替换 · 可兜底 · 可热切换", "sm", size=18, anchor="middle", col=AC,
+    o.append(hline(60, 440, 472, AC, 2, 6))
+    o.append(vline(60, 460, 472, AC, 2, 6)); o.append(vline(440, 460, 472, AC, 2, 6))
+    o.append(txt(250, 502, "可替换 · 可兜底 · 可热切换", "sm", size=18, anchor="middle", col=AC,
                  weight=700))
     # 中枢（唯一 hot 件）
     o.append(box(620, 180, 440, 160, 16, hot=True, i=0))
     o.append(txt(840, 250, "对话引擎", "ttl", size=36, anchor="middle", col=AC))
     o.append(txt(840, 296, "实时编排", "txt", size=21, anchor="middle"))
+    # ── 右列：两个高阶槽（虚线 = 按需）→ 支线汇到 x1140 总线 → 主干「向左」进引擎 ──
+    _RY = [168, 296]
     for i, n in enumerate(_ADDONS):
-        y = 168 + i * 128
-        o.append(_slot(1240, y, 380, 72, n, i=i + 3, dashed=True))
-        o.append('<path class="dw" style="--len:230;--i:%d" d="M1060 260 C 1140 260, 1140 %d, 1228 %d" '
-                 'fill="none" stroke="%s" stroke-width="2" opacity=".55"/>' % (i + 3, y + 36, y + 36, AC))
-        o.append(ah_r(1240, y + 36, AC))
-    # 底部小流程带
-    o.append(vline(840, 348, 384, AC, 2, 6)); o.append(ah_d(840, 396, AC))
+        y = _RY[i]
+        o.append(_slot(1240, y, 380, 68, n, i=i + 3, dashed=True))
+        o.append(dline("M1240 %d H1152" % (y + 34), AC, 2, i + 3, dash="7 6"))
+        o.append(ah_l(1140, y + 34, AC, 7))
+    o.append(dline("M1140 %d V%d" % (_RY[0] + 34, _RY[1] + 34), AC, 2, 5, dash="7 6"))
+    o.append(dline("M1140 260 H1086", AC, 2.5, 5, dash="7 6")); o.append(ah_l(1074, 260, AC))
+    # 底部小流程带：无箭头细连线（附属说明，不是第三种流向）
+    o.append(vline(840, 348, 398, HS, 1.4, 6))
     o.append('<rect class="pop" style="--i:7;fill:var(--card-bg-2)" x="620" y="400" width="440" '
              'height="60" rx="30" stroke="%s" stroke-width="1.4"/>' % HS)
     o.append(txt(840, 438, "实时调试 &#8594; 一键发布", "ttl", size=22, anchor="middle"))
-    o.append(legend(0, 530, [("solid", "主数据流"), ("dash", "按需叠加")]))
+    # 图例第 2 条必须显式给 accent：右列的按需插入线是 accent 虚线，
+    # 而 lg_dash 默认取 hair-strong 灰 —— 不给色，图例样线会和页内真线不同色。
+    o.append(legend(0, 530, [("solid", "插入 · 指向引擎"), ("dash", "按需插入 · 高阶能力", 2, AC),
+                             ("swap", "可替换 · 换装")]))
     return "".join(o)
 page("content", "".join([
     head("OPEN & FLEXIBLE · 灵活扩展", "你的模型自由组合，<strong>引擎负责编排</strong>。"),
@@ -1261,7 +1499,7 @@ page("content", "".join([
     land("快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。"),
 ]))
 
-# ═══ P14 · 接入架构 ·「2 行代码，三方协同即可上线」═════════════════════════
+# ═══ P16 · 接入架构 ·「2 行代码，三方协同即可上线」（原 P14）═══════════════
 def _arch_fig():
     o = []
     # ── 2026-08-20 三轮：与 P8 对齐的一致性 pass ──
@@ -1341,7 +1579,7 @@ page("content", "".join([
     land("终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。"),
 ]), steps=1)
 
-# ═══ P15 · 典型场景 ·「一套引擎，支撑多类场景」════════════════════════════
+# ═══ P17 · 典型场景 ·「一套引擎，支撑多类场景」（原 P15）══════════════════
 _SCENES = [
     ("01 · OUTBOUND", "AI 外呼",   "客服、营销、风控、调研、关怀通知，成本效率全面提升。"),
     ("02 · DEVICE",   "智能硬件",  "嵌入设备，让设备开口说话，语音控制与智能陪伴。"),
@@ -1364,9 +1602,9 @@ page("content", "".join([
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
 ]))
 
-# ═══ P16 · Why Agora ·「跑在声网实时互动底座之上」═════════════════════════
+# ═══ P18 · Why Agora ·「跑在声网实时互动底座之上」（原 P16）═══════════════
 #   数据修正页：四数字与 note / SOURCE 全部与 31 页拜访版 P2 一字对齐。
-#   2026-08-20 扩页时整块原样搬运（页号 12 → 15），内容一字未动。
+#   2026-08-20 扩页时整块原样搬运（页号 12 → 15 → 16），2026-08-21 再搬到 18，内容一字未动。
 #   禁止回归的旧错误数字：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」
 _WHY = [
     ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
@@ -1397,7 +1635,32 @@ page("content", "".join([
        "SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
-# ═══ P17 · 收尾（title 板）═══════════════════════════════════════════════
+# ═══ P19 · OpenAI 合作（2026-08-21 新增 · title 板 · quote 语域）═══════════
+#   参照 robot26 #33「A QUIET ENDORSEMENT」，按 Colin 指令泛化两处：
+#     ①「实时通信底座」→「对话式 AI 引擎底座」（本 deck 讲的是引擎，不是 RTC 管道）
+#     ②「你的消费机器人」→「你的对话式智能体」（本 deck 的听众不限于机器人客户）
+#   锚点 mono 行用 convoai-info P8 已核措辞「全球首批合作伙伴」——不写「全球首个」，
+#   那是 OpenAI 的事，不是声网的事（info 二轮仲裁 P0 已钉死这一条）。
+#   版式对齐 P1 / P20 的 title 板语域：大字 + 留白 + 一道 accent 短棒，不配图。
+page("title", "".join([
+    sh("flow kk", "left:120px;top:200px;width:1500px;height:28px",
+       "2024.10.01 · A QUIET ENDORSEMENT"),
+    # 68px / 1680 宽：72px 时第二行正好排满、把「择。」挤成第三行的孤字尾巴。
+    # 骨架与 P1 对齐（kicker 200 / 大字 272 / accent 短棒 508 / sub 560 / 页脚 mono 930）。
+    sh("ink", "left:120px;top:272px;width:1680px;height:230px;"
+       "font:700 68px/1.3 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
+       "全球最强的 Voice Agent 团队，在为他们的 Realtime API 寻找"
+       "<strong style='color:var(--accent)'>对话式 AI 引擎底座</strong>时，给出的选择。"),
+    sh("spread", "left:120px;top:508px;width:120px;height:4px;background:var(--accent);"
+       "border-radius:2px;--i:3", ""),
+    sh("flow", "left:120px;top:560px;width:1560px;height:52px;"
+       "font:400 32px/1.5 var(--f-cn);color:var(--ink-2);--i:4",
+       "同样的工程能力，我们用来支撑你的对话式智能体。"),
+    sh("flow mono-sm", "left:120px;top:930px;width:1560px;height:24px;--i:5",
+       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴"),
+]))
+
+# ═══ P20 · 收尾（title 板）（原 P17）═════════════════════════════════════
 page("title", "".join([
     sh("ink", "left:120px;top:320px;width:1560px;height:250px;"
        "font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
@@ -1472,10 +1735,13 @@ def build():
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     OUT_ALIAS.write_text(doc, encoding="utf-8")
-    assert total == 17, "页数漂移：%d != 17" % total
-    assert doc.count("<section") == 17, "section 数漂移：%d" % doc.count("<section")
+    assert total == 20, "页数漂移：%d != 20" % total
+    assert doc.count("<section") == 20, "section 数漂移：%d" % doc.count("<section")
+    boards = {i: b for i, (b, _s, _y) in enumerate(PAGES, 1)}
+    assert {i for i, b in boards.items() if b == "title"} == {1, 19, 20}, \
+        "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y) in enumerate(PAGES, 1) if s}
-    assert steps_map == {6: 1, 7: 1, 14: 1}, "分步页漂移：%r" % steps_map
+    assert steps_map == {6: 1, 7: 1, 16: 1}, "分步页漂移：%r" % steps_map
     print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 分步 %r"
           % (total, len(doc) // 1024, steps_map))
 
