@@ -2,23 +2,52 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # build-convoai-info.py · 《声网对话式 AI · 一页一章 Infograph》拜访速讲版 deck
 # CONF 家族 · conf-light 默认 · 单文件双主题 · 三线三色
+#
+# 2026-08-21 v2 重建（Colin 拍板「8 页全部按引擎 deck 家族语言重建，页数保持 8」）：
+#   参考实现 = build-convoai-engine.py（家族当前最高标准，22 页）。本文件从它逐条继承
+#   五运动原语 / 图形语言 / 版式纪律，**文案与数字一个不新造**——版式重构 ≠ 文案重写。
+#   两处例外（Colin 指定）：
+#     ① P2 四大数与来源标注改为与引擎 P21（Why Agora 口径锁页）逐字同源；
+#     ② 各页新增「流的什么 / 为什么」短线标与图注（不引入新数字 / 新客户名 / 新产品声明）。
+#
 # 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
 #   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 合流
-# 与 31 页版的差别只有三条：
-#   ① 分步克制：只有 P4/P5/P7 各一步（2026-08-20 加），其余页 data-steps=0
-#   ② 背景板只用两张：P1 title / P2–P8 content（最安静的 matrix .42）
-#   ③ hero-art 只留 P1 的 three-engines 盒装
-# 口径纪律：所有数字与句子沿用已核定的拜访版 canon 逐字复制，一个不新造。
-# Infograph 版式语言：页内 2–4 个分区，分区间 1px var(--hair) 细线，
-#   每分区一个 mono 小节标（「01 · SCALE」14px letter-spacing .18em ink-3）。
-# ── 踩过的坑（移植 SVG 必守，见 optim/mining-report.md §6）───────────────────
+#
+# ── 家族语言硬指标（逐条继承自引擎 deck，改本文件之前先读完）───────────────
+#   · 五运动原语（flow-packet / dash-drift / pulse / breathe+halo / cycle）逐字复用，
+#     **不新造 keyframe 名**（qa-motion 有拼写闸）；相位接力用 animation-delay 组合完成。
+#   · 动效纪律四条：动效件不携带文字 / 非当前页 animation-play-state:paused /
+#     prefers-reduced-motion + print 全关 / 100% 帧 = 静态原图（pinned-diff 逐像素自证）。
+#   · P8 质量语言六条：类型化线 + 真线样迷你图例 / 每页唯一 hot 件 / 每条线带
+#     「流的什么·为什么」标注 / 闭环·分叉·旁路优先 / 已核定数字带时序标 / 细虚线域分带。
+#   · packet 只在盒间接头跑且相位对齐；环形几何不 transform 旋转，用 dash 绕圈。
+#   · **任何常显容器不挂 data-step**（引擎 P20 空页事故根因：motion.css 的裸容器兜底
+#     规则会把它在 step0 摁成 opacity:0 = 白页）。步进用真正的步进件承载。
+#
+# ── 踩过的坑（移植 SVG 必守）─────────────────────────────────────────────────
 #   · svg 一律 style="width:100%;height:auto"，且 .sh 高度 = width×viewBoxH/viewBoxW，
 #     否则 stage.css 的 svg{max-height:100%} 会把图压扁 / .sh 装不下会被 clip-path 切掉
-#   · .dw 的 --len 必须≈路径长度，否则线不出来
+#   · .dw 的 --len 必须≈路径长度，否则线不出来；虚线不能走 .dw（dasharray 会被压掉）
 #   · SVG 里换色一律写内联 style="fill:…"，呈现属性 fill= 压不过 .fig .lbl/.ttl 的 CSS fill
+#   · components.css 的 b,strong{color:var(--ink)} 会压继承色，深色面板里的 b 要 color:inherit
+#   · img{max-width:100%;max-height:100%}（stage.css）会咬放大图 —— 图窗一律 object-fit
+#   · .pp .sh{overflow:visible}（0,2,0）：需要裁切时写 .pp .sh.CLASS{overflow:hidden}
 #   · content 背景板自带一条 accent 细线在 y848–852（x120–761）：那一带不放文字，
-#     否则字形正压在线上 = 被划掉的观感
+#     rule(850) 正好压住它当收口线；收口线之下是页脚带（引擎 P19 先例）
+#
+# ── 口径红线（build() 里有构建期反向断言，别等到 qa）─────────────────────────
+#   · 不出价格（8,500 / 2,999 / 5,501）· 不出 staging URL
+#   · 「盲测」「32,000」不得出现：那是引擎 P16 的 Call Agent 盲测口径，
+#     本 deck P5 的 96.5% 是 2,475 通**生产**口径 —— 两个数据集严禁混写
+#   · 案例墙 14 家客户名逐字（qa-convoai-info.mjs 有硬编码名单闸）
+#
+# 重建：python3 scripts/build-convoai-info.py
+# 自检：node scripts/qa-convoai-info.mjs（THEME=dark 二跑）
+#       DECK=info node scripts/qa-motion.mjs
+#       DECK_URL=…/convoai-info.html node scripts/occlusion-scan.mjs
 # ═══════════════════════════════════════════════════════════════════════════
+import math
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,9 +55,23 @@ SRC = ROOT / "scripts" / "assets" / "convoai-src"
 OUT = ROOT / "public" / "decks" / "convoai-info.html"
 A = "/decks/assets/convoai/"
 B = "/decks/assets/conf-boards/"
+R26 = "/decks/assets/robot26/"
+
+# P1 封面主视觉开关：默认保留 AI-art（INFO_HERO=0 出无 art 的一版供终审对比）。
+# 两版只差 P1 的 .hero-art 两枚 img，其余 8 页逐字节相同。
+HERO_ART = os.environ.get("INFO_HERO", "1") != "0"
+
+AC = "var(--accent)"
+AD = "var(--accent-deep)"
+HS = "var(--hair-strong)"
+LE = "var(--l-eng)"
+LA = "var(--l-agent)"
+LP = "var(--l-phys)"
+
 
 def css(name):
     return (SRC / name).read_text(encoding="utf-8")
+
 
 FONTS = """<style>
 @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
@@ -37,7 +80,7 @@ FONTS = """<style>
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
 </style>"""
 
-# ── 背景板（速讲版只用两张：title + content）─────────────────────────────────
+# ── 背景板（速讲版只用两张：title 给 P1 / content 给其余）─────────────────────
 BOARDS_CSS = """<style id="convoai-boards">
 .conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
   background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
@@ -50,9 +93,59 @@ html[data-theme="dark"] .conf-bg-content{background-image:url('%(B)scontent-01-m
 html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
 </style>""" % {"B": B}
 
-# ── 本 deck 专属 CSS（与 convoai.html 同源，删掉速讲版用不到的件）────────────
+# ═══ 本 deck 专属 CSS ═══════════════════════════════════════════════════════
+#   顶部是 deck 级运动原语（与 build-convoai-engine.py 的 DECK_CSS 顶部逐字同源，
+#   连纪律注释一起搬过来 —— 两份 deck 的运动语言必须是同一套，不许各写各的）。
 DECK_CSS = """<style id="convoai-info-deck">
-/* 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行） */
+/* ═══ deck 级运动语言 · 五个原语（与引擎 deck 逐字同源 · 不新造 keyframe 名）═════
+   ① .mo-packet  能量包 —— 宽 stroke 低透明 dash 段沿路径漂移。只挂实线主数据流，
+      方向必须与箭头一致（路径按流向写 d，--mo-off 取负 = 顺路径跑）。它是**新增
+      的纯装饰件**，不属于页面几何 ⇒ 静态语域直接 display:none。
+   ② .mo-drift   虚线漂移 —— 事件 / 控制 / 参考线 / 域分带的 dash 慢爬，比包慢一档。
+      载体是页面真线 ⇒ 静态语域只 animation:none，线本身照画。
+   ③ .mo-pulse   脉冲 —— 命中 / 事件标 opacity 明暗，错峰 delay。
+      --mo-hi / --mo-lo 可调：载体自带 opacity 时必须把 --mo-hi 设成它的静态值。
+   ④ .mo-breathe hot 件呼吸 —— scale ≤1.03，**每页至多一处**，落在该页唯一 hot 件上；
+      伴件 .mo-halo 是向外扩散的光晕（100% 帧 opacity:0 ⇒ 静态语域零痕迹）。
+      .mo-halo 同时用于 DOM hot 件（transform-box:fill-box 在 HTML 元素上退化为内容盒，
+      行为等价）—— 见 .hot-ring。
+   ⑤ .mo-cycle   闭环绕行 —— 环 / 回路上的 dash 永续绕圈。
+   纪律（硬红线，四条）：
+     · 每条 keyframes 的 100% 帧 = 静态原图：dash 位移走完整周期、scale 回 1、
+       opacity 回静态值、halo 回 0。遮挡扫描器与 qa 都注入 animation-duration:0s
+       + animation-delay:0s 把元素钉在 100% 帧上 —— 「动效关掉 = 原图逐像素」。
+     · 动效元素不携带文字：文字要么在动效件之外，要么单拆一枚静态 text。
+     · prefers-reduced-motion 与 print 全关（装饰件摘掉、真几何件停帧）。
+     · 非当前页一律 animation-play-state:paused。 */
+@keyframes moFlow{to{stroke-dashoffset:var(--mo-off,-200);}}
+@keyframes moPulse{0%,100%{opacity:var(--mo-hi,1);}45%{opacity:var(--mo-lo,.35);}}
+@keyframes moBreathe{0%,100%{transform:scale(1);}50%{transform:scale(var(--mo-sc,1.03));}}
+@keyframes moHalo{0%{opacity:0;transform:scale(1);}30%{opacity:var(--mo-op,.4);}
+  100%{opacity:0;transform:scale(var(--mo-sc,1.46));}}
+.mo-packet{animation:moFlow var(--mo-dur,1.8s) linear infinite var(--mo-del,0s);}
+.mo-drift{animation:moFlow var(--mo-dur,3.4s) linear infinite var(--mo-del,0s);}
+.mo-cycle{animation:moFlow var(--mo-dur,9s) linear infinite var(--mo-del,0s);}
+.mo-pulse{animation:moPulse var(--mo-dur,2.4s) ease-in-out infinite var(--mo-del,0s);}
+.mo-breathe{animation:moBreathe var(--mo-dur,3.2s) ease-in-out infinite var(--mo-del,0s);
+  transform-box:fill-box;transform-origin:center;}
+.mo-halo{opacity:0;animation:moHalo var(--mo-dur,3.2s) ease-out infinite var(--mo-del,0s);
+  transform-box:fill-box;transform-origin:center;}
+/* 静态语域（纸 / 降级）：装饰件摘掉，真几何件停在 100% 帧 */
+@media print{
+  .mo-packet,.mo-halo,.mo-ghost{display:none!important;}
+  .mo-drift,.mo-cycle,.mo-pulse,.mo-breathe{animation:none!important;}}
+@media (prefers-reduced-motion:reduce){
+  .mo-packet,.mo-halo,.mo-ghost{display:none!important;}
+  .mo-drift,.mo-cycle,.mo-pulse,.mo-breathe{animation:none!important;}}
+/* 只有当前页在跑（.slide.active 由 deck.js 给，翻页即换） */
+.slide:not(.active) .mo-packet,.slide:not(.active) .mo-drift,.slide:not(.active) .mo-cycle,
+.slide:not(.active) .mo-pulse,.slide:not(.active) .mo-breathe,.slide:not(.active) .mo-halo{
+  animation-play-state:paused;}
+/* DOM hot 件的光晕环：静态 opacity:0（纸面零痕迹），只在现场脉动一圈。
+   放在 hot 文本件内部当兄弟层 —— 环本身不携带任何文字（qa-motion ② 闸）。 */
+.hot-ring{position:absolute;pointer-events:none;display:block;}
+
+/* ═══ 绝对画布 shape 层（robot26 惯例；reference 栈是语义排版系，缺这两行）═════ */
 .pp{position:absolute;inset:0;}
 .pp .sh{position:absolute;overflow:visible;}
 :root{--l-eng:var(--accent);--l-agent:#5b8cff;--l-phys:#7b61ff;
@@ -91,10 +184,6 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 .seclab{font:500 14px/20px var(--f-mono);letter-spacing:.18em;color:var(--ink-3);}
 .seclab b{font-weight:700;color:var(--ink-3);}
 .hair-rule{background:var(--hair);}
-/* 版本轴 tick（P4）*/
-.vt{width:3px;background:var(--ink-3);opacity:.55;}
-.vt.big{background:var(--l-eng);opacity:1;width:5px;}
-.tl-line{background:var(--hair);height:3px;}
 /* 主题词 chip */
 .chip{display:inline-block;margin:0 12px 12px 0;padding:11px 18px;border:1px solid var(--hair);
   border-radius:999px;background:var(--card-bg);font:500 18px/1 var(--f-cn);color:var(--ink-2);}
@@ -104,20 +193,19 @@ html[data-theme="dark"] .hero-art.dk{display:block;}
 .cap.on{border-color:color-mix(in srgb,var(--l-agent) 55%,transparent);
   background:color-mix(in srgb,var(--l-agent) 10%,var(--card-bg));color:var(--ink);}
 /* 三态卡（活人感 · P6）*/
-.face{padding:22px 24px;border-top:5px solid var(--ink-3);}
+.face{padding:16px 22px;border-top:5px solid var(--ink-3);}
 .face .en{font:700 13px/1 var(--f-mono);letter-spacing:.2em;color:var(--ink-3);}
-.face h3{margin:10px 0 8px;font:700 30px/1.2 var(--f-cn);color:var(--ink);}
-.face p{font:400 17px/1.5 var(--f-cn);color:var(--ink-2);}
+.face h3{margin:8px 0 6px;font:700 26px/1.2 var(--f-cn);color:var(--ink);}
+.face p{font:400 15px/1.5 var(--f-cn);color:var(--ink-2);}
 .face.good{border-top-color:var(--l-phys);}
 .face.good h3{color:var(--l-phys);}
-/* 移植 inspire26/dual26 版式：.fig 内的 SVG 走 width:100%;height:auto，
-   必须解掉 stage.css 的 svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
+/* .fig 内的 SVG 走 width:100%;height:auto，必须解掉 stage.css 的
+   svg{max-width:100%;max-height:100%}，否则定高 .sh 里会被压扁 */
 .fig svg{max-width:none;max-height:none;}
-/* ═══ 视觉升级 R1（GPT 5.6 · 合入 2026-08-13）· P7 生态全景 + 案例墙 ═══════
-   生态图回到位图，但和 2026-08-12 退役的那张 eco-2026.webp 有三点不同：
-     ① 浅/深两张同构双源，走 .hero-art 的同一套 CSS 主题切换（不是烧死主题的单图）；
-     ② 图本身不承载小字：五层 L4–L0 的中英文全部是 DOM 叠层，字号可控、可维护；
-     ③ 只做远景底纹，正文对比度由 .eco-layer 的半透明卡背 + backdrop-blur 兜。 */
+
+/* ═══ P7 · 五层生态主视觉（polish-v4 · Colin 与 GPT 仲裁定稿，层结构原样保留）══
+   2026-08-21 v2 重建纪律：**不加卡片、不加 blur、不加遮罩**，只做家族容器化
+   + 轻动效（四条域分带 dash-drift + 声网所在层的 hot 标记）+ 深浅稳态复核。 */
 :root{--eco-surface:#f8f9fc;}
 html[data-theme="dark"]{--eco-surface:#10111c;}
 .eco-visual{position:relative;border:1px solid var(--hair);border-radius:20px;
@@ -128,19 +216,16 @@ html[data-theme="dark"]{--eco-surface:#10111c;}
 /* .eco-art 与 .hero-art 同机制：双源 + CSS 控可见性（deckSwap 的 JS 只管 .strip） */
 .eco-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   display:none;pointer-events:none;}
-/* polish-v4：.94 是全景底纹时代的柔化（图只当远景纹理，压低免得抢字）。
-   换成专门生成的五层生态主视觉后，图本身就是这一列的主角，必须全锐度出图。 */
 .eco-art.lt{display:block;opacity:1;}
 html[data-theme="dark"] .eco-art.lt{display:none;}
 html[data-theme="dark"] .eco-art.dk{display:block;}
-/* kicker 的尾巴正落在全景图那排设备剪影上（文字压图不算遮盖，但会掉对比度）：
-   给一圈和面板底色同色的柔光，两主题下都把字从图里拎出来。 */
+/* 动效叠层：绝对定位的 SVG，只画域分带与 hot 标记，一个字都不画 */
+.eco-mo{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;}
 .eco-kicker{position:absolute;left:28px;top:22px;font:600 12px/1 var(--f-mono);
   letter-spacing:.2em;color:var(--ink-3);text-shadow:0 0 7px var(--eco-surface),0 0 3px var(--eco-surface);}
 .eco-layer{position:absolute;left:24px;right:24px;height:67px;padding:12px 18px;
   display:grid;grid-template-columns:58px 230px 1fr;align-items:center;gap:12px;
   border:1px solid color-mix(in srgb,var(--ink-3) 22%,transparent);border-radius:12px;
-  /* 玻璃模糊会把生态底图磨成不可读的雾；改用不透明层，保留底图锐度与层级。（该规则实际已被下方 P7 override 全透明化，留作兜底） */
   background:color-mix(in srgb,var(--card-bg) 88%,transparent);backdrop-filter:none;}
 .eco-layer .eco-code{font:600 13px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
 .eco-layer b{font:700 22px/1 var(--f-cn);color:var(--ink);}
@@ -148,11 +233,11 @@ html[data-theme="dark"] .eco-art.dk{display:block;}
 .eco-layer.l2,.eco-layer.l1,.eco-layer.l0{border-color:color-mix(in srgb,var(--accent) 55%,transparent);}
 .eco-layer.l2 .eco-code,.eco-layer.l2 b,.eco-layer.l1 .eco-code,.eco-layer.l1 b,
 .eco-layer.l0 .eco-code,.eco-layer.l0 b{color:var(--accent);}
-/* 行距 83 = 带高 67 + 16 净空：行间、与 kicker（top22 · 12px）之间都不许互压 */
 .eco-layer.l4{top:54px;}.eco-layer.l3{top:137px;}.eco-layer.l2{top:220px;}
 .eco-layer.l1{top:303px;}.eco-layer.l0{top:386px;}
 html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.86);}
-/* 案例墙 v2：3 张精选大卡 + 11 张证据小卡；客户名走 DOM 文本，不靠海报正文缩略 */
+/* 案例墙 v2：3 张精选大卡 + 11 张证据小卡；客户名走 DOM 文本，不靠海报正文缩略。
+   案例墙**不上动效**（文字件不动）—— 一整墙缩略图动起来就是噪声。 */
 .case-wall-v2{height:100%;border:1px solid var(--hair);border-radius:20px;padding:20px 18px 16px;
   background:color-mix(in srgb,var(--card-bg) 74%,transparent);box-shadow:0 18px 44px rgba(11,14,28,.10);}
 .case-wall-head{display:flex;align-items:baseline;gap:12px;height:38px;color:var(--ink-3);
@@ -164,23 +249,19 @@ html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.86);}
   overflow:hidden;background:#151727;}
 .case-feature img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 68%;
   filter:saturate(.86) contrast(1.04);}
-/* 底部压幕：升级版原式（transparent 42%→.84）在 caption 那一带只压到 .58，
-   海报自己烧录的品牌名正好在同一位置，和 DOM caption 叠成重影。加一段中间色标，
-   把最后 ~20% 压到 .93，海报文字变淡影、白字浮出来。 */
+/* 底部压幕：海报自己烧录的品牌名与 DOM caption 在同一位置，中间色标把最后 ~20%
+   压到 .93，海报文字变淡影、白字浮出来。 */
 .case-feature:after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 38%,rgba(10,12,24,.5) 68%,rgba(10,12,24,.93) 100%);}
 .case-feature-caption{position:absolute;left:12px;right:10px;bottom:10px;z-index:1;color:#fff;}
 /* components.css 的 `b,strong{color:var(--ink)}`（0,0,1）直接命中这个 b，压过 caption 的
-   继承白 —— 浅底主题下客户名会被染成近黑，正好压在深色幕布上隐形（.callout-chip 同一个坑）。*/
+   继承白 —— 浅底主题下客户名会被染成近黑、压在深色幕布上隐形。 */
 .case-feature-caption b{display:block;font:700 16px/1.15 var(--f-cn);color:inherit;}
 .case-feature-caption span{display:block;margin-top:4px;font:500 10px/1 var(--f-mono);
   letter-spacing:.1em;color:rgba(255,255,255,.7);}
 .case-index{display:flex;align-items:center;gap:10px;margin:17px 0 9px;
   font:500 11px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);}
 .case-index:after{content:"";height:1px;flex:1;background:var(--hair);}
-/* 4 列 × 3 行（升级版是 6×2 · 94×83）：11 张卡在 644 宽的墙里排 6 列时，
-   墙底会空出 217px 的白洞，而且 9px 的客户名在讲台上读不出来。
-   改 4 列 145×124 后墙高正好落在 977（= 左列脚注底 = 我版基线），名字提到 11px。 */
 .case-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .case-mini{position:relative;height:124px;border:1px solid var(--hair);border-radius:10px;
   overflow:hidden;background:#171928;}
@@ -192,42 +273,17 @@ html[data-theme="dark"] .eco-layer{background:rgba(10,12,24,.86);}
   font:700 13px/1.35 var(--f-mono);letter-spacing:.035em;text-shadow:0 1px 6px rgba(0,0,0,.9);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media print{.eco-visual,.case-wall-v2{box-shadow:none;}}
-/* 案例卡（旧 5 列缩略图网格，随 R1 案例墙退役；.case 保留给回滚基线） */
-.case{border-radius:14px;overflow:hidden;border:1px solid var(--hair);
-  box-shadow:0 8px 22px rgba(0,0,0,.12);background:var(--card-bg);}
-.case img{width:100%;height:100%;object-fit:cover;display:block;}
-/* .frame（白底图框）随 P7 位图生态图一起退役，2026-08-12 */
 .callout-chip{background:var(--ink);color:var(--bg,#fff);border-radius:12px;padding:13px 22px;
   font:700 19px/1.4 var(--f-cn);box-shadow:0 8px 24px rgba(0,0,0,.22);}
 html[data-theme="dark"] .callout-chip{background:#f5f5f4;color:#111;}
-/* components.css 的 `b,strong{color:var(--ink)}`（0,0,1）压过 .callout-chip 的继承色 →
-   深底 chip 里的 <b> 会被染成 --ink（近黑）而在近黑底上隐形（原 convoai P23 就是这个哑火）。
-   同特异度以上把它拉回继承。 */
 .callout-chip b,.callout-chip strong{color:inherit;}
-/* 编辑热区（deck.js 依赖） */
-.edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
-.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
-  font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);
-  border:1px solid var(--hair);border-radius:3px;padding:7px 12px;background:transparent;cursor:pointer;
-  transition:opacity .3s;}
-.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
-.edit-toggle.active{border-color:var(--accent);color:var(--accent);}
-@media print{.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps,.deck-swap{display:none!important;}}
-/* polish-v3：仅提升投影距离下的 P5 可读性，不改内容/数据/布局 */
-[data-p="5"] .seclab{color:var(--ink-2);font-weight:600;}
-[data-p="5"] .fig .lbl{fill:var(--ink-2);font-weight:600;}
-[data-p="5"] .fig .sm,[data-p="5"] .fig .txt,[data-p="5"] .rows .r .v{font-weight:400;}
-[data-p="5"] .fig .box{fill:color-mix(in srgb,var(--card-bg) 90%,var(--ink) 10%);stroke:color-mix(in srgb,var(--ink) 26%,transparent);}
-/* polish-v4 · P7：完整五层生态主视觉 + 左右留白 DOM 标注，不再用五条高不透明卡片遮图。
-   仲裁适配：v4 原稿用 background-image 承载底图，此处改回 .eco-art 双源 img（保 QA ⑩ 缺图断言与 P1 hero 同机制），视觉等价。 */
+/* polish-v4 · P7：完整五层生态主视觉 + 左右留白 DOM 标注，不用高不透明卡片遮图 */
 [data-p="7"] .eco-visual{
   border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);
   background-color:#f8f9fc;
   box-shadow:0 18px 44px rgba(11,14,28,.08);}
-html[data-theme="dark"] [data-p="7"] .eco-visual{
-  background-color:#050713;}
-/* token 清账：五行文字的柔光 text-shadow 用 --eco-surface，深色下旧值 #10111c 是全景图时代的
-   面板底；v4 面板底改 #050713 后在 P7 范围内对齐，避免字周柔光比底亮一档。 */
+html[data-theme="dark"] [data-p="7"] .eco-visual{background-color:#050713;}
+/* token 清账：五行文字的柔光 text-shadow 用 --eco-surface，深色下对齐 v4 面板底 */
 html[data-theme="dark"] [data-p="7"]{--eco-surface:#050713;}
 [data-p="7"] .eco-visual::after{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
@@ -267,52 +323,91 @@ html[data-theme="dark"] [data-p="7"] .eco-layer{background:transparent;}
 [data-p="7"] .callout-chip{
   padding:7px 0 7px 20px;border-radius:0;border-left:3px solid var(--accent);
   background:transparent;color:var(--ink);box-shadow:none;}
-html[data-theme="dark"] [data-p="7"] .callout-chip{
-  background:transparent;color:var(--ink);}
+html[data-theme="dark"] [data-p="7"] .callout-chip{background:transparent;color:var(--ink);}
 [data-p="7"] .callout-chip b{color:var(--accent);}
-/* ═══ 引擎详解抽屉（2026-08-18）· P4 「04 · OPEN」行的第 5 个 chip + 视口级 overlay ═══ */
-/* 触发 chip：形制与 .chip 家族一字不差，只把描边/文字换成 accent，把「可点」说清楚。
-   全部走 token（--accent / --card-bg），浅深两主题同一套规则各自成立。 */
-.chip-expand{border-color:color-mix(in srgb,var(--accent) 52%,transparent);
+/* polish · P7 浅色生态图对比度：底图在浅底下偏灰，抬 ~14% 对比 + 6% 饱和；深色零改动 */
+html:not([data-theme="dark"]) [data-p="7"] .eco-art.lt{filter:contrast(1.14) saturate(1.06);}
+
+/* ═══ P6 · R1 实拍图卡（图左 / 规格右 · 引擎 P19 同款机制，窗宽按本页 300 高重算）══
+   图窗 280×300 对 1000×750（4:3）原片做 cover ⇒ 由**高**定标（scale = 300/750 = .40），
+   整张原片的 750 行全在窗内，只裁左右：横向可见原片宽 = 280/.40 = 700px（居中 ⇒ 原片
+   x150–849），两块板的实测墨迹在 x278–719 内，左右各余 58px 以上。**改窗宽必须重算这条。** */
+.pp .sh.r1-card{overflow:hidden;}
+.r1-card{display:flex;flex-direction:row;}
+.r1-shot{position:relative;flex:none;width:280px;align-self:stretch;overflow:hidden;
+  background:#0a0c14;border-right:1px solid var(--hair);}
+/* 图必须 width/height 100% + object-fit —— 放大 img 去逼近墨迹会让它的 rect 冲出卡底，
+   qa 的 cardspill（只读 rect、不读 overflow:hidden）稳报一条假命中。 */
+.r1-shot img{width:100%;height:100%;display:block;object-fit:cover;object-position:center;}
+.r1-body{flex:1;display:flex;flex-direction:column;padding:24px 26px 20px;}
+.r1-main{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.r1-cap{flex:none;padding-top:12px;border-top:1px solid var(--hair);}
+.r1-cap .cap{font:400 13px/1.5 var(--f-cn);color:var(--ink-3);}
+/* 浅色主题下的「暗媒体卡」惯例：深底实拍图直接压在浅版面上会掉进洞里 ——
+   给一圈发丝内描边把图从纸面上拎起来（实拍不翻色，只压一档饱和度）。 */
+html:not([data-theme="dark"]) .r1-shot{box-shadow:inset 0 0 0 1px rgba(17,17,17,.12);}
+html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
+@media print{.r1-shot{box-shadow:none;}}
+
+/* ═══ 引擎详解抽屉（P4 / P5 / P6 三个入口 · 视口级 overlay）═════════════════
+   触发 chip：形制与 .chip 家族一字不差，只把描边/文字换成 accent。
+   position:relative 是给 .hot-ring 用的（P4 的 hot 件 = 抽屉 chip）。 */
+.chip-expand{position:relative;border-color:color-mix(in srgb,var(--accent) 52%,transparent);
   color:var(--accent);cursor:pointer;-webkit-user-select:none;user-select:none;
   transition:background .15s ease,border-color .15s ease;}
 .chip-expand:hover,.chip-expand:focus-visible{
   background:color-mix(in srgb,var(--accent) 14%,var(--card-bg));
   border-color:color-mix(in srgb,var(--accent) 80%,transparent);}
-/* 引擎详解抽屉：视口级 overlay（避开舞台 transform，原生控件/iframe 都不吃缩放坐标系的亏） */
-/* z 必须盖过 .deck-progress(1000)/.deck-swap(1100)/.edit-hotzone(10001)——
-   抽屉开着时进度条不上浮、编辑热区不可误触（Opus 自查发现，Fable 裁定收） */
+.chip-expand.ag{border-color:color-mix(in srgb,var(--l-agent) 52%,transparent);color:var(--l-agent);}
+.chip-expand.ag:hover,.chip-expand.ag:focus-visible{
+  background:color-mix(in srgb,var(--l-agent) 14%,var(--card-bg));
+  border-color:color-mix(in srgb,var(--l-agent) 80%,transparent);}
+.chip-expand.ph{border-color:color-mix(in srgb,var(--l-phys) 52%,transparent);color:var(--l-phys);}
+.chip-expand.ph:hover,.chip-expand.ph:focus-visible{
+  background:color-mix(in srgb,var(--l-phys) 14%,var(--card-bg));
+  border-color:color-mix(in srgb,var(--l-phys) 80%,transparent);}
+/* 视口级 overlay（避开舞台 transform，原生控件/iframe 都不吃缩放坐标系的亏）。
+   z 必须盖过 .deck-progress(1000)/.deck-swap(1100)/.edit-hotzone(10000)。 */
 #engineOverlay{position:fixed;inset:0;z-index:10002;}
 #engineOverlay[hidden]{display:none;}
 .eo-scrim{position:absolute;inset:0;background:rgba(6,8,18,.78);}
 .eo-sheet{position:absolute;inset:26px;border-radius:18px;overflow:hidden;
   border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 90px rgba(0,0,0,.5);background:#e6e6eb;}
 .eo-sheet iframe{display:block;width:100%;height:100%;border:0;}
-/* 收回按钮挪到左上：iframe 内的引擎 deck 右上角是页码 sig（120px 内边距），
-   ESC 胶囊压在右上会和页码叠在一起；左上是 iframe 的编辑热区（透明、无视觉），不冲突。 */
+/* 收回按钮挪到左上：iframe 内的引擎 deck 右上角是页码 sig，ESC 胶囊压在右上会叠在一起。 */
 .eo-close{position:absolute;top:14px;left:16px;font:600 12px/1 var(--f-mono);letter-spacing:.14em;
   color:#f5f5f7;background:rgba(10,10,15,.55);border:1px solid rgba(255,255,255,.22);
   border-radius:999px;padding:9px 14px;cursor:pointer;}
 .eo-close:hover{background:rgba(10,10,15,.8);}
-/* 鼠标点击后不留 focus ring（键盘 Tab 仍然给 :focus-visible 的可见焦点） */
 .eo-close:focus:not(:focus-visible){outline:none;box-shadow:none;}
 @media print{#engineOverlay,.deck-swap{display:none!important;}}
-/* polish · P7 浅色生态图对比度：底图在浅底下偏灰，抬 ~14% 对比 + 6% 饱和；深色零改动 */
-html:not([data-theme="dark"]) [data-p="7"] .eco-art.lt{filter:contrast(1.14) saturate(1.06);}
+/* 编辑热区（deck.js 依赖） */
+.edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3);
+  border:1px solid var(--hair);border-radius:3px;padding:7px 12px;background:transparent;cursor:pointer;
+  transition:opacity .3s;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--accent);color:var(--accent);}
+@media print{.edit-toggle,.edit-hotzone,.deck-progress,.deck-steps,.deck-swap{display:none!important;}}
 </style>"""
 
-# ── 组装件 ──────────────────────────────────────────────────────────────────
+
+# ═══ 组装件（与引擎 deck 同签名 —— 两份 deck 的图形语法必须可互抄）══════════
 def sh(cls, style, body, step=None, sid=None):
     a = ' data-sid="%s"' % sid if sid else ""
     a += ' data-step="%d"' % step if step is not None else ""
     return '<div class="sh %s"%s style="%s">%s</div>' % (cls, a, style, body)
 
+
 def dot(var):
     return '<span class="dot" style="background:var(--%s)"></span>' % var
+
 
 def rule(y, x=120, w=1680, i=1):
     """分区之间的 1px 细线（高度 1px → 扫描器不当它是覆盖块）"""
     return sh("spread hair-rule", "left:%dpx;top:%dpx;width:%dpx;height:1px;--i:%d" % (x, y, w, i), "")
+
 
 def lab(x, y, txt, w=620, col=None, i=0, step=None):
     """mono 小节标：「01 · SCALE」"""
@@ -320,197 +415,463 @@ def lab(x, y, txt, w=620, col=None, i=0, step=None):
     return sh("flow seclab", "left:%dpx;top:%dpx;width:%dpx;height:20px;--i:%d%s" % (x, y, w, i, c),
               txt, step=step)
 
-def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0):
+
+def figbox(x, y, w, vbw, vbh, inner, cls="flow", i=0, step=None):
     """SVG 装盒：.sh 高度按 viewBox 等比算死，svg 一律 width:100%;height:auto"""
     h = round(w * vbh / vbw)
     return sh(cls, "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
               '<div class="fig"><svg viewBox="0 0 %d %d" style="width:100%%;height:auto">%s</svg></div>'
-              % (vbw, vbh, inner))
+              % (vbw, vbh, inner), step=step)
+
+
+def head(kicker, title, kk="kk"):
+    """每页统一的页眉：kicker y92 / 标题 y148 起（家族版式纪律）"""
+    return (sh("flow " + kk, "left:120px;top:92px;width:1680px;height:28px", kicker)
+            + sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", title))
+
+
+def land(txt, y=988, x=120, w=1680, i=6):
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:70px;--i:%d" % (x, y, w, i),
+              '<div class="land">%s</div>' % txt)
+
+
+def rail(txt, y=1010, x=120, w=1680, i=7, align=None):
+    a = ";text-align:%s" % align if align else ""
+    return sh("flow mono-sm", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
+
+
+# ── SVG 小件（引擎 deck 同源）───────────────────────────────────────────────
+def ah_r(x, y, col, s=9):
+    return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
+        col, x, y, x - s - 2, y - 6, x - s - 2, y + 6)
+
+
+def ah_l(x, y, col, s=9):
+    return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
+        col, x, y, x + s + 2, y - 6, x + s + 2, y + 6)
+
+
+def ah_d(x, y, col, s=9):
+    return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
+        col, x, y, x - 6, y - s - 2, x + 6, y - s - 2)
+
+
+def ah_u(x, y, col, s=9):
+    return '<polygon class="pop" style="--i:2;fill:%s" points="%d,%d %d,%d %d,%d"/>' % (
+        col, x, y, x - 6, y + s + 2, x + 6, y + s + 2)
+
+
+def hline(x1, x2, y, col=HS, w=2, i=1):
+    return ('<path class="dw" style="--len:%d;--i:%d" d="M%d %d H%d" '
+            'stroke="%s" stroke-width="%s" fill="none"/>' % (abs(x2 - x1), i, x1, y, x2, col, w))
+
+
+def vline(x, y1, y2, col=HS, w=2, i=1):
+    return ('<path class="dw" style="--len:%d;--i:%d" d="M%d %d V%d" '
+            'stroke="%s" stroke-width="%s" fill="none"/>' % (abs(y2 - y1), i, x, y1, y2, col, w))
+
+
+def dline(d, col=HS, w=2, i=1, dash="7 7", cls="", sty=""):
+    """虚线：不能走 .dw —— motion.css 的 .dw{stroke-dasharray:var(--len)} 会把 dasharray
+       整条压掉，虚线会渲染成实线。改挂 .pop（只动 opacity/transform），破折保留。
+       cls / sty：额外类与额外内联变量（挂运动原语用：.mo-drift + --mo-off/--mo-dur）。"""
+    return ('<path class="pop%s" style="--i:%d%s" d="%s" stroke="%s" stroke-width="%s" '
+            'fill="none" stroke-dasharray="%s"/>'
+            % ((" " + cls) if cls else "", i, (";" + sty) if sty else "", d, col, w, dash))
+
+
+def curve(d, col, w=2.5, i=1):
+    """实线主干（贝塞尔）：走 .dw 自绘入场，--len 用采样长度算，不许瞎填。"""
+    return ('<path class="dw" style="--len:%d;--i:%d" d="%s" stroke="%s" stroke-width="%s" '
+            'fill="none" stroke-linecap="round"/>' % (round(path_len(d)) + 8, i, d, col, w))
+
+
+def box(x, y, w, h, r=4, hot=False, dashed=False, i=0, cls="", sty="", col=None):
+    """家族图框：常态 class="box"（fill card-bg / stroke hair），高亮走 accent 描边。"""
+    d = ' stroke-dasharray="7 6"' if dashed else ""
+    c = (" " + cls) if cls else ""
+    v = (";" + sty) if sty else ""
+    if hot:
+        return ('<rect class="pop%s" style="--i:%d%s" x="%d" y="%d" width="%d" height="%d" rx="%d" '
+                'fill="none" stroke="%s" stroke-width="2.5"%s/>'
+                % (c, i, v, x, y, w, h, r, col or AC, d))
+    return ('<rect class="pop box%s" style="--i:%d%s" x="%d" y="%d" width="%d" height="%d" rx="%d" '
+            'stroke-width="1.4"%s/>' % (c, i, v, x, y, w, h, r, d))
+
+
+def halo_rect(x, y, w, h, r=8, col=None, sc="1.06", op=".34", dur="3.6s", delay=None):
+    """呼吸光晕（原语 ④ 的伴件 · 矩形版）：贴着 hot 盒向外扩散再消失。
+       100% 帧 opacity:0 ⇒ 静态语域零痕迹（纸面上不会留一枚谜之边框）。"""
+    v = "--mo-sc:%s;--mo-op:%s;--mo-dur:%s" % (sc, op, dur)
+    if delay:
+        v += ";--mo-del:%s" % delay
+    return ('<rect class="mo-halo" style="%s" x="%d" y="%d" width="%d" height="%d" rx="%d" '
+            'fill="none" stroke="%s" stroke-width="2.5" opacity="0"/>' % (v, x, y, w, h, r, col or AC))
+
+
+def halo_div(style, col=None, sc="1.16", op=".38", dur="3.4s", delay=None, radius="14px", bw="2.5px"):
+    """DOM hot 件的光晕环：空 <i>，不携带任何文字（qa-motion ② 闸）。
+       静态 opacity:0 ⇒ 截图 / 纸面上零痕迹，只在现场脉动。"""
+    v = "--mo-sc:%s;--mo-op:%s;--mo-dur:%s" % (sc, op, dur)
+    if delay:
+        v += ";--mo-del:%s" % delay
+    return ('<i class="mo-halo hot-ring" aria-hidden="true" style="%s;%s;'
+            'border:%s solid %s;border-radius:%s"></i>' % (style, v, bw, col or AC, radius))
+
+
+def txt(x, y, s, cls="txt", size=None, anchor=None, col=None, weight=None,
+        mono=False, ls=None, sty=None):
+    st = []
+    if sty:
+        st.append(sty)
+    if size:
+        st.append("font-size:%dpx" % size)
+    if col:
+        st.append("fill:%s" % col)
+    if weight:
+        st.append("font-weight:%d" % weight)
+    # mono：.lbl 是唯一自带 mono 的类，但它带 text-transform:uppercase（会把「Token 签名」
+    # 烧成「TOKEN 签名」）。要 mono 又要保留大小写时走这一路。
+    if mono:
+        st.append("font-family:var(--f-mono)")
+    if ls is not None:
+        st.append("letter-spacing:%s" % ls)
+    a = ' text-anchor="%s"' % anchor if anchor else ""
+    g = ' class="%s"' % cls if cls else ""
+    style = ' style="%s"' % ";".join(st) if st else ""
+    return '<text%s x="%d" y="%d"%s%s>%s</text>' % (g, x, y, a, style, s)
+
+
+# ── 运动原语 ① 能量包（deck 级）────────────────────────────────────────────
+#   压在实线之下的一段粗软 stroke，沿路径漂移。dasharray =「包长 seg + 间隔 per-seg」，
+#   --mo-off 恰好走完一个整周期 per ⇒ 100% 帧与 0% 帧逐像素相同（静态原图纪律）。
+#   per = 包距（两枚包之间的路径距离）；速度 v = per / dur，全图统一 v 才能「同速接力」。
+def packet(d, per, dur, delay=None, col=None, w=12, seg=22, op=".32", i=2, cap="round", cls=""):
+    v = "--mo-off:%d;--mo-dur:%s" % (-per, dur)
+    if delay is not None:
+        v += ";--mo-del:%s" % delay
+    return ('<path class="pop mo-packet%s" style="--i:%d;%s" d="%s" fill="none" stroke="%s" '
+            'stroke-width="%s" stroke-opacity="%s" stroke-linecap="%s" stroke-dasharray="%d %d"/>'
+            % ((" " + cls) if cls else "", i, v, d, col or AC, w, op, cap, seg, per - seg))
+
+
+# ── 线型系统 + 真线样迷你图例（P8 质量语言第一条）────────────────────────────
+def lg_solid(x, y, col=AC, w=2.5, i=9):
+    return hline(x, x + 40, y, col, w, i)
+
+
+def lg_dash(x, y, col=HS, w=1.6, i=9):
+    return dline("M%d %d H%d" % (x, y, x + 40), col, w, i, dash="6 5")
+
+
+def lg_dot(x, y, col=AD, w=2.4, i=9):
+    return dline("M%d %d H%d" % (x, y, x + 40), col, w, i, dash="2 6")
+
+
+def lg_fast(x, y, col=AC, w=6, i=9):
+    return hline(x, x + 40, y, col, w, i)
+
+
+_LGK = {"solid": lg_solid, "dash": lg_dash, "dot": lg_dot, "fast": lg_fast}
+
+
+def legend(x, y, items, i=9, gap=48, size=14):
+    """图例行：items = [(kind, 标签)] / [(kind, 标签, 线宽)] / [(kind, 标签, 线宽, 颜色)]。
+       样线必须与页内真线同粗同色，否则「粗一档 / 弱一档」在图例里读不出来。"""
+    o, cx = [], x
+    for it in items:
+        kind, label = it[0], it[1]
+        w = it[2] if len(it) > 2 else None
+        col = it[3] if len(it) > 3 else None
+        kw = {"i": i}
+        if w is not None:
+            kw["w"] = w
+        if col is not None:
+            kw["col"] = col
+        o.append(_LGK[kind](cx, y, **kw))
+        o.append(txt(cx + 50, y + 5, label, "sm", size=size))
+        cx += 50 + int(len(label) * 13.2) + gap
+    return "".join(o)
+
+
+# ── 贝塞尔路径长度（P8 合流的相位账必须按真实弧长算，不许目测）──────────────
+def _cub(p0, p1, p2, p3, t):
+    u = 1 - t
+    return (u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3)
+
+
+def bez_len(p0, p1, p2, p3, n=240):
+    """三次贝塞尔弧长（折线采样，n=240 的误差 < 0.05%，对相位来说远够）"""
+    last, s = p0, 0.0
+    for k in range(1, n + 1):
+        t = k / n
+        cur = (_cub(p0[0], p1[0], p2[0], p3[0], t), _cub(p0[1], p1[1], p2[1], p3[1], t))
+        s += math.hypot(cur[0] - last[0], cur[1] - last[1])
+        last = cur
+    return s
+
+
+def path_len(d):
+    """只认本 deck 用到的三种 d：M…C… 三次贝塞尔 / M…L… 直线 / M…H|V… 轴向线。
+       先把命令字母与数字拆开（'M30 90' 这种紧挨着写法在本文件里到处都是）。"""
+    s = d.replace(",", " ")
+    for c in "MCLHV":
+        s = s.replace(c, " " + c + " ")
+    tok = s.split()
+    if "C" in tok:
+        i = tok.index("C")
+        p0 = (float(tok[1]), float(tok[2]))
+        p1 = (float(tok[i + 1]), float(tok[i + 2]))
+        p2 = (float(tok[i + 3]), float(tok[i + 4]))
+        p3 = (float(tok[i + 5]), float(tok[i + 6]))
+        return bez_len(p0, p1, p2, p3)
+    if "L" in tok:
+        i = tok.index("L")
+        return math.hypot(float(tok[i + 1]) - float(tok[1]), float(tok[i + 2]) - float(tok[2]))
+    if "H" in tok:
+        return abs(float(tok[tok.index("H") + 1]) - float(tok[1]))
+    if "V" in tok:
+        return abs(float(tok[tok.index("V") + 1]) - float(tok[2]))
+    return 0.0
+
 
 PAGES = []          # (board, steps, body_html, hero)
+
+
 def page(board, body, hero=None, steps=0):
-    # 2026-08-20：P4 / P5 / P7 各加一步 presenter-controlled build，其余页仍为 0
     PAGES.append((board, steps, body, hero))
 
-# ═══ P1 · 封面（title 板 + hero 盒；照抄 convoai P1，只改 kk 尾巴与 sub）═════
+
+# ═══ P1 · 封面（title 板 · 家族封面骨架）═══════════════════════════════════
+#   气质对齐引擎 P1：kicker y200 / 96px 主标 y266 / accent 短棒 / sub / 页脚 mono。
+#   主标与三产品线 chips 逐字保留（Fable 裁定 #1 之后就没再动过）。
+#   AI-art 主视觉：新图 2048×1152 透明底、右重心，实际墨迹从图内 x669 起（= 屏幕 x1112），
+#   主标两行各 9 个全角字、右缘 x≈967 —— 中间还剩 145px 净空，宽标题与图不相撞。
+#   盒 left720+width1200=1920 正好齐右缘（原 860+1200=2060 会被舞台裁掉 140px）。
+#   **本页不入运动件名册**：封面是静的（引擎 P1 同例），一张会动的封面只会抢主标。
 page("title", "".join([
     sh("flow kk", "left:120px;top:200px;width:1400px;height:28px",
        "AGORA · 声网 · CONVERSATIONAL AI · INFOGRAPH"),
-    sh("ink", "left:120px;top:266px;width:1100px;height:250px;font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
+    sh("ink", "left:120px;top:266px;width:1100px;height:250px;"
+       "font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
        "让陪伴自然，<br>让生意<strong style='color:var(--accent)'>成单</strong>。"),
-    sh("flow sub", "left:120px;top:600px;width:1400px;height:44px",
+    sh("spread", "left:120px;top:552px;width:120px;height:4px;background:var(--accent);"
+       "border-radius:2px;--i:3", ""),
+    sh("flow sub", "left:120px;top:600px;width:1400px;height:44px;--i:4",
        "声网 · 对话式 AI —— 一页一章 · 拜访速讲版"),
-    sh("rise", "left:120px;top:700px;width:1500px;height:56px;font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2)",
+    sh("rise", "left:120px;top:700px;width:1500px;height:56px;"
+       "font:700 26px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-2);--i:5",
        dot("l-eng") + 'ENGINE<span style="margin-left:56px"></span>'
        + dot("l-agent") + 'AGENT<span style="margin-left:56px"></span>'
        + dot("l-phys") + 'PHYSICAL AI'),
-    sh("flow mono-sm", "left:120px;top:930px;width:1200px;height:24px",
+    sh("flow mono-sm", "left:120px;top:930px;width:1200px;height:24px;--i:6",
        "主讲人：姚光华 Colin · 声网 AI 产品线负责人"),
 ]), hero=("info-v2/hero-cover-v2", "left:720px;top:220px;width:1200px;height:675px"))
-# ── P1 hero 盒（视觉升级 R1）─────────────────────────────────────────────────
-#   原盒 left860+width1200=2060 出画布 140px，右侧被舞台裁掉 → 收到 720+1200=1920 正好齐右缘。
-#   主标保持原句（Fable 裁定 #1）：升级版改的「让陪伴自然，让生意成单。」是未申报的内容改动，
-#   且和 P8 收尾回收的同一句断裂，不采。
-#   新图 2048×1152 透明底、右重心：实际墨迹从图内 x669 起（= 屏幕 x1112），
-#   主标两行各 9 个全角字、右缘 x≈967 —— 中间还剩 145px 净空，宽标题与图不相撞。
 
-# ═══ P2 · 公司 ·「RTE 领导者」（accent）════════════════════════════════════
-#   01 SCALE 四数字 / 02 ADOPTION 近一半 + 分账条 / 03 ENDORSEMENT OpenAI / 04 MILESTONES 五节点
-_RTE = [
-    ("No.1",   "市场占有率稳居第一，份额超过第 2–8 位总和", True),
-    ("50+",    "突破性自主创新技术（全球发明专利）",       False),
-    ("100万+", "全球注册应用数",                          False),
-    ("900亿+", "单月支撑通话分钟数",                      False),
+# ═══ P2 · 公司 · Why Agora 速讲版 ═════════════════════════════════════════
+#   01 SCALE 四大数（**与引擎 P21 逐字同源**）/ 02 ADOPTION 近一半 /
+#   03 ENDORSEMENT OpenAI 首批 / 04 MILESTONES 时间线活动带（主图 · packet 沿线跑）
+#   hot 件 = No.1 大数（DOM 光晕环）。
+#
+#   ── 口径锁（2026-08-21 Colin：「四大数与来源标注改为与引擎 P21 逐字同源」）──
+#   禁止回归的旧错误：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」。
+#   ⚠ 43.4% 这个具体数字**不写**：引擎 P21 的仲裁 P0 已把它换成「份额超过第 2–8 位厂商
+#     总和」的定性表述（理由：未取得公司批准口径）。「拷贝原句」= 拷贝改过之后的那一句。
+#   200+ 不进四卡（引擎 P21：「四卡足够，不补第五个数字」）；它的正确用法是
+#   「全球节点 · SD-RTN」，本 deck 里落在 P3 底座与 P8 主河道上。
+_WHY = [
+    ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
+    ("技术突破",   "50+",    "突破性自主创新技术（全球发明专利）", False),
+    ("开发者生态", "100万+", "全球注册应用数",                   False),
+    ("生产规模",   "900亿+", "单月支撑通话分钟数",               False),
 ]
-# 五节点卡片时间轴 mini：P5 原图 viewBox 1620×340 / 框 300×200 太高，
-# 按 spec 重排成 viewBox 1620×170 / 框 300×100，文字两行（日期 + 名称），细节行删
+# 五节点时间线活动带（原五卡片轴改造）：轴 + 节点 + 日期在上 / 名称在下，
+# 卡框全撤 —— 收口线之下的页脚带只有 114px 高，框会把字挤成 12px。
 _MILE = [
-    # 2026-08-20 仲裁 P0：「全球首个 Realtime API」是 OpenAI 的事，不是声网的事——
-    # 而且和同页 03 · ENDORSEMENT 的「全球首批合作伙伴」自相矛盾。改为首批口径。
-    (  10, "2024.10.01", "全球首批 Realtime API", False),
-    ( 330, "2024.10.24", "国内首个 Realtime API", False),
-    ( 650, "2025.03.06", "引擎 1.0 + R1 GA",      False),
-    ( 970, "2025.10.31", "产品全栈发布",           False),
-    (1290, "2026.03.10", "Call Agent 全球版",      True),
+    # 2026-08-20 仲裁 P0：「全球首个 Realtime API」是 OpenAI 的事，不是声网的事，
+    # 且与同页 03 · ENDORSEMENT 的「全球首批合作伙伴」自相矛盾。改为首批口径。
+    ("2024.10.01", "全球首批 Realtime API", False),
+    ("2024.10.24", "国内首个 Realtime API", False),
+    ("2025.03.06", "引擎 1.0 + R1 GA",      False),
+    ("2025.10.31", "产品全栈发布",           False),
+    ("2026.03.10", "Call Agent 全球版",      True),
 ]
-def _mile(x, date, name, hot, i):
-    # 高亮色走内联 style（fill 属性会被 .fig .lbl/.ttl 的 CSS fill 覆盖，形同没写）
-    cx, am = x + 150, (' style="fill:var(--accent)"' if hot else "")
-    box = ('<rect x="%d" y="56" width="300" height="100" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/>' % x
-           if hot else '<rect x="%d" y="56" width="300" height="100" rx="3" class="box" stroke-width="1"/>' % x)
-    return ('<g class="pop" style="--i:%d">'
-            '<circle cx="%d" cy="30" r="5" class="%s"/>%s'
-            '<text class="lbl" x="%d" y="92" text-anchor="middle"%s>%s</text>'
-            '<text class="ttl" x="%d" y="130" text-anchor="middle" style="font-size:20px%s">%s</text></g>'
-            % (i, cx, "fill-am" if hot else "fill-ink", box,
-               cx, am, date, cx, ";fill:var(--accent)" if hot else "", name))
-_p2mile = ('<path class="dw" style="--len:1580;--i:0" d="M10 30 H1590" stroke="var(--hair)" stroke-width="1" fill="none"/>'
-           + "".join(_mile(*m, i=k + 1) for k, m in enumerate(_MILE)))
+_P2_Q, _P2_T = 380, "3.8s"          # 时间线活动带的包距与周期（v = 100 单位/秒）
+#   包距 380 ⇒ 1540 长的轴上同时只有 4 枚软streak：再密就读成「虚线装饰」而不是「一枚包在走」。
+
+
+def _p2band():
+    """04 · MILESTONES 时间线活动带（viewBox 1620×110）
+       线型只有一种（时间轴），所以不上图例；「流的什么 / 为什么」写在轴下的 mono 线标里。"""
+    o = []
+    x0, x1, ay = 40, 1580, 62
+    o.append(hline(x0, x1, ay, "var(--hair)", 1.5, 0))
+    # 能量包：一条轴一枚包，从最早的里程碑跑向最新的（方向 = 时间方向）
+    o.append(packet("M%d %d H%d" % (x0, ay, x1), _P2_Q, _P2_T, col=AC, w=8, seg=34, op=".20", i=1))
+    o.append(ah_r(x1 + 12, ay, "var(--ink-3)", 7))
+    step = (x1 - x0) / (len(_MILE) - 1)
+    for k, (date, name, hot) in enumerate(_MILE):
+        cx = round(x0 + k * step)
+        if hot:
+            o.append('<circle class="mo-halo" style="--mo-sc:3.2;--mo-op:.5;--mo-dur:3.2s" '
+                     'cx="%d" cy="%d" r="7" fill="none" stroke="%s" stroke-width="2" opacity="0"/>'
+                     % (cx, ay, AC))
+            o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="%d" r="8"/>' % (2 + k, AC, cx, ay))
+        else:
+            o.append('<circle class="pop box" style="--i:%d" cx="%d" cy="%d" r="7" stroke-width="1.6"/>'
+                     % (2 + k, cx, ay))
+        anc = "start" if k == 0 else ("end" if k == len(_MILE) - 1 else "middle")
+        o.append(txt(cx, 32, date, "sm", size=17, anchor=anc, mono=True,
+                     col=AC if hot else "var(--ink-3)", ls=".04em"))
+        o.append(txt(cx, 100, name, "ttl", size=18, anchor=anc, col=AC if hot else None))
+    return "".join(o)
+
 
 page("content", "".join([
-    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "公司 · 声网 RTE · ONE-PAGE BRIEF"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:80px;font-size:56px",
-       "RTE 行业领导者，<strong>一页讲完</strong>。"),
-    # 区 01 · SCALE
+    head("公司 · 声网 RTE · ONE-PAGE BRIEF",
+         "RTE 行业领导者，<strong>一页讲完</strong>。"),
+    # 区 01 · SCALE（四大数 · 引擎 P21 口径锁）· hot = No.1
     lab(120, 236, "01 · SCALE"),
-    sh("", "left:120px;top:272px;width:1680px;height:140px",
-       '<div class="g4">' + "".join(
-           '<div class="stat flow" style="--i:%d">'
+    sh("", "left:120px;top:268px;width:1680px;height:150px",
+       '<div class="g4" style="height:100%">' + "".join(
+           '<div class="stat flow" style="--i:%d;justify-content:flex-start">'
+           '<span class="u">%s</span>'
            '<span class="v%s" style="font-size:64px">%s</span>'
-           '<span class="l" style="font-size:14px">%s</span></div>'
-           % (2 + _i, "" if _on else " w", _v, _l)
-           for _i, (_v, _l, _on) in enumerate(_RTE)) + '</div>'),
-    rule(420),
+           '<span class="l" style="font-size:15px">%s</span></div>'
+           % (2 + _i, _tag, "" if _on else " w", _v, _l)
+           for _i, (_tag, _v, _l, _on) in enumerate(_WHY)) + '</div>'),
+    # hot 光晕环：贴着 No.1 那一格（g4 单格宽 = (1680-3×20)/4 = 405 ⇒ 第一格 x120..525）。
+    # sc 1.06 ⇒ 峰值只涨 12px，右缘 537 仍在第二格起点 545 之内（**改格宽必须重算这条**）。
+    sh("", "left:120px;top:264px;width:405px;height:154px;pointer-events:none",
+       halo_div("position:absolute;inset:0", sc="1.06", op=".22", dur="3.4s", radius="16px")),
+    # 引擎 P21 的 note 逐字：43.4% 已被仲裁换成定性表述，这里不许回填
+    sh("flow", "left:120px;top:432px;width:1680px;height:48px;--i:5",
+       '<div class="note grey">注：IDC《中国视频云市场报告》音视频通信（RTC）赛道 · '
+       '<b>份额超过第 2–8 位厂商总和</b></div>'),
+    rule(504),
     # 区 02 · ADOPTION（左半）
-    lab(120, 452, "02 · ADOPTION"),
-    sh("settle", "left:120px;top:488px;width:780px;height:150px",
-       '<div class="stat"><div class="v" style="font-size:96px;font-family:var(--f-cn)">近一半</div>'
-       '<div class="l">集成 RTC 的 Top 10,000（MAU）App 里，近一半使用声网</div></div>'),
-    sh("spread", "left:120px;top:660px;width:406px;height:40px;background:var(--accent);border-radius:6px;"
-       "font:700 17px/40px var(--f-cn);color:var(--slide-bg);text-align:center;--i:3", "使用声网"),
-    sh("spread", "left:526px;top:660px;width:374px;height:40px;background:var(--card-bg);border:1px solid var(--hair);"
-       "border-radius:6px;font:500 17px/38px var(--f-cn);color:var(--ink-2);text-align:center;--i:4", "其他 RTC"),
-    # 区 03 · ENDORSEMENT（右半）
-    lab(980, 452, "03 · ENDORSEMENT"),
-    sh("settle", "left:980px;top:488px;width:820px;height:44px;font:700 28px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);--i:2",
-       "2024.10.01"),
-    sh("flow", "left:980px;top:548px;width:820px;height:90px;font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:3",
+    lab(120, 526, "02 · ADOPTION"),
+    sh("settle", "left:120px;top:558px;width:800px;height:122px;--i:2",
+       '<div class="stat"><div class="v" style="font-size:76px;font-family:var(--f-cn)">近一半</div>'
+       '<div class="l" style="font-size:19px">集成 RTC 的 Top 10,000（MAU）App 里，近一半使用声网</div></div>'),
+    sh("spread", "left:120px;top:696px;width:406px;height:38px;background:var(--accent);border-radius:6px;"
+       "font:700 17px/38px var(--f-cn);color:var(--slide-bg);text-align:center;--i:3", "使用声网"),
+    sh("spread", "left:526px;top:696px;width:394px;height:38px;background:var(--card-bg);border:1px solid var(--hair);"
+       "border-radius:6px;font:500 17px/36px var(--f-cn);color:var(--ink-2);text-align:center;--i:4", "其他 RTC"),
+    # 区 03 · ENDORSEMENT（右半 · x980 = 全 deck 右列统一栏位）
+    lab(980, 526, "03 · ENDORSEMENT"),
+    sh("settle", "left:980px;top:558px;width:820px;height:40px;font:700 28px/1 var(--f-mono);"
+       "letter-spacing:.1em;color:var(--accent);--i:2", "2024.10.01"),
+    sh("flow", "left:980px;top:610px;width:820px;height:86px;font:700 30px/1.4 var(--f-cn);"
+       "color:var(--ink);--i:3",
        "OpenAI Realtime API · Agora <strong style='color:var(--accent)'>全球首批合作伙伴</strong>"),
-    sh("flow", "left:980px;top:654px;width:820px;height:50px;font:500 20px/1.5 var(--f-cn);color:var(--accent);--i:4",
-       "同样的工程能力，今天用来支撑你的对话式 AI 业务。"),
-    rule(744),
-    # 区 04 · MILESTONES（五节点卡片时间轴 mini · 末框 accent 描边）
-    lab(120, 766, "04 · MILESTONES · 18 个月 · 5 个公开里程碑"),
-    figbox(120, 800, 1680, 1620, 170, _p2mile, i=2),
-    # land 收窄到 900，右侧同一基线放 SOURCE 行（照 P8 的 land + credit 双栏做法），
-    # 这样 land 仍落在全 deck 统一的 y988 基线上。数字一个不动，只补出处。
-    sh("flow", "left:120px;top:988px;width:900px;height:70px;--i:5",
-       '<div class="land">全球最受欢迎的实时音视频云服务提供商。</div>'),
-    sh("flow mono-sm", "left:1030px;top:1010px;width:770px;height:24px;text-align:right;--i:6",
-       "SOURCE · 声网官网 / IR · IDC 中国视频云市场报告 · 公司批准口径 · 事实截止 2026.08"),
+    sh("flow", "left:980px;top:706px;width:820px;height:48px;font:500 20px/1.5 var(--f-cn);"
+       "color:var(--accent);--i:4", "同样的工程能力，今天用来支撑你的对话式 AI 业务。"),
+    rule(850),
+    # 区 04 · MILESTONES（收口线之下的页脚带 · 主图 = 时间线活动带）
+    lab(120, 800, "04 · MILESTONES · 18 个月 · 5 个公开里程碑"),
+    sh("flow mono-sm", "left:1100px;top:800px;width:700px;height:20px;text-align:right;--i:1",
+       "RELEASE TIMELINE · 一枚包 = 时间在走 · 终点 = 最新一次公开发布"),
+    figbox(120, 866, 1680, 1620, 110, _p2band(), i=2),
+    land("全球最受欢迎的实时音视频云服务提供商。", w=900),
+    rail("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08",
+         x=1030, w=770, align="right"),
 ]))
 
-# ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（accent）══════════════════════
-#   01 ARCHITECTURE 分层图 / 02 THREE PRODUCT LINES 三行三色 / 03 ENGINE DELIVERY FORMS
-# ── 2026-08-20 仲裁 P0：口径统一（只动文案与标签层级，版式一像素未动）───────
-#   旧说法「一个平台，三台引擎」＋「与实时互动平台并列的两大产品引擎」自相矛盾：
-#   到底是三台还是两台？评测/翻译又算第几台？统一成一条三层链：
-#     底座（SD-RTN / RTE）→ 三条产品线（Engine / Agent / Physical AI）
-#                        → Engine 的两种交付形态（闭源引擎 / 开源 TEN）
-#   评测平台、实时转录翻译降级为「配套能力 · 工具」，不与产品线并列。
-_MX = [
-    ("对话式 AI 引擎",  "产品线 · Engine · 闭源", True),
-    ("TEN 开源工具库",  "Engine 交付形态 · 开源", False),
-    ("企业级智能体",    "产品线 · Agent",         False),
-    ("AI 模型评测平台", "配套能力 · 工具",        False),
-    ("实时转录翻译",    "配套能力 · 工具",        False),
-    ("开发套件",        "产品线 · Physical AI",   False),
+# ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（真架构图）════════════════════
+#   2026-08-20 仲裁 P0 的分类学在本轮**进图**：底座（SD-RTN / RTE）→ 三条产品线
+#   （Engine / Agent / Physical AI）→ Engine 的两种交付形态（闭源引擎 / 开源 TEN）；
+#   评测平台、实时转录翻译是「配套能力 · 工具」，旁挂、不与产品线并列 —— 图里用
+#   「细虚线 + 弱化 + 不占主干」把这层级差画出来，不靠标签自说自话。
+#   六个 chip 的内容逐字进图（名称 + 形态标签一字未改）。
+#   hot 件 = SD-RTN 底座（这页的论点：托举一切的是那一条）。
+_MX_LINES = [
+    # (trunk_x, 色, mono 名, 盒内标题, 盒内形态标签, 主干注解 = _ENG3 的描述逐字)
+    (300,  LE, "ENGINE",      "对话式 AI 引擎", "产品线 · Engine · 闭源", "提供能力——把「会说话」做到极致"),
+    (840,  LA, "AGENT",       "企业级智能体",   "产品线 · Agent",         "交付结果——替你把任务做完"),
+    (1380, LP, "PHYSICAL AI", "开发套件",       "产品线 · Physical AI",   "打开入口——让对话走出屏幕"),
 ]
-def _mxbox(i, name, form, hot):
-    # 原图 viewBox 1620×430；按 spec 把底座条与框间距收 30px、整体压到 1620×320
-    x = 10 + i * 270
-    cx = x + 125
-    am = "fill:var(--accent);" if hot else ""      # 内联 style，见文件头注释
-    box = ('<rect x="%d" y="10" width="250" height="130" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/>' % x
-           if hot else '<rect x="%d" y="10" width="250" height="130" rx="3" class="box" stroke-width="1"/>' % x)
-    return ('<g class="pop" style="--i:%d">%s'
-            '<text class="ttl" x="%d" y="66" text-anchor="middle" style="%sfont-size:22px">%s</text>'
-            '<text class="sm" x="%d" y="100" text-anchor="middle">%s</text></g>'
-            % (i, box, cx, am, name, cx, form))
-_p3fig = ("".join(_mxbox(i, n, f, h) for i, (n, f, h) in enumerate(_MX))
-          + "".join('<path class="dw" style="--len:40;--i:%d" d="M%d 140 V180" '
-                    'stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>' % (6 + i, 135 + i * 270)
-                    for i in range(6))
-          + '<g class="pop" style="--i:7">'
-            '<rect x="10" y="180" width="1600" height="110" rx="3" class="box" stroke-width="1"/>'
-            '<text class="lbl" x="42" y="223">实时底座 · RTE · REAL-TIME ENGAGEMENT</text>'
-            '<text class="txt" x="42" y="261">SD-RTN 全球实时网络——一个实时底座，托举上面三条产品线与全部配套能力</text>'
-            '</g>')
-_ENG3 = [
-    ("l-eng",   "ENGINE",      "提供能力——把「会说话」做到极致"),
-    ("l-agent", "AGENT",       "交付结果——替你把任务做完"),
-    ("l-phys",  "PHYSICAL AI", "打开入口——让对话走出屏幕"),
+_MX_AUX = [
+    # (x, w, 名称, 形态标签, 挂法)  · 挂法 "trunk" = 挂在 Engine 主干上；"base" = 挂在底座上
+    (10,   260, "TEN 开源工具库",  "Engine 交付形态 · 开源", "trunk"),
+    (560,  250, "AI 模型评测平台", "配套能力 · 工具",        "base"),
+    (1080, 250, "实时转录翻译",    "配套能力 · 工具",        "base"),
 ]
+
+
+def _p3fig():
+    o = []
+    base_y, trunk_top = 370, 172
+    # ── 细虚线域分带：上方是产品线与配套，下方是实时底座 ──
+    o.append(dline("M0 352 H1668", HS, 1, 0, dash="3 9",
+                   cls="mo-drift", sty="--mo-off:-24;--mo-dur:4.2s"))
+    o.append(txt(1660, 346, "↑ 产品线与配套　↓ 实时底座", "sm", size=14, anchor="end",
+                 col="var(--ink-3)", mono=True))
+    # ── 三条主干（实线三色 · 由底座向上生长）+ 能量包（同速 v=100 单位/秒）──
+    for k, (tx, col, mono, title, form, why) in enumerate(_MX_LINES):
+        o.append(box(tx - 150, 40, 300, 112, 6, i=1 + k))
+        o.append(txt(tx, 28, mono, "lbl", size=14, anchor="middle", col=col))
+        o.append(txt(tx, 90, title, "ttl", size=25, anchor="middle"))
+        o.append(txt(tx, 124, form, "sm", size=15, anchor="middle"))
+        d = "M%d %d V%d" % (tx, base_y - 2, trunk_top)
+        o.append(packet(d, 200, "2.0s", delay="%.2fs" % (-0.5 * k), col=col,
+                        w=13, seg=22, op=".34", i=2 + k))
+        o.append('<path class="dw" style="--len:200;--i:%d" d="%s" stroke="%s" stroke-width="2.5" '
+                 'fill="none"/>' % (2 + k, d, col))
+        o.append(ah_u(tx, trunk_top - 12, col, 8))
+        o.append(txt(tx + 18, 205, why, "sm", size=16, col="var(--ink-2)"))
+    # ── 配套 / 交付形态：细虚线旁挂，**无箭头**（它是附属说明，不是第三种流向）──
+    for x, w, name, form, how in _MX_AUX:
+        o.append(box(x, 232, w, 74, 5, dashed=True, i=5))
+        o.append(txt(x + w // 2, 262, name, "ttl", size=20, anchor="middle", col="var(--ink-2)"))
+        o.append(txt(x + w // 2, 288, form, "sm", size=14, anchor="middle", col="var(--ink-3)"))
+        if how == "trunk":
+            o.append(dline("M%d 269 H300" % (x + w + 4), HS, 1.4, 6, dash="5 6",
+                           cls="mo-drift", sty="--mo-off:-33;--mo-dur:3.8s"))
+        else:
+            o.append(dline("M%d 306 V%d" % (x + w // 2, base_y), HS, 1.4, 6, dash="5 6",
+                           cls="mo-drift", sty="--mo-off:-33;--mo-dur:3.8s"))
+    # ── 底座（hot）：accent 描边 + 光晕；条内两枚反向包 = 端 ↔ 云 一直在跑 ──
+    o.append(halo_rect(0, base_y, 1668, 76, 8, sc="1.03", op=".26", dur="3.8s"))
+    o.append('<rect class="pop" style="--i:7;fill:var(--card-bg-2)" x="0" y="%d" width="1668" '
+             'height="76" rx="8" stroke="none"/>' % base_y)
+    o.append(box(0, base_y, 1668, 76, 8, hot=True, i=7))
+    o.append(txt(30, base_y + 32, "实时底座 · RTE · REAL-TIME ENGAGEMENT", "lbl", size=15, col=AC))
+    o.append(txt(30, base_y + 62, "SD-RTN 全球实时网络——一个实时底座，托举上面三条产品线与全部配套能力",
+                 "txt", size=19))
+    o.append(packet("M1180 %d H1640" % (base_y + 46), 260, "2.6s", col=AC, w=9, seg=18, op=".22", i=8))
+    o.append(packet("M1640 %d H1180" % (base_y + 46), 260, "3.0s", col=AC, w=9, seg=18, op=".22", i=8))
+    # ── 迷你图例（真线样 · 只列本页真正用到的线型）──
+    o.append(legend(10, 466, [("solid", "Engine 主干", 2.5, LE), ("solid", "Agent 主干", 2.5, LA),
+                              ("solid", "Physical AI 主干", 2.5, LP),
+                              ("dash", "配套 / 交付形态 · 旁挂", 1.4, HS)]))
+    return "".join(o)
+
+
 page("content", "".join([
-    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px",
-       "一个实时底座，<strong>三条产品线</strong>。"),
-    # 区 01 · ARCHITECTURE（分区标 y=236 = 全 deck 首分区标统一栏位）
-    lab(120, 236, "01 · ARCHITECTURE"),
-    figbox(120, 276, 1680, 1620, 320, _p3fig, i=1),
-    rule(628),
-    # 区 02 · THREE PRODUCT LINES（左 2/3）
-    lab(120, 636, "02 · THREE PRODUCT LINES"),
-    sh("", "left:120px;top:668px;width:1080px;height:170px",
-       '<div class="rows">' + "".join(
-           '<div class="r flow" style="--i:%d;padding:12px 0">'
-           '<span class="n" style="width:40px">%s</span>'
-           '<span class="k" style="width:210px;color:var(--%s);font-family:var(--f-mono);font-size:24px">%s</span>'
-           '<span class="v" style="font-size:21px">%s</span></div>'
-           % (2 + _i, dot(_c), _c, _n, _d)
-           for _i, (_c, _n, _d) in enumerate(_ENG3)) + '</div>'),
-    # 区 03 · ENGINE DELIVERY FORMS（右 1/3）
-    lab(1240, 636, "03 · ENGINE DELIVERY FORMS"),
-    sh("rise card-c", "left:1240px;top:668px;width:560px;height:104px;--i:3",
-       '<div style="padding:20px 26px">'
-       '<div class="mono-sm" style="color:var(--accent)">闭源 · 已上线</div>'
-       '<div style="margin-top:12px;font:700 30px/1.2 var(--f-cn);color:var(--ink)">对话式 AI 引擎</div></div>'),
-    sh("rise card-c", "left:1240px;top:792px;width:560px;height:104px;--i:4",
-       '<div style="padding:20px 26px">'
-       '<div class="mono-sm">开源</div>'
-       '<div style="margin-top:12px;font:700 30px/1.2 var(--f-cn);color:var(--ink)">TEN 开源工具库</div></div>'),
-    # 底行：land（左）与 note（右）文字基线对齐 —— .note 文心 = y+23.6，.land 文心 = y+31.75，
-    # 所以 note 顶比 land 顶高 8px 才是真齐（原来 914/920 差 6，实际差 14px 没对上）
-    sh("flow", "left:1240px;top:996px;width:560px;height:60px;--i:5",
+    head("矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX",
+         "一个实时底座，<strong>三条产品线</strong>。"),
+    lab(120, 236, "01 · ARCHITECTURE · 一个底座 · 三条主干 · 配套旁挂"),
+    figbox(120, 272, 1680, 1680, 480, _p3fig(), i=1),
+    sh("flow", "left:120px;top:772px;width:1680px;height:60px;--i:5",
        '<div class="note">Engine 的<strong style="color:var(--accent)">两种交付形态</strong>'
        '：闭源引擎 · 开源 TEN。</div>'),
-    sh("flow", "left:120px;top:988px;width:1080px;height:70px;--i:6",
-       '<div class="land">' + dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
-       + dot("l-phys") + "Physical AI 走进物理世界。</div>"),
+    rule(850),
+    # 收口线之下的页脚带（引擎 P19「02 · SHARED CAPABILITIES」同款破例，经 Fable 终审）
+    sh("rise", "left:120px;top:878px;width:1680px;height:56px;--i:7",
+       '<div style="display:flex;align-items:center;gap:24px">'
+       '<span class="seclab" style="flex:none">02 · ENGINE DELIVERY FORMS</span>'
+       '<div style="flex:1">'
+       '<span class="chip">闭源 · 已上线　对话式 AI 引擎</span>'
+       '<span class="chip">开源　TEN 开源工具库</span></div></div>'),
+    land(dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
+         + dot("l-phys") + "Physical AI 走进物理世界。"),
 ]))
 
-# ═══ P4 · Engine ·「对话式 AI 引擎 · 体验分」（l-eng 玫红）═════════════════
-#   01 VELOCITY 17 版轴 / 02 VS LIVEKIT 四项 / 03 SIGNATURE MOVES 三绝活 / 04 OPEN chips
+# ═══ P4 · Engine ·「超低延迟、可打断、高自然度」════════════════════════════
+#   01 VELOCITY 17 版活动带（主图 · packet 沿轴跑）/ 02 VS LIVEKIT 四项 /
+#   03 SIGNATURE MOVES 三绝活（step1）/ 04 OPEN chips + 引擎详解抽屉入口（step1）
+#   hot 件 = 抽屉 chip（本页的 action —— 这一页唯一「可以按下去」的东西）。
 _CMP = [
     ("打断成功率",   "越高越好",             900, 464, "33%",   "17%"),
     ("词错率 WER",   "理想条件 · 越低越好",   605, 900, "9.25%", "13.77%"),
@@ -541,31 +902,41 @@ _MOVES = [
     ("02", "声纹识别",     "有感 / 无感双模式。多人同场分得清说话人。",              _FIG_VP),
     ("03", "短期记忆",     "会话内毫秒级上下文。转人工、转 Agent 不丢线索。",         _FIG_MEM),
 ]
+
+
+def _p4band():
+    """01 · VELOCITY 版本活动带（viewBox 1440×120）：一根时间轴 + 17 格 + 一枚能量包。
+       只有一种线型（发版轴）⇒ 不上图例，「流的什么」写在轴下的 mono 线标里。"""
+    o, x0, x1, ay = [], 40, 1400, 70
+    o.append(hline(x0, x1, ay, "var(--hair)", 1.5, 0))
+    # 包距 460（v=100 ⇒ 4.6s 一枚）：1360 长的轴上同时 3 枚，密了会读成虚线装饰
+    o.append(packet("M%d %d H%d" % (x0, ay, x1), 460, "4.6s", col=LE, w=9, seg=26, op=".24", i=1))
+    for k in range(17):
+        x = x0 + round(k * (x1 - x0) / 16)
+        big = k in (0, 16)
+        o.append('<rect class="pop" style="--i:%d;fill:%s%s" x="%d" y="%d" width="%d" height="%d" rx="2"/>'
+                 % (1 + k // 6, LE if big else "var(--ink-3)", "" if big else ";opacity:.55",
+                    x - (2 if big else 1), ay - (16 if big else 11), 5 if big else 3, 32 if big else 22))
+    o.append(txt(x0, 34, "2025.02.18 · v1.0 公测", "sm", size=16, mono=True, col="var(--ink-3)"))
+    o.append(txt(x1, 34, "2026.08.11 · v2.11 最新", "sm", size=16, anchor="end", mono=True, col=LE))
+    o.append(txt(x0, 110, "RELEASE FLOW · 每一格 = 一次公开发版 · 包在跑 = 版本一直在出",
+                 "sm", size=14, mono=True, col="var(--ink-3)"))
+    return "".join(o)
+
+
 _p4 = [
-    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "ENGINE · 一页讲透 · SHIPPING VELOCITY"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "超低延迟、可打断、<strong>高自然度</strong>。"),
-    # 区 01 · VELOCITY（17 版 mini 轴）· 分区标 y=236 统一栏位，整段内容随之上移 10
+    head("ENGINE · 一页讲透 · SHIPPING VELOCITY", "超低延迟、可打断、<strong>高自然度</strong>。"),
     lab(120, 236, "01 · VELOCITY"),
-    sh("flow tl-line", "left:180px;top:296px;width:1280px;height:3px;--i:1", ""),
-    sh("flow mono-sm", "left:180px;top:330px;width:460px;height:24px;--i:3", "2025.02.18 · v1.0 公测"),
-    sh("flow mono-sm", "left:1000px;top:330px;width:460px;height:24px;text-align:right;--i:3",
-       "2026.08.11 · v2.11 最新"),
-    sh("settle", "left:1560px;top:248px;width:240px;height:76px;text-align:right;"
+    figbox(120, 268, 1440, 1440, 120, _p4band(), i=1),
+    sh("settle", "left:1560px;top:272px;width:240px;height:76px;text-align:right;"
        "font:900 56px/1 var(--f-cn);letter-spacing:-.03em;color:var(--l-eng);--i:2", "17"),
-    sh("flow mono-sm", "left:1440px;top:330px;width:360px;height:22px;text-align:right;--i:3",
+    sh("flow mono-sm", "left:1440px;top:356px;width:360px;height:22px;text-align:right;--i:3",
        "PUBLIC RELEASES · 18 MONTHS"),
+    rule(410),
+    lab(120, 430, "02 · VS LIVEKIT · 2026-03 同题评测 · 默认配置口径"),
 ]
-for _i in range(17):
-    _x = 180 + round(_i * 1280 / 16)
-    _big = _i in (0, 16)
-    _p4.append(sh("pop vt" + (" big" if _big else ""),
-                  "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d"
-                  % (_x, 282 if _big else 287, 5 if _big else 3, 32 if _big else 22, 1 + _i // 6), ""))
-_p4.append(rule(384))
-# 区 02 · VS LIVEKIT（左半 · 每项一行：名称 + 双条 + 两值）
-_p4.append(lab(120, 404, "02 · VS LIVEKIT · 2026-03 同题评测 · 默认配置口径"))
 for _i, (_n, _dir, _wo, _wt, _vo, _vt) in enumerate(_CMP):
-    _y = 444 + _i * 96
+    _y = 468 + _i * 92
     _so, _st = max(round(_wo * 460 / 900), 6), max(round(_wt * 460 / 900), 6)
     _p4 += [
         sh("flow", "left:120px;top:%dpx;width:200px;height:46px;--i:%d" % (_y, 2 + _i),
@@ -583,43 +954,53 @@ for _i, (_n, _dir, _wo, _wt, _vo, _vt) in enumerate(_CMP):
            '<span style="font:700 18px/24px var(--f-mono);color:var(--ink-2)">%s</span>'
            '<span style="font:400 13px/24px var(--f-cn);color:var(--ink-3);margin-left:8px">LiveKit</span>' % _vt),
     ]
-# 区 03 · SIGNATURE MOVES（右半 · 三张 mini 卡）· step1
-#   2026-08-20：P4 加一步 build —— 先讲完左半的版本速度与同题评测（客观数），
-#   再一步把「三绝活 + 开放栈」推上来（主观牌）。
-_p4.append(lab(980, 404, "03 · SIGNATURE MOVES", step=1))
-_p4 += [sh("rise card-c", "left:980px;top:%dpx;width:820px;height:128px;--i:%d" % (440 + _i * 134, 3 + _i),
-           '<div style="padding:0 30px;height:100%%;display:flex;align-items:center;gap:26px">'
-           '<div class="fig" style="width:200px;flex:none">'
+# 03 · SIGNATURE MOVES（右半 · step1）——先讲完左半的版本速度与同题评测（客观数），
+# 再一步把三绝活 + 开放栈推上来（主观牌）。
+_p4.append(lab(980, 430, "03 · SIGNATURE MOVES", step=1))
+_p4 += [sh("rise card-c", "left:980px;top:%dpx;width:820px;height:108px;--i:%d" % (468 + _i * 116, 3 + _i),
+           '<div style="padding:0 28px;height:100%%;display:flex;align-items:center;gap:24px">'
+           '<div class="fig" style="width:190px;flex:none">'
            '<svg viewBox="0 0 420 120" style="width:100%%;height:auto">%s</svg></div>'
            '<div style="flex:1">'
-           '<div style="font:700 24px/1.2 var(--f-cn);color:var(--ink)">'
+           '<div style="font:700 23px/1.2 var(--f-cn);color:var(--ink)">'
            '<span style="font:700 15px/1 var(--f-mono);color:var(--l-eng);margin-right:12px">%s</span>%s</div>'
-           '<div style="margin-top:10px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">%s</div>'
+           '<div style="margin-top:8px;font:400 15px/1.5 var(--f-cn);color:var(--ink-2)">%s</div>'
            '</div></div>' % (_f, _no, _n, _d), step=1)
         for _i, (_no, _n, _d, _f) in enumerate(_MOVES)]
-# 区 04 · OPEN（chips 一行）· 底分隔线统一 850（与 P5/P8 同栏位，压住背景板 y848–852 的 accent 细线）
-#   rule(850) 不入步：一条分隔线在 step0/step1 之间闪现比不闪现更扎眼。
+# 04 · OPEN（收口线之下的页脚带）· rule(850) 不入步：一条分隔线在 step0/step1 之间闪现
+# 比不闪现更扎眼。
 _p4.append(rule(850))
-_p4.append(lab(120, 874, "04 · OPEN", step=1))
-_p4.append(sh("rise", "left:120px;top:902px;width:1680px;height:54px;--i:4",
+_p4.append(lab(120, 872, "04 · OPEN", step=1))
+_p4.append(sh("rise", "left:120px;top:900px;width:1680px;height:54px;--i:4",
               "".join('<span class="chip">%s</span>' % t for t in
                       ["ASR / LLM / TTS 可替换 · 可兜底 · 可热切换", "MCP + Function Call",
                        "数字人", "TEN 开源生态"])
-              # 第 5 个 chip = 「引擎产品详解」抽屉的触发件（Enter 或点击 → 视口级 overlay）
-              + '<span class="chip chip-expand" id="engineExpand" role="button" tabindex="0">'
-                '⤢ 引擎产品详解 · 22 页 · ⏎</span>', step=1))
-_p4.append(sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
-              '<div class="land">模型会换代，接口不换人。</div>'))
+              # 第 5 枚 chip = 引擎详解抽屉的触发件（P4 上按 Enter 或点击 → 视口级 overlay）。
+              # hot 光晕环塞在 chip 内部当兄弟层：环是空 <i>，不携带文字（qa-motion ② 闸）。
+              + '<span class="chip chip-expand" id="engineExpand" role="button" tabindex="0" '
+                'data-eng-hash="1">'
+              + halo_div("left:-5px;top:-5px;right:-5px;bottom:-5px", sc="1.10", op=".42",
+                         dur="3.0s", radius="999px", bw="2px")
+              + '⤢ 引擎产品详解 · 22 页 · ⏎</span>', step=1))
+_p4.append(land("模型会换代，接口不换人。"))
 page("content", "".join(_p4), steps=1)
 
-# ═══ P5 · Agent ·「企业级智能体 · 生产数据」（l-agent 蓝）══════════════════
-#   01 TURING 96.5% + funnel / 02 CONVERSION 2.05× / 03 FIVE 五维 / 04 CAPABILITIES 12 项
+# ═══ P5 · Agent ·「已经超越真人的企业级智能体」════════════════════════════
+#   01 TURING 96.5% + 漏斗（左）/ 02 CONVERSION 2.05×（右上）/
+#   03 FIVE 五进阶 → **速讲级 Agent 架构小图**（右下 · 呼应引擎 P17 五脑但不照抄：
+#     那一页是解剖侧视图，这一页是 300px 高的骨架图，四件能力供养一通对话、安全域包住全部）/
+#   04 CAPABILITIES 12 项（step1）
+#   hot 件 = 96.5% 大数（DOM 光晕环）。
+#   ⚠ 口径：96.5% 是 **2,475 通生产数据**口径，与引擎 P16 的「盲测 32,000 名真实客户」
+#     是两个不同数据集 —— 本 deck 全篇不许出现「盲测 / 32,000」（build() 有反向断言）。
 _FUN = [
     ( 20, 700, "接听",      "2,475 · 100.0%", 272, None),
     ( 92, 617, "真人接听",   "2,180 · 88.1%",  272, None),
     (164, 331, "有效对话",   "1,170 · 47.3%",  272, "var(--l-agent)"),
     (236,  26, "感知为 AI",  "86 · 3.5%",      296, "var(--coral)"),
 ]
+
+
 def _fun(i, y, w, lb, val, vx, col):
     bar = ('<rect x="250" y="%d" width="%d" height="52" rx="2" fill="none" stroke="%s" stroke-width="2"/>' % (y, w, col)
            if col else '<rect x="250" y="%d" width="%d" height="52" rx="2" class="box" stroke-width="1"/>' % (y, w))
@@ -628,9 +1009,10 @@ def _fun(i, y, w, lb, val, vx, col):
             '<text class="sm" x="%d" y="%d"%s>%s</text></g>'
             % (i, bar, y + 32, lb, vx, y + 33,
                (' style="fill:%s"' % col) if col else "", val))   # 内联 style，见文件头注释
+
+
 _p5fun = "".join(_fun(i, *f) for i, f in enumerate(_FUN))
-# 横向双条 mini：P16 原图 viewBox 1620×300 塞进 840 宽会把 15px 字压到 7.8px，
-# 所以按 1:1 重排成 viewBox 840×200（几何比例与数据一模一样：1.5% : 3.08% = 196 : 402）
+# 横向双条 mini（viewBox 840×200）：几何比例与数据一模一样（1.5% : 3.08% = 196 : 402）
 _p5conv = ('<g class="pop" style="--i:0">'
            '<rect x="150" y="26" width="196" height="46" rx="2" class="box" stroke-width="1"/>'
            '<text class="lbl" x="134" y="56" text-anchor="end">行业最佳人工</text>'
@@ -642,73 +1024,132 @@ _p5conv = ('<g class="pop" style="--i:0">'
            '<text class="txt" x="568" y="135" style="fill:var(--l-agent)">3.08% —— 真实生产数据</text></g>'
            '<text class="big pop" style="--i:3;fill:var(--l-agent)" x="700" y="100" text-anchor="middle">2.05×</text>'
            '<text class="lbl pop" style="--i:4" x="150" y="188">AI ÷ 人 = 2.05 倍 · 日均营销转化率</text>')
+# 五进阶（内容逐字未改，只把「五行清单」重排成「一张骨架图」）
 _FIVE = [
-    ("01", "运行时", "全球 SD-RTN 200+ 节点",     False),
-    ("02", "记忆",   "毫秒级分层记忆 RAG 端到端",  False),
+    ("01", "运行时", "全球 SD-RTN 200+ 节点"),
+    ("02", "记忆",   "毫秒级分层记忆 RAG 端到端"),
     # 2026-08-20 仲裁 P0：混合 chip 拆成三段各自成立的表述。
-    # SOC 2 保持原措辞（builder 里查不到「Type II」的既有依据，不擅自升格）——待 Colin 确认。
-    ("03", "安全",   "99.99% SLA · SOC 2 · 支持 GDPR 合规", True),
-    ("04", "工具",   "MCP + Function Call 开放栈", False),
-    ("05", "弹性",   "900 亿分钟 RTE 月均支撑",   False),
+    # SOC 2 保持原措辞（builder 里查不到「Type II」的既有依据，不擅自升格）。
+    ("03", "安全",   "99.99% SLA · SOC 2 · 支持 GDPR 合规"),
+    ("04", "工具",   "MCP + Function Call 开放栈"),
+    ("05", "弹性",   "900 亿分钟 RTE 月均支撑"),
 ]
 _G12 = ["SIP / PSTN 全打通", "Warm Transfer", "WhatsApp 接入", "LATAM SIP", "海外多供应商",
         "静态填充词", "Campaign A/B", "时区 · 号码前缀", "音色复刻", "优雅打断 2.0",
         "声纹识别", "实时情绪识别"]
+
+
+def _ah_at(x, y, dx, dy, col, s=10, hw=5.5):
+    """任意方向箭头头（四个正交 ah_* 覆盖不到的斜线用它）：尖端 (x,y)，沿 (dx,dy) 指。"""
+    n = math.hypot(dx, dy) or 1
+    ux, uy = dx / n, dy / n
+    bx, by = x - ux * s, y - uy * s
+    px, py = -uy * hw, ux * hw
+    return ('<polygon class="pop" style="--i:3;fill:%s" points="%.1f,%.1f %.1f,%.1f %.1f,%.1f"/>'
+            % (col, x, y, bx + px, by + py, bx - px, by - py))
+
+
+def _p5five():
+    """03 · FIVE 骨架图（viewBox 840×330）：四件能力供养同一通对话，安全是包住全部的域。
+       五进阶的名称与取值逐字未改；连线上的两字 mono 是「流的什么」。"""
+    o = []
+    # 安全域（细虚线域分带 · dash 周期 14 · off -140 = 整 10 个周期 ⇒ 100% 帧 = 静态原图）
+    o.append('<rect class="pop mo-drift" style="--i:1;--mo-off:-140;--mo-dur:6s" x="4" y="4" '
+             'width="832" height="260" rx="14" fill="none" stroke="%s" stroke-width="1.4" '
+             'stroke-dasharray="6 8"/>' % HS)
+    sats = [(10, 18, _FIVE[0], "承载", 1), (550, 18, _FIVE[3], "动作", 1),
+            (10, 182, _FIVE[1], "上下文", -1), (550, 182, _FIVE[4], "规模", -1)]
+    for k, (bx, by, (no, name, val), tag, side) in enumerate(sats):
+        o.append(box(bx, by, 280, 66, 6, i=2 + k))
+        o.append(txt(bx + 14, by + 26, "%s · %s" % (no, name), "lbl", size=13, col=LA))
+        o.append(txt(bx + 14, by + 52, val, "sm", size=16))
+        # 连线：斜向指进核心（能力供给）· 包与线同速 v = 100 单位/秒
+        if bx < 400:
+            x1, y1 = bx + 280, by + 33
+            x2, y2 = 330, 118 if side > 0 else 150
+            tx_, anc = 280, "end"
+        else:
+            x1, y1 = bx, by + 33
+            x2, y2 = 510, 118 if side > 0 else 150
+            tx_, anc = 560, "start"
+        d = "M%d %d L%d %d" % (x1, y1, x2, y2)
+        ln = round(math.hypot(x2 - x1, y2 - y1))
+        o.append(packet(d, ln, "%.2fs" % (ln / 100.0), delay="%.2fs" % (-0.22 * k),
+                        col=LA, w=10, seg=16, op=".34", i=3 + k))
+        o.append('<path class="dw" style="--len:%d;--i:%d" d="%s" stroke="%s" stroke-width="2.2" '
+                 'fill="none"/>' % (ln + 4, 3 + k, d, LA))
+        o.append(_ah_at(x2, y2, x2 - x1, y2 - y1, LA))
+        o.append(txt(tx_, by + 33 + (49 if side > 0 else -43), tag, "sm", size=13,
+                     anchor=anc, mono=True, col="var(--ink-3)"))
+    # 核心：这一通对话本身
+    o.append(box(330, 96, 180, 76, 8, hot=True, i=5, col=LA))
+    o.append(txt(420, 132, "企业级智能体", "ttl", size=22, anchor="middle", col=LA))
+    o.append(txt(420, 156, "AGENT RUNTIME", "lbl", size=12, anchor="middle"))
+    # 安全域的题注（03 逐字）——写在域框之外，域框自己不携带文字
+    o.append(txt(14, 288, "03 · 安全", "lbl", size=13, col=LA))
+    o.append(txt(96, 288, _FIVE[2][2], "sm", size=15))
+    o.append(legend(14, 318, [("solid", "能力供给", 2.2, LA), ("dash", "安全域 · 包住全部", 1.4, HS)],
+                    size=13))
+    return "".join(o)
+
+
 page("content", "".join([
-    sh("flow kk ag", "left:120px;top:92px;width:1680px;height:28px", "AGENT · 企业级智能体 · REAL PRODUCTION DATA"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px",
-       '已经超越<strong class="ag">真人</strong>的企业级智能体。'),
-    # 区 01 · TURING（左半）
+    head("AGENT · 企业级智能体 · REAL PRODUCTION DATA",
+         '已经超越<strong class="ag">真人</strong>的企业级智能体。', kk="kk ag"),
+    # 区 01 · TURING（左半）· hot = 96.5%
     lab(120, 236, "01 · TURING"),
-    sh("settle", "left:120px;top:268px;width:760px;height:130px",
-       # 2026-08-20 仲裁 P0：「用户以为在跟真人说话」是对 96.5% 的过度解读——
+    sh("settle", "left:120px;top:268px;width:800px;height:124px;--i:2",
+       # 2026-08-20 仲裁 P0：「用户以为在跟真人说话」是对 96.5% 的过度解读 ——
        # 数据本身是「没有出现用户明确识别 AI 的信号」，是「未被识破」而不是「以为是真人」。
-       '<div class="stat"><div class="v" style="font-size:88px;color:var(--l-agent)">96.5%</div>'
-       '<div class="l">通话未出现用户明确识别 AI 的信号</div></div>'),
-    figbox(120, 400, 800, 1000, 300, _p5fun, i=2),
-    sh("flow", "left:120px;top:660px;width:800px;height:44px;font:400 20px/1.4 var(--f-cn);color:var(--ink-2);--i:4",
-       "仅 3.5%（86 通）被用户明显感知为 AI。"),
-    # 区 02 · CONVERSION（右半上）· 右列起点统一到 x980（P2/P4/P6/P8 同栏位），宽 820 → 右缘仍是 1800
+       '<div class="stat"><div class="v" style="font-size:84px;color:var(--l-agent)">96.5%</div>'
+       '<div class="l" style="font-size:19px">通话未出现用户明确识别 AI 的信号</div></div>'),
+    sh("", "left:114px;top:264px;width:270px;height:106px;pointer-events:none",
+       halo_div("position:absolute;inset:0", col=LA, sc="1.08", op=".24", dur="3.2s", radius="16px")),
+    figbox(120, 404, 800, 1000, 300, _p5fun, i=3),
+    sh("flow", "left:120px;top:660px;width:800px;height:44px;font:400 20px/1.4 var(--f-cn);"
+       "color:var(--ink-2);--i:4", "仅 3.5%（86 通）被用户明显感知为 AI。"),
+    # 深链入口：跳引擎 deck 的 Call Agent 章（#16）。放在左列底、收口线之上。
+    sh("flow mono-sm", "left:120px;top:744px;width:800px;height:20px;--i:5",
+       "DEEP DIVE · 引擎 deck 第 16 章 · CALL AGENT"),
+    sh("rise", "left:120px;top:772px;width:800px;height:50px;--i:5",
+       '<span class="chip chip-expand ag" id="agentExpand" role="button" tabindex="0" '
+       'data-eng-hash="16">⤢ Call Agent 详解 · ⏎</span>'),
+    # 区 02 · CONVERSION（右半上）· 右列起点统一到 x980
     lab(980, 236, "02 · CONVERSION"),
     figbox(980, 268, 820, 840, 200, _p5conv, i=2),
-    # 区 03 · FIVE（右半下）
-    lab(980, 496, "03 · FIVE · 企业级智能体必须做的 5 件事"),
-    sh("", "left:980px;top:528px;width:820px;height:300px",
-       '<div class="rows">' + "".join(
-           '<div class="r flow%s" style="--i:%d;padding:15px 0">'
-           '<span class="n" style="color:var(--%s);font-size:22px">%s</span>'
-           '<span class="k" style="width:130px;font-size:22px;color:var(--%s)">%s</span>'
-           '<span class="v" style="font-size:19px">%s</span></div>'
-           % (" hot" if _hot else "", 2 + _i, "coral" if _hot else "l-agent", _no,
-              "coral" if _hot else "l-agent", _n, _v)
-           for _i, (_no, _n, _v, _hot) in enumerate(_FIVE)) + '</div>'),
+    # 区 03 · FIVE（右半下 · 骨架图）
+    lab(980, 482, "03 · FIVE · 企业级智能体必须做的 5 件事"),
+    figbox(980, 514, 820, 840, 330, _p5five(), i=3),
     rule(850),
-    # 区 04 · CAPABILITIES（12 项 6×2）· step1
-    #   2026-08-20：P5 加一步 build —— 先把 96.5% / 2.05× / 五件事这三块主证据讲透，
-    #   再一步推出 12 项能力这层次级证据（它是清单，不是论点）。
-    lab(120, 866, "04 · CAPABILITIES · 企业级智能体 12 项能力", step=1),
-    sh("rise", "left:120px;top:890px;width:1680px;height:94px;--i:3",
+    # 区 04 · CAPABILITIES（12 项 6×2 · step1）——先把三块主证据讲透，再推次级证据清单
+    lab(120, 872, "04 · CAPABILITIES · 企业级智能体 12 项能力", step=1),
+    sh("rise", "left:120px;top:896px;width:1680px;height:88px;--i:3",
        '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px">'
        + "".join('<div class="cap%s">%s</div>' % (" on" if _i == 9 else "", _t)
                  for _i, _t in enumerate(_G12)) + '</div>', step=1),
-    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
-       '<div class="land">不再是「AI 能否替代人工」——是「人工能否追上 AI」。</div>'),
+    land("不再是「AI 能否替代人工」——是「人工能否追上 AI」。"),
 ]), steps=1)
 
-# ═══ P6 · PhysicalAI ·「让对话走出屏幕」（l-phys 紫）══════════════════════
-#   01 R1 KIT 双形态 / 02 LIFELIKE 活人感三态 / 03 ROBOTICS 1 三数字
+# ═══ P6 · PhysicalAI ·「让对话，走出屏幕」════════════════════════════════
+#   01 R1 KIT 双形态（**带实拍图**，跨 deck 引用 robot26 原片，不复制文件）/
+#   02 LIFELIKE 活人感三态 / 03 ROBOTICS 1 三数字
+#   hot 件 = 实拍图组（两枚图窗各一圈光晕，同相 —— 一个 hot 概念）。
+#   深链 chip → 抽屉跳引擎 #19（R1 开发套件页）。
+#   ⚠ 图窗几何账见 DECK_CSS 的 .r1-shot 段：280×300 让 cover 由高定标，原片 750 行全在窗内。
 _R1KIT = [
     ("R1 · WI-FI · 2025.03.20 发布", "R1-WiFi",
      "面向家居与室内场景——音箱、桌宠、陪伴机器人。",
-     "· 连接　Wi-Fi　　· 场景　家居 / 室内　　· 形态　音箱 · 桌宠 · 陪伴机器人"),
+     "· 连接　Wi-Fi　　· 场景　家居 / 室内　　· 形态　音箱 · 桌宠 · 陪伴机器人",
+     "r1-wifi.webp"),
     ("R1 · 4G · 2025.09.26 发布", "R1-4G",
      "走出 Wi-Fi 覆盖——户外、随身、车载与出海设备。",
-     "· 连接　4G 全移动　　· 场景　户外 / 随身 / 车载　　· 形态　出海设备 · 随身伴侣"),
+     "· 连接　4G 全移动　　· 场景　户外 / 随身 / 车载　　· 形态　出海设备 · 随身伴侣",
+     "r1-4g.webp"),
 ]
 _FACES = [
-    ("",     "TOO DRY",    "太木", "正确，但没有关系温度。用户不想再开口。"),
+    ("",      "TOO DRY",    "太木", "正确，但没有关系温度。用户不想再开口。"),
     (" good", "JUST RIGHT", "恰好", "自然、可持续相处。下次还想跟它说话。"),
-    ("",     "TOO CLINGY", "太腻", "伪装成朋友的销售感。三句之后想拔电源。"),
+    ("",      "TOO CLINGY", "太腻", "伪装成朋友的销售感。三句之后想拔电源。"),
 ]
 _ROB = [
     ("200+",   "",                        "全球节点 · SD-RTN 软件定义实时网"),
@@ -716,55 +1157,67 @@ _ROB = [
     ("30000+", "",                        "芯片与整机适配 · 你的形态大概率已支持"),
 ]
 page("content", "".join([
-    sh("flow kk ph", "left:120px;top:92px;width:1680px;height:28px", "PHYSICAL AI · 对话式 AI 开发套件 · GLOBAL FIRST"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px",
-       '让对话，<strong class="ph">走出屏幕</strong>。'),
-    # 区 01 · R1 KIT（左半）
+    head("PHYSICAL AI · 对话式 AI 开发套件 · GLOBAL FIRST",
+         '让对话，<strong class="ph">走出屏幕</strong>。', kk="kk ph"),
     lab(120, 236, "01 · R1 KIT"),
     ] + [
-    sh("rise card-c", "left:120px;top:%dpx;width:800px;height:176px;--i:%d" % (266 + _i * 192, 2 + _i),
-       '<div style="padding:22px 30px">'
+    sh("rise card-c r1-card", "left:%dpx;top:268px;width:820px;height:300px;--i:%d" % (120 + _i * 860, 2 + _i),
+       '<div class="r1-shot"><img src="%s%s" alt="声网 R1 开发套件 · %s 实拍">%s</div>'
+       '<div class="r1-body"><div class="r1-main">'
        '<div class="mono-sm" style="color:var(--l-phys)">%s</div>'
-       '<h3 style="margin:12px 0 8px;font:700 34px/1.2 var(--f-cn);color:var(--ink)">%s</h3>'
-       '<div style="font:400 18px/1.5 var(--f-cn);color:var(--ink-2)">%s</div>'
-       '<div style="margin-top:12px;font:500 13px/1 var(--f-mono);letter-spacing:.06em;color:var(--ink-3)">%s</div>'
-       '</div>' % (_tag, _nm, _p, _spec))
-    for _i, (_tag, _nm, _p, _spec) in enumerate(_R1KIT)
+       '<h3 style="margin:10px 0 0;font:700 34px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
+       '<div style="margin-top:14px;font:400 18px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
+       '</div><div class="r1-cap"><span class="cap">%s</span></div></div>'
+       % (R26, _img, _nm,
+          halo_div("left:14px;top:14px;right:14px;bottom:14px", col=LP, sc="1.05", op=".34",
+                   dur="3.6s", delay="%.1fs" % (-0.9 * _i), radius="6px", bw="2px"),
+          _tag, _nm, _p, _spec))
+    for _i, (_tag, _nm, _p, _spec, _img) in enumerate(_R1KIT)
     ] + [
-    sh("flow", "left:120px;top:652px;width:800px;height:44px;font:500 22px/1.4 var(--f-cn);color:var(--l-phys);--i:4",
-       "全球率先发布的对话式 AI 硬件开发套件。"),
-    # 区 02 · LIFELIKE（右半）
-    lab(980, 236, "02 · LIFELIKE · 「活人感」三态"),
+    sh("flow", "left:120px;top:584px;width:900px;height:44px;font:500 22px/1.4 var(--f-cn);"
+       "color:var(--l-phys);--i:4", "全球率先发布的对话式 AI 硬件开发套件。"),
+    # 深链入口：跳引擎 deck 的 R1 页（#19）
+    sh("rise", "left:1280px;top:576px;width:520px;height:50px;text-align:right;--i:5",
+       '<span class="chip chip-expand ph" id="physExpand" role="button" tabindex="0" '
+       'data-eng-hash="19" style="margin-right:0">⤢ R1 开发套件详解 · ⏎</span>'),
+    rule(650),
+    # 区 02 · LIFELIKE（左 2/3）
+    lab(120, 672, "02 · LIFELIKE · 「活人感」三态", w=1080),
     ] + [
-    sh("rise card-c face%s" % _cls, "left:%dpx;top:266px;width:260px;height:236px;--i:%d" % (980 + _i * 280, 2 + _i),
+    sh("rise card-c face%s" % _cls, "left:%dpx;top:704px;width:346px;height:140px;--i:%d" % (120 + _i * 366, 2 + _i),
        '<div class="en">%s</div><h3>%s</h3><p>%s</p>' % (_en, _cn, _d))
     for _i, (_cls, _en, _cn, _d) in enumerate(_FACES)
     ] + [
-    sh("flow", "left:980px;top:520px;width:820px;height:60px;--i:5",
+    # 区 03 · ROBOTICS 1（右 1/3 · 三数字竖排）
+    lab(1240, 672, "03 · ROBOTICS 1 · 机器人的临场引擎", w=560),
+    ] + [
+    sh("flow", "left:1240px;top:%dpx;width:560px;height:46px;--i:%d" % (704 + _i * 46, 2 + _i),
+       '<div style="display:flex;align-items:baseline;gap:16px">'
+       '<div style="flex:none;width:160px;font:900 34px/1.2 var(--f-en);%s'
+       'letter-spacing:-.02em;color:var(--l-phys)">%s</div>'
+       '<div style="flex:1;font:400 14px/1.4 var(--f-cn);color:var(--ink-2)">%s</div></div>'
+       % (_ff, _v, _l))
+    for _i, (_v, _ff, _l) in enumerate(_ROB)
+    ] + [
+    rule(850),
+    sh("flow", "left:120px;top:886px;width:1080px;height:60px;--i:6",
        '<div class="note">活人感 = <strong style="color:var(--l-phys)">角色立得住 + 临场撑得住</strong>。</div>'),
-    rule(706),
-    # 区 03 · ROBOTICS 1（全宽三数字；.v 落在 y776–842，正好躲开背景板 y848 的 accent 细线）
-    lab(120, 728, "03 · ROBOTICS 1 · 机器人的临场引擎"),
-    sh("", "left:120px;top:776px;width:1680px;height:140px",
-       '<div class="g3">' + "".join(
-           '<div class="stat flow" style="--i:%d">'
-           '<div class="v" style="font-size:72px;%scolor:var(--l-phys)">%s</div>'
-           '<div class="l">%s</div></div>' % (2 + _i, _ff, _v, _l)
-           for _i, (_v, _ff, _l) in enumerate(_ROB)) + '</div>'),
-    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:5",
-       '<div class="land">你做产品与角色，我们做<strong style="color:var(--l-phys)">临场与连接</strong>。</div>'),
+    land("你做产品与角色，我们做<strong style='color:var(--l-phys)'>临场与连接</strong>。"),
 ]))
 
-# ═══ P7 · 案例 ·「已经上岗的对话式 AI」（accent）═══════════════════════════
-#   左 01 ECOSYSTEM 五层实时智能生态（双源全景底图 + DOM 五层叠标）
-#   右 02 CASES 案例墙 v2（3 张精选大卡 + 11 张证据小卡 = 14 例）
-# ── 视觉升级 R1（GPT 5.6 · 合入 2026-08-13）─────────────────────────────────
-#   2026-08-12 把 eco-2026.webp 换成原生 SVG，是因为那张 4K 全景压进 980px 后小字全糊、
-#   而且白底在暗主题里是块外来物。R1 把位图请回来，但三条病根都治了：
-#     ① 浅/深同构双源，走 .hero-art 的同一套 CSS 主题切换；
-#     ② 图只做远景底纹，L4–L0 的字全部是 DOM（.eco-layer），字号可控；
-#     ③ 半透明卡背 + backdrop-blur 保证两主题下标签都压得住底图。
-#   完整 4K 全景仍在 /convoai 第 23 页，脚注指路（裁定 #3 合并两版为一行）。
+# ═══ P7 · 案例 ·「对话式 AI，已经上岗」════════════════════════════════════
+#   左 01 ECOSYSTEM 五层实时智能生态（polish-v4 主视觉 + DOM 五层叠标）
+#   右 02 CASES 案例墙 v2（3 张精选大卡 + 11 张证据小卡 = 14 例）· step1
+#
+#   ── 2026-08-21 v2 重建纪律（Colin 与 GPT 仲裁定稿的东西不许再动）────────────
+#     · eco 五层主视觉与层结构**原样保留**：不加卡片、不加 blur、不加遮罩；
+#       浅色对比滤镜（contrast 1.14 / saturate 1.06）原样迁移。
+#     · 只做两件加法：家族容器化（seclab / rule / land 纪律已在）+ 轻动效 ——
+#       四条层间细虚线域分带走 .mo-drift，声网所在层（L2 · Agent 运行时）挂 hot 标记。
+#       动效层是一张**独立的绝对定位 SVG**（.eco-mo），一个字都不画、也不碰底图与叠标。
+#     · 案例墙**不上动效**：14 张缩略图 + 客户名是文字件，文字件不动。
+#     · 客户名逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）：
+#       集贤科技 / luwu / 商汤 / 智谱清言 / HeyCyan / 莲偶科技 —— qa 有硬编码名单闸。
 _ECO = [
     ("l4", "L4", "入口与设备",   "通用助手 · 工作入口 · 可穿戴 · 机器人"),
     ("l3", "L3", "应用与结果",   "CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译"),
@@ -772,15 +1225,25 @@ _ECO = [
     ("l1", "L1", "模型与感知",   "声网 Agora · 感知与 VAD"),
     ("l0", "L0", "实时基础设施", "声网 Agora · SD-RTN"),
 ]
+# 层间域分带的 y（= 相邻两层的中线；层高 64、层顶 50/157/264/361/449）
+_ECO_SEP = [(136, "4.6s"), (243, "5.2s"), (345, "4.9s"), (437, "5.6s")]
+_ECO_MO = (
+    '<svg class="eco-mo" viewBox="0 0 980 552" aria-hidden="true">'
+    + "".join('<path class="mo-drift" style="--mo-off:-130;--mo-dur:%s" d="M24 %d H956" '
+              'stroke="var(--hair-strong)" stroke-width="1" fill="none" opacity=".22" '
+              'stroke-dasharray="3 10"/>' % (dur, y) for y, dur in _ECO_SEP)
+    # hot 标记：声网所在的 L2（Agent 运行时）—— 左侧留白里的一枚 accent 竖标 + 光晕
+    + '<rect class="mo-halo" style="--mo-sc:2.1;--mo-op:.5;--mo-dur:3.4s" x="5" y="277" '
+      'width="12" height="38" rx="6" fill="none" stroke="var(--accent)" stroke-width="2" opacity="0"/>'
+      '<rect x="8" y="280" width="6" height="32" rx="3" fill="var(--accent)"/>'
+    + '</svg>')
 _p7eco = ('<img class="eco-art lt" src="%(A)sinfo-v2/ecosystem-stack-v4-light.webp" alt="">'
           '<img class="eco-art dk" src="%(A)sinfo-v2/ecosystem-stack-v4-dark.webp" alt="">'
-          '<div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div>' % {"A": A}
+          % {"A": A}
+          + _ECO_MO
+          + '<div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div>'
           + "".join('<div class="eco-layer %s"><span class="eco-code">%s</span>'
                     '<b>%s</b><small>%s</small></div>' % _l for _l in _ECO))
-
-# ── 裁定 #2 · 客户名逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）──
-#   升级版写错四处，此处修正：极限→集贤科技 / LUWUU→luwu / SenseTime→商汤 /
-#   智谱→智谱清言 / Heycyan→HeyCyan / 联欧→莲偶科技。案例事实与数量（14）不变。
 _FEATURE = [
     ("jixian",   "集贤科技",   "AI 玩具"),
     ("robopoet", "Robopoet",   "AI 陪伴机器人"),
@@ -805,29 +1268,36 @@ _p7wall = (
               '<span>%s</span></div>' % (A, _f, _n, _n) for _f, _n in _MINI)
     + '</div></div>')
 
-_p7 = [
-    sh("flow kk nt", "left:120px;top:92px;width:1680px;height:28px", "案例 · 已经上岗的对话式 AI · IN PRODUCTION"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "对话式 AI，<strong>已经上岗</strong>。"),
-    # 区 01 · ECOSYSTEM（左列 · 全景底图 + 五层 DOM 叠标；顶 292 / 底 844 与我版逐像素同）
+page("content", "".join([
+    head("案例 · 已经上岗的对话式 AI · IN PRODUCTION",
+         "对话式 AI，<strong>已经上岗</strong>。", kk="kk nt"),
+    # 区 01 · ECOSYSTEM（左列 · 主视觉 + 五层 DOM 叠标；顶 292 / 底 844）
     lab(120, 236, "01 · ECOSYSTEM · 五层价值地壳，我们在哪", w=980),
     sh("flow eco-visual", "left:120px;top:292px;width:980px;height:552px;--i:1", _p7eco),
     sh("pop callout-chip", "left:120px;top:872px;width:auto;height:auto;--i:4",
        "L0 连接 · L1 感知 · L2 运行时——<b>三层都有声网</b>"),
-    # 2026-08-20 仲裁 P1：脚注里那条指向拜访版 P23 的内部指针 —— 客户看不到那份 deck，
-    # 写在对外页上只会让人问「P23 在哪」。去掉指针，只留这一层的落点句。
     sh("flow mono-sm", "left:120px;top:953px;width:980px;height:24px;--i:5",
        "从 SD‑RTN 到设备，每一层都由声网托住 · 事实截止 2026.08"),
     # 区 02 · CASES（右列 · 案例墙 v2；顶 236 与左列 seclab 齐，底 977 与左列脚注底齐）· step1
-    #   2026-08-20：P7 加一步 build —— 先讲清「五层价值地壳，我们在哪」，
-    #   再一步把 14 个已公开案例整墙推上来（先讲结构，再上证据）。
+    #   先讲清「五层价值地壳，我们在哪」，再一步把 14 个已公开案例整墙推上来。
     sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall, step=1),
-    sh("flow", "left:120px;top:988px;width:1680px;height:70px;--i:6",
-       '<div class="land">声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div>'),
-]
-page("content", "".join(_p7), steps=1)
+    land("声网官方联合案例 · 均已公开——你的场景，多半能对上号。"),
+]), steps=1)
 
-# ═══ P8 · 合流 ·「为什么是声网 · 怎么开始」（accent）═══════════════════════
-#   01 ONE NET 一张网 / 02 NEUTRALITY 中立三条 / 03 START 三步 / 底 land + credit
+# ═══ P8 · 合流 ·「三条支流，一条河」（本 deck 标杆动效页）════════════════
+#   左：合流大图 —— 三色支流从左侧三源头以贝塞尔曲线汇入 ONE NET 主河道。
+#   右：02 NEUTRALITY 三不 / 03 START 三步 / 收口句 / CTA / 收尾金句。
+#   hot 件 = 合流点 + ONE NET 主河道（accent 描边 + 光晕 + 合流点脉冲）。
+#
+#   ── 相位账（「同速同相接力」不是感觉，是算出来的）─────────────────────────
+#   全图统一速度 v = 100 单位/秒。主河道包距 Qm = 90（dur .9s）；支流包距 Qt = 270（dur 2.7s）。
+#   支流 i 的负 delay：del_i = ((i×0.9 − L_i/100) mod 2.7) − 2.7，L_i = 该支流贝塞尔的**采样弧长**。
+#   推导：dasharray「seg (Q−seg)」+ dashoffset 走满一个 Q ⇒ 包在路径上的位置
+#     p(t) = Q·((t−del)/T mod 1) + kQ；令 p = L_i 解出到达汇合点的时刻 t ≡ del_i + L_i/100 (mod 2.7)。
+#   要它落在主河道包经过 x=440 的时刻栅格 {t ≡ 0 mod 0.9} 上、且三条支流各占一格（0 / .9 / 1.8），
+#   反解即得上式。⇒ 汇合点上不会三包叠影，也不会瞬移，读起来就是「三条流轮流接力进主河道」。
+#   ⚠ 改任何一条曲线的控制点、或改 Qm / Qt / v，这三条 delay 必须重算（builder 会自动算，
+#     但别把 L_i 写成常量）。
 _NEU = [
     ("01", "不做 C 端 App",   "不和你的产品竞争用户——你的用户永远是你的。"),
     ("02", "不做自有硬件品牌", "R1 是开发套件，不是消费品——我们停在你需要的那一层。"),
@@ -840,72 +1310,138 @@ _STEP = [
     ("STEP 3 · 一个季度", "规模化上线",
      "SLA、全球部署、多供应商兜底<br>（典型节奏，视场景与合规而定）"),
 ]
-_ARROW = ('<div class="fig"><svg viewBox="0 0 20 36" style="width:100%;height:auto">'
-          '<path class="dw" style="--len:22" d="M10 2 V24" stroke="var(--hair-strong)" stroke-width="1.5" fill="none"/>'
-          '<polygon class="fill-ink" points="4,24 16,24 10,34"/></svg></div>')
+_ARROW = ('<div class="fig"><svg viewBox="0 0 20 28" style="width:100%;height:auto">'
+          '<path class="dw" style="--len:16" d="M10 2 V18" stroke="var(--hair-strong)" '
+          'stroke-width="1.5" fill="none"/>'
+          '<polygon class="fill-ink" points="4,18 16,18 10,26"/></svg></div>')
+_TRIB = [
+    # (源头 y, 色, 支流标注 = ONE NET 那一行的原句逐字拆到各自的支流上)
+    ( 90, LE, "Engine 的每一次打断"),
+    (290, LA, "Agent 的每一次交付"),
+    (490, LP, "Physical AI 的每一次唤醒"),
+]
+_P8_CX, _P8_CY = 440, 300          # 合流点
+_P8_QM, _P8_TM = 90, 0.9           # 主河道包距 / 周期
+_P8_QT, _P8_TT = 270, 2.7          # 支流包距 / 周期
+
+
+def _p8trib_d(k, y):
+    """三条支流的贝塞尔：控制点让曲线在源头端水平出发、在汇合点端水平进入（河口不折角）。"""
+    c1 = 240 if k != 1 else 230
+    return "M30 %d C %d %d, 300 %d, %d %d" % (y, c1, y, _P8_CY, _P8_CX, _P8_CY)
+
+
+def _p8fig():
+    o = []
+    # ── 细虚线域分带：左「三条产品线」／右「一张实时网」──
+    o.append(dline("M418 48 V520", HS, 1, 0, dash="3 9",
+                   cls="mo-drift", sty="--mo-off:-24;--mo-dur:4.4s"))
+    o.append(txt(210, 36, "三条产品线", "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
+    o.append(txt(620, 36, "一张实时网", "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
+    # ── 主河道（hot）：低透明 accent 底 + accent 描边 + 光晕 ──
+    o.append(halo_rect(440, 274, 350, 52, 26, sc="1.05", op=".30", dur="3.6s"))
+    o.append('<rect class="pop" style="--i:5;fill:%s;opacity:.12" x="440" y="274" width="350" '
+             'height="52" rx="26"/>' % AC)
+    o.append(box(440, 274, 350, 52, 26, hot=True, i=5))
+    # ── 三条支流：实线三色 + 能量包（相位按弧长算，见页头推导）──
+    for k, (y, col, label) in enumerate(_TRIB):
+        d = _p8trib_d(k, y)
+        ln = path_len(d)
+        delay = ((k * _P8_TM - ln / 100.0) % _P8_TT) - _P8_TT
+        o.append(packet(d, _P8_QT, "%.2fs" % _P8_TT, delay="%.3fs" % delay, col=col,
+                        w=13, seg=24, op=".34", i=2 + k))
+        o.append(curve(d, col, 2.5, 2 + k))
+        o.append('<circle class="pop" style="--i:%d;fill:%s" cx="30" cy="%d" r="6"/>' % (2 + k, col, y))
+        o.append(txt(30, y - 16, label, "sm", size=15, col="var(--ink-2)"))
+    # ── 主河道能量包：包距 90 ⇒ 三条支流各占一格，轮流接力（同速 v=100）──
+    o.append(packet("M440 %d H790" % _P8_CY, _P8_QM, "%.1fs" % _P8_TM, delay="0s",
+                    col=AC, w=15, seg=20, op=".38", i=6))
+    o.append(hline(440, 790, _P8_CY, AC, 4, 6))          # 主河道比支流粗一档（图例的 fast 样线跟着 4）
+    o.append(ah_r(802, _P8_CY, AC))
+    # ── 合流点：脉冲事件标（原语 ③）──
+    o.append('<circle class="mo-halo" style="--mo-sc:2.6;--mo-op:.45;--mo-dur:3.0s" cx="%d" cy="%d" '
+             'r="9" fill="none" stroke="%s" stroke-width="2" opacity="0"/>' % (_P8_CX, _P8_CY, AC))
+    o.append('<circle class="pop mo-pulse" style="--i:6;fill:%s;--mo-hi:1;--mo-lo:.45;--mo-dur:2.4s" '
+             'cx="%d" cy="%d" r="9"/>' % (AC, _P8_CX, _P8_CY))
+    o.append(txt(_P8_CX, 262, "合流点", "sm", size=15, anchor="middle", col=AC, mono=True))
+    # ── 主河道题注（河道自己不携带文字）──
+    o.append(txt(450, 360, "ONE NET", "lbl", size=15, col=AC))
+    o.append(txt(450, 392, "SD-RTN 软件定义实时网络", "ttl", size=22, col=AC))
+    o.append(txt(450, 420, "全球 200+ 节点 · 端到端毫秒级", "sm", size=16))
+    # ── 迷你图例（真线样）──
+    o.append(legend(14, 534, [("solid", "Engine", 2.5, LE), ("solid", "Agent", 2.5, LA),
+                              ("solid", "Physical AI", 2.5, LP),
+                              ("fast", "ONE NET 主河道", 4, AC)], gap=40, size=13))
+    return "".join(o)
+
+
 page("content", "".join([
-    sh("flow kk", "left:120px;top:92px;width:1680px;height:28px", "合流 · 为什么是声网 · 怎么开始 · ONE NET"),
-    sh("ink hh", "left:120px;top:148px;width:1680px;height:90px", "三条支流，<strong>一条河</strong>。"),
-    # 区 01 · ONE NET（分区标 y=236 统一栏位）
-    lab(120, 236, "01 · ONE NET"),
-    sh("rise", "left:120px;top:274px;width:1680px;height:44px;font:700 26px/1.5 var(--f-cn);color:var(--ink-2);--i:2",
-       dot("l-eng") + "Engine 的每一次打断　" + dot("l-agent") + "Agent 的每一次交付　"
-       + dot("l-phys") + "Physical AI 的每一次唤醒"),
-    sh("flow", "left:120px;top:330px;width:1680px;height:50px;font:400 24px/1.6 var(--f-cn);color:var(--ink);--i:3",
-       "都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上——全球 200+ 节点，端到端毫秒级。"),
-    rule(404),
-    # 区 02 · NEUTRALITY（左半）
-    lab(120, 426, "02 · NEUTRALITY"),
-    sh("", "left:120px;top:460px;width:840px;height:186px",
+    head("合流 · 为什么是声网 · 怎么开始 · ONE NET", "三条支流，<strong>一条河</strong>。"),
+    # 区 01 · ONE NET（左 · 合流大图）
+    lab(120, 236, "01 · ONE NET · 三条支流汇入一条河"),
+    figbox(120, 272, 820, 820, 560, _p8fig(), i=1),
+    # 区 02 · NEUTRALITY（右上）
+    lab(1000, 236, "02 · NEUTRALITY", w=800),
+    sh("", "left:1000px;top:268px;width:800px;height:186px",
        '<div class="rows">' + "".join(
-           '<div class="r flow" style="--i:%d;padding:16px 0"><span class="n">%s</span>'
-           '<span class="k" style="width:230px;font-size:24px">%s</span>'
-           '<span class="v" style="font-size:18px">%s</span></div>' % (2 + _i, _no, _n, _d)
+           '<div class="r flow" style="--i:%d;padding:14px 0"><span class="n" style="width:50px">%s</span>'
+           '<span class="k" style="width:200px;font-size:23px">%s</span>'
+           '<span class="v" style="font-size:17px">%s</span></div>' % (2 + _i, _no, _n, _d)
            for _i, (_no, _n, _d) in enumerate(_NEU)) + '</div>'),
     # 2026-08-20 仲裁 P0：「OpenAI 选择我们」是不可核实的因果叙述，改为可核实的事实陈述
-    sh("flow", "left:120px;top:676px;width:840px;height:50px;font:500 24px/1.5 var(--f-cn);color:var(--accent);--i:5",
-       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
-    # 区 03 · START（右半 · 三步竖排，箭头连接）
-    lab(980, 426, "03 · START"),
+    sh("flow", "left:1000px;top:468px;width:800px;height:44px;font:500 22px/1.5 var(--f-cn);"
+       "color:var(--accent);--i:5", "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
+    # 区 03 · START（右下 · 三步竖排，箭头连接）
+    lab(1000, 534, "03 · START", w=800),
     ] + [
-    sh("rise card-c", "left:980px;top:%dpx;width:820px;height:76px;--i:%d" % (460 + _i * 120, 2 + _i),
-       '<div style="padding:0 30px;height:100%%;display:flex;align-items:center;gap:24px">'
-       '<div style="font:500 15px/1 var(--f-mono);letter-spacing:.12em;color:var(--accent);width:180px;flex:none">%s</div>'
-       '<div style="font:700 30px/1.2 var(--f-cn);color:var(--ink);width:172px;flex:none">%s</div>'
-       '<div style="font:400 17px/1.4 var(--f-cn);color:var(--ink-2);flex:1">%s</div></div>' % (_t, _n, _d))
+    sh("rise card-c", "left:1000px;top:%dpx;width:800px;height:64px;--i:%d" % (566 + _i * 96, 2 + _i),
+       '<div style="padding:0 26px;height:100%%;display:flex;align-items:center;gap:18px">'
+       # mono 列 172 而不是 150：「STEP 3 · 一个季度」在 150 里会断成两行（实测）
+       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
+       'width:172px;flex:none">%s</div>'
+       '<div style="font:700 26px/1.2 var(--f-cn);color:var(--ink);width:142px;flex:none">%s</div>'
+       '<div style="font:400 16px/1.5 var(--f-cn);color:var(--ink-2);flex:1">%s</div></div>'
+       % (_t, _n, _d))
     for _i, (_t, _n, _d) in enumerate(_STEP)
     ] + [
-    sh("flow", "left:1380px;top:542px;width:20px;height:36px;--i:3", _ARROW),
-    sh("flow", "left:1380px;top:662px;width:20px;height:36px;--i:4", _ARROW),
+    sh("flow", "left:1390px;top:632px;width:20px;height:28px;--i:3", _ARROW),
+    sh("flow", "left:1390px;top:728px;width:20px;height:28px;--i:4", _ARROW),
     rule(850),
-    # 底 · land + credit 同一行：land 左（y988 = 全 deck land 统一基线），credit 右对齐、
-    # 顶 1010 让 mono 文心（1010+10.5）压住 land 文心（988+31.75），两边真齐平。
-    # 原来 land 在 880、credit 在 1004 各占一行 —— land 比其他 7 页高 108px，翻页时那根
-    # accent 竖条会跳，正是 Colin 说的「看起来没对齐」。
-    # CTA 行：三步之下补一条真实入口（纯 mono 文本，不做假链接样式）
-    sh("flow mono-sm", "left:980px;top:800px;width:820px;height:24px;--i:6",
+    # 收口句（合流大图的落点句，逐字）+ CTA（纯 mono 文本，不做假链接样式）
+    sh("flow", "left:120px;top:876px;width:900px;height:52px;font:400 24px/1.6 var(--f-cn);"
+       "color:var(--ink);--i:6",
+       "都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上"
+       "——全球 200+ 节点，端到端毫秒级。"),
+    sh("flow mono-sm", "left:1000px;top:884px;width:800px;height:24px;text-align:right;--i:6",
        "DEMO / 文档 · agora.io › 对话式 AI · 联系团队"),
-    sh("flow", "left:120px;top:988px;width:1060px;height:70px;--i:6",
-       '<div class="land">让陪伴自然，让生意<strong>成单</strong>。</div>'),
-    sh("flow mono-sm", "left:1200px;top:1010px;width:600px;height:24px;text-align:right;--i:7",
-       "姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM"),
+    land("让陪伴自然，让生意<strong>成单</strong>。", w=1060),
+    rail("姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM", x=1200, w=600, align="right"),
 ]))
 
-# ═══ 引擎详解抽屉的行为层（独立 <script>，不碰共享的 deck.js）═════════════════
-#   触发：P4 上按 Enter，或点击 / Enter 聚焦态的 #engineExpand chip
-#   收回：Esc（父窗口或 iframe 内都认）、点 scrim、点 ESC 按钮
+
+# ═══ 引擎详解抽屉 + 深链的行为层（独立 <script>，不碰共享的 deck.js）═══════════
+#   入口三处（chip 点击 与 该页 Enter 同效）：
+#     P4 · #engineExpand → 引擎 #1  （引擎产品详解，全篇）
+#     P5 · #agentExpand  → 引擎 #16 （Call Agent 章）
+#     P6 · #physExpand   → 引擎 #19 （R1 开发套件）
+#   收回：Esc（父窗口或 iframe 内都认）、点 scrim、点 ESC 按钮。
 #   键盘纪律：window 的 capture 阶段拦一层 —— 抽屉开着时除 Esc 外全部吞掉，
-#             免得按键漏进 deck.js 把底下的 deck 翻页（点过 ESC 按钮、焦点
-#             回到父窗口之后，这层是唯一的兜底）。
-#   iframe 懒加载，关闭不清 src：二次展开接着上次的位置，Q&A 现场友好。
+#             免得按键漏进 deck.js 把底下的 deck 翻页。E 键归就地编辑器，不许占用。
+#   深链实现：iframe 未加载 ⇒ 首次 src 直接带 #N（引擎 deck.js 的 constructor 读 hash）；
+#             已加载 ⇒ 改 contentWindow.location.hash（引擎 deck.js 有 hashchange 监听，
+#             实测同源可写），同 hash 不写、避免无事件空转；取不到 contentWindow 时
+#             重设 src 强制带 hash 重载（可接受的降级）。**引擎 deck 零改动。**
+#   归档 srcdoc 模式：无 data-src ⇒ 懒加载守卫静默，深链降级为普通展开。
 ENGINE_DRAWER_JS = """<script>(function(){
 var ov=document.getElementById("engineOverlay"),
-    fr=document.getElementById("engineFrame"),
-    chip=document.getElementById("engineExpand");
-if(!ov||!fr||!chip)return;
+    fr=document.getElementById("engineFrame");
+if(!ov||!fr)return;
+var chips=[].slice.call(document.querySelectorAll(".chip-expand[data-eng-hash]"));
 var scrim=ov.querySelector(".eo-scrim"),btn=ov.querySelector(".eo-close"),loaded=false;
+/* 页 → 引擎章号：P4 全篇 / P5 Call Agent / P6 R1。改页序必须同步改这张表。 */
+var PAGE_HASH={"4":"1","5":"16","6":"19"};
 function isOpen(){return !ov.hidden;}
-/* ── 主题实时联动（2026-08-20）────────────────────────────────────────────
+/* ── 主题实时联动 ────────────────────────────────────────────────────────
    iframe 首帧靠 <head> 里读 localStorage("colin-theme") 自跟随；但抽屉开着时
    宿主再点 deckSwap，iframe 已经加载完、不会二次读 localStorage —— 底下是深色、
    抽屉里还是浅色。这里用 MutationObserver 盯宿主 html[data-theme]，
@@ -932,16 +1468,34 @@ function bindInner(){
   });
 }
 function focusInner(){try{fr.contentWindow.focus();}catch(e){}bindInner();}
+function goHash(h){
+  if(!h)return;
+  var w=null;try{w=fr.contentWindow;}catch(e){}
+  if(w&&w.location){
+    try{
+      if(String(w.location.hash)!=="#"+h)w.location.hash="#"+h;   /* 引擎 deck.js 有 hashchange 监听 */
+      return;
+    }catch(e){}
+  }
+  if(fr.dataset.src){loaded=false;fr.setAttribute("src",fr.dataset.src+"#"+h);}   /* 兜底：带 hash 重载 */
+}
 fr.addEventListener("load",function(){loaded=true;syncTheme();if(isOpen())focusInner();});
-function openDrawer(){
-  if(!fr.getAttribute("src")&&fr.dataset.src)fr.setAttribute("src",fr.dataset.src);   /* 懒加载：首次展开才拉 22 页；归档态用 srcdoc、无 data-src，此守卫防误导航 */
+function openDrawer(h){
+  if(!fr.getAttribute("src")){
+    /* 懒加载：首次展开才拉 22 页，并直接带上目标章号。
+       归档 srcdoc 态无 data-src ⇒ 此处静默（srcdoc 已内联，深链降级为普通展开）。 */
+    if(fr.dataset.src)fr.setAttribute("src",fr.dataset.src+(h?"#"+h:""));
+  }else if(h){goHash(h);}
   ov.hidden=false;
   if(loaded){syncTheme();focusInner();}                 /* 每次展开都以宿主当前主题为准重新对齐 */
 }
 function closeDrawer(){ov.hidden=true;window.focus();}
-chip.addEventListener("click",function(){chip.blur();openDrawer();});
-chip.addEventListener("keydown",function(e){
-  if(e.key==="Enter"||e.key===" "){e.preventDefault();openDrawer();}
+chips.forEach(function(c){
+  var h=c.getAttribute("data-eng-hash");
+  c.addEventListener("click",function(){c.blur();openDrawer(h);});
+  c.addEventListener("keydown",function(e){
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();openDrawer(h);}
+  });
 });
 scrim.addEventListener("click",closeDrawer);
 btn.addEventListener("click",function(){btn.blur();closeDrawer();});   /* 点完就摘焦点，不留 ring */
@@ -954,12 +1508,15 @@ window.addEventListener("keydown",function(e){
   var t=e.target;
   if(t&&t.getAttribute&&t.getAttribute("contenteditable"))return;   /* 就地编辑态不抢 Enter */
   if(t&&t.id==="deckSwap")return;                                   /* 主题按钮的 Enter 归它自己 */
+  if(t&&t.classList&&t.classList.contains("chip-expand"))return;    /* chip 聚焦态的 Enter 归它自己 */
   var cur=document.querySelector(".slide.active");
-  if(!cur||cur.dataset.p!=="4")return;                              /* 只在 P4 认 Enter */
-  e.preventDefault();e.stopImmediatePropagation();openDrawer();
+  var p=cur&&cur.dataset?cur.dataset.p:null;
+  if(!p||!PAGE_HASH[p])return;                                      /* 只在 P4 / P5 / P6 认 Enter */
+  e.preventDefault();e.stopImmediatePropagation();openDrawer(PAGE_HASH[p]);
 },true);
 })();</script>
 """
+
 
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
 def build():
@@ -968,7 +1525,7 @@ def build():
     for i, (board, steps, body, hero) in enumerate(PAGES, 1):
         sig = '<div class="sig">%d/%d</div>' % (i, total)
         hero_html = ""
-        if hero:
+        if hero and HERO_ART:
             name, style = hero
             st = ' style="%s"' % style if style else ""
             # name = 资产 basename（不含 -light/-dark 与扩展名），相对 /decks/assets/convoai/
@@ -984,6 +1541,8 @@ def build():
               '<div class="deck-rail b" aria-hidden="true"></div>')
     doc = (
         '<!DOCTYPE html>\n<html lang="zh-CN"><head>\n'
+        # 主题初始化：**无值时默认浅色**（Colin 拍板：速讲 / 微信转发场景以浅底为准）。
+        # 键名与引擎 deck 同一个 —— 同源 iframe 里引擎自动跟随宿主主题，别改键名。
         '<script>try{if(localStorage.getItem("colin-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>\n'
         '<meta name="robots" content="noindex, nofollow"><meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
@@ -1012,12 +1571,16 @@ def build():
         '<div class="edit-hotzone" aria-hidden="true"></div>\n'
         '<button class="edit-toggle" id="editToggle">EDIT</button>\n'
         '<button class="deck-swap" id="deckSwap">暗底</button>\n'
+        # 2026-08-21 Colin：deckSwap 与引擎 deck 对齐为**常显 chip**（.62 → hover 1）。
+        # 这份 deck 同样会被直接发链接，「默认隐身 · hover 呼出」等于键不存在。
+        # 实底 --card-bg-2 而不是 transparent —— 左下角坐着 content 板的矩阵纹理，
+        # 透明底会让 12px mono 掉进纹理里。只有 @media print 隐藏。
         '<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);'
         'font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);'
-        'border-radius:3px;padding:7px 12px;opacity:0;transition:opacity .3s;background:transparent;cursor:pointer;}'
-        '.deck-swap:hover,.deck-swap:focus-visible{opacity:.9;color:var(--accent);border-color:var(--accent);}'
+        'border-radius:3px;padding:7px 12px;opacity:.62;'
+        'transition:opacity .3s,color .3s,border-color .3s;background:var(--card-bg-2);cursor:pointer;}'
+        '.deck-swap:hover,.deck-swap:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent);}'
         '.deck-swap:focus:not(:focus-visible){outline:none;box-shadow:none;}'
-        '@media (hover:none){.deck-swap{opacity:.4;}}'
         '@media print{.deck-swap{display:none!important;}}</style>\n'
         "<script>" + (SRC / "deck.js").read_text(encoding="utf-8") + "</script>\n"
         '<script>(function(){var b=document.getElementById("deckSwap");'
@@ -1036,11 +1599,30 @@ def build():
         + ENGINE_DRAWER_JS +
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
+
+    # ── 构建期断言（别等到 qa）──────────────────────────────────────────────
     assert total == 8, "页数漂移：%d != 8" % total
+    assert doc.count("<section") == 8, "section 数漂移：%d" % doc.count("<section")
+    assert 'name="robots" content="noindex' in doc, "缺 noindex"
+    boards = {i: b for i, (b, _s, _y, _h) in enumerate(PAGES, 1)}
+    assert {i for i, b in boards.items() if b == "title"} == {1}, \
+        "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y, _h) in enumerate(PAGES, 1) if s}
     assert steps_map == {4: 1, 5: 1, 7: 1}, "分步页漂移：%r" % steps_map
-    print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r"
-          % (total, len(doc) // 1024, steps_map))
+    # 常显容器不许挂 data-step（引擎 P20 空页事故根因：裸容器兜底规则会把它摁成白页）
+    assert 'class="sh vid"' not in doc, "本 deck 无视频页"
+    # 红线反向断言：价格 / staging / 引擎 P16 的盲测口径，一个都不许上页
+    for _bad in ("8,500", "2,999", "5,501", "staging", "盲测", "32,000"):
+        assert _bad not in doc, "红线：全 deck 不许出现「%s」" % _bad
+    # 正向口径断言：本 deck 自己的两个数据集锚点必须在
+    for _must in ("96.5%", "2,475", "近一半", "No.1", "900亿+", "100万+", "50+"):
+        assert _must in doc, "口径丢失：「%s」" % _must
+    # 深链契约：三处入口的 hash 表必须齐
+    for _h in ('data-eng-hash="1"', 'data-eng-hash="16"', 'data-eng-hash="19"'):
+        assert _h in doc, "深链入口缺失：%s" % _h
+    print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · hero-art=%s"
+          % (total, len(doc) // 1024, steps_map, "on" if HERO_ART else "off"))
+
 
 if __name__ == "__main__":
     build()
