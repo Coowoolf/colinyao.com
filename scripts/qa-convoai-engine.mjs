@@ -1,8 +1,8 @@
-// QA · convoai-engine 引擎产品详解（20 页 · CONF 家族 · 双主题 · P6/P7/P16 各 1 步 build）
-// 从 qa-convoai-info.mjs 改：BOARD = {1:title, 19:title, 20:title}，其余 content /
-// 删掉 hero-art（⑤⑨）、eco-art（⑩）、抽屉（⑪）三组断言 —— 引擎 deck 不带位图资产，也不带抽屉。
+// QA · convoai-engine 引擎产品详解（18 页 · CONF 家族 · 双主题 · P6/P7/P15 各 1 步 build）
+// 从 qa-convoai-info.mjs 改：BOARD = {1:title, 18:title}，其余 content /
+// 删掉 hero-art（⑤⑨）、eco-art（⑩）、抽屉（⑪）三组断言 —— 引擎 deck 不带抽屉。
 // 新增：
-//   ⑧ P18 数据修正闸 —— 必须含「100万+」「900亿+」「IDC 中国视频云市场报告」，
+//   ⑧ P17 数据修正闸 —— 必须含「100万+」「900亿+」「IDC 中国视频云市场报告」，
 //      必须不含旧错误口径「93万」「700亿」「覆盖场景 · 20+」「对话式 AI 引擎市场占有率」，
 //      也不许回归未批准的「43.4%」具体份额数字
 //   ⑩ 机理页 + 大图页内容闸：
@@ -13,21 +13,23 @@
 //   ② 分步闸改为逐页比对 data-steps 与页内实际 [data-step] 的最大值（不再要求全 0）
 // 2026-08-20 二轮：VAD 之后插入 P8 产品架构大图，原 P8–P16 全部 +1。
 // 2026-08-21 大内容轮 17 → 20：P10 SAL 重做 / P11 弱网补 AI QoS / P12 多模态聚焦视觉 /
-//   新增 P13 Physical AI · R1、P14 Physical AI 案例墙、P19 OpenAI 合作（title 板）；
-//   原 P13 编排 → P15（箭头语义修）、P14 接入架构 → P16、P15 场景 → P17、
-//   P16 Why Agora → P18（口径锁跟着搬到 data-p=18）、P17 收尾 → P20。
-//   新增内容闸：⑪ P10 三种噪声三层方案 / P11 AI QoS / P13 R1 双形态 / P14 案例名 / P19 OpenAI。
+//   新增 P13 Physical AI · R1、P14 Physical AI 案例墙、P19 OpenAI 合作（title 板）。
+// 2026-08-21 收束轮 20 → 18（本文件当前口径）：删 P14 案例墙、删原 P20 收尾页；
+//   原 P15–P18 各 −1（编排 → P14 / 接入架构 → P15 / 场景 → P16 / Why Agora → P17，
+//   口径锁跟着搬到 data-p=17）；原 P19 OpenAI → P18 并升为末页（logo 锁定版 + 继承 CTA 行）。
+//   随之改动的断言：⑥ P13 两张 R1 实拍图必须真加载；⑦ deckSwap 改常显 chip（不再验隐身）；
+//   ⑫ P18 lt/dk 双 logo 的双主题显隐；删掉 P14 案例名闸与 P20 CTA 闸（CTA 断言搬到 P18）。
 // 用法：node scripts/qa-convoai-engine.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-engine.mjs   （换端口）
 import { chromium } from 'playwright-core';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
-const N = 20;
-// 分步页：P6 实时语音链路 / P7 VAD / P16 接入架构，各一步；其余 0
+const N = 18;
+// 分步页：P6 实时语音链路 / P7 VAD / P15 接入架构，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
-[6, 7, 16].forEach(p => { EXP_STEPS[p - 1] = 1; });
-// title 板三页：P1 封面 / P19 OpenAI 合作（quote 语域，与 P1/P20 同款大字留白）/ P20 收尾
-const BOARD = { 1: 'title', 19: 'title', 20: 'title' };      // 其余一律 content
+[6, 7, 15].forEach(p => { EXP_STEPS[p - 1] = 1; });
+// title 板两页：P1 封面 / P18 OpenAI 合作（末页 · quote 语域 · logo 锁定版）
+const BOARD = { 1: 'title', 18: 'title' };                   // 其余一律 content
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
@@ -118,23 +120,23 @@ shape.forEach(v => {
   if (v.p !== N) ok(v.kk, `⑤ P${v.p} 缺 kicker`);
 });
 
-// ⑧ P18 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
-//    （三轮扩页 17→20 后 Why Agora 从 P16 挪到 P18，四张 KPI 数字一字未动；
+// ⑧ P17 数据修正闸：新口径必须在，旧错误口径必须绝迹（全页维度也扫一遍）
+//    （页号 16 → 18 → 17，四张 KPI 数字一字未动；
 //     43.4% 具体份额未取得公司批准口径，改为定性表述 + 报告名写全）
-const p18 = await pg.evaluate(() => document.querySelector('.slide[data-p="18"]').textContent.replace(/\s+/g, ' '));
+const p17 = await pg.evaluate(() => document.querySelector('.slide[data-p="17"]').textContent.replace(/\s+/g, ' '));
 const all = await pg.evaluate(() => document.getElementById('deckStage').textContent.replace(/\s+/g, ' '));
 ['No.1', '100万+', '900亿+', '50+',
  '市场占有率', '单月支撑通话分钟数', '全球注册应用数',
  'IDC 中国视频云市场报告', '份额超过第 2–8 位厂商总和'].forEach((s) => {
-  ok(p18.includes(s), `⑧ P18 缺「${s}」`);
+  ok(p17.includes(s), `⑧ P17 缺「${s}」`);
 });
 ['93万', '700亿', '覆盖场景 · 20+', '覆盖场景', '对话式 AI 引擎市场占有率', '20+ 行业',
  '43.4%'].forEach(s => {
   ok(!all.includes(s), `⑧ 旧 / 未批准口径回归：「${s}」`);
 });
-ok(p18.includes('SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08'),
-   '⑧ P18 SOURCE 行不符');
-ok(p18.includes('2014 年成立'), '⑧ P18 缺收尾行');
+ok(p17.includes('SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08'),
+   '⑧ P17 SOURCE 行不符');
+ok(p17.includes('2014 年成立'), '⑧ P17 缺收尾行');
 
 // ⑩ 机理页 + 大图页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD / P8 产品架构大图）
 const pageText = async (p) => pg.evaluate((k) =>
@@ -163,13 +165,13 @@ const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
 const p6 = await pageText(6);
 ok(p6.includes('一条深度优化的实时语音链路'), '⑩ P6 标题未改成「实时语音链路」');
 ok(p6.includes('数字人 · 可选'), '⑩ P6 缺「数字人 · 可选」虚线支路');
-// ⑩ P20：收尾页 CTA 行
-const p20 = await pageText(20);
-ok(p20.includes('agora.io › 对话式 AI 引擎'), '⑩ P20 缺 CTA 行');
+// ⑩ P18 末页：从被删的原 P20 收尾页继承来的 CTA 行（真实入口不许随页消失）
+const p18 = await pageText(18);
+ok(p18.includes('agora.io › 对话式 AI 引擎'), '⑩ P18 缺 CTA 行（原 P20 收尾页继承）');
 
-// ⑪ 2026-08-21 大内容轮的六页内容闸（重做三页 + 新增三页）
-const [p10, p12, p13, p14, p15, p19] = await Promise.all(
-  [10, 12, 13, 14, 15, 19].map(pageText));   // p11 上面「⑩ SOURCE 行闸」已取过，复用
+// ⑪ 2026-08-21 两轮（大内容轮 + 收束轮）的内容闸
+const [p10, p12, p13, p14] = await Promise.all(
+  [10, 12, 13, 14].map(pageText));   // p11 / p18 上面已取过，复用
 [// P10 · 三种噪声 · 三层方案（噪声名 + 方案名一个都不能掉，land 是 Colin aiot26 定稿）
  ['稳态', p10, 'P10'], ['瞬态', p10, 'P10'], ['非对话人', p10, 'P10'],
  ['传统降噪', p10, 'P10'], ['AI 降噪', p10, 'P10'], ['SAL', p10, 'P10'],
@@ -188,29 +190,53 @@ const [p10, p12, p13, p14, p15, p19] = await Promise.all(
  ['BK7258', p13, 'P13'], ['UNISOC 8910', p13, 'P13'], ['单芯片一体化', p13, 'P13'],
  ['30000+', p13, 'P13'], ['拿来即用的伙伴感地基', p13, 'P13'],
  ['你做产品与角色', p13, 'P13'],
- // P14 · 案例墙（客户名一字不能错 —— info 裁定 #2）
- ['集贤科技', p14, 'P14'], ['Robopoet', p14, 'P14'], ['luwu', p14, 'P14'],
- ['Pophie', p14, 'P14'], ['LOOKTECH', p14, 'P14'], ['HeyCyan', p14, 'P14'],
- ['LOOKEE', p14, 'P14'], ['你的场景，多半能对上号', p14, 'P14'],
- // P15 · 编排（箭头语义修后，图例必须自证只有两种插入线型 + 一个换装件）
- ['插入 · 指向引擎', p15, 'P15'], ['按需插入', p15, 'P15'], ['可替换 · 换装', p15, 'P15'],
- ['实时调试', p15, 'P15'],
- // P19 · OpenAI 合作（Colin 指令口径：底座 = 对话式 AI 引擎底座；泛化为对话式智能体）
- ['对话式 AI 引擎底座', p19, 'P19'], ['全球最强的 Voice Agent 团队', p19, 'P19'],
- ['对话式智能体', p19, 'P19'], ['全球首批合作伙伴', p19, 'P19'],
- ['A QUIET ENDORSEMENT', p19, 'P19'],
+ // P13 带图重排后新增的两枚角标 / 图注（robot26 #32 原措辞）
+ ['[ R1 WI-FI ]', p13, 'P13'], ['[ R1 4G ]', p13, 'P13'],
+ ['带「灵动眼睛」PCB', p13, 'P13'], ['带 4G 天线 · 一体化', p13, 'P13'],
+ // P14 · 编排（原 P15；箭头语义修后，图例必须自证只有两种插入线型 + 一个换装件）
+ ['插入 · 指向引擎', p14, 'P14'], ['按需插入', p14, 'P14'], ['可替换 · 换装', p14, 'P14'],
+ ['实时调试', p14, 'P14'],
+ // P18 · OpenAI 合作 · 末页（Colin 指令口径：底座 = 对话式 AI 引擎底座；泛化为对话式智能体）
+ ['对话式 AI 引擎底座', p18, 'P18'], ['全球最强的 Voice Agent 团队', p18, 'P18'],
+ ['对话式智能体', p18, 'P18'], ['全球首批合作伙伴', p18, 'P18'],
+ ['A QUIET ENDORSEMENT', p18, 'P18'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑪ ${tag} 缺「${needle}」`));
 // ⑪ 反向闸：Colin 明确点掉的两处措辞不许回流
-ok(!p19.includes('实时通信底座'), '⑪ P19 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
-ok(!p19.includes('消费机器人'), '⑪ P19 出现「消费机器人」—— robot26 原句已按指令泛化为「对话式智能体」');
-ok(!p19.includes('全球首个'), '⑪ P19 出现「全球首个」—— 首批口径已钉死（info 二轮仲裁 P0）');
-// ⑪ P14 不写案例总数：14 是全品类数，本页只是硬件子集
-ok(!/\b14\b/.test(p14.replace(/14\/20/g, '')), '⑪ P14 出现案例总数「14」—— 本页只是硬件子集，不写总数');
+ok(!p18.includes('实时通信底座'), '⑪ P18 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
+ok(!p18.includes('消费机器人'), '⑪ P18 出现「消费机器人」—— robot26 原句已按指令泛化为「对话式智能体」');
+ok(!p18.includes('全球首个'), '⑪ P18 出现「全球首个」—— 首批口径已钉死（info 二轮仲裁 P0）');
+// ⑪ 收束轮删页闸：案例墙（P14）与旧收尾页（P20）的内容一律不许残留在任何一页
+['集贤科技', 'Robopoet', 'luwu', 'Pophie', 'LOOKTECH', 'HeyCyan', 'LOOKEE',
+ '你的场景，多半能对上号', '忘了它是 AI', '把技术藏进体验里'].forEach(nd =>
+  ok(!all.includes(nd), `⑪ 已删页内容回流：「${nd}」`));
 // ⑪ P13 的 R1 日期只有两枚 canon（robot26 #32 / 31p 拜访版 P21 双源一致），
 //    页面上出现的任何 yyyy.mm.dd 都必须落在这两枚里 —— 防止后续改稿写进第三个日期
 const _p13dates = [...new Set(p13.match(/\d{4}\.\d{2}\.\d{2}/g) || [])];
 ok(_p13dates.every(d => d === '2025.03.20' || d === '2025.09.26'),
    `⑪ P13 出现未授权的 R1 日期：${_p13dates.join(' / ')}`);
+// ⑫ P13 两张 R1 实拍图 + P18 双源 logo：跨 deck 引用 robot26 资产，必须真的解出像素
+const media = await pg.evaluate(() => {
+  const one = (sel) => [...document.querySelectorAll(sel)].map(im => ({
+    src: im.getAttribute('src'), w: im.naturalWidth,
+    shown: getComputedStyle(im).display !== 'none',
+  }));
+  return { r1: one('.slide[data-p="13"] .r1-shot img'), lk: one('.slide[data-p="18"] .lock img') };
+});
+ok(media.r1.length === 2, `⑫ P13 实拍图数 ${media.r1.length} != 2`);
+media.r1.forEach((im, i) => {
+  ok(im.w > 0, `⑫ P13 实拍图 ${i + 1} 未解码（${im.src}）`);
+  ok(/\/decks\/assets\/robot26\/r1-(wifi|4g)\.webp$/.test(im.src || ''),
+     `⑫ P13 实拍图 ${i + 1} 路径不是 robot26 跨引用：${im.src}`);
+});
+ok(media.lk.length === 2, `⑫ P18 logo 锁定版应为 lt/dk 双 img，实测 ${media.lk.length}`);
+media.lk.forEach((im, i) => ok(im.w > 0, `⑫ P18 logo ${i + 1} 未解码（${im.src}）`));
+{
+  const lt = media.lk[0], dk = media.lk[1];
+  ok(/openai-agora-light\.png$/.test(lt.src || ''), `⑫ P18 浅色源不符 ${lt.src}`);
+  ok(/openai-agora\.webp$/.test(dk.src || ''), `⑫ P18 深色源不符 ${dk.src}`);
+  ok(THEME === 'dark' ? (!lt.shown && dk.shown) : (lt.shown && !dk.shown),
+     `⑫ P18 logo 双主题显隐反了（theme=${THEME} lt=${lt.shown} dk=${dk.shown}）`);
+}
 
 // ⑦ 主题切换：deckSwap 按钮真实切换（板源跟着翻）
 await pg.evaluate(() => {
@@ -219,10 +245,17 @@ await pg.evaluate(() => {
 });
 const swapVis = await pg.evaluate(() => {
   const b = document.getElementById('deckSwap');
-  return b ? { op: +getComputedStyle(b).opacity, pos: getComputedStyle(b).position } : null;
+  if (!b) return null;
+  const r = b.getBoundingClientRect();
+  return { op: +getComputedStyle(b).opacity, pos: getComputedStyle(b).position,
+           w: Math.round(r.width), h: Math.round(r.height) };
 });
 ok(swapVis && swapVis.pos === 'fixed', '⑦ deckSwap 缺失或非 fixed');
-ok(swapVis && swapVis.op < 0.05, `⑦ deckSwap 默认应隐身，实测 opacity=${swapVis && swapVis.op}`);
+// 2026-08-21 Colin：「没有浅色切换的键」。本 deck 是对外发链接的产品文档，
+// 主题键必须默认可见（家族可见档 .5–.7），不再是 info 那套 hover 才呼出的隐身件。
+ok(swapVis && swapVis.op >= 0.5 && swapVis.op <= 0.75,
+   `⑦ deckSwap 应为常显 chip（opacity .5–.75），实测 ${swapVis && swapVis.op}`);
+ok(swapVis && swapVis.w > 0 && swapVis.h > 0, '⑦ deckSwap 尺寸为 0');
 await pg.click('#deckSwap');
 await pg.waitForTimeout(400);
 const sw = await pg.evaluate(() => {
@@ -251,7 +284,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P16 各 1 步 · P18 口径已锁 · P8 大图闸 + 大内容轮六页闸通过`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P15 各 1 步 · P17 口径已锁 · P8 大图闸 · P13 实拍图 + P18 双源 logo 闸 · deckSwap 常显`);
 await b.close();
 /* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
 {

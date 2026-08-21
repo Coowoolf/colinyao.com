@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
-# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》20 页
+# build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 产品介绍》18 页
 # CONF 家族 · conf-light 默认 · 单文件双主题 —— 以 build-convoai-info.py 为母版克隆
 #   （同一套 DECK_CSS token / conf-light·dark 背景板 / deck.js 运行时 / noindex / 双主题）
 #
@@ -11,32 +11,40 @@
 #   全部复用既有家族件（sh/rule/lab/figbox/head/land/rail/box/txt/hline/ah_*/dline/
 #   .g3 .g4 .card .card-c .chip .note .mono-sm .seclab .land .table.mini），未开新体系。
 # 2026-08-20（二轮 · 已仲裁）扩为 17 页：VAD 之后插入「产品架构大图」，
-#   并给 P6 / P7 / P14 各加一步 presenter-controlled build（data-steps + [data-step]）。
+#   并给 P6 / P7 / P14（今 P15 接入架构）各加一步 build（data-steps + [data-step]）。
 # 2026-08-21（大内容轮）扩为 20 页：P10 SAL 重做（三种噪声 · 三层方案 + 双层防御环）／
 #   P11 弱网重做（补 AI QoS 断网续播机理）／P12 多模态改造（聚焦视觉模态）／
 #   新增 P13 Physical AI · R1 开发套件、P14 Physical AI · 已经上岗（案例墙）、
 #   P19 OpenAI 合作（title 板 quote 语域）；原 P13 编排 → P15 并做「箭头语义修」。
+# 2026-08-21（收束轮）收到 18 页 —— 加法轮之后的减法轮，四件事：
+#   ① 删 P14 案例墙：客户 logo 墙是 convoai-info 的活儿（那份 deck 已有同一批案例），
+#      引擎 deck 讲的是引擎怎么工作，一整页缩略图在这条叙事里是插播广告。
+#   ② 删原 P20 收尾页：末页金句与 P1 封面是同一句话的两次说法，两页收尾等于没收尾；
+#      页上唯一不可替代的东西是 CTA 行 —— 它随页删除会掉入口，故继承到新末页页脚。
+#   ③ P13 带实拍图重排（借鉴 robot26 #32 的两张大图卡）。
+#   ④ P19 OpenAI 合作升为 P18 末页：加 OpenAI × Agora logo 锁定版 + 继承来的 CTA 行。
+#   同轮把 deckSwap 主题键从「默认隐身」改成常显 chip（Colin：「没有浅色切换的键」）。
 #
-# 结构（20 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 大内容轮新增 / 重做）：
+# 结构（18 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 新增 / 重做）：
 #   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
 #   P4  全双工工作原理 ★        P5  三件极致        P6  实时语音链路（build ×1）
 #   P7  VAD ★（build ×1）       P8  产品架构大图 ☆  P9  优雅打断
-#   P10 SAL 三噪声三方案 ◆      P11 弱网 · AI QoS ◆ P12 多模态 · 聚焦视觉 ◆
-#   P13 Physical AI · R1 ◆      P14 Physical AI · 案例墙 ◆
-#   P15 开放编排（箭头语义修 ◆）P16 接入架构（build ×1）
-#   P17 典型场景                P18 Why Agora（口径锁）
-#   P19 OpenAI 合作 ◆（title 板）P20 收尾（title 板）
+#   P10 SAL 三噪声三方案 ◆（常驻动效 ◆）P11 弱网 · AI QoS ◆
+#   P12 多模态 · 聚焦视觉 ◆     P13 Physical AI · R1 ◆（带实拍图）
+#   P14 开放编排（箭头语义修 ◆）P15 接入架构（build ×1）
+#   P16 典型场景                P17 Why Agora（口径锁）
+#   P18 OpenAI 合作 ◆（title 板 · 末页 · logo 锁定版 + CTA）
 #
-# ── P15 箭头语义修（2026-08-21 · Colin：「箭头流向会让大家懵逼」）────────────
+# ── P14 箭头语义修（2026-08-21 · Colin：「箭头流向会让大家懵逼」）────────────
 #   旧版同屏三种箭头语义、两种阅读方向：① 槽内 ⇄ 换装小箭头（accent，与主流同色同粗）
 #   ② 左列四条交叉贝塞尔 → 引擎（指右）③ 引擎 → 右列两条贝塞尔（也指右）——
 #   ②③ 视觉方向一致而语义相反（进 / 出），引擎被读成「过路站」而非「插槽机」。
 #   新版：插槽语义只保留一种阅读方向 =「模块插入引擎」，左右两列的连线一律指向引擎，
 #   贝塞尔全部换成正交总线（不交叉）；⇄ 换装只以小号灰件出现在模块块上方；
 #   引擎 → 发布带改为无箭头细连线（它是附属说明，不是第三种流向）。
-#   同屏箭头语义 = 2（插入 / 换装），图例逐条对上。
+#   同屏箭头语义 = 2（插入 / 换装），图例逐条对上。（该页页号 13 → 15 → 14）
 #
-# ── P16 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
+# ── P17 数据口径（Colin 2026-08-18 指错，改为 31p 拜访版 P2 的锁定口径，一字对齐）──
 #   旧（错）：No.1 对话式 AI 引擎市场占有率 / 93万+ / 700亿+ / 200+ 覆盖场景 · 20+ 行业
 #   新（对）：No.1 市场占有率 / 50+ 技术突破 / 100万+ 注册应用 / 900亿+ 单月分钟数
 #            + IDC 43.4% 注 + SOURCE 行
@@ -74,7 +82,7 @@ FONTS = """<style>
 @font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
 </style>"""
 
-# ── 背景板（两张：title 给 P1/P19/P20，content 给其余）───────────────────────
+# ── 背景板（两张：title 给 P1/P18，content 给其余）─────────────────────────
 BOARDS_CSS = """<style id="convoai-boards">
 .conf-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background-repeat:no-repeat;
   background-position:center;background-size:cover;opacity:var(--conf-bg-opacity,.58);}
@@ -142,35 +150,98 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
   font:400 15px/1.35 var(--f-cn);color:var(--ink-3);}
 .nrow .r.hot .k,.nrow .r.hot .n{color:var(--accent);}
 .nrow .r.hot .sol b{color:var(--accent);}
-/* ── 案例卡（P14 Physical AI 案例墙）──────────────────────────────────────
-   样式抄自 build-convoai-info.py 的 .case-feature / .case-mini「成熟版」，
-   只按本页更大的卡面等比放大字号；不引用 info 的 CSS 文件（两份 deck 各自自包含）。
-   info 踩过并已修好的三个坑，这里一并继承：
-     ① components.css 的 `b,strong{color:var(--ink)}`（0,0,1）会命中 caption 里的 b，
-        把客户名染成主题墨色 —— 浅底下等于在深色压幕上隐形 ⇒ 必须写 color:inherit
-     ② 客户名走 DOM 文本 + text-shadow，不靠海报自己烧录的品牌字（缩略后读不出）
-     ③ 小卡降噪滤镜（saturate/brightness 压一档）：11 张彩色缩略图并排会盖过页面主色 */
-.case-feature{position:relative;height:100%;border:1px solid var(--hair);border-radius:16px;
-  overflow:hidden;background:#151727;}
-.case-feature img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 68%;
-  filter:saturate(.86) contrast(1.04);}
-.case-feature:after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,transparent 38%,rgba(10,12,24,.5) 68%,rgba(10,12,24,.93) 100%);}
-.case-feature-caption{position:absolute;left:22px;right:18px;bottom:18px;z-index:1;color:#fff;}
-.case-feature-caption b{display:block;font:700 26px/1.18 var(--f-cn);color:inherit;
-  text-shadow:0 1px 8px rgba(0,0,0,.75);}
-.case-feature-caption span{display:block;margin-top:7px;font:500 14px/1 var(--f-mono);
-  letter-spacing:.12em;color:rgba(255,255,255,.72);}
-.case-mini{position:relative;height:100%;border:1px solid var(--hair);border-radius:12px;
-  overflow:hidden;background:#171928;}
-.case-mini img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 55%;
-  filter:saturate(.58) contrast(1.02) brightness(.82);}
-.case-mini:after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,transparent 34%,rgba(10,12,24,.5) 66%,rgba(10,12,24,.88) 100%);}
-.case-mini span{position:absolute;left:18px;right:14px;bottom:14px;z-index:1;color:#fff;
-  font:700 19px/1.35 var(--f-mono);letter-spacing:.035em;text-shadow:0 1px 6px rgba(0,0,0,.9);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-@media print{.case-feature,.case-mini{box-shadow:none;}}
+/* ── P10 双层防御环 · 常驻环境动效（2026-08-21）─────────────────────────────
+   Colin：「很牛逼但不炫酷，想让它整体动起来」。全部 scoped 到 [data-p="10"]，不外溢。
+   设计纪律（三条，改这块之前先读）：
+   ① 每条 keyframes 的 100% 帧必须等于「静态可读的那一帧」——旋转回 0°、dash 位移整周期、
+      opacity 回到 1、halo 回到 0。遮挡扫描器与 qa 都注入 animation-duration:0s，
+      浏览器会把元素直接钉在 100% 帧上；这一条保证「动效关掉 = 原图逐像素」，
+      几何零漂移，扫描结果与不带动效时一致。（同理 prefers-reduced-motion 的
+      iteration-count:1 也落在 100%。）
+   ② 两道防御环 **不做 transform 旋转**，只让虚线 dash 绕圈爬。原因是硬约束不是审美：
+      两环的左侧缺口是「只有目标人声进得来」这句话的图形依据，几何一转、缺口就甩走了，
+      整页的论证当场失效。改爬 dash 后观感等价（环本就是虚线），语义零损失 ——
+      外环 dash 26s 走完一整圈周长、内环 18s 反向走完一圈，就是「26s / 18s 自转」。
+   ③ 旋转 / 缩放中心一律钉到 viewBox 坐标的场景圆心 (300,196)：带缺口的弧其 fill-box
+      包围盒中心与真圆心差约 3px，用 fill-box 会让环边转边晃。 */
+@keyframes p10Ring{to{stroke-dashoffset:-867;}}      /* 外环 r138 周长 ≈ 867 = dash「9 8」×51 */
+@keyframes p10RingIn{to{stroke-dashoffset:540;}}     /* 内环 r86 周长 ≈ 540 = dash「8 7」×36 · 反向 */
+@keyframes p10Beam{to{stroke-dashoffset:-186;}}      /* 目标人声：能量包沿实线奔向中心 */
+@keyframes p10Noise{to{stroke-dashoffset:-45;}}      /* 干扰点线：dash「2 7」×5，慢漂移 */
+@keyframes p10X{0%,100%{opacity:1;}45%{opacity:.35;}}
+@keyframes p10Agent{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+@keyframes p10Halo{0%{opacity:0;transform:scale(1);}30%{opacity:.4;}100%{opacity:0;transform:scale(1.46);}}
+[data-p="10"] .p10-agent,[data-p="10"] .p10-halo{transform-box:view-box;transform-origin:300px 196px;}
+[data-p="10"] .p10-ring{animation:p10Ring 26s linear infinite;}
+[data-p="10"] .p10-ring.in{animation:p10RingIn 18s linear infinite;}
+[data-p="10"] .p10-beam{animation:p10Beam 1.6s linear infinite;}
+/* 三路干扰各自不同 duration + 负 delay 错峰：同步漂移会读成「一根线」*/
+[data-p="10"] .p10-noise{animation:p10Noise 3.4s linear infinite;}
+[data-p="10"] .p10-noise.n2{animation-duration:4.2s;animation-delay:-1.1s;}
+[data-p="10"] .p10-noise.n3{animation-duration:2.9s;animation-delay:-2s;}
+[data-p="10"] .p10-x{animation:p10X 2.4s ease-in-out infinite;}
+[data-p="10"] .p10-x.x2{animation-delay:-.8s;}
+[data-p="10"] .p10-x.x3{animation-delay:-1.6s;}
+[data-p="10"] .p10-agent{animation:p10Agent 3.2s ease-in-out infinite;}
+[data-p="10"] .p10-halo{animation:p10Halo 3.2s ease-out infinite;}
+/* 纯装饰的两件（能量包 / 呼吸光晕）在静态语域里直接摘掉，别在纸上留一枚谜之光斑 */
+@media print{[data-p="10"] .p10-beam,[data-p="10"] .p10-halo{display:none!important;}}
+@media (prefers-reduced-motion:reduce){
+  [data-p="10"] .p10-beam,[data-p="10"] .p10-halo{display:none!important;}
+  [data-p="10"] .p10-ring,[data-p="10"] .p10-ring.in,[data-p="10"] .p10-noise,
+  [data-p="10"] .p10-x,[data-p="10"] .p10-agent{animation:none!important;}}
+/* ── R1 实拍图卡（P13）─────────────────────────────────────────────────────
+   版式借鉴 robot26 #32 的「两张大图卡」：图在上、规格在下。
+   资产跨 deck 引用 robot26 目录下的 r1-wifi / r1-4g 两张 webp（1000×750 实拍），不复制文件
+   —— bake-archive 的内联正则按资产路径全匹配，跨 deck 引用照吃不误。
+   ⚠ 注释里绝不能写出完整的资产路径字面量：那条正则连 CSS 注释一起扫，
+   会把「r1-*.webp」这种带通配符的示例路径当成真资产去找，报一条 miss。
+   卡宽定 620 而不是 820：620×340 的图窗 ≈ 1.82:1，把 4:3 原片按 cover 裁下来
+   还留得住整块板子（4G 那张的天线是「一体化」这句话的图形证据，裁掉就没证据了）；
+   820 宽同样高度会掉成 2.4:1，天线和板底二选一。 */
+.pp .sh.r1-card{overflow:hidden;}                     /* .pp .sh{overflow:visible} 会让图角戳出 20px 圆角 */
+.r1-card{display:flex;flex-direction:column;}
+.r1-shot{position:relative;flex:none;height:296px;overflow:hidden;background:#0a0c14;
+  border-bottom:1px solid var(--hair);}
+.r1-shot img{width:100%;height:100%;display:block;object-fit:cover;}
+/* 图窗裁切位一卡一值：两张原片构图不同，共用一个 object-position 必掉证据
+   （R1-WiFi 板子居中偏下 → 48%；R1-4G 顶上两根天线要保住 → 30%）*/
+.r1-a .r1-shot img{object-position:center 48%;}
+.r1-b .r1-shot img{object-position:center 30%;}
+/* 两枚角标都压在原片顶部那片空的深色里，绝不盖板子本身 */
+.r1-shot .bdg,.r1-shot .cap{position:absolute;top:16px;z-index:1;border-radius:999px;
+  background:rgba(8,10,20,.62);backdrop-filter:blur(2px);}
+.r1-shot .bdg{left:18px;padding:8px 13px;font:600 12px/1 var(--f-mono);letter-spacing:.16em;
+  color:#fff;border:1px solid rgba(255,255,255,.26);}
+.r1-shot .cap{right:18px;padding:8px 14px;font:500 14px/1 var(--f-cn);color:rgba(255,255,255,.86);}
+/* 正文块 214 高（= 卡 510 − 图窗 296）：mono 21 + h3 56 + 规格 43 + 说明 28 = 148，
+   留 16px 给 margin-top:auto —— 说明行必须和规格行拉开，否则两行贴成一段话。 */
+.r1-body{flex:1;display:flex;flex-direction:column;padding:24px 34px 26px;}
+/* 浅色主题下的「暗媒体卡」惯例：深底实拍图直接压在浅版面上会掉进洞里 ——
+   给一圈发丝内描边把图从纸面上拎起来（实拍不翻色，只压一档饱和度免得抢页面主色）。 */
+html:not([data-theme="dark"]) .r1-shot{box-shadow:inset 0 0 0 1px rgba(17,17,17,.12);}
+html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
+/* 竖排 chip 列（P13 右栏「共同能力」）：.chip 自带 inline-block + 右外边距，
+   竖排时把外边距交给 flex gap，否则最后一枚下面会多出一段空 */
+.chip-col{display:flex;flex-direction:column;align-items:flex-start;gap:22px;}
+.chip-col .chip{margin:0;}
+/* ── OpenAI × Agora logo 锁定版（P18 末页）───────────────────────────────
+   双源同构图，走 convoai-info 的 .hero-art / .eco-art 同一套「CSS 控显隐」机制，
+   不用 robot26 的 data-*-src 换源脚本：抽屉 iframe 里宿主切主题只改 html[data-theme]，
+   CSS 机制天然跟随，脚本机制还得在 iframe 里再跑一遍换源代码。
+   原片 1100×748 四周是大片透明（实测 alpha bbox = x168–929 / y47–527 → 墨迹占宽 69.18%、
+   占高 64.17%）。这里**不**做「盒按墨迹开 + img 放大负偏移裁掉透明边」那一套：
+   放大后 img 的 getBoundingClientRect 会溢出 .sh 盒 168px，而 occlusion-scan 的
+   TEXT-x-SPILL 只读 rect、不读 overflow:hidden ⇒ 稳报一条假命中。
+   改法是 .sh 盒 = 原片整幅，img 原样铺满（零定位、零裁切），墨迹落点由盒位倒推：
+     盒宽 838 ⇒ 墨迹宽 580 · 左边距 128 · 上边距 36（盒 570 高）。改盒宽必须同步重算 left/top。
+   代价是盒底拖一截透明尾巴，在 y 上与下方大字盒重叠 —— 透明就是透明，且 logo 盒在
+   文档序上早于大字盒 ⇒ 字画在图之上，扫描器的画序规则判它可读，不算遮盖。 */
+.lock img{display:block;width:100%;height:auto;}
+.lock img.dk{display:none;}
+html[data-theme="dark"] .lock img.lt{display:none;}
+html[data-theme="dark"] .lock img.dk{display:block;}
+@media print{.r1-shot{box-shadow:none;}}
 /* 编辑热区（deck.js 依赖） */
 .edit-hotzone{position:fixed;top:0;left:0;width:120px;height:80px;z-index:10000;}
 .edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
@@ -250,11 +321,13 @@ def vline(x, y1, y2, col="var(--hair-strong)", w=2, i=1, dash=None):
     return ('<path class="dw" style="--len:%d;--i:%d" d="M%d %d V%d" '
             'stroke="%s" stroke-width="%s" fill="none"%s/>' % (abs(y2 - y1), i, x, y1, y2, col, w, d))
 
-def dline(d, col="var(--hair-strong)", w=2, i=1, dash="7 7"):
+def dline(d, col="var(--hair-strong)", w=2, i=1, dash="7 7", cls=""):
     """虚线：不能走 .dw —— motion.css 的 .dw{stroke-dasharray:var(--len)} 会把 dasharray
-       属性整条压掉，虚线会渲染成实线。这里改挂 .pop（只动 opacity/transform），破折保留。"""
-    return ('<path class="pop" style="--i:%d" d="%s" stroke="%s" stroke-width="%s" '
-            'fill="none" stroke-dasharray="%s"/>' % (i, d, col, w, dash))
+       属性整条压掉，虚线会渲染成实线。这里改挂 .pop（只动 opacity/transform），破折保留。
+       cls：额外类（P10 常驻 dash 漂移用；缺省为空 ⇒ 其余页输出逐字节不变）。"""
+    return ('<path class="pop%s" style="--i:%d" d="%s" stroke="%s" stroke-width="%s" '
+            'fill="none" stroke-dasharray="%s"/>'
+            % ((" " + cls) if cls else "", i, d, col, w, dash))
 
 def box(x, y, w, h, r=4, hot=False, dashed=False, i=0):
     """家族图框：常态走 class="box"（fill card-bg / stroke hair），高亮走 accent 描边"""
@@ -317,7 +390,7 @@ def lg_fast(x, y, col=AD, w=5, i=9):
 _LGK = {"solid": lg_solid, "dash": lg_dash, "dot": lg_dot, "fast": lg_fast}
 
 def step_badge(x, y, n, r=16, i=2):
-    """握手序号徽标（P14）：不透明圆片 + accent 序号，压在连线上、线从徽标底下穿过。
+    """握手序号徽标（P15 接入架构）：不透明圆片 + accent 序号，压在连线上、线从徽标底下穿过。
        fill 必须是 --card-bg-2（#fffffe / #131320）——  --card-bg 是 72% 透明，
        半透明徽标会让连线从数字里透出来，读成「数字被划掉」。"""
     return ('<circle class="pop" style="--i:%d;fill:var(--card-bg-2)" cx="%d" cy="%d" r="%d" '
@@ -328,7 +401,7 @@ def legend(x, y, items, i=9, gap=54):
        kind ∈ solid / dash / dot / fast / fill / swap。
        第三项给线宽：图例样线必须与页内真线同粗，否则「粗一档」在图例里读不出来。
        第四项给颜色：同一线型靠「粗细 + 灰度」分主次时（P12 加重 / 弱化），图例必须跟着降级。
-       fill = 面色块样本（P11 缓存余量）；swap = ⇄ 换装小件（P15）——都不是「线型」，
+       fill = 面色块样本（P11 缓存余量）；swap = ⇄ 换装小件（P14）——都不是「线型」，
        但同屏出现就必须进图例，否则读者要自己猜。
        步进按标签字数估宽（CJK 14px/字），够松，不会互相压。"""
     o, cx = [], x
@@ -351,7 +424,7 @@ def legend(x, y, items, i=9, gap=54):
     return "".join(o)
 
 def swap_mark(x, y, col="var(--ink-3)", i=2, w=34):
-    """⇄ 换装小件（P15）：两支对开的细小箭头，灰度 + 小号 —— 与「插入」主线不同重量级，
+    """⇄ 换装小件（P14 开放编排）：两支对开的细小箭头，灰度 + 小号 —— 与「插入」主线不同重量级，
        一眼读成注记而不是流向。画真箭头，不用字符 ⇄（字体缺字会掉成豆腐块）。"""
     return "".join([
         hline(x, x + w - 8, y - 5, col, 1.3, i), ah_r(x + w, y - 5, col, 5),
@@ -1123,21 +1196,23 @@ _NOISES = [
 ]
 _SCX, _SCY = 300, 196                # 场景中心（左移一档：给右侧三束点线让出可读长度）
 _SR2, _SR1, _SAG = 138, 86, 54       # 外环（降噪层）/ 内环（SAL 声纹层）/ 智能体
-def _ring(r, gap, i, col, dash):
-    """左侧留缺口的防御环：缺口正对目标人声波束，所以「只有它能进来」是画出来的，不是说出来的"""
+def _ring(r, gap, i, col, dash, cls=""):
+    """左侧留缺口的防御环：缺口正对目标人声波束，所以「只有它能进来」是画出来的，不是说出来的。
+       cls：常驻 dash 爬行类（.p10-ring / .p10-ring.in）—— 环的几何绝不能转，缺口一转就废。"""
     import math
     dx = math.sqrt(r * r - gap * gap)
-    return ('<path class="pop" style="--i:%d" d="M%.1f %d A %d %d 0 1 1 %.1f %d" fill="none" '
+    return ('<path class="pop%s" style="--i:%d" d="M%.1f %d A %d %d 0 1 1 %.1f %d" fill="none" '
             'stroke="%s" stroke-width="2.4" stroke-dasharray="%s"/>'
-            % (i, _SCX - dx, _SCY - gap, r, r, _SCX - dx, _SCY + gap, col, dash))
+            % ((" " + cls) if cls else "", i, _SCX - dx, _SCY - gap, r, r,
+               _SCX - dx, _SCY + gap, col, dash))
 def _sal_fig():
     import math
     o = []
     # ── 双层防御环 ──
     # 缺口开到 ±40 / ±34：一来目标人声的波束进得来，二来「声纹锁定 · 只留目标人声」
     # 这行标注要落在缺口里，缺口小于文字高度时弧线会从字上划过去（= 划掉的观感）。
-    o.append(_ring(_SR2, 40, 3, HS, "9 8"))
-    o.append(_ring(_SR1, 34, 3, AC, "8 7"))
+    o.append(_ring(_SR2, 40, 3, HS, "9 8", cls="p10-ring"))
+    o.append(_ring(_SR1, 34, 3, AC, "8 7", cls="p10-ring in"))
     o.append(txt(_SCX, 26, "降噪层 · 传统 + AI 降噪", "sm", size=15, anchor="middle",
                  col="var(--ink-3)", mono=True, ls=".08em"))
     o.append(txt(_SCX, 310, "SAL 声纹层", "sm", size=16, anchor="middle", col=AC,
@@ -1149,16 +1224,26 @@ def _sal_fig():
              'stroke-linecap="round"/>' % (_SCY - 22, _SCY - 4, _SCY + 6, AC))
     o.append(txt(58, 254, "目标人声", "ttl", size=20, anchor="middle", col=AC))
     o.append(txt(58, 280, "锁定 · 精准识别", "sm", size=14, anchor="middle"))
+    # 能量包：压在实线之下的一段粗软 accent（stroke-opacity .3），沿路径奔向中心。
+    # 不改实线本身的 dasharray —— 实线是本页图例「solid = 目标人声」的实物样本，
+    # 一旦打成虚线，就和三路「dot = 干扰」的线型区分糊在一起了。
+    o.append('<path class="pop p10-beam" style="--i:2" d="M96 %d H234" fill="none" stroke="%s" '
+             'stroke-width="11" stroke-opacity=".3" stroke-linecap="round" '
+             'stroke-dasharray="24 162"/>' % (_SCY, AC))
     o.append(hline(96, 234, _SCY, AC, 3.5, 2)); o.append(ah_r(246, _SCY, AC))
     o.append(txt(140, 170, "声纹锁定 · 只留目标人声", "sm", size=14, anchor="middle", col=AC))
     # ── 智能体（中 · 唯一 hot 件）──
-    o.append('<circle class="pop" style="--i:0;fill:var(--card-bg-2);stroke:%s" cx="%d" cy="%d" '
+    # 呼吸光晕：压在智能体圆片之下向外扩散再消失（100% 帧 opacity 回 0 ⇒ 静态语域下不留痕）
+    o.append('<circle class="p10-halo" cx="%d" cy="%d" r="%d" fill="none" stroke="%s" '
+             'stroke-width="2.5" opacity="0"/>' % (_SCX, _SCY, _SAG, AC))
+    o.append('<circle class="pop p10-agent" style="--i:0;fill:var(--card-bg-2);stroke:%s" cx="%d" cy="%d" '
              'r="%d" stroke-width="3"/>' % (AC, _SCX, _SCY, _SAG))
     o.append(txt(_SCX, _SCY - 4, "智能体", "ttl", size=25, anchor="middle"))
     o.append(txt(_SCX, _SCY + 26, "声纹锁定", "sm", size=16, anchor="middle", col=AC))
     # ── 三路噪声点线波束：01/02 撞外环 ✕，03 穿外环、撞内环 ✕ ──
     _SRC = [("稳态背景噪声", 50, _SR2), ("瞬态突发", 196, _SR2), ("非对话人人声", 342, _SR1)]
-    for n, sy, stop in _SRC:
+    _NCLS = ["", " n2", " n3"]          # 三路错峰：同 duration 会读成一根线
+    for _k, (n, sy, stop) in enumerate(_SRC):
         dx, dy = _SCX - 613, _SCY - sy
         ln = math.sqrt(dx * dx + dy * dy) or 1
         ux, uy = dx / ln, dy / ln                              # 单位向量：噪声源 → 中心
@@ -1172,8 +1257,10 @@ def _sal_fig():
             o.append('<circle class="pop" style="--i:4;fill:var(--card-bg-2)" cx="%.1f" cy="%.1f" '
                      'r="11"/>' % (ox, oy))
         o.append(dline("M%.1f %.1f L%.1f %.1f" % (613 + ux * 96, sy + uy * 96,
-                                                  px - ux * 12, py - uy * 12), HS, 2.4, 5, dash="2 7"))
-        o.append(txt(px, py + 10, "✕", "ttl", size=26, anchor="middle", col=AD))
+                                                  px - ux * 12, py - uy * 12), HS, 2.4, 5, dash="2 7",
+                       cls="p10-noise" + _NCLS[_k]))
+        o.append(txt(px, py + 10, "✕", "ttl p10-x" + ("" if _k == 0 else " x%d" % (_k + 1)),
+                     size=26, anchor="middle", col=AD))
     # ── 名牌：压在两环之下，读者知道这一整套叫什么 ──
     o.append('<rect class="pop" style="--i:6;fill:var(--card-bg-2)" x="150" y="372" width="300" '
              'height="56" rx="28" stroke="%s" stroke-width="2.5"/>' % AC)
@@ -1299,7 +1386,7 @@ page("content", "".join([
 # ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
 # 2026-08-21 改造 · 聚焦视觉模态：
 #   标题与中心 hub 保留；辐条重新配重 —— 四条等粗辐条读起来是「四件并列的功能」，
-#   而全 deck 的叙事此刻要往 Physical AI（P13/P14）走，视觉这一路才是引子。
+#   而全 deck 的叙事此刻要往 Physical AI（P13）走，视觉这一路才是引子。
 #     加重（大卡 + 粗线 3.5）：IN 看图识景（端点例 智能眼镜）／ OUT 数字人（端点 语音配合数字人表达）
 #     弱化（小 chip + 灰细线 1.6）：声纹锁定（P10 已讲）／ SIP 电话 · VoIP（前序已讲），
 #       降为底部次级带并挂 mono 小注「前文已述」——不删，只降权重。
@@ -1357,39 +1444,56 @@ page("content", "".join([
     land("同一套引擎，看得见、说得出——让对话，走出屏幕。"),
 ]))
 
-# ═══ P13 · Physical AI · R1 开发套件（2026-08-21 新增）═════════════════════
+# ═══ P13 · Physical AI · R1 开发套件（2026-08-21 新增 · 同日 R1 带图重排）═════
 #   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
 #   两版规格逐字对齐：R1-WiFi 2025.03.20 · BK7258 ／ R1-4G 2025.09.26 · UNISOC 8910 Cat.1。
 #   唯一 hot = R1-4G 卡（.card-c.on）与它的「单芯片一体化」规格行 —— robot26 注明这是关键卖点。
+#   2026-08-21 重排（Colin：「借鉴 robot26 的展示方式，那个有图片」）：
+#     纯文字双卡 → 两张带实拍图的大图卡（图在上 / 规格在下），资产跨 deck 引用 robot26 原片。
+#     图窗裁切位（object-position）一卡一值，写在 DECK_CSS 的 .r1-a / .r1-b 里，别在这里找。
+#     「共同能力」从横排 chip 改成右栏竖排：横排要占满 1680 宽的一整行，
+#     这一行的高度正是两张图从「能看清板子」掉到「只剩一条缝」的差额。
 _R1KIT = [
     ("R1 · WI-FI · 2025.03.20 发布", "R1-WiFi", "主控 BK7258 · Wi-Fi 联网",
-     "面向家居与室内——音箱 · 桌宠 · 陪伴机器人", False),
+     "面向家居与室内——音箱 · 桌宠 · 陪伴机器人",
+     "r1-wifi.webp", "[ R1 WI-FI ]", "带「灵动眼睛」PCB", False),
     ("R1 · 4G · 2025.09.26 发布", "R1-4G", "UNISOC 8910 · Cat.1 单芯片一体化",
-     "面向户外 / 随身 / 车载 / 出海设备", True),
+     "面向户外 / 随身 / 车载 / 出海设备",
+     "r1-4g.webp", "[ R1 4G ]", "带 4G 天线 · 一体化", True),
 ]
 _R1CAPS = ["对话式 AI", "视觉理解", "本地唤醒", "灵动眼睛", "陀螺仪 / NFC / 振动"]
+_R26 = "/decks/assets/robot26/"
 page("content", "".join([
     head("PHYSICAL AI · R1 开发套件 · GLOBAL FIRST",
          "全球率先发布的<strong>对话式 AI 硬件开发套件</strong>。"),
-    lab(120, 236, "01 · TWO FORMATS"),
+    lab(120, 236, "01 · TWO FORMATS", w=1260),
     ] + [
-    sh("rise card-c%s" % (" on" if _on else ""),
-       "left:%dpx;top:280px;width:820px;height:300px;--i:%d" % (120 + _i * 860, 2 + _i),
-       '<div style="padding:38px 44px;height:100%%;display:flex;flex-direction:column">'
+    sh("rise card-c r1-card r1-%s%s" % ("ab"[_i], " on" if _on else ""),
+       "left:%dpx;top:262px;width:620px;height:510px;--i:%d" % (120 + _i * 650, 2 + _i),
+       '<div class="r1-shot"><img src="%s%s" alt="声网 R1 开发套件 · %s 实拍">'
+       '<span class="bdg">%s</span><span class="cap">%s</span></div>'
+       '<div class="r1-body">'
        '<div class="mono-sm" style="color:%s">%s</div>'
-       '<h3 style="margin:20px 0 0;font:700 52px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
-       '<div style="margin-top:20px;font:700 24px/1.4 var(--f-cn);color:%s">%s</div>'
-       '<div style="margin-top:auto;font:400 21px/1.6 var(--f-cn);color:var(--ink-2)">%s</div></div>'
-       % (AC if _on else "var(--ink-3)", _tag, _nm,
+       '<h3 style="margin:10px 0 0;font:700 40px/1.15 var(--f-cn);color:var(--ink)">%s</h3>'
+       '<div style="margin-top:14px;font:700 21px/1.4 var(--f-cn);color:%s">%s</div>'
+       '<div style="margin-top:auto;font:400 18px/1.55 var(--f-cn);color:var(--ink-2)">%s</div>'
+       '</div>'
+       % (_R26, _img, _nm, _bdg, _cap,
+          AC if _on else "var(--ink-3)", _tag, _nm,
           AC if _on else "var(--ink)", _spec, _desc))
-    for _i, (_tag, _nm, _spec, _desc, _on) in enumerate(_R1KIT)
+    for _i, (_tag, _nm, _spec, _desc, _img, _bdg, _cap, _on) in enumerate(_R1KIT)
     ] + [
-    lab(120, 616, "02 · SHARED CAPABILITIES"),
-    sh("rise", "left:120px;top:652px;width:1680px;height:56px;--i:4",
-       "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS)),
-    sh("flow", "left:120px;top:726px;width:1680px;height:52px;--i:5",
+    vrule(1418, 262, 510),
+    lab(1470, 236, "02 · SHARED CAPABILITIES", w=330),
+    sh("rise", "left:1470px;top:262px;width:330px;height:300px;--i:4",
+       '<div class="chip-col">' + "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS)
+       + '</div>'),
+    # 右栏底部锚在图卡底线上：上 chip 下 note，中间那段空白是有意的呼吸，不是漏排
+    sh("flow", "left:1470px;top:690px;width:330px;height:82px;--i:5",
        '<div class="note"><b>30000+</b> 芯片与整机适配——你的形态大概率已支持</div>'),
-    sh("rise", "left:120px;top:790px;width:1680px;height:52px;"
+    # 786 而不是 848：content 背景板自带一条 accent 细线在 y848–852（x120–761），
+    # 30px 大字压上去就是「被划掉」的观感 —— 那一带只留给 rule(850) 当收口线。
+    sh("rise", "left:120px;top:786px;width:1680px;height:52px;"
        "font:700 30px/1.4 var(--f-cn);color:var(--ink);--i:6",
        "临场引擎 + 硬件参考设计 = <strong style='color:var(--accent)'>拿来即用的伙伴感地基</strong>。"),
     rule(850),
@@ -1398,41 +1502,7 @@ page("content", "".join([
        "SOURCE · 声网官网 · R1 公开发布信息 · 事实截止 2026.08"),
 ]))
 
-# ═══ P14 · Physical AI · 已经上岗（2026-08-21 新增 · 案例墙）════════════════
-#   资产复用 convoai-info 的 info-v2 目录（不新增、不重绘）；客户名逐字照 info 的裁定 #2
-#   （集贤科技 / Robopoet / luwu / Pophie / LOOKTECH / HeyCyan / LOOKEE，一字不能错）。
-#   本页只是硬件子集，不写案例总数 —— 14 是全品类数，写在这里会被读成「硬件有 14 个」。
-_P14FEAT = [
-    ("jixian",   "集贤科技", "AI 玩具"),
-    ("robopoet", "Robopoet", "AI 陪伴机器人"),
-    ("luwu",     "luwu",     "桌面级情感陪伴机器人"),
-]
-_P14MINI = [("pophie", "Pophie"), ("looktech", "LOOKTECH"),
-            ("heycyan", "HeyCyan"), ("lookee", "LOOKEE")]
-_ASSET = "/decks/assets/convoai/info-v2/"
-page("content", "".join([
-    head("PHYSICAL AI · IN PRODUCTION · 官方联合案例 · 均已公开",
-         "已经上岗的 <strong>Physical AI</strong>。"),
-    lab(120, 236, "01 · FEATURED"),
-    ] + [
-    sh("rise", "left:%dpx;top:276px;width:546px;height:316px;--i:%d" % (120 + _i * 567, 2 + _i),
-       '<div class="case-feature"><img src="%scase-feature-%s.webp" alt="声网联合案例 · %s">'
-       '<div class="case-feature-caption"><b>%s</b><span>%s</span></div></div>'
-       % (_ASSET, _f, _n, _n, _k))
-    for _i, (_f, _n, _k) in enumerate(_P14FEAT)
-    ] + [
-    lab(120, 624, "02 · HARDWARE"),
-    ] + [
-    sh("rise", "left:%dpx;top:660px;width:320px;height:170px;--i:%d" % (120 + _i * 453, 5 + _i),
-       '<div class="case-mini"><img src="%scase-mini-%s.webp" alt="声网联合案例 · %s">'
-       '<span>%s</span></div>' % (_ASSET, _f, _n, _n))
-    for _i, (_f, _n) in enumerate(_P14MINI)
-    ] + [
-    rule(850),
-    land("你的场景，多半能对上号。"),
-]))
-
-# ═══ P15 · 开放编排 ·「你的模型自由组合，引擎负责编排」（原 P13）═════════════
+# ═══ P14 · 开放编排 ·「你的模型自由组合，引擎负责编排」（原 P13 → 15 → 14）═══
 _MODELS = ["ASR 语音识别", "LLM 大模型", "TTS 语音合成", "数字人"]
 _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 是一项能力，不拆
 # 2026-08-20 三轮升维：两列盒子 + 曲线 → 一台「插槽机」。
@@ -1499,7 +1569,7 @@ page("content", "".join([
     land("快速编排 ASR / LLM / TTS / 数字人与语音体验，实时调试、一键发布智能体。"),
 ]))
 
-# ═══ P16 · 接入架构 ·「2 行代码，三方协同即可上线」（原 P14）═══════════════
+# ═══ P15 · 接入架构 ·「2 行代码，三方协同即可上线」（原 P14 → 16 → 15）═══════
 def _arch_fig():
     o = []
     # ── 2026-08-20 三轮：与 P8 对齐的一致性 pass ──
@@ -1579,7 +1649,7 @@ page("content", "".join([
     land("终端只管采集与播放，密钥与业务逻辑留在你的服务器——2 行代码、15 分钟即可跑通，安全可控、上线快。"),
 ]), steps=1)
 
-# ═══ P17 · 典型场景 ·「一套引擎，支撑多类场景」（原 P15）══════════════════
+# ═══ P16 · 典型场景 ·「一套引擎，支撑多类场景」（原 P15 → 17 → 16）════════════
 _SCENES = [
     ("01 · OUTBOUND", "AI 外呼",   "客服、营销、风控、调研、关怀通知，成本效率全面提升。"),
     ("02 · DEVICE",   "智能硬件",  "嵌入设备，让设备开口说话，语音控制与智能陪伴。"),
@@ -1602,9 +1672,9 @@ page("content", "".join([
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
 ]))
 
-# ═══ P18 · Why Agora ·「跑在声网实时互动底座之上」（原 P16）═══════════════
+# ═══ P17 · Why Agora ·「跑在声网实时互动底座之上」（原 P16 → 18 → 17）═════════
 #   数据修正页：四数字与 note / SOURCE 全部与 31 页拜访版 P2 一字对齐。
-#   2026-08-20 扩页时整块原样搬运（页号 12 → 15 → 16），2026-08-21 再搬到 18，内容一字未动。
+#   2026-08-20 扩页时整块原样搬运（页号 12 → 15 → 16 → 18 → 17），内容一字未动。
 #   禁止回归的旧错误数字：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」
 _WHY = [
     ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
@@ -1635,45 +1705,44 @@ page("content", "".join([
        "SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
-# ═══ P19 · OpenAI 合作（2026-08-21 新增 · title 板 · quote 语域）═══════════
+# ═══ P18 · OpenAI 合作 · 末页（2026-08-21 新增 · 同日升为收尾页）════════════
 #   参照 robot26 #33「A QUIET ENDORSEMENT」，按 Colin 指令泛化两处：
 #     ①「实时通信底座」→「对话式 AI 引擎底座」（本 deck 讲的是引擎，不是 RTC 管道）
 #     ②「你的消费机器人」→「你的对话式智能体」（本 deck 的听众不限于机器人客户）
 #   锚点 mono 行用 convoai-info P8 已核措辞「全球首批合作伙伴」——不写「全球首个」，
 #   那是 OpenAI 的事，不是声网的事（info 二轮仲裁 P0 已钉死这一条）。
-#   版式对齐 P1 / P20 的 title 板语域：大字 + 留白 + 一道 accent 短棒，不配图。
+#   2026-08-21 收束轮 20 → 18：原 P20 收尾页删除，本页升为末页，承接两件事 ——
+#     ① OpenAI × Agora logo 锁定版（robot26 双源资产跨引用，lt/dk 双 img CSS 显隐）；
+#     ② 从被删收尾页继承的 CTA 行（Fable 裁定：真实入口不能随收尾页一起消失）。
+#   版面改为居中：logo 锁定版一居中，左对齐的大字就会读成「浮在旁边」——
+#   整页对齐方式必须跟着商标走，这是版面的因果，不是审美偏好。
 page("title", "".join([
-    sh("flow kk", "left:120px;top:200px;width:1500px;height:28px",
+    sh("flow kk", "left:120px;top:128px;width:1680px;height:28px;text-align:center",
        "2024.10.01 · A QUIET ENDORSEMENT"),
-    # 68px / 1680 宽：72px 时第二行正好排满、把「择。」挤成第三行的孤字尾巴。
-    # 骨架与 P1 对齐（kicker 200 / 大字 272 / accent 短棒 508 / sub 560 / 页脚 mono 930）。
-    sh("ink", "left:120px;top:272px;width:1680px;height:230px;"
-       "font:700 68px/1.3 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
-       "全球最强的 Voice Agent 团队，在为他们的 Realtime API 寻找"
+    # 盒 838×570 = 原片整幅；墨迹（= 视觉上的 logo 锁定版）落在 x670–1250 / y196–562，
+    # 即宽 580 居中。为什么不按墨迹开盒 —— 见 DECK_CSS 里 .lock 那段。
+    sh("spread lock", "left:542px;top:160px;width:838px;height:570px;--i:2",
+       '<img class="lt" src="%(A)sopenai-agora-light.png" alt="OpenAI × 声网 Agora 合作标识">'
+       '<img class="dk" src="%(A)sopenai-agora.webp" alt="OpenAI × 声网 Agora 合作标识">'
+       % {"A": _R26}),
+    # 58px / 1560 宽：排满两行且左右各留 180 呼吸；62px/1680 时首行贴死版心边缘。
+    sh("ink", "left:180px;top:626px;width:1560px;height:170px;text-align:center;"
+       "font:700 58px/1.32 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
+       # 「寻找」外面这层 nowrap 不是装饰：CJK 允许任意两字之间断行，1560 宽下
+       # 首行正好断在「寻 / 找」中间 —— 一个词被劈成两行，读起来像错字。
+       "全球最强的 Voice Agent 团队，在为他们的 Realtime API "
+       "<span style='white-space:nowrap'>寻找</span>"
        "<strong style='color:var(--accent)'>对话式 AI 引擎底座</strong>时，给出的选择。"),
-    sh("spread", "left:120px;top:508px;width:120px;height:4px;background:var(--accent);"
+    sh("spread", "left:900px;top:826px;width:120px;height:4px;background:var(--accent);"
        "border-radius:2px;--i:3", ""),
-    sh("flow", "left:120px;top:560px;width:1560px;height:52px;"
+    sh("flow", "left:120px;top:868px;width:1680px;height:52px;text-align:center;"
        "font:400 32px/1.5 var(--f-cn);color:var(--ink-2);--i:4",
        "同样的工程能力，我们用来支撑你的对话式智能体。"),
-    sh("flow mono-sm", "left:120px;top:930px;width:1560px;height:24px;--i:5",
+    sh("flow mono-sm", "left:120px;top:966px;width:1680px;height:24px;text-align:center;--i:5",
        "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴"),
-]))
-
-# ═══ P20 · 收尾（title 板）（原 P17）═════════════════════════════════════
-page("title", "".join([
-    sh("ink", "left:120px;top:320px;width:1560px;height:250px;"
-       "font:700 96px/1.22 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
-       "最好的对话式 AI，<br>让人<strong style='color:var(--accent)'>忘了它是 AI</strong>。"),
-    sh("spread", "left:120px;top:626px;width:120px;height:4px;background:var(--accent);"
-       "border-radius:2px;--i:3", ""),
-    sh("flow sub", "left:120px;top:678px;width:1500px;height:48px;--i:4",
-       "低延时、可打断、听得清、看得见——把技术藏进体验里。"),
     # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线/悬停态）
-    sh("flow mono-sm", "left:120px;top:790px;width:1500px;height:24px;--i:5",
+    sh("flow mono-sm", "left:120px;top:1004px;width:1680px;height:24px;text-align:center;--i:6",
        "DEMO / 文档 · agora.io › 对话式 AI 引擎 · 联系团队"),
-    sh("flow mono-sm", "left:120px;top:930px;width:1400px;height:24px;--i:6",
-       "仅供方案交流参考"),
 ]))
 
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
@@ -1712,12 +1781,18 @@ def build():
         '<div class="edit-hotzone" aria-hidden="true"></div>\n'
         '<button class="edit-toggle" id="editToggle">EDIT</button>\n'
         '<button class="deck-swap" id="deckSwap">暗底</button>\n'
+        # 2026-08-21 Colin：「没有浅色切换的键」——本 deck 是对外产品文档、常被直接发链接，
+        # 从 info 克隆来的「默认隐身 · hover 呼出」在这里等于键不存在。改为常显 chip：
+        # 默认 .62（家族可见档 robot26 是 .5，这里略抬一档因为底下压着背景板），hover/focus 1；
+        # 实底 --card-bg-2 而不是 transparent —— 左下角坐着 content 板的矩阵纹理，
+        # 透明底会让 12px mono 掉进纹理里。只有 @media print 隐藏。
+        # ⚠ info deck 的隐身规则不动（那份不是对外发链接的形态，键留给讲者自己按）。
         '<style>.deck-swap{position:fixed;left:26px;bottom:24px;z-index:1100;font-family:var(--f-mono,monospace);'
         'font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);'
-        'border-radius:3px;padding:7px 12px;opacity:0;transition:opacity .3s;background:transparent;cursor:pointer;}'
-        '.deck-swap:hover,.deck-swap:focus-visible{opacity:.9;color:var(--accent);border-color:var(--accent);}'
+        'border-radius:3px;padding:7px 12px;opacity:.62;'
+        'transition:opacity .3s,color .3s,border-color .3s;background:var(--card-bg-2);cursor:pointer;}'
+        '.deck-swap:hover,.deck-swap:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent);}'
         '.deck-swap:focus:not(:focus-visible){outline:none;box-shadow:none;}'
-        '@media (hover:none){.deck-swap{opacity:.4;}}'
         '@media print{.deck-swap{display:none!important;}}</style>\n'
         "<script>" + (SRC / "deck.js").read_text(encoding="utf-8") + "</script>\n"
         '<script>(function(){var b=document.getElementById("deckSwap");'
@@ -1735,13 +1810,13 @@ def build():
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     OUT_ALIAS.write_text(doc, encoding="utf-8")
-    assert total == 20, "页数漂移：%d != 20" % total
-    assert doc.count("<section") == 20, "section 数漂移：%d" % doc.count("<section")
+    assert total == 18, "页数漂移：%d != 18" % total
+    assert doc.count("<section") == 18, "section 数漂移：%d" % doc.count("<section")
     boards = {i: b for i, (b, _s, _y) in enumerate(PAGES, 1)}
-    assert {i for i, b in boards.items() if b == "title"} == {1, 19, 20}, \
+    assert {i for i, b in boards.items() if b == "title"} == {1, 18}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y) in enumerate(PAGES, 1) if s}
-    assert steps_map == {6: 1, 7: 1, 16: 1}, "分步页漂移：%r" % steps_map
+    assert steps_map == {6: 1, 7: 1, 15: 1}, "分步页漂移：%r" % steps_map
     print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 分步 %r"
           % (total, len(doc) // 1024, steps_map))
 

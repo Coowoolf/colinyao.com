@@ -21,9 +21,14 @@ export const speechDecks: Deck[] = [
   // 2026-08-21：17 → 20 页 —— P10 SAL 重做（三种噪声 · 三层方案）/ P11 弱网补 AI QoS 断网续播 /
   //   P12 多模态聚焦视觉模态；新增 P13 Physical AI · R1 开发套件、P14 Physical AI 案例墙、
   //   P19 OpenAI 合作（title 板 quote）；原 P13 编排 → P15 并做「箭头语义修」。
+  // 2026-08-21 收束轮 20 → 18：删 P14 案例墙（案例是 convoai-info 的活儿）、删原 P20 收尾页
+  //   （末页金句与封面同义，重复收尾等于没收尾），其唯一不可替代的 CTA 行继承到新末页页脚；
+  //   P13 R1 改带实拍图（跨引用 robot26 资产）、P18 OpenAI 合作升为末页并加双源 logo 锁定版；
+  //   deckSwap 主题键从「hover 才呼出」改为常显 chip（对外发链接的 deck 不能藏切换键）。
   // 重建：python3 scripts/build-convoai-engine.py（双生同写 /decks/convoai-engine.html 别名，抽屉 iframe 指它）
-  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P18 口径锁 + P8 大图闸 + 六页内容闸）
-  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 20, category: "演讲", dual: true },
+  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P17 口径锁 + P8 大图闸
+  //   + P13 实拍图闸 + P18 双源 logo 显隐闸 + deckSwap 常显闸 + 已删两页的内容回流闸）
+  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 18, category: "演讲", dual: true },
   // 31p 初次拜访版（原 /convoai）：重建 build-convoai-visit.py · 自检 qa-convoai.mjs（THEME=dark 二跑）
   { slug: "convoai-visit", title: "声网对话式 AI · 公司与产品矩阵（初次拜访客户版）", slides: 31, category: "演讲", dual: true },
   // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。
