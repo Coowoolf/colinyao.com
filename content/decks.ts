@@ -45,10 +45,14 @@ export const speechDecks: Deck[] = [
   //   归档口径：bake-archive 把 demo.mp4 换成 https://colinyao.com/... 绝对地址（3.1MB 不进 base64），
   //   poster 照常内联 —— 在线可播、离线退回整幅静帧。
   // 重建：python3 scripts/build-convoai-engine.py（双生同写 /decks/convoai-engine.html 别名，抽屉 iframe 指它）
-  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P21 口径锁 + P8 大图闸
+  // 自检：node scripts/qa-convoai-engine.mjs（THEME=dark 二跑，含双生一致闸 + P21 口径锁 + P10 大图闸
   //   + P19 实拍图闸 + P22 双源 logo 显隐闸 + deckSwap 常显闸 + 已删两页的内容回流闸
   //   + Call Agent 三页内容闸与价格 / staging 反向闸 + P20 视频页闸）
-  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 产品介绍", slides: 22, category: "演讲", dual: true },
+  // 2026-08-23 Colin：封面换「对话即交互」（kicker 改 DEEP DIVE · 深入讲解），定位从产品介绍
+  //   升为**深入讲解版**；同轮 P3 双工三模式入运动件名册（三种双工的运动模式就是它们的定义），
+  //   并把三数章重排为 P5 三件极致 → P6 拆 650 → P7 拆 340 前提 → P8 拆 340 → P9 拆 95% →
+  //   P10 大图收束（只在 6–10 区间轮转，页数与 P11 起的页序全部不变）。
+  { slug: "convoai", title: "声网 · 对话式 AI 引擎 · 深入讲解", slides: 22, category: "演讲", dual: true },
   // 2026-08-21 Colin：拜访版退役下线，终版单文件已归档 Vault。
   //   31 页初次拜访版（builder / 产物 / 专属 QA 三件一并删除）的文案 canon 仍活在两处：
   //   引擎 deck 的 R1 页（双源 canon 溯源注释）与本速讲版 8 页 —— 内容不随路由消失。

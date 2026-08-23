@@ -58,7 +58,7 @@ for (const theme of ['light', 'dark']) {
   if ((r.host || null) !== want) fails.push(`[${theme}] 宿主主题 ${r.host} != ${want}`);
   if ((r.inner || null) !== want) fails.push(`[${theme}] iframe 主题 ${r.inner} != ${want}（未跟随宿主）`);
   if (r.inner !== r.host) fails.push(`[${theme}] iframe 与宿主主题不一致 ${r.inner} / ${r.host}`);
-  if (r.title !== '声网 · 对话式 AI 引擎 · 产品介绍') fails.push(`[${theme}] iframe title「${r.title}」`);
+  if (r.title !== '声网 · 对话式 AI 引擎 · 深入讲解') fails.push(`[${theme}] iframe title「${r.title}」`);
   if (r.sigLast !== `${N}/${N}`) fails.push(`[${theme}] iframe P${N} sig「${r.sigLast}」!= ${N}/${N}`);
   // ③ eo-close 在左上：视口左半边（右上角留给 iframe 内的页码 sig）
   if (!r.close || r.close.left === 'auto' || r.close.cx > 960) {

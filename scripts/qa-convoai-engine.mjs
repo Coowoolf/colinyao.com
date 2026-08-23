@@ -33,6 +33,11 @@
 //   ⑤ 版式闸给 P20 开豁免（纯片子页没有 kicker 也没有标题，robot26 #24 同款）；
 //   console / pageerror 加媒体类豁免 —— 本容器 chromium 无 H.264，play() 必然 reject，
 //   那是环境不是页面（豁免正则抄 qa-robot26.mjs 的 MEDIA_EXEMPT）。
+// 2026-08-23 三数章重构（页数不变 22 · 只在 6–10 区间轮转）：原 8 大图 → 10 ／ 原 9 打断 → 8 ／
+//   原 10 SAL → 9；P11 起全部原位不动，分步 [6,7,14,20]、口径锁 21、title 板 {1,22} 一概不受影响。
+//   随之：⑩ 大图闸 8 → 10 并新增 P8 打断页内容闸、⑯ SOURCE 名册 8 → 10、⑰ kicker 消歧 8 → 10、
+//   ⑪ SAL 闸 10 → 9、⑬ 补三数章序闸；新增 ⑱「kicker 绑数字 + P5/P10 章内导航」两组闸。
+//   同轮 ① title 改「深入讲解」（封面定位随 Colin 主标一起换）。
 // 用法：node scripts/qa-convoai-engine.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-engine.mjs   （换端口）
 import { chromium } from 'playwright-core';
@@ -83,7 +88,7 @@ ok(meta.secs === N, `① section 数 ${meta.secs} != ${N}`);
 ok(meta.noindex, '① 缺 noindex');
 ok(meta.sigs.length === N && meta.sigs.every((s, i) => s === `${i + 1}/${N}`), `① 页码 sig 不齐（应为 N/${N}）`);
 ok(THEME === 'dark' ? meta.theme === 'dark' : meta.theme !== 'dark', `① 主题态异常 ${meta.theme}`);
-ok(meta.title === '声网 · 对话式 AI 引擎 · 产品介绍', `① title 漂移「${meta.title}」`);
+ok(meta.title === '声网 · 对话式 AI 引擎 · 深入讲解', `① title 漂移「${meta.title}」`);
 
 // ② 分步数：逐页比对 data-steps 与页内 [data-step] 的最大值 —— 两边必须自洽，
 //    声明了 N 步却没有第 N 步的元素（或反过来）都是现场翻不出来的哑火
@@ -175,16 +180,23 @@ ok(p21.includes('2014 年成立'), '⑧ P21 缺收尾行');
 // ⑩ 机理页 + 大图页内容闸（P3 双工三模式 / P4 全双工工作原理 / P7 VAD / P8 产品架构大图）
 const pageText = async (p) => pg.evaluate((k) =>
   document.querySelector(`.slide[data-p="${k}"]`).textContent.replace(/\s+/g, ' '), p);
-const [p3, p4, p7, p8] = await Promise.all([pageText(3), pageText(4), pageText(7), pageText(8)]);
+// 2026-08-23 三数章重构：大图从 P8 挪到 P10（章尾收束），打断从 P9 提到 P8（拆 340 的正文）。
+//   下面的页号全部按新序重映射；页内关键词一个字都没动 —— 挪的是位置，不是内容。
+const [p3, p4, p7, p8, p10] = await Promise.all(
+  [3, 4, 7, 8, 10].map(pageText));
 [['不能插话', p3, 'P3'], ['选择不插话', p3, 'P3'],
  ['单工', p3, 'P3'], ['半双工', p3, 'P3'], ['全双工', p3, 'P3'],
  ['AEC', p4, 'P4'], ['340ms', p4, 'P4'], ['全双工', p4, 'P4'],
  ['WebRTC VAD', p7, 'P7'], ['语义判停', p7, 'P7'], ['TEN VAD', p7, 'P7'],
- // ── P8 产品架构大图：四个可读性锚点 + 底座，一个都不能掉 ──
- ['AEC', p8, 'P8'], ['打断快路径', p8, 'P8'], ['SOS / EOS', p8, 'P8'],
- ['SD-RTN', p8, 'P8'], ['650ms', p8, 'P8'],
- ['AI-VAD', p8, 'P8'], ['不经过 LLM', p8, 'P8'], ['参考信号', p8, 'P8'],
- ['客户业务服务器', p8, 'P8'], ['终端设备', p8, 'P8'], ['声网引擎云', p8, 'P8'],
+ // ── P8 拆 340 · 优雅打断（原 P9）：时间线上的三段相位与两枚事件标一个都不能掉 ──
+ ['340ms 即时收声', p8, 'P8'], ['用户插话', p8, 'P8'], ['智能体收声', p8, 'P8'],
+ ['侦测', p8, 'P8'], ['收声', p8, 'P8'], ['让位', p8, 'P8'],
+ ['误打断防抖', p8, 'P8'], ['对话像真人一样你来我往', p8, 'P8'],
+ // ── P10 大图收束（原 P8）：四个可读性锚点 + 底座，一个都不能掉 ──
+ ['AEC', p10, 'P10'], ['打断快路径', p10, 'P10'], ['SOS / EOS', p10, 'P10'],
+ ['SD-RTN', p10, 'P10'], ['650ms', p10, 'P10'],
+ ['AI-VAD', p10, 'P10'], ['不经过 LLM', p10, 'P10'], ['参考信号', p10, 'P10'],
+ ['客户业务服务器', p10, 'P10'], ['终端设备', p10, 'P10'], ['声网引擎云', p10, 'P10'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑩ ${tag} 缺「${needle}」`));
 ok(/ten-vad/i.test(p7), '⑩ P7 缺 ten-vad 仓库地址');
 ok(/apache\s*2\.0/i.test(p7), '⑩ P7 缺「Apache 2.0」—— TEN VAD 的开源协议必须写明');
@@ -203,7 +215,7 @@ const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
 {
   const led = await pg.evaluate(() => [...document.querySelectorAll('.slide')].flatMap((s, i) =>
     [...s.querySelectorAll('.src')].map(el => ({ p: i + 1, t: (el.textContent || '').trim() }))));
-  const SRC_PAGES = [5, 7, 8, 11, 16, 17, 18, 19, 21];   // 引擎 deck 的九张数据页
+  const SRC_PAGES = [5, 7, 10, 11, 16, 17, 18, 19, 21];  // 引擎 deck 的九张数据页（大图 8 → 10）
   const live = [...new Set(led.map(x => x.p))].sort((a, b) => a - b);
   ok(live.join(',') === SRC_PAGES.join(','),
      `⑯ SOURCE ledger 覆盖漂移：实测 [${live}] != 名册 [${SRC_PAGES}]`);
@@ -226,15 +238,46 @@ const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
   ok(sizes.sig === '17px', `⑯ .sig 字号 ${sizes.sig} != 17px（采纳项 G：投影小字提一档）`);
 }
 
-// ⑰ kicker 消歧闸（2026-08-23 采纳项 F）：P8 = 引擎内部链路 / P14 = 客户接入架构，
+// ⑰ kicker 消歧闸（2026-08-23 采纳项 F）：P10 = 引擎内部链路 / P14 = 客户接入架构，
 //    两页 kicker 各自带上限定词，翻页时不会读成同一张图的两个版本。
+// ⑱ 三数章绑定闸（2026-08-23 三数章重构）：展开页的 kicker 必须以「EXTREME nn · 数字」起手，
+//    读者在任何一页都知道「我现在拆的是 P5 亮出的哪一个数」。页序一动这一闸当场报出来。
 {
   const kick = async (p) => pg.evaluate((k) =>
     (document.querySelector(`.slide[data-p="${k}"] .kk`) || {}).textContent?.trim() || '', p);
-  const [k8, k14] = await Promise.all([kick(8), kick(14)]);
-  ok(/ENGINE INTERNALS/.test(k8) && /运行时内部链路/.test(k8), `⑰ P8 kicker 缺内部链路限定词：「${k8}」`);
+  const [k6, k7, k8, k9, k10, k14] = await Promise.all([6, 7, 8, 9, 10, 14].map(kick));
+  ok(/ENGINE INTERNALS/.test(k10) && /运行时内部链路/.test(k10), `⑰ P10 kicker 缺内部链路限定词：「${k10}」`);
   ok(/INTEGRATION/.test(k14) && /客户接入架构/.test(k14), `⑰ P14 kicker 缺客户接入限定词：「${k14}」`);
-  ok(k8 !== k14, '⑰ P8 / P14 kicker 撞车');
+  ok(k10 !== k14, '⑰ P10 / P14 kicker 撞车');
+  [[6, k6, 'EXTREME 01 · 650MS · PIPELINE'],
+   [7, k7, 'EXTREME 02 · 340MS · 前提 · VOICE ACTIVITY DETECTION'],
+   [8, k8, 'EXTREME 02 · 340MS · INTERRUPTION'],
+   [9, k9, 'EXTREME 03 · 95% · SELECTIVE ATTENTION'],
+  ].forEach(([p, k, pre]) => ok(k.startsWith(pre), `⑱ P${p} kicker 未绑数字：「${k}」`));
+  // 大图页收的是三个数的总账，**不绑单个数字** —— 绑了反而把「收束」读成「第四个数」
+  ok(!/^EXTREME/.test(k10), `⑱ P10 大图页不该绑单个数字：「${k10}」`);
+}
+
+// ⑱ 三数章导航闸：P5 三张卡各带一枚章内指针 + 一句导航 land；P10 大图钉三枚数字锚点 + 收束句。
+{
+  const p5nav = await pg.evaluate(() => {
+    const s = document.querySelector('.slide[data-p="5"]');
+    return {
+      ptrs: [...s.querySelectorAll('.card-c')].map(c => {
+        const d = [...c.children].find(x => getComputedStyle(x).position === 'absolute');
+        return d ? d.textContent.trim() : null;
+      }),
+      land: (s.querySelector('.land') || {}).textContent?.replace(/\s+/g, '') || '',
+    };
+  });
+  ok(p5nav.ptrs.join('|') === '↓ P6|↓ P7–8|↓ P9',
+     `⑱ P5 章内指针漂移：[${p5nav.ptrs.join(' / ')}]`);
+  ok(p5nav.land.includes('逐页拆开') && p5nav.land.includes('一张图'),
+     `⑱ P5 缺章内导航 land：「${p5nav.land}」`);
+  const p10txt = await pageText(10);
+  ['650MS', '340MS', '95%'].forEach(a =>
+    ok(p10txt.includes(a), `⑱ P10 缺数字锚点 chip「${a}」`));
+  ok(p10txt.includes('三件极致，都在这张图上'), '⑱ P10 缺章尾收束句');
 }
 // ⑩ P6：数字人已移出串行主链（标题也从「端到端链路」改成「实时语音链路」）
 const p6 = await pageText(6);
@@ -245,14 +288,15 @@ const p22 = await pageText(22);
 ok(p22.includes('agora.io › 对话式 AI 引擎'), '⑩ P22 缺 CTA 行（原 P20 收尾页继承）');
 
 // ⑪ 2026-08-21 两轮（大内容轮 + 收束轮）的内容闸
-const [p10, p12, p19, p13] = await Promise.all(
-  [10, 12, 19, 13].map(pageText));   // p11 / p22 上面已取过，复用
-                                     // 页号位移：R1 = 今 P19（原 13）、编排 = 今 P13（原 14）
-[// P10 · 三种噪声 · 三层方案（噪声名 + 方案名一个都不能掉，land 是 Colin aiot26 定稿）
- ['稳态', p10, 'P10'], ['瞬态', p10, 'P10'], ['非对话人', p10, 'P10'],
- ['传统降噪', p10, 'P10'], ['AI 降噪', p10, 'P10'], ['SAL', p10, 'P10'],
- ['屏蔽 95% 干扰', p10, 'P10'],
- ['前两类是信号问题', p10, 'P10'],
+const [p9, p12, p19, p13] = await Promise.all(
+  [9, 12, 19, 13].map(pageText));    // p10 / p11 / p22 上面已取过，复用
+                                     // 页号位移：R1 = 今 P19（原 13）、编排 = 今 P13（原 14）、
+                                     //          SAL = 今 P9（原 10 · 2026-08-23 三数章重构）
+[// P9 · 拆 95% · 三种噪声 · 三层方案（噪声名 + 方案名一个都不能掉，land 是 Colin aiot26 定稿）
+ ['稳态', p9, 'P9'], ['瞬态', p9, 'P9'], ['非对话人', p9, 'P9'],
+ ['传统降噪', p9, 'P9'], ['AI 降噪', p9, 'P9'], ['SAL', p9, 'P9'],
+ ['屏蔽 95% 干扰', p9, 'P9'],
+ ['前两类是信号问题', p9, 'P9'],
  // P11 · 弱网两机制（AI QoS 是本轮新增的机理，FEC / 本地缓存是它的两个抓手）
  ['AI QoS', p11, 'P11'], ['断网续播', p11, 'P11'], ['FEC', p11, 'P11'],
  ['本地缓存', p11, 'P11'], ['80% 丢包', p11, 'P11'], ['3–5s 瞬时断网', p11, 'P11'],
@@ -342,6 +386,18 @@ ok(/SOURCE · 声网 CALL AGENT 官网 · 外呼智能体 · 事实截止 2026\.
 const p15 = await pageText(15);
 ok(p15.includes('一套引擎'), '⑬ P15 不是「典型场景」页 —— 章序被改动了？');
 ok(p19.includes('R1-4G'), '⑬ P19 不是「R1 开发套件」页 —— 章序被改动了？');
+// ⑬ 三数章序闸（2026-08-23）：P5 亮三个数 → P6 拆 650 → P7 拆 340 前提 → P8 拆 340 →
+//    P9 拆 95% → P10 大图收束。这一闸按**页内正文的身份关键词**认页（不是认 kicker），
+//    与 ⑱ 的 kicker 绑定闸互为独立证据：两条一起绿，才叫「页真的搬对了」。
+{
+  // p5 / p6 / p7 / p8 / p9 / p10 上面都已取过，直接复用（别重取，也别在块里遮蔽同名量）
+  [[5, p5, '把三件事'], [5, p5, '端到端响应延时'], [5, p5, '极速打断响应'], [5, p5, '环境干扰屏蔽'],
+   [6, p6, '一条深度优化的实时语音链路'], [7, p7, '让机器知道'],
+   [8, p8, '想插话就插话'], [9, p9, '只听该听的人'], [10, p10, '看懂全双工引擎'],
+  ].forEach(([p, txt, kw]) => ok(txt.includes(kw), `⑬ 三数章序漂移：P${p} 缺「${kw}」`));
+  // 反向：大图的身份关键词绝不许再出现在 P8（它已经搬走了）
+  ok(!p8.includes('看懂全双工引擎'), '⑬ P8 仍是大图页 —— 三数章重排没生效');
+}
 
 // ⑭ P20 视频页闸（robot26 #24 同款机制，逐条对上；这些坑 robot26 都踩过一遍）
 //    静置态必须是干净画面：**没有 controls 属性**（Blink 控制条在 .deck-stage 的
@@ -585,7 +641,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P14/P20 各 1 步 · P21 口径已锁 · P8 大图闸 · P19 实拍图 + P22 双源 logo 闸 · Call Agent 三页闸 · P20 视频页闸 · deckSwap 常显`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P6/P7/P14/P20 各 1 步 · P21 口径已锁 · 三数章序 P5→P6→P7→P8→P9→P10 · P10 大图闸 + 三锚点 · P19 实拍图 + P22 双源 logo 闸 · Call Agent 三页闸 · P20 视频页闸 · deckSwap 常显`);
 await b.close();
 /* 双生闸：/convoai 主路由与 convoai-engine.html 别名必须逐字节一致（同 builder 一次写出） */
 {

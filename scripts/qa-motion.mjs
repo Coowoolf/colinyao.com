@@ -17,12 +17,20 @@ const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
 // ── 运动件名册（**声明**出来的，不是随缘的）──────────────────────────────────
 // engine（22 页口径 · 2026-08-21 Call Agent 章 + 视频页）：
-//   P2 实时决策 / P4 全双工 / P6 语音链路 / P7 VAD / P8 大图 / P9 打断 / P10 SAL /
-//   P11 弱网 / P12 多模态 / P13 编排 / P14 接入架构 / P17 大脑五区 ■ / P18 成长飞轮 ■
+//   P2 实时决策 / P3 双工三模式 ◆ / P4 全双工 / P6 语音链路 / P7 VAD / P8 打断 / P9 SAL /
+//   P10 大图 / P11 弱网 / P12 多模态 / P13 编排 / P14 接入架构 / P17 大脑五区 ■ / P18 成长飞轮 ■
+//   （P8/P9/P10 三页的内容 2026-08-23 轮转过一次，见下）
 //   P17（大脑侧视图）是全 deck 动效最重的一页：五区放电脉动 ×5 + 神经火花 ×8 +
 //   输出重拍 + hot 盒 breathe/halo + 输入常驻包 = 17 件 / 4 种原语。
 //   给它单加一条**下限**闸：低于 12 件就说明「五区一起工作」的编排被改瘦了。
-//   不入册：P1 封面 · P3 双工三模式 · P5 三件极致 · P15 场景 · P16 成绩单 ·
+//   2026-08-23 三数章重构 + P3 动效轮，名册两处变化（集合恰好只多了一页 P3）：
+//     · **P3 双工三模式入册**（Colin 点名）：两列之间的两条方向通道上跑包 ——
+//       单工 1 包（另一向的线画出来但永远无包）/ 半双工 2 包严格互斥 / 全双工 2 包同时在途。
+//       它是全 deck 唯一一页「运动模式本身就是定义」的图，所以另加 ⑦ 半双工互斥闸（见下）。
+//     · 页序在 6–10 区间轮转（原 8 大图 → 10 / 原 9 打断 → 8 / 原 10 SAL → 9）：
+//       名册集合 {8,9,10} 恰好不变，但**每页的内容换了**，所以 floor 逐页跟着内容走 ——
+//       P8 打断 4 件 / P9 SAL 11 件 / P10 大图 16 件，任何一页被搬错都会掉到下限之下。
+//   不入册：P1 封面 · P5 三件极致 · P15 场景 · P16 成绩单 ·
 //           P19 R1 实拍 · P20 视频页 · P21 Why Agora · P22 OpenAI 末页
 // info（8 页 · 2026-08-21 家族语言重建轮）：
 //   P2 时间线活动带 + No.1 hot 环 / P3 三主干 + 底座 hot / P4 版本活动带 + 抽屉 chip hot /
@@ -30,8 +38,9 @@ const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
 //   P7 生态五层域分带 + L2 hot 标记 / P8 三支流合流（本 deck 标杆页）
 //   不入册：P1 封面（引擎 P1 同例 —— 会动的封面只会抢主标）
 const DECKS = {
-  engine: { url: '/decks/convoai-engine.html', roster: [2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
-            floor: { 17: 12 }, pauseProbe: 7 },
+  engine: { url: '/decks/convoai-engine.html',
+            roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
+            floor: { 3: 4, 8: 4, 9: 11, 10: 16, 17: 12 }, pauseProbe: 7 },
   info:   { url: '/decks/convoai-info.html', roster: [2, 3, 4, 5, 6, 7, 8],
             floor: { 8: 6 }, pauseProbe: 7 },
 };
@@ -147,6 +156,62 @@ async function open(opts = {}) {
   ok(r.ghostShown.length === 0, `④ print 下装饰件仍显示：${[...new Set(r.ghostShown)]}`);
   ok(r.animOn.length === 0, `④ print 下动画未关：${[...new Set(r.animOn)]}`);
   console.log('· print：装饰件全隐、真几何件 animation:none');
+  await ctx.close();
+}
+
+// ── ⑦ P3 半双工「两个方向不得同时在途」闸（2026-08-23 · engine 专属）────────────
+//    这一条是**静态复算**，不靠截帧：包在途与否完全由四个参数决定 ——
+//      路径长 L（getTotalLength）/ 包长 seg 与空挡 gap（stroke-dasharray）/
+//      周期 D（animation-duration）/ 相位 δ（animation-delay，可为负）。
+//    dashoffset 在一个周期里线性走满 per = seg + gap，包占据路径位置 [d, d+seg]（d = 进度×per），
+//    因此「包与路径有交集」的进度窗口是 d ∈ (per−seg, per] ∪ [0, L) —— 一段长 L+seg 的环形区间，
+//    起点 per−seg。换算成时间：起点 = D·(per−seg)/per + δ，长度 = D·(L+seg)/per（均对 D 取模）。
+//    两枚包同周期时，只要两段环形区间互不相交，就证明**任何时刻至多一个方向有包在途**。
+//    设计侧的保证是「占空比 (L+seg)/per = 1/3 < 1/2 且相位差半个周期」；这一闸只管验，不管信。
+if ((process.env.DECK || 'engine') === 'engine') {
+  const { ctx, pg } = await open();
+  const r = await pg.evaluate(() => {
+    const read = (cls) => [...document.querySelectorAll(`.slide[data-p="3"] .${cls}`)].map((el) => {
+      const cs = getComputedStyle(el);
+      const sec = (v) => parseFloat(v) * (/ms$/.test(v.trim()) ? 0.001 : 1);
+      const da = cs.strokeDasharray.split(/[\s,]+/).filter(Boolean).map(parseFloat);
+      return { L: el.getTotalLength(), seg: da[0], gap: da[1],
+               D: sec(cs.animationDuration), del: sec(cs.animationDelay) };
+    });
+    return { simplex: read('duplex-simplex'), half: read('duplex-half'), full: read('duplex-full') };
+  });
+  ok(r.simplex.length === 1, `⑦ P3 单工包数 ${r.simplex.length} != 1`);
+  ok(r.half.length === 2, `⑦ P3 半双工包数 ${r.half.length} != 2`);
+  ok(r.full.length === 2, `⑦ P3 全双工包数 ${r.full.length} != 2`);
+  if (r.half.length === 2) {
+    const D = r.half[0].D;
+    ok(Math.abs(r.half[1].D - D) < 1e-6,
+       `⑦ 半双工两包周期不同（${r.half[0].D}s / ${r.half[1].D}s）—— 互斥无法用同一周期证明`);
+    const win = r.half.map(({ L, seg, gap, D: d, del }) => {
+      const per = seg + gap, len = d * (L + seg) / per;
+      const start = (((d * (per - seg) / per + del) % d) + d) % d;
+      return { start, len, duty: (L + seg) / per };
+    });
+    win.forEach((w, i) => ok(w.duty < 0.5,
+      `⑦ 半双工包 ${i + 1} 占空比 ${w.duty.toFixed(3)} ≥ 0.5 —— 相位再错也躲不开重叠`));
+    const gapFwd = (((win[1].start - win[0].start) % D) + D) % D;
+    const gapBwd = (((win[0].start - win[1].start) % D) + D) % D;
+    const m1 = gapFwd - win[0].len, m2 = gapBwd - win[1].len;
+    ok(m1 > 0 && m2 > 0,
+       `⑦ 半双工两向同时在途（互斥破了）：窗口 A [${win[0].start.toFixed(2)}, +${win[0].len.toFixed(2)}] `
+       + `／ B [${win[1].start.toFixed(2)}, +${win[1].len.toFixed(2)}]，周期 ${D}s，间隙 ${m1.toFixed(2)}/${m2.toFixed(2)}s`);
+    console.log(`· P3 半双工互斥：周期 ${D}s · 占空比 ${win[0].duty.toFixed(3)} · `
+      + `静默间隙 ${m1.toFixed(2)}s / ${m2.toFixed(2)}s`);
+  }
+  // 全双工：两包必须**同时**在途（占空比各 100% ⇒ 无论相位如何都恒重叠）
+  r.full.forEach((f, i) => ok((f.L + f.seg) / (f.seg + f.gap) > 0.98,
+    `⑦ 全双工包 ${i + 1} 占空比 ${(((f.L + f.seg) / (f.seg + f.gap))).toFixed(3)} —— 「同时在途」不成立`));
+  // 单工：B→A 方向永远无包 —— 那条线在 DOM 里是虚线 .pop（不带 .mo-packet）
+  const back = await pg.evaluate(() => [...document.querySelectorAll('.slide[data-p="3"] .mo-packet')]
+    .map(el => el.getAttribute('d')));
+  ok(back.filter(d => /^M194 62/.test(d)).length === 1, '⑦ 单工 A→B 通道上没有包');
+  ok(back.filter(d => /^M26[0-9] 10[0-9]/.test(d)).length === 0,
+     '⑦ 单工的静默方向上出现了包 —— 单工就不成其为单工了');
   await ctx.close();
 }
 
