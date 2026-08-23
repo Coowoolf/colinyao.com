@@ -10,6 +10,18 @@
 #     ① P2 四大数与来源标注改为与引擎 P21（Why Agora 口径锁页）逐字同源；
 #     ② 各页新增「流的什么 / 为什么」短线标与图注（不引入新数字 / 新客户名 / 新产品声明）。
 #
+# 2026-08-23 精修轮（GPT 5.6 review 采纳项 · 已仲裁定案 · 本文件占 A/B/C/D/G 五项）：
+#   A 抽屉主题**双向**同步：宿主补 storage 监听（iframe 写 localStorage → 宿主跟随），
+#     引擎 builder 此项零改动。见 ENGINE_DRAWER_JS 里那一段注释。
+#   B P5「96.5%」大数正下方补一行 cohort 标注「生产外呼 · n=2,475 · 未出现明确 AI 识别信号」
+#     ——三段全部是本页既有词与数的重组，**漏斗与其余内容一格未动**。
+#   C SOURCE ledger 统一成四段：`SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`。
+#     P2 原样（本来就是这个形状）；P4/P5/P6/P7/P8 各补一行，**只重排页内既有事实，
+#     不新增任何来源 / 样本 / 定义细节**；缺的段就少写，缺口记进交付报告等 Colin 补。
+#     P1 封面与 P3 矩阵没有事实声明 ⇒ 规格上就不带 SOURCE 行。
+#   D P7 浅色生态图对比度再提 ~17%（只调滤镜数值；不加卡片 / 不加 blur / 不加遮罩，深色不动）。
+#   G 投影小字提一档：.sig 与新类 .src 字号 15 → 17、色阶各上一格（与引擎 builder 逐字同源）。
+#
 # 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
 #   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 合流
 #
@@ -160,8 +172,18 @@ html[data-theme="dark"]{--l-agent:#6e96ff;--l-phys:#b78cf0;
   --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),
     color-mix(in srgb,var(--coral) 2%,transparent)),var(--card-bg);}
 .card .tag.am{color:var(--amber);}
-.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
-  letter-spacing:.12em;color:var(--sig-ink);}
+/* ── 投影可读性（2026-08-23 · GPT 5.6 review 采纳项 G · 两份 deck 逐字同源）────
+   .sig（页码）与 .src（SOURCE ledger 行）是投影上最先糊掉的两处小字：15px mono 在
+   1920 舞台上被会议室投影再缩一道，落到屏上只剩十来个像素，而 --sig-ink(.30) 与
+   --ink-3 又各自坐在最弱的一档色阶上。两枚一起提一档 —— 字号 15 → 17、色阶各上一格
+   （.sig：--sig-ink → --ink-3；.src：--ink-3 → 向 --ink-2 走 55% 的中间色）。
+   ⚠ 色阶只能走 color，**不许用 opacity** —— 入场系（.slide.visible .flow，0,2,0）
+     本来就在动 opacity，写在类上的那一档会被它整条压掉（实测 computed 恒为 1）。
+   提的是「看得清」，不是「抢眼」：仍旧远轻于正文与主视觉。 */
+.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 17px/1 var(--f-mono);
+  letter-spacing:.12em;color:var(--ink-3);}
+.src{font:500 17px/1.4 var(--f-mono);letter-spacing:.08em;
+  color:color-mix(in srgb,var(--ink-2) 55%,var(--ink-3));}
 /* hero-art：背景板之上、正文之下；contain 不裁切（GPT 交接约束）*/
 .hero-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
   z-index:0;pointer-events:none;}
@@ -325,8 +347,14 @@ html[data-theme="dark"] [data-p="7"] .eco-layer{background:transparent;}
   background:transparent;color:var(--ink);box-shadow:none;}
 html[data-theme="dark"] [data-p="7"] .callout-chip{background:transparent;color:var(--ink);}
 [data-p="7"] .callout-chip b{color:var(--accent);}
-/* polish · P7 浅色生态图对比度：底图在浅底下偏灰，抬 ~14% 对比 + 6% 饱和；深色零改动 */
-html:not([data-theme="dark"]) [data-p="7"] .eco-art.lt{filter:contrast(1.14) saturate(1.06);}
+/* polish · P7 浅色生态图对比度（2026-08-23 采纳项 D · 只调滤镜数值）────────────
+   原值 contrast 1.14 / saturate 1.06 在会议室投影下仍然偏灰：主干与节点是原片里最细的
+   一层墨，浅底 + 投影两道洗，网状节点几乎读不出来。本轮把对比再提约 15–20%
+   （1.14 → 1.34 ≈ +17%；饱和 1.06 → 1.24 让三色节点各自站住），并补一档
+   brightness(.97) 把整体白场压回来 —— 光提 contrast 会把浅灰底一起推成纯白，
+   反而更平。**Colin 定稿红线不动：不加卡片、不加 blur、不加遮罩。深色零改动。** */
+html:not([data-theme="dark"]) [data-p="7"] .eco-art.lt{
+  filter:contrast(1.34) saturate(1.24) brightness(.97);}
 
 /* ═══ P6 · R1 实拍图卡（图左 / 规格右 · 引擎 P19 同款机制，窗宽按本页 300 高重算）══
    图窗 280×300 对 1000×750（4:3）原片做 cover ⇒ 由**高**定标（scale = 300/750 = .40），
@@ -438,6 +466,16 @@ def land(txt, y=988, x=120, w=1680, i=6):
 def rail(txt, y=1010, x=120, w=1680, i=7, align=None):
     a = ";text-align:%s" % align if align else ""
     return sh("flow mono-sm", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
+
+
+def src(txt, y=1010, x=120, w=1680, i=7, align=None):
+    """SOURCE ledger 行（2026-08-23 采纳项 C）。全家族统一四段：
+         SOURCE · <来源> · <样本或时间窗> · 事实截止 2026.08
+       缺哪段就少哪段（不编），缺口记在交付报告里等 Colin 补。
+       与 rail() 分成两枚类：.src 是「出处」，.mono-sm 是页内普通元信息行 ——
+       G 轮只提 .src 与 .sig 这两枚投影小字的字号/色阶，别再把它们混用。"""
+    a = ";text-align:%s" % align if align else ""
+    return sh("flow src", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
 
 
 # ── SVG 小件（引擎 deck 同源）───────────────────────────────────────────────
@@ -773,9 +811,10 @@ page("content", "".join([
     sh("flow mono-sm", "left:1100px;top:800px;width:700px;height:20px;text-align:right;--i:1",
        "RELEASE TIMELINE · 一枚包 = 时间在走 · 终点 = 最新一次公开发布"),
     figbox(120, 866, 1680, 1620, 110, _p2band(), i=2),
-    land("全球最受欢迎的实时音视频云服务提供商。", w=900),
-    rail("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08",
-         x=1030, w=770, align="right"),
+    land("全球最受欢迎的实时音视频云服务提供商。", w=820),
+    # SOURCE ledger（四段制）· 本行与引擎 P21 逐字同源，两份 deck 不许分叉
+    src("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08",
+        x=940, w=860, align="right"),
 ]))
 
 # ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（真架构图）════════════════════
@@ -982,7 +1021,13 @@ _p4.append(sh("rise", "left:120px;top:900px;width:1680px;height:54px;--i:4",
               + halo_div("left:-5px;top:-5px;right:-5px;bottom:-5px", sc="1.10", op=".42",
                          dur="3.0s", radius="999px", bw="2px")
               + '⤢ 引擎产品详解 · 22 页 · ⏎</span>', step=1))
-_p4.append(land("模型会换代，接口不换人。"))
+_p4.append(land("模型会换代，接口不换人。", w=620))
+# SOURCE ledger：两块数据各出各的来源与时间窗 —— 左半是发版轴（18 个月 17 次），
+# 右半是同题评测。「2026-03 时点」是 LiveKit 对比的口径限定，必须在页脚也留一份
+# （seclab 那一行的「2026-03 同题评测 · 默认配置口径」原样不动）。
+_p4.append(src("SOURCE · 引擎公开发版 / 同题评测 默认配置口径 · "
+               "18 个月 17 次发版 / 2026-03 时点 · 事实截止 2026.08",
+               x=700, w=1100, align="right"))
 page("content", "".join(_p4), steps=1)
 
 # ═══ P5 · Agent ·「已经超越真人的企业级智能体」════════════════════════════
@@ -1103,6 +1148,14 @@ page("content", "".join([
        # 数据本身是「没有出现用户明确识别 AI 的信号」，是「未被识破」而不是「以为是真人」。
        '<div class="stat"><div class="v" style="font-size:84px;color:var(--l-agent)">96.5%</div>'
        '<div class="l" style="font-size:19px">通话未出现用户明确识别 AI 的信号</div></div>'),
+    # 2026-08-23 采纳项 B ·「96.5% 口径明示」：大数正下方补一行 cohort 标注。
+    #   三段全部是本页已有的词与数重组（副句「通话未出现用户明确识别 AI 的信号」+
+    #   漏斗首级「2,475」+ 页眉 REAL PRODUCTION DATA），**一个新词新数都没有**。
+    #   位置账：.stat 内容实际到 y≈381（84px/.92 + gap 8 + 19px/1.45），漏斗 .sh 从 404 起、
+    #   图内第一根条要到 y≈420 才落笔 —— 这一行 17px mono 坐在 384，两头都不碰。
+    #   **漏斗与其余内容一格未动**（Colin 定稿）。
+    sh("flow src", "left:120px;top:384px;width:800px;height:20px;--i:2",
+       "生产外呼 · n=2,475 · 未出现明确 AI 识别信号"),
     sh("", "left:114px;top:264px;width:270px;height:106px;pointer-events:none",
        halo_div("position:absolute;inset:0", col=LA, sc="1.08", op=".24", dur="3.2s", radius="16px")),
     figbox(120, 404, 800, 1000, 300, _p5fun, i=3),
@@ -1128,6 +1181,9 @@ page("content", "".join([
        + "".join('<div class="cap%s">%s</div>' % (" on" if _i == 9 else "", _t)
                  for _i, _t in enumerate(_G12)) + '</div>', step=1),
     land("不再是「AI 能否替代人工」——是「人工能否追上 AI」。"),
+    # SOURCE ledger：本页两个数据块（96.5% 漏斗 / 2.05× 转化）同属一份生产外呼数据集
+    src("SOURCE · 真实生产数据 · 生产外呼 n=2,475 · 事实截止 2026.08",
+        x=1120, w=680, align="right"),
 ]), steps=1)
 
 # ═══ P6 · PhysicalAI ·「让对话，走出屏幕」════════════════════════════════
@@ -1203,6 +1259,9 @@ page("content", "".join([
     sh("flow", "left:120px;top:886px;width:1080px;height:60px;--i:6",
        '<div class="note">活人感 = <strong style="color:var(--l-phys)">角色立得住 + 临场撑得住</strong>。</div>'),
     land("你做产品与角色，我们做<strong style='color:var(--l-phys)'>临场与连接</strong>。"),
+    # SOURCE ledger：来源段与引擎 P19（同一套 R1 事实）同源；时间窗取本页两张卡的发布日
+    src("SOURCE · 声网官网 / R1 公开发布信息 · 2025.03.20 / 2025.09.26 发布 · 事实截止 2026.08",
+        x=820, w=980, align="right"),
 ]))
 
 # ═══ P7 · 案例 ·「对话式 AI，已经上岗」════════════════════════════════════
@@ -1282,6 +1341,11 @@ page("content", "".join([
     #   先讲清「五层价值地壳，我们在哪」，再一步把 14 个已公开案例整墙推上来。
     sh("flow", "left:1156px;top:236px;width:644px;height:741px;--i:2", _p7wall, step=1),
     land("声网官方联合案例 · 均已公开——你的场景，多半能对上号。"),
+    # SOURCE ledger：右栏案例墙的出处。**左栏五层生态图没有外部来源**（Colin 自绘的
+    # 价值分层），这一条是交付报告里记着的缺口 —— 页内那行「从 SD‑RTN 到设备…事实截止
+    # 2026.08」是生态图自己的脚注，原样保留，不当 SOURCE 用。
+    src("SOURCE · 声网官方联合案例 · 14 例 均已公开 · 事实截止 2026.08",
+        x=1120, w=680, align="right"),
 ]), steps=1)
 
 # ═══ P8 · 合流 ·「三条支流，一条河」（本 deck 标杆动效页）════════════════
@@ -1414,7 +1478,11 @@ page("content", "".join([
        "——全球 200+ 节点，端到端毫秒级。"),
     sh("flow mono-sm", "left:1000px;top:884px;width:800px;height:24px;text-align:right;--i:6",
        "DEMO / 文档 · agora.io › 对话式 AI · 联系团队"),
-    land("让陪伴自然，让生意<strong>成单</strong>。", w=1060),
+    land("让陪伴自然，让生意<strong>成单</strong>。", w=460),
+    # 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）。
+    # P8 的数字（200+ 节点 / 毫秒级 / OpenAI 首批）都是 P2 那份口径的回指 ⇒ 来源同 P2；
+    # 本页没有自己的样本或时间窗 ⇒ 该段留空（缺口已记入交付报告）。
+    src("SOURCE · 声网官网 / IR 公开口径 · 事实截止 2026.08", x=560, w=580, align="right"),
     rail("姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM", x=1200, w=600, align="right"),
 ]))
 
@@ -1459,6 +1527,24 @@ function syncTheme(){
 }
 try{new MutationObserver(function(){if(loaded)syncTheme();})
       .observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
+/* ── 反向：iframe → 宿主（2026-08-23 采纳项 A · 把单向同步补成双向）──────────
+   上面那只 observer 只管「宿主变了推给 iframe」。抽屉开着时讲者顺手点的往往是
+   **iframe 里那枚 deckSwap**（它就在抽屉左下角、比宿主那枚更顺手）——
+   引擎 deck 的按钮写 localStorage("colin-theme") 再 apply，宿主此前完全不知情：
+   收回抽屉，底下 8 页还是旧主题。
+   同源 iframe（含归档 srcdoc 态）写 localStorage 会在**宿主窗口**触发 storage 事件
+   （同一个 window 自己写不触发 ⇒ 宿主点自己的 deckSwap 不会回环，天然无死循环）。
+   这里只认 colin-theme 这一个键，先判不同再落属性（免得无谓抖动）；
+   宿主属性一变，上面那只 observer 会再把同一个值推回 iframe —— 幂等，无害。
+   优先走宿主自己的 __setTheme：它同时管 data-theme 与 deckSwap 的按钮文案。 */
+window.addEventListener("storage",function(e){
+  if(!e||e.key!=="colin-theme")return;
+  var t=(e.newValue==="dark")?"dark":"light";
+  if(hostTheme()===t)return;
+  if(typeof window.__setTheme==="function"){try{window.__setTheme(t);return;}catch(err){}}
+  if(t==="dark")document.documentElement.setAttribute("data-theme","dark");
+  else document.documentElement.removeAttribute("data-theme");
+});
 function bindInner(){
   var w=null;try{w=fr.contentWindow;}catch(e){}
   if(!w||w.__engineEscBound)return;   /* 标志位挂在内层 window 上：每次 load 换新 window 自动失效 */
@@ -1620,6 +1706,20 @@ def build():
     # 深链契约：三处入口的 hash 表必须齐
     for _h in ('data-eng-hash="1"', 'data-eng-hash="16"', 'data-eng-hash="19"'):
         assert _h in doc, "深链入口缺失：%s" % _h
+    # SOURCE ledger（采纳项 C）：六页各一行、四段制、结尾一律「事实截止 2026.08」。
+    # P1 封面与 P3 矩阵没有事实声明 ⇒ 不带 SOURCE 行（这是规格，不是遗漏）。
+    import re as _re
+    _srcs = _re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
+    assert len(_srcs) == 6, "SOURCE ledger 行数漂移：%d != 6（%r）" % (len(_srcs), _srcs)
+    for _s in _srcs:
+        assert _s.startswith("SOURCE · "), "SOURCE 行不以「SOURCE · 」起手：%r" % _s
+        assert _s.endswith(" · 事实截止 2026.08"), "SOURCE 行未以事实截止收尾：%r" % _s
+        assert _s.count(" · ") >= 2, "SOURCE 行不足两段：%r" % _s
+    # 双向主题同步（采纳项 A）：宿主必须挂 storage 监听，且只认 colin-theme 这一个键
+    assert 'window.addEventListener("storage"' in doc, "缺 iframe→宿主 的 storage 反向同步"
+    assert 'e.key!=="colin-theme"' in doc, "storage 监听未限定 colin-theme 键"
+    # 96.5% cohort 标注（采纳项 B）：三段口径一个都不许掉
+    assert "生产外呼 · n=2,475 · 未出现明确 AI 识别信号" in doc, "P5 96.5% cohort 标注缺失"
     print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · hero-art=%s"
           % (total, len(doc) // 1024, steps_map, "on" if HERO_ART else "off"))
 

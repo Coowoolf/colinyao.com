@@ -51,10 +51,21 @@
 # 2026-08-21（视频页）21 → 22 页：Colin 指令「R1 之后再插一页 robot26 #24 同款全屏视频页」——
 #   新 P20 = 无人机秀 demo 全屏片子（跨引用 robot26 的 demo.mp4 + demo-poster.jpg），
 #   Why Agora → P21、OpenAI 末页 → P22。机制整套复刻 robot26 #24（不带 controls 属性 /
-#   悬停呼出 / preload=none / muted+playsinline / data-play-step 步进开播），
+#   悬停呼出 / preload（2026-08-23 起 metadata）/ muted+playsinline / data-play-step 步进开播），
 #   播放挂钩写在 build() 的内联脚本里 —— **不改共享 deck.js**（那份 runtime 三份 deck 共用）。
 #   连带：分步 [6,7,14] → [6,7,14,20]、口径锁 20 → 21、title 板 {1,21} → {1,22}；
 #   bake-archive 把 demo.mp4 换成线上绝对地址（3.1MB 不进 base64，poster 照常内联）。
+# 2026-08-23 精修轮（GPT 5.6 review 采纳项 · 已仲裁定案 · 本文件占 C/E/F/G 四项 · 页数不变）：
+#   C SOURCE ledger 统一成四段：`SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`，
+#     全部走新 helper src() 与新类 .src。P5/P7/P8/P11/P19 就地并段（多来源用「/」并列、
+#     补「事实截止」收尾），P16/P18/P21 原样（本来就是这个形状），**P17 补上原本缺失的
+#     那一行**（与 P16/P18 逐字同源，落在页脚三栏的中栏）。
+#     只重排页内既有事实，不新增任何来源 / 样本 / 定义细节；缺口记进交付报告。
+#   E P20 首帧：preload none → metadata + 补一枚静态角标 kicker（反白左上角，
+#     不挂 data-step、不挂 mo-* 原语）；播放机制一字未动；浅色仍是电影感黑底全幅。
+#   F P8 / P14 kicker 消歧：P8 补「ENGINE INTERNALS · 运行时内部链路」，
+#     P14 补「INTEGRATION · 客户接入架构」；**只动 kicker 行，标题与图零触碰**。
+#   G 投影小字提一档：.sig 与新类 .src 字号 15 → 17、色阶各上一格（与 info builder 逐字同源）。
 #
 # 结构（22 页；★ = 一轮新增，☆ = 二轮新增，◆ = 2026-08-21 新增 / 重做，■ = Call Agent 章）：
 #   P1  封面（title 板）        P2  实时决策        P3  双工三模式 ★
@@ -145,8 +156,18 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
   --warn-bg:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),
     color-mix(in srgb,var(--coral) 2%,transparent)),var(--card-bg);}
 .card .tag.am{color:var(--accent);}
-.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 15px/1 var(--f-mono);
-  letter-spacing:.12em;color:var(--sig-ink);}
+/* ── 投影可读性（2026-08-23 · GPT 5.6 review 采纳项 G · 与 convoai-info 逐字同源）──
+   .sig（页码）与 .src（SOURCE ledger 行）是投影上最先糊掉的两处小字：15px mono 在
+   1920 舞台上被会议室投影再缩一道，落到屏上只剩十来个像素，而 --sig-ink(.30) 与
+   --ink-3 又各自坐在最弱的一档色阶上。两枚一起提一档 —— 字号 15 → 17、色阶各上一格
+   （.sig：--sig-ink → --ink-3；.src：--ink-3 → 向 --ink-2 走 55% 的中间色）。
+   ⚠ 色阶只能走 color，**不许用 opacity** —— 入场系（.slide.visible .flow，0,2,0）
+     本来就在动 opacity，写在类上的那一档会被它整条压掉（实测 computed 恒为 1）。
+   提的是「看得清」，不是「抢眼」：仍旧远轻于正文与主视觉。 */
+.sig{position:absolute;right:120px;top:47px;z-index:2;font:500 17px/1 var(--f-mono);
+  letter-spacing:.12em;color:var(--ink-3);}
+.src{font:500 17px/1.4 var(--f-mono);letter-spacing:.08em;
+  color:color-mix(in srgb,var(--ink-2) 55%,var(--ink-3));}
 /* 版式件（与 convoai-info 同源） */
 .kk{font:700 20px/1 var(--f-mono);letter-spacing:.28em;color:var(--accent);}
 .hh{font:700 68px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink);}
@@ -308,7 +329,14 @@ html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
    反查视频页 —— 不写 [data-p="20"]，页序一动就失效（本 deck 半个月里已经重排三次了）。
    :has() 的浏览器门槛（Chrome 105）低于本 deck 已经在用的 color-mix()（Chrome 111），
    不构成新的兼容负担。 */
-.pp .sig:has(~ .sh.vid){color:rgba(255,255,255,.42);}
+.pp .sig:has(~ .sh.vid){color:rgba(255,255,255,.55);}
+/* P20 静态角标 kicker（2026-08-23 采纳项 E ②）：整页只有一支片子，这是唯一一行说明。
+   反白压左上角 —— 右上角归页码 sig，画面主体在中下部，hover 才挂上的原生控制条在底部，
+   三者各占一角互不打架。`.sh.vid-kick`（0,2,0）压过 `.kk{color:var(--accent)}`（0,1,0）。
+   一圈软黑投影：片子的角上万一飘过亮部，字仍旧读得出（poster 那一帧角上是纯黑）。
+   **它是静态文字件**：不挂 data-step、不挂任何 mo-* 类 —— 不进运动件名册，
+   也躲开 motion.css「裸容器 step0 → opacity:0」的兜底规则（P20 空页事故的根因）。 */
+.sh.vid-kick{color:rgba(255,255,255,.74);text-shadow:0 1px 10px rgba(0,0,0,.55);}
 /* ── OpenAI × Agora logo 锁定版（P22 末页）───────────────────────────────
    双源同构图，走 convoai-info 的 .hero-art / .eco-art 同一套「CSS 控显隐」机制，
    不用 robot26 的 data-*-src 换源脚本：抽屉 iframe 里宿主切主题只改 html[data-theme]，
@@ -376,6 +404,21 @@ def land(txt, y=988, x=120, w=1680, i=6):
 def rail(txt, y=988):
     """英文 mono 收口轨（没有 land 的页用它压住页脚基线）"""
     return sh("flow mono-sm", "left:120px;top:%dpx;width:1680px;height:24px;--i:7" % y, txt)
+
+
+def src(txt, y=1015, x=120, w=1680, i=7, align=None):
+    """SOURCE ledger 行（2026-08-23 采纳项 C · 与 convoai-info 的 src() 同签名同类名）。
+       全家族统一四段：SOURCE · <来源> · <样本或时间窗> · 事实截止 2026.08
+       缺哪段就少哪段（不编），缺口记在交付报告里等 Colin 补。
+       与 rail()/.mono-sm 分成两枚类：.src 是「出处」，G 轮只提 .src 与 .sig
+       这两枚投影小字的字号与色阶 —— 别再把普通元信息行混挂到 .src 上。"""
+    a = ";text-align:%s" % align if align else ""
+    return sh("flow src", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
+
+
+# ── SOURCE ledger 常量（同一份出处出现在多页时只写一次，防两页各自漂移）────────
+#   P5 三件极致 / P11 弱网：同一套「引擎公开口径 · 典型值」
+_SRC_TYP = "SOURCE · 声网官网 / 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08"
 
 # ── SVG 小件 ────────────────────────────────────────────────────────────────
 def ah_r(x, y, col, s=9):
@@ -850,8 +893,8 @@ page("content", "".join([
     rule(850),
     # 原 rail（纯英文口号）替换为 SOURCE 行：三个数字是全 deck 被引用最多的口径，
     # 必须自带出处与「典型值」限定（2026-08-20 仲裁 P0）。
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
-       "SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08"),
+    # 2026-08-23 采纳项 C：并入四段 ledger —— 两个来源用「/」并列，「典型值」占样本段。
+    src(_SRC_TYP),
 ]))
 
 # ═══ P6 · 实时语音链路 ·「一条深度优化的实时语音链路」══════════════════════
@@ -1101,9 +1144,10 @@ page("content", "".join([
                  for _c, _o in _TENCHIPS) + '</div></div>', step=1),
     # 判停重构落在 V2.6，但 SOS/EOS 是「自 V2.6 起重构」而非「V2.6 才有 VAD」——
     # 原写法「引擎发版说明 V2.6」会被读成后者（2026-08-20 仲裁 P1）。
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:9",
-       "SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD · TEN ECOSYSTEM · "
-       "引擎发版说明 · SOS/EOS 判停重构自 V2.6"),
+    # 2026-08-23 采纳项 C：三个来源用「/」并列进来源段，V2.6 判停窗占样本/时间窗段，
+    # 补齐家族统一的「事实截止」收尾。
+    src("SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD / TEN ECOSYSTEM / 引擎发版说明 · "
+        "SOS/EOS 判停重构自 V2.6 · 事实截止 2026.08", i=9),
 ]), steps=1)
 
 # ═══ P8 · 产品架构大图 ·「一张图，看懂全双工引擎」（2026-08-20 新增）═════════
@@ -1270,13 +1314,17 @@ def _bigmap():
     return "".join(o)
 
 page("content", "".join([
-    head("PRODUCT ARCHITECTURE · FULL-DUPLEX × AI-VAD · DATA FLOW",
+    # 2026-08-23 采纳项 F · kicker 消歧：P8（引擎内部数据流）与 P14（客户接入架构）
+    # 原来两页 kicker 都以 ARCHITECTURE 起手，翻页时读起来像同一张图的两个版本。
+    # 各补一段限定词把「谁的架构」说死。**只动 kicker 一行，标题与大图一个像素不碰。**
+    head("PRODUCT ARCHITECTURE · ENGINE INTERNALS · 运行时内部链路 · FULL-DUPLEX × AI-VAD",
          "<strong>一张图</strong>，看懂全双工引擎。"),
     lab(120, 246, "01 · ONE PICTURE · 上行 / 中枢 / 下行 · 两条闭环"),
     figbox(120, 282, 1680, 1680, 660, _bigmap(), i=1),
     land("听的车道永不关闭，说的车道随时让行——中间站着 AI-VAD。", y=944),
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:9",
-       "SOURCE · 引擎发版说明 · TEN ECOSYSTEM · 打断/延时口径见 P5"),
+    # 2026-08-23 采纳项 C：本页是一张机理大图，**没有自己的样本或时间窗**（数字全部
+    # 回指 P5 的公开口径）⇒ 样本段留空，缺口已记入交付报告。
+    src("SOURCE · 引擎发版说明 / TEN ECOSYSTEM · 打断/延时口径见 P5 · 事实截止 2026.08", i=9),
 ]))
 
 # ═══ P9 · 优雅打断 ·「想插话就插话，340ms 即时收声」════════════════════════
@@ -1571,8 +1619,7 @@ page("content", "".join([
     # land 收窄到 1000，右侧让出 SOURCE 行（同一基线两栏，照 convoai-info P8 的做法），
     # 这样 land 仍落在全 deck 统一的 y988 基线上，翻页时那根 accent 竖条不跳。
     land("极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。", w=1000),
-    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
-       "SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08"),
+    src(_SRC_TYP, y=1010, x=1010, w=790, align="right"),
 ]))
 
 # ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
@@ -1787,7 +1834,10 @@ def _arch_fig():
     o.append('</g>')
     return "".join(o)
 page("content", "".join([
-    head("ARCHITECTURE · 接入架构", "<strong>2 行代码</strong>，三方协同即可上线。"),
+    # 2026-08-23 采纳项 F · kicker 消歧（与 P8 成对改）：补「客户」这个限定词 ——
+    # 本页画的是客户侧三方怎么接进来，不是引擎内部怎么跑。原「接入架构」被
+    # 「客户接入架构」整段吸收，不重复挂两遍。**只动 kicker 一行，标题与图零触碰。**
+    head("ARCHITECTURE · INTEGRATION · 客户接入架构", "<strong>2 行代码</strong>，三方协同即可上线。"),
     lab(120, 236, "01 · THREE PARTIES"),
     # viewBox 556→578、盒顶 280→266：③ 的盒底跑道要在「三盒底缘 / 域底标 / 图例」之间
     # 各留出 10px 以上的呼吸（原 556 里只剩 6px，徽标贴着域底标）。
@@ -1877,7 +1927,7 @@ page("content", "".join([
                  for _r in _CA_DIFF) + '</tbody></table>'),
     rule(850),
     land("TA 不疲惫、不带情绪、句句合规。", y=944),
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7", _CA_SRC),
+    src(_CA_SRC),
 ]))
 
 # ═══ P17 · 五个大脑 · Agent Harness（2026-08-21「Call Agent 章」新增 ◆ · 同日重做）══
@@ -2074,6 +2124,11 @@ page("content", "".join([
     land("听清、听懂、想透、决断——同时发生。", y=944),
     sh("flow mono-sm", "left:120px;top:1015px;width:1000px;height:24px;--i:7",
        "为什么 96.5% 的客户听不出对面是 AI——答案在这五层。"),
+    # 2026-08-23 采纳项 C · 补 P17 缺失的 SOURCE 行（GPT 5.6 实证：Call Agent 三页里
+    # 只有这一页没有出处）。与 P16/P18 逐字同源、同一条 y1015 页脚基线 ——
+    # 左右两栏原位不动，ledger 落在中间那段 949px 的净空里（实测两栏墨迹 120–494 / 1443–1800）。
+    # top 取 1013 而不是 1015：本行 17px、邻栏 15px，基线差 ~2px，抬两格才对得齐。
+    src(_CA_SRC, y=1013, x=520, w=880, align="center"),
     sh("flow mono-sm", "left:1100px;top:1015px;width:700px;height:24px;text-align:right;--i:7",
        "跑在对话式 AI 引擎的全双工链路上 · 见 P8"),
 ]))
@@ -2166,7 +2221,7 @@ page("content", "".join([
     ] + [
     rule(850),
     land("通话内容自学习，转化效果自迭代。", y=944),
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:8", _CA_SRC),
+    src(_CA_SRC, i=8),
 ]))
 # ═══ P19 · Physical AI · R1 开发套件（带实拍图 · 页号 13→19）════════════
 #   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
@@ -2228,13 +2283,15 @@ page("content", "".join([
        '<div style="flex:1">'
        + "".join('<span class="chip">%s</span>' % _c for _c in _R1CAPS) + '</div></div>'),
     land("你做产品与角色，我们做<strong style='color:var(--accent)'>临场与连接</strong>。", w=1000),
-    sh("flow mono-sm", "left:1150px;top:1010px;width:650px;height:24px;text-align:right;--i:7",
-       "SOURCE · 声网官网 · R1 公开发布信息 · 事实截止 2026.08"),
+    # 2026-08-23 采纳项 C：时间窗取本页两张卡的发布日（与 convoai-info P6 同一份事实）
+    src("SOURCE · 声网官网 / R1 公开发布信息 · 2025.03.20 / 2025.09.26 发布 · 事实截止 2026.08",
+        y=1010, x=880, w=920, align="right"),
 ]))
 
 # ═══ P20 · 无人机秀 DEMO · 全屏视频页（2026-08-21 · robot26 #24 同款机制）══
 #   Colin 指令：R1（P19）之后插一页 robot26 #24 同款全屏视频页。
-#   **纯片子**：无 kicker、无标题、无 land —— 一页只有一支片子，讲者按一下就播。
+#   **纯片子**：无标题、无 land —— 一页只有一支片子，讲者按一下就播。
+#   （2026-08-23 采纳项 E ②：补了一枚**静态**角标 kicker 压在左上角，仅此一行字。）
 #   复刻的是 robot26 #24 已经踩平的那套机制，逐条对上（改这页之前先读完）：
 #     ① 资产跨 deck 引用 robot26 目录，不复制文件（bake 的资产内联按路径全匹配，跨引用照吃）。
 #        demo.mp4 3.1MB 不进归档内联 —— bake-archive 里换成线上绝对地址（见那份脚本的
@@ -2242,7 +2299,8 @@ page("content", "".join([
 #     ② **不带 controls 属性**：Blink 的原生控制条在 .deck-stage 的 transform:scale(≠1) 下
 #        按未缩放坐标系渲染，条宽与位置全错（robot26 Colin 截图实锤）。悬停才由 JS 呼出，
 #        供排练手控；静置态必须是干净画面，qa 的 ⑭ 闸盯着这一条。
-#     ③ preload="none"：21 页的 deck 一打开就预拉 3MB 视频是没道理的，翻到才拉。
+#     ③ preload：22 页的 deck 一打开就预拉 3MB 视频是没道理的 —— 但 "none" 走过了头
+#        （2026-08-23 采纳项 E ①，改成 "metadata"：只拉头部几十 KB，片体照旧按需拉）。
 #     ④ muted + playsinline：不 muted 浏览器会拒绝自动播放（play() 直接 reject）。
 #     ⑤ 分步：**容器绝不许挂 data-step** —— 2026-08-21 Colin 报「P19 之后多了一个空页面」，
 #        根因就在这里：motion.css 末尾有一条兜底规则
@@ -2255,11 +2313,27 @@ page("content", "".join([
 #        所以这一枚是「本页有一步 build」的唯一依据；它零宽零高，两种步态都不可见。
 #        视频挂 data-play-step="1"，播放脚本按「同一页里 [data-step=N] 是否 .on」判步。
 #   1280×720 的片子与 1920×1080 舞台同 16:9 ⇒ object-fit:cover 不裁一格。
+#   2026-08-23 采纳项 E · 首帧两改（播放机制一字不动：仍无 controls、仍 hover 呼出、
+#   仍 vid-cue 步进、仍 MutationObserver 双钩）：
+#     ① preload="none" → "metadata"。none 的代价是**首帧要等**：翻到 P20 时浏览器
+#        连元数据都没有，poster 之外一片黑，讲者按下去还要等一轮网络往返。
+#        metadata 只拉头部几十 KB（不是那 3.1MB），换来的是翻到即可播。
+#     ② 补一枚静态角标 kicker：整页只有一支片子，没有任何字告诉观众「这是在讲什么」。
+#        角标反白压在左上角（右上角归页码 sig），画面主体在中下部、hover 控制条在底部，
+#        三者互不相碰；**不挂 data-step、不挂任何 mo-* 类** —— 它是纯静态文字件,
+#        既不进运动件名册，也不会被 motion.css 的裸容器兜底规则摁成空页。
+#     ③ 浅色主题下本页仍是电影感黑底全幅（video 自带 background:#000 + poster 满铺），
+#        这是有意为之：qa 的 ⑭ 闸用「静置态整页平均亮度 < 60」双主题各钉一次。
 _VID = "/decks/assets/robot26/"
 page("content",
      sh("vid", "left:0;top:0;width:1920px;height:1080px;z-index:0",
         '<video data-play-step="1" src="%sdemo.mp4" poster="%sdemo-poster.jpg" '
-        'preload="none" playsinline muted></video>' % (_VID, _VID))
+        'preload="metadata" playsinline muted></video>' % (_VID, _VID))
+     # 盒宽 760 而不是随手的 1200：实测墨迹 616px（20px mono · letter-spacing .28em），
+     # 盒开到 760 只余 144px 呼吸，右缘 880 稳稳留在画面左半 —— qa ⑭ 按盒（不是按墨迹）
+     # 验「角标不越到画面主体上」，盒虚开就等于闸失效。
+     + sh("kk vid-kick", "left:120px;top:44px;width:760px;height:28px;z-index:2",
+          "PHYSICAL AI · FROM ENGINE TO DEVICE")
      + '<i class="vid-cue" data-step="1" aria-hidden="true"></i>',
      steps=1)
 
@@ -2292,8 +2366,8 @@ page("content", "".join([
     # land 落在 820 时字形正压在线上 = 划掉的观感；抬到 794 让那条线落到文字下方当收口横线
     land("2014 年成立，全球最受欢迎的实时音视频云服务提供商——语音智能体，"
          "跑在经海量流量锤炼的底座上。", y=794),
-    sh("flow mono-sm", "left:120px;top:1015px;width:1680px;height:24px;--i:7",
-       "SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
+    # 本行与 convoai-info P2 逐字同源，两份 deck 不许分叉（四大数与限定语同理）
+    src("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
 # ═══ P22 · OpenAI 合作 · 末页（logo 锁定版 + CTA · 页号 19→18→21→22）═══════
@@ -2448,9 +2522,30 @@ def build():
     assert doc.count('<video ') == 1, "视频件数漂移：%d" % doc.count('<video ')
     assert " controls" not in doc.split('<video ')[1].split('>')[0], \
         "视频页写死了 controls —— transform:scale 下会错位（robot26 实锤）"
+    # 视频页首帧（2026-08-23 采纳项 E）：preload 必须是 metadata；静态角标必须在位且不带步进
+    _vtag = doc.split('<video ')[1].split('>')[0]
+    assert 'preload="metadata"' in _vtag, "视频页 preload 不是 metadata：%r" % _vtag
+    assert 'class="sh kk vid-kick"' in doc, "视频页缺静态角标 kicker"
+    _ktag = doc.split('class="sh kk vid-kick"')[1].split('>')[0]
+    assert "data-step" not in _ktag, "视频页角标挂了 data-step —— 静态文字件不许进步进"
+    assert "mo-" not in _ktag, "视频页角标挂了 mo-* 原语 —— 它不进运动件名册"
     # Call Agent 章红线（三条，构建期就拦住，别等到 qa）：价格数字 / staging URL 一律不许上页
     for _bad in ("¥8,500", "¥2,999", "¥5,501", "staging"):
         assert _bad not in doc, "Call Agent 红线：全 deck 不许出现「%s」" % _bad
+    # SOURCE ledger（采纳项 C）：九张数据页各一行、四段制、结尾一律「事实截止 2026.08」；
+    # 旧格式（SOURCE 行挂在 .mono-sm 上）一行都不许剩。
+    import re as _re
+    _srcs = _re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
+    assert len(_srcs) == 9, "SOURCE ledger 行数漂移：%d != 9（%r）" % (len(_srcs), _srcs)
+    for _s in _srcs:
+        assert _s.startswith("SOURCE · "), "SOURCE 行不以「SOURCE · 」起手：%r" % _s
+        assert _s.endswith(" · 事实截止 2026.08"), "SOURCE 行未以事实截止收尾：%r" % _s
+        assert _s.count(" · ") >= 2, "SOURCE 行不足两段：%r" % _s
+    _stray = _re.findall(r'<div class="sh flow mono-sm"[^>]*>(SOURCE[^<]*)</div>', doc)
+    assert not _stray, "仍有 SOURCE 行挂在 .mono-sm 上（未并入 ledger）：%r" % _stray
+    # kicker 消歧（采纳项 F）：P8 / P14 各自带限定词，不许再撞成同一句
+    assert "ENGINE INTERNALS · 运行时内部链路" in doc, "P8 kicker 缺内部链路限定词"
+    assert "ARCHITECTURE · INTEGRATION · 客户接入架构" in doc, "P14 kicker 缺客户接入限定词"
     print("convoai.html + convoai-engine.html（双生） · %d 页 · %dKB · conf-light 默认 · 分步 %r"
           % (total, len(doc) // 1024, steps_map))
 

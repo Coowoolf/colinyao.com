@@ -330,9 +330,10 @@ const ALL = await pg.evaluate(() => document.getElementById('deckStage').textCon
 ['三台引擎', '两大产品引擎', 'THREE ENGINES', 'DUAL FORM'].forEach(n =>
   ok(!ALL.includes(n), `⑭ 旧分类学口径回归：「${n}」`));
 
-// P4 · Engine 口径
+// P4 · Engine 口径（「2026-03 时点」必须在 seclab 与 SOURCE 行两处都留一份）
 [['超低延迟、可打断、高自然度', t4], ['2025.02.18 · v1.0 公测', t4], ['2026.08.11 · v2.11 最新', t4],
  ['VS LIVEKIT · 2026-03 同题评测 · 默认配置口径', t4], ['优雅打断 2.0', t4],
+ ['2026-03 时点', t4],
  ['模型会换代，接口不换人。', t4]].forEach(([n, txt]) => ok(txt.includes(n), `⑫ P4 缺「${n}」`));
 
 // P5 · Agent 口径（**2,475 通生产口径**，与引擎 P16 的盲测口径是两个数据集）
@@ -346,6 +347,28 @@ const ALL = await pg.evaluate(() => document.getElementById('deckStage').textCon
   .forEach(([n, txt]) => ok(txt.includes(n), `⑫ P5 缺「${n}」`));
 ok(!ALL.includes('用户以为在跟真人说话'), '⑭ P5 旧措辞「用户以为在跟真人说话」回归');
 ok(!ALL.includes('99.99% · SOC 2 / GDPR'), '⑭ P5 混合 chip 未拆开');
+// ⑫ P5 · 96.5% cohort 标注（2026-08-23 采纳项 B）：三段口径钉死，且必须紧贴大数下方
+//    （落在 96.5% 那只 .sh 之下、漏斗 .sh 之上 —— 漏斗与其余内容一格未动）。
+ok(t5.includes('生产外呼 · n=2,475 · 未出现明确 AI 识别信号'), '⑫ P5 缺 96.5% cohort 标注');
+{
+  const geo = await pg.evaluate(() => {
+    const s = document.querySelector('.slide[data-p="5"]');
+    s.classList.add('active', 'visible');
+    const co = [...s.querySelectorAll('.sh')].find(el => /生产外呼 · n=2,475/.test(el.textContent || ''));
+    const big = [...s.querySelectorAll('.sh')].find(el => /96\.5%/.test(el.textContent || ''));
+    const fun = [...s.querySelectorAll('.sh')].find(el => /2,475 · 100\.0%/.test(el.textContent || ''));
+    const R = (el) => el ? { t: Math.round(el.getBoundingClientRect().top),
+                             b: Math.round(el.getBoundingClientRect().bottom),
+                             l: Math.round(el.getBoundingClientRect().left) } : null;
+    return { co: R(co), big: R(big), fun: R(fun) };
+  });
+  ok(!!geo.co && !!geo.big && !!geo.fun, '⑫ P5 cohort / 大数 / 漏斗 三件定位失败');
+  if (geo.co && geo.big && geo.fun) {
+    ok(geo.co.t >= geo.big.t, `⑫ P5 cohort 标注跑到 96.5% 上方了（${geo.co.t} < ${geo.big.t}）`);
+    ok(geo.co.b <= geo.fun.t + 4, `⑫ P5 cohort 标注压进漏斗（下缘 ${geo.co.b} > 漏斗顶 ${geo.fun.t}）`);
+    ok(geo.co.l === geo.big.l, `⑫ P5 cohort 标注未与大数左对齐（${geo.co.l} != ${geo.big.l}）`);
+  }
+}
 
 // P6 · Physical AI 口径
 [['R1 · WI-FI · 2025.03.20 发布', t6], ['R1 · 4G · 2025.09.26 发布', t6],
@@ -381,6 +404,35 @@ ok(t7.includes('14') && t7.includes('声网联合案例 · 均已公开'), '⑮ 
  ['DEMO / 文档 · agora.io › 对话式 AI · 联系团队', t8],
  ['让陪伴自然，让生意成单。', t8]].forEach(([n, txt]) => ok(txt.includes(n), `⑫ P8 缺「${n}」`));
 ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改');
+
+// ⑯ SOURCE ledger 统一闸（2026-08-23 采纳项 C）：出处行走同一枚 .src 类、同一套四段格式
+//    `SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`。
+//    P1 封面与 P3 矩阵**没有事实声明** ⇒ 规格上就不带 SOURCE 行（不是遗漏）。
+{
+  const led = await pg.evaluate(() => [...document.querySelectorAll('.slide')].flatMap((s, i) =>
+    [...s.querySelectorAll('.src')].map(el => ({ p: i + 1, t: (el.textContent || '').trim() }))
+  ).filter(x => x.t.startsWith('SOURCE')));
+  const SRC_PAGES = [2, 4, 5, 6, 7, 8];
+  const live = [...new Set(led.map(x => x.p))].sort((a, b) => a - b);
+  ok(live.join(',') === SRC_PAGES.join(','),
+     `⑯ SOURCE ledger 覆盖漂移：实测 [${live}] != 名册 [${SRC_PAGES}]`);
+  ok(led.length === SRC_PAGES.length, `⑯ SOURCE 行数 ${led.length} != ${SRC_PAGES.length}`);
+  led.forEach(({ p, t }) => {
+    ok(t.startsWith('SOURCE · '), `⑯ P${p} SOURCE 行不以「SOURCE · 」起手：「${t}」`);
+    ok(t.endsWith(' · 事实截止 2026.08'), `⑯ P${p} SOURCE 行未以「· 事实截止 2026.08」收尾：「${t}」`);
+    ok(t.split(' · ').length >= 3, `⑯ P${p} SOURCE 行不足三段：「${t}」`);
+  });
+  const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide .mono-sm')]
+    .map(el => (el.textContent || '').trim()).filter(t => t.startsWith('SOURCE')));
+  ok(stray.length === 0, `⑯ 仍有 SOURCE 行挂在 .mono-sm 上（未并入 ledger）：${stray.join(' | ')}`);
+  // 采纳项 G：.src 与 .sig 都必须是提过一档的 17px（两份 deck 一致）
+  const sizes = await pg.evaluate(() => ({
+    src: getComputedStyle(document.querySelector('.src')).fontSize,
+    sig: getComputedStyle(document.querySelector('.sig')).fontSize,
+  }));
+  ok(sizes.src === '17px', `⑯ .src 字号 ${sizes.src} != 17px（采纳项 G：投影小字提一档）`);
+  ok(sizes.sig === '17px', `⑯ .sig 字号 ${sizes.sig} != 17px（采纳项 G：投影小字提一档）`);
+}
 
 // ⑭ 红线反向闸：价格 / staging / 引擎 P16 的盲测口径（两个数据集严禁混写）
 ['¥8,500', '¥2,999', '¥5,501', '8,500', '2,999', '5,501',

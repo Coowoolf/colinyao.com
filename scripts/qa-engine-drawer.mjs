@@ -3,6 +3,10 @@
 //   ① iframe 内 .pp / section 数 == 22；iframe 内 html[data-theme] 与宿主一致（浅浅 / 深深各一组）
 //   ② 主题实时联动（2026-08-20 新增）：抽屉开着时点宿主的 deckSwap，
 //      iframe 的 data-theme 必须跟着翻（不是只在首帧读一次 localStorage）
+//   ②b 反向联动（2026-08-23 采纳项 A · 双向）：抽屉开着时点 **iframe 里那枚 deckSwap**，
+//      宿主的 html[data-theme] 与 deckSwap 文案必须跟着翻。通路是「同源 iframe 写
+//      localStorage → 宿主 window 收到 storage 事件」，所以只能点按钮触发，
+//      调 __setTheme 不写 localStorage、测不到这条通路。
 //   ③ eo-close 收回按钮在左上（避让 iframe 右上角的页码 sig）
 // 2026-08-20：引擎 deck 二轮扩页 16 → 17（VAD 之后插入产品架构大图）
 // 2026-08-21：大内容轮 17 → 20（SAL / 弱网 / 多模态重做 + Physical AI 两页 + OpenAI 一页）
@@ -86,7 +90,45 @@ for (const theme of ['light', 'dark']) {
     if (live.ls !== wantLs) fails.push(`[${theme}] iframe localStorage 未同步（${live.ls} != ${wantLs}）`);
     const wantLabel = flipped === 'dark' ? '浅底' : '暗底';
     if (live.label !== wantLabel) fails.push(`[${theme}] iframe deckSwap 文案未同步（${live.label} != ${wantLabel}）`);
-    console.log(`· ${theme} → 实时联动：宿主=${live.host || 'light'} iframe=${live.inner || 'light'} ls=${live.ls}`);
+    console.log(`· ${theme} → host→iframe 实时联动：宿主=${live.host || 'light'} iframe=${live.inner || 'light'} ls=${live.ls}`);
+  }
+
+  // ②b 反向联动 iframe → 宿主（2026-08-23 采纳项 A）：抽屉开着时点 **iframe 里那枚
+  //     deckSwap**，宿主的 html[data-theme] 与 deckSwap 文案必须跟着翻。
+  //     必须点它自己的按钮而不是调 __setTheme —— 只有按钮会写 localStorage，
+  //     而反向通路正是靠同源 iframe 写 localStorage 在宿主触发的 storage 事件。
+  //     此刻宿主是 flipped 态（上一段刚翻过），再点一次应当翻回 theme 起始态。
+  {
+    const clicked = await pg.evaluate(() => {
+      const d = document.getElementById('engineFrame').contentDocument;
+      const b = d.getElementById('deckSwap');
+      if (!b) return false;
+      b.click();
+      return true;
+    });
+    if (!clicked) fails.push(`[${theme}] iframe 内找不到 deckSwap（反向联动无从触发）`);
+    else {
+      const back = theme === 'dark' ? 'dark' : null;   // 翻回本轮起始主题
+      const rev = await pg.waitForFunction((exp) => {
+        const host = document.documentElement.getAttribute('data-theme');
+        const d = document.getElementById('engineFrame').contentDocument;
+        const inner = d.documentElement.getAttribute('data-theme');
+        if ((host || null) !== exp) return false;
+        return { host, inner, label: document.getElementById('deckSwap')?.textContent };
+      }, back, { timeout: 5000 }).then(h => h.jsonValue()).catch(() => null);
+      if (!rev) {
+        const now = await pg.evaluate(() => ({
+          host: document.documentElement.getAttribute('data-theme'),
+          inner: document.getElementById('engineFrame').contentDocument.documentElement.getAttribute('data-theme'),
+        }));
+        fails.push(`[${theme}] 反向联动失败：iframe 翻到 ${back}，宿主仍是 ${now.host}（iframe=${now.inner}）`);
+      } else {
+        if ((rev.inner || null) !== back) fails.push(`[${theme}] 反向联动后 iframe 自身主题 ${rev.inner} != ${back}`);
+        const wantLabel = back === 'dark' ? '浅底' : '暗底';
+        if (rev.label !== wantLabel) fails.push(`[${theme}] 反向联动后宿主 deckSwap 文案未同步（${rev.label} != ${wantLabel}）`);
+        console.log(`· ${theme} → iframe→host 反向联动：iframe=${rev.inner || 'light'} 宿主=${rev.host || 'light'} 宿主键文案=${rev.label}`);
+      }
+    }
   }
 
   console.log(`· ${theme}：.pp=${r.pp} section=${r.sec} 宿主=${r.host || 'light'} iframe=${r.inner || 'light'} sigLast=${r.sigLast} close.left=${r.close && r.close.left}`);
@@ -94,5 +136,5 @@ for (const theme of ['light', 'dark']) {
 }
 await b.close();
 console.log(fails.length ? '✗ FAIL\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS · 抽屉两组主题均跟随宿主 + 实时联动 · iframe ${N} 页 · eo-close 左上`);
+                         : `✓ PASS · 抽屉两组主题均跟随宿主 + 双向实时联动（host↔iframe）· iframe ${N} 页 · eo-close 左上`);
 process.exit(fails.length ? 1 : 0);

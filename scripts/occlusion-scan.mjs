@@ -17,11 +17,20 @@
 
    用法：node scripts/occlusion-scan.mjs                （默认扫 convoai.html）
          DECK_URL=http://localhost:8777/decks/convoai-info.html node scripts/occlusion-scan.mjs
+         VIEWPORT=1280x720 node scripts/occlusion-scan.mjs   （换视口，见下）
    产出：/home/claude/optim/occlusion-report.md
          /home/claude/optim/occlusion-shots/pNN-sS-theme.png
          （DECK_URL 指向别的 deck 时，产出自动改名：convoai-info → occlusion-info.md
            + occlusion-shots-info/；默认 URL 的产出路径一字不变）
    只读 deck，不改 deck。
+
+   ── 视口（2026-08-23 采纳项 H · 补第二档分辨率）─────────────────────────────
+   默认仍是 1920×1080（舞台 scale = 1，与此前逐字等价）。VIEWPORT=1280x720 时
+   .deck-stage 被 transform:scale(.667) 缩过，getBoundingClientRect 拿到的全是**缩过的**
+   设备像素 —— 若原样喂进判定，CANVAS(0,0,1920,1080) 与 MIN_AREA/MIN_SIDE 三个常量
+   会同时错位。这里的做法是：所有 DOMRect 一律先经 toStage() 折回**舞台坐标系**
+   （减去舞台原点、再除以 scale），于是 CANVAS 与三个阈值的含义在两档分辨率下完全一致，
+   两份报告可以直接对照。字号同理（fsz 也要除 scale，否则墨迹框系数算歪）。
    ═══════════════════════════════════════════════════════════════════ */
 import { chromium } from 'playwright-core';
 import { mkdirSync, writeFileSync } from 'fs';
@@ -32,9 +41,15 @@ const CHROME    = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const URL       = process.env.DECK_URL || 'http://localhost:8777/decks/convoai.html';
 const DECK      = (URL.match(/\/([^/?#]+)\.html/) || [, 'convoai'])[1];   // convoai / convoai-info
 const TAG       = DECK === 'convoai' ? '' : '-' + DECK.replace(/^convoai-/, '');
-const OUT_DIR   = process.env.OCC_SHOTS  || `/home/claude/optim/occlusion-shots${TAG}`;
-const REPORT    = process.env.OCC_REPORT || (TAG ? `/home/claude/optim/occlusion${TAG}.md`
-                                                 : '/home/claude/optim/occlusion-report.md');
+/* 视口：默认 1920×1080（历史行为）。VIEWPORT=1280x720 走缩放档，产出自动带 -1280 后缀，
+   两档报告互不覆盖。 */
+const VP        = (process.env.VIEWPORT || '1920x1080').split('x').map(Number);
+const VIEWPORT  = { width: VP[0] || 1920, height: VP[1] || 1080 };
+const VTAG      = VIEWPORT.width === 1920 ? '' : `-${VIEWPORT.width}`;
+const OUT_DIR   = process.env.OCC_SHOTS  || `/home/claude/optim/occlusion-shots${TAG}${VTAG}`;
+const REPORT    = process.env.OCC_REPORT || (TAG || VTAG
+                                             ? `/home/claude/optim/occlusion${TAG}${VTAG}.md`
+                                             : '/home/claude/optim/occlusion-report.md');
 const THEMES    = ['light', 'dark'];
 let TOTAL       = 0;                       // 实际页数，扫描时从页面读回，报告里用它
 
@@ -94,6 +109,16 @@ function setState({ n, s }) {
 function scanState({ n, MIN_AREA, MIN_SIDE, INK_K }) {
   const slide = document.querySelectorAll('.slide')[n - 1];
   const CANVAS = { l: 0, t: 0, r: 1920, b: 1080 };
+  /* 舞台坐标系折算（2026-08-23 采纳项 H）：1280 视口下 .deck-stage 带 scale(.667)，
+     DOMRect 全是缩过的设备像素。一律折回舞台坐标，CANVAS 与三个阈值的含义才不随视口漂。
+     1920 视口下 SC===1、原点 (0,0) ⇒ 这一层是恒等变换，与改动前逐字等价。 */
+  const _st = (document.querySelector('.deck-stage') || slide).getBoundingClientRect();
+  const SC = _st.width ? _st.width / 1920 : 1;
+  const OX = _st.left, OY = _st.top;
+  const toStage = (r) => ({
+    l: (r.left - OX) / SC, t: (r.top - OY) / SC,
+    r: (r.right - OX) / SC, b: (r.bottom - OY) / SC,
+  });
   /* 纯装饰层：整份不参与（遮它 / 被它遮都不算问题）*/
   const DECOR = '.hero-art,.conf-bg,.deck-flow,.deck-grid,.deck-rail,.conf-aura';
 
@@ -206,9 +231,10 @@ function scanState({ n, MIN_AREA, MIN_SIDE, INK_K }) {
     while (e && e.nodeType === 1) {
       const cs = getComputedStyle(e);
       const bb = e.getBoundingClientRect();
-      const box = { l: bb.left, t: bb.top, r: bb.right, b: bb.bottom };
+      const box = toStage(bb);
+      const bw = box.r - box.l, bh = box.b - box.t;      // 舞台坐标下的尺寸
       if (/hidden|clip|scroll|auto/.test(cs.overflowX) || /hidden|clip|scroll|auto/.test(cs.overflowY)) {
-        if (bb.width > 0 && bb.height > 0 && !(bb.width >= 1900 && bb.height >= 1060) && finiteRect(box)) {
+        if (bw > 0 && bh > 0 && !(bw >= 1900 && bh >= 1060) && finiteRect(box)) {
           reg = inter(reg, box); note.push('overflow@' + brief(e, ''));
         }
       }
@@ -248,28 +274,29 @@ function scanState({ n, MIN_AREA, MIN_SIDE, INK_K }) {
     const isImg = el.tagName === 'IMG';
     const hasBg = alphaOf(cs.backgroundColor) > 0.05 || (cs.backgroundImage && cs.backgroundImage !== 'none');
     if ((hasBg || isImg) && !el.classList.contains('dot') && el !== slide) {
-      const b = el.getBoundingClientRect();
-      const full = b.width >= 1900 && b.height >= 1060;
-      if (b.width >= 6 && b.height >= 6 && !full) {
-        blocks.push({ el, rect: { l: b.left, t: b.top, r: b.right, b: b.bottom } });
-      }
+      const bx = toStage(el.getBoundingClientRect());
+      const bw = bx.r - bx.l, bh = bx.b - bx.t;
+      const full = bw >= 1900 && bh >= 1060;
+      if (bw >= 6 && bh >= 6 && !full) blocks.push({ el, rect: bx });
     }
 
     /* ② 文本行框：只取「直接文本子节点」，用 Range 拿真实字形行框 */
-    const fsz = parseFloat(cs.fontSize) || 16;
+    const fsz = (parseFloat(cs.fontSize) || 16) / SC;      // 折回舞台坐标下的字号
     for (const node of el.childNodes) {
       if (node.nodeType !== 3) continue;
       const raw = node.nodeValue;
       if (!raw || !raw.trim()) continue;
       const rg = document.createRange();
       rg.selectNodeContents(node);
-      for (const r of rg.getClientRects()) {
-        if (r.width < 4 || r.height < 4) continue;
-        const inkH = Math.min(r.height, fsz * INK_K);
-        const pad = (r.height - inkH) / 2;
+      for (const dr of rg.getClientRects()) {
+        const r = toStage(dr);
+        const rw = r.r - r.l, rh = r.b - r.t;
+        if (rw < 4 || rh < 4) continue;
+        const inkH = Math.min(rh, fsz * INK_K);
+        const pad = (rh - inkH) / 2;
         texts.push({
           el, txt: raw.trim(),
-          rect: { l: r.left + 1, t: r.top + pad, r: r.right - 1, b: r.bottom - pad },
+          rect: { l: r.l + 1, t: r.t + pad, r: r.r - 1, b: r.b - pad },
         });
       }
     }
@@ -322,8 +349,7 @@ function scanState({ n, MIN_AREA, MIN_SIDE, INK_K }) {
   for (const K of blocks) {
     const S = K.g;
     if (S === K.el) continue;                        // 块本身就是 .sh，不算越界
-    const sb = S.getBoundingClientRect();
-    const box = { l: sb.left, t: sb.top, r: sb.right, b: sb.bottom };
+    const box = toStage(S.getBoundingClientRect());
     const B = K.rect;
     const bands = [];
     if (B.t < box.t - 4) bands.push({ l: B.l, t: B.t, r: B.r, b: Math.min(B.b, box.t) });
@@ -380,7 +406,7 @@ let rawHits = 0, states = 0;
 const shots = new Set();
 
 for (const theme of THEMES) {
-  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
   if (theme === 'dark') await ctx.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
   const page = await ctx.newPage();
   await page.goto(URL + '#1', { waitUntil: 'load' });
@@ -407,7 +433,8 @@ for (const theme of THEMES) {
         const shotName = `p${String(n).padStart(2, '0')}-s${s}-${theme}.png`;
         if (!shots.has(shotName)) {
           shots.add(shotName);
-          if (!NOSHOT) await page.screenshot({ path: `${OUT_DIR}/${shotName}`, clip: { x: 0, y: 0, width: 1920, height: 1080 } });
+          if (!NOSHOT) await page.screenshot({ path: `${OUT_DIR}/${shotName}`,
+            clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height } });
         }
         for (const h of hits) {
           const key = `${n}|${h.type}|${h.aPath}|${h.bPath}`;
@@ -471,7 +498,10 @@ for (const r of list) byType[r.type]++;
 const L = [];
 L.push(`# ${DECK}.html · 文字遮盖扫描报告`);
 L.push('');
-L.push(`- 扫描对象：\`public/decks/${DECK}.html\`（${TOTAL} 页 · 1920×1080）`);
+L.push(`- 扫描对象：\`public/decks/${DECK}.html\`（${TOTAL} 页 · 舞台 1920×1080）`);
+L.push(`- 浏览器视口：**${VIEWPORT.width}×${VIEWPORT.height}**`
+  + (VIEWPORT.width === 1920 ? '（舞台 scale = 1）'
+     : `（舞台 scale = ${(VIEWPORT.width / 1920).toFixed(3)}，几何全部折回舞台坐标系后再判定）`));
 L.push(`- 扫描面：${TOTAL} 页 × 每页全部分步状态（s=0…data-steps）× 双主题 light/dark = **${states} 个状态**`);
 L.push(`- 生成时间：${new Date().toISOString()}`);
 L.push(`- 扫描器：\`scripts/occlusion-scan.mjs\`（playwright-core · Range.getClientRects 取字形行框）`);

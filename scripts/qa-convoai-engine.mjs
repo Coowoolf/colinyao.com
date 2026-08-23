@@ -143,8 +143,11 @@ const shape = await pg.evaluate(() => [...document.querySelectorAll('.slide')].m
   p: i + 1, kk: !!s.querySelector('.kk'), hh: !!s.querySelector('.hh, .ink'),
 })));
 shape.forEach(v => {
-  if (v.p === VIDEO_PAGE) {          // 纯片子页：无 kicker 无标题就是它的规格，反过来验
-    ok(!v.kk && !v.hh, `⑤ P${v.p} 视频页不该带 kicker / 标题（robot26 #24 是纯片子）`);
+  if (v.p === VIDEO_PAGE) {
+    // 纯片子页：**没有主标题**仍然是它的规格；2026-08-23 采纳项 E 给它补了一枚
+    // 静态角标 kicker（反白压左上角），所以 kicker 反过来变成必需件。
+    ok(!v.hh, `⑤ P${v.p} 视频页不该带主标题（robot26 #24 是纯片子）`);
+    ok(v.kk, `⑤ P${v.p} 缺静态角标 kicker（采纳项 E ②）`);
     return;
   }
   ok(v.hh, `⑤ P${v.p} 缺主标题`);
@@ -188,10 +191,51 @@ ok(/apache\s*2\.0/i.test(p7), '⑩ P7 缺「Apache 2.0」—— TEN VAD 的开�
 ok(!/\bMIT\b/.test(p7), '⑩ P7 出现「MIT」—— TEN VAD 是 Apache-2.0，不是 MIT');
 ok(p7.includes('SOS/EOS 判停重构自 V2.6'), '⑩ P7 SOURCE 行未改成「判停重构自 V2.6」口径');
 // ⑩ P5 / P11 的 SOURCE 行（三个极致数字 + 弱网数字必须自带出处与「典型值」限定）
+//    2026-08-23 采纳项 C：并入四段 ledger —— 两个来源用「/」并列，补「事实截止」收尾。
 const [p5, p11] = await Promise.all([pageText(5), pageText(11)]);
 [[p5, 'P5'], [p11, 'P11']].forEach(([txt, tag]) =>
-  ok(txt.includes('SOURCE · 声网官网 · 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08'),
+  ok(txt.includes('SOURCE · 声网官网 / 引擎发版说明 公开口径 · 典型值 · 事实截止 2026.08'),
      `⑩ ${tag} 缺 SOURCE 行（典型值口径）`));
+
+// ⑯ SOURCE ledger 统一闸（2026-08-23 采纳项 C）：全 deck 的出处行走同一枚 .src 类、
+//    同一套四段格式 `SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`。
+//    数据页一页一行，一行都不许再退回 .mono-sm（那是页内普通元信息行的类）。
+{
+  const led = await pg.evaluate(() => [...document.querySelectorAll('.slide')].flatMap((s, i) =>
+    [...s.querySelectorAll('.src')].map(el => ({ p: i + 1, t: (el.textContent || '').trim() }))));
+  const SRC_PAGES = [5, 7, 8, 11, 16, 17, 18, 19, 21];   // 引擎 deck 的九张数据页
+  const live = [...new Set(led.map(x => x.p))].sort((a, b) => a - b);
+  ok(live.join(',') === SRC_PAGES.join(','),
+     `⑯ SOURCE ledger 覆盖漂移：实测 [${live}] != 名册 [${SRC_PAGES}]`);
+  ok(led.length === SRC_PAGES.length, `⑯ SOURCE 行数 ${led.length} != ${SRC_PAGES.length}（有页挂了两行？）`);
+  led.forEach(({ p, t }) => {
+    ok(t.startsWith('SOURCE · '), `⑯ P${p} SOURCE 行不以「SOURCE · 」起手：「${t}」`);
+    ok(t.endsWith(' · 事实截止 2026.08'), `⑯ P${p} SOURCE 行未以「· 事实截止 2026.08」收尾：「${t}」`);
+    ok(t.split(' · ').length >= 3, `⑯ P${p} SOURCE 行不足三段：「${t}」`);
+  });
+  // 旧格式反向闸：全 deck 不许再出现「SOURCE …」却不带事实截止的行
+  const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide .mono-sm')]
+    .map(el => (el.textContent || '').trim()).filter(t => t.startsWith('SOURCE')));
+  ok(stray.length === 0, `⑯ 仍有 SOURCE 行挂在 .mono-sm 上（未并入 ledger）：${stray.join(' | ')}`);
+  // 字号/色阶（采纳项 G）：.src 与 .sig 都必须是提过一档的 17px
+  const sizes = await pg.evaluate(() => ({
+    src: getComputedStyle(document.querySelector('.src')).fontSize,
+    sig: getComputedStyle(document.querySelector('.sig')).fontSize,
+  }));
+  ok(sizes.src === '17px', `⑯ .src 字号 ${sizes.src} != 17px（采纳项 G：投影小字提一档）`);
+  ok(sizes.sig === '17px', `⑯ .sig 字号 ${sizes.sig} != 17px（采纳项 G：投影小字提一档）`);
+}
+
+// ⑰ kicker 消歧闸（2026-08-23 采纳项 F）：P8 = 引擎内部链路 / P14 = 客户接入架构，
+//    两页 kicker 各自带上限定词，翻页时不会读成同一张图的两个版本。
+{
+  const kick = async (p) => pg.evaluate((k) =>
+    (document.querySelector(`.slide[data-p="${k}"] .kk`) || {}).textContent?.trim() || '', p);
+  const [k8, k14] = await Promise.all([kick(8), kick(14)]);
+  ok(/ENGINE INTERNALS/.test(k8) && /运行时内部链路/.test(k8), `⑰ P8 kicker 缺内部链路限定词：「${k8}」`);
+  ok(/INTEGRATION/.test(k14) && /客户接入架构/.test(k14), `⑰ P14 kicker 缺客户接入限定词：「${k14}」`);
+  ok(k8 !== k14, '⑰ P8 / P14 kicker 撞车');
+}
 // ⑩ P6：数字人已移出串行主链（标题也从「端到端链路」改成「实时语音链路」）
 const p6 = await pageText(6);
 ok(p6.includes('一条深度优化的实时语音链路'), '⑩ P6 标题未改成「实时语音链路」');
@@ -330,6 +374,26 @@ const vid = await pg.evaluate((vp) => {
       const r = c.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}`; })(),
     vw: vs.width, vh: vs.height, fit: vs.objectFit, bg: vs.backgroundColor,
     others: sec.querySelectorAll('.pp > .sh').length,
+    // 2026-08-23 采纳项 E ②：静态角标 kicker（.sh.kk.vid-kick）
+    kick: (() => {
+      const k = sec.querySelector('.sh.vid-kick');
+      if (!k) return null;
+      const ks = getComputedStyle(k), kr = k.getBoundingClientRect();
+      return {
+        txt: (k.textContent || '').trim(), col: ks.color, cls: k.getAttribute('class'),
+        step: k.getAttribute('data-step'),
+        mo: [...k.classList].some(c => c.startsWith('mo-')) ||
+            !!k.querySelector('[class*="mo-"]'),
+        anim: ks.animationName,
+        l: Math.round(kr.left), t: Math.round(kr.top),
+        r: Math.round(kr.right), b: Math.round(kr.bottom),
+        vis: ks.visibility, op: ks.opacity, display: ks.display,
+      };
+    })(),
+    sig: (() => { const s = sec.querySelector('.sig'); if (!s) return null;
+      const sr = s.getBoundingClientRect();
+      return { l: Math.round(sr.left), r: Math.round(sr.right),
+               t: Math.round(sr.top), b: Math.round(sr.bottom), col: getComputedStyle(s).color }; })(),
   };
 }, VIDEO_PAGE);
 ok(!!vid, `⑭ P${VIDEO_PAGE} 缺 .sh.vid / video`);
@@ -339,8 +403,31 @@ if (vid) {
   ok(!vid.ctl, '⑭ 静置态带 controls —— transform 缩放下控制条会错位（robot26 实锤）');
   ok(vid.muted, '⑭ video 缺 muted —— 不静音浏览器直接拒绝自动播放');
   ok(vid.inline, '⑭ video 缺 playsinline');
-  ok(vid.preload === 'none', `⑭ preload 应为 none（翻到才拉 3MB），实测 ${vid.preload}`);
+  // 2026-08-23 采纳项 E ①：preload none → metadata。none 的代价是首帧要等一轮网络往返
+  // （元数据都没有），metadata 只拉头部几十 KB、不是那 3.1MB，换来「翻到即可播」。
+  ok(vid.preload === 'metadata',
+     `⑭ preload 应为 metadata（首帧即备，只拉头部不拉 3MB 全片），实测 ${vid.preload}`);
   ok(vid.playStep === '1', `⑭ data-play-step 应为 1，实测 ${vid.playStep}`);
+  // ⑭ 静态角标 kicker（采纳项 E ②）：在位 / 逐字 / 反白 / **静态**（不挂 data-step、
+  //    不挂 mo-* 原语、computed animation-name 为 none）/ 落在左上角不挡画面主体，
+  //    且与右上角的页码 sig 不打架、与底部 hover 控制条不打架。
+  ok(!!vid.kick, '⑭ P20 缺静态角标 kicker（.sh.vid-kick）');
+  if (vid.kick) {
+    const K = vid.kick;
+    ok(K.txt === 'PHYSICAL AI · FROM ENGINE TO DEVICE', `⑭ 角标文案漂移：「${K.txt}」`);
+    ok(/\bkk\b/.test(K.cls), `⑭ 角标未走家族 kicker 样式（class=${K.cls}）`);
+    ok(/rgba\(255,\s*255,\s*255/.test(K.col), `⑭ 角标不是反白（color=${K.col}）`);
+    ok(K.step === null, '⑭ 角标挂上了 data-step —— 它是静态文字件，进步进就会闪');
+    ok(!K.mo, '⑭ 角标挂上了 mo-* 原语 —— 它不进运动件名册');
+    ok(K.anim === 'none', `⑭ 角标带了 animation（${K.anim}）—— 静态件不许动`);
+    ok(K.vis === 'visible' && K.display !== 'none' && +K.op > 0.5,
+       `⑭ 角标静置态不可见（vis=${K.vis} display=${K.display} opacity=${K.op}）`);
+    // 左上角：整体落在画面左半 × 上 1/6，不压中下部的主体，也不进底部控制条带（y≥980）
+    ok(K.r < 960 && K.b < 180, `⑭ 角标不在左上角（右缘 ${K.r} / 下缘 ${K.b}）—— 会挡画面主体`);
+    ok(K.b < 980, `⑭ 角标下缘 ${K.b} 掉进底部 hover 控制条带`);
+    if (vid.sig) ok(K.r < vid.sig.l - 20,
+      `⑭ 角标右缘 ${K.r} 逼近页码 sig 左缘 ${vid.sig.l} —— 两枚小字会撞`);
+  }
   // ⑭ 空页回归闸（2026-08-21 Colin：「P19 之后多了一个空页面」）：
   //    motion.css 末尾那条兜底规则会把 step0 的「裸容器」摁成 opacity:0 ——
   //    满幅视频盒一旦挂上 data-step，整幅 poster 连同页面一起消失。这两条钉死它。
@@ -357,7 +444,9 @@ if (vid) {
   ok(vid.vw === '1920px' && vid.vh === '1080px', `⑭ video 计算尺寸 ${vid.vw}×${vid.vh} != 1920×1080`);
   ok(vid.fit === 'cover', `⑭ video object-fit 应为 cover，实测 ${vid.fit}`);
   ok(/rgb\(0, 0, 0\)/.test(vid.bg), `⑭ video 底色应为 #000（poster 解码前别闪白），实测 ${vid.bg}`);
-  ok(vid.others === 1, `⑭ 纯片子页只该有一只 .sh（实测 ${vid.others}）`);
+  // 2026-08-23：视频盒 + 静态角标 = 2 只 .sh（采纳项 E ② 之前是 1 只）。
+  // 这条闸的意思一直是「别往纯片子页上堆件」，数字跟着规格走，上限就是这两只。
+  ok(vid.others === 2, `⑭ 纯片子页只该有两只 .sh（视频盒 + 静态角标），实测 ${vid.others}`);
 }
 // ⑭ poster 自证：文件真的 200、真的解出像素、而且画面里**有东西**（不是一片纯色）。
 //    「翻到 P20 只看见一张白纸」这种事必须在 CI 里被抓住，不能靠人眼。
@@ -384,8 +473,10 @@ if (vid) {
   ok(st.w === 1600 && st.h === 900, `⑭ poster 尺寸 ${st.w}×${st.h} != 1600×900`);
   ok(st.sd > 4 && st.max > 60, `⑭ poster 是一片纯色（sd=${st.sd} max=${st.max}）—— 页面等于空的`);
 }
-// ⑭ 整页非空：静置态（step 0）整幅截图必须是那支夜景片子，不是主题底板。
+// ⑭ 整页非空 + 电影感黑底恒定：静置态（step 0）整幅截图必须是那支夜景片子，不是主题底板。
 //    浅色空页回归时整页平均亮度 239（实测），这一条当场抓住。
+//    2026-08-23 采纳项 E ③：**浅色主题下本页照样是黑底全幅**（有意为之，不是 bug）——
+//    本脚本双主题各跑一次，这一条在 THEME=light 那一跑里就是「底色恒暗」的断言。
 {
   await pg.evaluate((vp) => {
     document.querySelectorAll('.slide').forEach((el, k) => {
