@@ -58,6 +58,23 @@ export const speechDecks: Deck[] = [
   //   引擎 deck 的 R1 页（双源 canon 溯源注释）与本速讲版 8 页 —— 内容不随路由消失。
   // convoai 的速讲变体：8 页 Infograph，讲者不翻页；重建 build-convoai-info.py · 自检 qa-convoai-info.mjs。
   { slug: "convoai-info", title: "声网对话式 AI · 一页一章 Infograph（拜访速讲版）", slides: 8, category: "演讲", dual: true },
+  // 2026-08-24 Colin：社区 /eli5 skill 的方法论（「讲给完全不懂的人：大图、少字」）
+  //   × colin-deck 家族语言 = 引擎 22 页深入讲解版的 ELI5 版本。
+  //   口吻拍板为**大人也爱看的五岁版**：科普大白话 + 生活类比，客户高管和朋友圈都能秒懂转发，
+  //   不是幼儿童话腔。默认浅底（转发场景，链接一打开就得是亮的）。
+  //   三条硬闸（写进 qa-convoai-eli5.mjs，是这份 deck 存在的理由）：
+  //     ① 每页 = 一句人话大标题 + 一张大图（带动效）+ 至多一行小注；
+  //     ② 大图统一 1680×744 = 舞台的 60.28%，十一页同尺寸同位置（余量 0.28pp，缩图必触闸）；
+  //     ③ 每页可见正文（眉标 / 标题 / 页码 / SOURCE 之外，含图内标签）≤ 40 个汉字。
+  //   数字纪律：只用既有 canon（650ms / 340ms / 95% / 200+ 节点），
+  //     人话大字 + 原数小标**同屏并存**（不到一秒 / 650ms · 端到端），禁止新造数字 ——
+  //     QA 里有一条数字白名单反向闸，出现表外数字当场触闸。
+  //   红线：客户名一个不进（科普 deck 不上案例）· Call Agent 不进（只讲引擎故事）·
+  //     a[href]=0（「大人版」指路走纯文本 colinyao.com/convoai）· 价格 / staging / 盲测 / 32,000 全不入。
+  //   末页「对话即交互」与引擎深入讲解版封面同句 —— 两份 deck 在这里合上，家族闭环。
+  //   重建：python3 scripts/build-convoai-eli5.py（单产物，无 twin 别名）
+  //   自检：node scripts/qa-convoai-eli5.mjs（THEME=dark 二跑）+ DECK=eli5 node scripts/qa-motion.mjs
+  { slug: "convoai-eli5", title: "声网 · 对话式 AI · 讲给五岁的你", slides: 11, category: "演讲", dual: true },
   { slug: "cowork", title: "从「被托付」到「双向奔赴 · 共事」· 信任进化 V10", slides: 62, category: "演讲", dual: true },
   { slug: "cowork-conf", title: "从「被托付」到「双向奔赴 · 共事」· 2026 AI 产品大会视觉版", slides: 55, category: "演讲", dual: false, locked: true },
   { slug: "newcollege", title: "带一个新同事上班 · Agent 恒动复利", slides: 92, category: "演讲", dual: false },

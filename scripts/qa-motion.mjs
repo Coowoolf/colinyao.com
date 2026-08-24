@@ -11,7 +11,8 @@
 //      P6 的 5 段接头包为了恒速各带各的 duration，也是一件事。
 // 用法：node scripts/qa-motion.mjs              （引擎 deck · BASE 默认 8899）
 //      DECK=info node scripts/qa-motion.mjs    （convoai-info v2 · 8 页）
-// 两份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
+//      DECK=eli5 node scripts/qa-motion.mjs    （convoai-eli5 讲给五岁的你 · 11 页）
+// 三份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
@@ -37,12 +38,23 @@ const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
 //   P5 Agent 骨架图（四路供给 + 安全域）+ 96.5% hot / P6 R1 实拍图组 hot ×2 /
 //   P7 生态五层域分带 + L2 hot 标记 / P8 三支流合流（本 deck 标杆页）
 //   不入册：P1 封面（引擎 P1 同例 —— 会动的封面只会抢主标）
+// eli5（11 页 · 2026-08-24 立项）：**全 11 页上册** —— 这份 deck 的规矩是
+//   「每页 = 一句人话 + 一张会动的大图」，一页不动就是一页哑了，封面也不例外
+//   （引擎 / info 把封面排除在外是因为它们的封面以字为主；ELI5 的封面本身就是一张图）。
+//   逐页下限按「这一页的动效在讲什么」点名，不泛化成全表配额：
+//     P2 轮流 vs 同时（相位互斥四枚包 + ✕ 脉冲 + 重叠区 halo）= 全 deck 最重的一页，下限 6
+//     P5 双层防御环（两环 cycle + 六路噪声 drift + 两组 ✕ 脉冲 + 目标包 + 呼吸 + halo）下限 10
+//     P7 AI QoS（路上的包 + 罐子呼吸 + 进料包 + 说话带四组脉冲 + 断网带两条 drift）下限 8
+//     其余页下限 3（低于 3 说明「图在动」退化成了「图上有一个小东西在动」）
+const ELI5_FLOOR = { 1: 3, 2: 6, 3: 6, 4: 5, 5: 10, 6: 6, 7: 8, 8: 5, 9: 3, 10: 6, 11: 4 };
 const DECKS = {
   engine: { url: '/decks/convoai-engine.html',
             roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
             floor: { 3: 4, 8: 4, 9: 11, 10: 16, 17: 12 }, pauseProbe: 7 },
   info:   { url: '/decks/convoai-info.html', roster: [2, 3, 4, 5, 6, 7, 8],
             floor: { 8: 6 }, pauseProbe: 7 },
+  eli5:   { url: '/decks/convoai-eli5.html', roster: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            floor: ELI5_FLOOR, pauseProbe: 4 },
 };
 const DECK = DECKS[process.env.DECK || 'engine'];
 if (!DECK) { console.log('未知 DECK：' + process.env.DECK); process.exit(1); }
