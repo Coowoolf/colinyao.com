@@ -1649,7 +1649,9 @@ def build():
         '  <div class="eo-scrim"></div>\n'
         '  <div class="eo-sheet">\n'
         '    <iframe id="engineFrame" data-src="/decks/convoai-engine.html" '
-        'title="声网 · 对话式 AI 引擎 · 产品介绍"></iframe>\n'
+        # 2026-08-23 引擎 deck 封面换「对话即交互」后定位升为深入讲解版，decks.ts 的标题行
+        # 已同步；抽屉 iframe 的 title 是这条改名唯一漏掉的落点（屏幕阅读器 / 悬停提示读它）。
+        'title="声网 · 对话式 AI 引擎 · 深入讲解"></iframe>\n'
         '    <button class="eo-close" type="button">ESC · 收回</button>\n'
         '  </div>\n</div>\n'
         '<div class="deck-progress" id="deckProgress"></div>\n'

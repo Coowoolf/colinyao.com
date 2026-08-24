@@ -556,7 +556,15 @@ def lg_dot(x, y, col=AD, w=2.4, i=9):
     return dline("M%d %d H%d" % (x, y, x + 40), col, w, i, dash="2 6")
 def lg_fast(x, y, col=AD, w=5, i=9):
     return hline(x, x + 40, y, col, w, i)
-_LGK = {"solid": lg_solid, "dash": lg_dash, "dot": lg_dot, "fast": lg_fast}
+def lg_dead(x, y, col=HS, w=2, i=9):
+    """静默通道（P3 单工的下行方向）：压暗虚线 + 灰箭头 —— 线在，包永远不来。
+       与「事件 / 控制」同为 hair-strong 虚线，差别只有 opacity 与那支灰箭头，所以图例样线
+       必须逐参数照抄页内真线（_duplex_fig 的 ch_dead：dash 5 5 / opacity .5 / ah_l ink-3），
+       否则读者会把这两根灰虚线读成同一种线。箭头是全图例唯一一支 —— 本项的语义本身
+       就是「方向」，没有箭头就只剩「一根更淡的虚线」，读不出「哪一头永远不来」。"""
+    return (dline("M%d %d H%d" % (x + 40, y, x + 10), col, w, i, dash="5 5", sty="opacity:.5")
+            + ah_l(x, y, "var(--ink-3)", 7))
+_LGK = {"solid": lg_solid, "dash": lg_dash, "dot": lg_dot, "fast": lg_fast, "dead": lg_dead}
 
 def step_badge(x, y, n, r=16, i=2, halo=None):
     """握手序号徽标（P14 接入架构）：不透明圆片 + accent 序号，压在连线上、线从徽标底下穿过。
@@ -848,8 +856,12 @@ page("content", "".join([
     for _i, (_tag, _name, _k, _mech, _ex, _on) in enumerate(_DUPLEX)
     ] + [
     # 页级迷你图例（三张小图共用一套线型语法，图例只出一次，压在 lab 02 同一基线的右侧）
+    # 2026-08-23 补第四项「静默方向」：单工卡的下行是一根压暗虚线（本轮「动效即语义」新加的
+    #   —— 单工之所以是单工，看的是**另一个方向的线是死的**），页上有这根线、图例里却没有它，
+    #   读者只能把它猜成「事件 / 控制」。四项排完 x≈600 < 图例盒宽 720，仍在盒内。
     figbox(1080, 664, 720, 720, 28,
-           legend(0, 14, [("solid", "主数据流"), ("dash", "事件 / 控制"), ("fast", "快路径")]),
+           legend(0, 14, [("solid", "主数据流"), ("dash", "事件 / 控制"),
+                          ("dead", "静默方向"), ("fast", "快路径")]),
            i=5),
     lab(120, 670, "02 · KEY DIFFERENCE · 差异在哪", i=5),
     sh("rise", "left:120px;top:712px;width:1680px;height:130px;--i:6",
@@ -1673,7 +1685,9 @@ page("content", "".join([
        "<strong style='color:var(--accent)'>三件极致</strong>，都在这张图上。"),
     # 2026-08-23 采纳项 C：本页是一张机理大图，**没有自己的样本或时间窗**（数字全部
     # 回指 P5 的公开口径）⇒ 样本段留空，缺口已记入交付报告。
-    src("SOURCE · 引擎发版说明 / TEN ECOSYSTEM · 打断/延时口径见 P5 · 事实截止 2026.08", i=9),
+    # 2026-08-23 三数章重构后，三个数字不再只由 P5 一页交代：P5 亮数 + P6/P7/P8/P9 逐页拆，
+    # 本页是章尾收束。指回单页 P5 会把读者送到只有三张数字卡的目录页，正文全在后面四页。
+    src("SOURCE · 引擎发版说明 / TEN ECOSYSTEM · 打断/延时口径见 P5–P9 · 事实截止 2026.08", i=9),
 ]))
 
 # ═══ P11 · 弱网 ·「网络在抖，对话不断」══════════════════════════════════════
