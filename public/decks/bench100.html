@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta name="robots" content="noindex, nofollow"><script>try{var t=localStorage.getItem('colin-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>百公斤卧推计划 · Colin</title>
+<style>
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('/fonts/Satoshi-900.woff2') format('woff2');font-weight:900;font-display:swap;}
+</style>
+<style>
+  :root{
+    --bg:#F5F3F0; --surface:#FFFFFF; --surface2:#EDEAE4;
+    --ink:#1C1916; --ink2:#57524C; --muted:#8A8379;
+    --line:#E3DED6; --accent:#C62828; --accent-ink:#B02323;
+    --accent-soft:rgba(198,40,40,.07); --band:rgba(28,25,22,.04);
+    --ok:#2E7D32; --on-ok:#FFFFFF; --plate-red:#C62828; --plate-yellow:#F2A71B;
+    --plate-yellow-ink:#3A2E08; --metal:#A79F94; --shadow:0 1px 3px rgba(28,25,22,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#131110; --surface:#1D1A18; --surface2:#272320;
+      --ink:#F1EDE7; --ink2:#B5AEA4; --muted:#837C72;
+      --line:#2F2A26; --accent:#EF5350; --accent-ink:#F26461;
+      --accent-soft:rgba(239,83,80,.11); --band:rgba(241,237,231,.045);
+      --ok:#7CC57F; --on-ok:#0E2B0F; --metal:#6E675E; --shadow:0 1px 3px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#131110; --surface:#1D1A18; --surface2:#272320;
+    --ink:#F1EDE7; --ink2:#B5AEA4; --muted:#837C72;
+    --line:#2F2A26; --accent:#EF5350; --accent-ink:#F26461;
+    --accent-soft:rgba(239,83,80,.11); --band:rgba(241,237,231,.045);
+    --ok:#7CC57F; --metal:#6E675E; --shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink); margin:0;
+    font-family:-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif;
+    font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.01em}
+  .wrap{max-width:920px; margin:0 auto; padding:40px 20px 72px}
+  .wrap > section{margin-top:60px}
+  h1,h2,h3{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; text-wrap:balance; margin:0}
+  h1{font-size:clamp(32px,6vw,46px); font-weight:700; line-height:1.15; letter-spacing:.01em}
+  h2{font-size:22px; font-weight:600; padding-bottom:10px; border-bottom:2px solid var(--ink); display:flex; align-items:baseline; gap:10px}
+  h2 .en{font-size:12px; font-weight:600; color:var(--muted); letter-spacing:.14em; text-transform:uppercase}
+  h3{font-size:16.5px; font-weight:600}
+  p{margin:.5em 0}
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-ink); font-weight:600}
+  .sub{color:var(--ink2); margin-top:10px; max-width:40em}
+
+  /* hero */
+  .hero-top{display:flex; flex-wrap:wrap; gap:28px; align-items:flex-end; justify-content:space-between}
+  .bignum{display:flex; align-items:baseline; gap:14px; margin-top:22px}
+  .bignum .from{font-size:clamp(36px,7vw,58px); color:var(--muted); font-weight:500}
+  .bignum .arrow{color:var(--muted); font-size:24px}
+  .bignum .to{font-size:clamp(64px,13vw,112px); color:var(--accent-ink); font-weight:600; line-height:1}
+  .bignum .unit{font-size:20px; color:var(--ink2); font-weight:500}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
+  .chip{background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 13px; font-size:13px; color:var(--ink2); box-shadow:var(--shadow)}
+  .chip strong{color:var(--ink); font-weight:600}
+  .chip.hot{background:var(--accent-soft); border-color:transparent; color:var(--accent-ink); font-weight:600}
+  .barbell{margin-top:30px}
+  .barbell svg{width:100%; max-width:620px; height:auto; display:block}
+  .barbell figcaption{font-size:13px; color:var(--muted); margin-top:6px}
+
+  /* phase strip */
+  .phasebar{display:flex; gap:3px; margin-top:14px}
+  .phasebar .seg{flex-grow:1; border-radius:6px; padding:9px 10px 8px; background:var(--surface); border:1px solid var(--line); min-width:0}
+  .phasebar .seg i{display:block; height:4px; border-radius:2px; background:var(--metal); margin-bottom:7px; font-style:normal}
+  .phasebar .seg.p1 i{background:var(--metal)}
+  .phasebar .seg.p2 i{background:var(--plate-yellow)}
+  .phasebar .seg.p3 i{background:var(--accent)}
+  .phasebar .seg.pd i,.phasebar .seg.pt i{background:var(--line)}
+  .phasebar .seg.pt i{background:var(--accent)}
+  .phasebar b{display:block; font-size:13.5px; font-weight:600; white-space:nowrap}
+  .phasebar span{font-size:11.5px; color:var(--muted); white-space:nowrap}
+
+  /* chart */
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px 22px 16px; box-shadow:var(--shadow)}
+  .chart-title{font-size:14px; font-weight:600; margin-bottom:2px}
+  .chart-sub{font-size:12.5px; color:var(--muted); margin-bottom:8px}
+  .chart-scroll{overflow-x:auto}
+  .chart-scroll svg{min-width:560px; width:100%; height:auto; display:block}
+  #tip{position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px; padding:5px 10px; border-radius:6px; opacity:0; transition:opacity .12s; z-index:9; white-space:nowrap}
+
+  /* weeks */
+  .phase-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin:34px 0 12px}
+  .phase-head .tag{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:13px; font-weight:600; letter-spacing:.06em; padding:3px 10px; border-radius:5px; background:var(--surface2); color:var(--ink2)}
+  .phase-head .tag.hot{background:var(--accent-soft); color:var(--accent-ink)}
+  .phase-head .aim{font-size:13.5px; color:var(--muted)}
+  .week{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px; box-shadow:var(--shadow); position:relative}
+  .week.current{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), var(--shadow)}
+  .week-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px}
+  .wk{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:19px; font-weight:600; min-width:52px}
+  .dates{font-size:13px; color:var(--muted)}
+  .badge{font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent-ink)}
+  .badge.cp{background:var(--surface2); color:var(--ink2); border:1px dashed var(--muted)}
+  .done-btn{margin-left:auto; font:inherit; font-size:12.5px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer}
+  .done-btn:hover{border-color:var(--muted)}
+  .done-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .week.done{opacity:.62}
+  .week.done .done-btn{background:var(--ok); border-color:var(--ok); color:var(--on-ok)}
+  .days{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .day{background:var(--surface2); border-radius:9px; padding:12px 14px}
+  .day .dlabel{font-size:11.5px; font-weight:600; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; margin-bottom:6px}
+  .day .main{font-size:15px; font-weight:500}
+  .day .main .kg{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:21px; font-weight:600; color:var(--accent-ink)}
+  .day .rest{font-size:13.5px; color:var(--ink2); margin-top:5px; line-height:1.55}
+  .day .rpe{display:inline-block; font-size:11.5px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 6px; margin-top:7px}
+  .wnote{font-size:13px; color:var(--muted); margin-top:10px}
+
+  /* generic blocks */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px}
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; box-shadow:var(--shadow)}
+  .panel h3{margin-bottom:8px}
+  .plain{margin:0; padding-left:1.2em}
+  .plain li{margin:.45em 0}
+  .plain li::marker{color:var(--muted)}
+  .steps{counter-reset:s; list-style:none; margin:14px 0 0; padding:0}
+  .steps li{counter-increment:s; display:flex; gap:14px; padding:11px 0; border-top:1px solid var(--line)}
+  .steps li::before{content:counter(s); font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600; color:var(--accent-ink); min-width:22px; font-size:17px}
+  .ladder{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px}
+  .rung{background:var(--surface2); border-radius:7px; padding:6px 11px; font-size:14px; white-space:nowrap}
+  .rung .kg{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600}
+  .rung.goal{background:var(--accent); color:#fff}
+  .rung-sep{color:var(--muted); font-size:12px}
+  .note{background:var(--accent-soft); border-radius:10px; padding:13px 16px; font-size:14px; margin-top:14px}
+  .footnote{margin-top:56px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); line-height:1.7}
+  a{color:var(--accent-ink)}
+  @media (max-width:700px){
+    .days{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .phasebar{flex-wrap:wrap}
+    .phasebar .seg{flex-basis:31%}
+    .wrap > section{margin-top:46px}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<main class="wrap">
+
+  <header>
+    <div class="eyebrow">Bench Press · 2026.8.31 – 11.11 · 11 周</div>
+    <h1 style="margin-top:10px">百公斤卧推计划</h1>
+    <p class="sub">从当前 PR 90 kg 出发，每周两次推日，按「容量 → 力量 → 峰值 → 测试」四段推进，11 月 11 日（周三）冲击 100 kg。</p>
+    <div class="bignum num" aria-label="从 90 公斤到 100 公斤">
+      <span class="from">90</span><span class="arrow">→</span><span class="to">100</span><span class="unit">kg</span>
+    </div>
+    <div class="chips">
+      <span class="chip hot" id="countdown">距测试日 75 天</span>
+      <span class="chip">测试日 <strong>11.11 周三</strong></span>
+      <span class="chip">每周 <strong>2 次推日</strong>，间隔 ≥ 48h</span>
+      <span class="chip">RPE 封顶 · 超了不加重</span>
+    </div>
+    <figure class="barbell" style="margin:30px 0 0">
+      <svg viewBox="0 0 560 124" role="img" aria-label="装到 100 公斤的杠铃：20 公斤杠，每侧一片 25 公斤红片和一片 15 公斤黄片">
+        <rect x="18" y="58" width="524" height="8" rx="3" fill="var(--metal)"/>
+        <rect x="58" y="54" width="116" height="16" rx="4" fill="var(--metal)"/>
+        <rect x="386" y="54" width="116" height="16" rx="4" fill="var(--metal)"/>
+        <rect x="66" y="47" width="11" height="30" rx="3" fill="var(--muted)"/>
+        <rect x="483" y="47" width="11" height="30" rx="3" fill="var(--muted)"/>
+        <rect x="86" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/>
+        <rect x="112" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/>
+        <rect x="423" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/>
+        <rect x="454" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/>
+        <text x="124.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" font-family="Satoshi,sans-serif">25</text>
+        <text x="435.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" font-family="Satoshi,sans-serif">25</text>
+        <text x="96" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" font-family="Satoshi,sans-serif">15</text>
+        <text x="464" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" font-family="Satoshi,sans-serif">15</text>
+        <text x="280" y="44" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="Satoshi,sans-serif" font-weight="600">20 kg BAR</text>
+      </svg>
+      <figcaption>测试日的杠：20 kg 杠 + 每侧 25 + 15 = <span class="num" style="color:var(--accent-ink)">100 kg</span></figcaption>
+    </figure>
+  </header>
+
+  <section aria-label="阶段总览">
+    <h2>四个阶段 <span class="en">Roadmap</span></h2>
+    <div class="phasebar" role="list">
+      <div class="seg p1" role="listitem" style="flex-grow:4"><i></i><b>容量积累</b><span>W1–4 · 8.31–9.27</span></div>
+      <div class="seg pd" role="listitem" style="flex-grow:1"><i></i><b>减载</b><span>W5 · 国庆</span></div>
+      <div class="seg p2" role="listitem" style="flex-grow:3"><i></i><b>力量转化</b><span>W6–8 · 10.5–10.25</span></div>
+      <div class="seg p3" role="listitem" style="flex-grow:2"><i></i><b>峰值</b><span>W9–10</span></div>
+      <div class="seg pt" role="listitem" style="flex-grow:1"><i></i><b>测试</b><span>11.11</span></div>
+    </div>
+    <p class="sub" style="font-size:14px">思路：你长期练 70 kg×8 的中等区间，90% 以上的强度区几乎没有开发——所以最大的提升空间在「把已有的肌肉力量表达成极限单次」。先用四周把容量和肌肉打厚，再用三周把它转化成大重量能力，最后两周专练极限单次的神经适应，测试前 72 小时只做激活。减载周正好安排在国庆，出行也不打乱节奏。</p>
+  </section>
+
+  <section aria-label="重日顶组走势">
+    <div class="card">
+      <div class="chart-title">重日顶组重量 · 11 周走势</div>
+      <div class="chart-sub">每周 Day A 的最重工作组（kg）· 虚线为当前 PR 90 kg</div>
+      <div class="chart-scroll">
+      <svg id="chart" viewBox="0 0 720 300">
+        <rect x="15" y="14" width="263" height="252" fill="var(--band)" rx="4"/>
+        <rect x="343" y="14" width="197" height="252" fill="var(--band)" rx="4"/>
+        <rect x="671" y="14" width="42" height="252" fill="var(--accent-soft)" rx="4"/>
+        <text x="20" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">容量</text>
+        <text x="286" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">减载</text>
+        <text x="348" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">力量</text>
+        <text x="548" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">峰值</text>
+        <text x="676" y="28" font-size="10.5" fill="var(--accent-ink)" font-family="PingFang SC,Microsoft YaHei,sans-serif">测试</text>
+        <g font-size="11" fill="var(--muted)" font-family="Satoshi,sans-serif">
+          <line x1="44" y1="252" x2="713" y2="252" stroke="var(--line)"/>
+          <line x1="44" y1="201.3" x2="713" y2="201.3" stroke="var(--line)"/>
+          <line x1="44" y1="150.7" x2="713" y2="150.7" stroke="var(--line)"/>
+          <line x1="44" y1="49.3" x2="713" y2="49.3" stroke="var(--line)"/>
+          <text x="38" y="256" text-anchor="end">60</text>
+          <text x="38" y="205" text-anchor="end">70</text>
+          <text x="38" y="155" text-anchor="end">80</text>
+          <text x="38" y="104" text-anchor="end">90</text>
+          <text x="38" y="53" text-anchor="end">100</text>
+        </g>
+        <line x1="44" y1="100" x2="713" y2="100" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <text x="712" y="93" text-anchor="end" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">当前 PR 90</text>
+        <polyline points="48,188.7 113.6,176 179.2,163.3 244.8,150.7 310.4,201.3 376,138 441.6,125.3 507.2,112.7 572.8,100 638.4,74.7 704,49.3"
+          fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <g fill="var(--accent)">
+          <circle cx="48" cy="188.7" r="3.4"/><circle cx="113.6" cy="176" r="3.4"/><circle cx="179.2" cy="163.3" r="3.4"/>
+          <circle cx="244.8" cy="150.7" r="3.4"/><circle cx="310.4" cy="201.3" r="3.4"/><circle cx="376" cy="138" r="3.4"/>
+          <circle cx="441.6" cy="125.3" r="3.4"/><circle cx="507.2" cy="112.7" r="3.4"/><circle cx="572.8" cy="100" r="4.4"/>
+          <circle cx="638.4" cy="74.7" r="4.4"/>
+        </g>
+        <circle cx="704" cy="49.3" r="6.2" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+        <g font-size="11.5" font-family="Satoshi,sans-serif" font-weight="600" fill="var(--ink2)">
+          <text x="48" y="176">72.5</text>
+          <text x="310.4" y="222">70</text>
+          <text x="565" y="88">90</text>
+          <text x="630" y="63">95</text>
+        </g>
+        <text x="684" y="52" text-anchor="end" font-size="15" font-family="Satoshi,sans-serif" font-weight="700" fill="var(--accent-ink)">100</text>
+        <g font-size="10" fill="var(--muted)" font-family="Satoshi,sans-serif">
+          <text x="48" y="270" text-anchor="middle">W1</text><text x="113.6" y="270" text-anchor="middle">W2</text>
+          <text x="179.2" y="270" text-anchor="middle">W3</text><text x="244.8" y="270" text-anchor="middle">W4</text>
+          <text x="310.4" y="270" text-anchor="middle">W5</text><text x="376" y="270" text-anchor="middle">W6</text>
+          <text x="441.6" y="270" text-anchor="middle">W7</text><text x="507.2" y="270" text-anchor="middle">W8</text>
+          <text x="572.8" y="270" text-anchor="middle">W9</text><text x="638.4" y="270" text-anchor="middle">W10</text>
+          <text x="704" y="270" text-anchor="middle">W11</text>
+        </g>
+        <g id="hitzones" fill="transparent" style="pointer-events:all"></g>
+      </svg>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="逐周课表">
+    <h2>逐周课表 <span class="en">Week by Week</span></h2>
+    <p class="sub" style="font-size:14px">Day A（重日）和 Day B（技术日）自选星期，间隔至少 48 小时，如周一 + 周四。所有重量为工作组重量，前面自行做热身台阶（空杆 → 40 → 55 → 65…每级 3–5 次，逐级到工作重量）。RPE 8 = 力竭前还剩 2 次；RPE 9 = 还剩 1 次。</p>
+
+    <div class="phase-head"><span class="tag">阶段一 · 容量积累</span><span class="aim">W1–4 · 把肌肉和做功能力打厚 · 主项 5 次区间</span></div>
+
+    <article class="week" data-week="1" data-start="2026-08-31" data-end="2026-09-06">
+      <div class="week-head"><span class="wk num">W1</span><span class="dates">8.31 – 9.6</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">72.5</span> kg × 5 组 × 5 次</div>
+          <div class="rest">辅助：上斜哑铃卧推 3×8–10 · 双杠臂屈伸 3×8–12 · 绳索三头下压 3×10–12 · 划船 3×8–10</div>
+          <span class="rpe">顶组 RPE ≤ 7.5</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">62.5</span> kg 4×6 · 窄距卧推 <span class="kg">55</span> kg 3×8</div>
+          <div class="rest">辅助：站姿肩推 3×8–10 · 引体/高位下拉 3×8–10 · 侧平举 3×12–15 · 面拉 3×15–20</div>
+          <span class="rpe">暂停：胸口停稳 1 秒再推</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="2" data-start="2026-09-07" data-end="2026-09-13">
+      <div class="week-head"><span class="wk num">W2</span><span class="dates">9.7 – 9.13</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">75</span> kg × 5 组 × 5 次</div>
+          <div class="rest">辅助同 W1</div>
+          <span class="rpe">顶组 RPE ≤ 8</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">65</span> kg 4×6 · 窄距卧推 <span class="kg">57.5</span> kg 3×8</div>
+          <div class="rest">辅助同 W1</div>
+          <span class="rpe">全程控制杆路径一致</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="3" data-start="2026-09-14" data-end="2026-09-20">
+      <div class="week-head"><span class="wk num">W3</span><span class="dates">9.14 – 9.20</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">77.5</span> kg × 5 组 × 5 次</div>
+          <div class="rest">第 3 组后若已到 RPE 9，后两组降到 75 kg 完成</div>
+          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">65</span> kg 4×6 · 窄距卧推 <span class="kg">57.5</span> kg 3×8</div>
+          <div class="rest">辅助同 W1</div>
+          <span class="rpe">保持爆发意图推起</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="4" data-start="2026-09-21" data-end="2026-09-27">
+      <div class="week-head"><span class="wk num">W4</span><span class="dates">9.21 – 9.27</span><span class="badge cp">✦ 检查点 1</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">80</span> kg × 4 组 × 4 次</div>
+          <div class="rest">全部完成且 RPE ≤ 8.5 → 按计划进入下一阶段；很勉强 → 阶段二起点各降 2.5 kg</div>
+          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">67.5</span> kg 4×5 · 窄距卧推 <span class="kg">60</span> kg 3×8</div>
+          <div class="rest">辅助同 W1</div>
+          <span class="rpe">最后一周大容量</span></div>
+      </div>
+    </article>
+
+    <div class="phase-head"><span class="tag">减载 · 恢复</span><span class="aim">W5 · 正好覆盖国庆 · 消化前四周的疲劳</span></div>
+
+    <article class="week" data-week="5" data-start="2026-09-28" data-end="2026-10-04">
+      <div class="week-head"><span class="wk num">W5</span><span class="dates">9.28 – 10.4</span><span class="badge">国庆周</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 轻</div>
+          <div class="main">卧推 <span class="kg">70</span> kg × 3 组 × 3 次</div>
+          <div class="rest">只追求杆速，每一次都推得又快又干脆；辅助减半</div>
+          <span class="rpe">RPE ≤ 6，感觉轻才对</span></div>
+        <div class="day"><div class="dlabel">Day B · 可省</div>
+          <div class="main">卧推 <span class="kg">60</span> kg 3×5，或完全休息</div>
+          <div class="rest">出行就放心休——这周的任务是恢复，不是训练量；别在假期后补练</div>
+          <span class="rpe">吃好睡好，体重别掉</span></div>
+      </div>
+      <div class="wnote">若国庆出行影响到 W6 前半周，把 W6 的 Day A 挪到 10.8 之后即可，两练间隔 ≥ 48h。</div>
+    </article>
+
+    <div class="phase-head"><span class="tag">阶段二 · 力量转化</span><span class="aim">W6–8 · 把容量转成大重量能力 · 2–3 次区间</span></div>
+
+    <article class="week" data-week="6" data-start="2026-10-05" data-end="2026-10-11">
+      <div class="week-head"><span class="wk num">W6</span><span class="dates">10.5 – 10.11</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">82.5</span> kg × 3–4 组 × 3 次 · 退让组 <span class="kg">75</span> kg 2×5</div>
+          <div class="rest">第 4 组仅在 RPE ≤ 8 时做；辅助改为每天选 3 个动作、各 2–3 组</div>
+          <span class="rpe">顶组 RPE ≤ 8</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">67.5</span> kg 3×3 · 窄距卧推 <span class="kg">62.5</span> kg 3×5</div>
+          <div class="rest">组间休息拉长到 3 分钟，质量优先</div>
+          <span class="rpe">胸口停稳，起桥腿驱动</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="7" data-start="2026-10-12" data-end="2026-10-18">
+      <div class="week-head"><span class="wk num">W7</span><span class="dates">10.12 – 10.18</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">85</span> kg × 3–4 组 × 2 次 · 退让组 <span class="kg">77.5</span> kg 2×4</div>
+          <div class="rest">组间休息 3–5 分钟；从这周起大重量必须有保护杠/搭档</div>
+          <span class="rpe">顶组 RPE ≤ 8</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">70</span> kg 3×2 · 窄距卧推 <span class="kg">62.5</span> kg 3×5</div>
+          <div class="rest">辅助保持 3 个动作 · 2–3 组</div>
+          <span class="rpe">每一次都当极限单次来对待</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="8" data-start="2026-10-19" data-end="2026-10-25">
+      <div class="week-head"><span class="wk num">W8</span><span class="dates">10.19 – 10.25</span><span class="badge cp">✦ 检查点 2</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">卧推 <span class="kg">87.5</span> kg × 2–3 组 × 2 次 · 退让组 <span class="kg">80</span> kg 2×3</div>
+          <div class="rest">87.5×2 且 RPE ≤ 8.5 → 冲 100 的路线确认；RPE 9+ → W10 单次改冲 92.5，测试日目标调为 97.5</div>
+          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
+        <div class="day"><div class="dlabel">Day B · 技术日</div>
+          <div class="main">暂停卧推 <span class="kg">70</span> kg 3×2 · 速度组 <span class="kg">70</span> kg 3×3</div>
+          <div class="rest">速度组：正常触胸不暂停，全力加速推起</div>
+          <span class="rpe">找到「重而不慌」的感觉</span></div>
+      </div>
+    </article>
+
+    <div class="phase-head"><span class="tag hot">阶段三 · 峰值</span><span class="aim">W9–10 · 适应极限单次 · 疲劳快速回落</span></div>
+
+    <article class="week" data-week="9" data-start="2026-10-26" data-end="2026-11-01">
+      <div class="week-head"><span class="wk num">W9</span><span class="dates">10.26 – 11.1</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 重日</div>
+          <div class="main">热身台阶后单次冲 <span class="kg">90</span> kg（= 当前 PR）· 退让组 <span class="kg">80</span> kg 3×2</div>
+          <div class="rest">经过 8 周训练它应该明显比以前轻；辅助减半</div>
+          <span class="rpe">目标感受 RPE ≤ 8.5</span></div>
+        <div class="day"><div class="dlabel">Day B · 速度日</div>
+          <div class="main">速度组 <span class="kg">75</span> kg 4×2 · 暂停卧推 <span class="kg">67.5</span> kg 2×2</div>
+          <div class="rest">全部追求杆速，绝不磨</div>
+          <span class="rpe">保持神经兴奋、控制疲劳</span></div>
+      </div>
+    </article>
+
+    <article class="week" data-week="10" data-start="2026-11-02" data-end="2026-11-08">
+      <div class="week-head"><span class="wk num">W10</span><span class="dates">11.2 – 11.8</span><span class="badge cp">✦ 检查点 3</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">Day A · 周一或周二</div>
+          <div class="main">热身台阶后单次冲 <span class="kg">95</span> kg（新 PR）· 退让组 <span class="kg">82.5</span> kg 2×2</div>
+          <div class="rest">95 干脆完成 → 测试日冲 100；很磨或失败 → 测试日目标 97.5。这是测试前最后一次大重量</div>
+          <span class="rpe">RPE ≤ 9，有保护再上</span></div>
+        <div class="day"><div class="dlabel">Day B · 周四或周五</div>
+          <div class="main">卧推 <span class="kg">77.5</span> kg 3×2，只求快</div>
+          <div class="rest">辅助只留面拉、侧平举各 2 组轻重量；开始刻意睡够</div>
+          <span class="rpe">离测试 5–6 天，开始收</span></div>
+      </div>
+    </article>
+
+    <div class="phase-head"><span class="tag hot">测试周</span><span class="aim">W11 · 减量蓄力，11.11 周三上 100</span></div>
+
+    <article class="week" data-week="11" data-start="2026-11-09" data-end="2026-11-15">
+      <div class="week-head"><span class="wk num">W11</span><span class="dates">11.9 – 11.15</span><span class="badge">测试周</span><button class="done-btn" type="button">完成 ✓</button></div>
+      <div class="days">
+        <div class="day"><div class="dlabel">周一 11.9 · 激活</div>
+          <div class="main">空杆×10 → <span class="kg">40</span>×5 → <span class="kg">60</span>×3 → <span class="kg">70</span>×2 → <span class="kg">80</span>×1</div>
+          <div class="rest">每一下都快而干脆，20 分钟内结束，不做任何辅助</div>
+          <span class="rpe">只是唤醒，不是训练</span></div>
+        <div class="day"><div class="dlabel">周三 11.11 · 测试日</div>
+          <div class="main">冲击 <span class="kg">100</span> kg × 1</div>
+          <div class="rest">完整流程见下方「测试日流程」；周二完全休息，睡满</div>
+          <span class="rpe">你为它准备了 75 天</span></div>
+      </div>
+    </article>
+  </section>
+
+  <section aria-label="测试日流程">
+    <h2>测试日流程 · 11.11 <span class="en">Max Day</span></h2>
+    <ol class="steps">
+      <li><div><strong>全身热身 5–10 分钟</strong>：划船机/跳绳升温，肩袖弹力带内外旋各 15 次，俯卧撑 10 个。</div></li>
+      <li><div><strong>热身台阶</strong>（每级休 2–3 分钟，最后一级后休 4–5 分钟）：
+        <div class="ladder num">
+          <span class="rung">空杆 ×10</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">40</span> ×8</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">60</span> ×5</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">70</span> ×3</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">80</span> ×1</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">87.5</span> ×1</span><span class="rung-sep">→</span>
+          <span class="rung"><span class="kg">92.5</span> ×1</span><span class="rung-sep">→</span>
+          <span class="rung goal"><span class="kg">100</span> ×1</span>
+        </div></div></li>
+      <li><div><strong>决策点在 92.5</strong>：推得干脆、杆速正常 → 直接上 100；明显变慢、有粘滞 → 改上 97.5（同样是新 PR），100 留到 12 月初再收。</div></li>
+      <li><div><strong>极限一次的保护</strong>：搭档协助出杆（省下肩部力气），保护杠调到比胸口低 2–3 cm 的高度，全握（拇指环绕），失败就把杠放回保护杠上，不硬扛。</div></li>
+      <li><div><strong>只做一次极限尝试</strong>：成了就收，拍视频留念；当天状态神勇也别加到 102.5——把兴奋留给下一个周期。</div></li>
+    </ol>
+    <div class="note">测试前 48 小时：周二完全休息；两晚都睡满 7–9 小时；测试日提前 2–3 小时吃碳水为主的一餐，训练前可以来点咖啡因。</div>
+  </section>
+
+  <section aria-label="调整规则">
+    <h2>调整规则 <span class="en">Autoregulation</span></h2>
+    <div class="grid2">
+      <div class="panel"><h3>RPE 封顶制</h3><p style="font-size:14px">每个重日顶组都有 RPE 上限，超了 → 下周重复本周重量，不加重。计划表是路线图，你身体的反馈才是路况。宁可慢一周，不要伤三个月。</p></div>
+      <div class="panel"><h3>缺课怎么办</h3><p style="font-size:14px">一周只能练一次时，优先保 Day A，并把 Day B 的暂停卧推挪进来做 2 组；辅助全砍。缺掉的课不补量，直接按日历走下一周。</p></div>
+      <div class="panel"><h3>连续两周爆表</h3><p style="font-size:14px">顶组连续两周超上限、或睡眠崩了 → 插入一个减载周（70 kg 3×3），后续顺延；此时测试日目标改为 97.5，12 月再拿 100。97.5 也是 +7.5 kg 的大 PR。</p></div>
+      <div class="panel"><h3>疼痛红线</h3><p style="font-size:14px">肩/肘的尖锐痛不是酸痛。出现 → 当天立即停大重量，降 20% 找无痛的握距和轨迹；连续一周仍痛就先解决问题再回计划。</p></div>
+    </div>
+  </section>
+
+  <section aria-label="技术与恢复">
+    <h2>技术要点 &amp; 恢复 <span class="en">Technique · Recovery</span></h2>
+    <div class="grid2">
+      <div class="panel">
+        <h3>每一次都同一个动作</h3>
+        <ul class="plain" style="font-size:14px">
+          <li><strong>肩胛后收下沉</strong>，上背锁死在凳面上，整套动作不松开。</li>
+          <li><strong>双脚踩实、腿驱动</strong>：脚往地里蹬，力从腿传到上背，臀不离凳。</li>
+          <li><strong>小幅拱腰</strong>，触点固定在下胸/剑突一带，每次同一个点。</li>
+          <li><strong>手肘与躯干约 45–70°</strong>，杆路径向后上方走 J 形，锁定在肩正上方。</li>
+          <li><strong>大重量全握</strong>（拇指环绕），出杠让搭档协助 lift-off。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>增长发生在训练之外</h3>
+        <ul class="plain" style="font-size:14px">
+          <li><strong>蛋白质 1.6–2.2 g/kg 体重/天</strong>，一天分 3–4 次吃够。</li>
+          <li><strong>轻微热量盈余</strong>（约 +200–300 kcal）：这 11 周长 1–2 kg 体重，卧推会直接受益。</li>
+          <li><strong>睡眠 7–9 小时</strong>，峰值期（W9 起）当成训练的一部分。</li>
+          <li><strong>组间休息</strong>：主项 3–5 分钟（阶段一可 2–3 分钟），辅助 60–90 秒。别赶时间牺牲顶组质量。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote">重量均按当前 PR 90 kg、日常 70 kg×8 的水平定制；若某周状态与表格出入较大，按「调整规则」执行，身体信号永远优先于表格数字。RPE 8 = 力竭前还剩 2 次，RPE 9 = 还剩 1 次，RPE 10 = 极限。本页会记住你勾选的完成进度（仅本设备）。11 月 11 日见。</p>
+
+</main>
+
+<script>
+(function(){
+  // 距测试日倒计时
+  try{
+    var test = new Date(2026,10,11); // 2026-11-11
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var d = Math.round((test - today)/86400000);
+    var el = document.getElementById('countdown');
+    if(el){
+      if(d > 1) el.textContent = '距测试日 ' + d + ' 天';
+      else if(d === 1) el.textContent = '明天就是测试日';
+      else if(d === 0) el.textContent = '今天，上 100 🎯';
+      else el.textContent = '测试日已过 · 去拿下一个 PR';
+    }
+  }catch(e){}
+
+  // 高亮当前周
+  try{
+    var now2 = new Date();
+    document.querySelectorAll('.week').forEach(function(w){
+      var s = new Date(w.dataset.start + 'T00:00:00');
+      var e = new Date(w.dataset.end + 'T23:59:59');
+      if(now2 >= s && now2 <= e){
+        var b = document.createElement('span');
+        b.className = 'badge'; b.textContent = '本周';
+        w.querySelector('.week-head').insertBefore(b, w.querySelector('.done-btn'));
+        w.classList.add('current');
+      }
+    });
+  }catch(e){}
+
+  // 完成勾选（localStorage，best-effort）
+  var KEY = 'bench100.done';
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ return []; } }
+  function save(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} }
+  var done = load();
+  document.querySelectorAll('.week').forEach(function(w){
+    var id = w.dataset.week;
+    var btn = w.querySelector('.done-btn');
+    if(done.indexOf(id) > -1) w.classList.add('done');
+    btn.addEventListener('click', function(){
+      var arr = load();
+      var i = arr.indexOf(id);
+      if(i > -1){ arr.splice(i,1); w.classList.remove('done'); }
+      else { arr.push(id); w.classList.add('done'); }
+      save(arr);
+    });
+  });
+
+  // 图表悬停提示
+  try{
+    var pts = [
+      {x:48,y:188.7,w:'W1',v:'72.5 kg × 5×5'},{x:113.6,y:176,w:'W2',v:'75 kg × 5×5'},
+      {x:179.2,y:163.3,w:'W3',v:'77.5 kg × 5×5'},{x:244.8,y:150.7,w:'W4',v:'80 kg × 4×4 ✦'},
+      {x:310.4,y:201.3,w:'W5',v:'70 kg × 3×3 · 减载'},{x:376,y:138,w:'W6',v:'82.5 kg × 3–4×3'},
+      {x:441.6,y:125.3,w:'W7',v:'85 kg × 3–4×2'},{x:507.2,y:112.7,w:'W8',v:'87.5 kg × 2–3×2 ✦'},
+      {x:572.8,y:100,w:'W9',v:'单次 90 kg（=PR）'},{x:638.4,y:74.7,w:'W10',v:'单次 95 kg ✦'},
+      {x:704,y:49.3,w:'W11',v:'测试：100 kg 🎯'}
+    ];
+    var zone = document.getElementById('hitzones');
+    var tip = document.getElementById('tip');
+    pts.forEach(function(p){
+      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',18);
+      c.addEventListener('mousemove', function(ev){
+        tip.textContent = p.w + ' · ' + p.v;
+        tip.style.left = (ev.clientX + 12) + 'px';
+        tip.style.top = (ev.clientY - 34) + 'px';
+        tip.style.opacity = 1;
+      });
+      c.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
+      zone.appendChild(c);
+    });
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

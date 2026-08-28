@@ -177,4 +177,7 @@ export const deckRoutes: { source: string; file: string }[] = [
   // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
   // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
+  // 私人页（非 deck）：卧推 100kg 训练计划（2026.8.31–11.11 · 11 周周期化）。
+  // 只走私享链接 /bench100，不进任何索引/导航/sitemap；noindex 走 meta + /decks/* 头双重。
+  { source: "/bench100", file: "/decks/bench100.html" },
 ];
