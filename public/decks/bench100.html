@@ -14,109 +14,255 @@
 </style>
 <style>
   :root{
-    --bg:#F5F3F0; --surface:#FFFFFF; --surface2:#EDEAE4;
+    --f-num:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif;
+    --f-body:-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif;
+    --f-eyebrow:'JetBrains Mono',monospace;
+
+    --bg:#F5F3F0; --surface:#FFFFFF; --surface2:#EDEAE4; --surface3:#E5E1DA;
     --ink:#1C1916; --ink2:#57524C; --muted:#8A8379;
     --line:#E3DED6; --accent:#C62828; --accent-ink:#B02323;
-    --accent-soft:rgba(198,40,40,.07); --band:rgba(28,25,22,.04);
-    --ok:#2E7D32; --on-ok:#FFFFFF; --plate-red:#C62828; --plate-yellow:#F2A71B;
-    --plate-yellow-ink:#3A2E08; --metal:#A79F94; --shadow:0 1px 3px rgba(28,25,22,.06);
+    --accent-soft:rgba(198,40,40,.07); --accent-soft2:rgba(198,40,40,.14);
+    --band:rgba(28,25,22,.04);
+    --ok:#2E7D32; --on-ok:#FFFFFF; --ok-soft:rgba(46,125,50,.1);
+    --plate-red:#C62828; --plate-blue:#1565C0; --plate-yellow:#F2A71B; --plate-green:#2E7D32;
+    --plate-white:#FAF7F0; --plate-black:#3A3632; --plate-chrome:#9C948A;
+    --plate-yellow-ink:#3A2E08; --metal:#A79F94;
+    --shadow:0 1px 3px rgba(28,25,22,.06); --shadow2:0 10px 32px rgba(28,25,22,.14);
+    --blur-bg:rgba(245,243,240,.82);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#131110; --surface:#1D1A18; --surface2:#272320;
+      --bg:#131110; --surface:#1D1A18; --surface2:#272320; --surface3:#312C28;
       --ink:#F1EDE7; --ink2:#B5AEA4; --muted:#837C72;
       --line:#2F2A26; --accent:#EF5350; --accent-ink:#F26461;
-      --accent-soft:rgba(239,83,80,.11); --band:rgba(241,237,231,.045);
-      --ok:#7CC57F; --on-ok:#0E2B0F; --metal:#6E675E; --shadow:0 1px 3px rgba(0,0,0,.3);
+      --accent-soft:rgba(239,83,80,.11); --accent-soft2:rgba(239,83,80,.2);
+      --band:rgba(241,237,231,.045);
+      --ok:#7CC57F; --on-ok:#0E2B0F; --ok-soft:rgba(124,197,127,.14);
+      --plate-white:#E8E2D8; --plate-black:#4A443E; --plate-chrome:#7A736A;
+      --metal:#6E675E;
+      --shadow:0 1px 3px rgba(0,0,0,.3); --shadow2:0 10px 32px rgba(0,0,0,.5);
+      --blur-bg:rgba(19,17,16,.82);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#131110; --surface:#1D1A18; --surface2:#272320;
+    --bg:#131110; --surface:#1D1A18; --surface2:#272320; --surface3:#312C28;
     --ink:#F1EDE7; --ink2:#B5AEA4; --muted:#837C72;
     --line:#2F2A26; --accent:#EF5350; --accent-ink:#F26461;
-    --accent-soft:rgba(239,83,80,.11); --band:rgba(241,237,231,.045);
-    --ok:#7CC57F; --metal:#6E675E; --shadow:0 1px 3px rgba(0,0,0,.3);
+    --accent-soft:rgba(239,83,80,.11); --accent-soft2:rgba(239,83,80,.2);
+    --band:rgba(241,237,231,.045);
+    --ok:#7CC57F; --on-ok:#0E2B0F; --ok-soft:rgba(124,197,127,.14);
+    --plate-white:#E8E2D8; --plate-black:#4A443E; --plate-chrome:#7A736A;
+    --plate-yellow-ink:#3A2E08; --metal:#6E675E;
+    --shadow:0 1px 3px rgba(0,0,0,.3); --shadow2:0 10px 32px rgba(0,0,0,.5);
+    --blur-bg:rgba(19,17,16,.82);
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
   body{
     background:var(--bg); color:var(--ink); margin:0;
-    font-family:-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif;
+    font-family:var(--f-body);
     font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
   }
-  .num{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.01em}
-  .wrap{max-width:920px; margin:0 auto; padding:40px 20px 72px}
-  .wrap > section{margin-top:60px}
-  h1,h2,h3{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; text-wrap:balance; margin:0}
-  h1{font-size:clamp(32px,6vw,46px); font-weight:700; line-height:1.15; letter-spacing:.01em}
-  h2{font-size:22px; font-weight:600; padding-bottom:10px; border-bottom:2px solid var(--ink); display:flex; align-items:baseline; gap:10px}
-  h2 .en{font-size:12px; font-weight:600; color:var(--muted); letter-spacing:.14em; text-transform:uppercase}
-  h3{font-size:16.5px; font-weight:600}
+  .num{font-family:var(--f-num); font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.01em}
+  .wrap{max-width:920px; margin:0 auto; padding:36px 18px 96px}
+  .wrap > section{margin-top:54px; scroll-margin-top:64px}
+  h1,h2,h3{font-family:var(--f-num); text-wrap:balance; margin:0}
+  h1{font-size:clamp(30px,6vw,44px); font-weight:700; line-height:1.15; letter-spacing:.01em}
+  h2{font-size:21px; font-weight:600; padding-bottom:10px; border-bottom:2px solid var(--ink); display:flex; align-items:baseline; gap:10px}
+  h2 .en{font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:.14em; text-transform:uppercase}
+  h3{font-size:16px; font-weight:600}
   p{margin:.5em 0}
-  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-ink); font-weight:600}
-  .sub{color:var(--ink2); margin-top:10px; max-width:40em}
+  button{font:inherit; color:inherit; background:none; border:none; padding:0; cursor:pointer}
+  button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+  .eyebrow{font-family:var(--f-eyebrow); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-ink); font-weight:600}
+  .sub{color:var(--ink2); margin-top:10px; max-width:42em}
 
-  /* hero */
-  .hero-top{display:flex; flex-wrap:wrap; gap:28px; align-items:flex-end; justify-content:space-between}
-  .bignum{display:flex; align-items:baseline; gap:14px; margin-top:22px}
-  .bignum .from{font-size:clamp(36px,7vw,58px); color:var(--muted); font-weight:500}
-  .bignum .arrow{color:var(--muted); font-size:24px}
-  .bignum .to{font-size:clamp(64px,13vw,112px); color:var(--accent-ink); font-weight:600; line-height:1}
-  .bignum .unit{font-size:20px; color:var(--ink2); font-weight:500}
-  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
+  /* ===== 流动感动效体系 ===== */
+  .fx{opacity:0}
+  .fx-rise{transform:translateY(18px); filter:blur(5px)}
+  .fx-flow{transform:translateX(-16px); filter:blur(5px); clip-path:inset(-12px 55% -12px -12px)}
+  .fx.on{opacity:1; transform:none; filter:blur(0);
+    transition:opacity .8s cubic-bezier(.22,.9,.24,1), transform .8s cubic-bezier(.22,.9,.24,1), filter .8s cubic-bezier(.22,.9,.24,1), clip-path .9s cubic-bezier(.22,.9,.24,1);
+    transition-delay:calc(var(--i,0)*90ms)}
+  .fx-flow.on{clip-path:inset(-12px -12px)}
+  .ink{--mp:100%; -webkit-mask-image:linear-gradient(105deg,#000 0 46%,rgba(0,0,0,.25) 62%,transparent 78%); mask-image:linear-gradient(105deg,#000 0 46%,rgba(0,0,0,.25) 62%,transparent 78%);
+    -webkit-mask-size:300% 100%; mask-size:300% 100%; -webkit-mask-position:var(--mp) 0; mask-position:var(--mp) 0; padding-right:.08em}
+  .ink.on{--mp:0%; transition:-webkit-mask-position 1.1s cubic-bezier(.22,.9,.24,1); transition:mask-position 1.1s cubic-bezier(.22,.9,.24,1)}
+  @keyframes settle{from{opacity:0; filter:blur(10px); transform:translateY(6px) scale(.985)} to{opacity:1; filter:blur(0); transform:none}}
+  .settle{animation:settle 1s cubic-bezier(.22,.9,.24,1) both; animation-delay:calc(var(--i,0)*110ms)}
+  @keyframes plateL{from{opacity:0; transform:translateX(-46px)} to{opacity:1; transform:none}}
+  @keyframes plateR{from{opacity:0; transform:translateX(46px)} to{opacity:1; transform:none}}
+  .pl-l{animation:plateL .9s cubic-bezier(.22,.9,.24,1) both; animation-delay:calc(.35s + var(--i,0)*130ms)}
+  .pl-r{animation:plateR .9s cubic-bezier(.22,.9,.24,1) both; animation-delay:calc(.35s + var(--i,0)*130ms)}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{animation:none !important; transition:none !important}
+    .fx{opacity:1; transform:none; filter:none; clip-path:none}
+    .ink{-webkit-mask-image:none; mask-image:none}
+  }
+
+  /* ===== 头部 ===== */
+  .hero-chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
   .chip{background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 13px; font-size:13px; color:var(--ink2); box-shadow:var(--shadow)}
   .chip strong{color:var(--ink); font-weight:600}
   .chip.hot{background:var(--accent-soft); border-color:transparent; color:var(--accent-ink); font-weight:600}
-  .barbell{margin-top:30px}
-  .barbell svg{width:100%; max-width:620px; height:auto; display:block}
+  .bignum{display:flex; align-items:baseline; gap:12px; margin-top:20px}
+  .bignum .from{font-size:clamp(34px,7vw,54px); color:var(--muted); font-weight:500}
+  .bignum .arrow{color:var(--muted); font-size:22px}
+  .bignum .to{font-size:clamp(60px,12vw,104px); color:var(--accent-ink); font-weight:600; line-height:1}
+  .bignum .unit{font-size:19px; color:var(--ink2); font-weight:500}
+  .barbell{margin:26px 0 0}
+  .barbell svg{width:100%; max-width:620px; height:auto; display:block; overflow:visible}
   .barbell figcaption{font-size:13px; color:var(--muted); margin-top:6px}
 
-  /* phase strip */
-  .phasebar{display:flex; gap:3px; margin-top:14px}
-  .phasebar .seg{flex-grow:1; border-radius:6px; padding:9px 10px 8px; background:var(--surface); border:1px solid var(--line); min-width:0}
-  .phasebar .seg i{display:block; height:4px; border-radius:2px; background:var(--metal); margin-bottom:7px; font-style:normal}
-  .phasebar .seg.p1 i{background:var(--metal)}
-  .phasebar .seg.p2 i{background:var(--plate-yellow)}
-  .phasebar .seg.p3 i{background:var(--accent)}
-  .phasebar .seg.pd i,.phasebar .seg.pt i{background:var(--line)}
-  .phasebar .seg.pt i{background:var(--accent)}
-  .phasebar b{display:block; font-size:13.5px; font-weight:600; white-space:nowrap}
-  .phasebar span{font-size:11.5px; color:var(--muted); white-space:nowrap}
+  /* ===== 吸顶导航 ===== */
+  .tabs{position:sticky; top:0; z-index:60; display:flex; gap:4px; margin-top:34px; padding:10px 4px;
+    background:var(--blur-bg); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs a{flex-shrink:0; font-size:13.5px; font-weight:500; color:var(--ink2); text-decoration:none; padding:6px 14px; border-radius:999px; position:relative; transition:color .3s, background .3s}
+  .tabs a:hover{color:var(--ink)}
+  .tabs a.act{color:var(--accent-ink); background:var(--accent-soft); font-weight:600}
 
-  /* chart */
+  /* ===== 频率切换 ===== */
+  .seg-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:14px}
+  .seg-ctl{display:inline-flex; background:var(--surface2); border:1px solid var(--line); border-radius:12px; padding:3px; gap:2px}
+  .seg-btn{font-size:13.5px; font-weight:600; color:var(--muted); border-radius:9px; padding:7px 16px; transition:all .35s cubic-bezier(.22,.9,.24,1)}
+  .seg-btn.sel{background:var(--surface); color:var(--accent-ink); box-shadow:var(--shadow)}
+  .seg-hint{font-size:12.5px; color:var(--muted); max-width:34em; line-height:1.6}
+
+  /* ===== 今日卡 ===== */
+  .today-shell{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+  .today-shell::before{content:""; position:absolute; inset:0 auto 0 0; width:4px; background:var(--accent); opacity:.85}
+  .t-date{font-size:13px; color:var(--muted)}
+  .t-date b{color:var(--ink); font-weight:600}
+  .t-head{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:6px}
+  .t-phase{font-size:12px; font-weight:600; color:var(--accent-ink); background:var(--accent-soft); border-radius:999px; padding:2px 10px}
+  .t-title{font-size:19px; font-weight:700; font-family:var(--f-num); margin-top:8px}
+  .t-advice{margin-top:12px; background:var(--accent-soft); border-radius:10px; padding:10px 14px; font-size:13.5px; line-height:1.6}
+  .t-advice b{color:var(--accent-ink)}
+  .day-tiles{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+  .day-tile{text-align:left; background:var(--surface2); border:1px solid transparent; border-radius:12px; padding:14px 16px; transition:border-color .3s, transform .35s cubic-bezier(.22,.9,.24,1), box-shadow .35s}
+  .day-tile:hover{border-color:var(--accent); transform:translateY(-2px); box-shadow:var(--shadow2)}
+  .day-tile .dl{font-size:11.5px; font-weight:600; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center}
+  .day-tile .dmain{font-size:15px; font-weight:600; margin-top:6px}
+  .day-tile .dmain .kg{font-family:var(--f-num); font-size:19px; color:var(--accent-ink)}
+  .day-tile .dsub{font-size:12.5px; color:var(--muted); margin-top:4px}
+  .day-tile .go{display:inline-block; margin-top:10px; font-size:13px; font-weight:600; color:var(--accent-ink)}
+  .day-tile.dn{opacity:.78}
+  .day-tile.dn .go{color:var(--ok)}
+  .st-pill{font-size:11px; font-weight:600; border-radius:999px; padding:1px 8px; background:var(--surface3); color:var(--muted); letter-spacing:.02em}
+  .st-pill.done{background:var(--ok-soft); color:var(--ok)}
+  .st-pill.part{background:var(--accent-soft); color:var(--accent-ink)}
+
+  /* ===== 训练模式 ===== */
+  .sess{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:var(--shadow2)}
+  .s-top{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-bottom:14px; border-bottom:1px solid var(--line)}
+  .s-back{font-size:13.5px; color:var(--muted); font-weight:500; padding:6px 10px; margin-left:-10px; border-radius:8px; transition:color .3s}
+  .s-back:hover{color:var(--ink)}
+  .s-name{font-family:var(--f-num); font-size:18px; font-weight:700}
+  .s-elapsed{margin-left:auto; font-family:var(--f-num); font-size:14px; color:var(--muted)}
+  .s-note{font-size:13px; color:var(--muted); margin-top:10px}
+  .block{padding:16px 0; border-bottom:1px solid var(--line)}
+  .block:last-of-type{border-bottom:none}
+  .b-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .b-name{font-weight:700; font-size:15.5px}
+  .b-rx{font-family:var(--f-num); font-size:15px; color:var(--ink2)}
+  .b-rx .kg{color:var(--accent-ink); font-weight:600; font-size:18px}
+  .b-cap{font-size:11.5px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 6px; align-self:center}
+  .b-note{font-size:12.5px; color:var(--muted); margin-top:4px}
+  .setchips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+  .sc{position:relative; min-width:56px; height:46px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface2);
+    font-family:var(--f-num); font-weight:600; font-size:14px; color:var(--ink2); overflow:hidden;
+    transition:border-color .3s, color .3s, transform .2s cubic-bezier(.22,.9,.24,1); padding:0 10px}
+  .sc::before{content:""; position:absolute; inset:0; background:var(--accent); border-radius:50%; transform:scale(0); transform-origin:center; transition:transform .55s cubic-bezier(.22,.9,.24,1); z-index:0}
+  .sc span{position:relative; z-index:1; transition:color .3s}
+  .sc:active{transform:scale(.94)}
+  .sc.done{border-color:var(--accent)}
+  .sc.done::before{transform:scale(1.5); border-radius:8px}
+  .sc.done span{color:#fff}
+  .sc.opt{border-style:dashed}
+  .sc.goal{border-color:var(--accent); color:var(--accent-ink); min-width:88px}
+  .rpe-row{display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-top:12px}
+  .rpe-row .rl{font-size:12px; color:var(--muted); margin-right:2px}
+  .rp{min-width:42px; height:34px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface2); font-family:var(--f-num); font-size:13px; font-weight:600; color:var(--ink2); transition:all .25s}
+  .rp.sel{background:var(--ink); border-color:var(--ink); color:var(--bg)}
+  .rp.hi.sel{background:var(--accent); border-color:var(--accent); color:#fff}
+  .rpe-warn{font-size:12.5px; color:var(--accent-ink); margin-top:8px; background:var(--accent-soft); border-radius:8px; padding:7px 11px}
+  .s-actions{display:flex; gap:10px; margin-top:18px}
+  .btn{border-radius:12px; padding:13px 22px; font-size:15px; font-weight:600; transition:transform .25s cubic-bezier(.22,.9,.24,1), box-shadow .3s}
+  .btn:active{transform:scale(.97)}
+  .btn-pri{background:var(--accent); color:#fff; flex-grow:1; box-shadow:var(--shadow)}
+  .btn-pri:hover{box-shadow:var(--shadow2)}
+  .btn-ghost{border:1.5px solid var(--line); color:var(--ink2)}
+  .s-summary{background:var(--surface2); border-radius:12px; padding:16px; margin-top:16px}
+  .s-summary .big{font-family:var(--f-num); font-size:26px; font-weight:600; color:var(--accent-ink)}
+
+  /* ===== 走势图 ===== */
   .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px 22px 16px; box-shadow:var(--shadow)}
   .chart-title{font-size:14px; font-weight:600; margin-bottom:2px}
   .chart-sub{font-size:12.5px; color:var(--muted); margin-bottom:8px}
   .chart-scroll{overflow-x:auto}
   .chart-scroll svg{min-width:560px; width:100%; height:auto; display:block}
-  #tip{position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px; padding:5px 10px; border-radius:6px; opacity:0; transition:opacity .12s; z-index:9; white-space:nowrap}
+  #chart .ln{stroke-dasharray:900; stroke-dashoffset:900}
+  #chart.on .ln{stroke-dashoffset:0; transition:stroke-dashoffset 1.8s cubic-bezier(.4,.6,.3,1)}
+  #chart .pt{opacity:0; transform-origin:center; transform-box:fill-box; transform:scale(0)}
+  #chart.on .pt{opacity:1; transform:scale(1); transition:opacity .4s, transform .5s cubic-bezier(.22,.9,.24,1); transition-delay:calc(.25s + var(--i,0)*110ms)}
+  #chart .pt.hollow{fill:var(--surface); stroke:var(--accent); stroke-width:2}
+  #tip{position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px; padding:5px 10px; border-radius:6px; opacity:0; transition:opacity .12s; z-index:90; white-space:nowrap}
 
-  /* weeks */
-  .phase-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin:34px 0 12px}
-  .phase-head .tag{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:13px; font-weight:600; letter-spacing:.06em; padding:3px 10px; border-radius:5px; background:var(--surface2); color:var(--ink2)}
+  /* ===== 阶段条 & 周卡 ===== */
+  .phasebar{display:flex; gap:3px; margin-top:14px}
+  .phasebar .seg{flex-grow:1; border-radius:6px; padding:9px 10px 8px; background:var(--surface); border:1px solid var(--line); min-width:0}
+  .phasebar .seg i{display:block; height:4px; border-radius:2px; background:var(--metal); margin-bottom:7px; font-style:normal}
+  .phasebar .seg.p2 i{background:var(--plate-yellow)}
+  .phasebar .seg.p3 i,.phasebar .seg.pt i{background:var(--accent)}
+  .phasebar .seg.pd i{background:var(--line)}
+  .phasebar b{display:block; font-size:13.5px; font-weight:600; white-space:nowrap}
+  .phasebar span{font-size:11.5px; color:var(--muted); white-space:nowrap}
+  .phase-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin:30px 0 10px}
+  .phase-head .tag{font-family:var(--f-num); font-size:13px; font-weight:600; letter-spacing:.06em; padding:3px 10px; border-radius:5px; background:var(--surface2); color:var(--ink2)}
   .phase-head .tag.hot{background:var(--accent-soft); color:var(--accent-ink)}
-  .phase-head .aim{font-size:13.5px; color:var(--muted)}
-  .week{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px; box-shadow:var(--shadow); position:relative}
+  .phase-head .aim{font-size:13px; color:var(--muted)}
+  .week{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:8px; box-shadow:var(--shadow)}
   .week.current{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), var(--shadow)}
-  .week-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px}
-  .wk{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:19px; font-weight:600; min-width:52px}
-  .dates{font-size:13px; color:var(--muted)}
-  .badge{font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent-ink)}
+  .week.past{opacity:.82}
+  .w-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .wk{font-family:var(--f-num); font-size:17px; font-weight:600; min-width:44px}
+  .dates{font-size:12.5px; color:var(--muted)}
+  .badge{font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent-ink)}
   .badge.cp{background:var(--surface2); color:var(--ink2); border:1px dashed var(--muted)}
-  .done-btn{margin-left:auto; font:inherit; font-size:12.5px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer}
-  .done-btn:hover{border-color:var(--muted)}
-  .done-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-  .week.done{opacity:.62}
-  .week.done .done-btn{background:var(--ok); border-color:var(--ok); color:var(--on-ok)}
-  .days{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-  .day{background:var(--surface2); border-radius:9px; padding:12px 14px}
-  .day .dlabel{font-size:11.5px; font-weight:600; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; margin-bottom:6px}
-  .day .main{font-size:15px; font-weight:500}
-  .day .main .kg{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-size:21px; font-weight:600; color:var(--accent-ink)}
-  .day .rest{font-size:13.5px; color:var(--ink2); margin-top:5px; line-height:1.55}
-  .day .rpe{display:inline-block; font-size:11.5px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 6px; margin-top:7px}
-  .wnote{font-size:13px; color:var(--muted); margin-top:10px}
+  .w-days{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px}
+  .w-day{text-align:left; background:var(--surface2); border-radius:9px; padding:10px 12px; border:1px solid transparent; transition:border-color .3s, transform .3s cubic-bezier(.22,.9,.24,1)}
+  .w-day:hover{border-color:var(--accent); transform:translateY(-1px)}
+  .w-day .l{display:flex; justify-content:space-between; font-size:11px; font-weight:600; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  .w-day .m{font-size:13.5px; margin-top:4px; line-height:1.55}
+  .w-day .m .kg{font-family:var(--f-num); font-weight:600; color:var(--accent-ink)}
+  .wnote{font-size:12.5px; color:var(--muted); margin-top:8px}
 
-  /* generic blocks */
+  /* ===== 上铁计算器 ===== */
+  .loader-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:var(--shadow)}
+  .l-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .step-btn{width:46px; height:46px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface2); font-family:var(--f-num); font-size:17px; font-weight:600; color:var(--ink2); transition:all .25s}
+  .step-btn:hover{border-color:var(--accent); color:var(--accent-ink)}
+  .l-val{font-family:var(--f-num); font-size:44px; font-weight:600; color:var(--accent-ink); min-width:130px; text-align:center; line-height:1}
+  .l-val small{font-size:16px; color:var(--muted); font-weight:500}
+  .quick{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  .qk{font-family:var(--f-num); font-size:13px; font-weight:600; border:1.5px solid var(--line); border-radius:999px; padding:6px 13px; color:var(--ink2); transition:all .25s}
+  .qk:hover,.qk.sel{border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft)}
+  #loaderSvg{width:100%; max-width:640px; height:auto; display:block; margin:14px auto 4px; overflow:visible}
+  #loaderSvg rect.p{transition:all .5s cubic-bezier(.22,.9,.24,1)}
+  .l-side{font-size:13.5px; color:var(--ink2); text-align:center}
+  .l-side b{color:var(--ink)}
+  .l-warm{margin-top:14px; padding-top:12px; border-top:1px solid var(--line)}
+  .l-warm .t{font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+  .ladder{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px}
+  .rung{background:var(--surface2); border-radius:7px; padding:6px 11px; font-size:14px; white-space:nowrap}
+  .rung .kg{font-family:var(--f-num); font-weight:600}
+  .rung.goal{background:var(--accent); color:#fff}
+  .rung-sep{color:var(--muted); font-size:12px}
+
+  /* ===== 折叠区块 & 步骤 ===== */
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px}
   .panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; box-shadow:var(--shadow)}
   .panel h3{margin-bottom:8px}
@@ -125,90 +271,133 @@
   .plain li::marker{color:var(--muted)}
   .steps{counter-reset:s; list-style:none; margin:14px 0 0; padding:0}
   .steps li{counter-increment:s; display:flex; gap:14px; padding:11px 0; border-top:1px solid var(--line)}
-  .steps li::before{content:counter(s); font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600; color:var(--accent-ink); min-width:22px; font-size:17px}
-  .ladder{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px}
-  .rung{background:var(--surface2); border-radius:7px; padding:6px 11px; font-size:14px; white-space:nowrap}
-  .rung .kg{font-family:'Satoshi',-apple-system,'PingFang SC','MiSans','Microsoft YaHei',sans-serif; font-weight:600}
-  .rung.goal{background:var(--accent); color:#fff}
-  .rung-sep{color:var(--muted); font-size:12px}
+  .steps li::before{content:counter(s); font-family:var(--f-num); font-weight:600; color:var(--accent-ink); min-width:22px; font-size:17px}
   .note{background:var(--accent-soft); border-radius:10px; padding:13px 16px; font-size:14px; margin-top:14px}
   .footnote{margin-top:56px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); line-height:1.7}
-  a{color:var(--accent-ink)}
+  .data-btns{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+  .mini-btn{font-size:12.5px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:5px 13px; transition:all .25s}
+  .mini-btn:hover{color:var(--ink); border-color:var(--muted)}
+
+  /* ===== 休息计时器 Dock ===== */
+  .dock{position:fixed; left:50%; bottom:18px; transform:translate(-50%,130%); z-index:80;
+    display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:12px 18px; box-shadow:var(--shadow2); width:min(430px, calc(100vw - 24px));
+    transition:transform .6s cubic-bezier(.22,.9,.24,1)}
+  .dock.show{transform:translate(-50%,0)}
+  .dock .ring{flex-shrink:0}
+  .dock .ring svg{display:block}
+  .dock .ring circle.bgc{stroke:var(--surface3); fill:none}
+  .dock .ring circle.fgc{stroke:var(--accent); fill:none; stroke-linecap:round; transform:rotate(-90deg); transform-origin:center; transition:stroke-dashoffset 1s linear}
+  .d-time{font-family:var(--f-num); font-size:30px; font-weight:600; line-height:1; min-width:86px; font-variant-numeric:tabular-nums}
+  .d-info{min-width:0}
+  .d-lab{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .d-btns{display:flex; gap:6px; margin-left:auto}
+  .d-btn{font-family:var(--f-num); font-size:12.5px; font-weight:600; border:1.5px solid var(--line); border-radius:9px; padding:8px 10px; color:var(--ink2); transition:all .25s}
+  .d-btn:hover{border-color:var(--accent); color:var(--accent-ink)}
+  .dock.zero{border-color:var(--accent)}
+  .dock.zero .d-time{color:var(--accent-ink)}
+
+  /* ===== 主题切换（colin-theme） ===== */
+  .theme-swap{position:fixed; left:16px; bottom:16px; z-index:70; font-family:var(--f-num); font-size:11.5px; letter-spacing:.14em;
+    color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:7px 12px; opacity:.55; background:var(--surface);
+    transition:opacity .3s, color .3s, border-color .3s}
+  .theme-swap:hover{opacity:1; color:var(--accent-ink); border-color:var(--accent)}
+  @media print{.theme-swap,.dock,.tabs{display:none !important}}
+
+  .day-tiles.c3,.w-days.c3{grid-template-columns:1fr 1fr 1fr}
   @media (max-width:700px){
-    .days{grid-template-columns:1fr}
-    .grid2{grid-template-columns:1fr}
+    .wrap{padding:26px 14px 120px}
+    .wrap > section{margin-top:42px}
+    .day-tiles,.grid2,.w-days,.day-tiles.c3,.w-days.c3{grid-template-columns:1fr}
     .phasebar{flex-wrap:wrap}
     .phasebar .seg{flex-basis:31%}
-    .wrap > section{margin-top:46px}
+    .quick{margin-left:0}
+    .theme-swap{bottom:auto; top:auto; left:12px; bottom:12px; opacity:.4}
   }
-  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
 </style>
 </head>
 <body>
 <div id="tip" role="tooltip"></div>
+<button class="theme-swap" id="themeSwap" aria-label="切换主题">暗底</button>
+
 <main class="wrap">
 
-  <header>
-    <div class="eyebrow">Bench Press · 2026.8.31 – 11.11 · 11 周</div>
-    <h1 style="margin-top:10px">百公斤卧推计划</h1>
-    <p class="sub">从当前 PR 90 kg 出发，每周两次推日，按「容量 → 力量 → 峰值 → 测试」四段推进，11 月 11 日（周三）冲击 100 kg。</p>
-    <div class="bignum num" aria-label="从 90 公斤到 100 公斤">
+  <header id="top">
+    <div class="eyebrow fx fx-flow" style="--i:0">Bench Press · 2026.8.31 – 11.11 · 11 周</div>
+    <h1 class="ink" style="margin-top:10px">百公斤卧推计划</h1>
+    <p class="sub fx fx-flow" style="--i:2">从当前 PR 90 kg 出发，按「容量 → 力量 → 峰值 → 测试」四段推进，11 月 11 日（周三）冲击 100 kg。每周 2 练或 3 练由你选（页内随时切换），每次训练打开这一页：打勾、计时、记 RPE，它替你盯着节奏。</p>
+    <div class="bignum num settle" style="--i:3" aria-label="从 90 公斤到 100 公斤">
       <span class="from">90</span><span class="arrow">→</span><span class="to">100</span><span class="unit">kg</span>
     </div>
-    <div class="chips">
-      <span class="chip hot" id="countdown">距测试日 75 天</span>
-      <span class="chip">测试日 <strong>11.11 周三</strong></span>
-      <span class="chip">每周 <strong>2 次推日</strong>，间隔 ≥ 48h</span>
-      <span class="chip">RPE 封顶 · 超了不加重</span>
+    <div class="hero-chips">
+      <span class="chip hot fx fx-rise" style="--i:4" id="countdown">距测试日 · 计算中</span>
+      <span class="chip fx fx-rise" style="--i:5">测试日 <strong>11.11 周三</strong></span>
+      <span class="chip fx fx-rise" style="--i:6" id="freqChip">每周 <strong>2 次推日</strong>，间隔 ≥ 48h</span>
+      <span class="chip fx fx-rise" style="--i:7">RPE 封顶 · 超了不加重</span>
     </div>
-    <figure class="barbell" style="margin:30px 0 0">
+    <figure class="barbell" style="margin:26px 0 0">
       <svg viewBox="0 0 560 124" role="img" aria-label="装到 100 公斤的杠铃：20 公斤杠，每侧一片 25 公斤红片和一片 15 公斤黄片">
         <rect x="18" y="58" width="524" height="8" rx="3" fill="var(--metal)"/>
         <rect x="58" y="54" width="116" height="16" rx="4" fill="var(--metal)"/>
         <rect x="386" y="54" width="116" height="16" rx="4" fill="var(--metal)"/>
-        <rect x="66" y="47" width="11" height="30" rx="3" fill="var(--muted)"/>
-        <rect x="483" y="47" width="11" height="30" rx="3" fill="var(--muted)"/>
-        <rect x="86" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/>
-        <rect x="112" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/>
-        <rect x="423" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/>
-        <rect x="454" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/>
-        <text x="124.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" font-family="Satoshi,sans-serif">25</text>
-        <text x="435.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" font-family="Satoshi,sans-serif">25</text>
-        <text x="96" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" font-family="Satoshi,sans-serif">15</text>
-        <text x="464" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" font-family="Satoshi,sans-serif">15</text>
-        <text x="280" y="44" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="Satoshi,sans-serif" font-weight="600">20 kg BAR</text>
+        <g class="pl-l" style="--i:2"><rect x="66" y="47" width="11" height="30" rx="3" fill="var(--muted)"/></g>
+        <g class="pl-r" style="--i:2"><rect x="483" y="47" width="11" height="30" rx="3" fill="var(--muted)"/></g>
+        <g class="pl-l" style="--i:1"><rect x="86" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/><text x="96" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" class="num">15</text></g>
+        <g class="pl-l" style="--i:0"><rect x="112" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/><text x="124.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" class="num">25</text></g>
+        <g class="pl-r" style="--i:0"><rect x="423" y="8" width="25" height="108" rx="5" fill="var(--plate-red)"/><text x="435.5" y="66" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" class="num">25</text></g>
+        <g class="pl-r" style="--i:1"><rect x="454" y="22" width="20" height="80" rx="4" fill="var(--plate-yellow)"/><text x="464" y="66" text-anchor="middle" fill="var(--plate-yellow-ink)" font-size="11" font-weight="700" class="num">15</text></g>
+        <text x="280" y="44" text-anchor="middle" fill="var(--muted)" font-size="12" class="num" font-weight="600">20 kg BAR</text>
       </svg>
-      <figcaption>测试日的杠：20 kg 杠 + 每侧 25 + 15 = <span class="num" style="color:var(--accent-ink)">100 kg</span></figcaption>
+      <figcaption class="fx fx-rise" style="--i:6">测试日的杠：20 kg 杠 + 每侧 25 + 15 = <span class="num" style="color:var(--accent-ink)">100 kg</span></figcaption>
     </figure>
   </header>
 
-  <section aria-label="阶段总览">
-    <h2>四个阶段 <span class="en">Roadmap</span></h2>
-    <div class="phasebar" role="list">
-      <div class="seg p1" role="listitem" style="flex-grow:4"><i></i><b>容量积累</b><span>W1–4 · 8.31–9.27</span></div>
-      <div class="seg pd" role="listitem" style="flex-grow:1"><i></i><b>减载</b><span>W5 · 国庆</span></div>
-      <div class="seg p2" role="listitem" style="flex-grow:3"><i></i><b>力量转化</b><span>W6–8 · 10.5–10.25</span></div>
-      <div class="seg p3" role="listitem" style="flex-grow:2"><i></i><b>峰值</b><span>W9–10</span></div>
-      <div class="seg pt" role="listitem" style="flex-grow:1"><i></i><b>测试</b><span>11.11</span></div>
+  <nav class="tabs" id="tabs" aria-label="页内导航">
+    <a href="#today" class="act">今日</a>
+    <a href="#roadmap">走势</a>
+    <a href="#weeks">课表</a>
+    <a href="#loader">上铁</a>
+    <a href="#test">测试日</a>
+    <a href="#rules">规则</a>
+  </nav>
+
+  <section id="today" aria-label="今日训练">
+    <h2 class="ink">今日 <span class="en">Today</span></h2>
+    <div class="seg-row">
+      <div class="seg-ctl" id="modeSeg" role="group" aria-label="训练频率">
+        <button class="seg-btn" data-m="2">每周 2 练</button>
+        <button class="seg-btn" data-m="3">每周 3 练</button>
+      </div>
+      <span class="seg-hint" id="modeHint"></span>
     </div>
-    <p class="sub" style="font-size:14px">思路：你长期练 70 kg×8 的中等区间，90% 以上的强度区几乎没有开发——所以最大的提升空间在「把已有的肌肉力量表达成极限单次」。先用四周把容量和肌肉打厚，再用三周把它转化成大重量能力，最后两周专练极限单次的神经适应，测试前 72 小时只做激活。减载周正好安排在国庆，出行也不打乱节奏。</p>
+    <div id="todayBody" style="margin-top:14px"></div>
+    <div id="sessionBody" style="margin-top:16px" hidden></div>
   </section>
 
-  <section aria-label="重日顶组走势">
-    <div class="card">
+  <section id="roadmap" aria-label="阶段与走势">
+    <h2 class="ink">四个阶段 · 走势 <span class="en">Roadmap</span></h2>
+    <div class="phasebar" role="list">
+      <div class="seg p1 fx fx-rise" role="listitem" style="flex-grow:4;--i:0"><i></i><b>容量积累</b><span>W1–4 · 8.31–9.27</span></div>
+      <div class="seg pd fx fx-rise" role="listitem" style="flex-grow:1;--i:1"><i></i><b>减载</b><span>W5 · 国庆</span></div>
+      <div class="seg p2 fx fx-rise" role="listitem" style="flex-grow:3;--i:2"><i></i><b>力量转化</b><span>W6–8 · 10.5–10.25</span></div>
+      <div class="seg p3 fx fx-rise" role="listitem" style="flex-grow:2;--i:3"><i></i><b>峰值</b><span>W9–10</span></div>
+      <div class="seg pt fx fx-rise" role="listitem" style="flex-grow:1;--i:4"><i></i><b>测试</b><span>11.11</span></div>
+    </div>
+    <p class="sub" style="font-size:14px">思路：你长期练 70 kg×8 的中等区间，90% 以上的强度区几乎没有开发——所以最大的提升空间在「把已有的肌肉力量表达成极限单次」。先用四周把容量和肌肉打厚，再用三周把它转化成大重量能力，最后两周专练极限单次的神经适应，测试前 72 小时只做激活。减载周正好安排在国庆，出行也不打乱节奏。</p>
+    <div class="card" style="margin-top:16px">
       <div class="chart-title">重日顶组重量 · 11 周走势</div>
-      <div class="chart-sub">每周 Day A 的最重工作组（kg）· 虚线为当前 PR 90 kg</div>
+      <div class="chart-sub">每周 Day A 的最重工作组（kg）· 虚线为当前 PR 90 kg · 实心点 = 已完成</div>
       <div class="chart-scroll">
       <svg id="chart" viewBox="0 0 720 300">
         <rect x="15" y="14" width="263" height="252" fill="var(--band)" rx="4"/>
         <rect x="343" y="14" width="197" height="252" fill="var(--band)" rx="4"/>
         <rect x="671" y="14" width="42" height="252" fill="var(--accent-soft)" rx="4"/>
-        <text x="20" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">容量</text>
-        <text x="286" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">减载</text>
-        <text x="348" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">力量</text>
-        <text x="548" y="28" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">峰值</text>
-        <text x="676" y="28" font-size="10.5" fill="var(--accent-ink)" font-family="PingFang SC,Microsoft YaHei,sans-serif">测试</text>
-        <g font-size="11" fill="var(--muted)" font-family="Satoshi,sans-serif">
+        <text x="20" y="28" font-size="10.5" fill="var(--muted)">容量</text>
+        <text x="286" y="28" font-size="10.5" fill="var(--muted)">减载</text>
+        <text x="348" y="28" font-size="10.5" fill="var(--muted)">力量</text>
+        <text x="548" y="28" font-size="10.5" fill="var(--muted)">峰值</text>
+        <text x="676" y="28" font-size="10.5" fill="var(--accent-ink)">测试</text>
+        <g font-size="11" fill="var(--muted)" class="num">
           <line x1="44" y1="252" x2="713" y2="252" stroke="var(--line)"/>
           <line x1="44" y1="201.3" x2="713" y2="201.3" stroke="var(--line)"/>
           <line x1="44" y1="150.7" x2="713" y2="150.7" stroke="var(--line)"/>
@@ -220,24 +409,25 @@
           <text x="38" y="53" text-anchor="end">100</text>
         </g>
         <line x1="44" y1="100" x2="713" y2="100" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="5 4"/>
-        <text x="712" y="93" text-anchor="end" font-size="10.5" fill="var(--muted)" font-family="PingFang SC,Microsoft YaHei,sans-serif">当前 PR 90</text>
-        <polyline points="48,188.7 113.6,176 179.2,163.3 244.8,150.7 310.4,201.3 376,138 441.6,125.3 507.2,112.7 572.8,100 638.4,74.7 704,49.3"
+        <text x="712" y="93" text-anchor="end" font-size="10.5" fill="var(--muted)">当前 PR 90</text>
+        <polyline class="ln" points="48,188.7 113.6,176 179.2,163.3 244.8,150.7 310.4,201.3 376,138 441.6,125.3 507.2,112.7 572.8,100 638.4,74.7 704,49.3"
           fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
         <g fill="var(--accent)">
-          <circle cx="48" cy="188.7" r="3.4"/><circle cx="113.6" cy="176" r="3.4"/><circle cx="179.2" cy="163.3" r="3.4"/>
-          <circle cx="244.8" cy="150.7" r="3.4"/><circle cx="310.4" cy="201.3" r="3.4"/><circle cx="376" cy="138" r="3.4"/>
-          <circle cx="441.6" cy="125.3" r="3.4"/><circle cx="507.2" cy="112.7" r="3.4"/><circle cx="572.8" cy="100" r="4.4"/>
-          <circle cx="638.4" cy="74.7" r="4.4"/>
+          <circle class="pt" style="--i:0" id="pt1" cx="48" cy="188.7" r="4"/><circle class="pt" style="--i:1" id="pt2" cx="113.6" cy="176" r="4"/>
+          <circle class="pt" style="--i:2" id="pt3" cx="179.2" cy="163.3" r="4"/><circle class="pt" style="--i:3" id="pt4" cx="244.8" cy="150.7" r="4"/>
+          <circle class="pt" style="--i:4" id="pt5" cx="310.4" cy="201.3" r="4"/><circle class="pt" style="--i:5" id="pt6" cx="376" cy="138" r="4"/>
+          <circle class="pt" style="--i:6" id="pt7" cx="441.6" cy="125.3" r="4"/><circle class="pt" style="--i:7" id="pt8" cx="507.2" cy="112.7" r="4"/>
+          <circle class="pt" style="--i:8" id="pt9" cx="572.8" cy="100" r="4.6"/><circle class="pt" style="--i:9" id="pt10" cx="638.4" cy="74.7" r="4.6"/>
         </g>
-        <circle cx="704" cy="49.3" r="6.2" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
-        <g font-size="11.5" font-family="Satoshi,sans-serif" font-weight="600" fill="var(--ink2)">
+        <circle class="pt" style="--i:10" id="pt11" cx="704" cy="49.3" r="6.2" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+        <g font-size="11.5" class="num" font-weight="600" fill="var(--ink2)">
           <text x="48" y="176">72.5</text>
           <text x="310.4" y="222">70</text>
           <text x="565" y="88">90</text>
           <text x="630" y="63">95</text>
         </g>
-        <text x="684" y="52" text-anchor="end" font-size="15" font-family="Satoshi,sans-serif" font-weight="700" fill="var(--accent-ink)">100</text>
-        <g font-size="10" fill="var(--muted)" font-family="Satoshi,sans-serif">
+        <text x="684" y="52" text-anchor="end" font-size="15" class="num" font-weight="700" fill="var(--accent-ink)">100</text>
+        <g font-size="10" fill="var(--muted)" class="num">
           <text x="48" y="270" text-anchor="middle">W1</text><text x="113.6" y="270" text-anchor="middle">W2</text>
           <text x="179.2" y="270" text-anchor="middle">W3</text><text x="244.8" y="270" text-anchor="middle">W4</text>
           <text x="310.4" y="270" text-anchor="middle">W5</text><text x="376" y="270" text-anchor="middle">W6</text>
@@ -251,181 +441,35 @@
     </div>
   </section>
 
-  <section aria-label="逐周课表">
-    <h2>逐周课表 <span class="en">Week by Week</span></h2>
-    <p class="sub" style="font-size:14px">Day A（重日）和 Day B（技术日）自选星期，间隔至少 48 小时，如周一 + 周四。所有重量为工作组重量，前面自行做热身台阶（空杆 → 40 → 55 → 65…每级 3–5 次，逐级到工作重量）。RPE 8 = 力竭前还剩 2 次；RPE 9 = 还剩 1 次。</p>
-
-    <div class="phase-head"><span class="tag">阶段一 · 容量积累</span><span class="aim">W1–4 · 把肌肉和做功能力打厚 · 主项 5 次区间</span></div>
-
-    <article class="week" data-week="1" data-start="2026-08-31" data-end="2026-09-06">
-      <div class="week-head"><span class="wk num">W1</span><span class="dates">8.31 – 9.6</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">72.5</span> kg × 5 组 × 5 次</div>
-          <div class="rest">辅助：上斜哑铃卧推 3×8–10 · 双杠臂屈伸 3×8–12 · 绳索三头下压 3×10–12 · 划船 3×8–10</div>
-          <span class="rpe">顶组 RPE ≤ 7.5</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">62.5</span> kg 4×6 · 窄距卧推 <span class="kg">55</span> kg 3×8</div>
-          <div class="rest">辅助：站姿肩推 3×8–10 · 引体/高位下拉 3×8–10 · 侧平举 3×12–15 · 面拉 3×15–20</div>
-          <span class="rpe">暂停：胸口停稳 1 秒再推</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="2" data-start="2026-09-07" data-end="2026-09-13">
-      <div class="week-head"><span class="wk num">W2</span><span class="dates">9.7 – 9.13</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">75</span> kg × 5 组 × 5 次</div>
-          <div class="rest">辅助同 W1</div>
-          <span class="rpe">顶组 RPE ≤ 8</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">65</span> kg 4×6 · 窄距卧推 <span class="kg">57.5</span> kg 3×8</div>
-          <div class="rest">辅助同 W1</div>
-          <span class="rpe">全程控制杆路径一致</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="3" data-start="2026-09-14" data-end="2026-09-20">
-      <div class="week-head"><span class="wk num">W3</span><span class="dates">9.14 – 9.20</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">77.5</span> kg × 5 组 × 5 次</div>
-          <div class="rest">第 3 组后若已到 RPE 9，后两组降到 75 kg 完成</div>
-          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">65</span> kg 4×6 · 窄距卧推 <span class="kg">57.5</span> kg 3×8</div>
-          <div class="rest">辅助同 W1</div>
-          <span class="rpe">保持爆发意图推起</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="4" data-start="2026-09-21" data-end="2026-09-27">
-      <div class="week-head"><span class="wk num">W4</span><span class="dates">9.21 – 9.27</span><span class="badge cp">✦ 检查点 1</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">80</span> kg × 4 组 × 4 次</div>
-          <div class="rest">全部完成且 RPE ≤ 8.5 → 按计划进入下一阶段；很勉强 → 阶段二起点各降 2.5 kg</div>
-          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">67.5</span> kg 4×5 · 窄距卧推 <span class="kg">60</span> kg 3×8</div>
-          <div class="rest">辅助同 W1</div>
-          <span class="rpe">最后一周大容量</span></div>
-      </div>
-    </article>
-
-    <div class="phase-head"><span class="tag">减载 · 恢复</span><span class="aim">W5 · 正好覆盖国庆 · 消化前四周的疲劳</span></div>
-
-    <article class="week" data-week="5" data-start="2026-09-28" data-end="2026-10-04">
-      <div class="week-head"><span class="wk num">W5</span><span class="dates">9.28 – 10.4</span><span class="badge">国庆周</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 轻</div>
-          <div class="main">卧推 <span class="kg">70</span> kg × 3 组 × 3 次</div>
-          <div class="rest">只追求杆速，每一次都推得又快又干脆；辅助减半</div>
-          <span class="rpe">RPE ≤ 6，感觉轻才对</span></div>
-        <div class="day"><div class="dlabel">Day B · 可省</div>
-          <div class="main">卧推 <span class="kg">60</span> kg 3×5，或完全休息</div>
-          <div class="rest">出行就放心休——这周的任务是恢复，不是训练量；别在假期后补练</div>
-          <span class="rpe">吃好睡好，体重别掉</span></div>
-      </div>
-      <div class="wnote">若国庆出行影响到 W6 前半周，把 W6 的 Day A 挪到 10.8 之后即可，两练间隔 ≥ 48h。</div>
-    </article>
-
-    <div class="phase-head"><span class="tag">阶段二 · 力量转化</span><span class="aim">W6–8 · 把容量转成大重量能力 · 2–3 次区间</span></div>
-
-    <article class="week" data-week="6" data-start="2026-10-05" data-end="2026-10-11">
-      <div class="week-head"><span class="wk num">W6</span><span class="dates">10.5 – 10.11</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">82.5</span> kg × 3–4 组 × 3 次 · 退让组 <span class="kg">75</span> kg 2×5</div>
-          <div class="rest">第 4 组仅在 RPE ≤ 8 时做；辅助改为每天选 3 个动作、各 2–3 组</div>
-          <span class="rpe">顶组 RPE ≤ 8</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">67.5</span> kg 3×3 · 窄距卧推 <span class="kg">62.5</span> kg 3×5</div>
-          <div class="rest">组间休息拉长到 3 分钟，质量优先</div>
-          <span class="rpe">胸口停稳，起桥腿驱动</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="7" data-start="2026-10-12" data-end="2026-10-18">
-      <div class="week-head"><span class="wk num">W7</span><span class="dates">10.12 – 10.18</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">85</span> kg × 3–4 组 × 2 次 · 退让组 <span class="kg">77.5</span> kg 2×4</div>
-          <div class="rest">组间休息 3–5 分钟；从这周起大重量必须有保护杠/搭档</div>
-          <span class="rpe">顶组 RPE ≤ 8</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">70</span> kg 3×2 · 窄距卧推 <span class="kg">62.5</span> kg 3×5</div>
-          <div class="rest">辅助保持 3 个动作 · 2–3 组</div>
-          <span class="rpe">每一次都当极限单次来对待</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="8" data-start="2026-10-19" data-end="2026-10-25">
-      <div class="week-head"><span class="wk num">W8</span><span class="dates">10.19 – 10.25</span><span class="badge cp">✦ 检查点 2</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">卧推 <span class="kg">87.5</span> kg × 2–3 组 × 2 次 · 退让组 <span class="kg">80</span> kg 2×3</div>
-          <div class="rest">87.5×2 且 RPE ≤ 8.5 → 冲 100 的路线确认；RPE 9+ → W10 单次改冲 92.5，测试日目标调为 97.5</div>
-          <span class="rpe">顶组 RPE ≤ 8.5</span></div>
-        <div class="day"><div class="dlabel">Day B · 技术日</div>
-          <div class="main">暂停卧推 <span class="kg">70</span> kg 3×2 · 速度组 <span class="kg">70</span> kg 3×3</div>
-          <div class="rest">速度组：正常触胸不暂停，全力加速推起</div>
-          <span class="rpe">找到「重而不慌」的感觉</span></div>
-      </div>
-    </article>
-
-    <div class="phase-head"><span class="tag hot">阶段三 · 峰值</span><span class="aim">W9–10 · 适应极限单次 · 疲劳快速回落</span></div>
-
-    <article class="week" data-week="9" data-start="2026-10-26" data-end="2026-11-01">
-      <div class="week-head"><span class="wk num">W9</span><span class="dates">10.26 – 11.1</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 重日</div>
-          <div class="main">热身台阶后单次冲 <span class="kg">90</span> kg（= 当前 PR）· 退让组 <span class="kg">80</span> kg 3×2</div>
-          <div class="rest">经过 8 周训练它应该明显比以前轻；辅助减半</div>
-          <span class="rpe">目标感受 RPE ≤ 8.5</span></div>
-        <div class="day"><div class="dlabel">Day B · 速度日</div>
-          <div class="main">速度组 <span class="kg">75</span> kg 4×2 · 暂停卧推 <span class="kg">67.5</span> kg 2×2</div>
-          <div class="rest">全部追求杆速，绝不磨</div>
-          <span class="rpe">保持神经兴奋、控制疲劳</span></div>
-      </div>
-    </article>
-
-    <article class="week" data-week="10" data-start="2026-11-02" data-end="2026-11-08">
-      <div class="week-head"><span class="wk num">W10</span><span class="dates">11.2 – 11.8</span><span class="badge cp">✦ 检查点 3</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">Day A · 周一或周二</div>
-          <div class="main">热身台阶后单次冲 <span class="kg">95</span> kg（新 PR）· 退让组 <span class="kg">82.5</span> kg 2×2</div>
-          <div class="rest">95 干脆完成 → 测试日冲 100；很磨或失败 → 测试日目标 97.5。这是测试前最后一次大重量</div>
-          <span class="rpe">RPE ≤ 9，有保护再上</span></div>
-        <div class="day"><div class="dlabel">Day B · 周四或周五</div>
-          <div class="main">卧推 <span class="kg">77.5</span> kg 3×2，只求快</div>
-          <div class="rest">辅助只留面拉、侧平举各 2 组轻重量；开始刻意睡够</div>
-          <span class="rpe">离测试 5–6 天，开始收</span></div>
-      </div>
-    </article>
-
-    <div class="phase-head"><span class="tag hot">测试周</span><span class="aim">W11 · 减量蓄力，11.11 周三上 100</span></div>
-
-    <article class="week" data-week="11" data-start="2026-11-09" data-end="2026-11-15">
-      <div class="week-head"><span class="wk num">W11</span><span class="dates">11.9 – 11.15</span><span class="badge">测试周</span><button class="done-btn" type="button">完成 ✓</button></div>
-      <div class="days">
-        <div class="day"><div class="dlabel">周一 11.9 · 激活</div>
-          <div class="main">空杆×10 → <span class="kg">40</span>×5 → <span class="kg">60</span>×3 → <span class="kg">70</span>×2 → <span class="kg">80</span>×1</div>
-          <div class="rest">每一下都快而干脆，20 分钟内结束，不做任何辅助</div>
-          <span class="rpe">只是唤醒，不是训练</span></div>
-        <div class="day"><div class="dlabel">周三 11.11 · 测试日</div>
-          <div class="main">冲击 <span class="kg">100</span> kg × 1</div>
-          <div class="rest">完整流程见下方「测试日流程」；周二完全休息，睡满</div>
-          <span class="rpe">你为它准备了 75 天</span></div>
-      </div>
-    </article>
+  <section id="weeks" aria-label="逐周课表">
+    <h2 class="ink">逐周课表 <span class="en">Week by Week</span></h2>
+    <p class="sub" style="font-size:14px">训练日自选星期：2 练如周一 + 周四，3 练如一三五（隔天恢复）。点任意一天进入训练模式：逐组打勾、自动休息计时、记 RPE。两版共用同一条重日（Day A）进度线，随时可切换、互不丢进度。所有重量为工作组重量，热身台阶见「上铁」区。RPE 8 = 力竭前还剩 2 次；RPE 9 = 还剩 1 次。</p>
+    <div id="weeksList"></div>
   </section>
 
-  <section aria-label="测试日流程">
-    <h2>测试日流程 · 11.11 <span class="en">Max Day</span></h2>
+  <section id="loader" aria-label="上铁计算器">
+    <h2 class="ink">上铁 <span class="en">Plate Math</span></h2>
+    <div class="loader-card" style="margin-top:16px">
+      <div class="l-row">
+        <button class="step-btn" id="wMinus" aria-label="减 2.5 公斤">−</button>
+        <div class="l-val num" id="wVal">72.5<small> kg</small></div>
+        <button class="step-btn" id="wPlus" aria-label="加 2.5 公斤">+</button>
+        <div class="quick" id="quick"></div>
+      </div>
+      <svg id="loaderSvg" viewBox="0 0 640 130" role="img" aria-label="配铁示意"></svg>
+      <div class="l-side" id="sideText"></div>
+      <div class="l-warm">
+        <div class="t">建议热身台阶</div>
+        <div class="ladder num" id="ladderRow"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="test" aria-label="测试日流程">
+    <h2 class="ink">测试日流程 · 11.11 <span class="en">Max Day</span></h2>
     <ol class="steps">
-      <li><div><strong>全身热身 5–10 分钟</strong>：划船机/跳绳升温，肩袖弹力带内外旋各 15 次，俯卧撑 10 个。</div></li>
-      <li><div><strong>热身台阶</strong>（每级休 2–3 分钟，最后一级后休 4–5 分钟）：
+      <li class="fx fx-flow" style="--i:0"><div><strong>全身热身 5–10 分钟</strong>：划船机/跳绳升温，肩袖弹力带内外旋各 15 次，俯卧撑 10 个。</div></li>
+      <li class="fx fx-flow" style="--i:1"><div><strong>热身台阶</strong>（每级休 2–3 分钟，最后一级后休 4–5 分钟）：
         <div class="ladder num">
           <span class="rung">空杆 ×10</span><span class="rung-sep">→</span>
           <span class="rung"><span class="kg">40</span> ×8</span><span class="rung-sep">→</span>
@@ -436,27 +480,27 @@
           <span class="rung"><span class="kg">92.5</span> ×1</span><span class="rung-sep">→</span>
           <span class="rung goal"><span class="kg">100</span> ×1</span>
         </div></div></li>
-      <li><div><strong>决策点在 92.5</strong>：推得干脆、杆速正常 → 直接上 100；明显变慢、有粘滞 → 改上 97.5（同样是新 PR），100 留到 12 月初再收。</div></li>
-      <li><div><strong>极限一次的保护</strong>：搭档协助出杆（省下肩部力气），保护杠调到比胸口低 2–3 cm 的高度，全握（拇指环绕），失败就把杠放回保护杠上，不硬扛。</div></li>
-      <li><div><strong>只做一次极限尝试</strong>：成了就收，拍视频留念；当天状态神勇也别加到 102.5——把兴奋留给下一个周期。</div></li>
+      <li class="fx fx-flow" style="--i:2"><div><strong>决策点在 92.5</strong>：推得干脆、杆速正常 → 直接上 100；明显变慢、有粘滞 → 改上 97.5（同样是新 PR），100 留到 12 月初再收。</div></li>
+      <li class="fx fx-flow" style="--i:3"><div><strong>极限一次的保护</strong>：搭档协助出杆（省下肩部力气），保护杠调到比胸口低 2–3 cm 的高度，全握（拇指环绕），失败就把杠放回保护杠上，不硬扛。</div></li>
+      <li class="fx fx-flow" style="--i:4"><div><strong>只做一次极限尝试</strong>：成了就收，拍视频留念；当天状态神勇也别加到 102.5——把兴奋留给下一个周期。</div></li>
     </ol>
-    <div class="note">测试前 48 小时：周二完全休息；两晚都睡满 7–9 小时；测试日提前 2–3 小时吃碳水为主的一餐，训练前可以来点咖啡因。</div>
+    <div class="note fx fx-rise" style="--i:5">测试前 48 小时：周二完全休息；两晚都睡满 7–9 小时；测试日提前 2–3 小时吃碳水为主的一餐，训练前可以来点咖啡因。</div>
   </section>
 
-  <section aria-label="调整规则">
-    <h2>调整规则 <span class="en">Autoregulation</span></h2>
+  <section id="rules" aria-label="调整规则">
+    <h2 class="ink">调整规则 <span class="en">Autoregulation</span></h2>
     <div class="grid2">
-      <div class="panel"><h3>RPE 封顶制</h3><p style="font-size:14px">每个重日顶组都有 RPE 上限，超了 → 下周重复本周重量，不加重。计划表是路线图，你身体的反馈才是路况。宁可慢一周，不要伤三个月。</p></div>
-      <div class="panel"><h3>缺课怎么办</h3><p style="font-size:14px">一周只能练一次时，优先保 Day A，并把 Day B 的暂停卧推挪进来做 2 组；辅助全砍。缺掉的课不补量，直接按日历走下一周。</p></div>
-      <div class="panel"><h3>连续两周爆表</h3><p style="font-size:14px">顶组连续两周超上限、或睡眠崩了 → 插入一个减载周（70 kg 3×3），后续顺延；此时测试日目标改为 97.5，12 月再拿 100。97.5 也是 +7.5 kg 的大 PR。</p></div>
-      <div class="panel"><h3>疼痛红线</h3><p style="font-size:14px">肩/肘的尖锐痛不是酸痛。出现 → 当天立即停大重量，降 20% 找无痛的握距和轨迹；连续一周仍痛就先解决问题再回计划。</p></div>
+      <div class="panel fx fx-rise" style="--i:0"><h3>RPE 封顶制</h3><p style="font-size:14px">每个重日顶组都有 RPE 上限，超了 → 下周重复本周重量，不加重。在训练模式里记下顶组 RPE，下周的今日卡会自动提醒你。宁可慢一周，不要伤三个月。</p></div>
+      <div class="panel fx fx-rise" style="--i:1"><h3>缺课怎么办</h3><p style="font-size:14px">一周只能练一次时，优先保 Day A，并把 Day B 的暂停卧推挪进来做 2 组；辅助全砍。缺掉的课不补量，直接按日历走下一周。</p></div>
+      <div class="panel fx fx-rise" style="--i:2"><h3>连续两周爆表</h3><p style="font-size:14px">顶组连续两周超上限、或睡眠崩了 → 插入一个减载周（70 kg 3×3），后续顺延；此时测试日目标改为 97.5，12 月再拿 100。97.5 也是 +7.5 kg 的大 PR。</p></div>
+      <div class="panel fx fx-rise" style="--i:3"><h3>疼痛红线</h3><p style="font-size:14px">肩/肘的尖锐痛不是酸痛。出现 → 当天立即停大重量，降 20% 找无痛的握距和轨迹；连续一周仍痛就先解决问题再回计划。</p></div>
     </div>
   </section>
 
-  <section aria-label="技术与恢复">
-    <h2>技术要点 &amp; 恢复 <span class="en">Technique · Recovery</span></h2>
+  <section id="tech" aria-label="技术与恢复">
+    <h2 class="ink">技术要点 &amp; 恢复 <span class="en">Technique · Recovery</span></h2>
     <div class="grid2">
-      <div class="panel">
+      <div class="panel fx fx-rise" style="--i:0">
         <h3>每一次都同一个动作</h3>
         <ul class="plain" style="font-size:14px">
           <li><strong>肩胛后收下沉</strong>，上背锁死在凳面上，整套动作不松开。</li>
@@ -466,97 +510,480 @@
           <li><strong>大重量全握</strong>（拇指环绕），出杠让搭档协助 lift-off。</li>
         </ul>
       </div>
-      <div class="panel">
+      <div class="panel fx fx-rise" style="--i:1">
         <h3>增长发生在训练之外</h3>
         <ul class="plain" style="font-size:14px">
           <li><strong>蛋白质 1.6–2.2 g/kg 体重/天</strong>，一天分 3–4 次吃够。</li>
           <li><strong>轻微热量盈余</strong>（约 +200–300 kcal）：这 11 周长 1–2 kg 体重，卧推会直接受益。</li>
           <li><strong>睡眠 7–9 小时</strong>，峰值期（W9 起）当成训练的一部分。</li>
-          <li><strong>组间休息</strong>：主项 3–5 分钟（阶段一可 2–3 分钟），辅助 60–90 秒。别赶时间牺牲顶组质量。</li>
+          <li><strong>组间休息</strong>：主项 3–5 分钟（阶段一可 2–3 分钟），辅助 60–90 秒。计时器替你数着，别赶时间牺牲顶组质量。</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <p class="footnote">重量均按当前 PR 90 kg、日常 70 kg×8 的水平定制；若某周状态与表格出入较大，按「调整规则」执行，身体信号永远优先于表格数字。RPE 8 = 力竭前还剩 2 次，RPE 9 = 还剩 1 次，RPE 10 = 极限。本页会记住你勾选的完成进度（仅本设备）。11 月 11 日见。</p>
+  <p class="footnote">重量均按当前 PR 90 kg、日常 70 kg×8 的水平定制；若某周状态与表格出入较大，按「调整规则」执行，身体信号永远优先于表格数字。RPE 8 = 力竭前还剩 2 次，RPE 9 = 还剩 1 次，RPE 10 = 极限。训练中屏幕会保持常亮；打勾、RPE 和进度都记在这台设备的浏览器里。11 月 11 日见。
+  <span class="data-btns"><button class="mini-btn" id="expBtn">导出进度</button><button class="mini-btn" id="impBtn">导入进度</button><button class="mini-btn" id="rstBtn">清空进度</button></span></p>
 
 </main>
 
+<div class="dock" id="timerDock" role="timer" aria-live="off">
+  <div class="ring"><svg width="56" height="56" viewBox="0 0 56 56">
+    <circle class="bgc" cx="28" cy="28" r="24" stroke-width="4.5"/>
+    <circle class="fgc" id="tdRing" cx="28" cy="28" r="24" stroke-width="4.5" stroke-dasharray="150.8" stroke-dashoffset="0"/>
+  </svg></div>
+  <div class="d-info">
+    <div class="d-time" id="tdTime">3:00</div>
+    <div class="d-lab" id="tdLabel">组间休息</div>
+  </div>
+  <div class="d-btns">
+    <button class="d-btn" id="tdM30">−30</button>
+    <button class="d-btn" id="tdP30">+30</button>
+    <button class="d-btn" id="tdSkip">跳过</button>
+  </div>
+</div>
+
 <script>
 (function(){
-  // 距测试日倒计时
-  try{
-    var test = new Date(2026,10,11); // 2026-11-11
-    var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var d = Math.round((test - today)/86400000);
-    var el = document.getElementById('countdown');
-    if(el){
-      if(d > 1) el.textContent = '距测试日 ' + d + ' 天';
-      else if(d === 1) el.textContent = '明天就是测试日';
-      else if(d === 0) el.textContent = '今天，上 100 🎯';
-      else el.textContent = '测试日已过 · 去拿下一个 PR';
-    }
-  }catch(e){}
+'use strict';
+/* ============ 计划数据 ============ */
+// block: {n:名称, w:重量kg(0=空杆), s:组数, r:次数, rx:'次数区间', cap:RPE上限, rest:秒, opt:末尾可选组数, note, main:1, lad:[[w,r]...], goal:1}
+var accA=[['上斜哑铃卧推','8–10'],['双杠臂屈伸','8–12'],['绳索三头下压','10–12'],['杠铃/坐姿划船','8–10']];
+var accB=[['站姿肩推','8–10'],['引体/高位下拉','8–10'],['侧平举','12–15'],['面拉','15–20']];
+var accC=[['双杠臂屈伸','8–12'],['引体/高位下拉','8–10'],['面拉','15–20']];
+function acc(list,sets){return list.map(function(a){return {n:a[0],rx:a[1],s:sets||3,rest:90};});}
+function M(n,w,s,r,cap,rest,o){var b={n:n,w:w,s:s,r:r,cap:cap,rest:rest,main:1};if(o)for(var k in o)b[k]=o[k];return b;}
 
-  // 高亮当前周
-  try{
-    var now2 = new Date();
-    document.querySelectorAll('.week').forEach(function(w){
-      var s = new Date(w.dataset.start + 'T00:00:00');
-      var e = new Date(w.dataset.end + 'T23:59:59');
-      if(now2 >= s && now2 <= e){
-        var b = document.createElement('span');
-        b.className = 'badge'; b.textContent = '本周';
-        w.querySelector('.week-head').insertBefore(b, w.querySelector('.done-btn'));
-        w.classList.add('current');
-      }
-    });
-  }catch(e){}
+var PLAN={test:'2026-11-11',weeks:[
+ {n:1,s:'2026-08-31',e:'2026-09-06',ph:'vol',top:72.5,days:{
+   A:{t:'重日',blocks:[M('卧推',72.5,5,5,7.5,180)].concat(acc(accA))},
+   B:{t:'技术日',blocks:[M('暂停卧推',62.5,4,6,null,150,{note:'胸口停稳 1 秒再推'}),M('窄距卧推',55,3,8,null,120)].concat(acc(accB))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',60,4,4,7,150,{note:'速度意图：每一下都推得快而干脆'})].concat(acc(accB))},
+   C:{t:'容量日',blocks:[M('卧推',62.5,4,8,8,150),M('窄距卧推',55,3,8,null,120)].concat(acc(accC))}}},
+ {n:2,s:'2026-09-07',e:'2026-09-13',ph:'vol',top:75,days:{
+   A:{t:'重日',blocks:[M('卧推',75,5,5,8,180)].concat(acc(accA))},
+   B:{t:'技术日',blocks:[M('暂停卧推',65,4,6,null,150),M('窄距卧推',57.5,3,8,null,120)].concat(acc(accB))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',62.5,4,4,7,150,{note:'速度意图不变'})].concat(acc(accB))},
+   C:{t:'容量日',blocks:[M('卧推',65,4,8,8,150),M('窄距卧推',57.5,3,8,null,120)].concat(acc(accC))}}},
+ {n:3,s:'2026-09-14',e:'2026-09-20',ph:'vol',top:77.5,days:{
+   A:{t:'重日',blocks:[M('卧推',77.5,5,5,8.5,180,{note:'第 3 组后若已到 RPE 9，后两组降到 75'})].concat(acc(accA))},
+   B:{t:'技术日',blocks:[M('暂停卧推',65,4,6,null,150),M('窄距卧推',57.5,3,8,null,120)].concat(acc(accB))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',62.5,4,4,7,150)].concat(acc(accB))},
+   C:{t:'容量日',blocks:[M('卧推',67.5,4,8,8.5,150),M('窄距卧推',57.5,3,8,null,120)].concat(acc(accC))}}},
+ {n:4,s:'2026-09-21',e:'2026-09-27',ph:'vol',top:80,cp:'✦ 检查点 1',days:{
+   A:{t:'重日',blocks:[M('卧推',80,4,4,8.5,210,{note:'全部完成且 RPE ≤ 8.5 → 按计划进入下一阶段；很勉强 → 阶段二起点各降 2.5 kg'})].concat(acc(accA))},
+   B:{t:'技术日',blocks:[M('暂停卧推',67.5,4,5,null,150),M('窄距卧推',60,3,8,null,120)].concat(acc(accB))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',65,4,4,7,150)].concat(acc(accB))},
+   C:{t:'容量日',blocks:[M('卧推',67.5,4,6,8,150),M('窄距卧推',60,3,8,null,120)].concat(acc(accC))}}},
+ {n:5,s:'2026-09-28',e:'2026-10-04',ph:'dl',top:70,tag:'国庆周',wnote:'这周就是留给国庆的；出行错开训练日即可，别在假期后补量。若影响到 W6 前半周，把 W6 的 Day A 挪到 10.8 之后，间隔 ≥ 48h。',days:{
+   A:{t:'轻 · 只求杆速',blocks:[M('卧推',70,3,3,6,120,{note:'每一次都推得又快又干脆；辅助减半'})].concat(acc(accA,2))},
+   B:{t:'可省',blocks:[M('卧推',60,3,5,null,120,{note:'出行就放心休——这周的任务是恢复，不是训练量'})].concat(acc(accB,2))},
+   L:{t:'可省',blocks:[M('卧推',60,3,3,null,120,{note:'或完全休息'})].concat(acc(accB,2))},
+   C:{t:'休息',off:'完全休息——减载周第三练直接砍掉，吃好睡好，体重别掉。'}}},
+ {n:6,s:'2026-10-05',e:'2026-10-11',ph:'str',top:82.5,days:{
+   A:{t:'重日',blocks:[M('卧推',82.5,4,3,8,240,{opt:1,note:'第 4 组仅在 RPE ≤ 8 时做'}),M('退让组',75,2,5,null,180)].concat(acc(accA,2)),accNote:'阶段二起：辅助每天选 3 个动作、各 2–3 组'},
+   B:{t:'技术日',blocks:[M('暂停卧推',67.5,3,3,null,180),M('窄距卧推',62.5,3,5,null,150)].concat(acc(accB,2))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',67.5,3,3,null,180),M('速度组',70,3,3,null,150,{note:'正常触胸不暂停，全力加速'})].concat(acc(accB,2))},
+   C:{t:'次重容量日',blocks:[M('卧推',72.5,4,5,8,180),M('窄距卧推',62.5,3,5,null,150)].concat(acc(accC,2))}}},
+ {n:7,s:'2026-10-12',e:'2026-10-18',ph:'str',top:85,days:{
+   A:{t:'重日',blocks:[M('卧推',85,4,2,8,240,{opt:1,note:'从这周起大重量必须有保护杠/搭档'}),M('退让组',77.5,2,4,null,180)].concat(acc(accA,2))},
+   B:{t:'技术日',blocks:[M('暂停卧推',70,3,2,null,180),M('窄距卧推',62.5,3,5,null,150)].concat(acc(accB,2))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',70,3,2,null,180),M('速度组',72.5,3,2,null,150)].concat(acc(accB,2))},
+   C:{t:'次重容量日',blocks:[M('卧推',75,3,5,8,180),M('窄距卧推',62.5,3,5,null,150)].concat(acc(accC,2))}}},
+ {n:8,s:'2026-10-19',e:'2026-10-25',ph:'str',top:87.5,cp:'✦ 检查点 2',days:{
+   A:{t:'重日',blocks:[M('卧推',87.5,3,2,8.5,270,{opt:1,note:'87.5×2 且 RPE ≤ 8.5 → 冲 100 路线确认；RPE 9+ → W10 单次改冲 92.5，测试目标调为 97.5'}),M('退让组',80,2,3,null,180)].concat(acc(accA,2))},
+   B:{t:'技术日',blocks:[M('暂停卧推',70,3,2,null,180),M('速度组',70,3,3,null,150,{note:'找到「重而不慌」的感觉'})].concat(acc(accB,2))},
+   L:{t:'技术·速度日',blocks:[M('暂停卧推',70,3,2,null,180),M('速度组',70,3,3,null,150)].concat(acc(accB,2))},
+   C:{t:'次重容量日',blocks:[M('卧推',75,3,4,8,180),M('窄距卧推',65,3,5,null,150)].concat(acc(accC,2))}}},
+ {n:9,s:'2026-10-26',e:'2026-11-01',ph:'peak',top:90,days:{
+   A:{t:'重日 · 冲 PR 单次',blocks:[M('单次冲击',90,1,1,8.5,300,{note:'热身台阶后上；= 当前 PR，经过 8 周它应该明显比以前轻'}),M('退让组',80,3,2,null,210)].concat(acc(accA,2)),accNote:'峰值期：辅助减半'},
+   B:{t:'速度日',blocks:[M('速度组',75,4,2,null,150,{note:'全部追求杆速，绝不磨'}),M('暂停卧推',67.5,2,2,null,150)].concat(acc(accB,2))},
+   L:{t:'速度日',blocks:[M('速度组',75,4,2,null,150,{note:'全部追求杆速，绝不磨'}),M('暂停卧推',67.5,2,2,null,150)].concat(acc(accB,2))},
+   C:{t:'轻容量日',blocks:[M('卧推',70,3,3,null,120,{note:'只求快，20 分钟内结束'})]}}},
+ {n:10,s:'2026-11-02',e:'2026-11-08',ph:'peak',top:95,cp:'✦ 检查点 3',days:{
+   A:{t:'周一/周二 · 冲 95',blocks:[M('单次冲击',95,1,1,9,300,{note:'新 PR！干脆完成 → 测试日冲 100；很磨或失败 → 测试日目标 97.5。这是测试前最后一次大重量'}),M('退让组',82.5,2,2,null,210)]},
+   B:{t:'周四/周五 · 收',blocks:[M('卧推',77.5,3,2,null,150,{note:'只求快；辅助只留面拉、侧平举各 2 组轻重量；开始刻意睡够'})]},
+   L:{t:'周四/周五 · 收',blocks:[M('卧推',77.5,3,2,null,150,{note:'只求快；辅助只留面拉、侧平举各 2 组轻重量'})]},
+   C:{t:'休息',off:'并入减量——测试周前最后 5 天只留上面两练，睡满 7–9 小时。'}}},
+ {n:11,s:'2026-11-09',e:'2026-11-15',ph:'test',top:100,tag:'测试周',days:{
+   A:{t:'周一 11.9 · 激活',blocks:[{n:'激活台阶',lad:[[0,10],[40,5],[60,3],[70,2],[80,1]],rest:120,main:1,note:'每一下都快而干脆，20 分钟内结束，不做任何辅助'}]},
+   B:{t:'周三 11.11 · 测试日',blocks:[{n:'热身台阶',lad:[[0,10],[40,8],[60,5],[70,3],[80,1],[87.5,1],[92.5,1]],rest:180,main:1,note:'决策点在 92.5：干脆 → 上 100；磨 → 改 97.5'},M('冲击 100 kg',100,1,1,null,300,{goal:1,note:'搭档协助出杆 · 保护杠到位 · 全握。你为它准备了 75 天'})]}}}
+]};
+var PH={vol:['阶段一 · 容量积累','W1–4 · 把肌肉和做功能力打厚 · 主项 5 次区间',0],
+        dl:['减载 · 恢复','W5 · 正好覆盖国庆 · 消化前四周的疲劳',0],
+        str:['阶段二 · 力量转化','W6–8 · 把容量转成大重量能力 · 2–3 次区间',0],
+        peak:['阶段三 · 峰值','W9–10 · 适应极限单次 · 疲劳快速回落',1],
+        test:['测试周','W11 · 减量蓄力，11.11 周三上 100',1]};
+var DAYLBL={A:'Day A',B:'Day B',L:'Day B',C:'Day C'};
 
-  // 完成勾选（localStorage，best-effort）
-  var KEY = 'bench100.done';
-  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ return []; } }
-  function save(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} }
-  var done = load();
-  document.querySelectorAll('.week').forEach(function(w){
-    var id = w.dataset.week;
-    var btn = w.querySelector('.done-btn');
-    if(done.indexOf(id) > -1) w.classList.add('done');
-    btn.addEventListener('click', function(){
-      var arr = load();
-      var i = arr.indexOf(id);
-      if(i > -1){ arr.splice(i,1); w.classList.remove('done'); }
-      else { arr.push(id); w.classList.add('done'); }
-      save(arr);
-    });
-  });
+/* ============ 存储 ============ */
+var K='bench100.v2';
+function load(){try{var d=JSON.parse(localStorage.getItem(K));if(d&&d.v===2)return d;}catch(e){}
+  var s={v:2,mode:2,sess:{}};
+  try{var old=JSON.parse(localStorage.getItem('bench100.done'));if(old&&old.length)old.forEach(function(n){s.sess['w'+n+'A']={legacy:1};s.sess['w'+n+'B']={legacy:1};});}catch(e){}
+  return s;}
+var S=load();
+function save(){try{localStorage.setItem(K,JSON.stringify(S));}catch(e){}}
+function sess(id){return S.sess[id]||(S.sess[id]={});}
 
-  // 图表悬停提示
-  try{
-    var pts = [
-      {x:48,y:188.7,w:'W1',v:'72.5 kg × 5×5'},{x:113.6,y:176,w:'W2',v:'75 kg × 5×5'},
-      {x:179.2,y:163.3,w:'W3',v:'77.5 kg × 5×5'},{x:244.8,y:150.7,w:'W4',v:'80 kg × 4×4 ✦'},
-      {x:310.4,y:201.3,w:'W5',v:'70 kg × 3×3 · 减载'},{x:376,y:138,w:'W6',v:'82.5 kg × 3–4×3'},
-      {x:441.6,y:125.3,w:'W7',v:'85 kg × 3–4×2'},{x:507.2,y:112.7,w:'W8',v:'87.5 kg × 2–3×2 ✦'},
-      {x:572.8,y:100,w:'W9',v:'单次 90 kg（=PR）'},{x:638.4,y:74.7,w:'W10',v:'单次 95 kg ✦'},
-      {x:704,y:49.3,w:'W11',v:'测试：100 kg 🎯'}
-    ];
-    var zone = document.getElementById('hitzones');
-    var tip = document.getElementById('tip');
-    pts.forEach(function(p){
-      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',18);
-      c.addEventListener('mousemove', function(ev){
-        tip.textContent = p.w + ' · ' + p.v;
-        tip.style.left = (ev.clientX + 12) + 'px';
-        tip.style.top = (ev.clientY - 34) + 'px';
-        tip.style.opacity = 1;
-      });
-      c.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
-      zone.appendChild(c);
-    });
-  }catch(e){}
+/* ============ 工具 ============ */
+function $(q,el){return (el||document).querySelector(q);}
+function $$(q,el){return [].slice.call((el||document).querySelectorAll(q));}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+var qd=(location.search.match(/[?&]d=(\d{4}-\d{2}-\d{2})/)||[])[1];
+function now(){return qd?new Date(qd+'T12:00:00'):new Date();}
+function dstr(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function mdd(s){var p=s.split('-');return (+p[1])+'.'+(+p[2]);}
+var WD='日一二三四五六';
+function fmtW(w){return w===0?'空杆':String(Math.round(w*100)/100);}
+function dayKeys(wk){if(wk.ph==='test')return ['A','B'];return S.mode===3?['A','L','C']:['A','B'];}
+function sid(wk,dk){return 'w'+wk.n+dk;}
+function mainBlk(day){return day.blocks?day.blocks.filter(function(b){return b.main;}):[];}
+function blkSets(b){return b.lad?b.lad.length:(b.s||0);}
+function doneArr(sn,bi,n){var a=(sn.sets&&sn.sets[bi])||[];var out=[];for(var i=0;i<n;i++)out.push(!!a[i]);return out;}
+function dayState(wk,dk){var sn=S.sess[sid(wk,dk)];var day=wk.days[dk];
+  if(day.off)return 'rest';
+  if(!sn)return 'todo';if(sn.legacy)return 'done';
+  var mb=mainBlk(day);if(!mb.length)return 'todo';
+  var b0=mb[0],bi=day.blocks.indexOf(b0),d=doneArr(sn,bi,blkSets(b0));
+  var need=blkSets(b0)-(b0.opt||0);
+  var cnt=d.filter(Boolean).length;
+  if(cnt>=need)return 'done';
+  var any=Object.keys(sn.sets||{}).some(function(k){return (sn.sets[k]||[]).some(Boolean);});
+  return any?'part':'todo';}
+function weekOf(d){var t=dstr(d);for(var i=0;i<PLAN.weeks.length;i++){var w=PLAN.weeks[i];if(t>=w.s&&t<=w.e)return w;}return null;}
+function rx(b){if(b.lad)return b.lad.map(function(x){return fmtW(x[0])+'×'+x[1];}).join(' → ');
+  var s=(b.opt?(b.s-b.opt)+'–'+b.s:b.s)+'×'+(b.r||b.rx);return s;}
+
+/* ============ 主题（colin-theme 全站共享键） ============ */
+var tsBtn=$('#themeSwap');
+function applyTheme(t){var r=document.documentElement;
+  if(t==='dark'||t==='light')r.setAttribute('data-theme',t);else r.removeAttribute('data-theme');
+  var dark=t==='dark'||(t!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+  tsBtn.textContent=dark?'浅底':'暗底';}
+var curTheme=null;try{curTheme=localStorage.getItem('colin-theme');}catch(e){}
+applyTheme(curTheme);
+tsBtn.addEventListener('click',function(){
+  var dark=document.documentElement.getAttribute('data-theme')==='dark'||
+    (!document.documentElement.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+  curTheme=dark?'light':'dark';
+  try{localStorage.setItem('colin-theme',curTheme);}catch(e){}
+  applyTheme(curTheme);});
+
+/* ============ 倒计时 ============ */
+(function(){var el=$('#countdown');if(!el)return;
+  var t=new Date(2026,10,11),d0=now();
+  var td=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate());
+  var d=Math.round((t-td)/864e5);
+  el.textContent=d>1?'距测试日 '+d+' 天':d===1?'明天就是测试日':d===0?'今天，上 100 🎯':'测试日已过 · 去拿下一个 PR';})();
+
+/* ============ 流动感：滚动入场 ============ */
+var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){
+  es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('on');io.unobserve(en.target);}});
+},{threshold:.12,rootMargin:'0px 0px -6% 0px'}):null;
+function arm(root){$$('.fx,.ink,#chart',root||document).forEach(function(el){
+  if(io)io.observe(el);else el.classList.add('on');});}
+
+/* ============ 吸顶导航 ============ */
+(function(){var links=$$('#tabs a');
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  if('IntersectionObserver' in window){
+    var cur=null;
+    var so=new IntersectionObserver(function(es){
+      es.forEach(function(en){if(en.isIntersecting){
+        if(cur)cur.classList.remove('act');
+        cur=map[en.target.id];if(cur)cur.classList.add('act');}});
+    },{rootMargin:'-15% 0px -70% 0px'});
+    ['today','roadmap','weeks','loader','test','rules'].forEach(function(id){var el=$('#'+id);if(el)so.observe(el);});}
+})();
+
+/* ============ 暴露给应用层 ============ */
+window.__bench={PLAN:PLAN,PH:PH,DAYLBL:DAYLBL,S:S,K:K,
+  save:save,sess:sess,sid:sid,dayKeys:dayKeys,dayState:dayState,weekOf:weekOf,
+  mainBlk:mainBlk,blkSets:blkSets,doneArr:doneArr,rx:rx,fmtW:fmtW,
+  now:now,dstr:dstr,mdd:mdd,WD:WD,arm:arm,esc:esc,
+  setS:function(x){S=x;window.__bench.S=x;}};
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var $=function(q,el){return (el||document).querySelector(q);};
+var $$=function(q,el){return [].slice.call((el||document).querySelectorAll(q));};
+var A=window.__bench;   // 由第一段脚本挂载
+if(!A)return;
+var PLAN=A.PLAN,PH=A.PH,DAYLBL=A.DAYLBL,S=A.S,save=A.save,sess=A.sess,sid=A.sid,
+    dayKeys=A.dayKeys,dayState=A.dayState,weekOf=A.weekOf,mainBlk=A.mainBlk,blkSets=A.blkSets,
+    doneArr=A.doneArr,rx=A.rx,fmtW=A.fmtW,now=A.now,dstr=A.dstr,mdd=A.mdd,WD=A.WD,arm=A.arm,esc=A.esc;
+
+/* ============ 休息计时器 ============ */
+var dock=$('#timerDock'),tdTime=$('#tdTime'),tdLabel=$('#tdLabel'),tdRing=$('#tdRing');
+var T={iv:0,end:0,total:0,hideTo:0,ctx:null};
+var baseTitle=document.title;
+function beep(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  T.ctx=T.ctx||new C();var c=T.ctx,t=c.currentTime;
+  [[880,0],[660,.18]].forEach(function(p){var o=c.createOscillator(),g=c.createGain();
+    o.frequency.value=p[0];o.connect(g);g.connect(c.destination);
+    g.gain.setValueAtTime(.0001,t+p[1]);g.gain.exponentialRampToValueAtTime(.14,t+p[1]+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t+p[1]+.16);o.start(t+p[1]);o.stop(t+p[1]+.18);});}catch(e){}}
+function tFmt(s){return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}
+function tTick(){var rem=Math.max(0,Math.round((T.end-Date.now())/1000));
+  tdTime.textContent=tFmt(rem);
+  tdRing.style.strokeDashoffset=(150.8*Math.min(1,1-rem/T.total)).toFixed(1);
+  document.title='⏱ '+tFmt(rem)+' · 百公斤卧推计划';
+  if(rem<=0){clearInterval(T.iv);T.iv=0;dock.classList.add('zero');
+    tdLabel.textContent='休息结束 · 上！';document.title=baseTitle;
+    try{navigator.vibrate&&navigator.vibrate([200,120,200]);}catch(e){}
+    beep();T.hideTo=setTimeout(tHide,6000);}}
+function tStart(secs,label){clearTimeout(T.hideTo);clearInterval(T.iv);
+  T.end=Date.now()+secs*1000;T.total=secs;
+  dock.classList.remove('zero');dock.classList.add('show');
+  tdLabel.textContent=label||'组间休息';tdRing.style.strokeDashoffset='0';
+  tTick();T.iv=setInterval(tTick,500);}
+function tHide(){clearTimeout(T.hideTo);clearInterval(T.iv);T.iv=0;
+  dock.classList.remove('show','zero');document.title=baseTitle;}
+$('#tdP30').addEventListener('click',function(){T.end+=30000;T.total+=30;if(!T.iv){dock.classList.remove('zero');T.iv=setInterval(tTick,500);}tTick();});
+$('#tdM30').addEventListener('click',function(){T.end-=30000;tTick();});
+$('#tdSkip').addEventListener('click',tHide);
+
+/* ============ 屏幕常亮（训练模式） ============ */
+var wl=null,inSession=false;
+function lockScreen(){if(!('wakeLock' in navigator))return;
+  navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}
+function unlockScreen(){try{wl&&wl.release();}catch(e){}wl=null;}
+document.addEventListener('visibilitychange',function(){
+  if(inSession&&document.visibilityState==='visible')lockScreen();});
+
+/* ============ 今日卡 ============ */
+var todayBody=$('#todayBody'),sessionBody=$('#sessionBody');
+function pill(st){return st==='done'?'<span class="st-pill done">已完成 ✓</span>'
+  :st==='part'?'<span class="st-pill part">进行中</span>'
+  :st==='rest'?'<span class="st-pill">休息</span>':'<span class="st-pill">未开始</span>';}
+function mainLines(day){if(day.off)return esc(day.off);
+  return mainBlk(day).map(function(b){
+    if(b.lad)return esc(b.n)+' · '+b.lad.length+' 级台阶';
+    return esc(b.n)+' <span class="kg num">'+fmtW(b.w)+'</span> kg '+rx(b);}).join('<br>');}
+function tile(wk,dk,big){var day=wk.days[dk],st=dayState(wk,dk);
+  var accN=day.blocks?day.blocks.filter(function(b){return !b.main;}).length:0;
+  var go=day.off?'休息':st==='done'?'查看记录 →':st==='part'?'继续训练 →':'开始训练 →';
+  return '<button class="'+(big?'day-tile':'w-day')+(st==='done'?' dn':'')+'" data-w="'+wk.n+'" data-d="'+dk+'">'+
+    '<div class="'+(big?'dl':'l')+'"><span>'+DAYLBL[dk]+' · '+esc(day.t)+'</span>'+pill(st)+'</div>'+
+    '<div class="'+(big?'dmain':'m')+'">'+mainLines(day)+'</div>'+
+    (big?('<div class="dsub">'+(day.off?'':(accN?'辅助动作 ×'+accN:'无辅助'))+'</div><span class="go">'+go+'</span>'):'')+
+    '</button>';}
+function advice(wk){if(!wk||wk.n<2)return '';
+  var prev=PLAN.weeks[wk.n-2],b0=mainBlk(prev.days.A)[0];if(!b0||!b0.cap)return '';
+  var sn=S.sess[sid(prev,'A')];var r=sn&&sn.rpe&&sn.rpe[0];
+  if(r&&r>b0.cap)return '<div class="t-advice">⚖️ <b>封顶制生效：</b>上周顶组 RPE '+r+'，超过上限 '+b0.cap+
+    ' —— 本周重日<b>重复上周重量 '+fmtW(b0.w)+' kg</b>，不加重。这不是退步，是计划在保护你。</div>';
+  return '';}
+function renderToday(){var d=now(),wk=weekOf(d);
+  var dateLine='<span class="t-date">'+ (d.getMonth()+1)+'月'+d.getDate()+'日 · 周'+WD[d.getDay()]+'</span>';
+  var html='';
+  if(!wk){var w1=new Date(PLAN.weeks[0].s+'T00:00:00');
+    if(d<w1){var days=Math.ceil((w1-d)/864e5);
+      html='<div class="today-shell"><div class="t-head">'+dateLine+'<span class="t-phase">备战期</span></div>'+
+        '<div class="t-title">距开练还有 '+days+' 天 · 周一 8.31 从 72.5 kg 开始</div>'+
+        '<p style="font-size:13.5px;color:var(--ink2);margin-top:8px">这几天把睡眠调到 7–9 小时、蛋白吃到位；想先热热身，可以点下面 W1 预览整个训练流程。</p>'+
+        '<div class="day-tiles'+(dayKeys(PLAN.weeks[0]).length===3?' c3':'')+'">'+dayKeys(PLAN.weeks[0]).map(function(k){return tile(PLAN.weeks[0],k,1);}).join('')+'</div></div>';}
+    else{var g=S.sess['w11B'];var got=g&&g.sets&&(g.sets[1]||[])[0];
+      html='<div class="today-shell"><div class="t-head">'+dateLine+'<span class="t-phase">周期完成</span></div>'+
+        '<div class="t-title">'+(got?'🏆 100 kg 已拿下——去定下一个周期吧':'11 周周期已结束')+'</div>'+
+        '<p style="font-size:13.5px;color:var(--ink2);margin-top:8px">'+(got?'休整一周，然后告诉我下一个目标。':'把测试结果告诉我，我们复盘并定下一个周期。')+'</p></div>';}}
+  else{var ph=PH[wk.ph];
+    html='<div class="today-shell"><div class="t-head">'+dateLine+'<span class="t-phase">'+ph[0]+' · W'+wk.n+'</span></div>'+
+      '<div class="t-title">'+(wk.ph==='test'?(dstr(d)==='2026-11-11'?'今天，上 100 kg 🎯':'测试周 · 减量蓄力'):('本周重日顶组 '+fmtW(wk.top)+' kg'))+'</div>'+
+      advice(wk)+
+      '<div class="day-tiles'+(dayKeys(wk).length===3?' c3':'')+'">'+dayKeys(wk).map(function(k){return tile(wk,k,1);}).join('')+'</div>'+
+      (wk.wnote?'<div class="wnote">'+esc(wk.wnote)+'</div>':'')+'</div>';}
+  todayBody.innerHTML=html;
+  $$('.day-tile',todayBody).forEach(function(b){b.addEventListener('click',function(){openSession(+b.dataset.w,b.dataset.d);});});}
+
+/* ============ 训练模式 ============ */
+var curSess=null,elIv=0;
+function chipHtml(b,bi,done){var out='<div class="setchips" data-b="'+bi+'">';
+  var n=blkSets(b);
+  for(var i=0;i<n;i++){var lbl=b.lad?(fmtW(b.lad[i][0])+'×'+b.lad[i][1]):(b.goal?fmtW(b.w)+' kg':(i+1));
+    var opt=!b.lad&&b.opt&&i>=n-b.opt;
+    out+='<button class="sc'+(done[i]?' done':'')+(opt?' opt':'')+(b.goal?' goal':'')+'" data-i="'+i+'" aria-pressed="'+(!!done[i])+'"><span>'+lbl+'</span></button>';}
+  return out+'</div>';}
+function rpeHtml(b,bi,val){if(!b.cap)return '';
+  var ops=[6,6.5,7,7.5,8,8.5,9,9.5,10];
+  return '<div class="rpe-row" data-b="'+bi+'"><span class="rl">顶组 RPE</span>'+
+    ops.map(function(v){return '<button class="rp'+(v>b.cap?' hi':'')+(val===v?' sel':'')+'" data-v="'+v+'">'+v+'</button>';}).join('')+
+    '</div><div class="rpe-warn" data-b="'+bi+'" '+(val&&val>b.cap?'':'hidden')+'>超过上限 '+b.cap+'：下周这个动作重复本周重量，不加重（RPE 封顶制）。</div>';}
+function openSession(wn,dk){var wk=PLAN.weeks[wn-1],day=wk.days[dk];curSess={w:wn,d:dk};
+  inSession=true;lockScreen();
+  var snId=sid(wk,dk),sn=sess(snId);
+  var html='<div class="sess"><div class="s-top">'+
+    '<button class="s-back" id="sBack">← 返回</button>'+
+    '<span class="s-name">W'+wn+' · '+DAYLBL[dk]+' · '+esc(day.t)+'</span>'+
+    '<span class="s-elapsed num" id="sElapsed"></span></div>';
+  if(day.off){html+='<p style="margin-top:14px">'+esc(day.off)+'</p></div>';}
+  else{
+    day.blocks.forEach(function(b,bi){var done=doneArr(sn,bi,blkSets(b));
+      html+='<div class="block" data-b="'+bi+'"><div class="b-head">'+
+        '<span class="b-name">'+esc(b.n)+'</span>'+
+        '<span class="b-rx num">'+(b.lad?'':(b.w!=null?'<span class="kg">'+fmtW(b.w)+'</span> kg · ':''))+(b.lad?b.lad.length+' 级台阶':rx(b))+'</span>'+
+        (b.cap?'<span class="b-cap">RPE ≤ '+b.cap+'</span>':'')+'</div>'+
+        (b.note?'<div class="b-note">'+esc(b.note)+'</div>':'')+
+        chipHtml(b,bi,done)+
+        rpeHtml(b,bi,sn.rpe&&sn.rpe[bi])+'</div>';});
+    if(day.accNote)html+='<div class="s-note">'+esc(day.accNote)+'</div>';
+    html+='<div class="s-actions"><button class="btn btn-pri" id="sEnd">结束训练</button></div>'+
+      '<div id="sSum"></div></div>';}
+  sessionBody.innerHTML=html;sessionBody.hidden=false;todayBody.hidden=true;
+  $('#today').scrollIntoView({behavior:'smooth',block:'start'});
+  $('#sBack').addEventListener('click',closeSession);
+  var endBtn=$('#sEnd');if(endBtn)endBtn.addEventListener('click',function(){endSession(wk,dk);});
+  // 组打勾
+  $$('.sc',sessionBody).forEach(function(c){c.addEventListener('click',function(){
+    var bi=+c.closest('.setchips').dataset.b,i=+c.dataset.i,b=day.blocks[bi];
+    var s2=sess(snId);s2.sets=s2.sets||{};s2.sets[bi]=s2.sets[bi]||[];
+    var on=!s2.sets[bi][i];s2.sets[bi][i]=on?1:0;
+    if(on&&!s2.st)s2.st=Date.now();
+    save();c.classList.toggle('done',on);c.setAttribute('aria-pressed',on);
+    if(on){var nlbl;var n=blkSets(b);
+      if(i<n-1)nlbl='下一组：'+b.n+' 第 '+(i+2)+' 组';
+      else{var nb=day.blocks[bi+1];nlbl=nb?'下一项：'+nb.n:'最后一项完成 · 收操';}
+      if(b.goal){tHide();celebrate();}
+      else if(b.rest)tStart(b.rest,nlbl);}
+    refreshElapsed();});});
+  // RPE
+  $$('.rp',sessionBody).forEach(function(r){r.addEventListener('click',function(){
+    var row=r.closest('.rpe-row'),bi=+row.dataset.b,v=+r.dataset.v,b=day.blocks[bi];
+    var s2=sess(snId);s2.rpe=s2.rpe||{};
+    if(s2.rpe[bi]===v){delete s2.rpe[bi];r.classList.remove('sel');}
+    else{s2.rpe[bi]=v;$$('.rp',row).forEach(function(x){x.classList.remove('sel');});r.classList.add('sel');}
+    save();
+    var warn=$('.rpe-warn[data-b="'+bi+'"]',sessionBody);
+    if(warn)warn.hidden=!(s2.rpe[bi]&&s2.rpe[bi]>b.cap);});});
+  refreshElapsed();clearInterval(elIv);elIv=setInterval(refreshElapsed,15000);}
+function refreshElapsed(){if(!curSess)return;var sn=S.sess[sid(PLAN.weeks[curSess.w-1],curSess.d)];
+  var el=$('#sElapsed');if(!el)return;
+  el.textContent=(sn&&sn.st)?('已练 '+Math.max(1,Math.round((Date.now()-sn.st)/60000))+' 分钟'):'';}
+function celebrate(){var top=$('.s-top');if(top)top.style.color='var(--accent-ink)';
+  var sum=$('#sSum');if(sum)sum.innerHTML='<div class="s-summary"><div class="big">🏆 100 kg · 新 PR</div>'+
+    '<p style="font-size:14px;margin-top:6px">75 天的计划在这一刻合上。拍下视频，记住这一下的杆速——然后收操，别加重了。</p></div>';
+  try{navigator.vibrate&&navigator.vibrate([80,60,80,60,300]);}catch(e){}}
+function endSession(wk,dk){var sn=sess(sid(wk,dk));sn.et=Date.now();save();
+  var day=wk.days[dk],tot=0,done=0;
+  day.blocks.forEach(function(b,bi){var n=blkSets(b);tot+=n;done+=doneArr(sn,bi,n).filter(Boolean).length;});
+  var mins=sn.st?Math.max(1,Math.round((sn.et-sn.st)/60000)):0;
+  var b0=day.blocks[0],r0=sn.rpe&&sn.rpe[day.blocks.indexOf(mainBlk(day)[0])];
+  var sum=$('#sSum');
+  if(sum)sum.innerHTML='<div class="s-summary"><div class="big num">'+done+' / '+tot+' 组</div>'+
+    '<p style="font-size:13.5px;margin-top:4px;color:var(--ink2)">'+(mins?('用时约 '+mins+' 分钟 · '):'')+
+    (r0?('顶组 RPE '+r0+' · '):'')+'已保存到本设备</p>'+
+    '<div class="s-actions" style="margin-top:12px"><button class="btn btn-ghost" id="sDone">返回今日</button></div></div>';
+  var d2=$('#sDone');if(d2)d2.addEventListener('click',closeSession);
+  tHide();}
+function closeSession(){curSess=null;inSession=false;unlockScreen();clearInterval(elIv);
+  sessionBody.hidden=true;todayBody.hidden=false;
+  renderToday();renderWeeks();decorateChart();}
+
+/* ============ 逐周课表 ============ */
+var weeksList=$('#weeksList');
+function renderWeeks(){var today=now(),cur=weekOf(today),html='',lastPh='';
+  PLAN.weeks.forEach(function(wk){
+    if(wk.ph!==lastPh){lastPh=wk.ph;var p=PH[wk.ph];
+      html+='<div class="phase-head"><span class="tag'+(p[2]?' hot':'')+'">'+p[0]+'</span><span class="aim">'+p[1]+'</span></div>';}
+    var isCur=cur&&cur.n===wk.n,past=dstr(today)>wk.e;
+    html+='<article class="week fx fx-rise'+(isCur?' current':'')+(past&&!isCur?' past':'')+'" style="--i:0">'+
+      '<div class="w-head"><span class="wk num">W'+wk.n+'</span><span class="dates">'+mdd(wk.s)+' – '+mdd(wk.e)+'</span>'+
+      (isCur?'<span class="badge">本周</span>':'')+
+      (wk.tag?'<span class="badge">'+wk.tag+'</span>':'')+
+      (wk.cp?'<span class="badge cp">'+wk.cp+'</span>':'')+'</div>'+
+      '<div class="w-days'+(dayKeys(wk).length===3?' c3':'')+'">'+
+      dayKeys(wk).map(function(k){return tile(wk,k,0);}).join('')+'</div>'+
+      (wk.wnote?'<div class="wnote">'+esc(wk.wnote)+'</div>':'')+'</article>';});
+  weeksList.innerHTML=html;
+  $$('.w-day',weeksList).forEach(function(b){b.addEventListener('click',function(){openSession(+b.dataset.w,b.dataset.d);});});
+  arm(weeksList);}
+
+/* ============ 频率切换 ============ */
+var HINT={2:'时间紧、还要安排腿/背日 → 2 练更稳；每次约 60–75 分钟。',
+          3:'隔天恢复、睡眠足 → 3 练容量更高、进步稍快；每次更短（45–60 分钟）。重日 A 两版完全相同，随时可切回。'};
+function renderMode(){$$('#modeSeg .seg-btn').forEach(function(b){b.classList.toggle('sel',+b.dataset.m===S.mode);});
+  $('#modeHint').textContent=HINT[S.mode];
+  $('#freqChip').innerHTML=S.mode===3?'每周 <strong>3 次推日</strong>，隔天练（如一三五）':'每周 <strong>2 次推日</strong>，间隔 ≥ 48h';}
+$$('#modeSeg .seg-btn').forEach(function(b){b.addEventListener('click',function(){
+  if(S.mode===+b.dataset.m)return;S.mode=+b.dataset.m;save();
+  renderMode();renderToday();renderWeeks();});});
+
+/* ============ 走势图：完成态 + 悬停 ============ */
+function decorateChart(){PLAN.weeks.forEach(function(wk,i){var pt=$('#pt'+(i+1));if(!pt)return;
+  var done;
+  if(wk.n===11){var g=S.sess['w11B'];done=!!(g&&g.sets&&(g.sets[1]||[])[0]);}
+  else done=dayState(wk,'A')==='done';
+  pt.classList.toggle('hollow',!done);});}
+(function(){var pts=[[48,188.7],[113.6,176],[179.2,163.3],[244.8,150.7],[310.4,201.3],[376,138],[441.6,125.3],[507.2,112.7],[572.8,100],[638.4,74.7],[704,49.3]];
+  var zone=$('#hitzones'),tip=$('#tip');if(!zone)return;
+  pts.forEach(function(p,i){var wk=PLAN.weeks[i],b0=mainBlk(wk.days.A)[0];
+    var lbl='W'+wk.n+' · '+(wk.n===11?'测试：100 kg 🎯':fmtW(wk.top)+' kg × '+rx(b0))+(wk.cp?' ✦':'');
+    var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',18);
+    c.addEventListener('mousemove',function(ev){tip.textContent=lbl;
+      tip.style.left=(ev.clientX+12)+'px';tip.style.top=(ev.clientY-34)+'px';tip.style.opacity=1;});
+    c.addEventListener('mouseleave',function(){tip.style.opacity=0;});
+    zone.appendChild(c);});})();
+
+/* ============ 上铁计算器 ============ */
+var PL=[[25,'var(--plate-red)','#fff',26,110],[20,'var(--plate-blue)','#fff',24,104],[15,'var(--plate-yellow)','var(--plate-yellow-ink)',20,88],
+        [10,'var(--plate-green)','#fff',18,74],[5,'var(--plate-white)','var(--ink)',15,58],[2.5,'var(--plate-black)','#fff',13,46],[1.25,'var(--plate-chrome)','#fff',11,36]];
+var lw=72.5,wVal=$('#wVal'),lSvg=$('#loaderSvg'),sideText=$('#sideText'),ladderRow=$('#ladderRow'),quick=$('#quick');
+function plates(perSide){var out=[],rem=perSide;
+  PL.forEach(function(p){while(rem>=p[0]-1e-9){out.push(p);rem=Math.round((rem-p[0])*100)/100;}});
+  return out;}
+function renderLoader(){var per=Math.round(((lw-20)/2)*100)/100;
+  wVal.innerHTML=fmtW(lw)+'<small> kg</small>';
+  var ps=lw>=22.5?plates(per):[];
+  var cy=65,sleeveY=57,svg='<rect x="14" y="61" width="612" height="8" rx="3" fill="var(--metal)"/>'+
+    '<rect x="46" y="'+sleeveY+'" width="150" height="16" rx="4" fill="var(--metal)"/>'+
+    '<rect x="444" y="'+sleeveY+'" width="150" height="16" rx="4" fill="var(--metal)"/>';
+  var xL=196,xR=444; // 从袖内缘往外排
+  ps.forEach(function(p,i){var w=p[3],h=p[4],y=cy-h/2;
+    xL-=w+3;svg+='<rect class="p" x="'+xL+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" fill="'+p[1]+'" stroke="var(--line)"/>'+
+      (w>=18?'<text x="'+(xL+w/2)+'" y="'+(cy+4)+'" text-anchor="middle" fill="'+p[2]+'" font-size="11" font-weight="700" class="num">'+fmtW(p[0])+'</text>':'');
+    svg+='<rect class="p" x="'+xR+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" fill="'+p[1]+'" stroke="var(--line)"/>'+
+      (w>=18?'<text x="'+(xR+w/2)+'" y="'+(cy+4)+'" text-anchor="middle" fill="'+p[2]+'" font-size="11" font-weight="700" class="num">'+fmtW(p[0])+'</text>':'');
+    xR+=w+3;});
+  svg+='<rect x="'+(xL-14)+'" y="'+(cy-16)+'" width="10" height="32" rx="3" fill="var(--muted)"/>'+
+       '<rect x="'+(xR+4)+'" y="'+(cy-16)+'" width="10" height="32" rx="3" fill="var(--muted)"/>'+
+       '<text x="320" y="46" text-anchor="middle" fill="var(--muted)" font-size="12" class="num" font-weight="600">20 kg BAR</text>';
+  lSvg.innerHTML=svg;
+  sideText.innerHTML=lw<=20?'空杆即可':'每侧 <b class="num">'+(ps.map(function(p){return fmtW(p[0]);}).join(' + ')||'—')+'</b>（'+fmtW(per)+' kg/侧）';
+  // 热身台阶
+  var steps=[['空杆',10]];
+  [[.5,8],[.7,5],[.82,3],[.92,1]].forEach(function(sp){var w2=Math.round(lw*sp[0]/2.5)*2.5;
+    if(w2>=30&&w2<=lw-5&&(sp[0]<.9||lw>=80))steps.push([fmtW(w2),sp[1]]);});
+  var seen={};steps=steps.filter(function(s){if(seen[s[0]])return false;seen[s[0]]=1;return true;});
+  ladderRow.innerHTML=steps.map(function(s){return '<span class="rung"><span class="kg">'+s[0]+'</span> ×'+s[1]+'</span>';}).join('<span class="rung-sep">→</span>')+
+    '<span class="rung-sep">→</span><span class="rung goal"><span class="kg">'+fmtW(lw)+'</span> 工作组</span>';
+  $$('.qk',quick).forEach(function(q){q.classList.toggle('sel',+q.dataset.w===lw);});}
+function setW(w){lw=Math.min(200,Math.max(20,Math.round(w/2.5)*2.5));renderLoader();}
+$('#wMinus').addEventListener('click',function(){setW(lw-2.5);});
+$('#wPlus').addEventListener('click',function(){setW(lw+2.5);});
+(function(){var wk=weekOf(now())||PLAN.weeks[0];
+  var qs=[[wk.top,'本周顶组'],[80,null],[87.5,null],[92.5,null],[100,null]];
+  var seen={};quick.innerHTML=qs.filter(function(q){if(seen[q[0]])return false;seen[q[0]]=1;return true;})
+    .map(function(q){return '<button class="qk num" data-w="'+q[0]+'">'+(q[1]?q[1]+' ':'')+fmtW(q[0])+'</button>';}).join('');
+  $$('.qk',quick).forEach(function(q){q.addEventListener('click',function(){setW(+q.dataset.w);});});
+  lw=wk.top;})();
+
+/* ============ 导出 / 导入 / 清空 ============ */
+$('#expBtn').addEventListener('click',function(){var s=JSON.stringify(S);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(s).then(function(){$('#expBtn').textContent='已复制到剪贴板 ✓';setTimeout(function(){$('#expBtn').textContent='导出进度';},2200);},function(){prompt('复制这段进度数据：',s);});
+  else prompt('复制这段进度数据：',s);});
+$('#impBtn').addEventListener('click',function(){var s=prompt('粘贴之前导出的进度数据：');if(!s)return;
+  try{var d=JSON.parse(s);if(d&&d.v===2){A.setS(d);S=d;save();renderMode();renderToday();renderWeeks();decorateChart();}else alert('数据格式不对');}catch(e){alert('数据格式不对');}});
+$('#rstBtn').addEventListener('click',function(){if(!confirm('清空所有打勾、RPE 和进度？此操作不可恢复。'))return;
+  try{localStorage.removeItem('bench100.done');}catch(e){}
+  var fresh={v:2,mode:S.mode,sess:{}};A.setS(fresh);S=fresh;save();
+  renderMode();renderToday();renderWeeks();decorateChart();});
+
+/* ============ 启动 ============ */
+renderMode();renderToday();renderWeeks();decorateChart();renderLoader();arm();
 })();
 </script>
 </body>
