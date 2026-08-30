@@ -15,8 +15,15 @@
 //      同时钉死已仲裁的口径：大纲 P12「800 亿分钟 / 200+ 国家和地区」是英文官网旧口径，
 //      不许回归（正确宾语是「200+ **全球节点**」）。
 //
-//   ⑧ **SOURCE ledger 闸**：五张数据页（P3/P4/P7/P9/P12）各恰好一行，
+//   ⑧ **SOURCE ledger 闸**：**六张**数据页（P3/P4/P7/P9/P12/P13）各恰好一行，
 //      严格四段制 `SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`，来源只写机构名不写 URL。
+//      （2026-08-30：P13 落了一枚脱敏 proof point，是外部事实 ⇒ 入册。）
+//
+//   ⑭ **本轮修订集在场闸（2026-08-30）**：版本标 / 判断标 / 口径限定 / vendor 生态 /
+//      proof point 双落位 / 治理要求带 —— 每一条改动都在这里留一枚反向门，
+//      下一次有人「顺手删掉一行注解」时当场报出来。判断标还带**枚数上限**：
+//      .vtag 只许出现在 P2/P8/P10（判断）与 P9（品类代理指标）四页，各一枚 ——
+//      标注满页跑就等于没标注。
 //
 //   ⑬ **语言切换钮闸**（2026-08-30）：<button>（不是 <a>）· 常显 · 指向东南亚英文版 ·
 //      print 隐藏 · 不挂 data-step · 与主题钮同角不重叠。互跳 round-trip 实测在
@@ -32,7 +39,9 @@ const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 15;
 const BOARD = { 1: 'title', 15: 'title' };          // 其余一律 content
-const SRC_PAGES = new Set([3, 4, 7, 9, 12]);        // SOURCE ledger 只在这五张数据页
+// SOURCE ledger 名单。2026-08-30：P13 因为落了一枚脱敏 proof point（生产部署口径的
+// 外部事实）而入册 ⇒ 六张。P14 仍不挂（那是方法论，没有外部出处）。
+const SRC_PAGES = new Set([3, 4, 7, 9, 12, 13]);
 // 六词红线（大纲第 6 节「不推荐表达」逐字）——「强催」是子串闸，会命中「加强催收」
 const BANNED = ['催债', '施压催收', '逼迫还款', '强催', '轰炸外呼', '暴力催收'];
 // 产品 / 商务红线（名单从 qa-convoai-engine.mjs 与 qa-convoai-eli5.mjs 拷来 + 本轮点名）
@@ -57,6 +66,29 @@ const FACTS = [
         '通过试点验证接通、履约、成本和合规指标']],
   [15, ['规模化、标准化和实时分析', '复杂判断、情绪安抚和例外处理', '实时语音基础设施']],
 ];
+// ⑭ 2026-08-30 修订集在场闸：[页, [必须出现的串…]]。与 FACTS 分开写，
+//    是因为它们不是「外部事实」而是「本轮改动」——报错信息要指得出是哪一条改动被搬丢了。
+const REV = [
+  [1,  ['CHINA EDITION']],                                    // A 版本标
+  [2,  ['AGORA VIEW', '行业判断']],                            // B 判断标
+  [3,  ['商业银行法人口径', '不良贷款 ≠ 全部逾期资产']],        // C 口径限定
+  [4,  ['信用卡和借贷合一卡期末存量', '非账户数、非持卡人数']],
+  [5,  ['争议处理与合规质检贯穿全流程，非单一环节']],           // I 图注
+  [7,  ['适用主体：持牌消费金融公司', '推荐性国家标准']],       // C 适用主体 + 推荐性
+  [8,  ['AGORA VIEW']],
+  [9,  ['全球品类代理指标 · 非可服务市场规模', 'GVR 口径含非金融场景']],
+  [10, ['AGORA VIEW']],
+  [11, ['GOVERNANCE REQUIREMENTS', '合规部署必须满足',         // I 治理要求带
+        'PII 脱敏与加密', '录音与摘要留存', 'AI 披露与同意',
+        '审计日志', '人工接管', '应急停机']],
+  [12, ['17+ 家 TTS 供应商已接入', 'Microsoft Azure', 'ElevenLabs',   // F1 vendor 生态
+        'Amazon', 'OpenAI', '语种覆盖随 vendor 走',
+        '低至', '声网文档中心', '典型值']],                    // F2 限定词 + 出处
+  [13, ['国内头部电话外呼场景', '100 万通',                    // G proof point
+        'Agora 生产部署（脱敏）', '设 HOLDOUT 对照组']],       // I 试点第五条
+  [14, ['口径字典']],                                          // I caveat 补条
+  [15, ['国内头部电话外呼场景', '100 万通']],                  // G 收尾证据句
+];
 // 数字白名单（穷举）。分三档，改一个数就得同时改这里 —— 这是闸门的用处，不是负担。
 //   · 行业侧事实（大纲逐字）：3.7 / 1.51 / 239.2 / 6.87 / 6.96 / 45251 / 5 /
 //     59.8 / 137.7 / 9.72 / 49 / 93
@@ -66,12 +98,16 @@ const FACTS = [
 //   它们在 builder 里挂了 data-nogate="pageref"，扫描时整枝跳过。原先为了让页号过闸
 //   把 10 / 11 / 12 / 13 / 14 / 15 全收了进来，等于给闸门钝化：收进去之后任何一个
 //   新写的小数字都能蒙混过关，「禁止新造数字」这条闸就只剩个名字。
+// ⚠ 2026-08-30 新增两枚，都是本轮点名的口径，各自只有一处来源：
+//   '17'  = P12「17+ 家 TTS 供应商已接入」（docs.agora.io 的 TTS overview 清单）
+//   '100' = P13 / P15 的脱敏 proof point「日均呼叫量已突破 100 万通」
 const NUM_OK = new Set([
   '3', '7', '1', '51', '239', '2', '6', '87', '96', '45251', '5',
   '59', '8', '137', '9', '72', '49', '93',
   '650', '340', '95', '900', '200',
   '2023', '2024', '2025', '2026', '2030', '2034', '0', '01', '02', '03', '04', '05',
   '06', '07', '08', '28', '4',
+  '17', '100',
 ]);
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
@@ -179,7 +215,35 @@ const all = await pg.evaluate(() => document.getElementById('deckStage').textCon
 BANNED.forEach(w => ok(!all.includes(w),
   `⑥ 表达红线：全 deck 不许出现「${w}」（大纲第 6 节不推荐表达；「强催」是子串闸，会命中「加强催收」）`));
 REDLINE.forEach(w => ok(!all.includes(w), `⑥ 红线：全 deck 不许出现「${w}」`));
-CASES.forEach(c => ok(!all.includes(c), `⑥ 红线：方案 deck 不上客户名，「${c}」不许入页`));
+// 客户名反向闸的取文本口径（2026-08-30 收窄一枚豁免）：跳过 [data-nogate="vendor"]。
+//   那一枚节点是 P12 的「17+ 家 TTS 供应商」名单，名字是**我们接入的供应商**
+//   （出自 docs.agora.io 的公开清单），不是客户案例。闸的射程是「方案 deck 不上客户名」，
+//   供应商名单不在射程内 —— 但豁免只放这一枚节点，全 deck 其余任何位置照旧一命中即挂。
+//   ⚠ 这是替 Colin 做的判断，写在这里以便随时收回：删掉下面的 skip 一行即可恢复原闸。
+const caseText = await pg.evaluate(() => {
+  const st = document.getElementById('deckStage');
+  const skip = new Set([...st.querySelectorAll('[data-nogate="vendor"]')]);
+  const w = document.createTreeWalker(st, NodeFilter.SHOW_TEXT);
+  let s = '';
+  for (let t = w.nextNode(); t; t = w.nextNode()) {
+    let p = t.parentElement, bad = false;
+    while (p && p !== st) { if (skip.has(p)) { bad = true; break; } p = p.parentElement; }
+    if (!bad) s += t.textContent + ' ';
+  }
+  return s.replace(/\s+/g, ' ');
+});
+CASES.forEach(c => ok(!caseText.includes(c),
+  `⑥ 红线：方案 deck 不上客户名，「${c}」不许入页（P12 的 vendor 名单节点除外）`));
+// 豁免节点本身也要钉死：全 deck 恰好一枚，且必须落在 P12
+const vendorNode = await pg.evaluate(() => {
+  const els = [...document.querySelectorAll('.deck-stage [data-nogate="vendor"]')];
+  return { n: els.length, page: els.map(e => e.closest('.slide')?.dataset.p),
+           txt: els.map(e => e.textContent.replace(/\s+/g, ' ')).join(' ') };
+});
+ok(vendorNode.n === 1 && vendorNode.page[0] === '12',
+   `⑥ vendor 豁免节点异常：数量 ${vendorNode.n} / 落在 P${vendorNode.page}（应恰好一枚且在 P12）`);
+ok(/17\+ 家 TTS 供应商已接入/.test(vendorNode.txt),
+   '⑥ vendor 豁免节点里不是供应商名单 —— 豁免只能用在那一句上');
 STALE.forEach(w => ok(!all.includes(w),
   `⑥ 口径红线：英文官网旧口径「${w}」已仲裁不用（正确宾语是「200+ 全球节点 · SD-RTN」）`));
 // 「回收率」不得与具体百分比同句
@@ -202,6 +266,26 @@ for (const [p, kws] of FACTS) {
   const t = await pageText(p);
   for (const kw of kws) ok(t.includes(kw), `⑦ P${p} 缺在场事实「${kw}」`);
 }
+// ⑭ 本轮修订集在场闸（2026-08-30）
+for (const [p, kws] of REV) {
+  const t = await pageText(p);
+  for (const kw of kws) ok(t.includes(kw), `⑭ P${p} 缺本轮修订「${kw}」`);
+}
+// ⑭ 判断标枚数上限：.vtag 只许出现在 P2/P8/P10（趋势判断）与 P9（品类代理指标），各一枚。
+//    标注满页跑 = 没有标注；这一闸就是防止下一轮有人「顺手多贴两枚」。
+const vtags = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map(
+  s => s.querySelectorAll('.vtag').length));
+vtags.forEach((n, i) => {
+  const exp = [2, 8, 9, 10].includes(i + 1) ? 1 : 0;
+  ok(n === exp, `⑭ P${i + 1} 的 .vtag 数 ${n} != ${exp}（判断标只许 P2/P8/P10 + P9 代理标各一枚）`);
+});
+// ⑭ proof point 两处落位必须**逐字同源**（一处改了另一处没改 = 两个口径）
+const proofP13 = await pageText(13), proofP15 = await pageText(15);
+const PROOF = '国内头部电话外呼场景';
+ok(proofP13.includes(PROOF) && proofP15.includes(PROOF),
+   '⑭ proof point 未在 P13 / P15 两处同时落位');
+ok((proofP13.match(/100 万通/g) || []).length === 1 && (proofP15.match(/100 万通/g) || []).length === 1,
+   '⑭ proof point 的数字口径在 P13 / P15 上不是各一处');
 // ⑦ 反向：新造数字闸。摘掉页码 sig 与 P2 路线条的页号（都是**本 deck 自己的页码**，
 //    不是内容里的数字）—— 不摘的话白名单得把 10–15 全收进去，闸门当场钝化。
 const numText = await pg.evaluate(() => {
@@ -222,7 +306,7 @@ ok(nums.length === 0, `⑦ 出现未登记的数字（禁止新造数字 / 外�
 // ⑧ SOURCE ledger 四段制
 const srcRows = await pg.evaluate(() =>
   [...document.querySelectorAll('.deck-stage .src')].map(e => e.textContent.replace(/\s+/g, ' ').trim()));
-ok(srcRows.length === 5, `⑧ SOURCE ledger 行数 ${srcRows.length} != 5`);
+ok(srcRows.length === 6, `⑧ SOURCE ledger 行数 ${srcRows.length} != 6`);
 srcRows.forEach(s => {
   ok(s.startsWith('SOURCE · '), `⑧ SOURCE 行不以「SOURCE · 」起手：「${s.slice(0, 40)}」`);
   ok(s.endsWith('· 事实截止 2026.08'), `⑧ SOURCE 行未以事实截止收尾：「${s.slice(-30)}」`);
@@ -325,6 +409,7 @@ ok(cur === '2', `⑫ 方向键翻页失灵，当前 P${cur}`);
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
   : `✓ PASS ${THEME} · ${N} 页全绿 · 六词红线全清 · 客户名 0 · a[href]=0 · `
-    + `数字白名单闸通过 · SOURCE ledger 5 行四段制 · hot 件每页 ≤1 · deckSwap 常显 · 语言钮就位`);
+    + `数字白名单闸通过 · SOURCE ledger 6 行四段制 · hot 件每页 ≤1 · deckSwap 常显 · 语言钮就位 · `
+    + `本轮修订集在场（版本标 / 判断标 ×4 / 口径限定 / vendor 生态 / proof point 双落位 / 治理带）`);
 await b.close();
 process.exit(fails.length ? 1 : 0);

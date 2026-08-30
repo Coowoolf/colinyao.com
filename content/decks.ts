@@ -196,6 +196,18 @@ export const deckRoutes: { source: string; file: string }[] = [
   //   轰炸外呼 / 暴力催收 六词全文 0；「回收率」不与百分比同句（不承诺提升比例）；
   //   客户名 0（含在谈的「光潽」）；Call Agent / 价格 / staging / 盲测 / 32,000 全不入；
   //   a[href] = 0。
+  // 2026-08-30 修订（GPT 5.6 review 仲裁采纳集 + Colin 四项输入）：
+  //   · 封面 kicker 补版本标 CHINA EDITION（与 SEA EDITION · VIETNAM ANCHOR 区分）；
+  //   · P2 / P8 / P10 三张**趋势断言**页各挂一枚判断标（行业判断 · AGORA VIEW），
+  //     标题主句不动 —— 销售叙事保留，标注即诚实；P9 交叉参考卡挂「全球品类代理指标 ·
+  //     非可服务市场规模」。.vtag 全 deck 只许这四枚（qa 有枚数上限闸）。
+  //   · 口径行 .scope（新件，与 SOURCE ledger 分工：ledger 答「哪来的」，口径行答
+  //     「能推什么、不能推什么」）：P3 商业银行法人口径、P4 卡量期末存量、
+  //     P7《办法》适用主体 = 持牌消金 + GB/T = 推荐性国标、P12 vendor 生态。
+  //   · P12 补 17+ 家 TTS 供应商名单（出处 docs.agora.io）；该节点挂 data-nogate="vendor"，
+  //     qa 的**客户名反向闸**整枝跳过它（名单里是供应商不是客户案例，豁免只放这一枚）。
+  //   · P13 / P15 落一枚脱敏 proof point（日均呼叫量 100 万通）⇒ **P13 入 SOURCE ledger
+  //     名单，全 deck 六行**；P11 加治理要求带（措辞是验收口径，不是功能声明）。
   // 重建：python3 scripts/build-convoai-postloan.py
   // 自检：node scripts/qa-convoai-postloan.mjs（THEME=dark 二跑）
   //      + DECK=postloan node scripts/qa-motion.mjs
@@ -215,8 +227,12 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 口径纪律（改数之前先读 builder 文件头）：
   //   ① 行业侧只用 Colin 核过的一手来源，每条带机构名 + 时点，一个不新造、不外推；
   //   ② Agora 侧只用司内 canon（650ms / 340ms / 95% / 90B+ minutes monthly /
-  //      200+ global nodes · SD-RTN / OpenAI Realtime API global first-batch partner）；
+  //      200+ global nodes · SD-RTN）；
   //      **IDC 中国市占 No.1 不进英文版** —— 中国市场信任状对 SEA 听众无效且要解释成本。
+  //   ③ 2026-08-30 · **仅英文版**：OpenAI 口径改为「named an integration partner at the
+  //      2024 OpenAI Realtime API launch」（贴官方发布文可验）；旧转译
+  //      "global first-batch partner" 进 qa 的 STALE 名单，回归即 fail。
+  //      **中文版的家族 canon 本轮不动** —— 家族级口径变更待 Colin 拍板。
   // 表达红线（构建期断言 + qa 反向闸双保险）：debt chasing / chase debtors /
   //   pressure tactics / aggressive collection / harass / intimidat 六串全文 0；
   //   `threaten` 只准出现 1 次且必须落在 P7 引述监管禁令的 [data-nogate] 节点里；
@@ -226,8 +242,25 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 同链路语言切换：两份 deck 各挂一枚常显 pill（左下角、摞在主题钮之上），
   //   中文版「EN」→ /convoai-postloan-en，英文版「中文」→ /convoai-postloan。
   //   ⚠ 必须 <button> + JS 跳转，**不能用 <a>**（两份 deck 的 a[href]=0 闸都还在）。
+  // 2026-08-30 修订（与中文版同一轮，英文版另有五条）：
+  //   · 封面 kicker → SEA EDITION · VIETNAM ANCHOR（事实骨架全是越南一手来源）；
+  //   · P4 措辞弱化：「THE ONLY PATH」→「WHAT REMAINS · IN-HOUSE」，论证句改成
+  //     「法律禁的是催收服务这条业务线；贷款机构保留合规自催责任 —— 技术是把它做到规模的
+  //     方式，不是法定义务」。禁令三段式结构一格不动。
+  //   · P7 精度三件：kicker → VIETNAM · FINANCE-COMPANY GUARDRAILS（适用范围收紧）、
+  //     补 Circular 18/2019 的适用范围小注、「No third-party contact」→
+  //     「No contact with non-obligor third parties」、区域条标题写明 REGULATOR NAMES ONLY。
+  //   · P3 加「ALREADY AT SCALE ON AGORA」证据带，用 info 家族 P2 的两枚 canon
+  //     （Top 10,000 RTC App 近一半 / 1M+ 注册应用）——**刻意避开 P12 已用的两枚**，
+  //     qa 有「两页不许撞数」的反向闸。
+  //   · **全文美式拼写**（-ise/-isation → -ize/-ization、fulfilment → fulfillment、
+  //     judgement → judgment、ageing → aging、instalment → installment、behaviour → behavior
+  //     …逐词替换，不用裸正则）；qa 加拼写闸，命中即 fail。
+  //   其余（版本标 / 判断标 / 口径行 / vendor 生态 / proof point 双落位 + P13 入 ledger /
+  //   治理要求带 / 试点第五条 / KPI 口径字典）与中文版逐条同源。
   // 重建：python3 scripts/build-convoai-postloan-en.py
   // 自检：node scripts/qa-convoai-postloan-en.mjs（THEME=dark 二跑，含 CJK 纯度闸 +
-  //      语言钮闸 + 两版互跳 round-trip 实测）+ DECK=postloan-en node scripts/qa-motion.mjs
+  //      美式拼写闸 + 语言钮闸 + 两版互跳 round-trip 实测）
+  //      + DECK=postloan-en node scripts/qa-motion.mjs
   { source: "/convoai-postloan-en", file: "/decks/convoai-postloan-en.html" },
 ];

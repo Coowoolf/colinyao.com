@@ -222,6 +222,43 @@ table.mini.ai-diff thead th:last-child{color:var(--accent);}
 .kpi .n{font-size:34px;}
 .kpi .t{font-size:25px;}
 .kpi .m{font:400 18px/1.95 var(--f-cn);color:var(--ink-2);}
+/* ══ 2026-08-30 修订 · 三件「注解语汇」（判断标 / 口径行 / 页脚注带）════════════
+   这一轮 review 的结论是：销售叙事可以留，但读者必须一眼分得清**哪句是可验证事实、
+   哪句是我们的行业判断、每个数字的口径边界到哪儿**。三件都刻意做在注解语域里
+   （小字 · 低对比 · 不进 hot 语汇 · 不入运动件名册）—— 它们的作用是给主视觉的
+   说服力找个落脚点，不是跟主视觉抢眼睛。 */
+/* ① 判断标 .vtag：钉在**趋势断言页**（P2 / P8 / P10）的 seclab 行右端，一页一枚。
+      也复用在 P9 的交叉参考卡上（那里标的是「这是全球品类代理指标，不是可服务市场规模」）。*/
+.vtag{display:inline-block;padding:3px 10px;border-radius:3px;
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  background:color-mix(in srgb,var(--accent) 6%,transparent);
+  font:500 12px/1.2 var(--f-mono);letter-spacing:.16em;
+  color:color-mix(in srgb,var(--accent) 78%,var(--ink-2));}
+/* ② 口径行 .scope：钉在数据件**正下方**。与 SOURCE ledger 分工写死 ——
+      ledger 回答「这个数哪来的」，口径行回答「拿它能推什么、不能推什么」。
+      前缀那一小段 accent 短横是「这是注解不是正文」的唯一视觉信号。*/
+.scope{font:400 16px/1.35 var(--f-cn);color:var(--ink-3);}
+.scope b{font-weight:700;color:var(--ink-2);}
+.scope::before{content:"";display:inline-block;width:14px;height:1px;margin-right:10px;
+  vertical-align:middle;background:color-mix(in srgb,var(--accent) 60%,transparent);}
+.scope.tight{font-size:14px;line-height:1.3;}
+/* ③ 页脚注带 .fnote：收口线之下、落点句之上的一条注带（P11 治理要求带 /
+      P13 proof point + 试点第五条）。细虚线域 =「这是注脚，不是本页的主张」；
+      .on 实线 accent 框留给**证据件**（proof point 才配得上实框）。*/
+.fnote{height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px;
+  padding:0 24px;border-radius:10px;
+  border:1px dashed color-mix(in srgb,var(--accent) 30%,transparent);
+  background:color-mix(in srgb,var(--accent) 4%,transparent);}
+.fnote .h{font:500 12px/1.35 var(--f-mono);letter-spacing:.16em;color:var(--ink-3);}
+.fnote .b{font:400 19px/1.4 var(--f-cn);color:var(--ink-2);}
+.fnote .b b{font-weight:700;color:var(--ink);}
+.fnote.on{border-style:solid;border-color:color-mix(in srgb,var(--accent) 52%,transparent);
+  background:var(--on-bg);}
+.fnote.on .h{color:var(--accent);}
+.fnote.on .b b{color:var(--accent);}
+/* ④ P15 收尾证据句：title 板上唯一一行带数的证据，压在收尾语与页脚之间 */
+.pfline{font:500 22px/1.4 var(--f-cn);color:var(--ink-2);}
+.pfline b{font-weight:700;color:var(--accent);}
 /* ── P13 试点建议行：四枚等宽 mono 项，压在收口线之上的页脚带 ─────────────── */
 .adv{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;height:100%;}
 .adv > div{border-left:2px solid color-mix(in srgb,var(--accent) 46%,transparent);
@@ -279,6 +316,37 @@ def land(t, y=988, x=120, w=1680, i=6):
 def rail(t, y=988):
     return sh("flow mono-sm", "left:120px;top:%dpx;width:1680px;height:24px;--i:7" % y, t)
 
+def viewtag(y, t="行业判断 &#183; AGORA VIEW", x=1360, w=440, i=0):
+    """判断标（2026-08-30 · GPT review P0-2 采纳-轻）：给**趋势断言**加一枚小标。
+       本 deck 的 P2 / P8 / P10 三页讲的是行业走向（「从人力驱动转向智能运营」
+       「五个趋势 / 自然结果」「AI 不是可选项」），它们是判断不是事实 ——
+       标题主句保留（销售叙事本来就该有主张），但页面上必须有一处告诉客户
+       「这句是我们的看法」。摆在 seclab 行右端：读者的视线本来就要经过那一行。"""
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d;text-align:right"
+              % (x, y, w, i), '<span class="vtag">%s</span>' % t)
+
+def scopenote(y, t, x=120, w=1680, i=5, cls="", h=24, nogate=None):
+    """口径限定行（2026-08-30 · GPT review P0-3/5/7 采纳）：钉在数据件正下方。
+       ⚠ 它与 SOURCE ledger 不是一回事，两者都不能省：
+         ledger  = 这个数**哪来的**（机构 + 时间窗）
+         口径行  = 这个数**是什么口径、不能被推成什么**（本 deck 的真风险在这一半）
+       nogate="vendor"：P12 的 TTS 供应商名单挂这一枚。qa 的客户名反向闸取文本时
+       整枝跳过它 —— 名单里的名字是**我们接入的供应商**（出自 docs.agora.io 的
+       公开清单），不是客户案例，与「方案 deck 不上客户名」那条闸不是同一回事。
+       豁免**只放这一枚节点**，全 deck 其余任何位置照旧一命中即挂。"""
+    ng = ' data-nogate="%s"' % nogate if nogate else ""
+    return sh("flow scope%s" % ((" " + cls) if cls else ""),
+              "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
+              ('<span%s>%s</span>' % (ng, t)) if ng else t)
+
+def fnote(x, y, w, h, hd, body, on=False, i=8):
+    """页脚注带（2026-08-30）：收口线之下、落点句之上的一条注带。
+       两种用法：细虚线 = 要求框架 / 补充条款（P11 治理带、P13 试点第五条）；
+       .on 实线 accent = 证据件（P13 的脱敏 proof point）。"""
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
+              '<div class="fnote%s"><div class="h">%s</div><div class="b">%s</div></div>'
+              % (" on" if on else "", hd, body))
+
 def src(t, y=1015, x=120, w=1680, i=7, align=None):
     """SOURCE ledger 行（与 convoai-engine / convoai-info 的 src() 同签名同类名）。
        全家族统一四段：SOURCE · <来源> · <样本或时间窗> · 事实截止 2026.08
@@ -297,7 +365,13 @@ _SRC_REG = ("SOURCE · 《消费金融公司管理办法》（湖南省人民政
 _SRC_MKT = ("SOURCE · Fortune Business Insights / Grand View Research · "
             "Debt Collection Software 2025&#8594;2034 / 2023&#8594;2030 · 事实截止 2026.08")
 # Agora 侧：与引擎 deck P5（_SRC_TYP）/ P21 逐字同源的「引擎公开口径 · 典型值」
-_SRC_AGORA = ("SOURCE · 声网官网 / 引擎发版说明 / IR 公开口径 · 典型值 · 事实截止 2026.08")
+#   2026-08-30 补「声网文档中心」：P12 的 17+ 家 TTS 供应商名单出自 docs.agora.io
+#   的 TTS overview，与官网 / 发版说明不是同一份材料，来源段里必须写出来。
+_SRC_AGORA = ("SOURCE · 声网官网 / 声网文档中心 / 引擎发版说明 / IR 公开口径 · 典型值 · "
+              "事实截止 2026.08")
+# 2026-08-30 新增：P13 的脱敏 proof point。它是本 deck 唯一一条**生产部署**口径的事实，
+#   既不是行业公开数据也不是引擎 canon，所以自带一行 ledger（P13 因此成为第六张数据页）。
+_SRC_PROOF = ("SOURCE · Agora 生产部署（脱敏） · 日均呼叫量口径 · 事实截止 2026.08")
 
 # ── SVG 小件（与母版同签名）──────────────────────────────────────────────────
 def ah_r(x, y, col, s=9):
@@ -463,8 +537,10 @@ def domain_band(x, y, w, h, label, i=1, r=14):
 #   盒宽 1560 余 325px，单行不折。行盒 84×1.16 = 97.4 > CJK 回退字体内容高
 #   （≈84×1.115 = 93.7）⇒ 不会被 .ink 的液态扫过 mask 裁掉一线。
 page("title", "".join([
+    # 2026-08-30：kicker 补版本标 CHINA EDITION —— 两份 deck 同题不同市场（另一份是
+    # SEA EDITION · VIETNAM ANCHOR），封面上不写清楚，客户手里两个 PDF 会分不出哪份是哪份。
     sh("flow kk", "left:120px;top:206px;width:1500px;height:28px",
-       "AGORA · POST-LOAN COLLECTIONS · 贷后催收解决方案"),
+       "AGORA · POST-LOAN COLLECTIONS · CHINA EDITION · 贷后催收解决方案"),
     sh("ink", "left:120px;top:286px;width:1560px;height:112px;"
        "font:700 84px/1.16 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
        "AI 驱动的<strong style='color:var(--accent)'>智能贷后催收</strong>解决方案"),
@@ -546,6 +622,8 @@ page("content", "".join([
     head("OVERVIEW · 一页讲清全篇逻辑",
          "催收行业，正在从「人力驱动」转向<strong>智能运营驱动</strong>。"),
     lab(120, 244, "01 · NARRATIVE CHAIN · 五节一链"),
+    # 「从人力驱动转向智能运营驱动」是行业判断，不是可验证事实 —— 标注在此
+    viewtag(242),
     figbox(120, 276, 1680, 1680, 410, _chain_fig(), i=1),
     lab(120, 712, "02 · ROADMAP · 本篇路线", i=6),
     sh("flow", "left:120px;top:748px;width:1680px;height:82px;--i:7",
@@ -628,8 +706,16 @@ page("content", "".join([
            % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag,
               "" if _on else " w", _v, _u, _who)
            for _i, (_tag, _v, _u, _who, _on) in enumerate(_NPL)) + '</div>'),
-    lab(120, 540, "02 · WHY IT MATTERS · 贷后在资产循环里的位置", i=5),
-    figbox(120, 576, 1680, 1680, 320, _asset_fig(), i=6),
+    # 口径行（2026-08-30）：三个大数是**商业银行法人口径**的监管统计，
+    # 客户最容易顺手做的两步外推（不良余额 = 全部逾期资产 = 催收市场规模）在这里堵死。
+    # P9 那一页的三层收窄讲的是同一件事，但客户在 P3 就会开始心算，堵得越早越好。
+    # 版式账：卡底 500 → 口径行 506（6px，读作「注解上面三张卡」）→
+    #   seclab 548（20px，读作「换段了」）→ 图 582；viewBox 高 320→314（图内最深墨 y300），
+    #   底边 896 一格不动。
+    scopenote(506, "口径：商业银行法人口径；<b>不良贷款 &#8800; 全部逾期资产</b>，"
+                   "亦 &#8800; 可服务催收市场规模。"),
+    lab(120, 548, "02 · WHY IT MATTERS · 贷后在资产循环里的位置", i=5),
+    figbox(120, 582, 1680, 1680, 314, _asset_fig(), i=6),
     rule(850),
     land("贷后催收不是业务末端环节，而是影响资产质量、拨备压力、利润表现与客户关系的"
          "<strong style='color:var(--accent)'>核心风险经营能力</strong>。", y=944),
@@ -695,6 +781,10 @@ page("content", "".join([
     head("STOCK ERA · 存量经营", "消费信贷进入存量经营，<strong>回收效率</strong>变得更关键。"),
     lab(120, 244, "01 · TIME SERIES · 卡量两个时点"),
     figbox(120, 280, 700, 620, 372, _stock_fig(), i=1),
+    # 口径行（2026-08-30）：两个时点的口径写全 —— 「卡量」不是「账户数」也不是「持卡人数」，
+    # 是**期末存量**；两点之间不做趋势外推的纪律已经写在 _stock_fig 的注里，这里补的是「这是什么」。
+    scopenote(712, "口径：人民银行《支付体系运行总体情况》· "
+                   "<b>信用卡和借贷合一卡期末存量</b>（非账户数、非持卡人数）。", x=120, w=740),
     lab(880, 244, "02 · PROFILE · 四象限特征", i=2),
     figbox(880, 280, 920, 900, 372, _quad_fig(), i=3),
     rule(850),
@@ -780,6 +870,11 @@ def _ring_fig():
     o.append(txt(_R8CX, _R8CY + 26, "数据 · 语音 · 业务流程 · 合规控制 共同驱动的运营体系",
                  "sm", size=18, anchor="middle"))
     o.append(legend(30, 528, [("solid", "运营主链路"), ("dot", "指标回流")]))
+    # 图注（2026-08-30 · GPT review P1-9 采纳-轻）：环形图把八个环节画成等权节点，
+    # 客户很容易读成「06 争议处理」「07 合规质检」是流程里的两站 —— 实际上这两件
+    # 贯穿全链。补一行图注说清楚，几何一格不动（改几何就得重算八个盒的净空）。
+    o.append(txt(1650, 533, "争议处理与合规质检贯穿全流程，非单一环节", "sm", size=16,
+                 anchor="end", col=I3))
     return "".join(o)
 page("content", "".join([
     head("VALUE CHAIN · 八环闭环", "催收不是一个动作，而是一条<strong>复杂运营链路</strong>。"),
@@ -870,8 +965,10 @@ page("content", "".join([
     # 左：《消费金融公司管理办法》三不得 + 5 年留痕
     sh("rise card-c", "left:120px;top:288px;width:820px;height:250px;--i:2",
        '<div style="padding:28px 34px;height:100%;display:flex;flex-direction:column">'
+       # 2026-08-30 口径标注：这部办法是**持牌消费金融公司**的部门规章 ——
+       # 银行 / 小贷 / AMC 的听众照着它对表会对错，适用主体必须写在卡上。
        '<div style="font:500 13px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">'
-       'MEASURE · 部门规章</div>'
+       'MEASURE · 部门规章 · 适用主体：持牌消费金融公司</div>'
        '<div style="margin-top:12px;font:700 27px/1.3 var(--f-cn);color:var(--ink)">'
        '《消费金融公司管理办法》</div>'
        '<div style="margin-top:16px;display:flex;gap:14px">' + "".join(
@@ -887,8 +984,10 @@ page("content", "".join([
     # 右：GB/T 45251-2025
     sh("rise card-c on", "left:980px;top:288px;width:820px;height:250px;--i:3",
        '<div style="padding:28px 34px;height:100%;display:flex;flex-direction:column">'
+       # 2026-08-30 口径标注：GB/T 的「T」就是推荐性 —— 不写清楚，
+       # 合规负责人会当成强制性国标去做合规判断，那是一次口径事故。
        '<div style="font:500 13px/1 var(--f-mono);letter-spacing:.18em;color:var(--accent)">'
-       'STANDARD · 国家标准</div>'
+       'STANDARD · 推荐性国家标准</div>'
        '<div style="margin-top:12px;font:700 27px/1.3 var(--f-cn);color:var(--ink)">'
        'GB&#47;T 45251-2025</div>'
        '<div style="margin-top:10px;font:400 22px/1.45 var(--f-cn);color:var(--ink-2)">'
@@ -933,6 +1032,8 @@ _TRENDS = [
 page("content", "".join([
     head("TRENDS · 五个趋势", "催收行业的<strong>五个趋势</strong>。"),
     lab(120, 250, "01 · FIVE TRENDS · 合规化 · 标准化 · 智能化 · 协商化 · 内控化", w=1200),
+    # 「五个趋势」与页脚「自然结果」都是判断句（没有哪家机构发布过这五条），标注在此
+    viewtag(248),
     sh("", "left:120px;top:292px;width:1680px;height:520px",
        '<div class="g5" style="height:100%">' + "".join(
            '<div class="card%s rise" style="--i:%d"><div class="tag%s">%s</div>'
@@ -1011,8 +1112,14 @@ page("content", "".join([
        '<div style="padding:26px 28px;height:100%;display:flex;flex-direction:column">'
        '<div style="font:500 13px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">'
        'CROSS-CHECK · 第三方交叉参考</div>'
+       # 2026-08-30 · GPT review P1-10 采纳：这两组数是**全球品类**的软件市场，
+       # 与本页左侧那条「三层收窄」的第三层不是一回事，更不是任何一家机构的可服务市场。
+       # 不标这一枚，客户会把 137.7 亿美元当成「我们能卖多大」——那正是本页要防的事。
+       '<div class="vtag" style="margin-top:12px">全球品类代理指标 · 非可服务市场规模</div>'
+       # 上一版这一行是两行（把「不做平均」也写进去了）—— 那句话在卡底的注里已经有，
+       # 收成一行给判断标腾出高度，信息一个字没少。
        '<div style="margin-top:10px;font:400 16px/1.5 var(--f-cn);color:var(--ink-3)">'
-       '全球 debt collection software 市场规模（两家机构口径并列，不做平均）</div>'
+       '全球 debt collection software 市场规模</div>'
        '<div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--hair)">'
        '<div style="font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3)">'
        'FORTUNE BUSINESS INSIGHTS</div>'
@@ -1034,7 +1141,8 @@ page("content", "".join([
        '<span style="font:900 38px/1 var(--f-en);letter-spacing:-.03em;color:var(--ink)">93</span>'
        '<span style="font:400 17px/1 var(--f-cn);color:var(--ink-3)">亿美元 · 2030</span></div></div>'
        '<div style="margin-top:auto;font:400 15px/1.5 var(--f-cn);color:var(--ink-3)">'
-       '两家口径的时间窗与统计范围不同，此处并列呈现，不做平均、不换算到中国市场。</div></div>'),
+       '两家机构的时间窗与行业范围不同（GVR 口径含非金融场景），此处并列呈现，'
+       '不做平均、不换算到中国市场。</div></div>'),
     lab(120, 768, "02 · FORMULA · 两条推荐测算路径", i=5),
     sh("flow", "left:120px;top:794px;width:1680px;height:48px;--i:6",
        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;height:100%">' + "".join(
@@ -1083,6 +1191,8 @@ _DIFF7 = [
 page("content", "".join([
     head("WHY AI · 势在必行", "AI 不是可选项，而是<strong>规模化合规催收</strong>的必需品。"),
     lab(120, 244, "01 · SIX VALUES · AI 能解决的核心问题"),
+    # 「AI 不是可选项，而是必需品」是本 deck 最强的一句主张，也最该标出它是主张
+    viewtag(242),
     sh("", "left:120px;top:276px;width:1680px;height:210px",
        '<div class="g3" style="height:100%">' + "".join(
            '<div class="card sm rise" style="--i:%d;justify-content:center">'
@@ -1195,6 +1305,13 @@ page("content", "".join([
     lab(120, 244, "01 · HUB &amp; EIGHT MODULES · 中枢 + 八模块", w=1200),
     figbox(120, 276, 1680, 1680, 560, _hub_fig(), i=1),
     rule(850),
+    # 治理要求带（2026-08-30 · GPT review P1-11 采纳-轻）。
+    # ⚠ 措辞是**要求框架**，不是产品功能声明 —— 写的是「合规部署必须满足」，
+    #   不是「我们已经具备」。这条边界在销售现场是硬的：架构图右侧那四个输出模块
+    #   讲的是能力，这一带讲的是**验收标准**，把两件事写成一件就是过度承诺。
+    fnote(120, 866, 1680, 74, "GOVERNANCE REQUIREMENTS · 治理要求（验收口径，非功能清单）",
+          "合规部署必须满足：<b>PII 脱敏与加密</b> · <b>录音与摘要留存</b> · "
+          "<b>AI 披露与同意</b> · <b>审计日志</b> · <b>人工接管</b> · <b>应急停机</b>。", i=8),
     land("AI 催收不是单一机器人，而是<strong style='color:var(--accent)'>完整的系统能力</strong>"
          "——闭环靠的是那条指标回流，不是那八个盒子。"),
 ]))
@@ -1269,8 +1386,19 @@ page("content", "".join([
            '<div class="t">%s</div><div class="d">%s</div></div>'
            % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag, _t, _d)
            for _i, (_tag, _t, _d, _on) in enumerate(_CAP4)) + '</div>'),
-    lab(120, 562, "02 · INFRASTRUCTURE · 跑在实时互动底座之上", i=6),
-    figbox(120, 594, 1680, 1680, 320, _sdrtn_fig(), i=7),
+    # 供应商生态实证行（2026-08-30 · Colin ①，出处 docs.agora.io TTS overview）。
+    # ⚠ 位置在四张能力卡**之外**：四卡的内容高度已经吃到 209/190，
+    #   往卡里再塞一句当场冲出卡底（QA 的 cardspill 闸阈值 6px）。
+    # ⚠ 表述限定在 vendor 侧 ——「语种覆盖随 vendor 走」，不替任何一家供应商
+    #   声明它支持哪一种语言（那是他们的口径，不是我们的）。
+    # 版式账：卡底 528 → 供应商行 534（6px，读作「这一行属于上面四卡」）→
+    #   seclab 570（14px，读作「换段了」）→ 图 602；viewBox 高从 320 收到 312
+    #   （图内最深的墨在 y275），底边仍落在 914，land(944) 之上留 30px。
+    scopenote(534, "<b>17+ 家 TTS 供应商已接入</b>（Microsoft Azure / ElevenLabs / Google / "
+                   "Amazon / OpenAI / MiniMax 等），ASR / LLM 同样可插拔 —— 语种覆盖随 vendor 走。",
+              i=5, nogate="vendor"),
+    lab(120, 570, "02 · INFRASTRUCTURE · 跑在实时互动底座之上", i=6),
+    figbox(120, 602, 1680, 1680, 312, _sdrtn_fig(), i=7),
     rule(850),
     land("2024 OpenAI Realtime API 发布，声网为<strong style='color:var(--accent)'>"
          "全球首批合作伙伴</strong>——同样的工程能力，用来支撑贷后场景的每一通对话。", y=944),
@@ -1344,8 +1472,18 @@ page("content", "".join([
            '<div><div class="h">%s</div><div class="b">%s</div></div>' % (_h, _b)
            for _h, _b in _ADVICE) + '</div>'),
     rule(850),
+    # ── 页脚注带（2026-08-30）：左 proof point（Colin ②）· 右 试点第五条（GPT P1-12）──
+    # ⚠ 为什么第五条不并进上面那排 `.adv`：五等分之后每格净宽只剩 302px，
+    #   现有四条里最长的一条实测 364px，五列一上就全部折行、当场冲出 48px 的盒
+    #   （QA 的 .adv>div cardspill 闸阈值 6px）。所以第五条与 proof point 同排落在收口线之下，
+    #   两件都是「试点建议区的注脚」，语域一致。
+    fnote(120, 858, 860, 74, "PROOF POINT · AGORA 生产部署（脱敏）",
+          "国内头部电话外呼场景 · 日均呼叫量已突破 <b>100 万通</b>。", on=True, i=8),
+    fnote(1020, 858, 780, 74, "05 · 设 HOLDOUT 对照组",
+          "预设主指标与合规护栏，与现行流程同期对照。", i=8),
     land("先在低争议、高重复的场景里把闭环跑通，再往协商与质检扩展——"
-         "<strong style='color:var(--accent)'>不需要一次性替换整条链路</strong>。"),
+         "<strong style='color:var(--accent)'>不需要一次性替换整条链路</strong>。", y=944),
+    src(_SRC_PROOF),
 ]))
 
 # ═══ P14 · 试点 KPI ·「用可量化指标验证 AI 催收价值」（大纲第 4 节补充页）══════
@@ -1374,13 +1512,19 @@ page("content", "".join([
            % (2 + _i, _n, _t, "<br>".join("· " + _m for _m in _ms))
            for _i, (_n, _t, _ms) in enumerate(_KPI)) + '</div>'),
     lab(120, 692, "02 · CAVEAT · 注意事项", i=5),
+    # 2026-08-30：caveat 从两栏改三栏，补一条**口径字典**要求（GPT P1-13 采纳-轻）。
+    # 版式账：三栏每栏净宽 (1680 − 2×32)/3 − 27 = 511.7px；20px CJK ⇒ 每行 ≤ 25 字，
+    #   三条都落在两行内 ⇒ 2×32 + 12 = 76 ≤ 盒高 88。**加第四条必须重算这一笔。**
     sh("flow", "left:120px;top:724px;width:1680px;height:88px;--i:6",
-       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;height:100%">'
+       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;height:100%">'
        '<div class="note grey" style="font-size:20px;align-self:center">'
        '不建议在没有客户试点数据前承诺固定提升比例。</div>'
        '<div class="note" style="font-size:20px;align-self:center">'
        '更稳妥的表达是：通过试点验证接通、履约、成本和合规指标<b style="color:var(--accent)">'
-       '改善空间</b>。</div></div>'),
+       '改善空间</b>。</div>'
+       '<div class="note grey" style="font-size:20px;align-self:center">'
+       'KPI 随试点方案附<b style="color:var(--accent)">口径字典</b>：'
+       '定义 / 分子分母 / 时间窗 / 去重。</div></div>'),
     rule(850),
     land("试点的产出不是一个承诺，而是一组"
          "<strong style='color:var(--accent)'>你自己账上的对照数据</strong>。"),
@@ -1422,6 +1566,12 @@ page("title", "".join([
        "人工负责<strong style='color:var(--accent)'>复杂判断、情绪安抚和例外处理</strong>；"
        "Agora 提供连接 AI 与真实客户对话的"
        "<strong style='color:var(--accent)'>实时语音基础设施</strong>。"),
+    # 收尾证据句（2026-08-30 · Colin ②）：整份 deck 到这里全是论证，
+    # 最后给一条**已经在跑**的脱敏证据 —— 收尾语的三分句一个字不动，证据另起一行。
+    # 摆位：收尾语两行到 y776 收住，证据句压在它下面 20px（读作「上面那句话的凭据」），
+    # 与 y892 的页脚带留 66px —— 靠上一档才不会被读成页脚的一部分。
+    sh("flow", "left:120px;top:796px;width:1680px;height:32px;text-align:center;--i:5",
+       '<span class="pfline">国内头部电话外呼场景 · 日均呼叫量已突破 <b>100 万通</b>。</span>'),
     sh("flow mono-sm", "left:120px;top:892px;width:1680px;height:24px;text-align:center;--i:6",
        "AGORA · CONVERSATIONAL AI ENGINE · 实时语音 AI 基础设施"),
     # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线 / 悬停态）
@@ -1540,11 +1690,12 @@ def build():
         if "回收率" in _sent:
             assert not _re.search(r"\d+(\.\d+)?%", _sent), \
                 "红线：「回收率」与具体百分比同句 —— 本 deck 不承诺提升比例：%r" % _sent.strip()[:60]
-    # SOURCE ledger：五张数据页（P3/P4/P7/P9/P12）各一行、**严格四段制**、
+    # SOURCE ledger：**六张**数据页（P3/P4/P7/P9/P12/P13）各一行、**严格四段制**、
     # 结尾一律「事实截止 2026.08」、来源只写机构名不写 URL。
-    # P14 试点 KPI 没有外部出处（那是方法论不是事实），故不挂 ledger 行。
+    # 2026-08-30：P13 因为落了一枚脱敏 proof point（生产部署口径的外部事实）而入册；
+    # P14 试点 KPI 仍不挂 ledger 行（那是方法论不是事实）。
     _srcs = _re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
-    assert len(_srcs) == 5, "SOURCE ledger 行数漂移：%d != 5（%r）" % (len(_srcs), _srcs)
+    assert len(_srcs) == 6, "SOURCE ledger 行数漂移：%d != 6（%r）" % (len(_srcs), _srcs)
     for _s in _srcs:
         assert _s.startswith("SOURCE · "), "SOURCE 行不以「SOURCE · 」起手：%r" % _s
         assert _s.endswith(" · 事实截止 2026.08"), "SOURCE 行未以事实截止收尾：%r" % _s
@@ -1564,6 +1715,43 @@ def build():
     for _kw in ("SAL 选择性注意力锁定", "AI-VAD", "优雅打断", "AI QoS"):
         assert _kw in _page_txt[12], "P12 缺 canon「%s」" % _kw
     assert "全球首批合作伙伴" in _page_txt[12], "P12 缺 OpenAI 锚点行"
+    # ── 2026-08-30 修订集的在场闸（改一处就得在这里对上一处）─────────────────
+    # A 版本标：封面必须写清是哪一版（另一份是 SEA EDITION · VIETNAM ANCHOR）
+    assert "CHINA EDITION" in _page_txt[1], "P1 缺版本标 CHINA EDITION"
+    # B 判断标：只在 P2 / P8 / P10 三张趋势断言页，各一枚，别处零枚
+    for _p in range(1, 16):
+        _n = _page_txt[_p].count('class="vtag"')
+        _exp = 1 if _p in (2, 8, 10) else (1 if _p == 9 else 0)   # P9 是品类代理指标标注
+        assert _n == _exp, "P%d 的 .vtag 数 %d != %d（判断标只许 P2/P8/P10 + P9 代理标）" % (_p, _n, _exp)
+    for _p in (2, 8, 10):
+        assert "AGORA VIEW" in _page_txt[_p], "P%d 的判断标未写 AGORA VIEW" % _p
+    # C 口径限定
+    assert "商业银行法人口径" in _page_txt[3] and "&#8800; 全部逾期资产" in _page_txt[3], "P3 缺口径行"
+    assert "信用卡和借贷合一卡期末存量" in _page_txt[4], "P4 缺口径行"
+    assert "适用主体：持牌消费金融公司" in _page_txt[7], "P7 缺《办法》适用主体标注"
+    assert "推荐性国家标准" in _page_txt[7], "P7 缺 GB/T 推荐性标注"
+    assert "全球品类代理指标" in _page_txt[9] and "非可服务市场规模" in _page_txt[9], "P9 缺代理指标标注"
+    assert "GVR 口径含非金融场景" in _page_txt[9], "P9 缺两报告口径差异小注"
+    # F1 vendor 生态：名单挂在 [data-nogate="vendor"] 里，全 deck 只此一枚
+    assert doc.count('data-nogate="vendor"') == 1, "vendor 豁免节点应恰好一枚"
+    for _kw in ("17+ 家 TTS 供应商已接入", "Microsoft Azure", "ElevenLabs", "MiniMax",
+                "语种覆盖随 vendor 走"):
+        assert _kw in _page_txt[12], "P12 缺 vendor 生态「%s」" % _kw
+    assert "声网文档中心" in _page_txt[12], "P12 的 SOURCE 行未补文档中心出处"
+    # F2 极致三件的限定词（低至 / 典型值）—— 一个都不许在改版里被抹掉
+    assert "低至" in _page_txt[12], "P12 缺「低至」限定词"
+    assert "典型值" in _page_txt[12], "P12 的 SOURCE 行缺「典型值」限定"
+    # G proof point：P13 side note + P15 收尾证据句，两处口径逐字一致
+    for _p in (13, 15):
+        assert "国内头部电话外呼场景" in _page_txt[_p] and "100 万通" in _page_txt[_p], \
+            "P%d 缺 proof point" % _p
+    assert "Agora 生产部署（脱敏）" in _page_txt[13], "P13 缺 proof point 的 SOURCE 归属"
+    # I 轻量补强四件
+    assert "争议处理与合规质检贯穿全流程" in _page_txt[5], "P5 缺全流程图注"
+    assert "合规部署必须满足" in _page_txt[11], "P11 缺治理要求带"
+    assert "GOVERNANCE REQUIREMENTS" in _page_txt[11], "P11 治理带缺标头"
+    assert "设 HOLDOUT 对照组" in _page_txt[13], "P13 缺试点第五条"
+    assert "口径字典" in _page_txt[14], "P14 caveat 缺口径字典一条"
     # 收尾语逐字（Colin 点名）
     for _kw in ("规模化、标准化和实时分析", "复杂判断、情绪安抚和例外处理",
                 "实时语音基础设施"):

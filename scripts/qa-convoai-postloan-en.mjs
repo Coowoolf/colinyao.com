@@ -26,6 +26,17 @@
 //      Agora 侧每个数都来自家族 canon。出现白名单以外的数字 = 有人新造了一个数。
 //      白名单是**穷举**的（见 NUM_OK），改一个数就得同时改这里。
 //
+//   ⑰ **美式拼写闸**（2026-08-30 · Colin ③）：整份英文 deck 一律美式拼写。
+//      standardisation|monetisation|fulfilment|judgement|personalised|ageing|dialling|organis
+//      —— 命中任何一个即 fail。逐词替换（不用裸 -ise 正则），enterprise / promise / rise
+//      这类词一个都没动，见交付报告的误伤检查清单。
+//
+//   ⑱ **本轮修订集在场闸（2026-08-30）**：版本标 / 判断标 / 口径限定 / P4 弱化 /
+//      P7 精度 / vendor 生态 / proof point 双落位 / P3 规模带 / 治理带 ——
+//      每一条改动都在这里留一枚反向门。判断标还带**枚数上限**（只许 P2/P8/P10 + P9 各一枚）。
+//      被替换掉的旧措辞进 STALE（THE ONLY PATH / VIETNAM AND THE REGION /
+//      global first-batch partner / No third-party contact），回归即 fail。
+//
 //   ⑯ **.hh 单行闸**（英文版专属版式账）：主标 60px 在 1680 盒里约放 62 个拉丁字符，
 //      写到两行就会顶穿 y238 撞上 seclab。用 Range.getClientRects() 数行盒行数 = 1。
 //      （不能用 scrollHeight —— .sh 的固定高 90px 比单行内容还高，它恒返回 90。）
@@ -39,7 +50,9 @@ const CN_URL = '/decks/convoai-postloan.html';
 const EN_URL = '/decks/convoai-postloan-en.html';
 const N = 15;
 const BOARD = { 1: 'title', 15: 'title' };          // 其余一律 content
-const SRC_PAGES = new Set([3, 4, 7, 9, 12]);        // SOURCE ledger 只在这五张数据页
+// SOURCE ledger 名单。2026-08-30：P13 因为落了一枚脱敏 proof point（生产部署口径的
+// 外部事实）而入册 ⇒ 六张。P14 仍不挂（那是方法论，没有外部出处）。
+const SRC_PAGES = new Set([3, 4, 7, 9, 12, 13]);
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // CJK 区段：CJK 标点 / 扩展 A / 统一表意 / 全角形式
 const CJK = /[　-〿㐀-䶿一-鿿＀-￯]/g;
@@ -52,24 +65,64 @@ const REDLINE = ['Call Agent', '¥8,500', '¥2,999', '¥5,501', '8,500', '2,999'
 // 客户名单：与 qa-convoai-postloan.mjs 逐字同源
 const CASES = ['光潽', '集贤科技', 'Robopoet', 'luwu', 'Pophie', '商汤', 'MiniMax',
   '智谱清言', '星野', '灵机一动', 'LOOKTECH', 'HeyCyan', 'LOOKEE', '莲偶科技', '豆神 AI'];
-// 已仲裁：英文官网旧口径不许回归；中国市占信任状不进英文版（对 SEA 听众无效且要解释成本）
-const STALE = ['80 billion minutes', '200+ countries', 'IDC', 'No.1 in China'];
+// 已仲裁：英文官网旧口径不许回归；中国市占信任状不进英文版（对 SEA 听众无效且要解释成本）。
+// 2026-08-30 追加四条**被本轮替换掉的旧措辞**——它们不是错，是精度不够，
+//   回归一次就等于这一轮 review 白做：
+//     THE ONLY PATH / No alternative        P4：替法律下的结论（禁的是业务线，不是自催）
+//     VIETNAM AND THE REGION                P7：把 finance-company 框架放大成全行业 + 全区域
+//     No third-party contact                P7：条款限的是**无还款义务的**第三人
+//     global first-batch partner            P12：我们的转译，OpenAI 官方文里没有「首批」这一层级
+const STALE = ['80 billion minutes', '200+ countries', 'IDC', 'No.1 in China',
+  'THE ONLY PATH', 'No alternative', 'VIETNAM AND THE REGION',
+  'No third-party contact', 'global first-batch partner'];
+// ⑰ 美式拼写闸（命中即 fail）。逐词表 —— 不用裸 -ise 正则（enterprise / promise 会误伤）。
+const SPELL = /standardisation|monetisation|fulfilment|judgement|personalised|ageing|dialling|organis/i;
 // 事实在场闸：[页, [必须出现的串…]]
 const FACTS = [
   [3, ['e-Conomy SEA 2025', 'Google, Temasek', 'Digital lending', 'e-wallet']],
   [4, ['61/2020/QH14', '01.01.2021', 'prohibited business investment',
        'National Assembly of Vietnam', 'in-house']],
   [7, ['18/2019/TT-NHNN', '43/2016', 'Article 7', '01.01.2020',
-       '5 reminders per day', '07:00', '21:00', 'No third-party contact',
+       '5 reminders per day', '07:00', '21:00',
+       'No contact with non-obligor third parties',
        'Lawful measures only', 'OJK', 'BSP', 'BOT', 'MAS']],
   [9, ['5.98', '13.77', 'CAGR 9.72%', '4.9', '9.3',
        'Fortune Business Insights', 'Grand View Research']],
   [12, ['650ms', '340ms', '95%', '90B+', '200+', 'SAL', 'AI-VAD',
-        'Graceful interruption', 'AI QoS', 'global first-batch partner',
+        'Graceful interruption', 'AI QoS', 'named an integration partner',
         'no vendor lock-in']],
   [14, ['Do not commit to a fixed uplift', 'improvement headroom']],
-  [15, ['scale, standardisation and real-time analysis',
-        'complex judgement, empathy and exceptions', 'real-time voice infrastructure']],
+  [15, ['scale, standardization and real-time analysis',
+        'complex judgment, empathy and exceptions', 'real-time voice infrastructure']],
+];
+// ⑱ 2026-08-30 修订集在场闸：[页, [必须出现的串…]]。与 FACTS 分开写，
+//    是因为它们不是「外部事实」而是「本轮改动」——报错要指得出是哪一条被搬丢了。
+const REV = [
+  [1,  ['SEA EDITION', 'VIETNAM ANCHOR']],                          // A 版本标
+  [2,  ['AGORA VIEW']],                                             // B 判断标
+  [3,  ['ALREADY AT SCALE ON AGORA', 'Nearly half', '10,000',       // H 规模证据带
+        '1M+', 'registered applications', 'Agora website']],
+  [4,  ['WHAT REMAINS', 'Built and run by the lender',              // D 措辞弱化
+        'prohibited business line', 'Lenders retain responsibility',
+        'not a statutory mandate', 'Duty retained']],
+  [5,  ['span all eight stages']],                                  // I 图注
+  [7,  ['FINANCE-COMPANY GUARDRAILS',                               // E 精度三件
+        'consumer-lending framework for', 'REGULATOR NAMES ONLY']],
+  [8,  ['AGORA VIEW']],
+  [9,  ['GLOBAL CATEGORY PROXY', 'NOT YOUR SAM',                    // C 代理指标标注
+        'GVR spans non-financial use cases']],
+  [10, ['AGORA VIEW']],
+  [11, ['GOVERNANCE REQUIREMENTS', 'ACCEPTANCE CRITERIA, NOT A FEATURE LIST',
+        'A compliant deployment must provide', 'PII masking', 'audit logs',
+        'human handover', 'emergency stop']],                       // I 治理要求带
+  [12, ['17+ TTS providers integrated', 'Microsoft Azure', 'ElevenLabs',  // F1 vendor
+        'Amazon Polly', 'Language coverage follows your vendors',
+        'as low as', 'Agora docs', 'typical values']],              // F2 限定词 + 出处
+  [13, ['A leading outbound calling deployment in China now runs',  // G proof point
+        '1,000,000+', 'Agora production deployment (anonymized)',
+        'SET A HOLDOUT']],                                          // I 试点第五条
+  [14, ['metric dictionary']],                                      // I caveat 补条
+  [15, ['A leading outbound calling deployment in China now runs', '1,000,000+']],
 ];
 // 数字白名单（穷举）。分四档，改一个数就得同时改这里 —— 这是闸门的用处，不是负担。
 //   · 越南法条：61 / 2020 / 14（QH14）/ 01 / 2021（Law 61/2020/QH14，2021-01-01 施行）
@@ -84,11 +137,16 @@ const FACTS = [
 // ⚠ **路线条页号（P3–4 / P10–11 / P12–14）不在这张表里**：它们在 builder 里挂了
 //   data-nogate="pageref"，扫描时整枝跳过。把 10–15 收进白名单等于给闸门钝化 ——
 //   收进去之后任何一个新写的小数字都能蒙混过关（上一轮的短板，本轮修掉）。
+// ⚠ 2026-08-30 新增三枚，都是本轮点名的口径，各自只有一处来源：
+//   '17'  = P12「17+ TTS providers integrated」（docs.agora.io 的 TTS overview 清单）
+//   '10'  = P3「top 10,000 RTC-integrated apps」（info 家族 P2 canon；'000' 见下）
+//   '000' = P3 的 10,000 / 1M+ 与 P13 · P15 的 1,000,000+（脱敏 proof point）分段后的千分组
 const NUM_OK = new Set([
   '0', '1', '2', '3', '4', '5', '7', '8', '9',
   '00', '01', '02', '03', '04', '05', '06', '07', '08',
   '13', '14', '18', '21', '43', '61', '72', '77', '90', '95', '98', '200', '340', '650',
   '2016', '2019', '2020', '2021', '2023', '2024', '2025', '2026', '2030', '2034',
+  '10', '17', '000',
 ]);
 const PCT_OK = new Set(['95%', '9.72%']);
 
@@ -276,9 +334,39 @@ const allLow = all.toLowerCase();
 BANNED.forEach(w => ok(!allLow.includes(w),
   `⑥ 措辞红线：全 deck 不许把「${w}」写成我方定位词`));
 REDLINE.forEach(w => ok(!all.includes(w), `⑥ 红线：全 deck 不许出现「${w}」`));
-CASES.forEach(c => ok(!all.includes(c), `⑥ 红线：方案 deck 不上客户名，「${c}」不许入页`));
+// 客户名反向闸的取文本口径（2026-08-30 收窄一枚豁免）：跳过 [data-nogate="vendor"]。
+//   那一枚节点是 P12 的「17+ TTS providers」名单，名字是**我们接入的供应商**
+//   （出自 docs.agora.io 的公开清单），不是客户案例。闸的射程是「方案 deck 不上客户名」，
+//   供应商名单不在射程内 —— 但豁免只放这一枚节点，全 deck 其余位置照旧一命中即挂。
+//   ⚠ 这是替 Colin 做的判断，写在这里以便随时收回：删掉下面的 skip 一行即可恢复原闸。
+const caseText = await pg.evaluate(() => {
+  const st = document.getElementById('deckStage');
+  const skip = new Set([...st.querySelectorAll('[data-nogate="vendor"]')]);
+  const w = document.createTreeWalker(st, NodeFilter.SHOW_TEXT);
+  let s = '';
+  for (let t = w.nextNode(); t; t = w.nextNode()) {
+    let p = t.parentElement, bad = false;
+    while (p && p !== st) { if (skip.has(p)) { bad = true; break; } p = p.parentElement; }
+    if (!bad) s += t.textContent + ' ';
+  }
+  return s.replace(/\s+/g, ' ');
+});
+CASES.forEach(c => ok(!caseText.includes(c),
+  `⑥ 红线：方案 deck 不上客户名，「${c}」不许入页（P12 的 vendor 名单节点除外）`));
+const vendorNode = await pg.evaluate(() => {
+  const els = [...document.querySelectorAll('.deck-stage [data-nogate="vendor"]')];
+  return { n: els.length, page: els.map(e => e.closest('.slide')?.dataset.p),
+           txt: els.map(e => e.textContent.replace(/\s+/g, ' ')).join(' ') };
+});
+ok(vendorNode.n === 1 && vendorNode.page[0] === '12',
+   `⑥ vendor 豁免节点异常：数量 ${vendorNode.n} / 落在 P${vendorNode.page}（应恰好一枚且在 P12）`);
+ok(/17\+ TTS providers integrated/.test(vendorNode.txt),
+   '⑥ vendor 豁免节点里不是供应商名单 —— 豁免只能用在那一句上');
 STALE.forEach(w => ok(!all.includes(w),
-  `⑥ 口径红线：「${w}」已仲裁不进英文版`));
+  `⑥ 口径红线：「${w}」已仲裁替换，不许回归`));
+// ⑰ 美式拼写闸
+const spellHit = all.match(new RegExp(SPELL.source, 'gi'));
+ok(!spellHit, `⑰ 拼写闸：出现英式拼写 ${(spellHit || []).join(' / ')} —— 本 deck 全美式`);
 // `threaten` 只准一次，且必须落在 P7 的 [data-nogate] 豁免节点里 ——
 // 两头都要查：只数总数会放过「命中跑到别的页」，只查节点会放过「节点里有、别处又多写一次」。
 const thrCount = (allLow.match(/threaten/g) || []).length;
@@ -363,6 +451,37 @@ for (const [p, kws] of FACTS) {
   const t = await pageText(p);
   for (const kw of kws) ok(t.includes(kw), `⑦ P${p} 缺在场事实「${kw}」`);
 }
+// ⑱ 本轮修订集在场闸（2026-08-30）
+for (const [p, kws] of REV) {
+  const t = await pageText(p);
+  for (const kw of kws) ok(t.includes(kw), `⑱ P${p} 缺本轮修订「${kw}」`);
+}
+// ⑱ 判断标枚数上限：.vtag 只许在 P2/P8/P10（趋势判断）与 P9（品类代理指标），各一枚。
+const vtags = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map(
+  s => s.querySelectorAll('.vtag').length));
+vtags.forEach((n, i) => {
+  const exp = [2, 8, 9, 10].includes(i + 1) ? 1 : 0;
+  ok(n === exp, `⑱ P${i + 1} 的 .vtag 数 ${n} != ${exp}（判断标只许 P2/P8/P10 + P9 代理标各一枚）`);
+});
+// ⑱ proof point 两处落位必须逐字同源（一处改了另一处没改 = 两个口径）
+{
+  const t13 = await pageText(13), t15 = await pageText(15);
+  const P = 'A leading outbound calling deployment in China now runs';
+  ok(t13.includes(P) && t15.includes(P), '⑱ proof point 未在 P13 / P15 两处同时落位');
+  ok((t13.match(/1,000,000\+/g) || []).length === 1
+     && (t15.match(/1,000,000\+/g) || []).length === 1,
+     '⑱ proof point 的数字口径在 P13 / P15 上不是各一处');
+}
+// ⑱ P3 的两枚规模数不许与 P12 撞车（同一份 deck 里同一个数说两遍，第二遍就贬值了）
+{
+  const t3 = await pageText(3), t12 = await pageText(12);
+  ['10,000', '1M+'].forEach(v => {
+    ok(t3.includes(v), `⑱ P3 缺规模数「${v}」`);
+    ok(!t12.includes(v), `⑱ P3 的规模数「${v}」在 P12 也出现了 —— 两页必须用不同的 canon`);
+  });
+  ['90B+', '200+'].forEach(v =>
+    ok(!t3.includes(v), `⑱ P12 的规模数「${v}」跑到 P3 去了 —— 两页必须用不同的 canon`));
+}
 // ⑦ 反向：新造数字闸。摘掉页码 sig 与路线条页号（都是**本 deck 自己的页码**，
 //    不是内容里的数字）——不摘的话白名单得把 10–15 全收进去，闸门当场钝化。
 const numText = await pg.evaluate(() => {
@@ -383,7 +502,7 @@ ok(nums.length === 0, `⑦ 出现未登记的数字（禁止新造数字 / 外�
 // ⑧ SOURCE ledger 四段制（英文版收尾一律 Facts as of 2026.08）
 const srcRows = await pg.evaluate(() =>
   [...document.querySelectorAll('.deck-stage .src')].map(e => e.textContent.replace(/\s+/g, ' ').trim()));
-ok(srcRows.length === 5, `⑧ SOURCE ledger 行数 ${srcRows.length} != 5`);
+ok(srcRows.length === 6, `⑧ SOURCE ledger 行数 ${srcRows.length} != 6`);
 srcRows.forEach(s => {
   ok(s.startsWith('SOURCE · '), `⑧ SOURCE 行不以「SOURCE · 」起手：「${s.slice(0, 40)}」`);
   ok(s.endsWith('· Facts as of 2026.08'), `⑧ SOURCE 行未以 Facts as of 收尾：「${s.slice(-30)}」`);
@@ -451,6 +570,8 @@ rt.trace.forEach(l => console.log('· ' + l));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
   : `✓ PASS ${THEME} · ${N} 页全绿 · 措辞红线全清（threaten 仅 P7 豁免节点 1 次）· `
     + `CJK 纯度闸通过（除语言钮）· 客户名 0 · a[href]=0 · 数字白名单闸通过 · `
-    + `SOURCE ledger 5 行四段制 · hot 件每页 ≤1 · 主标全单行 · deckSwap 常显 · 语言互跳 round-trip 通过`);
+    + `SOURCE ledger 6 行四段制 · hot 件每页 ≤1 · 主标全单行 · 美式拼写闸通过 · `
+    + `本轮修订集在场（版本标 / 判断标 ×4 / P4 弱化 / P7 精度 / vendor 生态 / proof point 双落位 / P3 规模带 / 治理带）· `
+    + `deckSwap 常显 · 语言互跳 round-trip 通过`);
 await b.close();
 process.exit(fails.length ? 1 : 0);

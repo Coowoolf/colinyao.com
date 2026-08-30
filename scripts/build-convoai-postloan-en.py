@@ -37,9 +37,23 @@
 #   ⑤ Agora canon（从引擎 deck 逐字取再译）：650ms end-to-end / 340ms barge-in /
 #      95% environmental-interference shielding（typical values）· SAL · AI-VAD ·
 #      graceful interruption · AI QoS · 90B+ minutes monthly · 200+ global nodes ·
-#      SD-RTN · OpenAI Realtime API global first-batch partner (2024)。→ P12
+#      SD-RTN。→ P12
 #      **IDC 中国市占 No.1 不进英文版**（中国市场信任状对 SEA 听众无效且需解释成本，
 #      Fable 已裁）。
+#   ⑥ 2026-08-30 · Colin ③ · **仅英文版**：OpenAI 口径从「global first-batch partner」
+#      改为「named an integration partner at the 2024 OpenAI Realtime API launch」——
+#      后者贴 OpenAI 官方发布文可验，前者是我们的转译（官方文里没有「首批」这一层级）。
+#      **中文版的家族 canon 本轮不动**（家族级口径变更待 Colin 拍板，见交付报告）。
+#   ⑦ 2026-08-30 · Colin ① · vendor 生态（出处 docs.agora.io TTS overview）：
+#      17+ TTS providers · Microsoft Azure / ElevenLabs / Google / Amazon Polly /
+#      OpenAI / MiniMax。语种表述**限定在 vendor 侧**（"language coverage follows your
+#      vendors"），不替任何一家供应商声明它支持哪一种语言。→ P12
+#   ⑧ 2026-08-30 · Colin ④ · P3 规模证据带用 info 家族 P2 的两枚 canon，
+#      且**避开 P12 已用过的两枚**（90B+ / 200+）：
+#      「Top 10,000 RTC-integrated apps (by MAU) 里近一半跑在 Agora」+「1M+ 注册应用」。
+#   ⑨ 2026-08-30 · Colin ② · 脱敏 proof point（P13 side note + P15 收尾）：
+#      "A leading outbound calling deployment in China now runs 1,000,000+ calls per day."
+#      口径由 Colin 给定，逐字用，两处一字不差。
 #
 # ── 表达红线（构建期断言 + qa 反向闸双保险）──────────────────────────────────
 #   作为我方定位词，六串全文 0 出现（大小写不敏感）：
@@ -221,6 +235,33 @@ table.mini.ai-diff thead th:last-child{color:var(--accent);}
 .kpi .n{font-size:34px;}
 .kpi .t{font-size:25px;}
 .kpi .m{font:400 18px/1.95 var(--f-cn);color:var(--ink-2);}
+/* ══ 2026-08-30 修订 · 三件「注解语汇」（判断标 / 口径行 / 页脚注带）════════════
+   与中文版逐字同源（同类名、同尺寸、同色阶），只有 .scope.tight 这一档是英文版专属：
+   拉丁比中文长 1.6–2 倍，P12 那条供应商名单在 16px 下量到 1753px > 1680 的可用宽，
+   收到 14px（1534px）才落得进一行 —— 这是本 deck 一贯的「英文版重算版式账」。 */
+.vtag{display:inline-block;padding:3px 10px;border-radius:3px;
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  background:color-mix(in srgb,var(--accent) 6%,transparent);
+  font:500 12px/1.2 var(--f-mono);letter-spacing:.16em;
+  color:color-mix(in srgb,var(--accent) 78%,var(--ink-2));}
+.scope{font:400 16px/1.35 var(--f-cn);color:var(--ink-3);}
+.scope b{font-weight:700;color:var(--ink-2);}
+.scope::before{content:"";display:inline-block;width:14px;height:1px;margin-right:10px;
+  vertical-align:middle;background:color-mix(in srgb,var(--accent) 60%,transparent);}
+.scope.tight{font-size:14px;line-height:1.3;}
+.fnote{height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px;
+  padding:0 24px;border-radius:10px;
+  border:1px dashed color-mix(in srgb,var(--accent) 30%,transparent);
+  background:color-mix(in srgb,var(--accent) 4%,transparent);}
+.fnote .h{font:500 12px/1.35 var(--f-mono);letter-spacing:.16em;color:var(--ink-3);}
+.fnote .b{font:400 19px/1.4 var(--f-cn);color:var(--ink-2);}
+.fnote .b b{font-weight:700;color:var(--ink);}
+.fnote.on{border-style:solid;border-color:color-mix(in srgb,var(--accent) 52%,transparent);
+  background:var(--on-bg);}
+.fnote.on .h{color:var(--accent);}
+.fnote.on .b b{color:var(--accent);}
+.pfline{font:500 22px/1.4 var(--f-cn);color:var(--ink-2);}
+.pfline b{font-weight:700;color:var(--accent);}
 /* ── 四枚等宽 mono 项的页脚带（P13 试点建议 / P7 区域监管条共用）─────────────── */
 .adv{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;height:100%;}
 .adv > div{border-left:2px solid color-mix(in srgb,var(--accent) 46%,transparent);
@@ -290,17 +331,54 @@ def src(t, y=1015, x=120, w=1680, i=7, align=None):
     a = ";text-align:%s" % align if align else ""
     return sh("flow src", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), t)
 
+# ── 2026-08-30 修订集的三只件（与中文版同签名同语义，文案换英文）──────────────
+def viewtag(y, t="AGORA VIEW", x=1360, w=440, i=0):
+    """判断标：给**趋势断言**加一枚小标（P2 / P8 / P10）。标题主句保留，
+       但页面上必须有一处告诉客户「这句是我们的看法，不是可验证事实」。"""
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d;text-align:right"
+              % (x, y, w, i), '<span class="vtag">%s</span>' % t)
+
+def scopenote(y, t, x=120, w=1680, i=5, cls="", h=24, nogate=None):
+    """口径限定行：钉在数据件 / 法条件正下方。
+       ledger 回答「哪来的」，口径行回答「适用到哪儿、不能推成什么」。
+       nogate="vendor"：P12 的 TTS 供应商名单挂这一枚（qa 的客户名反向闸整枝跳过它 ——
+       名单里是**我们接入的供应商**，不是客户案例；豁免只放这一枚节点）。"""
+    ng = ' data-nogate="%s"' % nogate if nogate else ""
+    return sh("flow scope%s" % ((" " + cls) if cls else ""),
+              "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
+              ('<span%s>%s</span>' % (ng, t)) if ng else t)
+
+def fnote(x, y, w, h, hd, body, on=False, i=8):
+    """页脚注带：收口线之下、落点句之上。细虚线 = 要求框架 / 补充条款；
+       .on 实线 accent = 证据件（P13 的脱敏 proof point）。"""
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d" % (x, y, w, h, i),
+              '<div class="fnote%s"><div class="h">%s</div><div class="b">%s</div></div>'
+              % (" on" if on else "", hd, body))
+
 # ── SOURCE ledger 常量（同一份出处出现在多页时只写一次，防两页各自漂移）────────
-_SRC_SEA = ("SOURCE &#183; Google, Temasek &amp; Bain e-Conomy SEA 2025 &#183; "
-            "qualitative reference only, no lending balances cited &#183; Facts as of 2026.08")
+# 2026-08-30：P3 加了一条「already at scale on Agora」证据带（两枚 info 家族 canon），
+#   所以这一行的来源段里必须同时出现 Agora website / IR —— 一页两种出处，ledger 要写全。
+#   ⚠ 版式账：.src 是 17px mono + .08em，1680px 的盒里放得下约 145 个字符。
+#     第一版写成「Agora website & public IR disclosure」量到 1861px 当场折行、
+#     第二行被画布下缘切掉半行（截图实锤）——「public … disclosure」收成「IR」，
+#     「lending balances」收成「loan balances」，量到 1629px 才落定。
+_SRC_SEA = ("SOURCE &#183; Google, Temasek &amp; Bain e-Conomy SEA 2025 / Agora website "
+            "&amp; IR &#183; qualitative reference, no loan balances cited "
+            "&#183; Facts as of 2026.08")
 _SRC_VN = ("SOURCE &#183; National Assembly of Vietnam, Law on Investment No. 61/2020/QH14 &#183; "
            "effective 01.01.2021 &#183; Facts as of 2026.08")
 _SRC_SBV = ("SOURCE &#183; State Bank of Vietnam Circular No. 18/2019/TT-NHNN &#183; "
             "amends Circular 43/2016, effective 01.01.2020 &#183; Facts as of 2026.08")
 _SRC_MKT = ("SOURCE &#183; Fortune Business Insights / Grand View Research &#183; "
             "Debt Collection Software 2025&#8594;2034 / 2023&#8594;2030 &#183; Facts as of 2026.08")
-_SRC_AGORA = ("SOURCE &#183; Agora website / engine release notes / public IR disclosure &#183; "
-              "typical values &#183; Facts as of 2026.08")
+# 2026-08-30 补 Agora docs：P12 的 17+ 家 TTS 供应商名单出自 docs.agora.io 的
+#   TTS overview，与官网 / 发版说明不是同一份材料，来源段里必须写出来。
+_SRC_AGORA = ("SOURCE &#183; Agora website / Agora docs / engine release notes / public IR "
+              "disclosure &#183; typical values &#183; Facts as of 2026.08")
+# 2026-08-30 新增：P13 的脱敏 proof point。生产部署口径的外部事实 ⇒ 自带一行 ledger
+#   （P13 因此成为第六张数据页）。
+_SRC_PROOF = ("SOURCE &#183; Agora production deployment (anonymized) &#183; "
+              "daily call volume &#183; Facts as of 2026.08")
 
 # ── SVG 小件（与母版同签名）──────────────────────────────────────────────────
 def ah_r(x, y, col, s=9):
@@ -444,8 +522,11 @@ def domain_band(x, y, w, h, label, i=1, r=14):
 #   （1.28 而不是 1.16：.ink 的 mask 高度 = 元素盒高度，Satoshi 的字形高约 1.25em，
 #    行高低于它时大写字母顶部会被 mask 切掉一线 —— 见 DECK_CSS 里 .hh 那一段的长注。）
 page("title", "".join([
+    # 2026-08-30：kicker 补锚点市场 —— 这一版的事实骨架（61/2020/QH14 · 18/2019/TT-NHNN）
+    # 全部是越南一手来源，封面上写清楚 VIETNAM ANCHOR，客户拿到新加坡 / 印尼场的时候
+    # 一眼知道哪些条款要重配。另一份是 CHINA EDITION。（量得 1056px < 盒宽 1500。）
     sh("flow kk", "left:120px;top:206px;width:1500px;height:28px",
-       "AGORA &#183; POST-LOAN COLLECTIONS &#183; SEA EDITION"),
+       "AGORA &#183; POST-LOAN COLLECTIONS &#183; SEA EDITION &#183; VIETNAM ANCHOR"),
     sh("ink", "left:120px;top:270px;width:1560px;height:190px;"
        "font:700 72px/1.28 var(--f-cn);letter-spacing:-.022em;color:var(--ink)",
        "AI-Powered <strong style='color:var(--accent)'>Post-Loan Collections</strong><br>"
@@ -476,7 +557,7 @@ _CHAIN = [
     ("01", ["Demand is", "structural"],
      ["Large credit portfolios", "make overdue asset", "management a standing", "capability."]),
     ("02", ["The old model", "hits a ceiling"],
-     ["Agents, outsourcing and", "rule-based dialling cannot", "deliver scale, efficiency", "and compliance at once."]),
+     ["Agents, outsourcing and", "rule-based dialing cannot", "deliver scale, efficiency", "and compliance at once."]),
     ("03", ["Regulation has", "moved first"],
      ["Conduct, data use and", "customer protection are", "now written into law."]),
     ("04", ["AI is ready"],
@@ -521,6 +602,8 @@ page("content", "".join([
     head("OVERVIEW &#183; THE WHOLE STORY IN ONE PAGE",
          "From headcount-driven collections to <strong>intelligent operations</strong>."),
     lab(120, 244, "01 &#183; NARRATIVE CHAIN &#183; FIVE LINKS"),
+    # 「from headcount-driven to intelligent operations」是行业判断，不是可验证事实
+    viewtag(242),
     figbox(120, 276, 1680, 1680, 410, _chain_fig(), i=1),
     lab(120, 712, "02 &#183; ROADMAP &#183; HOW THIS DECK RUNS", i=6),
     sh("flow", "left:120px;top:748px;width:1680px;height:82px;--i:7",
@@ -552,13 +635,13 @@ _SEA3 = [
      "Digital lending across Southeast Asia continues to grow steadily year on year.", True),
     ("EMBEDDED CREDIT", "Bundled into platforms",
      "Loans are increasingly embedded into e-commerce and e-wallet journeys.", False),
-    ("MONETISATION", "A profit driver",
-     "Embedded lending has become one of the clearest monetisation paths for platforms.", False),
+    ("MONETIZATION", "A profit driver",
+     "Embedded lending has become one of the clearest monetization paths for platforms.", False),
 ]
 def _asset_fig():
     o = []
     _N = [("Origination", "New credit extended"),
-          ("Post-loan operations", "Segment &#183; contact &#183; negotiate &#183; fulfil"),
+          ("Post-loan operations", "Segment &#183; contact &#183; negotiate &#183; fulfill"),
           ("Asset quality", "NPL ratio &#183; provisions &#183; profit")]
     for k, (t, s) in enumerate(_N):
         x = 130 + k * 470
@@ -602,8 +685,18 @@ page("content", "".join([
            for _i, (_tag, _t, _d, _on) in enumerate(_SEA3)) + '</div>'),
     lab(120, 540, "02 &#183; WHY IT MATTERS &#183; WHERE POST-LOAN SITS IN THE ASSET CYCLE",
         w=1000, i=5),
-    figbox(120, 576, 1680, 1680, 292, _asset_fig(), i=6),
+    # viewBox 高 292→276：图内最深的墨是 y262 的图例（+ 字形下缘 ≈ 268），
+    # 收到 276 之后图盒底边落在 852，把 y860 起的证据带整条让出来。
+    figbox(120, 576, 1680, 1680, 276, _asset_fig(), i=6),
     rule(850),
+    # ── 规模证据带（2026-08-30 · Colin ④）────────────────────────────────────
+    #   这一页原本全是**定性**（e-Conomy 只作定性引用，一个贷款余额都不写），
+    #   对越南的银行来说「趋势我知道，你们做过什么」是下一句必问。
+    #   两枚数都取自 info 家族 P2 的 canon，且**刻意避开 P12 已用过的两枚**
+    #   （90B+ 分钟 / 200+ 节点）—— 同一份 deck 里把同一个数说两遍，第二遍就贬值了。
+    fnote(120, 860, 1680, 72, "ALREADY AT SCALE ON AGORA",
+          "<b>Nearly half</b> of the top <b>10,000</b> RTC-integrated apps (by MAU) run on "
+          "Agora &#183; <b>1M+</b> registered applications worldwide.", on=True, i=7),
     land("NPL management is a permanent function, not an "
          "<strong style='color:var(--accent)'>end-of-pipe task</strong>.", y=944),
     src(_SRC_SEA),
@@ -619,7 +712,11 @@ _VN3 = [
      ["Banks and finance companies could hand", "overdue books to third-party agencies."], 0, False),
     ("FROM 1 JAN 2021", "A prohibited business line",
      ["&#8220;Debt collection services&#8221; became a", "prohibited business investment activity."], 605, True),
-    ("THE ONLY PATH", "In-house, built on technology",
+    # 2026-08-30 · GPT review P0-4 采纳：段标从「THE ONLY PATH」改为中性的
+    #   「WHAT REMAINS · IN-HOUSE」。禁令三段式结构一格不动（页面冲击力靠的是那三段，
+    #   不是这四个字），但「唯一路径」是我们替法律下的结论 —— 法律禁的是**催收服务
+    #   这条经营业务线**，贷款机构自催的合规责任本来就在它自己身上。
+    ("WHAT REMAINS &#183; IN-HOUSE", "Built and run by the lender",
      ["Lenders run collections themselves, with", "systems carrying scale and compliance."], 1210, False),
 ]
 _VN_MEAN = [
@@ -647,16 +744,27 @@ def _vn_fig():
                             delay="%.1fs" % (k * .5)))
             o.append(hline(x1, x2 - 12, 106, AC, 2.5, k + 1))
             o.append(ah_r(x2, 106, AC, 8))
-            o.append(txt(x1 + 62, 84, ["Banned by law", "No alternative"][k], "sm", size=14,
+            # 「No alternative」与段标是同一句断言的两处出口，一起改中性：
+            # 第二条边说的是「责任留在贷款机构手上」，那是法律事实，不是我们的推论。
+            o.append(txt(x1 + 62, 84, ["Banned by law", "Duty retained"][k], "sm", size=14,
                          anchor="middle", col=I3))
             o.append(pulse_dot(x + 470, 106, 6, AC, lo=".18", dur="2.8s",
                                delay="%.2fs" % (k * .55), i=k + 2))
     o.append(legend(0, 206, [("solid", "Legal turning point &#183; one direction only")]))
     o.append(domain_band(0, 228, 1680, 100,
                          "LAW ON INVESTMENT NO. 61/2020/QH14 &#183; NATIONAL ASSEMBLY OF VIETNAM"))
-    o.append(txt(18, 296, "Debt collection services are listed among the prohibited business "
-                          "investment activities &#8212; outsourcing is no longer available to "
-                          "banks or consumer finance companies.", "sm", size=18))
+    # 2026-08-30 · GPT review P0-4：论证句改写。原句「outsourcing is no longer available」
+    #   只说了一半，读者会把它接成「所以你必须买技术」。写全的版本是两句：
+    #   ① 法律禁的是**催收服务这条经营业务线**（这是可引的法条）
+    #   ② 贷款机构的自催合规责任本来就在（这也是法条）—— 技术是把它做到规模的方式，
+    #      不是法定义务。第二句把「必须上系统」这个我们最想让客户得出的结论，
+    #      交回给客户自己去下，而不是替法律下。
+    #   两行分开写（单行 981px 已接近 1680 的可用宽，硬塞会顶到 viewBox 右缘）。
+    o.append(txt(18, 284, "Since 01.01.2021, providing debt collection services is a "
+                          "prohibited business line.", "sm", size=18))
+    o.append(txt(18, 310, "Lenders retain responsibility for compliant in-house collections "
+                          "&#8212; technology is how that scales, not a statutory mandate.",
+                 "sm", size=18))
     return "".join(o)
 page("content", "".join([
     head("VIETNAM &#183; THE MARKET ANCHOR",
@@ -692,12 +800,12 @@ page("content", "".join([
 #       k6(146..414, 216..308) k7(310..578, 82..174)
 #     环心可用横带 = 414..1266（852px），竖带 = 118..406（288px）。
 _LINK8 = [
-    ("01", "Segmentation", ["Ageing &#183; amount &#183; risk &#183; behaviour"]),
+    ("01", "Segmentation", ["Aging &#183; amount &#183; risk &#183; behavior"]),
     ("02", "Contact strategy", ["Phone &#183; SMS &#183; app push &#183; email",
                                 "Zalo &#183; WhatsApp &#183; LINE &#183; KakaoTalk"]),
     ("03", "Conversation", ["Verify identity &#183; reason &#183; options"]),
     ("04", "Promise to pay", ["Log promise &#183; send link &#183; set reminder"]),
-    ("05", "Fulfilment tracking", ["Monitor payment &#183; escalate if needed"]),
+    ("05", "Fulfillment tracking", ["Monitor payment &#183; escalate if needed"]),
     ("06", "Dispute handling", ["Billing &#183; identity &#183; complaint &#183; relief"]),
     ("07", "Compliance QA", ["Script checks &#183; frequency &#183; recording"]),
     ("08", "Strategy iteration", ["Tune on recovery, complaints, contact"]),
@@ -744,16 +852,21 @@ def _ring_fig():
                                     "workflow and compliance control",
                  "sm", size=18, anchor="middle"))
     o.append(legend(30, 528, [("solid", "Operating chain"), ("dot", "Metrics feedback")]))
+    # 图注（2026-08-30 · GPT review P1-9 采纳-轻）：环形图把八环画成等权节点，
+    # 客户容易读成「06 dispute」「07 QA」只是链路上的两站 —— 实际上这两件贯穿全链。
+    # 几何一格不动（改几何要重算八只盒的净空）。
+    o.append(txt(1650, 533, "Dispute handling &amp; compliance QA span all eight stages",
+                 "sm", size=16, anchor="end", col=I3))
     return "".join(o)
 page("content", "".join([
     head("VALUE CHAIN &#183; EIGHT STAGES, ONE LOOP",
          "Collections is not one action &#8212; it is an <strong>operating chain</strong>."),
     lab(120, 244, "01 &#183; EIGHT STAGES &#183; SEGMENT &#8594; CONTACT &#8594; CONVERSE "
-                  "&#8594; PROMISE &#8594; FULFIL &#8594; DISPUTE &#8594; QA &#8594; ITERATE",
+                  "&#8594; PROMISE &#8594; FULFILL &#8594; DISPUTE &#8594; QA &#8594; ITERATE",
         w=1400),
     figbox(120, 276, 1680, 1680, 560, _ring_fig(), i=1),
     rule(850),
-    land("A collections system is not auto-dialling &#8212; it is data, voice, workflow and "
+    land("A collections system is not auto-dialing &#8212; it is data, voice, workflow and "
          "<strong style='color:var(--accent)'>compliance control</strong>."),
 ]))
 
@@ -772,11 +885,11 @@ _FIVE = [
      "Agent training is slow and top performers are hard to clone; peak volume means hiring, "
      "and cost stops flexing."),
     ("03", "Strategy",
-     "Ageing, amount, product and risk each need a different script and rhythm; rule-based "
+     "Aging, amount, product and risk each need a different script and rhythm; rule-based "
      "policies are slow to change."),
     ("04", "Compliance",
      "Scripts, frequency, outsourcing and complaints all need managing; manual conversations "
-     "rest on individual judgement."),
+     "rest on individual judgment."),
     ("05", "Quality assurance",
      "Sampling covers a fraction of calls, and post-hoc review cannot stop a risky script "
      "while it is being spoken."),
@@ -796,7 +909,7 @@ def _tri_fig():
         o.append(pline(d, AC, 2.2, k + 1, ln=ln))
     for (mx, my, t, an) in [(212, 178, "Scale up &#8594; productivity thins", "end"),
                             (508, 178, "Compliance first &#8594; capacity caps", "start"),
-                            (360, 430, "Maximise productivity &#8594; scripts drift", "middle")]:
+                            (360, 430, "Maximize productivity &#8594; scripts drift", "middle")]:
         o.append(txt(mx, my, t, "sm", size=15, col=I3, anchor=an))
     for k, (t, d) in enumerate(_TRI):
         cx, cy = _TRI_PT[k]
@@ -842,8 +955,11 @@ _SPEC4 = [
      "Debt reminder contact is capped at five times a day.", False),
     ("02 &#183; TIME WINDOW", "07:00&#8211;21:00 only",
      "Contact only inside the window agreed in the loan contract.", False),
-    ("03 &#183; WHO", "No third-party contact",
-     "No reminders or collection messages to organisations or people with no obligation "
+    # 2026-08-30 · GPT review P0-6：「No third-party contact」在合规负责人耳朵里是
+    #   「不得联系任何第三方」—— 那不是条款说的。条款限的是**无还款义务的第三人**
+    #   （担保人、共同债务人、监管要求的联系对象都不在禁令里）。标题写全，副文照旧。
+    ("03 &#183; WHO", "No contact with non-obligor third parties",
+     "No reminders or collection messages to organizations or people with no obligation "
      "to repay, unless a regulator requires it.", False),
     ("04 &#183; MEANS", "Lawful measures only",
      "Measures must be lawful, and must exclude threatening the customer.", True),
@@ -855,7 +971,11 @@ _REGULATORS = [
     ("SINGAPORE", "<b>MAS</b> &#183; Monetary Authority of Singapore"),
 ]
 page("content", "".join([
-    head("REGULATORY SPEC &#183; VIETNAM AND THE REGION",
+    # 2026-08-30 · GPT review P0-6：kicker 从「VIETNAM AND THE REGION」收紧到
+    #   「VIETNAM · FINANCE-COMPANY GUARDRAILS」—— 本页四条规格全部来自
+    #   Circular 18/2019 修订的**消费金融公司消费信贷框架**，不是越南全行业的通则，
+    #   更不是「the region」的通则。原 kicker 把适用范围放大了两次。
+    head("REGULATORY SPEC &#183; VIETNAM &#183; FINANCE-COMPANY GUARDRAILS",
          "Regulation has already written the <strong>collections spec</strong>."),
     lab(120, 244, "01 &#183; THE SPEC &#183; SBV CIRCULAR 18/2019/TT-NHNN"),
     # 左：监管规格卡（四条 spec 格 · 2×2）
@@ -887,9 +1007,19 @@ page("content", "".join([
        '<div style="margin-top:14px;font:400 19px/1.55 var(--f-cn);color:var(--ink-2)">'
        'Every contact then answers three questions: why this customer, what strategy, '
        'and was it compliant.</div></div>'),
-    lab(120, 740, "02 &#183; ACROSS THE REGION &#183; EACH MARKET HAS ITS OWN CONDUCT RULES "
-                  "&#183; COMPLIANCE IS CONFIGURED PER MARKET", w=1400, i=4),
-    sh("flow", "left:120px;top:772px;width:1680px;height:64px;--i:5",
+    # 适用范围小注（2026-08-30 · GPT review P0-6）：钉在规格卡正下方 ——
+    #   四条参数是「消费金融公司消费信贷」框架下的，不是越南全行业通则。
+    # 版式账：规格卡底 708 → 适用范围小注 712（4px，读作「注解上面那张卡」）→
+    #   seclab 750（14px，读作「换段了」）→ 区域条 780（h56：13 + 7 + 19×1.4 = 46.6 ≤ 56）。
+    scopenote(712, "Scope: Circular 18/2019 sits inside the consumer-lending framework for "
+                   "<b>finance companies</b> &#8212; not a whole-of-market rule.",
+              x=120, w=1020, i=4),
+    # 区域条标题改写（2026-08-30 · GPT review P0-6）：原文写「EACH MARKET HAS ITS OWN
+    #   CONDUCT RULES」会被读成「我们知道每个市场怎么规定」。这一条实际只列了**监管机构名**，
+    #   所以标题里必须先说 REGULATOR NAMES ONLY，再说配置论点。一条国别规则都不新增。
+    lab(120, 750, "02 &#183; ACROSS THE REGION &#183; REGULATOR NAMES ONLY &#8212; EACH MARKET "
+                  "HAS ITS OWN RULEBOOK, CONFIGURED PER MARKET", w=1400, i=5),
+    sh("flow", "left:120px;top:780px;width:1680px;height:56px;--i:6",
        '<div class="adv">' + "".join(
            '<div><div class="h">%s</div><div class="b">%s</div></div>' % (_h, _b)
            for _h, _b in _REGULATORS) + '</div>'),
@@ -905,14 +1035,14 @@ _TRENDS = [
     ("COMPLIANCE-FIRST", "Compliance first",
      "The bar moves from outcome only to process and outcome. Institutions must show that "
      "every action met regulation, internal policy and customer-protection rules."),
-    ("STANDARDISATION", "Standardisation",
+    ("STANDARDIZATION", "Standardization",
      "Process, language, contact frequency, records and quality review become standard, "
      "cutting person-to-person variance and outsourcing risk."),
     ("INTELLIGENCE", "Intelligence",
      "AI is used for segmentation, contact timing, voice outreach, intent detection, "
      "real-time quality review, call summaries and strategy tuning."),
     ("NEGOTIATION", "Negotiation",
-     "The work moves from reminding to assessing capacity to repay, discussing instalment "
+     "The work moves from reminding to assessing capacity to repay, discussing installment "
      "options, resolving disputes and repairing the relationship."),
     ("INTERNAL CONTROL", "Internal control",
      "Lenders carry more responsibility for third-party agencies, and need systems to push "
@@ -921,8 +1051,10 @@ _TRENDS = [
 page("content", "".join([
     head("TRENDS &#183; FIVE DIRECTIONS",
          "Five directions the industry is <strong>already moving in</strong>."),
-    lab(120, 250, "01 &#183; FIVE TRENDS &#183; COMPLIANCE &#183; STANDARDISATION &#183; "
+    lab(120, 250, "01 &#183; FIVE TRENDS &#183; COMPLIANCE &#183; STANDARDIZATION &#183; "
                   "INTELLIGENCE &#183; NEGOTIATION &#183; CONTROL", w=1400),
+    # 这五条与页脚「natural next step」都是判断句（没有哪家机构发布过这五条）
+    viewtag(248),
     sh("", "left:120px;top:292px;width:1680px;height:520px",
        '<div class="g5" style="height:100%">' + "".join(
            '<div class="card%s rise" style="--i:%d"><div class="tag%s">%s</div>'
@@ -941,7 +1073,7 @@ page("content", "".join([
 #   右侧第三方交叉参考只放两家机构的原始区间，不做平均、不做换算、不外推到任何单一市场。
 _LAYERS = [
     ("LAYER 1", "Risk asset pool",
-     ["Bank NPLs, credit-card arrears, consumer-loan arrears, platform and instalment lending arrears"],
+     ["Bank NPLs, credit-card arrears, consumer-loan arrears, platform and installment lending arrears"],
      "Reflects the volume of assets that has to be managed", 0, 1160),
     ("LAYER 2", "Collections operating spend",
      ["Agents, outsourcing fees, telecom and number costs, systems, QA, compliance and management"],
@@ -991,8 +1123,14 @@ page("content", "".join([
        '<div style="padding:26px 28px;height:100%;display:flex;flex-direction:column">'
        '<div style="font:500 13px/1 var(--f-mono);letter-spacing:.18em;color:var(--ink-3)">'
        'CROSS-CHECK &#183; THIRD PARTIES</div>'
+       # 2026-08-30 · GPT review P1-10 采纳：这两组数是**全球品类**的软件市场，
+       # 与左侧三层收窄的第三层不是一回事，更不是任何一家机构的可服务市场。
+       # 不标这一枚，客户会把 13.77B 当成「我们能卖多大」——那正是本页要防的事。
+       '<div class="vtag" style="margin-top:12px">GLOBAL CATEGORY PROXY &#183; NOT YOUR SAM</div>'
+       # 上一版这一行是两行（「not averaged」也写在这里）—— 那句话卡底的注里已经有，
+       # 收成一行给判断标腾出高度，信息一个字没少。
        '<div style="margin-top:10px;font:400 16px/1.5 var(--f-cn);color:var(--ink-3)">'
-       'Global debt collection software market. Two houses shown side by side, not averaged.</div>'
+       'Global debt collection software market.</div>'
        '<div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--hair)">'
        '<div style="font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--ink-3)">'
        'FORTUNE BUSINESS INSIGHTS</div>'
@@ -1014,8 +1152,8 @@ page("content", "".join([
        '<div style="margin-top:10px;font:500 15px/1 var(--f-mono);letter-spacing:.1em;'
        'color:var(--ink-2)">2023 &#8594; 2030</div></div>'
        '<div style="margin-top:auto;font:400 15px/1.5 var(--f-cn);color:var(--ink-3)">'
-       'The two windows and coverage differ. Shown side by side, not averaged and not '
-       'converted to any single market.</div></div>'),
+       'The two windows and industry coverage differ &#8212; GVR spans non-financial use '
+       'cases. Shown side by side, not averaged and not converted to any single market.</div></div>'),
     lab(120, 768, "02 &#183; FORMULA &#183; TWO WAYS TO SIZE IT", i=5),
     sh("flow", "left:120px;top:794px;width:1680px;height:48px;--i:6",
        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;height:100%">' + "".join(
@@ -1054,7 +1192,7 @@ _AIV = [
 _DIFF7 = [
     ("Capacity",            "Bound by headcount",               "Scales elastically"),
     ("Cost",                "High marginal cost per case",      "Marginal cost falls on repetitive work"),
-    ("Language",            "Depends on individual experience", "Standardised and controllable"),
+    ("Language",            "Depends on individual experience", "Standardized and controllable"),
     ("Quality review",      "Sampling only",                    "Every conversation reviewed"),
     ("Compliance",          "Risk found after the fact",        "Prompted and blocked in real time"),
     ("Data",                "Records are incomplete",           "Structured automatically"),
@@ -1064,6 +1202,8 @@ page("content", "".join([
     head("WHY AI &#183; FROM OPTION TO REQUIREMENT",
          "AI is not optional &#8212; it is how <strong>compliant scale</strong> works."),
     lab(120, 244, "01 &#183; SIX VALUES &#183; WHAT AI ACTUALLY SOLVES"),
+    # 「AI is not optional」是本 deck 最强的一句主张，也最该标出它是主张
+    viewtag(242),
     sh("", "left:120px;top:272px;width:1680px;height:216px",
        '<div class="g3" style="height:100%">' + "".join(
            '<div class="card sm rise" style="--i:%d;justify-content:center">'
@@ -1095,7 +1235,7 @@ page("content", "".join([
 #   ⚠ 英文版把中枢从 380×170 加宽到 440×180（英文要三行副题），
 #     _HUBX 随之从 650 挪到 620 ⇒ 左总线竖段 520..586 < 608 ✓、右总线 1160..1094 > 1060 ✓。
 _MOD_IN = [   # (模块名, 副题, 流的什么, 线型)
-    ("Segmentation &amp; strategy", "Ageing &#183; amount &#183; risk &#183; behaviour",
+    ("Segmentation &amp; strategy", "Aging &#183; amount &#183; risk &#183; behavior",
      "List &#183; contact strategy", "solid"),
     ("Real-time speech recognition", "Speech to text for understanding and record",
      "Customer speech &#8594; text", "solid"),
@@ -1156,7 +1296,7 @@ def _hub_fig():
     o.append(packet(_ARC, 2140, seg=26, col=AD, w=10, op=".28", dur="9s", i=6, cls="mo-cycle"))
     o.append(dline(_ARC, AD, 3, 6, dash="3 8"))
     o.append(ah_r(40, 82, AD, 7))
-    o.append(txt(840, 470, "Recovery, complaints, contact and fulfilment metrics feed the "
+    o.append(txt(840, 470, "Recovery, complaints, contact and fulfillment metrics feed the "
                            "next round of segmentation", "sm", size=17, anchor="middle", col=AD))
     o.append(halo_rect(_HUBX, _HUBY, _HUBW, _HUBH, 14, sc="1.08", op=".32", dur="3.6s"))
     o.append(box(_HUBX, _HUBY, _HUBW, _HUBH, 14, hot=True, i=7, cls="mo-breathe",
@@ -1178,6 +1318,16 @@ page("content", "".join([
     lab(120, 244, "01 &#183; HUB AND EIGHT MODULES", w=1200),
     figbox(120, 276, 1680, 1680, 560, _hub_fig(), i=1),
     rule(850),
+    # 治理要求带（2026-08-30 · GPT review P1-11 采纳-轻）。
+    # ⚠ 措辞是**要求框架**，不是产品功能声明 —— 写的是「a compliant deployment must
+    #   provide」，不是「we provide」。架构图右侧四个输出模块讲的是能力，
+    #   这一带讲的是**验收标准**；两件事写成一件就是过度承诺。
+    fnote(120, 866, 1680, 74,
+          "GOVERNANCE REQUIREMENTS &#183; ACCEPTANCE CRITERIA, NOT A FEATURE LIST",
+          "A compliant deployment must provide: <b>PII masking &amp; encryption</b> &#183; "
+          "<b>recording &amp; summary retention</b> &#183; <b>AI disclosure &amp; consent</b> "
+          "&#183; <b>audit logs</b> &#183; <b>human handover</b> &#183; "
+          "<b>emergency stop</b>.", i=8),
     land("AI collections is not one bot &#8212; it is a "
          "<strong style='color:var(--accent)'>system capability</strong>; "
          "the loop is that feedback line, not the eight boxes."),
@@ -1245,12 +1395,27 @@ page("content", "".join([
            '<div class="t">%s</div><div class="d">%s</div></div>'
            % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag, _t, _d)
            for _i, (_tag, _t, _d, _on) in enumerate(_CAP4)) + '</div>'),
-    lab(120, 562, "02 &#183; INFRASTRUCTURE &#183; RUNNING ON A REAL-TIME INTERACTION BACKBONE",
+    # 供应商生态实证行（2026-08-30 · Colin ①，出处 docs.agora.io TTS overview）。
+    # ⚠ 位置在四张能力卡**之外**：四卡内容高已经吃到 209/190，往卡里再塞当场冲出卡底
+    #   （QA 的 cardspill 闸阈值 6px）。
+    # ⚠ 字号 14px（.scope.tight）：这句在 16px 下量到 1753px > 可用宽 1656 会折行，
+    #   14px 是 1534px ⇒ 单行落定。英文版重算版式账，与文件头 ②③ 同一条理由。
+    # ⚠ 表述**限定在 vendor 侧**：语种覆盖跟着供应商走，我们不替任何一家供应商
+    #   声明它支持哪一种语言（那是他们的口径，不是我们的）。
+    scopenote(534, "<b>17+ TTS providers integrated</b> &#8212; Microsoft Azure, ElevenLabs, "
+                   "Google, Amazon Polly, OpenAI, MiniMax and more; ASR/LLM equally pluggable. "
+                   "Language coverage follows your vendors &#8212; Microsoft Azure alone ships "
+                   "Vietnamese and Thai voices.", i=5, cls="tight", nogate="vendor"),
+    lab(120, 570, "02 &#183; INFRASTRUCTURE &#183; RUNNING ON A REAL-TIME INTERACTION BACKBONE",
         w=1200, i=6),
-    figbox(120, 594, 1680, 1680, 320, _sdrtn_fig(), i=7),
+    figbox(120, 602, 1680, 1680, 312, _sdrtn_fig(), i=7),
     rule(850),
-    land("At the 2024 OpenAI Realtime API launch, Agora was a "
-         "<strong style='color:var(--accent)'>global first-batch partner</strong>.", y=944),
+    # 2026-08-30 · Colin ③：OpenAI 口径改成 OpenAI 官方发布文可验的表述。
+    #   「global first-batch partner」是我们的转译，官方文里没有「首批」这个层级；
+    #   「named an integration partner at the launch」是发布文里点得到名的事实。
+    #   ⚠ 中文版的 canon **本轮不动**（家族级口径变更待 Colin 拍板，见交付报告）。
+    land("Agora was <strong style='color:var(--accent)'>named an integration partner</strong> "
+         "at the 2024 OpenAI Realtime API launch.", y=944),
     src(_SRC_AGORA),
 ]))
 
@@ -1263,17 +1428,17 @@ _STAGES = [
      ["Statement reminders", "Pre-due-date reminders", "Early-stage M0 / M1 reminders",
       "Promise-to-pay due reminders", "Sending and confirming payment links"]),
     ("Stage 2", "Follow-up and explanation",
-     ["Promise-to-pay follow-up", "Explaining instalment options",
+     ["Promise-to-pay follow-up", "Explaining installment options",
       "Collecting reasons for arrears", "Document top-up reminders",
       "Answering basic customer questions"]),
     ("Stage 3", "Negotiation and QA",
-     ["First-pass capacity-to-repay assessment", "Personalised plan recommendations",
+     ["First-pass capacity-to-repay assessment", "Personalized plan recommendations",
       "Complex disputes routed to a human", "Complaint-risk detection",
       "Quality review of outsourced collections", "Real-time agent assist"]),
 ]
 _ADVICE = [
-    ("PICK ONE PRODUCT", "Credit card, consumer loan or instalment"),
-    ("PICK ONE AGEING BAND", "Start at <b>M0 / M1</b> or payment reminders"),
+    ("PICK ONE PRODUCT", "Credit card, consumer loan or installment"),
+    ("PICK ONE AGING BAND", "Start at <b>M0 / M1</b> or payment reminders"),
     ("PICK A LOW-DISPUTE SEGMENT", "Avoid complaints, disputes and legal cases"),
     ("SET A PILOT WINDOW", "<b>4&#8211;8 weeks</b> against the current process"),
 ]
@@ -1326,20 +1491,33 @@ page("content", "".join([
            '<div><div class="h">%s</div><div class="b">%s</div></div>' % (_h, _b)
            for _h, _b in _ADVICE) + '</div>'),
     rule(850),
+    # ── 页脚注带（2026-08-30）：左 proof point（Colin ②）· 右 试点第五条（GPT P1-12）──
+    # ⚠ 为什么第五条不并进上面那排 `.adv`：五等分后每格净宽只剩 302px，
+    #   现有四条里最长的一条实测 364px，五列一上全部折行、当场冲出 48px 的盒
+    #   （QA 的 .adv>div cardspill 闸阈值 6px）。两件都是「试点建议区的注脚」，
+    #   同排落在收口线之下，语域一致，中英两版结构逐格对齐。
+    fnote(120, 858, 860, 74, "PROOF POINT &#183; AGORA PRODUCTION DEPLOYMENT (ANONYMIZED)",
+          "A leading outbound calling deployment in China now runs "
+          "<b>1,000,000+</b> calls per day.", on=True, i=8),
+    fnote(1020, 858, 780, 74, "05 &#183; SET A HOLDOUT",
+          "Hold out a control group; pre-set the primary metric and compliance guardrails.",
+          i=8),
     land("Prove the loop in low-dispute, high-repetition work first &#8212; "
-         "<strong style='color:var(--accent)'>no need to replace the whole chain at once</strong>."),
+         "<strong style='color:var(--accent)'>no need to replace the whole chain at once</strong>.",
+         y=944),
+    src(_SRC_PROOF),
 ]))
 
 # ═══ P14 · Pilot KPI ═══════════════════════════════════════════════════════
 #   ⚠ 全页不出现任何百分比数字：本页讲的是**要量什么**，不是「能提升多少」。
 #   注意事项的措辞是本 deck 的免责边界，按 Colin 点名逐字定：
 #     "Do not commit to a fixed uplift before you have pilot data from your own book."
-#     "The safer statement: validate improvement headroom on contact, fulfilment,
+#     "The safer statement: validate improvement headroom on contact, fulfillment,
 #      cost and compliance through a pilot."
 _KPI = [
     ("01", "Contact", ["Connect rate", "Effective conversation rate", "SMS / link click rate"]),
-    ("02", "Recovery", ["Promise-to-pay rate", "Promise fulfilment rate", "Amount recovered",
-                        "Ageing migration rate"]),
+    ("02", "Recovery", ["Promise-to-pay rate", "Promise fulfillment rate", "Amount recovered",
+                        "Aging migration rate"]),
     ("03", "Efficiency", ["Cost per case contacted", "Agent substitution rate",
                           "Human handover rate", "Average handling time"]),
     ("04", "Compliance", ["Complaint rate", "Non-compliant script hits", "QA coverage",
@@ -1358,13 +1536,20 @@ page("content", "".join([
            % (2 + _i, _n, _t, "<br>".join("&#183; " + _m for _m in _ms))
            for _i, (_n, _t, _ms) in enumerate(_KPI)) + '</div>'),
     lab(120, 692, "02 &#183; CAVEAT", i=5),
+    # 2026-08-30：caveat 从两栏改三栏，补一条**口径字典**要求（GPT P1-13 采纳-轻）。
+    # 版式账：三栏每栏净宽 (1680 − 2×32)/3 − 27 = 511.7px；英文在 20px 下第二条要三行
+    #   （3×32 + 12 = 108 > 盒高 88）⇒ 三条一律降到 18px：最长一条量得 918px ⇒ 两行，
+    #   2×28.8 + 12 = 69.6 ≤ 88 ✓。**加第四条必须重算这一笔。**
     sh("flow", "left:120px;top:724px;width:1680px;height:88px;--i:6",
-       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;height:100%">'
-       '<div class="note grey" style="font-size:20px;align-self:center">'
+       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;height:100%">'
+       '<div class="note grey" style="font-size:18px;align-self:center">'
        'Do not commit to a fixed uplift before you have pilot data from your own book.</div>'
-       '<div class="note" style="font-size:20px;align-self:center">'
+       '<div class="note" style="font-size:18px;align-self:center">'
        'The safer statement: validate <b style="color:var(--accent)">improvement headroom</b> '
-       'on contact, fulfilment, cost and compliance through a pilot.</div></div>'),
+       'on contact, fulfillment, cost and compliance through a pilot.</div>'
+       '<div class="note grey" style="font-size:18px;align-self:center">'
+       'Every KPI ships with a <b style="color:var(--accent)">metric dictionary</b>: '
+       'definition, numerator, denominator, time window and de-duplication.</div></div>'),
     rule(850),
     land("A pilot does not produce a promise &#8212; it produces "
          "<strong style='color:var(--accent)'>your own control data</strong>."),
@@ -1379,7 +1564,7 @@ _VERDICT = [
     "Overdue asset management is a standing capability, not a short-term operating task.",
     "The limits of the traditional model on productivity, compliance and experience keep "
     "getting clearer.",
-    "AI can replicate strong agent behaviour, compliance rules and operating strategy at scale.",
+    "AI can replicate strong agent behavior, compliance rules and operating strategy at scale.",
     "The future of collections is smarter, more compliant and more open to negotiation.",
 ]
 page("title", "".join([
@@ -1401,11 +1586,17 @@ page("title", "".join([
            % (_i + 1, _v) for _i, _v in enumerate(_VERDICT)) + '</div>'),
     sh("ink", "left:260px;top:640px;width:1400px;height:200px;text-align:center;"
        "font:700 38px/1.6 var(--f-cn);letter-spacing:-.01em;color:var(--ink)",
-       "AI handles <strong style='color:var(--accent)'>scale, standardisation and real-time "
-       "analysis</strong>; humans handle <strong style='color:var(--accent)'>complex judgement, "
+       "AI handles <strong style='color:var(--accent)'>scale, standardization and real-time "
+       "analysis</strong>; humans handle <strong style='color:var(--accent)'>complex judgment, "
        "empathy and exceptions</strong>; Agora provides the "
        "<strong style='color:var(--accent)'>real-time voice infrastructure</strong> "
        "that connects AI to real customer conversations."),
+    # 收尾证据句（2026-08-30 · Colin ②）：整份 deck 到这里全是论证，
+    # 最后给一条**已经在跑**的脱敏证据。收尾语三分句一个字不动，证据另起一行。
+    # 摆位：收尾语三行到 y822 收住，证据句压在下面 —— 与 y892 的页脚带留出 44px。
+    sh("flow", "left:120px;top:840px;width:1680px;height:32px;text-align:center;--i:5",
+       '<span class="pfline">A leading outbound calling deployment in China now runs '
+       '<b>1,000,000+</b> calls per day.</span>'),
     sh("flow mono-sm", "left:120px;top:892px;width:1680px;height:24px;text-align:center;--i:6",
        "AGORA &#183; CONVERSATIONAL AI ENGINE &#183; REAL-TIME VOICE AI INFRASTRUCTURE"),
     # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线 / 悬停态）
@@ -1538,7 +1729,8 @@ def build():
         "红线：出现未登记的百分数 %r —— 本 deck 不承诺任何提升比例" % sorted(_pcts - {"95%", "9.72%"})
     # SOURCE ledger：五张数据页（P3/P4/P7/P9/P12）各一行、严格四段制、Facts as of 2026.08 收尾
     _srcs = re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
-    assert len(_srcs) == 5, "SOURCE ledger 行数漂移：%d != 5（%r）" % (len(_srcs), _srcs)
+    # 2026-08-30：P13 落了一枚脱敏 proof point（生产部署口径的外部事实）⇒ 入册，六行。
+    assert len(_srcs) == 6, "SOURCE ledger 行数漂移：%d != 6（%r）" % (len(_srcs), _srcs)
     for _s in _srcs:
         _t = _s.replace("&#183;", "·").replace("&amp;", "&")
         assert _t.startswith("SOURCE · "), "SOURCE 行不以「SOURCE · 」起手：%r" % _t
@@ -1554,17 +1746,77 @@ def build():
                           "National Assembly of Vietnam"]),
                      (7, ["18/2019/TT-NHNN", "43/2016", "Article 7", "01.01.2020",
                           "5 reminders per day", "07:00", "21:00",
-                          "No third-party contact", "OJK", "BSP", "BOT", "MAS"]),
+                          "No contact with non-obligor third parties",
+                          "OJK", "BSP", "BOT", "MAS"]),
                      (9, ["5.98", "13.77", "9.72", "4.9", "9.3",
                           "Fortune Business Insights", "Grand View Research"]),
                      (12, ["650ms", "340ms", "95%", "90B+", "200+", "SAL",
                            "AI-VAD", "Graceful interruption", "AI QoS",
-                           "global first-batch partner", "no vendor lock-in"])]:
+                           "named an integration partner", "no vendor lock-in"])]:
         for _kw in _kws:
             assert _kw in _page_txt[_p], "P%d 缺在场事实「%s」" % (_p, _kw)
+    # ── 2026-08-30 修订集在场闸（改一处就得在这里对上一处）─────────────────────
+    # A 版本标
+    assert "SEA EDITION" in _page_txt[1] and "VIETNAM ANCHOR" in _page_txt[1], "P1 缺版本标"
+    # B 判断标：只在 P2 / P8 / P10（判断）与 P9（品类代理指标），各一枚，别处零枚
+    for _p in range(1, 16):
+        _n = _page_txt[_p].count('class="vtag"')
+        _exp = 1 if _p in (2, 8, 9, 10) else 0
+        assert _n == _exp, "P%d 的 .vtag 数 %d != %d" % (_p, _n, _exp)
+    for _p in (2, 8, 10):
+        assert "AGORA VIEW" in _page_txt[_p], "P%d 的判断标未写 AGORA VIEW" % _p
+    # C 口径限定
+    assert "GLOBAL CATEGORY PROXY" in _page_txt[9] and "NOT YOUR SAM" in _page_txt[9], \
+        "P9 缺代理指标标注"
+    assert "GVR spans non-financial use cases" in _page_txt[9], "P9 缺两报告口径差异小注"
+    # D P4 措辞弱化：THE ONLY PATH / No alternative 都不许回归
+    for _bad in ("THE ONLY PATH", "No alternative"):
+        assert _bad not in _page_txt[4], "P4 措辞红线：「%s」已弱化，不许回归" % _bad
+    for _kw in ("WHAT REMAINS", "prohibited business line",
+                "Lenders retain responsibility", "not a statutory mandate"):
+        assert _kw in _page_txt[4], "P4 缺弱化后的论证句「%s」" % _kw
+    # E P7 精度
+    assert "FINANCE-COMPANY GUARDRAILS" in _page_txt[7], "P7 kicker 未收紧适用范围"
+    assert "VIETNAM AND THE REGION" not in doc, "P7 旧 kicker「VIETNAM AND THE REGION」不许回归"
+    assert "consumer-lending framework for" in _page_txt[7], "P7 缺适用范围小注"
+    assert "REGULATOR NAMES ONLY" in _page_txt[7], "P7 区域条未写明只列机构名"
+    # F1 vendor 生态：名单挂在 [data-nogate="vendor"] 里，全 deck 只此一枚
+    assert doc.count('data-nogate="vendor"') == 1, "vendor 豁免节点应恰好一枚"
+    for _kw in ("17+ TTS providers integrated", "Microsoft Azure", "ElevenLabs",
+                "Amazon Polly", "MiniMax", "Language coverage follows your vendors"):
+        assert _kw in _page_txt[12], "P12 缺 vendor 生态「%s」" % _kw
+    assert "Agora docs" in _page_txt[12], "P12 的 SOURCE 行未补 Agora docs 出处"
+    # F2 极致三件的限定词（as low as / typical values）—— 一个都不许被抹掉
+    assert "as low as" in _page_txt[12], "P12 缺「as low as」限定词"
+    assert "typical values" in _page_txt[12], "P12 的 SOURCE 行缺 typical values 限定"
+    # F3 OpenAI 口径：旧转译不许回归
+    assert "global first-batch partner" not in doc, "P12 旧 OpenAI 转译不许回归"
+    # G proof point：P13 side note + P15 收尾，两处逐字同源
+    for _p in (13, 15):
+        assert "A leading outbound calling deployment in China now runs" in _page_txt[_p] \
+            and "1,000,000+" in _page_txt[_p], "P%d 缺 proof point" % _p
+    assert "Agora production deployment (anonymized)" in _page_txt[13], \
+        "P13 缺 proof point 的 SOURCE 归属"
+    # H P3 规模证据带（两枚数都不许与 P12 重复）
+    for _kw in ("ALREADY AT SCALE ON AGORA", "10,000", "1M+", "registered applications"):
+        assert _kw in _page_txt[3], "P3 缺规模证据带「%s」" % _kw
+    for _dup in ("10,000", "1M+"):
+        assert _dup not in _page_txt[12], "P3 的规模数「%s」与 P12 撞车了" % _dup
+    assert "Agora website" in _page_txt[3], "P3 的 SOURCE 行未补 Agora 出处"
+    # I 轻量补强四件
+    assert "span all eight stages" in _page_txt[5], "P5 缺全流程图注"
+    assert "A compliant deployment must provide" in _page_txt[11], "P11 缺治理要求带"
+    assert "ACCEPTANCE CRITERIA, NOT A FEATURE LIST" in _page_txt[11], \
+        "P11 治理带缺「要求框架而非功能声明」的标头"
+    assert "SET A HOLDOUT" in _page_txt[13], "P13 缺试点第五条"
+    assert "metric dictionary" in _page_txt[14], "P14 caveat 缺口径字典一条"
+    # J 美式拼写闸（构建期先拦一道，qa 里还有一道）
+    for _bad in ("standardisation", "monetisation", "fulfilment", "judgement",
+                 "personalised", "ageing", "dialling", "organis"):
+        assert _bad not in _plain.lower(), "拼写闸：英式拼写「%s」不许出现（本 deck 全美式）" % _bad
     # 收尾语（Colin 点名的三分句）
-    for _kw in ("scale, standardisation and real-time analysis",
-                "complex judgement, empathy and exceptions",
+    for _kw in ("scale, standardization and real-time analysis",
+                "complex judgment, empathy and exceptions",
                 "real-time voice infrastructure"):
         assert _kw in _page_txt[15], "P15 收尾语缺「%s」" % _kw
     # 试点 KPI 页的免责措辞
