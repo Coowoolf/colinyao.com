@@ -180,4 +180,24 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 私人页（非 deck）：卧推 100kg 训练计划（2026.8.31–11.11 · 11 周周期化）。
   // 只走私享链接 /bench100，不进任何索引/导航/sitemap；noindex 走 meta + /decks/* 头双重。
   { source: "/bench100", file: "/decks/bench100.html" },
+  // 2026-08-30 Colin：贷后催收方案 deck · 私享不进索引。
+  //《AI 驱动的智能贷后催收解决方案》15 页 —— 面向银行 / 消费金融 / 互金平台的贷后、
+  // 风控、合规、技术负责人，销售方案汇报场景。内容蓝本是 Vault 的
+  // ai-debt-collection-ppt-outline.md（14 页大纲 + 第 4 节建议的试点 KPI 页，
+  // 按 Colin 指令插在落地场景之后 ⇒ 15 页）。CONF 家族语言、conf-light 默认、
+  // 单文件双主题、零分步、五运动原语逐字复用（P5 八环闭环是标杆动效页，
+  // P11 中枢 + 八模块是第二动效重点）。
+  // 口径纪律两条（改数之前先读 builder 文件头）：
+  //   ① 行业侧数字逐字用大纲的，每个都带来源机构名 + 时点，一个不新造、不外推；
+  //   ② Agora 侧硬数只用司内 canon（650ms / 340ms / 95% / 900亿+ 单月分钟数 /
+  //      200+ 全球节点 SD-RTN），**大纲里「800 亿分钟 · 200+ 国家和地区」是英文官网
+  //      旧口径，已仲裁不用** —— 同一家公司两份材料给两个数量级的分钟数，客户当场就问。
+  // 表达红线（构建期断言 + qa 反向闸双保险）：催债 / 施压催收 / 逼迫还款 / 强催 /
+  //   轰炸外呼 / 暴力催收 六词全文 0；「回收率」不与百分比同句（不承诺提升比例）；
+  //   客户名 0（含在谈的「光潽」）；Call Agent / 价格 / staging / 盲测 / 32,000 全不入；
+  //   a[href] = 0。
+  // 重建：python3 scripts/build-convoai-postloan.py
+  // 自检：node scripts/qa-convoai-postloan.mjs（THEME=dark 二跑）
+  //      + DECK=postloan node scripts/qa-motion.mjs
+  { source: "/convoai-postloan", file: "/decks/convoai-postloan.html" },
 ];

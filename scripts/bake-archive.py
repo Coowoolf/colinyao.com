@@ -76,3 +76,7 @@ bake(ROOT/'decks/convoai-info.html', '/home/claude/eco-review/convoai-info-速�
 # 2026-08-24：新增 ELI5 版。它只引一张 R1 实拍 webp（34KB）与四张字体，没有大体积媒体、
 #   没有 iframe 抽屉 —— 一次直白的内联，miss=[] / left=0 就是它的验收线。
 bake(ROOT/'decks/convoai-eli5.html', '/home/claude/eco-review/convoai-eli5-讲给五岁的你-11p.html')
+# 2026-08-30：贷后催收方案 deck（私享 /convoai-postloan）。全 SVG 作图、零位图资产 ——
+#   只引四张字体与两组背景板 PNG，没有大体积媒体、没有 iframe 抽屉。
+#   miss=[] / left=0 就是它的验收线（这份归档要能离线发给金融机构，一格图都不能掉）。
+bake(ROOT/'decks/convoai-postloan.html', '/home/claude/eco-review/convoai-postloan-贷后催收方案-15p.html')

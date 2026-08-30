@@ -12,7 +12,8 @@
 // 用法：node scripts/qa-motion.mjs              （引擎 deck · BASE 默认 8899）
 //      DECK=info node scripts/qa-motion.mjs    （convoai-info v2 · 8 页）
 //      DECK=eli5 node scripts/qa-motion.mjs    （convoai-eli5 讲给五岁的你 · 11 页）
-// 三份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
+//      DECK=postloan node scripts/qa-motion.mjs（convoai-postloan 贷后催收方案 · 15 页）
+// 四份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
@@ -47,6 +48,18 @@ const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
 //     P7 AI QoS（路上的包 + 罐子呼吸 + 进料包 + 说话带四组脉冲 + 断网带两条 drift）下限 8
 //     其余页下限 3（低于 3 说明「图在动」退化成了「图上有一个小东西在动」）
 const ELI5_FLOOR = { 1: 3, 2: 6, 3: 6, 4: 5, 5: 10, 6: 6, 7: 8, 8: 5, 9: 3, 10: 6, 11: 4 };
+// postloan（15 页 · 2026-08-30 立项 · 贷后催收方案 deck）：
+//   带 SVG 机理图的九页上册，四张纯卡片 / 表格页与两张 title 板不入册 ——
+//   P1 封面（会动的封面只会抢主标，与 engine / info 同例）· P7 合规（两张制度卡 + duo）·
+//   P8 五趋势（并列卡）· P10 AI 必行（六卡 + 对比表）· P14 试点 KPI（五卡）· P15 结尾。
+//   逐页下限按「这一页的动效在讲什么」点名，不泛化成全表配额：
+//     P5 八环闭环 = 本 deck 的**标杆动效页**（环 cycle + 三枚绕行包 + 八枚中点脉冲
+//        + hot 呼吸 + halo），下限 14 —— 低于它就说明八环的亮波被改瘦了；
+//     P11 能力闭环 = 第二动效重点（八条进出包 + 两条控制虚线 drift + 回流弧 cycle
+//        + 中枢呼吸 + halo），下限 11；
+//     P2 五节一链 / P3 资产循环 / P4 两点时序 / P6 取舍三角 / P9 三层收窄 /
+//     P12 SD-RTN 底座 / P13 三级台阶 各按图定。
+const POSTLOAN_FLOOR = { 2: 10, 3: 9, 4: 6, 5: 14, 6: 8, 9: 8, 11: 11, 12: 9, 13: 6 };
 const DECKS = {
   engine: { url: '/decks/convoai-engine.html',
             roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
@@ -55,6 +68,9 @@ const DECKS = {
             floor: { 8: 6 }, pauseProbe: 7 },
   eli5:   { url: '/decks/convoai-eli5.html', roster: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
             floor: ELI5_FLOOR, pauseProbe: 4 },
+  postloan: { url: '/decks/convoai-postloan.html',
+              roster: [2, 3, 4, 5, 6, 9, 11, 12, 13],
+              floor: POSTLOAN_FLOOR, pauseProbe: 4 },
 };
 const DECK = DECKS[process.env.DECK || 'engine'];
 if (!DECK) { console.log('未知 DECK：' + process.env.DECK); process.exit(1); }
