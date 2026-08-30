@@ -13,7 +13,8 @@
 //      DECK=info node scripts/qa-motion.mjs    （convoai-info v2 · 8 页）
 //      DECK=eli5 node scripts/qa-motion.mjs    （convoai-eli5 讲给五岁的你 · 11 页）
 //      DECK=postloan node scripts/qa-motion.mjs（convoai-postloan 贷后催收方案 · 15 页）
-// 四份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
+//      DECK=postloan-en node scripts/qa-motion.mjs（同上的东南亚英文版 · 15 页）
+// 五份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
@@ -60,6 +61,14 @@ const ELI5_FLOOR = { 1: 3, 2: 6, 3: 6, 4: 5, 5: 10, 6: 6, 7: 8, 8: 5, 9: 3, 10: 
 //     P2 五节一链 / P3 资产循环 / P4 两点时序 / P6 取舍三角 / P9 三层收窄 /
 //     P12 SD-RTN 底座 / P13 三级台阶 各按图定。
 const POSTLOAN_FLOOR = { 2: 10, 3: 9, 4: 6, 5: 14, 6: 8, 9: 8, 11: 11, 12: 9, 13: 6 };
+// postloan-en（15 页 · 2026-08-30 · 东南亚英文版）：图形与中文版同构 ⇒
+//   **名册与下限逐条对齐中文版**，一格不放松。两处图换了内容但件数口径不变：
+//     P3 中文是「三个大数 + 资产循环闭环」/ 英文是「三张定性卡 + 同一张闭环图」——
+//       动效全在那张闭环图上，件数不动（9）；
+//     P4 中文是「卡量两点时序 + 四象限」/ 英文是「2021 禁令三段式（外包 → 禁止 →
+//       自建）+ 法条带」—— 两条主链包 + 两枚接头脉冲 + hot 呼吸 + halo，同样 ≥6。
+//   名册相同就意味着：哪一页在英文版里被改哑了，这一闸照样当场报出来。
+const POSTLOAN_EN_FLOOR = { ...POSTLOAN_FLOOR };
 const DECKS = {
   engine: { url: '/decks/convoai-engine.html',
             roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
@@ -71,6 +80,9 @@ const DECKS = {
   postloan: { url: '/decks/convoai-postloan.html',
               roster: [2, 3, 4, 5, 6, 9, 11, 12, 13],
               floor: POSTLOAN_FLOOR, pauseProbe: 4 },
+  'postloan-en': { url: '/decks/convoai-postloan-en.html',
+                   roster: [2, 3, 4, 5, 6, 9, 11, 12, 13],
+                   floor: POSTLOAN_EN_FLOOR, pauseProbe: 4 },
 };
 const DECK = DECKS[process.env.DECK || 'engine'];
 if (!DECK) { console.log('未知 DECK：' + process.env.DECK); process.exit(1); }

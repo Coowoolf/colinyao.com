@@ -80,3 +80,10 @@ bake(ROOT/'decks/convoai-eli5.html', '/home/claude/eco-review/convoai-eli5-讲�
 #   只引四张字体与两组背景板 PNG，没有大体积媒体、没有 iframe 抽屉。
 #   miss=[] / left=0 就是它的验收线（这份归档要能离线发给金融机构，一格图都不能掉）。
 bake(ROOT/'decks/convoai-postloan.html', '/home/claude/eco-review/convoai-postloan-贷后催收方案-15p.html')
+# 2026-08-30：同一份 deck 的东南亚英文版（私享 /convoai-postloan-en）。资产口径与中文版
+#   一模一样（四张字体 + 两组背景板 PNG，全 SVG 作图、零位图、无 iframe 抽屉），
+#   miss=[] / left=0 同样是它的验收线 —— 这份要能离线发给越南的银行，一格图都不能掉。
+#   ⚠ 归档态里左下角那枚语言钮点了会指向 /decks/convoai-postloan.html：
+#     单文件离线打开时对方 deck 不在身边，跳转必然落空。这是「单文件归档」的固有边界，
+#     不是 bug —— 在线版（colinyao.com/convoai-postloan-en）互跳照常。
+bake(ROOT/'decks/convoai-postloan-en.html', '/home/claude/eco-review/convoai-postloan-EN-SEA-15p.html')

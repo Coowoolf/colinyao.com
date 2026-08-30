@@ -200,4 +200,34 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 自检：node scripts/qa-convoai-postloan.mjs（THEME=dark 二跑）
   //      + DECK=postloan node scripts/qa-motion.mjs
   { source: "/convoai-postloan", file: "/decks/convoai-postloan.html" },
+  // 2026-08-30 Colin：东南亚英文版 · 私享不进索引 · 同链语言切换。
+  //《AI-Powered Post-Loan Collections & Overdue Asset Management》SEA EDITION 15 页 ——
+  // 面向东南亚金融机构（银行 / 消费金融 / fintech 平台）的贷后、风控、合规、技术负责人，
+  // 首场越南，后续新加坡 / 印尼 / 泰国 / 菲律宾 / 日本 / 韩国。
+  // **不是中文版的直译，是市场重铸**：版式、图形、动效系统与中文版逐格同构，
+  //   行业侧内容整层换血 —— P3 中国三大数 → e-Conomy SEA 2025 定性引用（不写贷款余额数字）、
+  //   P4 卡量两点时序 → **越南 2021 禁令锚点页**（《投资法》61/2020/QH14 把 debt collection
+  //   services 列为禁止投资经营业务 ⇒ 外包这条路被法律关掉，唯一路径是自建 + 技术化）、
+  //   P7 中国部门规章 / 国标 → **SBV Circular 18/2019/TT-NHNN 监管规格卡**
+  //   （≤5 次/日 · 07:00–21:00 · 不得向无还款义务的第三方催告 · 措施须合法）+ 区域条
+  //   （OJK / BSP / BOT / MAS 只列机构名，不写各国具体条款 —— 未核）。
+  //   P9 市场三层与 P12 Agora canon 天然全球口径，逐条英译沿用。
+  // 口径纪律（改数之前先读 builder 文件头）：
+  //   ① 行业侧只用 Colin 核过的一手来源，每条带机构名 + 时点，一个不新造、不外推；
+  //   ② Agora 侧只用司内 canon（650ms / 340ms / 95% / 90B+ minutes monthly /
+  //      200+ global nodes · SD-RTN / OpenAI Realtime API global first-batch partner）；
+  //      **IDC 中国市占 No.1 不进英文版** —— 中国市场信任状对 SEA 听众无效且要解释成本。
+  // 表达红线（构建期断言 + qa 反向闸双保险）：debt chasing / chase debtors /
+  //   pressure tactics / aggressive collection / harass / intimidat 六串全文 0；
+  //   `threaten` 只准出现 1 次且必须落在 P7 引述监管禁令的 [data-nogate] 节点里；
+  //   整份 deck 只准两个百分数（95% / 9.72%），不承诺任何提升比例；客户名 0；
+  //   Call Agent / 价格 / staging / 32,000 全不入；a[href] = 0；
+  //   **除左下角语言钮的「中文」二字外全页零 CJK**（QA 纯度闸）。
+  // 同链路语言切换：两份 deck 各挂一枚常显 pill（左下角、摞在主题钮之上），
+  //   中文版「EN」→ /convoai-postloan-en，英文版「中文」→ /convoai-postloan。
+  //   ⚠ 必须 <button> + JS 跳转，**不能用 <a>**（两份 deck 的 a[href]=0 闸都还在）。
+  // 重建：python3 scripts/build-convoai-postloan-en.py
+  // 自检：node scripts/qa-convoai-postloan-en.mjs（THEME=dark 二跑，含 CJK 纯度闸 +
+  //      语言钮闸 + 两版互跳 round-trip 实测）+ DECK=postloan-en node scripts/qa-motion.mjs
+  { source: "/convoai-postloan-en", file: "/decks/convoai-postloan-en.html" },
 ];

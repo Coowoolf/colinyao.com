@@ -551,9 +551,13 @@ page("content", "".join([
     sh("flow", "left:120px;top:748px;width:1680px;height:82px;--i:7",
        '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:18px;height:100%">'
        + "".join(
+           # 页号那一格挂 data-nogate="pageref"：它是**本 deck 自己的页码**，不是内容里的数字。
+           # 不豁免的话，qa 的「新造数字闸」白名单就得把 10–15 全收进去 —— 收进去之后
+           # 任何一个新写的小数字都能蒙混过关，闸门当场钝化（上一轮的短板，本轮修掉）。
            '<div style="border-top:1px solid var(--hair);padding-top:14px;display:flex;'
            'flex-direction:column;gap:8px">'
-           '<div style="font:500 13px/1 var(--f-mono);letter-spacing:.14em;color:var(--accent)">%s</div>'
+           '<div data-nogate="pageref" style="font:500 13px/1 var(--f-mono);'
+           'letter-spacing:.14em;color:var(--accent)">%s</div>'
            '<div style="font:400 19px/1.3 var(--f-cn);color:var(--ink-2)">%s</div></div>'
            % (_p, _t) for _t, _p in _ROADMAP) + '</div>'),
     rule(850),
@@ -1461,6 +1465,10 @@ def build():
         '<div class="edit-hotzone" aria-hidden="true"></div>\n'
         '<button class="edit-toggle" id="editToggle">EDIT</button>\n'
         '<button class="deck-swap" id="deckSwap">暗底</button>\n'
+        # 2026-08-30 Colin：同链路语言切换 —— 保留原链接，一枚常显 pill 跳到东南亚英文版。
+        # ⚠ 必须 <button> + JS，**不能用 <a>**（本 deck 的 a[href]=0 闸还在）。
+        # 摆位与主题钮同角（左下），摞在它之上 24 + 28 + 10 = 62px，不打架。
+        '<button class="deck-lang" id="deckLang">EN</button>\n'
         # deckSwap 常显 chip（与引擎 deck 逐字同源）：这是一份**发链接**的私享 deck，
         # 「默认隐身 · hover 呼出」在这里等于键不存在。实底 --card-bg-2 而不是
         # transparent —— 左下角坐着 content 板的矩阵纹理，透明底会让 12px mono 掉进纹理里。
@@ -1471,6 +1479,15 @@ def build():
         '.deck-swap:hover,.deck-swap:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent);}'
         '.deck-swap:focus:not(:focus-visible){outline:none;box-shadow:none;}'
         '@media print{.deck-swap{display:none!important;}}</style>\n'
+        # 语言钮：deckSwap 同款样式体系（同角、同尺寸、同透明度节奏），只换 bottom 与文案
+        '<style>.deck-lang{position:fixed;left:26px;bottom:62px;z-index:1100;'
+        'font-family:var(--f-mono,monospace);'
+        'font-size:12px;letter-spacing:.14em;color:var(--ink-3);border:1px solid var(--hair);'
+        'border-radius:3px;padding:7px 12px;opacity:.62;'
+        'transition:opacity .3s,color .3s,border-color .3s;background:var(--card-bg-2);cursor:pointer;}'
+        '.deck-lang:hover,.deck-lang:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent);}'
+        '.deck-lang:focus:not(:focus-visible){outline:none;box-shadow:none;}'
+        '@media print{.deck-lang{display:none!important;}}</style>\n'
         "<script>" + (SRC / "deck.js").read_text(encoding="utf-8") + "</script>\n"
         '<script>(function(){var b=document.getElementById("deckSwap");'
         'function apply(t){if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");b.textContent="浅底";}'
@@ -1481,6 +1498,13 @@ def build():
         'var now=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";'
         'var nxt=(now==="dark")?"light":"dark";'
         'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
+        # 语言钮跳转：预览服务器（8899 / 8777）是静态目录服务，没有 next.config 的 rewrites，
+        # 线上才有 /convoai-postloan-en 路由 —— 按当前 pathname 是否带 .html 二选一，
+        # 两个环境都跳得通（QA 的互跳 round-trip 靠这一手才跑得起来）。
+        '<script>(function(){var b=document.getElementById("deckLang");if(!b)return;'
+        'b.addEventListener("click",function(){b.blur();'
+        'var f=/\\.html($|[?#])/.test(location.pathname);'
+        'location.href=f?"/decks/convoai-postloan-en.html":"/convoai-postloan-en";});})();</script>\n'
         "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
 

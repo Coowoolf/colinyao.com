@@ -18,6 +18,10 @@
 //   ⑧ **SOURCE ledger 闸**：五张数据页（P3/P4/P7/P9/P12）各恰好一行，
 //      严格四段制 `SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`，来源只写机构名不写 URL。
 //
+//   ⑬ **语言切换钮闸**（2026-08-30）：<button>（不是 <a>）· 常显 · 指向东南亚英文版 ·
+//      print 隐藏 · 不挂 data-step · 与主题钮同角不重叠。互跳 round-trip 实测在
+//      qa-convoai-postloan-en.mjs 的 ⑮ 段（两头都走，跑一次就够）。
+//
 //   ⑨ **P8 质量语言闸**：每页至多一枚 .mo-breathe（唯一 hot 件）；
 //      带 SVG 图的页必须有图例（.fig 里至少一组图例线样）；零分步（页内 0 枚 [data-step]）。
 //
@@ -57,13 +61,17 @@ const FACTS = [
 //   · 行业侧事实（大纲逐字）：3.7 / 1.51 / 239.2 / 6.87 / 6.96 / 45251 / 5 /
 //     59.8 / 137.7 / 9.72 / 49 / 93
 //   · Agora 侧 canon（引擎 deck 逐字）：650 / 340 / 95 / 900 / 200
-//   · 年份 · 时点 · 页号 · 序号 · 章节号：2023–2034 / 02 / 28 / 03 / 08 / 4 / 8 / 0 / 1 / 15 …
+//   · 年份 · 时点 · 序号 · 章节号：2023–2034 / 02 / 28 / 03 / 08 / 4 / 8 / 0 / 1 …
+// ⚠ 2026-08-30 收紧：**路线条页号（P3–4 / P10–11 / P12–14）不再进白名单** ——
+//   它们在 builder 里挂了 data-nogate="pageref"，扫描时整枝跳过。原先为了让页号过闸
+//   把 10 / 11 / 12 / 13 / 14 / 15 全收了进来，等于给闸门钝化：收进去之后任何一个
+//   新写的小数字都能蒙混过关，「禁止新造数字」这条闸就只剩个名字。
 const NUM_OK = new Set([
   '3', '7', '1', '51', '239', '2', '6', '87', '96', '45251', '5',
   '59', '8', '137', '9', '72', '49', '93',
   '650', '340', '95', '900', '200',
   '2023', '2024', '2025', '2026', '2030', '2034', '0', '01', '02', '03', '04', '05',
-  '06', '07', '08', '11', '10', '12', '13', '14', '15', '28', '4',
+  '06', '07', '08', '28', '4',
 ]);
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
@@ -194,10 +202,11 @@ for (const [p, kws] of FACTS) {
   const t = await pageText(p);
   for (const kw of kws) ok(t.includes(kw), `⑦ P${p} 缺在场事实「${kw}」`);
 }
-// ⑦ 反向：新造数字闸。摘掉页码 sig（那是 chrome，不是内容里的数字）
+// ⑦ 反向：新造数字闸。摘掉页码 sig 与 P2 路线条的页号（都是**本 deck 自己的页码**，
+//    不是内容里的数字）—— 不摘的话白名单得把 10–15 全收进去，闸门当场钝化。
 const numText = await pg.evaluate(() => {
   const st = document.getElementById('deckStage');
-  const skip = new Set([...st.querySelectorAll('.sig')]);
+  const skip = new Set([...st.querySelectorAll('.sig,[data-nogate="pageref"]')]);
   const w = document.createTreeWalker(st, NodeFilter.SHOW_TEXT);
   let s = '';
   for (let t = w.nextNode(); t; t = w.nextNode()) {
@@ -264,6 +273,47 @@ ok(sw.ls === flipped, `⑪ localStorage("colin-theme") 未写入 ${flipped}（�
 ok(sw.label === (flipped === 'dark' ? '浅底' : '暗底'), `⑪ 按钮文案 ${sw.label}`);
 await pg.click('#deckSwap'); await pg.waitForTimeout(250);
 
+// ⑬ 语言切换钮（2026-08-30 同链路语言切换）：<button>（不是 <a> —— 本 deck 的
+//    a[href]=0 闸还在）· 常显 · 指向东南亚英文版 · print 隐藏 · 不挂 data-step ·
+//    与主题钮同角不重叠。**互跳 round-trip 的实测在 qa-convoai-postloan-en.mjs ⑮ 里**
+//    （那一段两头都走，放在英文版那边跑一次就够，不必两份 QA 各跳一遍）。
+const lang = await pg.evaluate(() => {
+  const el = document.getElementById('deckLang');
+  const sw = document.getElementById('deckSwap');
+  if (!el || !sw) return null;
+  const r = el.getBoundingClientRect(), s = sw.getBoundingClientRect();
+  const overlap = !(r.right < s.left || r.left > s.right || r.bottom < s.top || r.top > s.bottom);
+  return { tag: el.tagName, txt: el.textContent.trim(), op: +getComputedStyle(el).opacity,
+           pos: getComputedStyle(el).position, w: Math.round(r.width), h: Math.round(r.height),
+           step: el.hasAttribute('data-step'), overlap, inStage: !!el.closest('.deck-stage'),
+           gap: Math.round(s.top - r.bottom) };
+});
+ok(lang, '⑬ 缺语言切换钮 #deckLang');
+if (lang) {
+  ok(lang.tag === 'BUTTON', `⑬ 语言钮必须是 <button>（a[href]=0 闸），实测 <${lang.tag}>`);
+  ok(lang.txt === 'EN', `⑬ 语言钮文案应为「EN」，实测「${lang.txt}」`);
+  ok(lang.pos === 'fixed', `⑬ 语言钮非 fixed（${lang.pos}）`);
+  ok(lang.op >= 0.5 && lang.op <= 0.75, `⑬ 语言钮应为常显 pill（opacity .5–.75），实测 ${lang.op}`);
+  ok(lang.w > 0 && lang.h > 0, '⑬ 语言钮尺寸为 0');
+  ok(!lang.step, '⑬ 语言钮挂了 data-step —— 本 deck 零分步');
+  ok(!lang.inStage, '⑬ 语言钮跑进舞台里了（它是 chrome，不是页内容）');
+  ok(!lang.overlap, '⑬ 语言钮与主题钮重叠 —— 同角摆位必须互不打架');
+  ok(lang.gap >= 4 && lang.gap <= 24, `⑬ 语言钮与主题钮间距 ${lang.gap}px（应在 4–24 之间）`);
+}
+await pg.emulateMedia({ media: 'print' });
+const printHidden = await pg.evaluate(() => ({
+  lang: getComputedStyle(document.getElementById('deckLang')).display,
+  swap: getComputedStyle(document.getElementById('deckSwap')).display,
+}));
+ok(printHidden.lang === 'none', `⑬ print 下语言钮未隐藏（${printHidden.lang}）`);
+ok(printHidden.swap === 'none', `⑬ print 下主题钮未隐藏（${printHidden.swap}）`);
+await pg.emulateMedia({ media: 'screen' });
+const langJs = await pg.evaluate(() =>
+  [...document.querySelectorAll('script')].map(s => s.textContent).join('\n'));
+ok(/deckLang[\s\S]{0,400}convoai-postloan-en\.html/.test(langJs)
+   && /deckLang[\s\S]{0,400}"\/convoai-postloan-en"/.test(langJs),
+   '⑬ 语言钮的跳转目标不是英文版（应同时覆盖 /decks/*.html 预览与 /convoai-postloan-en 线上两条路径）');
+
 // ⑫ 键盘翻页（共享 deck.js 运行时接上了）
 await pg.evaluate(() => { document.activeElement?.blur(); location.hash = '#1'; });
 await pg.waitForTimeout(500);
@@ -275,6 +325,6 @@ ok(cur === '2', `⑫ 方向键翻页失灵，当前 P${cur}`);
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
   : `✓ PASS ${THEME} · ${N} 页全绿 · 六词红线全清 · 客户名 0 · a[href]=0 · `
-    + `数字白名单闸通过 · SOURCE ledger 5 行四段制 · hot 件每页 ≤1 · deckSwap 常显`);
+    + `数字白名单闸通过 · SOURCE ledger 5 行四段制 · hot 件每页 ≤1 · deckSwap 常显 · 语言钮就位`);
 await b.close();
 process.exit(fails.length ? 1 : 0);
