@@ -1812,8 +1812,12 @@ def build():
     assert "metric dictionary" in _page_txt[14], "P14 caveat 缺口径字典一条"
     # J 美式拼写闸（构建期先拦一道，qa 里还有一道）
     for _bad in ("standardisation", "monetisation", "fulfilment", "judgement",
-                 "personalised", "ageing", "dialling", "organis"):
+                 "personalised", "ageing", "dialling", "organis",
+                 "instalment", "behaviour", "maximise", "standardised"):
         assert _bad not in _plain.lower(), "拼写闸：英式拼写「%s」不许出现（本 deck 全美式）" % _bad
+    # fulfil 裸词干单独查（不能进上表——fulfilment 已改 fulfillment，含 fulfil 前缀会误伤）
+    import re as _re
+    assert not _re.search(r"\bfulfil\b", _plain, _re.I), "拼写闸：英式 fulfil 不许出现（美式 fulfill）"
     # 收尾语（Colin 点名的三分句）
     for _kw in ("scale, standardization and real-time analysis",
                 "complex judgment, empathy and exceptions",

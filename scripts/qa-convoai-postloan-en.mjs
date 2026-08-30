@@ -76,7 +76,7 @@ const STALE = ['80 billion minutes', '200+ countries', 'IDC', 'No.1 in China',
   'THE ONLY PATH', 'No alternative', 'VIETNAM AND THE REGION',
   'No third-party contact', 'global first-batch partner'];
 // ⑰ 美式拼写闸（命中即 fail）。逐词表 —— 不用裸 -ise 正则（enterprise / promise 会误伤）。
-const SPELL = /standardisation|monetisation|fulfilment|judgement|personalised|ageing|dialling|organis/i;
+const SPELL = /standardisation|monetisation|fulfilment|judgement|personalised|ageing|dialling|organis|instalment|behaviour|maximise|standardised|\bfulfil\b/i;
 // 事实在场闸：[页, [必须出现的串…]]
 const FACTS = [
   [3, ['e-Conomy SEA 2025', 'Google, Temasek', 'Digital lending', 'e-wallet']],
