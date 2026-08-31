@@ -1,6 +1,9 @@
 // QA · convoai-lab · LAB 家族旗舰（22 页 · 双主题 · P6/P7/P14/P20 各 1 步 build
-//      + **七枚 WebGL 语义场景**：P1 声场球 / P4 双向声带 / P7 声学地形 /
-//        P9 双层防御壳 / P17 五脑区大脑 / P18 复利螺旋 / P21 SD-RTN 地球）
+//      + **十六枚 WebGL 语义场景**（全量 3D 化 · 第一波七枚 + 第二波九枚）：
+//        P1 声场球 / P2 决策轨道环 / P3 双工三通道 / P4 双向声带 / P6 语音链路 /
+//        P7 声学地形 / P8 打断时序 / P9 双层防御壳 / P10 产品大图分层 / P11 弱网 QoS /
+//        P12 视觉视锥 / P13 编排插槽 / P14 三塔握手 / P17 五脑区大脑 / P18 复利螺旋 /
+//        P21 SD-RTN 地球；P5/P15/P16/P19/P20/P22 逐页语义审查判定保持 2D）
 // 从 qa-convoai-engine.mjs **整体克隆**：22 页断言 / 章序闸 / 口径锁（P21 文案逐字）/
 //   Call Agent 三页闸与反向闸 / 视频页闸 / deckSwap / noindex / a[href]=0 / 红线全套
 //   一条不减 —— 全量 3D 化没有改正文，所以引擎的每一道闸都必须照样绿。
@@ -77,8 +80,14 @@ const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 // ── LAB 场景表（第一波全量 3D 化 · 七枚场景）───────────────────────────────
 //   页码表 = 单渲染器巡游的 registry；qa 与产物两头对表，加错页 / 漏页当场炸。
-const LAB_SCENES = { 1: 'voice', 4: 'duplex', 7: 'terrain', 9: 'shell',
+const LAB_SCENES = { 1: 'voice', 2: 'ring', 3: 'lanes', 4: 'duplex', 6: 'chain',
+                     7: 'terrain', 8: 'cutin', 9: 'shell', 10: 'bigmap', 11: 'qos',
+                     12: 'vision', 13: 'slots', 14: 'towers',
                      17: 'brain', 18: 'spiral', 21: 'globe' };
+// poster 就是页上那张 SVG 的十四页（P1/P21 走构建期离线投影出来的专用 poster）
+const INPAGE = Object.keys(LAB_SCENES).map(Number).filter(p => p !== 1 && p !== 21);
+// 保持 2D 的六页：数字卡 / 成绩单 / 实拍 / 视频 / 末页 —— 故意不在表里，不是漏了
+const FLAT_PAGES = [5, 15, 16, 19, 20, 22];
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // LAB 的 WebGL 页：主跑一律带 ?lab=hold（容器软渲染只有个位数 fps，
 // 不关掉自动降级的话主跑全程都是 poster，⑲b 那条就验不到「起来了」）。
@@ -722,8 +731,8 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(v.ready === '1', `⑲a P${v.p} 场景没建起来（data-lab-ready=${v.ready}）`);
     // poster 组里一个字也不许有：字要压在 canvas 之上，任何降级路径下都在位
     ok(v.posterText === 0, `⑲a P${v.p} poster 层里裹进了 ${v.posterText} 个文字件`);
-    // 五枚新场景的 poster = 页上原来那张 SVG（在 .pp 里）；P1/P21 是专用 poster（在舞台里）
-    if ([4, 7, 9, 17, 18].includes(v.p))
+    // 十四页的 poster = 页上原来那张 SVG（在 .pp 里）；P1/P21 是专用 poster（在舞台里）
+    if (INPAGE.includes(v.p))
       ok(v.posterInPP >= 1, `⑲a P${v.p} 的图形没有原地留作 poster 层`);
   });
 
@@ -748,6 +757,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     // 场景 registry 页码表：本波七页，一页不多一页不少
     ok(one.scenes === LAB_PAGES.join(','),
        `⑲a2 场景 registry 页码表漂移：${one.scenes} != ${LAB_PAGES.join(',')}`);
+    ok(LAB_PAGES.length === 16, `⑲a2 全量 3D 化应为 16 页，实为 ${LAB_PAGES.length}`);
+    FLAT_PAGES.forEach(p => ok(!LAB_PAGES.includes(p),
+      `⑲a2 P${p} 不该有 3D 场景（数字卡 / 成绩单 / 实拍 / 视频 / 末页，逐页语义审查判定保持 2D）`));
     ok(one.ready === LAB_PAGES.length, `⑲a2 建起来的场景数 ${one.ready} != ${LAB_PAGES.length}`);
   }
 
@@ -819,7 +831,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
 
   // ── e 非激活页 ⇒ canvas 回车库、rAF 停 ───────────────────────────────
   //    （22 页里没有任何一页在偷偷空转 —— 也没有第二块画布在别处渲）
-  await pg.evaluate(() => window.deck.go(1));      // P2：没有场景
+  // 第二波之后 P2 也是 3D 页了 —— 离场闸必须站在**真正没有场景**的一页上。
+  // FLAT_PAGES[0] = P5（三件极致 · 三张数字卡），逐页语义审查判定保持 2D。
+  await pg.evaluate(k => window.deck.go(k - 1), FLAT_PAGES[0]);
   await pg.waitForTimeout(700);
   const off = await pg.evaluate(() => {
     const c = document.getElementById('labGl');
@@ -829,8 +843,8 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
              posterBack: [...document.querySelectorAll('.slide[data-p="21"] .lab-poster')]
                .map(e => +getComputedStyle(e).opacity) };
   });
-  ok(off.run === '0', `⑲e 站在 P2 上渲染循环还在跑（run=${off.run}）`);
-  ok(off.mode === 'IDLE', `⑲e 站在 P2 上 mode=${off.mode}（应为 IDLE）`);
+  ok(off.run === '0', `⑲e 站在 P${FLAT_PAGES[0]} 上渲染循环还在跑（run=${off.run}）`);
+  ok(off.mode === 'IDLE', `⑲e 站在 P${FLAT_PAGES[0]} 上 mode=${off.mode}（应为 IDLE）`);
   ok(off.parent === 'lab-garage', `⑲e canvas 没回车库（parent=${off.parent}）`);
   ok(off.page === '0', `⑲e 离场后 data-lab-page 没清（=${off.page}）`);
   ok(off.glup === 0, `⑲e 还有 ${off.glup} 枚舞台挂着 gl-up —— 离场必须把 poster 交还回去`);
@@ -861,14 +875,49 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(!b2.p17glup && b2.p18glup, `⑲k gl-up 没跟着搬家（P17=${b2.p17glup} P18=${b2.p18glup}）`);
     ok(b2.p17poster.every(o => o > 0.98),
        `⑲k 离开 P17 后它的 poster 没回来（opacity=${b2.p17poster}）`);
+    // 第二波两枚相邻新场景也走一遍（P2 决策环 → P3 三通道）：
+    // 十六页共用一枚 canvas，任何一对相邻 3D 页都必须能热切换。
+    await pg.evaluate(() => window.deck.go(1));    // P2
+    await pg.waitForTimeout(1400);
+    const c1 = await pg.evaluate(() => ({ ...window.__labTour, leaves: { ...window.__labTour.leaves } }));
+    await pg.evaluate(() => window.deck.go(2));    // P3
+    await pg.waitForTimeout(1400);
+    const c2 = await pg.evaluate(() => ({ ...window.__labTour, leaves: { ...window.__labTour.leaves },
+      p2glup: document.querySelector('.slide[data-p="2"] .lab-stage').classList.contains('gl-up'),
+      p3glup: document.querySelector('.slide[data-p="3"] .lab-stage').classList.contains('gl-up') }));
+    ok(c1.scene === 'ring' && c2.scene === 'lanes',
+       `⑲k P2→P3 热切换没换人：${c1.scene} → ${c2.scene}`);
+    ok((c2.leaves[2] || 0) === (c1.leaves[2] || 0) + 1,
+       `⑲k P2 没走 leave（${c1.leaves[2] || 0}→${c2.leaves[2] || 0}）`);
+    ok(!c2.p2glup && c2.p3glup, `⑲k gl-up 没跟着搬家（P2=${c2.p2glup} P3=${c2.p3glup}）`);
   }
 
   // ── h 周期 / 相位表静态复算（data-* 暴露的那几张表）──────────────────────
   const dta = await pg.evaluate(() => {
     const D = (p) => document.getElementById('labStage' + p).dataset;
     const v = D(1), g = D(21), b = D(17), r = D(18), t = D(7), sh = D(9), q = D(4);
+    // 第二波九页
+    const o = D(2), l = D(3), c = D(6), u = D(8), m = D(10),
+          qs = D(11), w = D(12), k = D(13), y = D(14);
     const nums = (s) => (s || '').split(',').map(Number);
+    const rows = (s) => (s || '').split(';').filter(Boolean).map(x => nums(x));
     return {
+      o: { nodes: +o.labNodes, boxes: +o.labBoxes, tilt: +o.labTilt,
+           dur: +o.labDur, durBr: +o.labDurBr, hot: +o.labHot },
+      l: { seg: +l.labSeg, modes: +l.labModes, dep: +l.labDep,
+           simplex: rows(l.labSimplex), half: rows(l.labHalf), full: rows(l.labFull) },
+      c: { stations: +c.labStations, steps: +c.labSteps, bands: +c.labBands,
+           znear: +c.labZnear, zdeep: +c.labZdeep },
+      u: { in: +u.labIn, cut: +u.labCut, fall: +u.labFall, ghost: +u.labGhost },
+      m: { layers: +m.labLayers, boxes: +m.labBoxes, zl: nums(m.labZl),
+           lanes: +m.labLanes, beams: +m.labBeams, drift: +m.labDrift },
+      qs: { dark: nums(qs.labDark), loss: nums(qs.labLoss), heap: nums(qs.labHeap),
+            rain: +qs.labRain, rainDark: +qs.labRainDark, out: +qs.labOut },
+      w: { apex: nums(w.labApex), mouth: nums(w.labMouth), weak: +w.labWeak,
+           zweak: +w.labZweak },
+      k: { slots: +k.labSlots, cyc: +k.labCyc, swap: +k.labSwap, cav: +k.labCav },
+      y: { towers: +y.labTowers, arcs: +y.labArcs, steps: +y.labSteps,
+           z: nums(y.labZ), cyc: +y.labCyc },
       v: { spin: +v.labSpin, amp: +v.labAmp, w0: +v.labW0, pts: +v.labPts,
            hot: nums(v.labHot), harm: (v.labHarm || '').split(';').map(x => nums(x)) },
       g: { spin: +g.labSpin, nodes: +g.labNodes, routes: +g.labRoutes, intro: +g.labIntro,
@@ -902,6 +951,87 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   ok(dta.s.streams === 3, `⑲h P9 噪声流 ${dta.s.streams} 路 != 3`);
   ok(dta.s.gap[0] > 0 && dta.s.gap[1] > dta.s.gap[0],
      `⑲h P9 缺口锥角不合法（${dta.s.gap}）—— 内壳的口必须开得比外壳大`);
+  // ══ 第二波九页的静态复算（2026-08-31 终波）════════════════════════════════
+  //   P2 决策轨道环：四站四盒 · hot 站点 = 「判断」那一支箭头的落点 x1200
+  ok(dta.o.nodes === 4 && dta.o.boxes === 4, `⑲h P2 站点/站台数 ${dta.o.nodes}/${dta.o.boxes} != 4/4`);
+  ok(dta.o.tilt > 0 && dta.o.tilt <= 1.6, `⑲h P2 环平面倾角系数 ${dta.o.tilt} 越界（微倾斜，不是竖起来）`);
+  ok(dta.o.dur > dta.o.durBr, `⑲h P2 支轨没有比主环快一档（${dta.o.dur} vs ${dta.o.durBr}）`);
+  ok(dta.o.hot === 1200, `⑲h P2 hot 站点 x 漂移：${dta.o.hot}`);
+  //   P3 三通道 —— **语义闸**：半双工任何时刻只有一个方向在途，全双工两向恒同框，
+  //   单工回向永远无包。三条全部用页上那套占空比算法在 3D 相位表上复算（不靠截帧）。
+  ok(dta.l.modes === 3 && dta.l.seg === 14, `⑲h P3 相位表规格漂移：${dta.l.modes}/${dta.l.seg}`);
+  ok(dta.l.dep > 0, `⑲h P3 两列没有拉开深度（dep=${dta.l.dep}）—— 那就不是「空间通道」`);
+  const duty = (r) => (r[3] + dta.l.seg) / (dta.l.seg + r[2]);   // r = [T, off, ln, L, live]
+  const inFlight = (r, t) => { const d = duty(r); let ph = ((t - r[1]) / r[0]) % 1;
+    if (ph < 0) ph += 1; return d >= 0.999 ? true : (ph / d) <= 1; };
+  {
+    const H = dta.l.half;
+    ok(H.length === 2, `⑲h P3 半双工通道数 ${H.length} != 2`);
+    ok(Math.abs(duty(H[0]) - 1 / 3) < 1e-6 && Math.abs(duty(H[1]) - 1 / 3) < 1e-6,
+       `⑲h P3 半双工占空比不是 1/3（${duty(H[0]).toFixed(4)} / ${duty(H[1]).toFixed(4)}）`);
+    ok(Math.abs(Math.abs(H[0][1] - H[1][1]) - H[0][0] / 2) < 1e-6,
+       `⑲h P3 半双工两向相位差不是半周期（${H[0][1]} / ${H[1][1]} @T=${H[0][0]}）`);
+    let both = 0, none = 0, some = 0;
+    for (let t = 0; t < 66; t += 0.005) {
+      const n = (inFlight(H[0], t) ? 1 : 0) + (inFlight(H[1], t) ? 1 : 0);
+      if (n === 2) both++; else if (n === 0) none++; else some++;
+    }
+    ok(both === 0, `⑲h P3 半双工互斥被破了：${both} 个采样时刻两个方向同时在途`);
+    ok(some > 0 && none > 0, `⑲h P3 半双工不像半双工（在途 ${some} / 静默 ${none}）`);
+    const F = dta.l.full;
+    ok(F.length === 2 && F.every(r => duty(r) >= 0.999),
+       `⑲h P3 全双工不是两向恒在途（${F.map(r => duty(r).toFixed(3))}）`);
+    let fboth = 0;
+    for (let t = 0; t < 20; t += 0.01) if (inFlight(F[0], t) && inFlight(F[1], t)) fboth++;
+    ok(fboth === 2000, `⑲h P3 全双工两向没有永远同框（${fboth}/2000）`);
+    const S = dta.l.simplex;
+    ok(S.length === 2 && S[0][4] === 1 && S[1][4] === 0,
+       `⑲h P3 单工回向不是静默通道（${S.map(r => r[4])}）`);
+    ok(duty(S[0]) >= 0.999, `⑲h P3 单工正向不是恒在途（${duty(S[0]).toFixed(3)}）`);
+  }
+  //   P6 链路：四站 · 一步 build · 四条增量流带 · 两端近中间深
+  ok(dta.c.stations === 4, `⑲h P6 站点 ${dta.c.stations} 枚 != 4`);
+  ok(dta.c.steps === EXP_STEPS[5], `⑲h P6 场景声明的步数 ${dta.c.steps} 与页面分步不符`);
+  ok(dta.c.bands === 4, `⑲h P6 增量流带 ${dta.c.bands} 条 != 4`);
+  ok(dta.c.znear > dta.c.zdeep, `⑲h P6 深度剖面反了（近 ${dta.c.znear} / 深 ${dta.c.zdeep}）`);
+  //   P8 打断：两根事件 x 与页上一致，340px = 340ms；让位段是 ghost 不是消失
+  ok(dta.u.in === 700 && dta.u.cut === 1040, `⑲h P8 事件 x 漂移：${dta.u.in}/${dta.u.cut}`);
+  ok(dta.u.fall === 340, `⑲h P8 快路径跨度不是 340（=${dta.u.fall}）`);
+  ok(dta.u.ghost > 0 && dta.u.ghost < 0.4,
+     `⑲h P8 让位档 ${dta.u.ghost} 越界 —— 让位是「陡降成 ghost」，不是消失也不是照常`);
+  //   P10 大图（谨慎页）：五层 · 十一只盒 · **视差位移必须是 0**（可读性红线）
+  ok(dta.m.layers === 5 && dta.m.zl.length === 5, `⑲h P10 分层数 ${dta.m.layers} != 5`);
+  ok(new Set(dta.m.zl).size === 5, `⑲h P10 五层深度有重复（${dta.m.zl}）—— 那就没分层`);
+  ok(dta.m.boxes >= 10, `⑲h P10 盒表只有 ${dta.m.boxes} 只 —— 大图的盒没进 3D`);
+  ok(dta.m.lanes >= 4 && dta.m.beams >= 5, `⑲h P10 车道/层间束 ${dta.m.lanes}/${dta.m.beams} 太少`);
+  ok(dta.m.drift === 0,
+     `⑲h P10 声明了 ${dta.m.drift} 的视差位移 —— 大图页的红线是「一格不许挪」，必须是 0`);
+  //   P11 QoS：断网段上游**一枚包都不许有**；缓存堆覆盖整条时间轴；下游包流不断
+  ok(String(dta.qs.dark) === '526,164', `⑲h P11 断网域漂移：${dta.qs.dark}`);
+  ok(String(dta.qs.loss) === '250,262', `⑲h P11 丢包域漂移：${dta.qs.loss}`);
+  ok(dta.qs.rainDark === 0,
+     `⑲h P11 断网段还有 ${dta.qs.rainDark} 枚上游包 —— 断网了上游就该停发`);
+  ok(dta.qs.rain > 20, `⑲h P11 上游包只有 ${dta.qs.rain} 枚 —— 「密集下发」不成立`);
+  ok(dta.qs.out > 0, `⑲h P11 下游包流 ${dta.qs.out} 枚 —— 「囤着播」要靠它不断`);
+  ok(dta.qs.heap[0] < dta.qs.dark[0] && dta.qs.heap[1] > dta.qs.dark[0] + dta.qs.dark[1],
+     `⑲h P11 缓存堆没有横跨断网段（堆 ${dta.qs.heap} / 断网 ${dta.qs.dark}）`);
+  //   P12 视觉：视锥锥顶在眼镜 chip 上、锥口就是「看图识景」那只卡；次级带保持最远
+  ok(String(dta.w.apex) === '110,155', `⑲h P12 视锥锥顶漂移：${dta.w.apex}`);
+  ok(String(dta.w.mouth) === '256,70,316,170', `⑲h P12 视锥锥口不是「看图识景」卡：${dta.w.mouth}`);
+  ok(dta.w.weak === 2, `⑲h P12 次级带 ${dta.w.weak} 件 != 2`);
+  ok(dta.w.zweak < -100, `⑲h P12 次级带没被推远（z=${dta.w.zweak}）—— 页上弱化了，3D 不许捡回来`);
+  //   P13 插槽机：六槽 · 一次只换一只 · 换装时长短于一轮
+  ok(dta.k.slots === 6, `⑲h P13 插槽 ${dta.k.slots} 只 != 6`);
+  ok(dta.k.swap > 0 && dta.k.swap < dta.k.cyc,
+     `⑲h P13 热切换 ${dta.k.swap}s 不短于一轮 ${dta.k.cyc}s —— 会变成整排一起换`);
+  ok(dta.k.cav > 0, `⑲h P13 插槽没有腔深（cav=${dta.k.cav}）—— 那就不是插槽`);
+  //   P14 三塔：纵深严格递减（终端近 → 服务器 → 引擎云远）· 三道弧 · 一步 build
+  ok(dta.y.towers === 3 && dta.y.arcs === 3, `⑲h P14 三塔三弧漂移：${dta.y.towers}/${dta.y.arcs}`);
+  ok(dta.y.steps === EXP_STEPS[13], `⑲h P14 场景声明的步数 ${dta.y.steps} 与页面分步不符`);
+  ok(dta.y.z[0] > dta.y.z[1] && dta.y.z[1] > dta.y.z[2],
+     `⑲h P14 三塔没有纵深排布（${dta.y.z}）—— 终端要最近、引擎云要最远`);
+  ok(dta.y.cyc > 0, `⑲h P14 握手没有轮次周期`);
+
   //   P4 截断 x = 页上「用户插话 = TTS 截断 = 快路径」共用的那根垂线
   ok(dta.q.cut === 1080, `⑲h P4 截断 x 漂移：${dta.q.cut}`);
   ok(dta.q.now === 860, `⑲h P4 NOW 播放头 x 漂移：${dta.q.now}`);
@@ -1024,6 +1154,8 @@ mkdirSync(OUT, { recursive: true });
                //   只看长度会把「短而多」的页误判成空。）
                ink: posters.reduce((n, g) =>
                  n + g.querySelectorAll('path,rect,circle,line,polygon,ellipse').length, 0),
+               // 「墨量」而不是单看 path：第二波九页里 P8 的降级层主体是波形 <rect>、
+               // P14 是三只塔与塔内小盒，路径串本来就短 —— 一枚 rect/circle 折算 24 字符。
                dlen: posters.reduce((n, g) => n + [...g.querySelectorAll('path')]
                  .reduce((m, e) => m + (e.getAttribute('d') || '').length, 0), 0) };
     };
@@ -1044,7 +1176,8 @@ mkdirSync(OUT, { recursive: true });
     ok(u.posterOp.length >= 1 && u.posterOp.every(o => o === 1),
        `⑲c 无 WebGL · P${P} poster 没常驻（opacity=${u.posterOp}）`);
     ok(u.ink >= 3, `⑲c 无 WebGL · P${P} 降级层只有 ${u.ink} 个几何件 —— 这一页降不下去`);
-    ok(u.dlen > 150, `⑲c 无 WebGL · P${P} 降级层路径太短（${u.dlen} 字符）`);
+    ok(u.dlen + u.ink * 24 > 260,
+       `⑲c 无 WebGL · P${P} 降级层墨量不足（path ${u.dlen} 字符 + ${u.ink} 件）`);
   });
   ok(fb.txt.length === N, `⑲c 无 WebGL · 页数 ${fb.txt.length} != ${N}`);
   fb.txt.forEach((n, i) => ok(n >= (i + 1 === VIDEO_PAGE ? 8 : 20),
