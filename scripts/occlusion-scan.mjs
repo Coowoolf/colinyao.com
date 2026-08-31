@@ -120,7 +120,11 @@ function scanState({ n, MIN_AREA, MIN_SIDE, INK_K }) {
     r: (r.right - OX) / SC, b: (r.bottom - OY) / SC,
   });
   /* 纯装饰层：整份不参与（遮它 / 被它遮都不算问题）*/
-  const DECOR = '.hero-art,.conf-bg,.deck-flow,.deck-grid,.deck-rail,.conf-aura';
+  // LAB 家族（2026-08-31）：3D 舞台三层一律豁免 —— canvas 的矩形是**整屏**，
+  // poster 是它的降级同构层，辉光是一张径向渐变。三者都不是版面几何，
+  // 照扫的话每一页 WebGL 主视觉页都会稳报一条满屏覆盖块。其余件照扫不放。
+  const DECOR = '.hero-art,.conf-bg,.deck-flow,.deck-grid,.deck-rail,.conf-aura,'
+              + '[data-lab-canvas],.lab-poster,.lab-atmo,.lab-print';
 
   const iw = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l);
   const ih = (a, b) => Math.min(a.b, b.b) - Math.max(a.t, b.t);

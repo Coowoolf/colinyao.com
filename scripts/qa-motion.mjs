@@ -14,7 +14,8 @@
 //      DECK=eli5 node scripts/qa-motion.mjs    （convoai-eli5 讲给五岁的你 · 11 页）
 //      DECK=postloan node scripts/qa-motion.mjs（convoai-postloan 贷后催收方案 · 15 页）
 //      DECK=postloan-en node scripts/qa-motion.mjs（同上的东南亚英文版 · 15 页）
-// 五份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
+//      DECK=lab node scripts/qa-motion.mjs     （convoai-lab · LAB 家族 · 22 页）
+// 六份 deck 共用同一套原语与同一套纪律 —— 这份脚本只换 URL 与名册，闸门代码一字不分叉。
 import { chromium } from 'playwright-core';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const OK_NAMES = new Set(['moFlow', 'moPulse', 'moBreathe', 'moHalo']);
@@ -71,6 +72,14 @@ const POSTLOAN_FLOOR = { 2: 10, 3: 9, 4: 6, 5: 14, 6: 8, 9: 8, 11: 11, 12: 9, 13
 const POSTLOAN_EN_FLOOR = { ...POSTLOAN_FLOOR };
 const DECKS = {
   engine: { url: '/decks/convoai-engine.html',
+            roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
+            floor: { 3: 4, 8: 4, 9: 11, 10: 16, 17: 12 }, pauseProbe: 7 },
+  // lab（22 页 · 2026-08-31 LAB 家族生产首秀）：引擎版的 LAB 演绎，
+  //   2D 运动件**逐条对齐引擎母本**（名册 / 下限一格不放松）——
+  //   P1 与 P21 的升维走的是 WebGL canvas，**不进 DOM 运动件名册**
+  //   （canvas 里没有 mo-* 类，动效纪律那四条管的是 DOM 原语，不是着色器）。
+  //   名册对齐这件事本身就是自证：LAB 演绎没有顺手改瘦任何一页的 2D 编排。
+  lab:    { url: '/decks/convoai-lab.html',
             roster: [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18],
             floor: { 3: 4, 8: 4, 9: 11, 10: 16, 17: 12 }, pauseProbe: 7 },
   info:   { url: '/decks/convoai-info.html', roster: [2, 3, 4, 5, 6, 7, 8],

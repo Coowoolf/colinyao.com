@@ -13,7 +13,19 @@ MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'ima
 #   实现走「先打码、最后还原」而不是直接替换 —— 直接替换的话，
 #   https://colinyao.com/decks/assets/... 的尾巴仍然匹配资产内联的正则，
 #   会被当成本地资产再内联一次，拼出 https://colinyao.com + dataURL 的鬼东西。
-MEDIA_ABS = ['/decks/assets/robot26/demo.mp4']
+#   2026-08-31 LAB 家族：three.js 三件（合计 750KB）同理走这条路 ——
+#   base64 之后 1MB，塞进归档只为了离线转一颗球，不值。归档里改绝对地址：
+#   在线打开照转，离线打开退回**已内联的 poster 静帧**（P1 声场球 / P21 地球各一张，
+#   与运行时逐字同参的相机矩阵离线投影而成），其余 20 页完整无缺。
+#   ⚠ three.core.min.js 不出现在 HTML 里（是 three.module.min.js 自己 import 的），
+#     列在这儿只为备案；masking 找不到就跳过，不影响 miss=[]。
+#   ⚠ importmap 里**不许**出现 `three/addons/` → `/decks/assets/three/` 这种目录映射：
+#     裸目录路径会被资产内联正则当成一枚资产去找，suffix 为空 ⇒ 稳报一条 miss。
+#     OrbitControls 一律写全路径（builder 已经这么写了）。
+MEDIA_ABS = ['/decks/assets/robot26/demo.mp4',
+             '/decks/assets/three/three.module.min.js',
+             '/decks/assets/three/three.core.min.js',
+             '/decks/assets/three/OrbitControls.js']
 SITE = 'https://colinyao.com'
 def mask_media(html):
     for k, ref in enumerate(MEDIA_ABS):
@@ -87,3 +99,12 @@ bake(ROOT/'decks/convoai-postloan.html', '/home/claude/eco-review/convoai-postlo
 #     单文件离线打开时对方 deck 不在身边，跳转必然落空。这是「单文件归档」的固有边界，
 #     不是 bug —— 在线版（colinyao.com/convoai-postloan-en）互跳照常。
 bake(ROOT/'decks/convoai-postloan-en.html', '/home/claude/eco-review/convoai-postloan-EN-SEA-15p.html')
+# 2026-08-31：LAB 家族生产首秀（私享 /convoai-lab）。引擎 22 页的 LAB 演绎 ——
+#   两枚 WebGL 主视觉页（P1 声场球 / P21 SD-RTN 地球）+ 其余 20 页与引擎逐字节同源。
+#   资产口径：四张字体 + 两组背景板 PNG + 跨引用 robot26 的两张 R1 实拍与 OpenAI 双源 logo
+#   （P20 的 demo.mp4 与 three 三件走 MEDIA_ABS）。
+#   验收线：miss=[] / left=0 / media→线上 里同时出现 demo.mp4 与 three 两件。
+#   ⚠ 归档离线打开时 P1/P21 是 **poster 静帧**（three 拉不到 ⇒ 6s 看门狗钉死 poster），
+#     其余 20 页完整。这是「单文件归档 + 750KB 库」的固有边界，不是 bug；
+#     在线打开（colinyao.com/convoai-lab）两颗球照转。
+bake(ROOT/'decks/convoai-lab.html', '/home/claude/eco-review/convoai-lab-引擎深入讲解-LAB-22p.html')

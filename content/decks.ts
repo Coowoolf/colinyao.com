@@ -285,4 +285,43 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 自检：node scripts/shot-lab-globe.mjs（lab 级：双主题静置 + 拖拽 + 禁 WebGL
   //      降级 + reduced-motion + pageerror=0 + 双主题 GIF + FPS 记录）
   { source: "/lab-globe", file: "/decks/lab-globe.html" },
+  // 2026-08-31 Colin：**LAB 家族生产首秀** · 私享路由 · 不进任何索引数组。
+  // /convoai-lab = /convoai 引擎 22 页深入讲解版的 **LAB 演绎**：整份 deck 从
+  // build-convoai-engine.py 整体克隆，**正文一个字节没动**（章序 / 口径 / Call Agent
+  // 三页 / P20 视频页 / P10 大图全部原位），只把两页升维成 WebGL 语义主视觉 ——
+  //   P1 封面「对话即交互。」→ 右侧**声场球**：4200 枚球面点云沿法线呼吸，位移由
+  //     三枚谐波（0.55/0.30/0.15 · 频率两两不整除）叠加的伪音频包络驱动，
+  //     确定性 sin、无真音频；波数 k 让包络沿 y 成行波 ⇒ 看得见的是横跨球面的
+  //     波带，波峰处点色 mix 向 accent 并抬一档 alpha（「声音走到哪里，哪里亮」）。
+  //     自转 96s/圈、振幅 7%、**不给 OrbitControls**（封面是观赏层，一拖就抢主标）。
+  //   P21 Why Agora → 右半舞台挂 **SD-RTN 地球**（/lab-globe 实现整体移植：位掩码
+  //     陆地 14.5k 点 / 228 枚示意节点 / 五槽并发大圆弧 / 双主题材质），球径 414.6 → 250
+  //     按半屏缩配，自转与弧相位一格不动；OrbitControls 可拖、**禁 zoom**、
+  //     触摸留给 deck 翻页。入场是着色器 t 参数（0.9s · --ease-flow），slide 激活触发一次。
+  //     四大数与口径锁文案**逐字保留**，只把 g4 一行四卡换成 g2 两行两列的左列
+  //     （930 宽 · .lab-kpi 只收白边不动字号），腾出右半给球；
+  //     「节点分布示意 · 200+ 全球节点 · SD-RTN」小注移进页脚右角注，与 SOURCE 行共轨。
+  // 降级链六道（缺一不许上生产，builder 文件头有逐条账）：poster 常驻层 →
+  //   reduced-motion 一帧停 → print 藏 canvas 显 poster（beforeprint 先同步渲一帧再
+  //   toDataURL 写进 .lab-print，render-then-read，不开 preserveDrawingBuffer）→
+  //   document.hidden **与非激活 slide** 双双 cancelAnimationFrame（离开即复位入场参数，
+  //   回到该页重放）→ DPR ≤ 2 再乘舞台缩放 → FPS 探针连续 2s < 20 自动退 poster。
+  // 两枚开关：?debug=1 显出 FPS 探针（生产页默认不挂常显探针）；
+  //   ?lab=hold 关掉自动降级（讲者弱机兜底 + 截图录屏管线走它）。
+  // 材质色：three 代码里**零色号**，全部 getComputedStyle 读 --v-* / --g-* CSS 变量，
+  //   MutationObserver 盯 html[data-theme] 并**延一个 rAF** 再 applyTheme；
+  //   builder 有构建期反向闸（运行时里出现 #rgb / rgb() / hsl() 即 fail）。
+  // 数据单一真相：陆地位掩码 / 节点表 / 取道表 / 弧相位表全部从 lab-globe.html 抠出来，
+  //   本 builder 一个坐标都不写死 —— 原型改数据，这里跟着走，两边永远不分叉。
+  // 同源自证（写在 builder 的 build() 末尾）：非 3D 的 20 页与 convoai-engine.html
+  //   **逐字节**相同；P1/P21 逐字比正文（P1 只准 kicker 末段加「· LAB」，
+  //   P21 只准换盒子 + 加角注）。/convoai 与 /convoai-engine 双生一个字节都不碰。
+  // 数字红线：弧线不标任何延迟数值；228 枚节点是示意分布，角注必须在位（构建期断言）。
+  // 重建：python3 scripts/build-convoai-lab.py
+  // 自检：node scripts/qa-convoai-lab.mjs（THEME=dark 二跑，含 WebGL 豁免通道：
+  //      canvas/poster 在位 + 禁用 WebGL 时 22 页照常可读 + reduced-motion 停帧 +
+  //      非激活 slide rAF 停 + DPR cap + print 非空帧 + 相位表静态复算 + 自动降级）
+  //      + DECK=lab node scripts/qa-motion.mjs（2D 运动件名册与引擎逐条对齐）
+  //      + node scripts/shot-convoai-lab.mjs（双主题静帧 / GIF / 降级态终审图）
+  { source: "/convoai-lab", file: "/decks/convoai-lab.html" },
 ];
