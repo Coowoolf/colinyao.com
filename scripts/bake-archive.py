@@ -14,9 +14,14 @@ MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'ima
 #   https://colinyao.com/decks/assets/... 的尾巴仍然匹配资产内联的正则，
 #   会被当成本地资产再内联一次，拼出 https://colinyao.com + dataURL 的鬼东西。
 #   2026-08-31 LAB 家族：three.js 三件（合计 750KB）同理走这条路 ——
-#   base64 之后 1MB，塞进归档只为了离线转一颗球，不值。归档里改绝对地址：
-#   在线打开照转，离线打开退回**已内联的 poster 静帧**（P1 声场球 / P21 地球各一张，
-#   与运行时逐字同参的相机矩阵离线投影而成），其余 20 页完整无缺。
+#   base64 之后 1MB，塞进归档只为了离线转几颗球，不值。归档里改绝对地址。
+#   ── 归档态的准确口径（这一条写进归档头注释，别让人以为「离线 = 残页」）──
+#     在线打开：七枚 WebGL 场景照常起（P1 声场球 / P4 双向声带 / P7 声学地形 /
+#       P9 双层防御壳 / P17 五脑区大脑 / P18 复利螺旋 / P21 SD-RTN 地球）。
+#     离线打开：three 拉不到 ⇒ 前奏里的 6s 看门狗把七页钉死在 poster 上，
+#       而这七页的 poster **就是页上原来那张 SVG**（P1/P21 是构建期离线投影出的
+#       专用静帧，另五页是各页图形原地留用）—— 于是离线归档 = **完整的 2D 版 22 页**，
+#       一个字、一张图都不少。不是「缺了 3D 的残页」，是「这份 deck 的 2D 形态」。
 #   ⚠ three.core.min.js 不出现在 HTML 里（是 three.module.min.js 自己 import 的），
 #     列在这儿只为备案；masking 找不到就跳过，不影响 miss=[]。
 #   ⚠ importmap 里**不许**出现 `three/addons/` → `/decks/assets/three/` 这种目录映射：

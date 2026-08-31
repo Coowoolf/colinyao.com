@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════
 # build-convoai-lab.py ·《声网 · 对话式 AI 引擎 · 深入讲解 · LAB》22 页 · **私享**
-#   = /convoai 引擎版的 **LAB 家族演绎**（LAB 家族 2026-08-31 立族后的**生产首秀**）。
+#   = /convoai 引擎版的 **LAB 家族演绎**（LAB 家族 2026-08-31 立族后的生产首秀 →
+#     同日 Colin 拍板：convoai-lab 是 LAB 家族**旗舰**，全量 3D 演绎）。
 #   从 build-convoai-engine.py **整体克隆**：22 页、章序、口径、Call Agent 三页、
-#   P20 视频页、P10 大图……**正文一个字节没动**（build() 末尾有逐页同源自证，
-#   非 3D 的 20 页与引擎产物逐字节比对，P1/P21 逐字比正文）。
+#   P20 视频页、P10 大图……**正文一个字没动**（build() 末尾有逐页同源自证：
+#   非 3D 的 15 页与引擎产物**逐字节**比对，3D 的七页逐字比正文 + 比 data-step 集合）。
 #
-# ── LAB 升维只有两处（其余 20 页照家族 2D，一格不改）────────────────────────
-#   ① P1 封面「对话即交互。」→ 右侧挂**声场球**：球面点云沿法线呼吸，位移由三枚
-#      谐波叠加的伪音频包络驱动（确定性 sin，无真音频）。kicker 末段加「· LAB」。
-#   ② P21 Why Agora → 右半舞台挂 **SD-RTN 地球**（/lab-globe 实现整体移植 · 半屏缩配）。
-#      四大数与口径锁文案**逐字保留**，只把 g4 一行四卡改成 g2 两行两列的左列，
-#      腾出右半给球；「节点分布示意 · 200+ 全球节点 · SD-RTN」小注移进本页页脚角注。
+# ── 全量 3D 化 · 第一波（2026-08-31）：单渲染器巡游 + 王牌五页 ───────────────
+#   七枚 WebGL 语义场景（其余 15 页照家族 2D，一格不改）：
+#     P1  封面「对话即交互。」 → 声场球（球面点云沿法线呼吸 · kicker 末段加「· LAB」）
+#     P4  全双工工作原理       → 双向声带（两条对向 ribbon 交错穿行不相撞 · 重叠区高亮）★
+#     P7  VAD                  → 声学地形（概率曲线挤出成山脊 + 悬浮判定带 + 事件立柱）★
+#     P9  SAL                  → 双层防御壳（三类噪声撞壳弹开 · 目标人声从缺口入核）★
+#     P17 五个大脑             → 体积点云大脑（母形 = 页上那条 13 段贝塞尔侧视轮廓）★
+#     P18 Loop Engineering     → 复利螺旋（脊线 = 页上那条成长曲线本人）★
+#     P21 Why Agora            → SD-RTN 地球（/lab-globe 实现整体移植 · 半屏缩配）
+#   逐页语义审查照旧：P5/P15/P16/P19/P20/P22 是数字卡 / 成绩单 / 实拍 / 视频 / 末页，
+#   没有 3D 语义 ⇒ 保持 2D。「每 deck 1–3 个 WebGL 页」那条家族铁律对纯 LAB 旗舰不适用。
+#   第二波（另九页）直接踩在这套地基上：写一个场景工厂 + 在 LAB_RECTS 里加一行。
+#   架构与降级链的完整说明见下面的「LAB 层」大注释块。
 #
 # 重建：python3 scripts/build-convoai-lab.py
 # 自检：node scripts/qa-convoai-lab.mjs（THEME=dark 二跑）
-#      + DECK=lab node scripts/qa-motion.mjs + node scripts/shot-convoai-lab.mjs
+#      + DECK=lab node scripts/qa-motion.mjs
+#      + DECK_URL=…/convoai-lab.html node scripts/occlusion-scan.mjs
+#      + SELFPIN=1 A=…/convoai-lab.html PAGES=17 node scripts/pinned-diff.mjs
+#        然后 MASK="<该页 data-lab-rect>" python3 scripts/compare-frames.py a b（canvas 区逐页豁免）
+#      + node scripts/shot-convoai-lab.mjs
 #
 # ── 下面是从引擎母本原样继承的沿革（改正文之前先读，它记着每一条口径的来历）──
 # build-convoai-engine.py ·《声网 · 对话式 AI 引擎 · 深入讲解》22 页
@@ -640,36 +652,90 @@ def swap_mark(x, y, col="var(--ink-3)", i=2, w=34, sty=None):
     return ('<g class="mo-pulse" style="%s">%s</g>' % (sty, g)) if sty else g
 
 # ═══════════════════════════════════════════════════════════════════════════
-# LAB 层 · three.js 语义 3D 升维（2026-08-31 · LAB 家族生产首秀）
+# LAB 层 · three.js 语义 3D 升维（2026-08-31 · LAB 家族生产首秀 → 第一波全量 3D 化）
 # ───────────────────────────────────────────────────────────────────────────
-#   两枚 WebGL 主视觉页，其余 20 页照家族 2D 一格不动：
-#     P1  封面「对话即交互。」 → **声场球**（对话的声波：球面点云沿法线呼吸）
-#     P21 Why Agora           → **SD-RTN 地球**（lab-globe 实现移植 · 半屏缩配）
+#   convoai-lab 是 LAB 家族的**旗舰**：Colin 2026-08-31 拍板全量 3D 演绎。
+#   「每 deck 1–3 个 WebGL 页」那条家族铁律对纯 LAB 旗舰不适用（逐页语义审查照旧：
+#   P5/P15/P16/P19/P20/P22 是数字卡 / 成绩单 / 实拍 / 视频 / 末页，没有 3D 语义，保持 2D）。
+#
+#   本波（第一波）七枚场景 —— 单渲染器巡游 + 王牌五页：
+#     P1  封面「对话即交互。」   → 声场球（球面点云沿法线呼吸）
+#     P4  全双工工作原理         → 双向声带（两条对向 ribbon 交错穿行不相撞）★
+#     P7  VAD                    → 声学地形（概率曲线挤出成山脊 + 悬浮判定带 + 事件立柱）★
+#     P9  SAL                    → 双层防御壳（三类噪声撞壳 · 目标人声从缺口穿两壳入核）★
+#     P17 五个大脑               → 体积点云大脑（母形 = 页上那条 13 段贝塞尔侧视轮廓）★
+#     P18 Loop Engineering       → 复利螺旋（脊线 = 页上那条成长曲线本人）★
+#     P21 Why Agora              → SD-RTN 地球（lab-globe 实现移植 · 半屏缩配）
+#   第二波另九页直接踩在同一套地基上：写一个场景工厂 + 在 LAB_RECTS 里加一行。
+#
+# ── ① 单渲染器巡游（本轮最重要的工程）────────────────────────────────────
+#   全 deck **只有一个 WebGLRenderer + 一块 canvas**。canvas 常驻车库 .lab-garage
+#   （屏外），翻页时被 appendChild 进目标页的 .lab-stage、按该页声明的 data-lab-rect
+#   对位，并热切换到该页的场景；目标页没有场景就回车库、canvas 隐身。
+#   canvas 在 DOM 里搬家不丢 WebGL 上下文 ⇒ 「同页面 WebGL 上下文上限」这条限制
+#   从根上消失（16 个 3D 页也只吃一枚上下文），任一时刻只有一个场景在渲染。
+#
+# ── ② SVG = poster 层（降级层就是页上原来那张图）────────────────────────
+#   每个 3D 页的现有 SVG **原地保留**：页内那一段几何被 <g class="lab-poster"> 裹住，
+#   3D 起来（gl-up 且该页场景已渲出第一帧）就淡出、canvas 接管；WebGL 不可用 /
+#   自动降级 / print / reduced-motion / 离线归档 ⇒ 它原样呈现，那一页仍是完整的 2D 版。
+#   **DOM 文案、kicker、SOURCE、data-step 步进语义零改动** —— 淡出的只有「形」，
+#   标签 / 引线 / 图例 / 卡片全部留在 .pp 里压在 canvas 之上（canvas 在 .pp 之下）。
+#   build() 末尾有逐页逐字自证：22 页 DOM 文本与引擎母本逐字相同（唯一例外是
+#   P1 kicker 末段的「· LAB」），非 3D 的 15 页仍是**逐字节**同源。
+#
+# ── ③ 共享场景套件 lab-kit（第二波直接复用）──────────────────────────────
+#   主题色桥（CSS 变量 → uniform，MutationObserver 延一 rAF）／确定性随机／
+#   折线工具（构建期展平 SVG 贝塞尔 → 运行时复活：unpackPoly / polyAt / insideMulti /
+#   distToPoly）／px 场景相机（z=0 平面上 1 世界单位 = 1 屏幕像素 ⇒ 页上 SVG 坐标
+#   直接搬进 3D，3D 形与它替换掉的 2D 形逐像素同位）／点云 · 线 · 流带三套材质工厂／
+#   入场 t 参数／data-step→uniform 桥。每景只写语义几何，不重写基建。
 #
 #   数据单一真相：陆地位掩码 / 节点表 / 取道表 / 弧相位表**全部从 lab-globe.html 抠**
-#   （见 _labg()）。这份 builder 里一个坐标都不写死 —— 原型改了数据，这里跟着走，
-#   两边永远不会分叉。位掩码 8.5KB 也因此不在本文件里重复一遍。
+#   （见 _labg()）；五枚新场景的几何**全部从各页的 SVG 路径字符串展平**（见 lab-kit
+#   的几何预处理）。这份 builder 里一个 3D 坐标都不写死 —— 页上的图改了，3D 跟着走。
 #
 #   降级链（六道，缺一不许上生产）：
-#     ① poster 常驻层：构建期用**与运行时逐字同参的相机矩阵**离线投影出的静态 SVG，
-#        WebGL 起来之前 / 起不来时它就是这两页的画面（.lab-stage 不挂 .gl-up 即 poster）
-#     ② prefers-reduced-motion ⇒ 渲一帧（入场落位 · t=0）就停帧
+#     ① poster 常驻层：P1/P21 是构建期用**与运行时逐字同参的相机矩阵**离线投影出的
+#        静态 SVG；另五页是页上原来那张图。不挂 .gl-up 即 poster。
+#     ② prefers-reduced-motion ⇒ 渲一帧（入场落位）就停帧
 #     ③ @media print ⇒ 藏 canvas、显 poster；beforeprint 先同步渲一帧再 toDataURL
-#        写进 poster 位上方的 .lab-print（render-then-read：不开 preserveDrawingBuffer，
-#        靠「同一 tick 内渲染完立刻读」拿到非空帧，读完即弃 ⇒ 常态零显存代价）
+#        写进当前页的 .lab-print（render-then-read：不开 preserveDrawingBuffer，
+#        靠「同一 tick 内渲染完立刻读」拿到非空帧，读完即弃 ⇒ 常态零显存代价）。
+#        纸上 22 页一起铺开而 canvas 只在其中一页里 ⇒ 其余 3D 页在纸上一律以 poster 为准。
 #     ④ document.hidden **与非激活 slide** 双双 cancelAnimationFrame（离开即复位入场参数）
 #     ⑤ DPR ≤ 2，再乘舞台缩放
 #     ⑥ FPS 探针：连续 2s 平均 < 20 自动退 poster（`?lab=hold` 可关，见下）
 #
 #   两枚开关（生产特性，不是 QA 后门）：
 #     ?debug=1   显出 FPS 探针（生产页默认不挂常显探针，自动降级逻辑照跑）
-#     ?lab=hold  关掉自动降级 —— 讲者在弱机 / 软渲染环境下宁可要「慢但活的球」也不要
-#                静帧时按这个；截图与录屏管线也走它（容器里 SwiftShader 只有 8fps，
+#     ?lab=hold  关掉自动降级 —— 讲者在弱机 / 软渲染环境下宁可要「慢但活的形」也不要
+#                静帧时按这个；截图与录屏管线也走它（容器里 SwiftShader 只有个位数 fps，
 #                不给这条路，终审静帧拍到的永远是 poster）。
 #
-#   材质色：three 代码里**一个色号都没有**，全部 getComputedStyle 读下面的 --v-* / --g-*；
-#   MutationObserver 盯 html[data-theme]，**延一个 rAF** 再 applyTheme（换页交叠时
-#   CSS 变量还没落到新值上，同帧读会读到上一主题的色）。
+#   材质色：three 代码里**一个色号都没有**，全部 getComputedStyle 读 LAB_CSS 里的
+#   --v-* / --g-* / --b-* / --s-* / --r-* / --t-* / --d-*；MutationObserver 盯
+#   html[data-theme]，**延一个 rAF** 再 applyTheme（换页交叠时 CSS 变量还没落到新值上，
+#   同帧读会读到上一主题的色）。七个场景一起热更新，不只当前那个。
+#
+# ── 第二波接入指南：加一枚场景要写的六件事（照做即可，基建一行都别重写）──────
+#   ① LAB_RECTS 加一行：`P: ("名字", x, y, w, h)` —— 矩形取该页 figbox 的位与尺寸
+#      （本 deck 所有 figbox 的 vbw == 盒宽 ⇒ 缩放恒为 1，figure 坐标就是舞台像素）。
+#   ② 那一页的 page(...) 末尾加 `lab="名字"`（build() 会与 LAB_RECTS 对表，写错当场炸）。
+#   ③ 把该页 SVG 里**属于「形」的那几段**用 lp(...) 裹起来（字一个都别裹）。
+#      判据：3D 会替换掉的就是形；标签 / 引线 / 图例 / 数字 / 卡片一律留在外面。
+#   ④ 在 lab_k() 里加一段该场景的常量：几何一律用 _poly()/_polym() 从页上的 `d=`
+#      展平，周期 / 相位一律用 _sec() 从页上的 --mo-dur/--mo-del 抄 —— 不新造坐标。
+#   ⑤ 写 make<名字>(ctx)：只写语义几何。相机用 camPx(w,h,D)（z=0 平面上 1 单位 = 1 像素）、
+#      材质用 mkMat(pxShared(D, 深度半程), PX_*_VS, PX_*_FS)、流带用 ribbonGeo、
+#      逐点属性用 attrAH。返回 {scene,camera,intro,grab,onDPR,setIntro,draw,applyTheme
+#      [,setStep][,onEnter][,onLeave]}，然后挂进 FACTORY 表。
+#      ⚠ 深度半程一定要贴着该场景的真实 z 范围收紧 —— 松了就等于没有体积。
+#      ⚠ 着色器里用到的每一个 uniform 都要在 VS/FS 里**声明**：漏一个不会报页错，
+#        只会整层静默不画（本轮踩过一次：uTime/uCap 没声明，整颗脑云凭空消失）。
+#   ⑥ 材质色进 LAB_CSS 的 :root + html[data-theme="dark"] 两处（新起一个 --x-* 前缀），
+#      并在 lab_data() 里把该场景的周期 / 相位 / 关键几何摊到 data-* 上供闸门静态复算。
+#      qa 的 LAB_SCENES 表跟着加一行 —— 三处对表，加错页 / 漏页当场炸。
 # ═══════════════════════════════════════════════════════════════════════════
 import math
 import re as _re2
@@ -1016,9 +1082,118 @@ def _globe_poster():
 VPOSTER = _voice_poster()
 GPOSTER = _globe_poster()
 
+# ═══════════════════════════════════════════════════════════════════════════
+# lab-kit · 构建期几何预处理（2026-08-31 第一波「全量 3D 化」新增）
+# ───────────────────────────────────────────────────────────────────────────
+#   本轮的五枚新场景（P4 / P7 / P9 / P17 / P18）全部**踩在各页现有 SVG 的几何上**：
+#   3D 不是另画一张图，而是把这张图**升到三维**。所以坐标真相只有一份 ——
+#   页上的那些 `d=` 路径字符串。这里把它们在构建期展平成折线，随 lab_k() 一起
+#   发给运行时；运行时一个坐标都不新造。
+#
+#   为什么在构建期展平：① 运行时不必带一个贝塞尔解析器；② 展平结果与 poster 用的是
+#   同一批控制点 ⇒ 「3D 形」与「SVG 降级形」天然同源（P17 的点云限界就是 SVG 那条
+#   13 段贝塞尔本人）；③ 无随机源、两次构建逐字节一致。
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def _pathpts(d, per=14):
+    """极简 SVG path 展平器：吃 M / L / H / V / C / Z（本 deck 的图形件只用这几个）。
+       per = 每段三次贝塞尔的采样段数。返回**子路径列表** [[(x,y),...], ...] ——
+       04 深部区是一枚环（外圈 + 内圈两条子路径），并成一条会把洞填掉。
+       ⚠ 不支持 A / S / Q / 相对指令 —— 页上真出现了会当场抛，不会静默画错。"""
+    toks = _re2.findall(r"[MLHVCZmlhvcz]|-?\d*\.?\d+(?:e-?\d+)?", d)
+    subs, cur, i, cx, cy, sx, sy, cmd = [], [], 0, 0.0, 0.0, 0.0, 0.0, None
+
+    def num():
+        nonlocal i
+        v = float(toks[i]); i += 1
+        return v
+
+    while i < len(toks):
+        t = toks[i]
+        if t.isalpha():
+            cmd = t; i += 1
+            if cmd in "Zz":
+                cx, cy = sx, sy
+                if cur:
+                    cur.append((sx, sy))
+                continue
+        if cmd is None:
+            raise SystemExit("path 展平：缺起手指令 %r" % d[:40])
+        if cmd == "M":
+            if cur:
+                subs.append(cur)
+            cx, cy = num(), num(); sx, sy = cx, cy
+            cur = [(cx, cy)]; cmd = "L"
+        elif cmd == "L":
+            cx, cy = num(), num(); cur.append((cx, cy))
+        elif cmd == "H":
+            cx = num(); cur.append((cx, cy))
+        elif cmd == "V":
+            cy = num(); cur.append((cx, cy))
+        elif cmd == "C":
+            x1, y1, x2, y2, x3, y3 = num(), num(), num(), num(), num(), num()
+            for k in range(1, per + 1):
+                u = k / per
+                v = 1.0 - u
+                cur.append((v*v*v*cx + 3*v*v*u*x1 + 3*v*u*u*x2 + u*u*u*x3,
+                            v*v*v*cy + 3*v*v*u*y1 + 3*v*u*u*y2 + u*u*u*y3))
+            cx, cy = x3, y3
+        else:
+            raise SystemExit("path 展平：不支持的指令 %r（%r）" % (cmd, d[:40]))
+    if cur:
+        subs.append(cur)
+    return subs
+
+
+def _decim(pts, tol=1.4):
+    """等距抽稀：相邻点距离小于 tol 的丢掉（贝塞尔均匀采样在直段上会挤成一堆）。
+       只是压体积，形不变 —— 抽完的折线仍逐点落在原曲线上。"""
+    out = [pts[0]]
+    for p in pts[1:]:
+        if (p[0] - out[-1][0]) ** 2 + (p[1] - out[-1][1]) ** 2 >= tol * tol:
+            out.append(p)
+    if out[-1] != pts[-1]:
+        out.append(pts[-1])
+    return out
+
+
+def _pk1(pts, k=1, dx=0.0, dy=0.0):
+    """折线 → 紧凑串「x,y;x,y;…」（k = 小数位，dx/dy = 局部坐标平移）"""
+    f = "%%.%df" % k
+    def g(v):
+        s = (f % v)
+        return (s.rstrip("0").rstrip(".") or "0")
+    return ";".join(g(p[0] - dx) + "," + g(p[1] - dy) for p in pts)
+
+
+def _poly(d, per=14, tol=1.4, dx=0.0, dy=0.0):
+    """单子路径的展平串（页上绝大多数图形件都是这一类）"""
+    return _pk1(_decim(_pathpts(d, per)[0], tol), 1, dx, dy)
+
+
+def _polym(d, per=14, tol=1.4):
+    """多子路径的展平串（子路径之间用 | 隔开；运行时按 even-odd 判内外）"""
+    return "|".join(_pk1(_decim(s, tol)) for s in _pathpts(d, per))
+
+
+def _bbox(d, per=14):
+    xs, ys = [], []
+    for s in _pathpts(d, per):
+        for p in s:
+            xs.append(p[0]); ys.append(p[1])
+    return [min(xs), min(ys), max(xs), max(ys)]
+
+
+def _sec(s):
+    """「2.4s」/「-1.1s」→ 浮点秒（页上的周期与负起相位逐字搬过来）"""
+    return float(str(s).strip().rstrip("s"))
+
+
 # ── LAB 材质 token + 舞台层 CSS ────────────────────────────────────────────
-#   --v-* 声场球 / --g-* 地球：**three.js 里一个色号都不写**，全部 getComputedStyle
-#   读这里；换主题时 MutationObserver 重读并热更新 uniform。
+#   --v-* 声场球 / --g-* 地球 / --b-* 大脑 / --s-* 防御壳 / --r-* 复利螺旋 /
+#   --t-* 声学地形 / --d-* 双向声带：**three.js 里一个色号都不写**，全部
+#   getComputedStyle 读这里；换主题时 MutationObserver 重读并热更新 uniform。
 #   浅底 = 近黑线稿（纸面），暗底 = accent 霓虹（深空）—— 与 lab-globe 同一套语汇，
 #   只是 conf 家族的 accent 是玫红 / 淡紫，不是 base 的暖橙（token 名一致，取值跟家族）。
 LAB_CSS = """<style id="convoai-lab-3d">
@@ -1041,6 +1216,44 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --g-head:var(--accent-deep); --g-head-op:.95; --g-head-size:.0128; --g-head-add:0;
   --g-atmo:var(--accent);      --g-atmo-int:.075;
   --g-poster-dot:2.2;  --g-poster-node:4.4;
+  /* ── ③ 大脑点云（P17）· 浅底 = 纸面上的体积线稿，放电区走 accent ── */
+  --b-ink:var(--ink);          --b-op:.74;  --b-size:1.95; --b-back:.16;
+  --b-hot:var(--accent);       --b-gain:.85;   --b-cap:.62; --b-add:0;
+  --b-arc:var(--accent-deep);  --b-arc-op:.30;
+  --b-spark:var(--accent);     --b-spark-op:.92; --b-spark-size:5.2; --b-spark-add:0;
+  --b-flow:var(--accent-deep); --b-flow-op:.80;  --b-flow-size:4.6;
+  --b-atmo:var(--accent);      --b-atmo-int:.045;
+  /* ── ④ 双层防御壳（P9）· 浅底 ── */
+  --s-shell:var(--ink);        --s-shell-op:.10; --s-shell-pow:3.6;
+  --s-inner:var(--accent);     --s-inner-op:.11;
+  --s-grid:var(--ink);         --s-grid-op:.20;
+  --s-n1:var(--ink-3);         --s-n1-op:.52;
+  --s-n2:var(--ink-2);         --s-n2-op:.44;
+  --s-n3:var(--accent-deep);   --s-n3-op:.72;   --s-noise-size:3.6;
+  --s-target:var(--accent);    --s-target-op:.95; --s-target-size:5;
+  --s-core:var(--accent);      --s-core-op:.95;  --s-core-size:4.2;
+  --s-add:0;
+  /* ── ⑤ 复利螺旋（P18）· 浅底 ── */
+  --r-band:var(--accent);      --r-band-op:.40;
+  --r-rail:var(--accent);      --r-rail-op:.88;
+  --r-node:var(--accent);      --r-node-op:1;    --r-node-size:12;
+  --r-spark:var(--accent-deep);--r-spark-op:.92; --r-spark-size:4.6;
+  --r-add:0;
+  /* ── ⑥ 声学地形（P7）· 浅底 ── */
+  --t-ridge:var(--ink);        --t-ridge-op:.62;
+  --t-crest:var(--accent);     --t-crest-op:.85;
+  --t-band:var(--accent-deep); --t-band-op:.13;
+  --t-prob:var(--accent);      --t-prob-op:.90;
+  --t-pillar:var(--accent-deep);--t-pillar-op:.72;
+  --t-sem:var(--accent-deep);  --t-sem-op:.85;
+  --t-add:0;
+  /* ── ⑦ 全双工双向声带（P4）· 浅底 ── */
+  --d-up:var(--accent);        --d-up-op:.70;
+  --d-dn:var(--ink-2);         --d-dn-op:.44;
+  --d-lap:var(--accent);       --d-lap-op:.95;
+  --d-pkt:var(--accent);       --d-pkt-op:.92; --d-pkt-size:4.4;
+  --d-cut:var(--accent-deep);  --d-cut-op:.75;
+  --d-add:0;
 }
 html[data-theme="dark"]{
   --v-ink:var(--ink-2);    --v-dot-op:.84;  --v-dot-size:.0120; --v-dot-min:1.1;
@@ -1060,24 +1273,81 @@ html[data-theme="dark"]{
   --g-head:var(--ink);         --g-head-op:1;   --g-head-size:.0130; --g-head-add:1;
   --g-atmo:var(--accent);      --g-atmo-int:.30;
   --g-poster-dot:2.2;  --g-poster-node:4.4;
+  /* ── 大脑 · 暗底 = 深空里的一颗发光脑（加色混合，rim 收在 accent 上）── */
+  --b-ink:var(--ink-3);        --b-op:.72;  --b-size:1.95; --b-back:.16;
+  --b-hot:var(--accent);       --b-gain:1.55;  --b-cap:.96; --b-add:1;
+  --b-arc:var(--accent-deep);  --b-arc-op:.38;
+  --b-spark:var(--ink);        --b-spark-op:1;   --b-spark-size:5.0; --b-spark-add:1;
+  --b-flow:var(--accent);      --b-flow-op:.95;  --b-flow-size:4.6;
+  --b-atmo:var(--accent);      --b-atmo-int:.15;
+  /* ── 防御壳 · 暗底 ── */
+  --s-shell:var(--ink-2);      --s-shell-op:.10; --s-shell-pow:4.2;
+  --s-inner:var(--accent);     --s-inner-op:.15;
+  --s-grid:var(--ink);         --s-grid-op:.13;
+  --s-n1:var(--ink-3);         --s-n1-op:.46;
+  --s-n2:var(--ink-2);         --s-n2-op:.40;
+  --s-n3:var(--accent-deep);   --s-n3-op:.80;   --s-noise-size:3.4;
+  --s-target:var(--accent);    --s-target-op:1;  --s-target-size:5.2;
+  --s-core:var(--accent);      --s-core-op:1;    --s-core-size:4.4;
+  --s-add:1;
+  /* ── 复利螺旋 · 暗底 ── */
+  --r-band:var(--accent);      --r-band-op:.34;
+  --r-rail:var(--accent);      --r-rail-op:.92;
+  --r-node:var(--accent);      --r-node-op:1;    --r-node-size:12.4;
+  --r-spark:var(--ink);        --r-spark-op:1;   --r-spark-size:4.8;
+  --r-add:1;
+  /* ── 声学地形 · 暗底 ── */
+  --t-ridge:var(--ink-2);      --t-ridge-op:.48;
+  --t-crest:var(--accent);     --t-crest-op:.95;
+  --t-band:var(--accent-deep); --t-band-op:.16;
+  --t-prob:var(--accent);      --t-prob-op:1;
+  --t-pillar:var(--accent-deep);--t-pillar-op:.85;
+  --t-sem:var(--accent);       --t-sem-op:.95;
+  --t-add:1;
+  /* ── 双向声带 · 暗底 ── */
+  --d-up:var(--accent);        --d-up-op:.72;
+  --d-dn:var(--ink-3);         --d-dn-op:.40;
+  --d-lap:var(--ink);          --d-lap-op:1;
+  --d-pkt:var(--ink);          --d-pkt-op:1;   --d-pkt-size:4.6;
+  --d-cut:var(--accent-deep);  --d-cut-op:.85;
+  --d-add:1;
 }
 /* ── 舞台层：压在 .conf-bg 之上、.pp 正文之下 ─────────────────────────────
    两者都是 z-index:0，靠**文档序**分先后（背景板在前、3D 层在后）——
    不去动 `.slide.conf-boarded>.pp{z-index:1}` 那条家族规则，
-   动它会连另外 20 页的层叠上下文一起改，pinned 同源自证就没得跑了。 */
+   动它会连另外那些页的层叠上下文一起改，pinned 同源自证就没得跑了。
+
+   ⚠ 2026-08-31 第一波重构：全 deck **只有一枚** WebGLRenderer + 一块 canvas。
+   canvas 常驻页面（车库 .lab-garage），翻页时被 appendChild 进目标页的
+   .lab-stage 并按 data-lab-rect 对位；目标页无场景则回车库。
+   canvas 元素在 DOM 里搬家**不会丢 WebGL 上下文**，所以浏览器的
+   「同页面 WebGL 上下文上限（多数是 16）」这条限制从根上不存在了 ——
+   16 个 3D 页也只吃一枚上下文。 */
 .lab-stage{position:absolute;inset:0;z-index:0;pointer-events:none;}
+.lab-garage{position:fixed;left:-99999px;top:0;width:0;height:0;overflow:hidden;
+  pointer-events:none;opacity:0;}
 /* 外辉光：垫在 poster / canvas 之下 —— 球体不透明的部分自己挡掉内圈，只露出限界外
    那一圈。WebGL 路与 poster 路共用这一层，两条路的辉光因此逐像素一致，
    软渲染也省了一整屏片元（lab-globe 的账，原样搬）。 */
 .lab-atmo{position:absolute;border-radius:50%;pointer-events:none;}
-.lab-poster,.lab-canvas,.lab-print{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block;}
-.lab-poster{opacity:1;transition:opacity 1.1s var(--ease-flow,cubic-bezier(.22,.9,.24,1));}
+svg.lab-poster{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block;}
+.lab-print{position:absolute;display:block;}
+.lab-canvas{position:absolute;display:block;}
+/* ── poster 层 = 降级层 ────────────────────────────────────────────────────
+   P1/P21：构建期离线投影出来的专用 <svg class="lab-poster">（全屏画布）。
+   P4/P7/P9/P17/P18：**该页现有的图形 SVG 原地留用** —— 页内那一段几何被
+   <g class="lab-poster"> 裹起来，3D 起来就淡出、canvas 接管；起不来 / print /
+   reduced-motion 硬降级 / 离线归档 ⇒ 它原样呈现，那一页仍是完整的 2D 版。
+   两种形态共用同一条淡出规则：舞台挂 gl-up ⇒ 舞台内的 poster 与其后 .pp 里的
+   poster 一起让位（.lab-stage 是 .pp 的**前置兄弟**，所以 `~` 选得到）。 */
+svg .lab-poster,.lab-poster{transition:opacity 1.1s var(--ease-flow,cubic-bezier(.22,.9,.24,1));}
 .lab-canvas{opacity:0;transition:opacity .9s var(--ease-flow,cubic-bezier(.22,.9,.24,1));}
-.lab-stage.gl-up .lab-poster{opacity:0;}
+.lab-stage.gl-up .lab-poster,
+.lab-stage.gl-up ~ .pp .lab-poster{opacity:0;}
 .lab-stage.gl-up .lab-canvas{opacity:1;}
 .lab-canvas.lab-grab{pointer-events:auto;cursor:grab;}
 .lab-canvas.lab-grab:active{cursor:grabbing;}
-/* 打印帧：常态不存在，beforeprint 时才写 src（见 build() 里的 LAB 运行时） */
+/* 打印帧：常态不存在，beforeprint 时才写 src（见 LAB 运行时的 beforeprint 钩子） */
 .lab-print{display:none;}
 /* ── poster 画法（与运行时着色器同一套 --v-* / --g-* 取值）────────────────── */
 .v-dot{fill:none;stroke:var(--v-ink);stroke-width:var(--v-poster-dot);stroke-linecap:round;
@@ -1106,9 +1376,12 @@ html[data-lab-debug] .lab-probe{display:flex;}
 .lab-probe .sep{opacity:.4;}
 /* ── 降级语域：纸 / reduced-motion ───────────────────────────────────────
    canvas 藏、poster 显、打印帧（若已抓到）盖在 poster 之上。
-   transition 一并掐掉：切到 print 时那 1.1s 淡入还在飞，纸上就印了一张半透明的球。 */
+   transition 一并掐掉：切到 print 时那 1.1s 淡入还在飞，纸上就印了一张半透明的球。
+   ⚠ 纸上 22 页一起铺开，而 canvas 只在其中一页里 —— 所以纸上一律以 poster 为准，
+     打印帧只是当前页的一层锦上添花。 */
 @media print{
   .lab-canvas{display:none!important;}
+  .lab-garage{display:none!important;}
   .lab-poster{opacity:1!important;transition:none!important;}
   .lab-print[src]{display:block!important;}
   .lab-probe{display:none!important;}
@@ -1119,9 +1392,66 @@ html[data-lab-debug] .lab-probe{display:flex;}
 </style>"""
 
 
-def lab_stage(kind):
-    """一页的 3D 舞台层（辉光 + poster + canvas + 打印帧位）。
-       **每页至多一枚 canvas**（LAB 铁律）；其余 20 页这个函数根本不参与拼装。"""
+# ═══════════════════════════════════════════════════════════════════════════
+# 舞台位表：每个 3D 页的**图形区矩形**（舞台坐标 1920×1080）
+# ───────────────────────────────────────────────────────────────────────────
+#   这张表是「canvas 巡游」的对位真相：翻到某页 ⇒ 单枚 canvas 被 appendChild
+#   进该页的 .lab-stage，并按这里的 (x,y,w,h) 摆好。矩形 = 该页 2D 图形所占的
+#   那块地，**不是整屏** —— 于是 3D 形与它替换掉的 SVG 形逐像素同位，
+#   页上其余的字（标签 / 引线 / 图例 / 卡片）全部照常压在 canvas 之上。
+#
+#   五枚新场景的局部坐标系 = 该页 figbox 的 viewBox 坐标（本 deck 所有 figbox
+#   的 vbw 都等于盒宽 ⇒ 缩放恒为 1，figure 坐标就是舞台像素）。所以场景里
+#   一个坐标都不新造：贝塞尔控制点、节点位置、事件 x 全部照抄页上的 SVG。
+LAB_RECTS = {
+    # 页  场景名      x     y     w     h      局部坐标原点说明
+    1:  ("voice",  1305,  328,  500,  500),   # 球心 (1555,578) 居中 · 呼吸极值 466px 内
+    4:  ("duplex",  120,  268, 1680,  352),   # = figbox(120,268,1680, vb1680×352)
+    7:  ("terrain", 780,  414, 1010,  146),   # = figbox 右段（figure x 660→1670）
+    9:  ("shell",  1080,  296,  720,  470),   # = figbox(1080,296,720, vb720×470)
+    17: ("brain",   120,  282, 1680,  580),   # = figbox(120,282,1680, vb1680×580)
+    18: ("spiral",  120,  276, 1240,  310),   # = figbox(120,276,1240, vb1240×310)
+    21: ("globe",  1150,  180,  640,  640),   # 球心 (1470,500) 居中 · 弧顶 1.243r 内
+}
+LAB_PAGES = sorted(LAB_RECTS)
+
+
+def lab_data(p):
+    """把该页场景的**周期 / 相位 / 关键几何**摊到舞台的 data-* 上（LAB 家族规矩）。
+       闸门因此可以静态复算：谐波频率两两不整除、弧相位永不齐步、五区周期互异、
+       事件 x 与页上一致……不必去读着色器，也不必截图比对。
+       ⚠ 这些值与 lab_k() 出自同一批常量 —— 一处改，两处一起动。"""
+    a = []
+    if p == 1:
+        a += [("spin", VSPIN), ("intro", VINTRO), ("pts", VN), ("amp", VAMP), ("w0", VW0),
+              ("harm", ";".join(",".join(str(x) for x in h) for h in VHARM)),
+              ("hot", "%s,%s" % VHOT)]
+    elif p == 21:
+        a += [("spin", GSPIN), ("intro", GINTRO), ("nodes", len(_NODES_LL)),
+              ("routes", len(_ROUTES)), ("arc-dur", ARC_DUR_S.strip("[]")),
+              ("arc-gap", ARC_GAP_S.strip("[]")), ("arc-off", ARC_OFF_S.strip("[]"))]
+    elif p == 17:
+        a += [("zper", ",".join(str(_sec(z[1])) for z in _ZONES)),
+              ("zoff", ",".join(str(_sec(z[2])) for z in _ZONES)),
+              ("arcs", len(_ARCS)), ("sparks", len(_ARCS) + len(_ARC_EXTRA)),
+              ("sway", 12), ("sway-p", 17)]
+    elif p == 18:
+        a += [("days", "150,420,700,1060"), ("turns", 3.25), ("climb", 6.5)]
+    elif p == 7:
+        a += [("pins", "%d,%d" % (_VSOS, _VEOS)), ("band", "%d,%d" % (_VTOP, _VBOT)),
+              ("steps", 1)]
+    elif p == 9:
+        a += [("rings", "%d,%d" % (_SR1, _SR2)), ("gap", "35,40"), ("streams", 3)]
+    elif p == 4:
+        a += [("cut", _XIN), ("now", _XNOW), ("turns", 2.35)]
+    return "".join(' data-lab-%s="%s"' % kv for kv in a)
+
+
+def lab_stage(p):
+    """一页的 3D 舞台层：辉光（可选）+ poster（仅 P1/P21 有专用 svg）+ 打印帧位。
+       **canvas 不在这里** —— 全 deck 只有一枚，常驻车库，翻页时搬进来。"""
+    kind, rx, ry, rw, rh = (LAB_RECTS[p][0],) + LAB_RECTS[p][1:]
+    atmo = poster = ""
     if kind == "voice":
         aw = VGR * 2 * 1.35
         atmo = ('<div class="lab-atmo" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
@@ -1137,47 +1467,58 @@ def lab_stage(kind):
                   '</svg>'
                   % (VPOSTER["wireB"], VPOSTER["back"], VPOSTER["wire"],
                      VPOSTER["front"], VPOSTER["hot"]))
-        cvs = ('<canvas class="lab-canvas" id="labGl1" width="1920" height="1080"'
-               ' data-lab-canvas="voice" data-lab-mode="BOOT" data-lab-run="0"'
-               ' data-lab-spin="%s" data-lab-intro="%s" data-lab-pts="%d"'
-               ' data-lab-amp="%s" data-lab-w0="%s" data-lab-harm="%s" data-lab-hot="%s,%s"'
-               ' aria-hidden="true"></canvas>'
-               % (VSPIN, VINTRO, VN, VAMP, VW0,
-                  ";".join(",".join(str(x) for x in h) for h in VHARM), VHOT[0], VHOT[1]))
-        pr = '<img class="lab-print" id="labPrint1" alt="" aria-hidden="true">'
-        return '<div class="lab-stage" id="labStage1" aria-hidden="true">%s%s%s%s</div>' % (
-            atmo, poster, cvs, pr)
+    elif kind == "globe":
+        aw = GGR * 2 * 1.35
+        atmo = ('<div class="lab-atmo" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
+                'background:radial-gradient(circle closest-side,transparent 62%%,var(--g-atmo) 74%%,'
+                'transparent 87%%);opacity:var(--g-atmo-int)"></div>'
+                % (GCX - aw / 2, GCY - aw / 2, aw, aw))
+        poster = ('<svg class="lab-poster" id="labPoster21" viewBox="0 0 1920 1080" aria-hidden="true">'
+                  '<circle class="g-ocean" cx="%s" cy="%s" r="%s"/>'
+                  '<path class="g-grat" d="%s"/>'
+                  '<path class="g-land" d="%s"/>'
+                  '%s'
+                  '<path class="g-node" d="%s"/>'
+                  '<circle class="g-rim" cx="%s" cy="%s" r="%s"/>'
+                  '</svg>'
+                  % (_f1(GCX), _f1(GCY), _f1(GGR), GPOSTER["grat"], GPOSTER["land"],
+                     "".join('<path class="g-arc" d="%s"/>' % d for d in GPOSTER["arcs"]),
+                     GPOSTER["nodes"], _f1(GCX), _f1(GCY), _f1(GGR)))
+    elif kind == "brain":
+        # P17 的辉光是一枚横躺的椭圆（脑是横长的）：暗底上给整颗脑一圈自然的环境光。
+        # 浅底几乎看不见（--b-atmo-int .045）—— 纸面上不该有光晕。
+        atmo = ('<div class="lab-atmo" style="left:938px;top:544px;width:900px;height:620px;'
+                'margin-left:-450px;margin-top:-310px;'
+                'background:radial-gradient(closest-side,var(--b-atmo),transparent 72%);'
+                'opacity:var(--b-atmo-int)"></div>')
+    pr = ('<img class="lab-print" id="labPrint%d" alt="" aria-hidden="true" '
+          'style="left:%dpx;top:%dpx;width:%dpx;height:%dpx">' % (p, rx, ry, rw, rh))
+    return ('<div class="lab-stage" id="labStage%d" data-lab-page="%d" data-lab-scene="%s" '
+            'data-lab-rect="%d,%d,%d,%d"%s aria-hidden="true">%s%s%s</div>'
+            % (p, p, kind, rx, ry, rw, rh, lab_data(p), atmo, poster, pr))
 
-    aw = GGR * 2 * 1.35
-    atmo = ('<div class="lab-atmo" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
-            'background:radial-gradient(circle closest-side,transparent 62%%,var(--g-atmo) 74%%,'
-            'transparent 87%%);opacity:var(--g-atmo-int)"></div>'
-            % (GCX - aw / 2, GCY - aw / 2, aw, aw))
-    poster = ('<svg class="lab-poster" id="labPoster21" viewBox="0 0 1920 1080" aria-hidden="true">'
-              '<circle class="g-ocean" cx="%s" cy="%s" r="%s"/>'
-              '<path class="g-grat" d="%s"/>'
-              '<path class="g-land" d="%s"/>'
-              '%s'
-              '<path class="g-node" d="%s"/>'
-              '<circle class="g-rim" cx="%s" cy="%s" r="%s"/>'
-              '</svg>'
-              % (_f1(GCX), _f1(GCY), _f1(GGR), GPOSTER["grat"], GPOSTER["land"],
-                 "".join('<path class="g-arc" d="%s"/>' % d for d in GPOSTER["arcs"]),
-                 GPOSTER["nodes"], _f1(GCX), _f1(GCY), _f1(GGR)))
-    cvs = ('<canvas class="lab-canvas lab-grab" id="labGl21" width="1920" height="1080"'
-           ' data-lab-canvas="globe" data-lab-mode="BOOT" data-lab-run="0"'
-           ' data-lab-spin="%s" data-lab-intro="%s" data-lab-nodes="%d" data-lab-routes="%d"'
-           ' data-lab-arc-dur="%s" data-lab-arc-gap="%s" data-lab-arc-off="%s"'
-           ' aria-hidden="true"></canvas>'
-           % (GSPIN, GINTRO, len(_NODES_LL), len(_ROUTES),
-              ARC_DUR_S.strip("[]"), ARC_GAP_S.strip("[]"), ARC_OFF_S.strip("[]")))
-    pr = '<img class="lab-print" id="labPrint21" alt="" aria-hidden="true">'
-    return '<div class="lab-stage" id="labStage21" aria-hidden="true">%s%s%s%s</div>' % (
-        atmo, poster, cvs, pr)
+
+def lp(*parts):
+    """poster 层包装：把一段**图形几何**裹进 <g class="lab-poster">。
+       3D 起来（该页场景渲出第一帧）时它淡出、canvas 接管；WebGL 不可用 / 自动降级 /
+       print / reduced-motion / 离线归档 ⇒ 它原样呈现，那一页仍是完整的 2D 版。
+       ⚠ 只裹「形」，一个字也不裹 —— 标签 / 引线 / 图例 / 数字全部留在外面：
+         canvas 坐在 .pp 之下，页上的字因此永远压在 3D 之上，任何路径下都在位。
+       一页可以有多个 lab-poster 组（形与字本来就是交错画的），CSS 一并淡出。"""
+    return '<g class="lab-poster">%s</g>' % "".join(parts)
+
+
+def lab_garage():
+    """车库：单枚 canvas 的常驻位（页面上唯一一块 WebGL 画布）。
+       无场景页 / 未起帧 / 已降级时它就停在这儿，屏外零成本。"""
+    return ('<div class="lab-garage" id="labGarage" aria-hidden="true">'
+            '<canvas class="lab-canvas" id="labGl" width="16" height="16"'
+            ' data-lab-canvas="1" data-lab-mode="BOOT" data-lab-run="0"'
+            ' data-lab-page="0" data-lab-scene="" aria-hidden="true"></canvas></div>')
 
 # ── LAB 运行时（① classic 前奏 ② importmap ③ module 本体）────────────────────
 #   ① 是 classic script：模块整条挂掉（离线归档里 three 拉不到就是这个情形）它也照跑，
-#      6s 看门狗把两页钉死在 poster 上 —— 「起不来 = 一张静图」而不是「起不来 = 一块空白」。
+#      6s 看门狗把七页钉死在 poster 上 —— 「起不来 = 一张静图」而不是「起不来 = 一块空白」。
 #   ③ 是 module：importmap 指自托管路径，零外链。
 LAB_PRELUDE = """<script>
 /* LAB 前奏（classic · 模块挂了也照跑）：两枚开关 + poster 看门狗 */
@@ -1186,20 +1527,18 @@ LAB_PRELUDE = """<script>
   var L=window.__LAB={
     debug:Q.get('debug')==='1',
     /* ?lab=hold —— 关掉 FPS 自动降级。给两种人用：
-       ① 讲者在弱机 / 远程桌面上宁可要「慢但活的球」，不要一张静帧；
+       ① 讲者在弱机 / 远程桌面上宁可要「慢但活的形」，不要一张静帧；
        ② 截图与录屏管线（容器里 SwiftShader 只有个位数 fps，不给这条路，
           终审静帧永远拍到 poster）。生产默认**不带**它，降级照跑。 */
     hold:Q.get('lab')==='hold'
   };
   if(L.debug)document.documentElement.setAttribute('data-lab-debug','1');
   setTimeout(function(){
-    var n=0;
-    document.querySelectorAll('[data-lab-canvas]').forEach(function(c){
-      if(c.dataset.labMode!=='BOOT')return;
-      c.dataset.labMode='POSTER';c.dataset.labRun='0';n++;
-      var s=c.closest('.lab-stage');if(s)s.classList.remove('gl-up');
-    });
-    if(n)document.documentElement.setAttribute('data-lab-poster','1');
+    var c=document.getElementById('labGl');
+    if(!c||c.dataset.labMode!=='BOOT')return;
+    c.dataset.labMode='POSTER';c.dataset.labRun='0';
+    document.querySelectorAll('.lab-stage').forEach(function(s){s.classList.remove('gl-up');});
+    document.documentElement.setAttribute('data-lab-poster','1');
   },6000);
 })();
 </script>
@@ -1216,13 +1555,15 @@ import { OrbitControls } from '/decks/assets/three/OrbitControls.js';
 const FLAGS = window.__LAB || { debug:false, hold:false };
 const W = K.W, H = K.H;
 
-/* ═════════ 主题色：**JS 里一个色号都不写**，全部读 CSS 变量 ═════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   lab-kit ①：主题色桥 —— **JS 里一个色号都不写**，全部读 CSS 变量
+   ═══════════════════════════════════════════════════════════════════════════ */
 const _sw = document.createElement('span');
 _sw.style.cssText = 'position:absolute;left:-9999px;top:0';
 document.body.appendChild(_sw);
 const _col = new THREE.Color();
 function cssColor(n){
-  // 让浏览器自己把 var() / color-mix() 归一成 rgb() 再进 three。
+  // 让浏览器自己把 var() / color-mix() 归一成一个可解析的颜色再进 three。
   // 变量取不到时不兜色号（这一层禁止写死色号）—— 留空即继承 body 的 --ink。
   _sw.style.color = '';
   const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -1239,7 +1580,8 @@ function setBlend(m, add){
   if (m.blending !== b){ m.blending = b; m.needsUpdate = true; }
 }
 
-/* --ease-flow = cubic-bezier(.22,.9,.24,1) 的数值解：入场用它，
+/* ═══ lab-kit ②：缓动 / 判据 ═══════════════════════════════════════════════
+   --ease-flow = cubic-bezier(.22,.9,.24,1) 的数值解：入场用它，
    与 CSS 里所有 flow 过渡同一条曲线（写死一个近似 cubic-out 会和页面其它入场脱拍）*/
 function bezier(p1x,p1y,p2x,p2y){
   const ax=1-3*p2x+3*p1x, bx=3*p2x-6*p1x, cx=3*p1x;
@@ -1251,159 +1593,215 @@ function bezier(p1x,p1y,p2x,p2y){
     return fy(Math.min(1,Math.max(0,t))); };
 }
 const easeFlow = bezier(.22,.9,.24,1);
-
+const TAU = Math.PI*2;
 function webglOK(){
   try{ const c=document.createElement('canvas');
     return !!(c.getContext('webgl2')||c.getContext('webgl')||c.getContext('experimental-webgl'));
   }catch(e){ return false; }
 }
-function markPoster(why){
-  document.querySelectorAll('[data-lab-canvas]').forEach(function(c){
-    c.dataset.labMode='POSTER'; c.dataset.labRun='0';
-    const s=c.closest('.lab-stage'); if(s) s.classList.remove('gl-up');
-  });
-  document.documentElement.setAttribute('data-lab-poster','1');
-  paintProbe();
-  console.info('[convoai-lab] poster 降级：'+why);
-}
-function paintProbe(){
-  const p = document.getElementById('labProbe'); if(!p) return;
-  const a = document.querySelector('[data-lab-canvas][data-lab-run="1"]')
-         || document.querySelector('[data-lab-canvas]');
-  if(!a) return;
-  p.innerHTML = '<span>'+(a.dataset.labCanvas||'').toUpperCase()+'</span><span class="sep">/</span>'
-    + '<span>FPS <b>'+(a.dataset.labFps||'—')+'</b></span><span class="sep">/</span>'
-    + '<span>DPR '+(a.dataset.labDpr||'—')+'</span><span class="sep">/</span>'
-    + '<span>THREE r'+K.rev+'</span><span class="sep">/</span>'
-    + '<span>'+(a.dataset.labMode||'BOOT')+'</span>';
-}
+/* 确定性随机（无随机源 ⇒ 两次加载逐点一致，poster 与 WebGL 也永远是同一批点） */
+function h1(i,s){ const x=Math.sin((i+1)*s)*43758.5453; return x-Math.floor(x); }
 
-/* ═════════ 共用驱动：入场 / 停帧 / 降级 / 打印帧 / 主题 ═════════════════
-   一枚 unit 只管「画什么」，什么时候画由这里统管 —— 两页共用同一套判据，
-   就不会出现「地球停得住、声场球停不住」这种分叉。 */
-function drive(u){
-  const D = u.canvas.dataset;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let raf=0, last=0, clock=0, tIntro=0, eIntro=0;
-  let frames=0, fpsT=0, startT=0, tot=0;
-  let running=false, degraded=false, booted=false;
-
-  function applyDPR(){
-    // DPR 上限 2，再乘舞台缩放：小窗口下不白烧像素（舞台是 transform:scale 的固定 1920 画布）
-    const s = Math.min(1, Math.min(window.innerWidth/1920, window.innerHeight/1080) || 1);
-    const pr = Math.min(window.devicePixelRatio||1, 2) * s;
-    u.renderer.setPixelRatio(pr);
-    u.renderer.setSize(W, H, false);
-    u.onDPR(pr);
-    D.labDpr = String(Math.round(pr*100)/100);
-    return pr;
-  }
-  function frame(dt){
-    clock += dt;
-    if(tIntro < 1){ tIntro = Math.min(1, tIntro + (dt / u.intro)); }
-    eIntro = easeFlow(tIntro);
-    u.setIntro(eIntro);
-    u.draw(dt, clock);
-    u.renderer.render(u.scene, u.camera);
-  }
-  function loop(ts){
-    raf = requestAnimationFrame(loop);
-    if(!startT) startT = ts;
-    const dt = Math.min(0.05, last ? (ts-last)/1000 : 0.016); last = ts;
-    frame(dt); frames++; tot++;
-    if(ts-fpsT > 500){ D.labFps = String(Math.round(frames*1000/(ts-fpsT))); frames=0; fpsT=ts; paintProbe(); }
-    // ⑥ 自动降级：连续 2s 平均 < 20fps ⇒ 退 poster（`?lab=hold` 关掉这一条）
-    const el = (ts-startT)/1000;
-    if(!FLAGS.hold && !degraded && el >= 2.0 && (tot/el) < 20) degrade();
-  }
-  function degrade(){
-    degraded = true; stop();
-    u.stage.classList.remove('gl-up');
-    D.labMode = 'POSTER'; D.labDegraded = '1'; paintProbe();
-    console.info('[convoai-lab] '+u.canvas.id+' FPS 连续 2s < 20 ⇒ 自动退 poster');
-  }
-  function start(){
-    if(degraded) return;
-    if(reduced.matches){          // 尊重系统设置：渲一帧（入场落位）就停帧
-      tIntro=1; frame(0);
-      D.labMode='STILL'; D.labRun='0'; D.labFps='—'; paintProbe(); return;
+/* ═══ lab-kit ③：折线工具 ═════════════════════════════════════════════════
+   构建期把页上的 SVG 贝塞尔展平成折线发过来（lab_k() 里的几何串），这里复活。
+   五枚新场景的每一根线、每一个落点都出自这些折线 —— 3D 不新造坐标。 */
+function unpackPoly(s){
+  const a=s.split(';'), f=new Float32Array(a.length*2);
+  for(let i=0;i<a.length;i++){ const p=a[i].split(','); f[i*2]=+p[0]; f[i*2+1]=+p[1]; }
+  return f;
+}
+function unpackMulti(s){ return s.split('|').map(unpackPoly); }
+function polyCum(p){
+  const n=p.length/2, c=new Float32Array(n);
+  for(let i=1;i<n;i++){ const dx=p[i*2]-p[i*2-2], dy=p[i*2+1]-p[i*2-1];
+    c[i]=c[i-1]+Math.hypot(dx,dy); }
+  return c;
+}
+function polyAt(p,c,t,out){
+  const n=p.length/2, L=c[n-1]*Math.min(1,Math.max(0,t));
+  let lo=0, hi=n-1;
+  while(lo<hi-1){ const m=(lo+hi)>>1; if(c[m]<=L) lo=m; else hi=m; }
+  const seg=c[hi]-c[lo] || 1, u=(L-c[lo])/seg;
+  out[0]=p[lo*2]+(p[hi*2]-p[lo*2])*u;
+  out[1]=p[lo*2+1]+(p[hi*2+1]-p[lo*2+1])*u;
+  return out;
+}
+function insideMulti(polys,x,y){          // even-odd：04 区是个环（外圈减内圈）
+  let inside=false;
+  for(const p of polys){
+    const n=p.length/2;
+    for(let i=0,j=n-1;i<n;j=i++){
+      const xi=p[i*2],yi=p[i*2+1],xj=p[j*2],yj=p[j*2+1];
+      if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/((yj-yi)||1e-9)+xi)) inside=!inside;
     }
-    if(raf) return;
-    last=0; startT=0; tot=0; frames=0; fpsT=performance.now();
-    raf = requestAnimationFrame(loop);
-    D.labMode='LIVE'; D.labRun='1'; paintProbe();
   }
-  function stop(){ if(raf){ cancelAnimationFrame(raf); raf=0; } D.labRun='0'; }
-  function enter(){
-    if(running) return; running = true;
-    tIntro=0; eIntro=0; clock=0;                 // 复位入场参数 ⇒ 回到该页重放
-    if(!degraded) u.stage.classList.add('gl-up');
-    start();
+  return inside;
+}
+function distToPoly(p,x,y){
+  const n=p.length/2; let best=1e9;
+  for(let i=0;i<n-1;i++){
+    const ax=p[i*2],ay=p[i*2+1],bx=p[i*2+2],by=p[i*2+3];
+    const dx=bx-ax,dy=by-ay, L=dx*dx+dy*dy;
+    let t = L>0 ? ((x-ax)*dx+(y-ay)*dy)/L : 0;
+    t = t<0?0:(t>1?1:t);
+    const qx=ax+dx*t-x, qy=ay+dy*t-y, d=qx*qx+qy*qy;
+    if(d<best) best=d;
   }
-  function leave(){
-    if(!running) return; running = false;
-    stop();
-    tIntro=0; eIntro=0; clock=0;                 // 同上：离开即复位
-    u.setIntro(0);
-    if(D.labMode !== 'POSTER') D.labMode = 'IDLE';
-    paintProbe();
-  }
-
-  // 页面不可见就把 rAF 掐掉，回来续跑（与非激活 slide 是两道独立的闸，双双 cancel）
-  document.addEventListener('visibilitychange', function(){
-    if(document.hidden){ stop(); if(D.labMode==='LIVE') D.labMode='IDLE'; }
-    else if(running){ last=0; startT=0; tot=0; start(); }
-    paintProbe();
-  });
-  window.addEventListener('resize', function(){ applyDPR(); if(!raf) frame(0); });
-
-  /* 打印帧：render-then-read —— 不开 preserveDrawingBuffer（常态零显存代价），
-     在 beforeprint 这个**同步**事件里先渲一帧、立刻 toDataURL，绘制缓冲区
-     还没被合成器清掉，读到的就是非空帧。读完写进 poster 位上方的 .lab-print。 */
-  window.addEventListener('beforeprint', function(){
-    try{
-      tIntro = 1; frame(0);
-      const url = u.renderer.domElement.toDataURL('image/png');
-      if(url && url.length > 2000) u.print.setAttribute('src', url);
-    }catch(e){}
-  });
-
-  function theme(){ u.applyTheme(); if(!raf) frame(0); }
-  // **延一个 rAF**：换页交叠时 CSS 变量还没落到新主题上，同帧读会读到上一主题的色
-  new MutationObserver(function(){ requestAnimationFrame(theme); })
-    .observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
-  reduced.addEventListener?.('change', function(){ stop(); if(running) start(); });
-
-  applyDPR();
-  u.applyTheme();
-  u.setIntro(0);
-  frame(0);                       // 预热一帧：着色器编译落在这里，翻到该页不会卡首帧
-  tIntro = 0; clock = 0;
-  booted = true;
-  D.labMode = 'IDLE';
-  return { slide:u.slide, canvas:u.canvas, enter, leave, isBooted:()=>booted };
+  return Math.sqrt(best);
 }
 
-/* ═════════ ① 声场球（P1 封面）═══════════════════════════════════════════
+/* ═══ lab-kit ④：px 场景的通用着色器件 ════════════════════════════════════
+   五枚新场景全部工作在**该页 figbox 的 viewBox 坐标**里：相机架成
+   「z=0 平面上 1 世界单位 = 1 屏幕像素」，于是页上 SVG 的每个坐标可以直接搬进
+   3D，3D 形与它替换掉的 2D 形逐像素同位。深度（z）自然产生透视。
+   y 轴取负（SVG 向下为正，three 向上为正）。 */
+function camPx(w,h,D){
+  const fov = 2*Math.atan((h/2)/D)*180/Math.PI;
+  const cam = new THREE.PerspectiveCamera(fov, w/h, D*0.02, D*4);
+  cam.position.set(w/2, -h/2, D); cam.lookAt(w/2, -h/2, 0);
+  return cam;
+}
+/* 球面场景（P1/P21）：FOV 由 rect 高度反解，使投影尺度与 poster 的离线相机**逐参相同**
+   —— poster 与 WebGL 因此是同一张图，交接时不会「跳一下大小」。 */
+function camSphere(w,h,C){
+  const fov = 2*Math.atan((h/2)/K.FPX)*180/Math.PI;
+  const cam = new THREE.PerspectiveCamera(fov, w/h, 0.1, 200);
+  cam.position.set(C[0],C[1],C[2]); cam.lookAt(0,0,0);
+  return cam;
+}
+/* px 点云：uSize 是**屏幕像素直径**；深度雾 uNear/uFar 给体积感；
+   aA = 逐点 alpha 权重，aH = 逐点热度（0..1，进 mix(uColor,uHot,·)）。 */
+const PX_HEAD = [
+  'uniform float uIntro,uTime,uSize,uD,uPx,uNear,uFar;',
+  'attribute float aA; attribute float aH;',
+  'varying float vFade,vA,vH;',
+  'vec4 pxCore(vec3 p,float sz){',
+  '  vec4 mv=modelViewMatrix*vec4(p,1.0);',
+  '  float z=max(-mv.z,1.0);',
+  '  vFade=clamp((uFar-z)/(uFar-uNear),0.0,1.0);',
+  '  gl_PointSize=max(sz*uPx*uD/z,0.55);',
+  '  return mv;}',
+].join('\n');
+const PX_PT_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uGain,uSoft;',
+  'varying float vFade,vA,vH;',
+  'void main(){',
+  '  vec2 c=gl_PointCoord-0.5; float d=dot(c,c);',
+  '  if(d>0.25) discard;',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*smoothstep(0.25,uSoft,d)*(1.0+uGain*vH);',
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(mix(uColor,uHot,clamp(vH,0.0,1.0)),clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}',
+].join('\n');
+const PX_LN_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uGain;',
+  'varying float vFade,vA,vH;',
+  'void main(){',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*(1.0+uGain*vH);',
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(mix(uColor,uHot,clamp(vH,0.0,1.0)),clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}',
+].join('\n');
+/* 一枚场景的共享 uniform（入场 t / 钟 / DPR / 深度雾）：材质各自克隆自己的颜色档，
+   但这几枚永远共用同一个对象 ⇒ 一处更新，全场景同步。 */
+function pxShared(D, half){
+  // uNear/uFar 必须**贴着该场景的真实深度范围**收紧 —— 松了就等于没有体积：
+  // 深度雾是 px 场景里唯一的立体线索（没有光照、没有阴影，只有远近的明暗）。
+  const h = half || D*0.2;
+  return { uIntro:{value:0}, uTime:{value:0}, uD:{value:D}, uPx:{value:1},
+           uNear:{value:D-h}, uFar:{value:D+h} };
+}
+function mkMat(shared, vs, fs, extra){
+  const u = Object.assign({}, shared, {
+    uSize:{value:2}, uSoft:{value:.06}, uColor:{value:new THREE.Color()},
+    uHot:{value:new THREE.Color()}, uOpacity:{value:1}, uBack:{value:.34},
+    uGain:{value:1} }, extra||{});
+  return new THREE.ShaderMaterial({ uniforms:u, vertexShader:vs, fragmentShader:fs,
+                                    transparent:true, depthWrite:false });
+}
+const PX_PT_VS = PX_HEAD + [
+  'void main(){ vA=aA; vH=aH;',
+  '  vec4 mv=pxCore(position,uSize);',
+  '  gl_Position=projectionMatrix*mv; }'].join('\n');
+const PX_LN_VS = PX_HEAD + [
+  'void main(){ vA=aA; vH=aH;',
+  '  vec4 mv=pxCore(position,1.0);',
+  '  gl_Position=projectionMatrix*mv; }'].join('\n');
+/* 流带（三角带）：aT 是沿带的参数 —— 入场按 t 「长出来」，流动感也挂在它上面 */
+const PX_RB_VS = [
+  'uniform float uIntro,uTime,uNear,uFar;',
+  'attribute float aT; attribute float aA; attribute float aH;',
+  'varying float vT,vA,vH,vFade;',
+  'void main(){ vT=aT; vA=aA; vH=aH;',
+  '  vec4 mv=modelViewMatrix*vec4(position,1.0);',
+  '  float z=max(-mv.z,1.0);',
+  '  vFade=clamp((uFar-z)/(uFar-uNear),0.0,1.0);',
+  '  gl_Position=projectionMatrix*mv; }'].join('\n');
+const PX_RB_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uGain,uIntro,uTime,uFlow;',
+  'varying float vT,vA,vH,vFade;',
+  'void main(){',
+  '  float grow=clamp((uIntro*1.15-vT)/0.10,0.0,1.0);',
+  '  float flow=0.74+0.26*sin((vT*uFlow-uTime*1.7)*6.2831853);',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*grow*flow*(1.0+uGain*vH);',
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(mix(uColor,uHot,clamp(vH,0.0,1.0)),clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}'].join('\n');
+/* 逐点属性小工具：aA / aH 两条，所有 px 场景共用 */
+function attrAH(geo,n,a0,h0){
+  const a=new Float32Array(n), h=new Float32Array(n);
+  a.fill(a0===undefined?1:a0); h.fill(h0||0);
+  geo.setAttribute('aA', new THREE.BufferAttribute(a,1));
+  geo.setAttribute('aH', new THREE.BufferAttribute(h,1));
+  return {a,h};
+}
+/* 流带 ribbon：给一条中心折线 + 半宽函数，织出一条三角带（TubeGeometry 的扁平版）。
+   用在 P18 复利螺旋与 P4 双向声带上 —— 两页的「带」是同一个件。 */
+function ribbonGeo(pts, halfW, uv, dirs){
+  const n = pts.length, pos = new Float32Array(n*2*3), tt = new Float32Array(n*2);
+  for(let i=0;i<n;i++){
+    const p = pts[i], q = pts[Math.min(n-1,i+1)], r = pts[Math.max(0,i-1)];
+    let tx=q[0]-r[0], ty=q[1]-r[1], tz=q[2]-r[2];
+    const tl=Math.hypot(tx,ty,tz)||1; tx/=tl; ty/=tl; tz/=tl;
+    // 默认：带面法向 = 切线 × 视线(0,0,1) ⇒ 带子始终把宽面朝向观众（P4 的声带要这个）。
+    // 传了 dirs 就用它：P18 的复利螺旋要的是**径向**展宽 —— 带面随着绕轴转，
+    // 转到贴屏时露出整幅、转到入深时收成一条线，「这是一圈一圈绕上去的」才看得出来。
+    let nx, ny, nz;
+    if(dirs){ nx=dirs[i][0]; ny=dirs[i][1]; nz=dirs[i][2]; }
+    else { nx=ty; ny=-tx; nz=0; }
+    let nl=Math.hypot(nx,ny,nz); if(nl<1e-5){ nx=0;ny=1;nz=0;nl=1; }
+    nx/=nl; ny/=nl; nz/=nl;
+    const w = halfW(i/(n-1));
+    pos[i*6]=p[0]+nx*w; pos[i*6+1]=p[1]+ny*w; pos[i*6+2]=p[2]+nz*w;
+    pos[i*6+3]=p[0]-nx*w; pos[i*6+4]=p[1]-ny*w; pos[i*6+5]=p[2]-nz*w;
+    tt[i*2]=tt[i*2+1]=uv?uv(i/(n-1)):i/(n-1);
+  }
+  const idx = [];
+  for(let i=0;i<n-1;i++){ const a=i*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.setAttribute('aT', new THREE.BufferAttribute(tt,1));
+  g.setIndex(idx);
+  return g;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   场景 registry · ① 声场球（P1 封面）
+   ───────────────────────────────────────────────────────────────────────────
    语义：球面点云沿**法线**呼吸，位移由三枚谐波叠加出的伪音频包络驱动 ——
    「对话的声波」。波数 k 让包络沿 y 轴成行波 ⇒ 看见的是**横跨球面的波带**，
    不是整颗球一起胀缩（那是气球，不是声场）。波峰处点色 mix 向 accent，
    于是「声音走到哪里」在球面上直接看得见。
    克制三条：自转 96s/圈（比地球还慢）· 振幅 7%（球径量级的呼吸，不是抖动）·
-   **不给 OrbitControls**（封面是观赏层，一拖就抢主标）。 */
-function buildVoice(){
-  const canvas = document.getElementById('labGl1');
-  if(!canvas) return null;
-  const V = K.v;
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
-  renderer.setSize(W, H, false);
+   **不给 OrbitControls**（封面是观赏层，一拖就抢主标）。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeVoice(ctx){
+  const V = K.v, w = ctx.rect[2], h = ctx.rect[3];
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(K.FOV, W/H, 0.1, 200);
-  camera.position.set(V.cam[0], V.cam[1], V.cam[2]);
-  camera.lookAt(0,0,0);
-  // 球心不在画面正中：setViewOffset 平移视锥 —— 纯平移，球的轮廓仍是正圆
-  camera.setViewOffset(W, H, -V.dx, -V.dy, W, H);
-
+  const camera = camSphere(w, h, V.cam);
   const pivot = new THREE.Group(); pivot.rotation.z = V.tilt; scene.add(pivot);
   const spin  = new THREE.Group(); pivot.add(spin);
 
@@ -1485,8 +1883,8 @@ function buildVoice(){
     const y = 1-(2*(i+0.5))/N, r = Math.sqrt(Math.max(0,1-y*y)), th = i*GA;
     _p.set(Math.cos(th)*r, y, Math.sin(th)*r);
     // 确定性抖动：打散黄金角螺旋的机制网格感（与地球陆地点、与 poster 逐字同式）
-    const h1=Math.sin((i+1)*12.9898)*43758.5453, j1=h1-Math.floor(h1)-0.5;
-    const h2=Math.sin((i+1)*78.233)*24634.6345,  j2=h2-Math.floor(h2)-0.5;
+    const a1=Math.sin((i+1)*12.9898)*43758.5453, j1=a1-Math.floor(a1)-0.5;
+    const a2=Math.sin((i+1)*78.233)*24634.6345,  j2=a2-Math.floor(a2)-0.5;
     _ax.set(0,1,0); if(Math.abs(_p.y)>0.95)_ax.set(1,0,0);
     _t1.crossVectors(_p,_ax).normalize(); _t2.crossVectors(_p,_t1);
     _p.addScaledVector(_t1,JIT*j1).addScaledVector(_t2,JIT*j2).normalize();
@@ -1510,9 +1908,8 @@ function buildVoice(){
 
   const SPIN_W = (Math.PI*2)/V.spin;
   return {
-    canvas, stage:document.getElementById('labStage1'), slide:canvas.closest('.slide'),
-    print:document.getElementById('labPrint1'), renderer, scene, camera, intro:V.introSec,
-    onDPR(pr){ U.uScale.value = (H*pr)/(2*Math.tan(K.FOV*Math.PI/360)); },
+    scene, camera, intro:V.introSec, grab:false,
+    onDPR(pr){ U.uScale.value = K.FPX*pr; },
     setIntro(e){ U.uIntro.value = e; },
     draw(dt, clock){ U.uTime.value = clock; spin.rotation.y += dt*SPIN_W; },
     applyTheme(){
@@ -1535,21 +1932,15 @@ function buildVoice(){
   };
 }
 
-/* ═════════ ② SD-RTN 地球（P21 Why Agora）════════════════════════════════
-   实现整体移植自 /lab-globe（位掩码陆地 / 示意节点 / 五槽并发大圆弧 / 双主题材质），
-   本页只做三件事：球径按半屏构图缩配、加一道入场 t 参数、OrbitControls 禁 zoom。
-   弧**不标任何延迟数值**（数字红线）；节点是示意分布，页脚角注写死了这一条。 */
-function buildGlobe(){
-  const canvas = document.getElementById('labGl21');
-  if(!canvas) return null;
-  const G = K.g;
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
-  renderer.setSize(W, H, false);
+/* ═══════════════════════════════════════════════════════════════════════════
+   ② SD-RTN 地球（P21 Why Agora）
+   实现整体移植自 /lab-globe（位掩码陆地 / 示意节点 / 五槽并发大圆弧 / 双主题材质）。
+   弧**不标任何延迟数值**（数字红线）；节点是示意分布，页脚角注写死了这一条。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeGlobe(ctx){
+  const G = K.g, w = ctx.rect[2], h = ctx.rect[3];
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(K.FOV, W/H, 0.1, 200);
-  camera.position.set(G.cam[0], G.cam[1], G.cam[2]);
-  camera.lookAt(0,0,0);
-  camera.setViewOffset(W, H, -G.dx, -G.dy, W, H);
+  const camera = camSphere(w, h, G.cam);
 
   const U = { uScale:{value:1}, uTime:{value:0}, uIntro:{value:0} };
   const pivot = new THREE.Group(); pivot.rotation.z = G.tilt; scene.add(pivot);
@@ -1604,8 +1995,8 @@ function buildGlobe(){
     if(!(bin.charCodeAt(i>>3)&(1<<(i&7))))continue;
     const y=1-(2*(i+0.5))/K.landN, r=Math.sqrt(Math.max(0,1-y*y)), th=i*GA;
     _p.set(Math.cos(th)*r,y,Math.sin(th)*r);
-    const h1=Math.sin((i+1)*12.9898)*43758.5453, j1=h1-Math.floor(h1)-0.5;
-    const h2=Math.sin((i+1)*78.233)*24634.6345,  j2=h2-Math.floor(h2)-0.5;
+    const a1=Math.sin((i+1)*12.9898)*43758.5453, j1=a1-Math.floor(a1)-0.5;
+    const a2=Math.sin((i+1)*78.233)*24634.6345,  j2=a2-Math.floor(a2)-0.5;
     _ax.set(0,1,0); if(Math.abs(_p.y)>0.95)_ax.set(1,0,0);
     _t1.crossVectors(_p,_ax).normalize(); _t2.crossVectors(_p,_t1);
     _p.addScaledVector(_t1,JIT*j1).addScaledVector(_t2,JIT*j2).normalize().multiplyScalar(1.004);
@@ -1693,7 +2084,7 @@ function buildGlobe(){
     g.setAttribute('position', new THREE.BufferAttribute(new Float32Array((SEG+1)*3),3));
     const m=arcMat.clone();
     const line=new THREE.Line(g,m); line.frustumCulled=false; spin.add(line);
-    slots.push({g,m,line,route:s%routes.length,pts:new Float32Array((SEG+1)*3),cycle:-1});
+    slots.push({g,m,line,route:s%routes.length,pts:new Float32Array((SEG+1)*3),cycle:-1,baseOp:.7});
   }
   const headGeo = new THREE.BufferGeometry();
   headGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(slots.length*3),3));
@@ -1722,7 +2113,7 @@ function buildGlobe(){
   slots.forEach(buildArc);
   const pulseAmt = new Float32Array(NODE_COUNT);
 
-  function step(slot,i,t){
+  function stepSlot(slot,i,t){
     const period=ARC_DUR[i]+ARC_GAP[i];
     let tl=(t-ARC_OFF[i])%period; if(tl<0)tl+=period;
     const cyc=Math.floor((t-ARC_OFF[i])/period);
@@ -1752,12 +2143,13 @@ function buildGlobe(){
   }
 
   /* ── 交互：可拖，**禁 zoom**（半屏构图里一放大就顶出版心）；触摸留给 deck 翻页 ── */
-  const controls = new OrbitControls(camera, canvas);
+  const controls = new OrbitControls(camera, ctx.canvas);
   controls.enableDamping=true; controls.dampingFactor=.065;
   controls.enablePan=false; controls.rotateSpeed=.42;
   controls.enableZoom=false;
   controls.minPolarAngle=.16; controls.maxPolarAngle=Math.PI-.16;
   controls.touches={ONE:null,TWO:null};     // 一指滑动归 deck.js 翻页，别跟讲者抢
+  controls.enabled=false;                   // 只有本页在台上时才接管指针
   let dragT=-1e9, clockRef=0;
   controls.addEventListener('start',()=>{dragT=1e9;});
   controls.addEventListener('end',()=>{dragT=clockRef;});
@@ -1765,9 +2157,8 @@ function buildGlobe(){
   let arcGate = 0;
   const SPIN_W = (Math.PI*2)/G.spin;
   return {
-    canvas, stage:document.getElementById('labStage21'), slide:canvas.closest('.slide'),
-    print:document.getElementById('labPrint21'), renderer, scene, camera, intro:G.introSec,
-    onDPR(pr){ U.uScale.value = (H*pr)/(2*Math.tan(K.FOV*Math.PI/360)); },
+    scene, camera, intro:G.introSec, grab:true, controls,
+    onDPR(pr){ U.uScale.value = K.FPX*pr; },
     setIntro(e){
       U.uIntro.value = e;
       ocean.scale.setScalar(Math.max(1e-3,e));
@@ -1782,7 +2173,7 @@ function buildGlobe(){
       let spinK=1; const since=clock-dragT;
       if(since<0) spinK=0; else if(since<2.4) spinK=0; else if(since<4.0) spinK=(since-2.4)/1.6;
       spin.rotation.y += dt*SPIN_W*spinK;
-      slots.forEach((s,i)=>step(s,i,clock));
+      slots.forEach((s,i)=>stepSlot(s,i,clock));
       headGeo.attributes.position.needsUpdate=true;
       headGeo.attributes.aAlpha.needsUpdate=true;
       let any=false;
@@ -1795,6 +2186,8 @@ function buildGlobe(){
       if(any||clock<0.1){ nodeGeo.attributes.aAlpha.needsUpdate=true; haloGeo.attributes.aAlpha.needsUpdate=true; }
       controls.update();
     },
+    onEnter(){ controls.enabled=true; },
+    onLeave(){ controls.enabled=false; },
     applyTheme(){
       oceanU.uBase.value.copy(cssColor('--g-ocean'));
       oceanU.uRim.value.copy(cssColor('--g-rim'));
@@ -1827,32 +2220,1214 @@ function buildGlobe(){
   };
 }
 
-/* ═════════ 装配 + 激活闸 ════════════════════════════════════════════════
-   **不改共享 deck.js**（那份 runtime 是 convoai / info / visit 三份 deck 共用的）——
-   与 P20 视频页同一手法，在外面套一层壳，两道保险各管一段：
-     ① 包 deck.go / deck.applySteps —— 现场翻页走这条；
-     ② MutationObserver 盯 .slide 的 class —— qa / occlusion-scan / 截图脚本
-        是直接 classList.toggle 的，根本不经过 deck.go，只有这一道盯得住。
-   判活一律**从 DOM 读**（.active），不读 deck.i：两条路径共用同一套判据。 */
-let UNITS = [];
+/* ═══════════════════════════════════════════════════════════════════════════
+   ③ 五脑区大脑（P17 · 全轮之冠）
+   ───────────────────────────────────────────────────────────────────────────
+   母形 → 体积：页上那条 **13 段贝塞尔侧视轮廓**（_BRAIN）在构建期展平成折线发过来，
+   运行时在它的包围盒里做确定性拒绝采样 —— 落在轮廓里的点才算数。每个点算出它到
+   轮廓的距离 d，厚度剖面 T(d)=Tmax·sin(π/2·(d/dref)^0.62) 把它沿 ±z 两侧隆起：
+   T 在轮廓上恰好为 0 ⇒ **正视（相机沿 +z）看到的限界就是原来那条轮廓本人**，
+   侧视构图这个身份一格没丢；离开轮廓越深越厚，于是一颗有体积的脑。
+   三条脑沟（中央沟 / 外侧裂 / 颞上沟）各自把 T 压下一道高斯槽 —— Sylvian 切口
+   在 3D 里也是切口，不是被填平的疤。取样偏表面（pow(u,0.40)）⇒ 限界清脆、内部微透。
+   五区按 SVG 里那五枚 blob 做点内判定（04 深部环走 even-odd，优先级最高 ⇒ 它压在
+   顶叶之上，和 SVG 的绘制序一致）；放电周期与相位逐条抄 _ZONES 的 2.4/2.7/3.0/3.3/3.6s
+   与那五个负 delay。8 条突触弧升维成跨半球的空间弧（z 拱 ±A，方向交替），光点沿弧走。
+   自转是 ±12° 摇摆而**不是整圈转** —— 侧视轮廓是这张图的身份，转过去就不是脑了。
+   「输出 · 最佳回复」hot 盒仍是页上的 SVG 件；脑向它送出的汇聚光流在 canvas 内
+   收口到盒侧（x 1386，正是 SVG 那支箭头的落点）。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeBrain(ctx){
+  const B = K.b, w = ctx.rect[2], h = ctx.rect[3], D = 1350;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, 200);
+  const CONT = unpackPoly(B.cont);
+  const ZONES = B.zones.map(unpackMulti);
+  const SUL = B.sul.map(unpackPoly);
+  const cx = B.c[0], cy = B.c[1];
+  const grp = new THREE.Group(); grp.position.set(cx, -cy, 0); scene.add(grp);
+  const flows = new THREE.Group(); scene.add(flows);
+
+  /* ── ① 体积点云（母形 → 体积）──────────────────────────────────────────
+     厚度剖面 T(x,y)：在轮廓上恰好为 0（⇒ 正视限界 = 原轮廓本人），越深越厚；
+     三条脑沟各刻一道高斯槽（Sylvian 最深）；再叠一层程序化脑回涟漪。
+     点云与脑沟曲线共用这一个函数 ⇒ 沟线永远贴着表面走，不浮起来也不陷进去。 */
+  function brainT(x,y){
+    let T = B.tmax*Math.sin(Math.PI/2*Math.pow(Math.min(1,distToPoly(CONT,x,y)/B.dref),0.62));
+    for(let k=0;k<3;k++){
+      const g = distToPoly(SUL[k],x,y);
+      T *= 1 - B.sulD[k]*Math.exp(-(g*g)/(B.sulW[k]*B.sulW[k]));
+    }
+    return T * (1 + 0.06*Math.sin(0.105*x + 0.082*y + 2.1*Math.sin(0.028*x)));
+  }
+  function polyBB(P){
+    let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(let i=0;i<P.length;i+=2){ a=Math.min(a,P[i]); c=Math.max(c,P[i]);
+      b=Math.min(b,P[i+1]); d=Math.max(d,P[i+1]); }
+    return [a,b,c,d];
+  }
+  const xs=[], ys=[], zs=[], zn=[], sf=[];
+  const ZORD = [4,0,1,2,3];          // 04 深部环优先（与 SVG 绘制序一致：它画在最后）
+  for(let i=0;i<B.n;i++){
+    const x = B.bb[0] + (B.bb[2]-B.bb[0])*h1(i,127.1);
+    const y = B.bb[1] + (B.bb[3]-B.bb[1])*h1(i,311.7);
+    if(!insideMulti([CONT],x,y)) continue;
+    const T = brainT(x,y);
+    const surf = Math.pow(h1(i,571.3),0.40);
+    const z = (h1(i,853.9)<0.5?-1:1)*T*surf;
+    let zone = 1;
+    for(const k of ZORD){ if(insideMulti(ZONES[k],x,y)){ zone=k; break; } }
+    if(surf < 0.10) continue;          // 芯部太密：贴着中面的那一层丢掉，省片元也更透
+    xs.push(x-cx); ys.push(-(y)+cy); zs.push(z); zn.push(zone); sf.push(surf);
+  }
+  const NP = xs.length;
+  const cloudGeo = new THREE.BufferGeometry();
+  const cpos = new Float32Array(NP*3), czn = new Float32Array(NP), csf = new Float32Array(NP);
+  for(let i=0;i<NP;i++){ cpos[i*3]=xs[i]; cpos[i*3+1]=ys[i]; cpos[i*3+2]=zs[i];
+    czn[i]=zn[i]; csf[i]=sf[i]; }
+  cloudGeo.setAttribute('position', new THREE.BufferAttribute(cpos,3));
+  cloudGeo.setAttribute('aZone', new THREE.BufferAttribute(czn,1));
+  cloudGeo.setAttribute('aSurf', new THREE.BufferAttribute(csf,1));
+  attrAH(cloudGeo, NP, 1, 0);
+  const BR_VS = PX_HEAD + [
+    'attribute float aZone; attribute float aSurf;',
+    'uniform vec4 uZ; uniform float uZ4; uniform float uCap;',
+    'void main(){',
+    '  vec3 p=vec3(position.x,position.y,position.z*uIntro);',   // 体积从母形里长出来
+    '  float z0=step(-0.5,aZone)*step(aZone,0.5);',
+    '  float z1=step(0.5,aZone)*step(aZone,1.5);',
+    '  float z2=step(1.5,aZone)*step(aZone,2.5);',
+    '  float z3=step(2.5,aZone)*step(aZone,3.5);',
+    '  float z4=step(3.5,aZone);',
+    '  float fire=z0*uZ.x+z1*uZ.y+z2*uZ.z+z3*uZ.w+z4*uZ4;',
+    // 放电不是「整块换成粉」：区内再叠一道横扫的空间相位 ⇒ 看得见电在区里走。
+    // 上限压到 uCap（<1）—— 页上那五枚 blob 的填色本来就只有 .05→.15，
+    // 3D 版要更亮但不能变成一块荧光贴纸（editorial 不是演唱会）。
+    '  float wv=0.55+0.45*sin(uTime*2.6+position.x*0.032+position.y*0.026);',
+    '  vH=fire*mix(0.34,1.0,wv)*uCap; vA=aA*mix(0.30,1.0,aSurf);',
+    '  vec4 mv=pxCore(p, uSize*(0.72+0.5*aSurf)*(0.90+0.30*fire));',
+    '  gl_Position=projectionMatrix*mv;',
+    '}'].join('\n');
+  const cloudMat = mkMat(SH, BR_VS, PX_PT_FS,
+    { uZ:{value:new THREE.Vector4()}, uZ4:{value:0}, uCap:{value:.55} });
+  const cloud = new THREE.Points(cloudGeo, cloudMat); cloud.frustumCulled=false; grp.add(cloud);
+
+  /* ── ①b 小脑 + 脑干：页上它们是两枚独立闭合小形，3D 里也必须是两团独立的体积 ──
+     「大脑 / 小脑」之间那道裂隙是这张侧视图最容易被读懂的解剖特征，填平就不是脑了。
+     aZone = -1 ⇒ 五枚 step 判据全部落空 ⇒ 它们永远不放电（它们不是五个大脑之一）。 */
+  {
+    const px=[], sfa=[], zna=[];
+    B.sub.forEach((sd,si)=>{
+      const P = unpackPoly(sd), bx = polyBB(P), tm = B.subT[si];
+      for(let i=0;i<B.subN;i++){
+        const x = bx[0]+(bx[2]-bx[0])*h1(i,199.7+si*37), y = bx[1]+(bx[3]-bx[1])*h1(i,421.3+si*53);
+        if(!insideMulti([P],x,y)) continue;
+        const T = tm*Math.sin(Math.PI/2*Math.pow(Math.min(1,distToPoly(P,x,y)/(tm*0.9)),0.62));
+        const surf = Math.pow(h1(i,613.1+si*29),0.40);
+        if(surf < 0.12) continue;
+        px.push(x-cx, -(y)+cy, (h1(i,877.3+si*41)<0.5?-1:1)*T*surf);
+        sfa.push(surf); zna.push(-1);
+      }
+    });
+    const n = sfa.length, g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(px),3));
+    g.setAttribute('aZone', new THREE.BufferAttribute(new Float32Array(zna),1));
+    g.setAttribute('aSurf', new THREE.BufferAttribute(new Float32Array(sfa),1));
+    attrAH(g, n, 1, 0);
+    const o = new THREE.Points(g, cloudMat); o.frustumCulled=false; grp.add(o);
+  }
+  /* ── ①c 脑沟：三条沟各自沿脑表两侧走一遍 ⇒ 五枚区岛的边界在 3D 里看得见 ──
+     厚度剖面已经在沟位刻了槽，再把沟线本身画出来，「分区」才是画出来的而不是说出来的。 */
+  const sulMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  {
+    const seg=[], al=[];
+    SUL.forEach((P)=>{
+      const n=P.length/2;
+      for(let side=-1;side<=1;side+=2){
+        let prev=null;
+        for(let i=0;i<n;i++){
+          const x=P[i*2], y=P[i*2+1];
+          if(!insideMulti([CONT],x,y)){ prev=null; continue; }
+          const q=[x-cx, -(y)+cy, side*brainT(x,y)*0.86];
+          if(prev){ seg.push(prev[0],prev[1],prev[2], q[0],q[1],q[2]);
+            const e=Math.min(1,Math.min(i,n-1-i)/5); al.push(e,e); }
+          prev=q;
+        }
+      }
+    });
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    const ln=new THREE.LineSegments(g,sulMat); ln.frustumCulled=false; grp.add(ln);
+  }
+  /* ── ①d 母形轮廓环（z=0）：侧视轮廓是这张图的身份，给它一根真线 ──
+     ±12° 摇摆时它跟着转、与限界错开一点点 —— 那一点点错位正是「这是个体，不是张图」。 */
+  const rimMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  {
+    const seg=[], al=[], n=CONT.length/2;
+    for(let i=0;i<n-1;i++){
+      seg.push(CONT[i*2]-cx, -(CONT[i*2+1])+cy, 0,
+               CONT[i*2+2]-cx, -(CONT[i*2+3])+cy, 0);
+      al.push(1,1);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    const ln=new THREE.LineSegments(g,rimMat); ln.frustumCulled=false; grp.add(ln);
+  }
+
+  /* ── ② 突触弧：2D 弧升维成跨半球的空间弧（z 拱方向交替 ⇒ 有的从近侧穿过去）── */
+  const arcCur = B.arcs.map((s,k)=>{
+    const p = unpackPoly(s), n = p.length/2, dir = (k%2)?1:-1, out=[];
+    for(let i=0;i<n;i++){ const t=i/(n-1);
+      out.push([p[i*2]-cx, -(p[i*2+1])+cy, dir*B.arcA[k]*Math.sin(Math.PI*t)]); }
+    return out;
+  });
+  {
+    const seg=[], al=[];
+    arcCur.forEach(c=>{ for(let i=0;i<c.length-1;i++){
+      const e=Math.min(1,Math.min(i,c.length-2-i)/6);
+      seg.push(c[i][0],c[i][1],c[i][2], c[i+1][0],c[i+1][1],c[i+1][2]); al.push(e,e); } });
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    var arcMatB = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,arcMatB); ln.frustumCulled=false; grp.add(ln);
+  }
+  /* ── ③ 神经火花：8 枚光点沿弧穿行（周期 / 起相位逐条抄 SVG 的 _ARCS）── */
+  const SPK = B.spark, spkGeo = new THREE.BufferGeometry();
+  const spkPos = new Float32Array(SPK.length*3);
+  spkGeo.setAttribute('position', new THREE.BufferAttribute(spkPos,3));
+  const spkA = attrAH(spkGeo, SPK.length, 1, 1);
+  const spkMat = mkMat(SH, PX_PT_VS, PX_PT_FS); spkMat.uniforms.uSoft.value=.03;
+  const spks = new THREE.Points(spkGeo, spkMat); spks.frustumCulled=false; grp.add(spks);
+
+  /* ── ④ 输入：耳位 → 颞叶下部（01 区）的常驻声流（路径 = SVG 的 _IN）── */
+  const IN = unpackPoly(B.inp), INC = polyCum(IN), _o=[0,0];
+  function inAt(t,out){ polyAt(IN,INC,t,_o);
+    out[0]=_o[0]; out[1]=-_o[1]; out[2]=34*Math.sin(Math.PI*t); return out; }
+  var inMat;
+  {
+    const seg=[], al=[], N=48, a=[0,0,0], b=[0,0,0];
+    for(let i=0;i<N;i++){
+      inAt(i/N,a); inAt((i+1)/N,b);
+      seg.push(a[0],a[1],a[2], b[0],b[1],b[2]);
+      const e=0.3+0.7*(i/N); al.push(e,e);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    inMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,inMat); ln.frustumCulled=false; flows.add(ln);
+  }
+  /* ── ⑤ 输出：额叶前缘的汇聚光流 → 收口到 hot 盒左沿（x 1386，SVG 箭头落点）── */
+  const OUTP = [];
+  {
+    const front=[];
+    for(let i=0;i<CONT.length/2;i++){ const X=CONT[i*2], Y=CONT[i*2+1];
+      if(X>B.outX) front.push([X,Y]); }
+    for(let k=0;k<5;k++){
+      const s = front[Math.floor((k+0.5)/5*front.length)] || [B.outX,268];
+      const zz = (k-2)*26;
+      OUTP.push([[s[0],s[1],zz],[B.out[0],B.out[1],zz*0.35],[B.out2[0],B.out2[1],0]]);
+    }
+  }
+  {
+    const seg=[], al=[];
+    OUTP.forEach(c=>{
+      const N=26;
+      for(let i=0;i<N;i++){
+        const a=outAt(c,i/N), b=outAt(c,(i+1)/N);
+        seg.push(a[0],a[1],a[2], b[0],b[1],b[2]);
+        const e=0.35+0.65*(i/N); al.push(e,e);
+      }
+    });
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    var outMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,outMat); ln.frustumCulled=false; flows.add(ln);
+  }
+  function outAt(c,t){                 // 二次贝塞尔：脑面 → 收口点 → 盒沿
+    const u=1-t;
+    return [u*u*c[0][0]+2*u*t*c[1][0]+t*t*c[2][0],
+            -(u*u*c[0][1]+2*u*t*c[1][1]+t*t*c[2][1]),
+            u*u*c[0][2]+2*u*t*c[1][2]+t*t*c[2][2]];
+  }
+  const FLOWN = 3*1 + 5*2;             // 输入 3 枚 + 输出五路各 2 枚
+  const flowGeo = new THREE.BufferGeometry();
+  const flowPos = new Float32Array(FLOWN*3);
+  flowGeo.setAttribute('position', new THREE.BufferAttribute(flowPos,3));
+  const flowA = attrAH(flowGeo, FLOWN, 1, 1);
+  const flowMat = mkMat(SH, PX_PT_VS, PX_PT_FS); flowMat.uniforms.uSoft.value=.03;
+  const flowPts = new THREE.Points(flowGeo, flowMat); flowPts.frustumCulled=false; flows.add(flowPts);
+
+  const SWAY = B.sway*Math.PI/180, _t3=[0,0,0];
+  return {
+    scene, camera, intro:1.15, grab:false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    applyTheme(){
+      cloudMat.uniforms.uColor.value.copy(cssColor('--b-ink'));
+      cloudMat.uniforms.uHot.value.copy(cssColor('--b-hot'));
+      cloudMat.uniforms.uOpacity.value = cssNum('--b-op',.5);
+      cloudMat.uniforms.uSize.value = cssNum('--b-size',2);
+      cloudMat.uniforms.uBack.value = cssNum('--b-back',.28);
+      cloudMat.uniforms.uGain.value = cssNum('--b-gain',1.2);
+      cloudMat.uniforms.uCap.value = cssNum('--b-cap',.55);
+      setBlend(cloudMat, cssNum('--b-add',0));
+      // 脑沟 / 母形轮廓环：走墨色线稿档（比点云重一档，比放电轻一档）
+      [sulMat, rimMat].forEach((m,i)=>{
+        m.uniforms.uColor.value.copy(cssColor('--b-ink'));
+        m.uniforms.uHot.value.copy(cssColor('--b-ink'));
+        m.uniforms.uOpacity.value = cssNum('--b-op',.5)*(i ? 0.62 : 0.85);
+        m.uniforms.uBack.value = cssNum('--b-back',.28);
+        m.uniforms.uGain.value = 0;
+        setBlend(m, cssNum('--b-add',0));
+      });
+      arcMatB.uniforms.uColor.value.copy(cssColor('--b-arc'));
+      arcMatB.uniforms.uHot.value.copy(cssColor('--b-arc'));
+      arcMatB.uniforms.uOpacity.value = cssNum('--b-arc-op',.3);
+      arcMatB.uniforms.uBack.value = cssNum('--b-back',.28);
+      spkMat.uniforms.uColor.value.copy(cssColor('--b-spark'));
+      spkMat.uniforms.uHot.value.copy(cssColor('--b-spark'));
+      spkMat.uniforms.uOpacity.value = cssNum('--b-spark-op',.9);
+      spkMat.uniforms.uSize.value = cssNum('--b-spark-size',5);
+      spkMat.uniforms.uGain.value = 0;
+      setBlend(spkMat, cssNum('--b-spark-add',0));
+      [outMat, flowMat, inMat].forEach(m=>{
+        m.uniforms.uColor.value.copy(cssColor('--b-flow'));
+        m.uniforms.uHot.value.copy(cssColor('--b-flow'));
+        m.uniforms.uOpacity.value = cssNum('--b-flow-op',.8);
+        m.uniforms.uGain.value = 0;
+      });
+      flowMat.uniforms.uSize.value = cssNum('--b-flow-size',4.6);
+      setBlend(flowMat, cssNum('--b-spark-add',0));
+    },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      // 五区异步放电：周期 / 相位逐条抄 SVG 的 _ZONES（2.4/2.7/3.0/3.3/3.6s + 负 delay）
+      const f=[];
+      // 占空比收窄（pow 2.2）：大部分时间整颗脑是墨色线稿，只有**正在放电**的那一区
+      // 亮起来 —— 五区同时半亮就成了一团粉，读不出「异步」，也不是 editorial。
+      for(let k=0;k<5;k++) f.push(Math.pow(0.5-0.5*Math.cos(TAU*(clock-B.zoff[k])/B.zper[k]),2.2));
+      cloudMat.uniforms.uZ.value.set(f[0],f[1],f[2],f[3]);
+      cloudMat.uniforms.uZ4.value = f[4];
+      // ±12° 摇摆（不整圈转 —— 侧视轮廓是构图身份）
+      grp.rotation.y = SWAY*Math.sin(TAU*clock/B.swayP);
+      // 神经火花
+      for(let i=0;i<SPK.length;i++){
+        const s=SPK[i], c=arcCur[s[0]];
+        let u=((clock-s[2])/s[1])%1; if(u<0)u+=1;
+        const j=Math.min(c.length-2,Math.floor(u*(c.length-1))), fu=u*(c.length-1)-j;
+        spkPos[i*3]  = c[j][0]+(c[j+1][0]-c[j][0])*fu;
+        spkPos[i*3+1]= c[j][1]+(c[j+1][1]-c[j][1])*fu;
+        spkPos[i*3+2]= c[j][2]+(c[j+1][2]-c[j][2])*fu;
+        spkA.a[i] = Math.min(1,Math.min(u,1-u)*7);
+      }
+      spkGeo.attributes.position.needsUpdate=true; spkGeo.attributes.aA.needsUpdate=true;
+      // 输入 3 枚 + 输出 10 枚（1.6s 重拍 —— 与 SVG 里那条快路径同一个节拍）
+      let n=0;
+      for(let i=0;i<3;i++){
+        let u=((clock/2.6)+i/3)%1;
+        inAt(u,_t3); flowPos[n*3]=_t3[0]; flowPos[n*3+1]=_t3[1]; flowPos[n*3+2]=_t3[2];
+        flowA.a[n]=Math.min(1,Math.min(u,1-u)*6); n++;
+      }
+      for(let k=0;k<OUTP.length;k++) for(let m=0;m<2;m++){
+        let u=((clock/1.6)+m*0.5+k*0.11)%1;
+        const p=outAt(OUTP[k],u);
+        flowPos[n*3]=p[0]; flowPos[n*3+1]=p[1]; flowPos[n*3+2]=p[2];
+        flowA.a[n]=Math.min(1,Math.min(u,1-u)*6); n++;
+      }
+      flowGeo.attributes.position.needsUpdate=true; flowGeo.attributes.aA.needsUpdate=true;
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ④ SAL 双层防御壳（P9）
+   ───────────────────────────────────────────────────────────────────────────
+   页上那两枚「留左缺口的防御环」的真三维化：外壳 = 降噪层（传统 + AI 降噪），
+   内壳 = SAL 声纹层，缺口开在 -X（正对页上「目标人声」那一路实线波束）。
+   三类噪声从四面八方射向中心的「目标人声」核：01 稳态 / 02 瞬态撞外壳弹开，
+   03 非对话人人声穿过外壳、在内壳被挡（这正是 SAL 的进阶所在）；
+   只有目标声线从缺口穿两壳直达核。弹开的粒子带衰减轨迹 —— 挡住不是消失。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeShell(ctx){
+  const S = K.s, w = ctx.rect[2], h = ctx.rect[3], D = 1100;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, 300);
+  const grp = new THREE.Group(); grp.position.set(S.c[0], -S.c[1], 0); scene.add(grp);
+
+  /* ── 壳：fresnel 半透明球面 + 一层很淡的经纬网；-X 方向切一个缺口 ── */
+  const SHELL_VS = [
+    'uniform float uIntro; varying vec3 vN,vP,vL;',
+    'void main(){ vN=normalize(normalMatrix*normal); vL=normalize(position);',
+    '  vec4 mv=modelViewMatrix*vec4(position*max(uIntro,0.001),1.0); vP=mv.xyz;',
+    '  gl_Position=projectionMatrix*mv; }'].join('\n');
+  const SHELL_FS = [
+    'uniform vec3 uColor; uniform float uOpacity,uPow,uGap;',
+    'varying vec3 vN,vP,vL;',
+    'void main(){',
+    '  if(vL.x < -uGap) discard;',                 // 缺口：目标人声从这里进来
+    '  vec3 n=normalize(vN), v=normalize(-vP);',
+    '  float f=pow(clamp(1.0-abs(dot(n,v)),0.0,1.0),uPow);',
+    '  float a=uOpacity*f;',
+    '  if(a<0.004) discard;',
+    '  gl_FragColor=vec4(uColor,a);',
+    '  #include <colorspace_fragment>',
+    '}'].join('\n');
+  function shellMesh(r,gap){
+    const m = new THREE.ShaderMaterial({
+      uniforms:{ uIntro:SH.uIntro, uColor:{value:new THREE.Color()},
+                 uOpacity:{value:.2}, uPow:{value:2.6}, uGap:{value:gap} },
+      vertexShader:SHELL_VS, fragmentShader:SHELL_FS,
+      transparent:true, depthWrite:false, side:THREE.DoubleSide });
+    const o = new THREE.Mesh(new THREE.SphereGeometry(r,54,34), m);
+    o.frustumCulled=false; grp.add(o); return {o,m};
+  }
+  const outer = shellMesh(S.r2, S.gap2), inner = shellMesh(S.r1, S.gap1);
+  /* 壳上的经纬细网：让「壳」读成一层膜而不是一团雾（缺口处不画） */
+  function shellWire(r,gap){
+    const pts=[];
+    const v=(la,lo)=>{ const p=la*Math.PI/180,l=lo*Math.PI/180,c=Math.cos(p);
+      return [c*Math.sin(l)*r, Math.sin(p)*r, c*Math.cos(l)*r]; };
+    const okp=(q)=>(q[0]/r) >= -gap;
+    for(let lo=-180;lo<180;lo+=30){ let pv=null;
+      for(let la=-84;la<=84;la+=6){ const q=v(la,lo);
+        if(pv&&okp(q)&&okp(pv)) pts.push(pv,q); pv=q; } }
+    for(let la=-60;la<=60;la+=30){ let pv=null;
+      for(let lo=-180;lo<=180;lo+=6){ const q=v(la,lo);
+        if(pv&&okp(q)&&okp(pv)) pts.push(pv,q); pv=q; } }
+    const g=new THREE.BufferGeometry(), f=new Float32Array(pts.length*3);
+    pts.forEach((q,i)=>{ f[i*3]=q[0]; f[i*3+1]=q[1]; f[i*3+2]=q[2]; });
+    g.setAttribute('position', new THREE.BufferAttribute(f,3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(pts.length).fill(1),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(pts.length),1));
+    const m = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,m); ln.frustumCulled=false; grp.add(ln);
+    return m;
+  }
+  const wire2 = shellWire(S.r2,S.gap2), wire1 = shellWire(S.r1,S.gap1);
+
+  /* ── 核（目标人声）：一小簇点 + 一枚亮心 ── */
+  const coreGeo = new THREE.BufferGeometry();
+  {
+    const n=110, f=new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+      const u=1-2*(i+0.5)/n, r=Math.sqrt(Math.max(0,1-u*u)), th=i*2.399963;
+      const rr=S.rc*(0.55+0.45*h1(i,17.3));
+      f[i*3]=Math.cos(th)*r*rr; f[i*3+1]=u*rr; f[i*3+2]=Math.sin(th)*r*rr;
+    }
+    coreGeo.setAttribute('position', new THREE.BufferAttribute(f,3));
+    attrAH(coreGeo, n, 1, 1);
+  }
+  const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value=.04;
+  const core = new THREE.Points(coreGeo, coreMat); core.frustumCulled=false; grp.add(core);
+
+  /* ── 粒子流：三类噪声 + 目标人声，各一枚 Points（颜色分三档，不靠说明靠看）── */
+  const PT_VS_S = [
+    'uniform float uIntro,uSize,uD,uPx,uNear,uFar,uTime,uR0;',
+    'attribute vec3 aDir; attribute float aPh; attribute float aStop; attribute float aDur;',
+    'varying float vFade,vA,vH;',
+    'void main(){',
+    '  float t=fract((uTime+aPh)/aDur);',
+    '  float ti=min(t/0.62,1.0), tb=max(0.0,(t-0.62)/0.38);',
+    '  float rin=mix(uR0,aStop,ti*ti*(3.0-2.0*ti));',
+    '  float rout=aStop+(uR0-aStop)*0.34*tb;',              // 弹开：衰减轨迹
+    '  float r=mix(rin,rout,step(0.62,t));',
+    '  vec3 p=aDir*r*max(uIntro,0.001);',
+    '  vA=(1.0-tb*0.92)*min(1.0,t*16.0)*uIntro; vH=0.0;',
+    '  vec4 mv=modelViewMatrix*vec4(p,1.0);',
+    '  float z=max(-mv.z,1.0);',
+    '  vFade=clamp((uFar-z)/(uFar-uNear),0.0,1.0);',
+    '  gl_PointSize=max(uSize*uPx*uD/z,0.55);',
+    '  gl_Position=projectionMatrix*mv;',
+    '}'].join('\n');
+  function stream(n, base, spread, stop, durs, seed, gapFree){
+    const g=new THREE.BufferGeometry();
+    const pos=new Float32Array(n*3), dir=new Float32Array(n*3);
+    const ph=new Float32Array(n), st=new Float32Array(n), du=new Float32Array(n);
+    for(let i=0;i<n;i++){
+      let dx,dy,dz,l,tries=0;
+      do{
+        dx=base[0]+spread*(h1(i,seed)*2-1);
+        dy=base[1]+spread*(h1(i,seed+11.3)*2-1);
+        dz=base[2]+spread*(h1(i,seed+27.9)*2-1)+0.0001*tries;
+        l=Math.hypot(dx,dy,dz)||1; dx/=l; dy/=l; dz/=l;
+        tries++;
+        // 缺口是留给目标人声的：噪声不许从那儿进来（否则「只有它能进」就不成立了）
+      }while(!gapFree && dx < -S.gap2*0.86 && tries<8);
+      dir[i*3]=dx; dir[i*3+1]=dy; dir[i*3+2]=dz;
+      ph[i]=h1(i,seed+3.7)*10; st[i]=stop; du[i]=durs[0]+(durs[1]-durs[0])*h1(i,seed+5.1);
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('aDir', new THREE.BufferAttribute(dir,3));
+    g.setAttribute('aPh', new THREE.BufferAttribute(ph,1));
+    g.setAttribute('aStop', new THREE.BufferAttribute(st,1));
+    g.setAttribute('aDur', new THREE.BufferAttribute(du,1));
+    const m = mkMat(SH, PT_VS_S, PX_PT_FS, { uR0:{value:S.r0} });
+    m.uniforms.uSoft.value=.05;
+    const o = new THREE.Points(g,m); o.frustumCulled=false; o.matrixAutoUpdate=false; grp.add(o);
+    return m;
+  }
+  // 三路的主方向逐条对上页上那三支点线波束（从右上 / 正右 / 右下射进来）
+  // spread 收到 .30：三路必须读成**三束**（对上页上右侧那三枚噪声源），
+  // 放到 .70 就成了一层均匀的噪点雾，「三类噪声」当场读不出来。
+  const n1 = stream(120, S.d1, .30, S.r2, [3.0,4.2], 101.1, false);
+  const n2 = stream(104, S.d2, .28, S.r2, [2.4,3.6], 213.7, false);
+  const n3 = stream(92,  S.d3, .26, S.r1, [2.6,3.8], 331.9, false);
+  const tg = stream(34, [-1,0,0], .17, S.rc*0.8, [1.5,2.1], 457.3, true);
+  /* 目标人声主通路：从缺口穿两层壳直达核的一根实线（页上那根 accent 实线波束的升维）。
+     三路噪声是点线（撞壳弹开），只有它是一条**连通**的线 —— 「只有它能进来」是画出来的。 */
+  var beamMat;
+  {
+    const seg=[], al=[], N=40;
+    for(let i=0;i<N;i++){
+      const r0=S.r0*(1-i/N)+S.rc*0.55*(i/N), r1=S.r0*(1-(i+1)/N)+S.rc*0.55*((i+1)/N);
+      seg.push(-r0,0,0, -r1,0,0);
+      const e=0.35+0.65*(i/N); al.push(e,e);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    beamMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,beamMat); ln.frustumCulled=false; grp.add(ln);
+  }
+
+  return {
+    scene, camera, intro:1.0, grab:false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){ SH.uTime.value = clock; },
+    applyTheme(){
+      outer.m.uniforms.uColor.value.copy(cssColor('--s-shell'));
+      outer.m.uniforms.uOpacity.value = cssNum('--s-shell-op',.19);
+      outer.m.uniforms.uPow.value = cssNum('--s-shell-pow',2.6);
+      inner.m.uniforms.uColor.value.copy(cssColor('--s-inner'));
+      inner.m.uniforms.uOpacity.value = cssNum('--s-inner-op',.24);
+      inner.m.uniforms.uPow.value = cssNum('--s-shell-pow',2.6);
+      [wire2,wire1].forEach((m,i)=>{
+        m.uniforms.uColor.value.copy(cssColor(i?'--s-inner':'--s-grid'));
+        m.uniforms.uHot.value.copy(cssColor(i?'--s-inner':'--s-grid'));
+        m.uniforms.uOpacity.value = cssNum('--s-grid-op',.14)*(i?1.5:1);
+        m.uniforms.uGain.value = 0;
+      });
+      coreMat.uniforms.uColor.value.copy(cssColor('--s-core'));
+      coreMat.uniforms.uHot.value.copy(cssColor('--s-core'));
+      coreMat.uniforms.uOpacity.value = cssNum('--s-core-op',.95);
+      coreMat.uniforms.uSize.value = cssNum('--s-core-size',4.2);
+      coreMat.uniforms.uGain.value = 0;
+      const nz = cssNum('--s-noise-size',3.6);
+      [[n1,'--s-n1','--s-n1-op'],[n2,'--s-n2','--s-n2-op'],[n3,'--s-n3','--s-n3-op']]
+        .forEach(([m,c,o])=>{
+          m.uniforms.uColor.value.copy(cssColor(c));
+          m.uniforms.uHot.value.copy(cssColor(c));
+          m.uniforms.uOpacity.value = cssNum(o,.7);
+          m.uniforms.uSize.value = nz; m.uniforms.uGain.value = 0;
+        });
+      beamMat.uniforms.uColor.value.copy(cssColor('--s-target'));
+      beamMat.uniforms.uHot.value.copy(cssColor('--s-target'));
+      beamMat.uniforms.uOpacity.value = cssNum('--s-target-op',.95)*.8;
+      beamMat.uniforms.uGain.value = 0;
+      tg.uniforms.uColor.value.copy(cssColor('--s-target'));
+      tg.uniforms.uHot.value.copy(cssColor('--s-target'));
+      tg.uniforms.uOpacity.value = cssNum('--s-target-op',.95);
+      tg.uniforms.uSize.value = cssNum('--s-target-size',5);
+      tg.uniforms.uGain.value = 0;
+      [n1,n2,n3,tg,beamMat,coreMat].forEach(m=>setBlend(m,cssNum('--s-add',0)));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑤ Loop Engineering · 复利螺旋（P18）
+   ───────────────────────────────────────────────────────────────────────────
+   页上那条成长曲线（_CA_CURVE：DAY 01 的 y232 → DAY 30 的 y70，穿越点钉死在
+   (700,160)）就是这条螺旋的**脊线** —— 2D 图的坐标账一格没动，只是让带子绕着它转。
+   半径与带宽随 t 一起长（16→46 / 5→17）：复利不是「涨得更高」，是「每一圈都更宽」。
+   四枚发光站点落在 DAY 01 / 07 / 15 / 30 的 x 上（= 页上四条刻度线的 x），
+   光点沿螺旋一路爬升循环 —— 「和销冠一样复盘，只是快一千倍」的形。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeSpiral(ctx){
+  const R = K.r, w = ctx.rect[2], h = ctx.rect[3], D = 560;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  // 深度雾贴着螺旋的真实半径收紧：转到背面那半圈要明显暗下去，
+  // 否则在屏上它就只是一条正弦波（第一版就是这么翻车的）。
+  const SH = pxShared(D, 70);
+  const SP = unpackPoly(R.spine), SC = polyCum(SP), _o=[0,0];
+  const N = 460, pts=[], nrm=[];
+  function spineAt(t){ polyAt(SP,SC,t,_o); return [_o[0],-_o[1],0]; }
+  for(let i=0;i<N;i++){
+    const t=i/(N-1), c=spineAt(t);
+    const a=spineAt(Math.max(0,t-0.004)), b=spineAt(Math.min(1,t+0.004));
+    let tx=b[0]-a[0], ty=b[1]-a[1]; const tl=Math.hypot(tx,ty)||1; tx/=tl; ty/=tl;
+    const nx=-ty, ny=tx;                            // 脊线的面内法向
+    const rr=R.r0+(R.r1-R.r0)*t, th=TAU*R.turns*t;
+    pts.push([c[0]+nx*rr*Math.cos(th), c[1]+ny*rr*Math.cos(th), rr*Math.sin(th)]);
+    // 径向：带面就展在这个方向上（绕轴转到哪儿，带面就朝哪儿）
+    nrm.push([nx*Math.cos(th), ny*Math.cos(th), Math.sin(th)]);
+  }
+  /* ── 螺旋带（ribbon）：宽度随 t 增长，带面沿径向展开 ── */
+  const rgeo = ribbonGeo(pts, (t)=>R.w0+(R.w1-R.w0)*t, null, nrm);
+  {
+    const n=rgeo.attributes.position.count;
+    rgeo.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(n).fill(1),1));
+    rgeo.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(n),1));
+  }
+  const bandMat = mkMat(SH, PX_RB_VS, PX_RB_FS, { uFlow:{value:5} });
+  bandMat.side = THREE.DoubleSide;
+  scene.add(new THREE.Mesh(rgeo, bandMat));
+  /* ── 两条轨（带子的上下沿）：带面之外再钉一层线稿，editorial 的骨 ── */
+  {
+    const seg=[], al=[], hh=[];
+    const P=rgeo.attributes.position.array;
+    for(let side=0;side<2;side++) for(let i=0;i<N-1;i++){
+      const a=(i*2+side)*3, b=((i+1)*2+side)*3;
+      seg.push(P[a],P[a+1],P[a+2],P[b],P[b+1],P[b+2]);
+      const t=i/(N-1); al.push(0.35+0.65*t,0.35+0.65*t); hh.push(t,t);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(hh),1));
+    var railMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,railMat); ln.frustumCulled=false; scene.add(ln);
+  }
+  /* ── 脊线轴：页上那条成长曲线本人（z=0 的一根细线）────────────────────
+     没有轴，绕轴的带子在屏上就只是一条波浪线；有了轴，「前面那半圈 / 后面那半圈」
+     一眼就分得出来 —— 螺旋是绕着**成长曲线**长的，这就是复利的形。 */
+  var axisMat;
+  {
+    const seg=[], al=[], NA=200;
+    for(let i=0;i<NA;i++){
+      const a=spineAt(i/NA), b2=spineAt((i+1)/NA);
+      seg.push(a[0],a[1],0, b2[0],b2[1],0); al.push(1,1);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,axisMat); ln.frustumCulled=false; scene.add(ln);
+  }
+  /* ── 四枚站点：复盘 / 定位 / 迭代 / 训练 落在 DAY 01/07/15/30 的 x 上 ── */
+  const stT = R.days.map(dx=>{
+    let best=0, bd=1e9;
+    for(let i=0;i<N;i++){ const t=i/(N-1), d=Math.abs(spineAt(t)[0]-dx);
+      if(d<bd){bd=d;best=t;} }
+    return best;
+  });
+  const stGeo = new THREE.BufferGeometry();
+  {
+    const f=new Float32Array(stT.length*3);
+    stT.forEach((t,i)=>{ const j=Math.round(t*(N-1)); f[i*3]=pts[j][0]; f[i*3+1]=pts[j][1]; f[i*3+2]=pts[j][2]; });
+    stGeo.setAttribute('position', new THREE.BufferAttribute(f,3));
+  }
+  const stA = attrAH(stGeo, stT.length, 1, 1);
+  const nodeMatR = mkMat(SH, PX_PT_VS, PX_PT_FS); nodeMatR.uniforms.uSoft.value=.02;
+  const stPts = new THREE.Points(stGeo, nodeMatR); stPts.frustumCulled=false; scene.add(stPts);
+  const haloMatR = mkMat(SH, PX_PT_VS, PX_PT_FS); haloMatR.uniforms.uSoft.value=.24;
+  const stHalo = new THREE.Points(stGeo, haloMatR); stHalo.frustumCulled=false; scene.add(stHalo);
+  /* ── 爬升的光点 ── */
+  const SN = 14, spGeo = new THREE.BufferGeometry();
+  const spPos = new Float32Array(SN*3);
+  spGeo.setAttribute('position', new THREE.BufferAttribute(spPos,3));
+  const spA = attrAH(spGeo, SN, 1, 1);
+  const sparkMat = mkMat(SH, PX_PT_VS, PX_PT_FS); sparkMat.uniforms.uSoft.value=.03;
+  const sparks = new THREE.Points(spGeo, sparkMat); sparks.frustumCulled=false; scene.add(sparks);
+
+  return {
+    scene, camera, intro:1.35, grab:false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      for(let i=0;i<SN;i++){
+        let u=((clock/R.climb)+i/SN)%1;
+        const j=Math.min(N-2,Math.floor(u*(N-1))), fu=u*(N-1)-j;
+        spPos[i*3]  = pts[j][0]+(pts[j+1][0]-pts[j][0])*fu;
+        spPos[i*3+1]= pts[j][1]+(pts[j+1][1]-pts[j][1])*fu;
+        spPos[i*3+2]= pts[j][2]+(pts[j+1][2]-pts[j][2])*fu;
+        spA.a[i]=Math.min(1,Math.min(u*8,(1-u)*5))*(0.45+0.55*u);
+      }
+      spGeo.attributes.position.needsUpdate=true; spGeo.attributes.aA.needsUpdate=true;
+      // 站点呼吸：四枚各自错峰（复盘→定位→迭代→训练 是一圈，不是四盏同时闪）
+      for(let i=0;i<stT.length;i++) stA.a[i]=0.62+0.38*(0.5-0.5*Math.cos(TAU*(clock/3.2-i*0.25)));
+      stGeo.attributes.aA.needsUpdate=true;
+    },
+    applyTheme(){
+      bandMat.uniforms.uColor.value.copy(cssColor('--r-band'));
+      bandMat.uniforms.uHot.value.copy(cssColor('--r-band'));
+      bandMat.uniforms.uOpacity.value = cssNum('--r-band-op',.2);
+      bandMat.uniforms.uGain.value = 0;
+      // uBack 压到 .10：转到轴背后的那半圈几乎隐去 ⇒ 「绕着轴转」是看出来的
+      [bandMat,railMat,axisMat].forEach(m=>{ m.uniforms.uBack.value = .10; });
+      axisMat.uniforms.uColor.value.copy(cssColor('--r-rail'));
+      axisMat.uniforms.uHot.value.copy(cssColor('--r-rail'));
+      axisMat.uniforms.uOpacity.value = cssNum('--r-rail-op',.6)*.55;
+      axisMat.uniforms.uGain.value = 0;
+      railMat.uniforms.uColor.value.copy(cssColor('--r-rail'));
+      railMat.uniforms.uHot.value.copy(cssColor('--r-node'));
+      railMat.uniforms.uOpacity.value = cssNum('--r-rail-op',.6);
+      railMat.uniforms.uGain.value = .5;
+      nodeMatR.uniforms.uColor.value.copy(cssColor('--r-node'));
+      nodeMatR.uniforms.uHot.value.copy(cssColor('--r-node'));
+      nodeMatR.uniforms.uOpacity.value = cssNum('--r-node-op',.95);
+      nodeMatR.uniforms.uSize.value = cssNum('--r-node-size',7);
+      nodeMatR.uniforms.uGain.value = 0;
+      haloMatR.uniforms.uColor.value.copy(cssColor('--r-node'));
+      haloMatR.uniforms.uHot.value.copy(cssColor('--r-node'));
+      haloMatR.uniforms.uOpacity.value = cssNum('--r-node-op',1)*.26;
+      haloMatR.uniforms.uSize.value = cssNum('--r-node-size',10)*2.6;
+      haloMatR.uniforms.uGain.value = 0;
+      sparkMat.uniforms.uColor.value.copy(cssColor('--r-spark'));
+      sparkMat.uniforms.uHot.value.copy(cssColor('--r-spark'));
+      sparkMat.uniforms.uOpacity.value = cssNum('--r-spark-op',.9);
+      sparkMat.uniforms.uSize.value = cssNum('--r-spark-size',4.6);
+      sparkMat.uniforms.uGain.value = 0;
+      [bandMat,railMat,axisMat,nodeMatR,haloMatR,sparkMat].forEach(m=>setBlend(m,cssNum('--r-add',0)));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑥ VAD 声学地形（P7）
+   ───────────────────────────────────────────────────────────────────────────
+   页上那条逐帧语音概率曲线**就是山脊线** —— 把它沿「帧」这个第二轴（深度 z）
+   挤出去，能量检测从一条线变成一片地形。悬在地形上方的两枚半透明面是滞回带
+   （上下阈值，取页上原来的 y62 / y96）：山脊穿过带子的地方，就是判定发生的地方。
+   SOS / EOS 两枚事件是地形上的立柱光标（x 逐字抄页上的 880 / 1380）。
+   data-step 桥：第 1 步（开源 × 引擎进阶两卡登场）把「+ 语义判停」那一道
+   前排折脊点亮 —— 声学之上再叠一层语义，在地形上看得见。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeTerrain(ctx){
+  const T = K.t, w = ctx.rect[2], h = ctx.rect[3], D = 520;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, 95);
+  const grp = new THREE.Group(); grp.position.set(0,-T.base,0); grp.rotation.x = T.tilt; scene.add(grp);
+  const CV = unpackPoly(T.curve);
+  function crest(x){                       // 页上那条概率曲线在 x 处的 y
+    const n=CV.length/2;
+    if(x<=CV[0]) return CV[1];
+    for(let i=1;i<n;i++){ if(CV[i*2]>=x){
+      const u=(x-CV[i*2-2])/((CV[i*2]-CV[i*2-2])||1);
+      return CV[i*2-1]+(CV[i*2+1]-CV[i*2-1])*u; } }
+    return CV[n*2-1];
+  }
+  const NX=T.nx, NZ=T.nz, X0=T.x0, X1=T.x1, ZW=T.zw;
+  const ridge=(z)=>Math.exp(-(z*z)/(T.sig*T.sig));
+  const hAt=(x,z)=>(T.base-crest(x))*ridge(z);
+  /* ── 地形：等深线（沿 x）+ 稀疏的横向筋（沿 z）── */
+  {
+    const seg=[], al=[], hh=[];
+    for(let r=0;r<NZ;r++){
+      const z=-ZW+2*ZW*r/(NZ-1), aw=Math.pow(ridge(z),.55);
+      for(let i=0;i<NX-1;i++){
+        const xa=X0+(X1-X0)*i/(NX-1), xb=X0+(X1-X0)*(i+1)/(NX-1);
+        seg.push(xa,hAt(xa,z),z, xb,hAt(xb,z),z);
+        al.push(aw,aw); hh.push(0,0);
+      }
+    }
+    for(let i=0;i<NX;i+=14){
+      const x=X0+(X1-X0)*i/(NX-1);
+      for(let r=0;r<NZ-1;r++){
+        const za=-ZW+2*ZW*r/(NZ-1), zb=-ZW+2*ZW*(r+1)/(NZ-1);
+        const aw=Math.pow(ridge((za+zb)/2),.55)*.66;
+        seg.push(x,hAt(x,za),za, x,hAt(x,zb),zb); al.push(aw,aw); hh.push(0,0);
+      }
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(hh),1));
+    var ridgeMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,ridgeMat); ln.frustumCulled=false; grp.add(ln);
+  }
+  /* ── 脊线（z=0）：这一条就是页上那条概率曲线本人 ── */
+  {
+    const seg=[], al=[];
+    for(let i=0;i<NX-1;i++){
+      const xa=X0+(X1-X0)*i/(NX-1), xb=X0+(X1-X0)*(i+1)/(NX-1);
+      seg.push(xa,hAt(xa,0),0, xb,hAt(xb,0),0); al.push(1,1);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    var crestMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,crestMat); ln.frustumCulled=false; grp.add(ln);
+  }
+  /* ── 滞回带：两枚悬浮半透明面（y 取页上的上下阈值）── */
+  const bandMats=[];
+  T.band.forEach((by)=>{
+    const y=T.base-by;
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+      X0,y,-ZW, X1,y,-ZW, X1,y,ZW, X0,y,ZW]),3));
+    g.setAttribute('aT', new THREE.BufferAttribute(new Float32Array([0,.34,.67,1]),1));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array([1,1,1,1]),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(4),1));
+    g.setIndex([0,1,2, 0,2,3]);
+    const m = mkMat(SH, PX_RB_VS, PX_RB_FS, { uFlow:{value:0} });
+    m.side = THREE.DoubleSide;
+    const o=new THREE.Mesh(g,m); o.frustumCulled=false; grp.add(o);
+    bandMats.push(m);
+  });
+  /* ── SOS / EOS 立柱光标（x 逐字抄页上的事件位）── */
+  {
+    const seg=[], al=[];
+    T.pins.forEach(px=>{
+      const y0=0, y1=T.base-T.pinTop;
+      for(let s=0;s<14;s++){
+        const a=y0+(y1-y0)*s/14, b=y0+(y1-y0)*(s+1)/14;
+        seg.push(px,a,0, px,b,0); const e=1-s/16; al.push(e,e);
+      }
+    });
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    var pinMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,pinMat); ln.frustumCulled=false; grp.add(ln);
+  }
+  const capGeo = new THREE.BufferGeometry();
+  {
+    const f=new Float32Array(T.pins.length*3);
+    T.pins.forEach((px,i)=>{ f[i*3]=px; f[i*3+1]=T.base-T.pinTop; f[i*3+2]=0; });
+    capGeo.setAttribute('position', new THREE.BufferAttribute(f,3));
+  }
+  const capA = attrAH(capGeo, T.pins.length, 1, 1);
+  const capMat = mkMat(SH, PX_PT_VS, PX_PT_FS); capMat.uniforms.uSoft.value=.02;
+  const caps = new THREE.Points(capGeo, capMat); caps.frustumCulled=false; grp.add(caps);
+  /* ── 语义层：前排（z=+）一道折脊，第 1 步点亮 ── */
+  const SEM = unpackPoly(T.sem);
+  var semMat;
+  {
+    const seg=[], al=[], n=SEM.length/2;
+    for(let i=0;i<n-1;i++){
+      seg.push(SEM[i*2],T.base-SEM[i*2+1],T.semZ, SEM[i*2+2],T.base-SEM[i*2+3],T.semZ);
+      al.push(1,1);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    semMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,semMat); ln.frustumCulled=false; grp.add(ln);
+  }
+  let stepN = 0, semOp = .85;
+  return {
+    scene, camera, intro:1.1, grab:false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    setStep(n){ stepN = n; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      // 立柱光标的呼吸：SOS / EOS 错峰（两枚事件不是同一件事）
+      for(let i=0;i<T.pins.length;i++)
+        capA.a[i]=0.55+0.45*(0.5-0.5*Math.cos(TAU*(clock/2.4-i*0.5)));
+      capGeo.attributes.aA.needsUpdate=true;
+      // data-step → uniform：第 1 步把语义层从「在场但很轻」推到「亮起来」
+      const want = stepN>=1 ? semOp : semOp*0.26;
+      const cu = semMat.uniforms.uOpacity;
+      cu.value += (want-cu.value)*Math.min(1,dt*3.2);
+    },
+    applyTheme(){
+      ridgeMat.uniforms.uColor.value.copy(cssColor('--t-ridge'));
+      ridgeMat.uniforms.uHot.value.copy(cssColor('--t-crest'));
+      ridgeMat.uniforms.uOpacity.value = cssNum('--t-ridge-op',.4);
+      ridgeMat.uniforms.uGain.value = 0;
+      ridgeMat.uniforms.uBack.value = .18;
+      crestMat.uniforms.uColor.value.copy(cssColor('--t-prob'));
+      crestMat.uniforms.uHot.value.copy(cssColor('--t-prob'));
+      crestMat.uniforms.uOpacity.value = cssNum('--t-prob-op',.9);
+      crestMat.uniforms.uGain.value = 0;
+      crestMat.uniforms.uBack.value = .55;
+      bandMats.forEach(m=>{
+        m.uniforms.uColor.value.copy(cssColor('--t-band'));
+        m.uniforms.uHot.value.copy(cssColor('--t-band'));
+        m.uniforms.uOpacity.value = cssNum('--t-band-op',.13);
+        m.uniforms.uGain.value = 0;
+      });
+      [pinMat,capMat].forEach(m=>{
+        m.uniforms.uColor.value.copy(cssColor('--t-pillar'));
+        m.uniforms.uHot.value.copy(cssColor('--t-pillar'));
+        m.uniforms.uOpacity.value = cssNum('--t-pillar-op',.75);
+        m.uniforms.uGain.value = 0;
+      });
+      capMat.uniforms.uSize.value = 6;
+      semOp = cssNum('--t-sem-op',.85);
+      semMat.uniforms.uColor.value.copy(cssColor('--t-sem'));
+      semMat.uniforms.uHot.value.copy(cssColor('--t-sem'));
+      semMat.uniforms.uGain.value = 0;
+      [ridgeMat,crestMat,pinMat,capMat,semMat].concat(bandMats)
+        .forEach(m=>setBlend(m,cssNum('--t-add',0)));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑦ 全双工双向声带（P4）
+   ───────────────────────────────────────────────────────────────────────────
+   两条对向流动的 3D 声波 ribbon 在同一段空间里交错穿行 —— 你说的那条自左向右，
+   它说的那条自右向左，**投影上反复交叠、深度上永不相撞**：这就是「同时说」
+   的立体形（半双工里这两条带子只能轮流出现）。交叠区高亮。
+   x=1080 那根竖线（页上「用户插话 = TTS 截断 = 340ms 快路径」的三带共用垂线）
+   仍是这一页的转折点：过了它，「它说」那条带子掉成一缕虚影 —— 收声让位。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeDuplex(ctx){
+  const Q = K.d, w = ctx.rect[2], h = ctx.rect[3], D = 1400;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, 88);
+  const N = 320;
+  function lane(sign, phase){
+    const out=[];
+    for(let i=0;i<N;i++){
+      const u=i/(N-1), x=Q.x0+(Q.x1-Q.x0)*u, th=TAU*Q.turns*u+phase;
+      out.push([x, -(Q.yc - sign*Q.amp*Math.cos(th)), sign*Q.dep*Math.sin(th)]);
+    }
+    return out;
+  }
+  const A = lane( 1, 0), B = lane(-1, Q.phase);
+  // 交叠：两条带在投影上靠得多近（|yA-yB|）—— 高亮由它驱动，不是随手点几处
+  const lap=[];
+  for(let i=0;i<N;i++){
+    const d=Math.abs(A[i][1]-B[i][1]);
+    lap.push(Math.max(0,Math.min(1,(Q.lap1-d)/(Q.lap1-Q.lap0))));
+  }
+  function band(P, hw, cut){
+    const g = ribbonGeo(P, ()=>hw);
+    const n = g.attributes.position.count;
+    const a=new Float32Array(n), hgt=new Float32Array(n);
+    for(let i=0;i<N;i++){
+      const x=P[i][0];
+      const k = cut && x>Q.cut ? Q.ghost : 1;
+      a[i*2]=a[i*2+1]=k; hgt[i*2]=hgt[i*2+1]=lap[i];
+    }
+    g.setAttribute('aA', new THREE.BufferAttribute(a,1));
+    g.setAttribute('aH', new THREE.BufferAttribute(hgt,1));
+    const m = mkMat(SH, PX_RB_VS, PX_RB_FS, { uFlow:{value:cut?-6:6} });
+    m.side = THREE.DoubleSide;
+    const o=new THREE.Mesh(g,m); o.frustumCulled=false; scene.add(o);
+    return m;
+  }
+  const matA = band(A, Q.hw, false), matB = band(B, Q.hw*0.86, true);
+  /* ── 截断标记：x=1080 的那根竖线（页上三条泳道共用的那一根）── */
+  var cutMat;
+  {
+    const seg=[], al=[];
+    for(let s=0;s<12;s++){
+      const y0=-(Q.cy0+(Q.cy1-Q.cy0)*s/12), y1=-(Q.cy0+(Q.cy1-Q.cy0)*(s+1)/12);
+      if(s%2) continue;
+      seg.push(Q.cut,y0,0, Q.cut,y1,0); al.push(1,1);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
+    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    cutMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ln=new THREE.LineSegments(g,cutMat); ln.frustumCulled=false; scene.add(ln);
+  }
+  /* ── 包粒子：沿各自的带反向流（它说那一路到截断点就没有了）── */
+  const PA=10, PB=8, pkGeo=new THREE.BufferGeometry();
+  const pkPos=new Float32Array((PA+PB)*3);
+  pkGeo.setAttribute('position', new THREE.BufferAttribute(pkPos,3));
+  const pkA = attrAH(pkGeo, PA+PB, 1, 1);
+  const pkMat = mkMat(SH, PX_PT_VS, PX_PT_FS); pkMat.uniforms.uSoft.value=.03;
+  const pks = new THREE.Points(pkGeo, pkMat); pks.frustumCulled=false; scene.add(pks);
+  const cutU = (Q.cut-Q.x0)/(Q.x1-Q.x0);
+
+  return {
+    scene, camera, intro:1.2, grab:false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      let n=0;
+      for(let i=0;i<PA;i++){
+        let u=((clock/Q.durA)+i/PA)%1;
+        const j=Math.min(N-2,Math.floor(u*(N-1))), fu=u*(N-1)-j;
+        pkPos[n*3]=A[j][0]+(A[j+1][0]-A[j][0])*fu;
+        pkPos[n*3+1]=A[j][1]+(A[j+1][1]-A[j][1])*fu;
+        pkPos[n*3+2]=A[j][2]+(A[j+1][2]-A[j][2])*fu;
+        pkA.a[n]=Math.min(1,Math.min(u,1-u)*9); n++;
+      }
+      for(let i=0;i<PB;i++){
+        let u=1-(((clock/Q.durB)+i/PB)%1);           // 反向：从右往左
+        const j=Math.min(N-2,Math.floor(u*(N-1))), fu=u*(N-1)-j;
+        pkPos[n*3]=B[j][0]+(B[j+1][0]-B[j][0])*fu;
+        pkPos[n*3+1]=B[j][1]+(B[j+1][1]-B[j][1])*fu;
+        pkPos[n*3+2]=B[j][2]+(B[j+1][2]-B[j][2])*fu;
+        pkA.a[n]=Math.min(1,Math.min(u,1-u)*9)*(u>cutU?Q.ghost:1); n++;
+      }
+      pkGeo.attributes.position.needsUpdate=true; pkGeo.attributes.aA.needsUpdate=true;
+    },
+    applyTheme(){
+      matA.uniforms.uColor.value.copy(cssColor('--d-up'));
+      matA.uniforms.uHot.value.copy(cssColor('--d-lap'));
+      matA.uniforms.uOpacity.value = cssNum('--d-up-op',.6);
+      matA.uniforms.uGain.value = 1.1;
+      matB.uniforms.uColor.value.copy(cssColor('--d-dn'));
+      matB.uniforms.uHot.value.copy(cssColor('--d-lap'));
+      matB.uniforms.uOpacity.value = cssNum('--d-dn-op',.5);
+      matB.uniforms.uGain.value = 1.1;
+      cutMat.uniforms.uColor.value.copy(cssColor('--d-cut'));
+      cutMat.uniforms.uHot.value.copy(cssColor('--d-cut'));
+      cutMat.uniforms.uOpacity.value = cssNum('--d-cut-op',.75);
+      cutMat.uniforms.uGain.value = 0;
+      pkMat.uniforms.uColor.value.copy(cssColor('--d-pkt'));
+      pkMat.uniforms.uHot.value.copy(cssColor('--d-pkt'));
+      pkMat.uniforms.uOpacity.value = cssNum('--d-pkt-op',.9);
+      pkMat.uniforms.uSize.value = cssNum('--d-pkt-size',4.4);
+      pkMat.uniforms.uGain.value = 0;
+      [matA,matB,cutMat,pkMat].forEach(m=>setBlend(m,cssNum('--d-add',0)));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   单渲染器巡游 · TOUR
+   ───────────────────────────────────────────────────────────────────────────
+   全 deck **一个 WebGLRenderer、一块 canvas**。canvas 平时停在车库（屏外），
+   翻到有场景的页就被 appendChild 进那一页的 .lab-stage、按 data-lab-rect 对位、
+   热切换到该页的场景；翻到没有场景的页就回车库、canvas 隐身。
+   于是：① 浏览器的「同页面 WebGL 上下文上限」从根上不存在（16 个 3D 页也只吃一枚）；
+        ② 任一时刻只有一个场景在渲染，22 页里没有任何一页在偷偷空转；
+        ③ 加一页 3D 只需要「写一个场景工厂 + 在 LAB_RECTS 里加一行」。
+
+   ⚠ 判活一律**从 DOM 读**（.active / [data-step].on），不读 deck.i ——
+     现场翻页（deck.go）与 qa / occlusion-scan / 截图脚本（直接 classList.toggle）
+     两条路径共用同一套判据，不会出现「现场在跑、截图里没跑」这种分叉。
+   ═══════════════════════════════════════════════════════════════════════════ */
+const CANVAS = document.getElementById('labGl');
+const GARAGE = document.getElementById('labGarage');
+const FACTORY = { voice:makeVoice, globe:makeGlobe, brain:makeBrain,
+                  shell:makeShell, spiral:makeSpiral, terrain:makeTerrain, duplex:makeDuplex };
+const STAGES = [...document.querySelectorAll('.lab-stage')].map(el=>({
+  el, page:+el.dataset.labPage, name:el.dataset.labScene,
+  rect:el.dataset.labRect.split(',').map(Number),
+  print:el.querySelector('.lab-print'),
+  slide:el.closest('.slide'), unit:null,
+}));
+const TOUR = { page:0, scene:'', mounts:0, leaves:{}, pages:STAGES.map(s=>s.page) };
+window.__labTour = TOUR;
+document.documentElement.dataset.labScenes = TOUR.pages.join(',');
+
+function markPoster(why){
+  const c = CANVAS;
+  if(c){ c.dataset.labMode='POSTER'; c.dataset.labRun='0'; }
+  document.querySelectorAll('.lab-stage').forEach(s=>s.classList.remove('gl-up'));
+  if(c && c.parentNode!==GARAGE && GARAGE) GARAGE.appendChild(c);
+  document.documentElement.setAttribute('data-lab-poster','1');
+  paintProbe();
+  console.info('[convoai-lab] poster 降级：'+why);
+}
+function paintProbe(){
+  const p = document.getElementById('labProbe'); if(!p||!CANVAS) return;
+  const d = CANVAS.dataset;
+  p.innerHTML = '<span>'+((d.labScene||'—').toUpperCase())+' P'+(d.labPage||'—')+'</span>'
+    + '<span class="sep">/</span><span>FPS <b>'+(d.labFps||'—')+'</b></span>'
+    + '<span class="sep">/</span><span>DPR '+(d.labDpr||'—')+'</span>'
+    + '<span class="sep">/</span><span>THREE r'+K.rev+'</span>'
+    + '<span class="sep">/</span><span>'+(d.labMode||'BOOT')+'</span>';
+}
+
+let renderer=null, cur=null, raf=0, last=0, clock=0, tIntro=0;
+let running=false, degraded=false, booted=false;
+let frames=0, fpsT=0, startT=0, tot=0;
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function stageScale(){
+  return Math.min(1, Math.min(window.innerWidth/1920, window.innerHeight/1080) || 1);
+}
+function pixRatio(){
+  // DPR 上限 2，再乘舞台缩放：小窗口下不白烧像素（舞台是 transform:scale 的固定 1920 画布）
+  return Math.min(window.devicePixelRatio||1, 2) * stageScale();
+}
+function mount(s){
+  const r = s.rect;
+  CANVAS.style.left = r[0]+'px'; CANVAS.style.top = r[1]+'px';
+  CANVAS.style.width = r[2]+'px'; CANVAS.style.height = r[3]+'px';
+  if(CANVAS.parentNode !== s.el) s.el.appendChild(CANVAS);
+  CANVAS.classList.toggle('lab-grab', !!s.unit.grab);
+  const pr = pixRatio();
+  renderer.setPixelRatio(pr);
+  renderer.setSize(r[2], r[3], false);
+  s.unit.onDPR(pr);
+  CANVAS.dataset.labPage = String(s.page);
+  CANVAS.dataset.labScene = s.name;
+  CANVAS.dataset.labDpr = String(Math.round(pr*100)/100);
+  TOUR.page = s.page; TOUR.scene = s.name; TOUR.mounts++;
+  cur = s;
+}
+function unmount(){
+  if(cur){
+    cur.el.classList.remove('gl-up');
+    if(cur.unit.onLeave) cur.unit.onLeave();
+    cur.unit.setIntro(0);
+    TOUR.leaves[cur.page] = (TOUR.leaves[cur.page]||0)+1;
+  }
+  CANVAS.classList.remove('lab-grab');
+  if(CANVAS.parentNode !== GARAGE) GARAGE.appendChild(CANVAS);
+  CANVAS.dataset.labPage='0'; CANVAS.dataset.labScene='';
+  TOUR.page = 0; TOUR.scene='';
+  cur = null;
+}
+function applyStep(s){
+  if(!s.unit.setStep || !s.slide) return;
+  let n = 0;
+  s.slide.querySelectorAll('[data-step]').forEach(e=>{
+    if(e.classList.contains('on')) n = Math.max(n, +e.dataset.step||0); });
+  s.unit.setStep(n);
+}
+function frame(dt){
+  if(!cur) return;
+  clock += dt;
+  if(tIntro < 1) tIntro = Math.min(1, tIntro + (dt / cur.unit.intro));
+  cur.unit.setIntro(easeFlow(tIntro));
+  cur.unit.draw(dt, clock);
+  renderer.render(cur.unit.scene, cur.unit.camera);
+}
+function loop(ts){
+  raf = requestAnimationFrame(loop);
+  if(!startT) startT = ts;
+  const dt = Math.min(0.05, last ? (ts-last)/1000 : 0.016); last = ts;
+  frame(dt); frames++; tot++;
+  if(ts-fpsT > 500){ CANVAS.dataset.labFps = String(Math.round(frames*1000/(ts-fpsT)));
+    frames=0; fpsT=ts; paintProbe(); }
+  // 自动降级：连续 2s 平均 < 20fps ⇒ 退 poster（`?lab=hold` 关掉这一条）
+  const el = (ts-startT)/1000;
+  if(!FLAGS.hold && !degraded && el >= 2.0 && (tot/el) < 20) degrade();
+}
+function degrade(){
+  degraded = true; stop(); unmount();
+  CANVAS.dataset.labMode='POSTER'; CANVAS.dataset.labDegraded='1';
+  document.documentElement.setAttribute('data-lab-poster','1');
+  paintProbe();
+  console.info('[convoai-lab] FPS 连续 2s < 20 ⇒ 自动退 poster');
+}
+function start(){
+  if(degraded || !cur) return;
+  if(reduced.matches){            // 尊重系统设置：渲一帧（入场落位）就停帧
+    tIntro=1; frame(0);
+    cur.el.classList.add('gl-up');
+    CANVAS.dataset.labMode='STILL'; CANVAS.dataset.labRun='0'; CANVAS.dataset.labFps='—';
+    paintProbe(); return;
+  }
+  if(raf) return;
+  last=0; startT=0; tot=0; frames=0; fpsT=performance.now();
+  raf = requestAnimationFrame(loop);
+  CANVAS.dataset.labMode='LIVE'; CANVAS.dataset.labRun='1'; paintProbe();
+}
+function stop(){ if(raf){ cancelAnimationFrame(raf); raf=0; } CANVAS.dataset.labRun='0'; }
+
+function enter(s){
+  if(cur === s) return;
+  stop(); unmount();
+  mount(s);
+  clock=0; tIntro=0;                       // 复位入场参数 ⇒ 回到该页重放
+  applyStep(s);
+  if(s.unit.onEnter) s.unit.onEnter();
+  frame(0);                                // 先渲一帧，**场景 ready** 之后才让 poster 让位
+  s.el.classList.add('gl-up');
+}
+function leaveAll(){
+  stop(); unmount();
+  if(CANVAS.dataset.labMode !== 'POSTER') CANVAS.dataset.labMode = 'IDLE';
+  paintProbe();
+}
+function syncActive(){
+  if(degraded) return;
+  const act = document.querySelector('.slide.active');
+  const p = act ? (+act.dataset.p || 0) : 0;
+  const s = STAGES.find(x => x.page === p);
+  if(!s || document.hidden){
+    if(document.hidden && cur){ stop(); if(CANVAS.dataset.labMode==='LIVE') CANVAS.dataset.labMode='IDLE'; paintProbe(); return; }
+    running = false; leaveAll(); return;
+  }
+  running = true;
+  enter(s);
+  applyStep(s);
+  start();
+}
+
+/* ═══ 装配 ═══════════════════════════════════════════════════════════════ */
 if(!webglOK()){
   markPoster('no-webgl');
 }else{
   try{
-    UNITS = [buildVoice(), buildGlobe()].filter(Boolean).map(drive);
+    renderer = new THREE.WebGLRenderer({canvas:CANVAS, antialias:true, alpha:true,
+                                        powerPreference:'high-performance'});
+    renderer.setClearAlpha(0);
+    renderer.setSize(16,16,false);
+    STAGES.forEach(s=>{
+      const f = FACTORY[s.name];
+      if(!f) throw new Error('未知场景 '+s.name+'（P'+s.page+'）');
+      s.unit = f({ rect:s.rect, canvas:CANVAS, stage:s.el, page:s.page, print:s.print });
+      s.unit.applyTheme();
+      s.unit.setIntro(0);
+      // 预热：在车库里以 16×16 渲一帧，把着色器编译落在启动期（翻到该页不会卡首帧）
+      renderer.render(s.unit.scene, s.unit.camera);
+      s.el.dataset.labReady = '1';
+    });
+    booted = true;
+    CANVAS.dataset.labMode = 'IDLE';
   }catch(e){
     console.info('[convoai-lab] boot 失败：'+(e&&e.message));
     markPoster('boot-fail');
-    UNITS = [];
+    booted = false;
   }
 }
-function syncActive(){
-  UNITS.forEach(function(u){
-    const on = u.slide.classList.contains('active') && !document.hidden;
-    if(on) u.enter(); else u.leave();
+
+if(booted){
+  /* 页面不可见就把 rAF 掐掉，回来续跑（与非激活 slide 是两道独立的闸，双双 cancel） */
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ stop(); if(CANVAS.dataset.labMode==='LIVE') CANVAS.dataset.labMode='IDLE'; paintProbe(); }
+    else syncActive();
   });
-}
-if(UNITS.length){
+  window.addEventListener('resize', function(){
+    if(cur){ const pr=pixRatio(); renderer.setPixelRatio(pr);
+      renderer.setSize(cur.rect[2],cur.rect[3],false); cur.unit.onDPR(pr);
+      CANVAS.dataset.labDpr=String(Math.round(pr*100)/100); if(!raf) frame(0); }
+  });
+  /* 打印帧：render-then-read —— 不开 preserveDrawingBuffer（常态零显存代价），
+     在 beforeprint 这个**同步**事件里先渲一帧、立刻 toDataURL，绘制缓冲区还没被
+     合成器清掉，读到的就是非空帧。纸上 22 页一起铺开，canvas 只在当前那一页里，
+     所以其余 3D 页在纸上一律以 poster（= 页上原来那张 SVG）为准。 */
+  window.addEventListener('beforeprint', function(){
+    try{
+      if(!cur) return;
+      tIntro = 1; frame(0);
+      const url = renderer.domElement.toDataURL('image/png');
+      if(url && url.length > 2000 && cur.print) cur.print.setAttribute('src', url);
+    }catch(e){}
+  });
+  /* 主题：**延一个 rAF** 再读 —— 换页交叠时 CSS 变量还没落到新主题上，
+     同帧读会读到上一主题的色。七个场景一起热更新（不只当前那个）。 */
+  new MutationObserver(function(){
+    requestAnimationFrame(function(){
+      STAGES.forEach(s=>{ if(s.unit) s.unit.applyTheme(); });
+      if(!raf) frame(0);
+    });
+  }).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  reduced.addEventListener?.('change', function(){ stop(); if(running) start(); });
+
+  /* 两道保险各管一段（与 P20 视频页同一手法，**不改共享 deck.js**）：
+       ① 包 deck.go / deck.applySteps —— 现场翻页走这条；
+       ② MutationObserver 盯 .slide 与分步容器的 class —— qa / occlusion-scan /
+          截图脚本是直接 classList.toggle 的，只有这一道盯得住。 */
   if(window.deck){
     ['go','applySteps'].forEach(function(m){
       const f = window.deck[m];
@@ -1864,16 +3439,26 @@ if(UNITS.length){
     if(pend) return; pend=true;
     requestAnimationFrame(function(){ pend=false; syncActive(); });
   });
-  UNITS.forEach(function(u){ mo.observe(u.slide,{attributes:true,attributeFilter:['class']}); });
-  document.addEventListener('visibilitychange', syncActive);
+  document.querySelectorAll('.slide').forEach(function(sec){
+    mo.observe(sec,{attributes:true,attributeFilter:['class']});
+  });
+  STAGES.forEach(function(s){
+    if(!s.slide) return;
+    s.slide.querySelectorAll('[data-step]').forEach(function(c){
+      mo.observe(c,{attributes:true,attributeFilter:['class']});
+    });
+  });
   syncActive();
   paintProbe();
-  window.__labReady = UNITS.length;
+  window.__labReady = STAGES.length;
 }
 """
 
 
-# ── 常量表：构建期算好，运行时直接吃（poster 与 WebGL 逐字同参的唯一保证）────
+# ── 常量表：构建期算好，运行时直接吃 ───────────────────────────────────────
+#   poster 与 WebGL 逐字同参的唯一保证；也是「3D 不新造坐标」的唯一保证 ——
+#   五枚新场景的几何全部是各页 SVG 路径的展平结果（见上面的 lab-kit 几何预处理）。
+#   ⚠ lab_k() 必须在**所有页面定义之后**调用（build() 里调），它要读各页的路径常量。
 THREE_REV = (lambda s: (_re2.search(r'(?:const|let|var)\s+\w+\s*=\s*"(\d{3})"[,;]', s)
                         or _re2.search(r'"(\d{3})"', s)).group(1))(
     (ROOT / "public" / "decks" / "assets" / "three" / "three.core.min.js").read_text(encoding="utf-8"))
@@ -1888,29 +3473,110 @@ def _arr(xs):
     return "[" + ",".join(_n(float(x)) for x in xs) + "]"
 
 
-LAB_K = "{" + ",".join([
-    "W:%d" % LW, "H:%d" % LH, "FOV:%d" % LFOV, 'rev:"%s"' % THREE_REV,
-    "v:{" + ",".join([
-        "cam:" + _arr(VCAM.C),
-        "dx:%s" % _n(VCX - LW / 2), "dy:%s" % _n(VCY - LH / 2),
-        "tilt:%s" % _n(VTILT), "spin:%s" % _n(VSPIN), "n:%d" % VN,
-        "amp:%s" % _n(VAMP), "w0:%s" % _n(VW0),
-        "ha:" + _arr([h[0] for h in VHARM]),
-        "hw:" + _arr([h[1] for h in VHARM]),
-        "hk:" + _arr([h[2] for h in VHARM]),
-        "hp:" + _arr([h[3] for h in VHARM]),
-        "hot:" + _arr(VHOT), "introSec:%s" % _n(VINTRO),
-    ]) + "}",
-    "g:{" + ",".join([
-        "cam:" + _arr(GCAM.C),
-        "dx:%s" % _n(GCX - LW / 2), "dy:%s" % _n(GCY - LH / 2),
-        "tilt:%s" % _n(GTILT), "y0:%s" % _n(GY0), "spin:%s" % _n(GSPIN),
-        "introSec:%s" % _n(GINTRO),
-    ]) + "}",
-    'landBits:"%s"' % LAND_BITS, "landN:%d" % LAND_N,
-    'nodeTable:"%s"' % NODE_TABLE, 'routeTable:"%s"' % ROUTE_TABLE,
-    "arcDur:%s" % ARC_DUR_S, "arcGap:%s" % ARC_GAP_S, "arcOff:%s" % ARC_OFF_S,
-]) + "}"
+def _sarr(xs):
+    return "[" + ",".join('"%s"' % x for x in xs) + "]"
+
+
+def _obj(d):
+    return "{" + ",".join("%s:%s" % (k, v) for k, v in d) + "}"
+
+
+def lab_k():
+    # ── ③ 大脑（P17）：母形 = 页上那条 13 段贝塞尔侧视轮廓 ──────────────────
+    bb = _bbox(_BRAIN)
+    bc = [(bb[0] + bb[2]) / 2.0, (bb[1] + bb[3]) / 2.0]
+    # 突触弧的 z 拱幅度：按弧的 2D 长度给（长弧跨半球跨得深，短弧只是就近搭一把）
+    _arcA = [0.42 * a[1] for a in _ARCS]
+    _spark = [(k, _sec(a[2]), _sec(a[3])) for k, a in enumerate(_ARCS)] \
+           + [(k, _sec(_ARCS[k][2]), _sec(d)) for k, d in _ARC_EXTRA]
+    b = _obj([
+        ("cont", '"%s"' % _poly(_BRAIN, per=18, tol=1.2)),
+        ("zones", "[" + ",".join('"%s"' % _polym(z[0]) for z in _ZONES) + "]"),
+        ("sul", "[" + ",".join('"%s"' % _poly(s) for s in (_SUL1, _SUL2, _SUL3)) + "]"),
+        # 三条沟的刻槽深度 / 宽度：外侧裂（Sylvian）最深 —— 它是这张侧视图最容易被
+        # 读懂的解剖特征，3D 里必须还是一道真沟，不能被厚度剖面填平。
+        ("sulD", _arr([0.30, 0.56, 0.34])),
+        ("sulW", _arr([22, 27, 20])),
+        ("bb", _arr(bb)), ("c", _arr(bc)),
+        ("tmax", _n(132.0)), ("dref", _n(108.0)), ("n", "12000"),
+        ("arcs", "[" + ",".join('"%s"' % _poly(a[0], per=16, tol=2.0) for a in _ARCS) + "]"),
+        ("arcA", _arr(_arcA)),
+        ("spark", "[" + ",".join(_arr(s) for s in _spark) + "]"),
+        ("zper", _arr([_sec(z[1]) for z in _ZONES])),
+        ("zoff", _arr([_sec(z[2]) for z in _ZONES])),
+        ("inp", '"%s"' % _poly(_BRAIN_IN, per=16, tol=2.0)),
+        ("outX", _n(1088.0)), ("out", _arr([1214, 268])), ("out2", _arr([1386, 268])),
+        # 小脑 / 脑干：页上是两枚独立闭合小形，3D 里也各成一团（半厚度小一档，
+        # 它们本来就比大脑窄）。aZone=-1 ⇒ 不参与五区放电。
+        ("sub", "[" + ",".join('"%s"' % _poly(d, per=16, tol=1.4) for d in (_CEREB, _STEM)) + "]"),
+        ("subT", _arr([52, 30])), ("subN", "1500"),
+        ("sway", _n(12.0)), ("swayP", _n(17.0)),
+    ])
+    # ── ④ 双层防御壳（P9）：环心 / 两层半径 / 缺口 / 三路噪声主方向全部抄页上 ──
+    _d1 = (613 - _SCX, -(50 - _SCY))
+    _d2 = (613 - _SCX, -(196 - _SCY))
+    _d3 = (613 - _SCX, -(342 - _SCY))
+    def _u3(v):
+        m = math.hypot(v[0], v[1]) or 1.0
+        return [v[0] / m, v[1] / m, 0.0]
+    s = _obj([
+        ("c", _arr([_SCX, _SCY])),
+        ("r1", _n(float(_SR1))), ("r2", _n(float(_SR2))),
+        ("rc", _n(float(_SAG) * 0.46)), ("r0", _n(346.0)),
+        # 缺口：页上外环开 ±40/r138、内环开 ±34/r86 —— 3D 里换算成绕 -X 轴的锥角，
+        # 并各放宽一档（球面上 17° 的洞在屏上小得看不出「开着」）。
+        ("gap2", _n(math.cos(35.0 * math.pi / 180))),
+        ("gap1", _n(math.cos(40.0 * math.pi / 180))),
+        ("d1", _arr(_u3(_d1))), ("d2", _arr(_u3(_d2))), ("d3", _arr(_u3(_d3))),
+    ])
+    # ── ⑤ 复利螺旋（P18）：脊线 = 页上那条成长曲线本人 ────────────────────
+    r = _obj([
+        ("spine", '"%s"' % _poly(_CA_CURVE, per=20, tol=1.2)),
+        ("r0", _n(16.0)), ("r1", _n(56.0)), ("turns", _n(3.25)),
+        ("w0", _n(4.0)), ("w1", _n(22.0)),
+        ("days", _arr([150, 420, 700, 1060])), ("climb", _n(6.5)),
+    ])
+    # ── ⑥ 声学地形（P7）：脊线 = 页上那条逐帧概率曲线（局部坐标左移 660）──
+    t = _obj([
+        ("curve", '"%s"' % _poly(_VADCURVE, per=18, tol=1.2, dx=660.0)),
+        ("sem", '"%s"' % _poly(_VADSEM, per=18, tol=1.2, dx=660.0)),
+        ("base", _n(132.0)), ("nx", "150"), ("nz", "13"),
+        ("x0", _n(20.0)), ("x1", _n(1000.0)), ("zw", _n(68.0)), ("sig", _n(40.0)),
+        ("band", _arr([_VTOP, _VBOT])),
+        ("pins", _arr([_VSOS - 660, _VEOS - 660])), ("pinTop", _n(26.0)),
+        ("semZ", _n(52.0)), ("tilt", _n(-0.17)),
+    ])
+    # ── ⑦ 全双工双向声带（P4）：截断 x 就是页上三条泳道共用的那根垂线 ─────
+    d = _obj([
+        ("x0", _n(160.0)), ("x1", _n(1636.0)), ("yc", _n(190.0)),
+        ("amp", _n(104.0)), ("dep", _n(62.0)), ("turns", _n(2.35)), ("phase", _n(0.62)),
+        ("lap0", _n(10.0)), ("lap1", _n(64.0)),
+        ("cut", _n(float(_XIN))), ("ghost", _n(0.16)),
+        ("cy0", _n(60.0)), ("cy1", _n(330.0)),
+        ("hw", _n(11.0)), ("durA", _n(6.0)), ("durB", _n(5.2)),
+    ])
+    return "{" + ",".join([
+        "W:%d" % LW, "H:%d" % LH, "FPX:%s" % _n(FPX), 'rev:"%s"' % THREE_REV,
+        "v:{" + ",".join([
+            "cam:" + _arr(VCAM.C),
+            "tilt:%s" % _n(VTILT), "spin:%s" % _n(VSPIN), "n:%d" % VN,
+            "amp:%s" % _n(VAMP), "w0:%s" % _n(VW0),
+            "ha:" + _arr([h[0] for h in VHARM]),
+            "hw:" + _arr([h[1] for h in VHARM]),
+            "hk:" + _arr([h[2] for h in VHARM]),
+            "hp:" + _arr([h[3] for h in VHARM]),
+            "hot:" + _arr(VHOT), "introSec:%s" % _n(VINTRO),
+        ]) + "}",
+        "g:{" + ",".join([
+            "cam:" + _arr(GCAM.C),
+            "tilt:%s" % _n(GTILT), "y0:%s" % _n(GY0), "spin:%s" % _n(GSPIN),
+            "introSec:%s" % _n(GINTRO),
+        ]) + "}",
+        "b:" + b, "s:" + s, "r:" + r, "t:" + t, "d:" + d,
+        'landBits:"%s"' % LAND_BITS, "landN:%d" % LAND_N,
+        'nodeTable:"%s"' % NODE_TABLE, 'routeTable:"%s"' % ROUTE_TABLE,
+        "arcDur:%s" % ARC_DUR_S, "arcGap:%s" % ARC_GAP_S, "arcOff:%s" % ARC_OFF_S,
+    ]) + "}"
 
 
 # ═══ P1 · 封面（title 板）══════════════════════════════════════════════════
@@ -2206,40 +3872,47 @@ def _duplex_lanes():
         o.append(txt(54, t + 34, cn, "ttl", size=28))
         o.append(txt(54, t + 60, en, "lbl", size=13))
         o.append(txt(152, t + 34, body, "txt", size=22))
+        # 三条活动带的**几何**入 poster 层（3D 起来时让位给两条对向声带）；
+        # 带上的字（用户插话 / 每格一次… / 收声让位）留在外面，压在 canvas 之上。
         if i == 0:      # 听：永不中断的输入波形；_XIN 之后是新出现的用户语音（加重）
             # 运动原语 ①：波形带底下压一列能量包，横贯全程 —— 「听的车道永不关闭」
-            o.append(packet("M162 %d H1636" % (by + bh // 2), 420, seg=26, w=13, op=".22", dur="2.4s", i=1))
-            o.append(_bars(162, 54, by + bh // 2, "var(--ink-3)", seed=2, gap=17, w=7, op=".42"))
-            o.append(_bars(1084, 23, by + bh // 2, AC, seed=6, gap=17, w=8))
-            o.append(_bars(1480, 9, by + bh // 2, "var(--ink-3)", seed=13, gap=17, w=7, op=".42"))
+            o.append(lp(
+                packet("M162 %d H1636" % (by + bh // 2), 420, seg=26, w=13, op=".22", dur="2.4s", i=1),
+                _bars(162, 54, by + bh // 2, "var(--ink-3)", seed=2, gap=17, w=7, op=".42"),
+                _bars(1084, 23, by + bh // 2, AC, seed=6, gap=17, w=8),
+                _bars(1480, 9, by + bh // 2, "var(--ink-3)", seed=13, gap=17, w=7, op=".42")))
             o.append(txt(1084, by - 12, "用户插话", "sm", size=15, col=AC, mono=True))
         elif i == 1:    # 想：等距判定刻度，_XIN 那一格是「让位」的那次判断（实心）
-            o.append(hline(160, 1636, by + bh // 2, HS, 1.4, 3))
+            _g = [hline(160, 1636, by + bh // 2, HS, 1.4, 3)]
             for k in range(27):
                 x = 160 + k * 56
                 hot = abs(x - _XIN) < 28
-                o.append(vline(x, by + 4, by + bh - 4, AD if hot else HS, 3 if hot else 1.4, 3))
+                _g.append(vline(x, by + 4, by + bh - 4, AD if hot else HS, 3 if hot else 1.4, 3))
+            o.append(lp(*_g))
             o.append(txt(1636, by - 12, "每格一次「要不要出声」", "sm", size=15, anchor="end"))
         else:           # 说：TTS 输出块 —— 第二块在 _XIN 被截断，其后让位（空带）
+            _g = []
             for bx, bw in [(160, 452), (700, _XIN - 700)]:
-                o.append('<rect class="pop" style="--i:4;fill:%s" x="%d" y="%d" width="%d" '
-                         'height="%d" rx="5"/>' % (AC, bx, by, bw, bh))
-            o.append(vline(_XIN, by - 6, by + bh + 6, AD, 4, 5))
-            o.append('<rect class="pop" style="--i:5" x="%d" y="%d" width="%d" height="%d" rx="5" '
-                     'fill="none" stroke="%s" stroke-width="1.4" stroke-dasharray="5 6"/>'
-                     % (_XIN + 10, by, 1626 - _XIN, bh, HS))
+                _g.append('<rect class="pop" style="--i:4;fill:%s" x="%d" y="%d" width="%d" '
+                          'height="%d" rx="5"/>' % (AC, bx, by, bw, bh))
+            _g.append(vline(_XIN, by - 6, by + bh + 6, AD, 4, 5))
+            _g.append('<rect class="pop" style="--i:5" x="%d" y="%d" width="%d" height="%d" rx="5" '
+                      'fill="none" stroke="%s" stroke-width="1.4" stroke-dasharray="5 6"/>'
+                      % (_XIN + 10, by, 1626 - _XIN, bh, HS))
+            o.append(lp(*_g))
             o.append(txt(_XIN + 22, by - 12, "收声让位", "sm", size=15, col=AD, mono=True))
     # ── 快路径：听见插话 → 判断让位 → 收声，一根 accent-deep 粗线贯穿三带（P8 idiom）──
-    o.append(vline(_XIN, 106, 268, AD, 5, 6))
-    # 运动原语 ③（轻）：快路径节点脉冲 —— 「340ms 那一下」在跳，但不抢波形
-    o.append('<circle class="pop mo-pulse" style="--i:6;--mo-lo:.45;--mo-dur:2.8s;fill:%s" '
-             'cx="%d" cy="190" r="8"/>' % (AD, _XIN))
-    o.append(ah_d(_XIN, 280, AD, 8))
+    o.append(lp(
+        vline(_XIN, 106, 268, AD, 5, 6),
+        # 运动原语 ③（轻）：快路径节点脉冲 —— 「340ms 那一下」在跳，但不抢波形
+        '<circle class="pop mo-pulse" style="--i:6;--mo-lo:.45;--mo-dur:2.8s;fill:%s" '
+        'cx="%d" cy="190" r="8"/>' % (AD, _XIN),
+        ah_d(_XIN, 280, AD, 8)))
     o.append(txt(_XIN + 20, 248, "340ms", "ttl", size=20, col=AD, weight=700))
     # ── NOW 播放头：一条竖虚线穿过三条活动带 —— 「同一瞬间」三件事都在跑 ──
     # 运动原语 ②：NOW 播放头的 dash 缓慢下爬（刻度不动、播放头在读）
-    o.append(dline("M%d 50 V336" % _XNOW, AC, 1.6, 7, dash="4 8", cls="mo-drift",
-                   sty="--mo-off:-24;--mo-dur:1.8s"))
+    o.append(lp(dline("M%d 50 V336" % _XNOW, AC, 1.6, 7, dash="4 8", cls="mo-drift",
+                      sty="--mo-off:-24;--mo-dur:1.8s")))
     o.append(txt(_XNOW, 42, "NOW", "lbl", size=14, anchor="middle", col=AC))
     return "".join(o)
 page("content", "".join([
@@ -2263,7 +3936,7 @@ page("content", "".join([
     rule(850),
     land("全双工是「时间」维度的能力，与「端到端 / 级联」的链路选型正交"
          "——级联链路同样做到全双工，这正是引擎的做法。"),
-]))
+]), lab="duplex")
 
 # ═══ P5 · 三件极致 ·「把三件事，做到极致」（三数章的**目录页**）════════════════
 # 2026-08-23 三数章重构：本页亮完三个数字之后，6–10 页逐个把它们拆开、最后合回一张图。
@@ -2461,6 +4134,12 @@ _VADSTEP = ["16kHz 分帧（10/16ms）", "每帧输出语音概率", "平滑 / �
 #   → 曲线右端叠一层语义层（+ 语义判停）。四个 _VADSTEP 词一个不少，全部就地变成标注。
 _VTOP, _VBOT = 62, 96          # 滞回带上/下阈（y），概率 1 在 y=40、0 在 y=124
 _VSOS, _VEOS = 880, 1380       # 两枚事件 pin 的 x
+# 逐帧概率曲线与语义层：提到模块级 —— lab_k() 要拿它们做 3D 声学地形的**脊线**与前排折脊，
+# 于是「地形的天际线」就是页上这条曲线本人（页上改了这一行，地形跟着改）。
+_VADCURVE = ("M680 118 C 770 116, 836 102, 880 62 C 922 30, 980 40, 1042 48 "
+             "C 1104 56, 1140 40, 1200 50 C 1256 60, 1272 84, 1302 96 "
+             "C 1344 112, 1420 118, 1660 116")
+_VADSEM = "M1430 78 C 1500 62, 1560 54, 1660 46"
 def _vad_signal():
     o = []
     # ① 波形段
@@ -2477,32 +4156,34 @@ def _vad_signal():
     o.append(txt(672, 46, "1", "sm", size=13, anchor="end"))
     o.append(txt(672, 128, "0", "sm", size=13, anchor="end"))
     o.append(txt(700, 18, "每帧输出语音概率", "sm", size=14, col="var(--ink-3)", mono=True))
-    # ④ 滞回带：两条点线阈值（参考语域）+ 极淡填充
-    o.append('<rect class="pop" style="--i:4;fill:%s;opacity:.07" x="680" y="%d" width="980" '
-             'height="%d" rx="3"/>' % (AD, _VTOP, _VBOT - _VTOP))
-    o.append(dline("M680 %d H1660" % _VTOP, AD, 2, 5, dash="2 6", cls="mo-drift",
-                   sty="--mo-off:-32;--mo-dur:4s"))
-    o.append(dline("M680 %d H1660" % _VBOT, AD, 2, 5, dash="2 6", cls="mo-drift",
-                   sty="--mo-off:-32;--mo-dur:4s;--mo-del:-2s"))
+    # ④ 滞回带：两条点线阈值（参考语域）+ 极淡填充　【以下几何入 poster 层】
+    #   3D 起来时这一段让位给 canvas 上的声学地形：概率曲线挤出成山脊、滞回带升成
+    #   悬在地形上方的两枚判定面、SOS/EOS 变成地形上的立柱光标。字全部留在外面。
+    o.append(lp(
+        '<rect class="pop" style="--i:4;fill:%s;opacity:.07" x="680" y="%d" width="980" '
+        'height="%d" rx="3"/>' % (AD, _VTOP, _VBOT - _VTOP),
+        dline("M680 %d H1660" % _VTOP, AD, 2, 5, dash="2 6", cls="mo-drift",
+              sty="--mo-off:-32;--mo-dur:4s"),
+        dline("M680 %d H1660" % _VBOT, AD, 2, 5, dash="2 6", cls="mo-drift",
+              sty="--mo-off:-32;--mo-dur:4s;--mo-del:-2s")))
     o.append(txt(692, 56, "平滑 / 滞回", "sm", size=13, col=AD, mono=True))
-    # ⑤ 逐帧概率曲线（accent 实线）
-    o.append('<path class="dw" style="--len:1200;--i:5" d="M680 118 C 770 116, 836 102, 880 62 '
-             'C 922 30, 980 40, 1042 48 C 1104 56, 1140 40, 1200 50 C 1256 60, 1272 84, 1302 96 '
-             'C 1344 112, 1420 118, 1660 116" fill="none" stroke="%s" stroke-width="3" '
-             'stroke-linecap="round"/>' % AC)
+    # ⑤ 逐帧概率曲线（accent 实线）—— 也是 3D 地形的脊线母形（见 lab_k() 的 t.curve）
+    o.append(lp('<path class="dw" style="--len:1200;--i:5" d="%s" fill="none" stroke="%s" '
+                'stroke-width="3" stroke-linecap="round"/>' % (_VADCURVE, AC)))
     # ⑥ 两枚事件 pin（虚线 = 事件语法）
     for _j, (px, nm) in enumerate([(_VSOS, "SOS"), (_VEOS, "EOS")]):
         _d = "" if _j == 0 else ";--mo-del:-1.2s"
-        o.append(dline("M%d 32 V126" % px, HS, 2, 6, dash="6 6", cls="mo-drift",
-                       sty="--mo-off:-24;--mo-dur:2.4s" + _d))
-        o.append('<circle class="pop mo-pulse" style="--i:6;--mo-dur:2.4s%s;fill:%s" cx="%d" cy="%d" r="6"/>'
-                 % (_d, AC, px, _VTOP if px == _VSOS else 117))
+        o.append(lp(
+            dline("M%d 32 V126" % px, HS, 2, 6, dash="6 6", cls="mo-drift",
+                  sty="--mo-off:-24;--mo-dur:2.4s" + _d),
+            '<circle class="pop mo-pulse" style="--i:6;--mo-dur:2.4s%s;fill:%s" cx="%d" cy="%d" r="6"/>'
+            % (_d, AC, px, _VTOP if px == _VSOS else 117)))
         o.append(txt(px + 12, 44, nm, "lbl", size=15, col=AC))
     o.append(txt(1180, 18, "SOS / EOS 事件", "sm", size=14, col="var(--ink-3)", mono=True))
     # ⑦ 声学之上再叠一层语义（商业进阶版的差异，用既有词）
-    o.append('<path class="pop mo-drift" style="--i:7;--mo-off:-30;--mo-dur:2.8s" '
-             'd="M1430 78 C 1500 62, 1560 54, 1660 46" fill="none" '
-             'stroke="%s" stroke-width="3" stroke-dasharray="9 6"/>' % AD)
+    o.append(lp('<path class="pop mo-drift" style="--i:7;--mo-off:-30;--mo-dur:2.8s" '
+                'd="%s" fill="none" stroke="%s" stroke-width="3" stroke-dasharray="9 6"/>'
+                % (_VADSEM, AD)))
     o.append(txt(1660, 34, "+ 语义判停", "sm", size=15, col=AD, weight=700, anchor="end"))
     # ⑧ 迷你图例（压在信号图左下角的空位，与 SOURCE / 卡片分层）
     o.append(legend(0, 136, [("solid", "主数据流"), ("dash", "事件 / 控制"), ("dot", "参考 / 反馈")]))
@@ -2562,7 +4243,7 @@ page("content", "".join([
     # 补齐家族统一的「事实截止」收尾。
     src("SOURCE · GITHUB.COM/TEN-FRAMEWORK/TEN-VAD / TEN ECOSYSTEM / 引擎发版说明 · "
         "SOS/EOS 判停重构自 V2.6 · 事实截止 2026.08", i=9),
-]), steps=1)
+]), steps=1, lab="terrain")
 
 # ═══ P8 · 拆 340 ·「想插话就插话，340ms 即时收声」（页号 9→8）══════════════
 # 2026-08-23 三数章重构：本页从 P9 提到 P8 —— 它是 P5「02 · 340MS」那一枚数字的**正文**，
@@ -2685,10 +4366,13 @@ def _sal_fig():
     # ── 双层防御环 ──
     # 缺口开到 ±40 / ±34：一来目标人声的波束进得来，二来「声纹锁定 · 只留目标人声」
     # 这行标注要落在缺口里，缺口小于文字高度时弧线会从字上划过去（= 划掉的观感）。
-    o.append(_ring(_SR2, 40, 3, HS, "9 8", cls="mo-cycle",
-                   sty="--mo-off:-867;--mo-dur:26s"))     # 外环 r138 周长≈867 = dash「9 8」×51
-    o.append(_ring(_SR1, 34, 3, AC, "8 7", cls="mo-cycle",
-                   sty="--mo-off:540;--mo-dur:18s"))      # 内环 r86 周长≈540 = dash「8 7」×36 · 反向
+    # 两枚环的几何入 poster 层：3D 起来时它们让位给 canvas 上的两层半透明球壳
+    # （缺口方位、半径、内外关系全部照抄这两行 —— 见 lab_k() 的 s.r1/r2/gap1/gap2）。
+    o.append(lp(
+        _ring(_SR2, 40, 3, HS, "9 8", cls="mo-cycle",
+              sty="--mo-off:-867;--mo-dur:26s"),          # 外环 r138 周长≈867 = dash「9 8」×51
+        _ring(_SR1, 34, 3, AC, "8 7", cls="mo-cycle",
+              sty="--mo-off:540;--mo-dur:18s")))          # 内环 r86 周长≈540 = dash「8 7」×36 · 反向
     o.append(txt(_SCX, 26, "降噪层 · 传统 + AI 降噪", "sm", size=15, anchor="middle",
                  col="var(--ink-3)", mono=True, ls=".08em"))
     o.append(txt(_SCX, 310, "SAL 声纹层", "sm", size=16, anchor="middle", col=AC,
@@ -2703,15 +4387,16 @@ def _sal_fig():
     # 能量包：压在实线之下的一段粗软 accent（stroke-opacity .3），沿路径奔向中心。
     # 不改实线本身的 dasharray —— 实线是本页图例「solid = 目标人声」的实物样本，
     # 一旦打成虚线，就和三路「dot = 干扰」的线型区分糊在一起了。
-    o.append(packet("M96 %d H234" % _SCY, 162, seg=24, dur="1.6s", i=2))
-    o.append(hline(96, 234, _SCY, AC, 3.5, 2)); o.append(ah_r(246, _SCY, AC))
+    o.append(lp(packet("M96 %d H234" % _SCY, 162, seg=24, dur="1.6s", i=2),
+                hline(96, 234, _SCY, AC, 3.5, 2), ah_r(246, _SCY, AC)))
     o.append(txt(140, 170, "声纹锁定 · 只留目标人声", "sm", size=14, anchor="middle", col=AC))
     # ── 智能体（中 · 唯一 hot 件）──
     # 呼吸光晕：压在智能体圆片之下向外扩散再消失（100% 帧 opacity 回 0 ⇒ 静态语域下不留痕）
-    o.append('<circle class="mo-halo" cx="%d" cy="%d" r="%d" fill="none" stroke="%s" '
-             'stroke-width="2.5" opacity="0"/>' % (_SCX, _SCY, _SAG, AC))
-    o.append('<circle class="pop mo-breathe" style="--i:0;fill:var(--card-bg-2);stroke:%s" cx="%d" cy="%d" '
-             'r="%d" stroke-width="3"/>' % (AC, _SCX, _SCY, _SAG))
+    o.append(lp(
+        '<circle class="mo-halo" cx="%d" cy="%d" r="%d" fill="none" stroke="%s" '
+        'stroke-width="2.5" opacity="0"/>' % (_SCX, _SCY, _SAG, AC),
+        '<circle class="pop mo-breathe" style="--i:0;fill:var(--card-bg-2);stroke:%s" cx="%d" cy="%d" '
+        'r="%d" stroke-width="3"/>' % (AC, _SCX, _SCY, _SAG)))
     o.append(txt(_SCX, _SCY - 4, "智能体", "ttl", size=25, anchor="middle"))
     o.append(txt(_SCX, _SCY + 26, "声纹锁定", "sm", size=16, anchor="middle", col=AC))
     # ── 三路噪声点线波束：01/02 撞外环 ✕，03 穿外环、撞内环 ✕ ──
@@ -2728,14 +4413,19 @@ def _sal_fig():
                  'rx="26" stroke-width="1.4"/>' % (sy - 26))
         o.append(txt(613, sy + 6, n, "sm", size=17, anchor="middle"))
         px, py = _SCX - ux * stop, _SCY - uy * stop            # 被拦下的那一层的交点
+        _g = []
         if stop == _SR1:
             # 穿过外环：在交点上打一个不透明的洞，点线从洞里穿过去 —— 不写字也读得出「过了」
             ox, oy = _SCX - ux * _SR2, _SCY - uy * _SR2
-            o.append('<circle class="pop" style="--i:4;fill:var(--card-bg-2)" cx="%.1f" cy="%.1f" '
-                     'r="11"/>' % (ox, oy))
-        o.append(dline("M%.1f %.1f L%.1f %.1f" % (613 + ux * 96, sy + uy * 96,
-                                                  px - ux * 12, py - uy * 12), HS, 2.4, 5, dash="2 7",
-                       cls="mo-drift", sty=_NSTY[_k]))
+            _g.append('<circle class="pop" style="--i:4;fill:var(--card-bg-2)" cx="%.1f" cy="%.1f" '
+                      'r="11"/>' % (ox, oy))
+        _g.append(dline("M%.1f %.1f L%.1f %.1f" % (613 + ux * 96, sy + uy * 96,
+                                                   px - ux * 12, py - uy * 12), HS, 2.4, 5, dash="2 7",
+                        cls="mo-drift", sty=_NSTY[_k]))
+        o.append(lp(*_g))
+        # ✕ 记号不进 poster 组：它标的是「这一路在哪一层被挡住」，而 3D 里粒子恰好
+        # 在同一方向、同一半径上弹开（px 相机在 z=0 平面上 1 世界单位 = 1 像素），
+        # 两条路径下它落在同一个点上 —— 留在外面，降级与 3D 都对得准。
         o.append(txt(px, py + 10, "✕", "ttl mo-pulse", size=26, anchor="middle", col=AD,
                      sty=_XSTY[_k]))
     # ── 名牌：压在两环之下，读者知道这一整套叫什么 ──
@@ -2758,7 +4448,7 @@ page("content", "".join([
     figbox(1080, 296, 720, 720, 470, _sal_fig(), i=1),
     rule(850),
     land("前两类是信号问题，第三类是「谁在和我说话」的判断问题——这正是 SAL 的进阶所在。"),
-]))
+]), lab="shell")
 
 # ═══ P10 · 大图收束 ·「一张图，看懂全双工引擎」（页号 8→10 · 2026-08-20 新增）══
 # 2026-08-23 三数章重构：本页从 P8 挪到 P10，从「章中总览」改成「章尾收束」。
@@ -3503,6 +5193,9 @@ _ARCS = [   # (d, 长度近似, 周期, delay) —— 01→02→03→04→05 链
     ("M616 208 C700 132 900 124 1036 192", 460, "3.6s", "-2.1s"),  # 捷径 03→05
 ]
 _ARC_EXTRA = [(1, "-1.8s"), (3, "-1.9s")]      # 这两条弧各再加一枚粒子 ⇒ 合计 8 枚
+# 输入主通路（耳位波形 → 颞叶下部 01 区）：提到模块级 —— lab_k() 要拿它做 3D 输入声流的路径，
+# 3D 与 2D 因此是同一条曲线（页上改了这一行，canvas 里那道声流跟着改）。
+_BRAIN_IN = "M206 462 C330 526 452 566 572 566 C662 566 726 532 752 496"
 _LEADS = [  # (区序号, 引线 d, 标签 x, 标签 y, anchor, 区名)
     ("03", "M606 208 C520 172 440 136 376 116", 366, 122, "end",  "真实意图识别"),
     ("04", "M700 258 C600 272 470 286 376 292", 366, 298, "end",  "情绪感知和生成"),
@@ -3513,49 +5206,55 @@ _LEADS = [  # (区序号, 引线 d, 标签 x, 标签 y, anchor, 区名)
 _NUMS = [("01", 860, 456), ("02", 770, 392), ("03", 610, 222), ("04", 800, 256), ("05", 1040, 212)]
 def _brain_fig():
     o = ['<defs><clipPath id="p17clip"><path d="%s"/></clipPath></defs>' % _BRAIN]
+    # ── 脑体（= poster 层）：LAB 旗舰版里这一整段是**降级层** ────────────────
+    #   3D 起来时它淡出，canvas 上那颗体积点云大脑接管（母形就是下面这条 _BRAIN）；
+    #   起不来 / print / 归档时它原样呈现 —— 这一页永远是完整的一页。
+    #   区序号 / 引线 / 区名 / INPUT / 输出盒**全部不在这一组里**：它们压在 canvas 之上。
+    f = []
     # ── ⑤ 霓虹底层（静态 · 不带动画 ⇒ 不进运动件账本）──
-    o.append('<path d="%s" fill="none" stroke="%s" stroke-width="12" opacity=".07" '
+    f.append('<path d="%s" fill="none" stroke="%s" stroke-width="12" opacity=".07" '
              'stroke-linejoin="round"/>' % (_BRAIN, AC))
     # ── 小脑 / 脑干：先画（= 在大脑之后 / 之下），大脑的填色与轮廓随后压过它们的上缘 ──
     for _d in (_CEREB, _STEM):
-        o.append('<path d="%s" fill="var(--card-bg-2)" opacity=".95"/>' % _d)
-        o.append('<path d="%s" fill="%s" opacity=".045"/>' % (_d, AC))
-        o.append('<path class="dw" style="--len:900;--i:2" d="%s" fill="none" '
+        f.append('<path d="%s" fill="var(--card-bg-2)" opacity=".95"/>' % _d)
+        f.append('<path d="%s" fill="%s" opacity=".045"/>' % (_d, AC))
+        f.append('<path class="dw" style="--len:900;--i:2" d="%s" fill="none" '
                  'stroke="var(--ink-2)" stroke-width="2.2" stroke-linejoin="round"/>' % _d)
     # ── ① 五区放电（全部 clip 在轮廓里）──
-    o.append('<g clip-path="url(#p17clip)">')
+    f.append('<g clip-path="url(#p17clip)">')
     for _d, _dur, _del in _ZONES:
-        o.append('<path class="mo-pulse" style="--mo-hi:.05;--mo-lo:.15;--mo-dur:%s;--mo-del:%s" '
+        f.append('<path class="mo-pulse" style="--mo-hi:.05;--mo-lo:.15;--mo-dur:%s;--mo-del:%s" '
                  'd="%s" fill="%s" fill-rule="evenodd" opacity=".04"/>' % (_dur, _del, _d, AC))
     # 区内脑回纹理
     for _g in _GYRI:
-        o.append('<path d="%s" fill="none" stroke="var(--ink-3)" stroke-width=".8" opacity=".42"/>' % _g)
+        f.append('<path d="%s" fill="none" stroke="var(--ink-3)" stroke-width=".8" opacity=".42"/>' % _g)
     # 脑沟（分区边界）：比纹理重一档、比主轮廓轻一档
     for _s in (_SUL1, _SUL2, _SUL3):
-        o.append('<path class="dw" style="--len:520;--i:3" d="%s" fill="none" '
+        f.append('<path class="dw" style="--len:520;--i:3" d="%s" fill="none" '
                  'stroke="var(--ink-2)" stroke-width="2" opacity=".85"/>' % _s)
     # ── ② 突触弧线 + 神经火花（也 clip 在脑内 —— 火花不该跑到脑外去）──
     for _d, _ln, _dur, _del in _ARCS:
-        o.append(dline(_d, AD, 1.2, 4, dash="2 7"))
-        o.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
+        f.append(dline(_d, AD, 1.2, 4, dash="2 7"))
+        f.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
                         delay=_del, cap="round"))
     for _k, _del in _ARC_EXTRA:
         _d, _ln, _dur, _ = _ARCS[_k]
-        o.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
+        f.append(packet(_d, _ln, col=AC, w=8, seg=8, dur=_dur, op=".55", i=4,
                         delay=_del, cap="round"))
-    o.append('</g>')
+    f.append('</g>')
     # ── 主轮廓 + 小脑 + 脑干（画在填色之上 ⇒ 线稿永远压得住色块）──
-    o.append('<path class="dw" style="--len:2600;--i:1" d="%s" fill="none" stroke="var(--ink-2)" '
+    f.append('<path class="dw" style="--len:2600;--i:1" d="%s" fill="none" stroke="var(--ink-2)" '
              'stroke-width="2.5" stroke-linejoin="round"/>' % _BRAIN)
-    o.append('<path d="M494 382 C534 400 578 412 616 424" fill="none" stroke="var(--ink-3)" '
+    f.append('<path d="M494 382 C534 400 578 412 616 424" fill="none" stroke="var(--ink-3)" '
              'stroke-width=".8" opacity=".5"/>')
-    o.append('<path d="M486 418 C526 438 570 452 610 458" fill="none" stroke="var(--ink-3)" '
+    f.append('<path d="M486 418 C526 438 570 452 610 458" fill="none" stroke="var(--ink-3)" '
              'stroke-width=".8" opacity=".5"/>')
-    o.append('<path d="M492 448 C528 466 568 476 604 480" fill="none" stroke="var(--ink-3)" '
+    f.append('<path d="M492 448 C528 466 568 476 604 480" fill="none" stroke="var(--ink-3)" '
              'stroke-width=".8" opacity=".5"/>')
     # 04 环形深部小区：补一圈描边，让「深部结构」读得出是一枚独立器件
-    o.append('<g clip-path="url(#p17clip)"><path d="%s" fill="none" stroke="%s" '
+    f.append('<g clip-path="url(#p17clip)"><path d="%s" fill="none" stroke="%s" '
              'stroke-width="1.8" opacity=".6" fill-rule="evenodd"/></g>' % (_ZONES[4][0], AC))
+    o.append(lp(*f))
     # ── 区序号（静态文字，绝不挂在动效件上）──
     for _n, _x, _y in _NUMS:
         o.append(txt(_x, _y, _n, "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
@@ -3571,14 +5270,14 @@ def _brain_fig():
     o.append(txt(104, 392, "INPUT", "lbl", size=13, anchor="middle"))
     o.append(_bars(46, 7, 436, AC, seed=3, gap=17, w=8))
     o.append(txt(104, 492, "客户语音", "sm", size=16, anchor="middle"))
-    _IN = "M206 462 C330 526 452 566 572 566 C662 566 726 532 752 496"
-    o.append(packet(_IN, 620, col=AC, w=11, seg=22, dur="2.6s", op=".34", i=2))
-    o.append('<path class="dw" style="--len:620;--i:2" d="%s" fill="none" stroke="%s" '
-             'stroke-width="2.5"/>' % (_IN, AC))
-    o.append(ah_u(756, 486, AC, 8))
+    o.append(lp(
+        packet(_BRAIN_IN, 620, col=AC, w=11, seg=22, dur="2.6s", op=".34", i=2),
+        '<path class="dw" style="--len:620;--i:2" d="%s" fill="none" stroke="%s" '
+        'stroke-width="2.5"/>' % (_BRAIN_IN, AC),
+        ah_u(756, 486, AC, 8)))
     # ── ③ 输出：额叶前缘 → hot 盒（粗 accent-deep 快路径 + 1.6s 重拍）──
-    o.append('<g class="mo-pulse" style="--mo-lo:.38;--mo-dur:1.6s">%s%s</g>'
-             % (hline(1140, 1372, 268, AD, 5, 6), ah_r(1388, 268, AD, 8)))
+    o.append(lp('<g class="mo-pulse" style="--mo-lo:.38;--mo-dur:1.6s">%s%s</g>'
+                % (hline(1140, 1372, 268, AD, 5, 6), ah_r(1388, 268, AD, 8))))
     o.append(halo_rect(1400, 198, 262, 140, 8, sc="1.06", op=".3", dur="3.4s"))
     o.append(box(1400, 198, 262, 140, 8, hot=True, i=7, cls="mo-breathe", sty="--mo-dur:3.4s"))
     o.append(txt(1531, 278, "输出 · 最佳回复", "ttl", size=24, anchor="middle", col=AC))
@@ -3607,7 +5306,7 @@ page("content", "".join([
     src(_CA_SRC, y=1013, x=520, w=880, align="center"),
     sh("flow mono-sm", "left:1100px;top:1015px;width:700px;height:24px;text-align:right;--i:7",
        "跑在对话式 AI 引擎的全双工链路上 · 见 P8"),
-]))
+]), lab="brain")
 
 # ═══ P18 · Loop Engineering · 成长飞轮（2026-08-21「Call Agent 章」新增 ◆）══
 #   左 = 成长曲线（DAY 1 → 30，智能体上扬 vs 真人销冠平线，Day 15 穿越、Day 30 拉开到 2 倍位）
@@ -3641,23 +5340,26 @@ def _loopcurve_fig():
         o.append(vline(_x, 250, 259, HS, 1.4, 1))
         o.append(txt(_x, 280, _d, "lbl", size=14, anchor="middle"))
     # ── 真人销冠平线（基准）──
-    o.append(dline("M150 160 H1060", HS, 2, 2, dash="7 6",
-                   cls="mo-drift", sty="--mo-off:-39;--mo-dur:3.4s"))
+    # 基准线与成长曲线的几何入 poster 层：3D 起来时曲线成为复利螺旋的**脊线**
+    # （半径与带宽随 t 一起长），坐标轴 / 刻度 / 标签全部留在外面。
+    o.append(lp(dline("M150 160 H1060", HS, 2, 2, dash="7 6",
+                      cls="mo-drift", sty="--mo-off:-39;--mo-dur:3.4s")))
     o.append(txt(1075, 166, "真人销冠", "sm", size=17, col="var(--ink-3)"))
     # ── 外呼智能体成长曲线 ──
-    o.append(packet(_CA_CURVE, 980, seg=28, w=12, op=".32", dur="2.6s", i=3))
-    o.append('<path class="dw" style="--len:1020;--i:3" d="%s" fill="none" stroke="%s" '
-             'stroke-width="3.4" stroke-linecap="round"/>' % (_CA_CURVE, AC))
+    o.append(lp(packet(_CA_CURVE, 980, seg=28, w=12, op=".32", dur="2.6s", i=3),
+                '<path class="dw" style="--len:1020;--i:3" d="%s" fill="none" stroke="%s" '
+                'stroke-width="3.4" stroke-linecap="round"/>' % (_CA_CURVE, AC)))
     o.append(txt(1075, 76, "外呼智能体", "sm", size=17, col=AC, weight=700))
     # ── 穿越点（DAY 15）：标签甩到点的左上，曲线在那一带是从右下往左下走的，不打架 ──
-    o.append('<circle class="pop mo-pulse" style="--i:4;--mo-dur:2.2s;--mo-lo:.34;fill:%s" '
-             'cx="700" cy="160" r="9"/>' % AC)
+    o.append(lp('<circle class="pop mo-pulse" style="--i:4;--mo-dur:2.2s;--mo-lo:.34;fill:%s" '
+                'cx="700" cy="160" r="9"/>' % AC))
     o.append(txt(688, 138, "反超", "sm", size=18, anchor="end", col=AD, weight=700))
     # ── 终点（DAY 30）：2 倍位 ──
-    o.append('<circle class="mo-halo" style="--mo-sc:2.2;--mo-op:.45;--mo-dur:3.2s" '
-             'cx="1060" cy="70" r="10" fill="none" stroke="%s" stroke-width="2.5" opacity="0"/>' % AC)
-    o.append('<circle class="pop mo-breathe" style="--i:5;--mo-dur:3.2s;fill:%s" '
-             'cx="1060" cy="70" r="10"/>' % AC)
+    o.append(lp(
+        '<circle class="mo-halo" style="--mo-sc:2.2;--mo-op:.45;--mo-dur:3.2s" '
+        'cx="1060" cy="70" r="10" fill="none" stroke="%s" stroke-width="2.5" opacity="0"/>' % AC,
+        '<circle class="pop mo-breathe" style="--i:5;--mo-dur:3.2s;fill:%s" '
+        'cx="1060" cy="70" r="10"/>' % AC))
     o.append(txt(1060, 42, "2 倍", "ttl", size=26, anchor="middle", col=AC, weight=700))
     o.append(legend(0, 302, [("solid", "外呼智能体"), ("dash", "真人销冠基准")]))
     return "".join(o)
@@ -3698,7 +5400,7 @@ page("content", "".join([
     rule(850),
     land("通话内容自学习，转化效果自迭代。", y=944),
     src(_CA_SRC, i=8),
-]))
+]), lab="spiral")
 # ═══ P19 · Physical AI · R1 开发套件（带实拍图 · 页号 13→19）════════════
 #   文案双源 canon：31 页拜访版 P21（build-convoai-visit.py）+ robot26 #32（build-robot26-full.py）。
 #   两版规格逐字对齐：R1-WiFi 2025.03.20 · BK7258 ／ R1-4G 2025.09.26 · UNISOC 8910 Cat.1。
@@ -3912,8 +5614,11 @@ def build():
     for i, (board, steps, body, labk) in enumerate(PAGES, 1):
         sig = '<div class="sig">%d/%d</div>' % (i, total)
         # 3D 舞台夹在背景板与 .pp 之间：两者都是 z-index:0，靠**文档序**分先后。
-        # labk=None 的页插入空串 ⇒ 这条模板拼出的字节与引擎母本完全相同。
-        lab = ("  " + lab_stage(labk) + "\n") if labk else ""
+        # 无场景的页插入空串 ⇒ 这条模板拼出的字节与引擎母本完全相同。
+        assert (labk is not None) == (i in LAB_RECTS), "P%d 的 lab= 声明与 LAB_RECTS 不一致" % i
+        if labk is not None:
+            assert labk == LAB_RECTS[i][0], "P%d 场景名分叉：%s vs %s" % (i, labk, LAB_RECTS[i][0])
+        lab = ("  " + lab_stage(i) + "\n") if labk else ""
         secs.append(
             '<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
             '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>\n%s'
@@ -3939,6 +5644,9 @@ def build():
         + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
         + chrome + "\n" + "\n".join(secs) + "\n  </div>\n</div>\n"
+        # 车库：全 deck 唯一那块 canvas 的常驻位（屏外）。挂在 .deck-viewport 之外 ——
+        # 舞台自带 overflow:hidden + transform:scale，canvas 停在里面会被裁 / 被缩。
+        + lab_garage() + "\n"
         '<div class="deck-progress" id="deckProgress"></div>\n'
         '<div class="deck-steps" id="deckSteps"></div>\n'
         '<div class="edit-hotzone" aria-hidden="true"></div>\n'
@@ -4008,7 +5716,7 @@ def build():
         'sync();})();</script>\n'
         # ── LAB 运行时（前奏 classic + importmap + module 本体）────────────
         + LAB_PRELUDE
-        + '<script type="module">\nconst K=' + LAB_K + ';\n' + LAB_MODULE_BODY + '</script>\n'
+        + '<script type="module">\nconst K=' + lab_k() + ';\n' + LAB_MODULE_BODY + '</script>\n'
         + "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
     assert total == 22, "页数漂移：%d != 22" % total
@@ -4067,14 +5775,53 @@ def build():
     assert "都在这张图上" in _page_txt[10], "P10 缺章尾收束句"
     # ── LAB 断言（构建期就拦住，别等到 qa）────────────────────────────────
     lab_map = {i: l for i, (_b, _s, _y, l) in enumerate(PAGES, 1) if l}
-    assert lab_map == {1: "voice", 21: "globe"}, "LAB 3D 页漂移：%r" % lab_map
-    # 只数 <canvas> 标签：`data-lab-canvas` 这个串在运行时的选择器里也出现，不能拿来计数
-    assert doc.count("<canvas") == 2, "canvas 件数漂移：%d" % doc.count("<canvas")
-    for _p in (1, 21):
+    _want = {i: v[0] for i, v in LAB_RECTS.items()}
+    assert lab_map == _want, "LAB 3D 页漂移：%r != %r" % (lab_map, _want)
+    assert sorted(lab_map) == [1, 4, 7, 9, 17, 18, 21], "第一波场景页码表漂移：%r" % sorted(lab_map)
+    # ── 单渲染器巡游的硬红线：**全文档恰好一枚 canvas**（不是每页一枚）────────
+    #   只数 <canvas> 标签：`lab-canvas` 这个串在 CSS 与运行时选择器里也出现。
+    assert doc.count("<canvas") == 1, "canvas 件数漂移：%d（单渲染器巡游只准一枚）" % doc.count("<canvas")
+    assert doc.count('class="lab-garage"') == 1, "缺 canvas 车库"
+    assert doc.count('id="labGl"') == 1, "canvas id 漂移"
+    # canvas 必须停在车库里（构建产物的初始态），不在任何一张 slide 里
+    _garage = doc.split('<div class="lab-garage"', 1)[1].split("</div>", 1)[0]
+    assert "<canvas" in _garage, "canvas 没停在车库里"
+    for _sec in doc.split('<section class="slide')[1:]:
+        assert "<canvas" not in _sec.split("</section>")[0], "有 slide 里塞了 canvas（应由运行时搬进去）"
+    # ── 逐页舞台：矩形声明 / 场景名 / poster 层 / 打印帧位 ────────────────
+    for _p, (_kind, _x, _y2, _w, _h) in LAB_RECTS.items():
         _sec = doc.split('data-p="%d"' % _p, 1)[1].split("</section>", 1)[0]
-        assert _sec.count("<canvas") == 1, "P%d 不是恰好一枚 canvas（LAB 铁律）" % _p
+        assert 'data-lab-scene="%s"' % _kind in _sec, "P%d 舞台缺场景名" % _p
+        assert 'data-lab-rect="%d,%d,%d,%d"' % (_x, _y2, _w, _h) in _sec, "P%d 图形区矩形漂移" % _p
         assert 'class="lab-poster"' in _sec, "P%d 缺 poster 降级层" % _p
         assert 'class="lab-print"' in _sec, "P%d 缺打印帧位" % _p
+        assert _sec.count('class="lab-stage"') == 1, "P%d 舞台层不是一枚" % _p
+        # 矩形必须落在版心内（超出就是对位算错了，别等到截图才发现）
+        assert 0 <= _x and 0 <= _y2 and _x + _w <= 1920 and _y2 + _h <= 1080, \
+            "P%d 图形区矩形出界：%r" % (_p, (_x, _y2, _w, _h))
+    # 五枚新场景的 poster 是**页上原来那张 SVG**：<g class="lab-poster"> 必须在 .pp 里
+    for _p in (4, 7, 9, 17, 18):
+        _sec = doc.split('data-p="%d"' % _p, 1)[1].split("</section>", 1)[0]
+        _pp = _sec.split('<div class="pp">', 1)[1]
+        assert '<g class="lab-poster">' in _pp, "P%d 的图形没有裹进 poster 层" % _p
+        # poster 组里**一个字也不许有**（字要压在 canvas 之上，任何降级路径下都在位）。
+        # 逐组按 <g>/</g> 配对扫（P17 的组里还套着 clip-path 的 <g>，正则数不清层数）。
+        _i = 0
+        while True:
+            _i = _pp.find('<g class="lab-poster">', _i)
+            if _i < 0:
+                break
+            _j, _dep = _i + 22, 1
+            while _dep > 0:
+                _ng, _ne = _pp.find("<g", _j), _pp.find("</g>", _j)
+                if _ne < 0:
+                    break
+                if 0 <= _ng < _ne:
+                    _dep += 1; _j = _ng + 2
+                else:
+                    _dep -= 1; _j = _ne + 4
+            assert "<text" not in _pp[_i:_j], "P%d 的 poster 组里裹进了文字件" % _p
+            _i = _j
     # three 零外链：只准指自托管路径
     assert "/decks/assets/three/three.module.min.js" in doc and "cdn" not in doc.lower().split("<body")[0]
     # 材质色红线：LAB 运行时里一个色号都不许写死（#rgb / rgb() / hsl() 一律不许）
@@ -4104,22 +5851,34 @@ def build():
                 out[int(chunk.split('"', 1)[0])] = chunk.split("</section>", 1)[0]
             return out
         _E, _L = _secs_of(_eng), _secs_of(doc)
-        _same = [p for p in range(1, 23) if p not in (1, 21)]
-        for _p in _same:
-            assert _E[_p] == _L[_p], "LAB 与引擎母本在 P%d 上分叉（非 3D 页必须逐字节同源）" % _p
         def _txt(h):
             return _re2.sub(r"\s+", " ", _re2.sub(r"<[^>]+>", " ", h)).strip()
+        # ① 非 3D 页：**逐字节**同源（一个字节都没动）
+        _same = [p for p in range(1, 23) if p not in LAB_RECTS]
+        for _p in _same:
+            assert _E[_p] == _L[_p], "LAB 与引擎母本在 P%d 上分叉（非 3D 页必须逐字节同源）" % _p
+        # ② 3D 页：**逐字**同文 —— 3D 化只动「形」（几何被裹进 <g class="lab-poster">、
+        #    多了一层 .lab-stage），DOM 文案 / kicker / SOURCE / data-step 一个字没改。
+        #    这一条是「全量 3D 化」的定义本身：升维不是重写内容。
+        for _p in (4, 7, 9, 17, 18):
+            assert _txt(_L[_p]) == _txt(_E[_p]), \
+                "P%d 正文与引擎母本分叉（3D 化只准动图形，不准动一个字）" % _p
+            _sE = {m for m in _re2.findall(r'data-step="(\d+)"', _E[_p])}
+            _sL = {m for m in _re2.findall(r'data-step="(\d+)"', _L[_p])}
+            assert _sE == _sL, "P%d 的 data-step 步进语义分叉：%r vs %r" % (_p, _sL, _sE)
         _e1 = _txt(_E[1]).replace("DEEP DIVE · 深入讲解", "DEEP DIVE · 深入讲解 · LAB", 1)
         assert _txt(_L[1]) == _e1, "P1 正文与引擎母本分叉（只准 kicker 末段加 · LAB）"
         _GN = "节点分布示意 · 200+ 全球节点 · SD-RTN"
         _l21 = _re2.sub(r"\s+", " ", _txt(_L[21]).replace(_GN, "")).strip()
         assert _l21 == _txt(_E[21]), "P21 正文与引擎母本分叉（只准换盒子 + 加角注）"
-        _twin = "逐字节同源 20 页 + P1/P21 逐字同文"
+        _twin = "逐字节同源 %d 页 + 3D 七页逐字同文" % len(_same)
     else:
         _twin = "⚠ 引擎产物不在身边，同源自证跳过"
 
-    print("convoai-lab.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · LAB %r"
-          % (total, len(doc) // 1024, steps_map, lab_map))
+    print("convoai-lab.html · %d 页 · %dKB · conf-light 默认 · 分步 %r"
+          % (total, len(doc) // 1024, steps_map))
+    print("  3D 场景 %d 枚（单渲染器巡游 · 全文档 1 枚 canvas）：%s"
+          % (len(lab_map), " / ".join("P%d %s" % kv for kv in sorted(lab_map.items()))))
     print("  poster：声场球 %d 点 / 地球陆地 %d 点 · %d 节点 · %d 弧 · three r%s"
           % (VPOSTER["n"], GPOSTER["nLand"], GPOSTER["nNode"], len(GPOSTER["arcs"]), THREE_REV))
     print("  同源自证：%s" % _twin)
