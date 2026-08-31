@@ -2,7 +2,7 @@ export type Deck = {
   slug: string;
   title: string;
   slides: number;
-  category: "演讲" | "公众号" | "对外演讲";
+  category: "演讲" | "公众号" | "对外演讲" | "情报";
   num?: string; // 公众号编号 / 演讲编号
   date?: string; // 对外演讲：日期
   venue?: string; // 对外演讲：场合
@@ -141,7 +141,13 @@ export const essayDecks: Deck[] = [
   { slug: "async-two-model", num: "41", title: "他们取消了 turn detector，然后用了两个模型", slides: 32, category: "公众号", dual: true, locked: true },
 ];
 
-export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks];
+// 情报页（内参 · 不进 /decks 索引渲染，仅 allDecks 参与路由与 noindex 头）
+// 2026-08-31 Colin：敌情月度洞察按留档上线规程发布，locked 私享直链；索引页三数组不含本组。
+export const intelDecks: Deck[] = [
+  { slug: "intel-2026-08", title: "2026-08 敌情月度洞察 · 盯发货，别盯发布会", slides: 9, category: "情报", dual: true, locked: true },
+];
+
+export const allDecks = [...speechDecks, ...talkDecks, ...essayDecks, ...intelDecks];
 
 /** 供 next.config 生成 rewrites/headers 的路由清单 */
 export const deckRoutes: { source: string; file: string }[] = [

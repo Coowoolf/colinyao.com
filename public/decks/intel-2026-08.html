@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<style>/* 站点化：字体自托管（规程步①） */
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+</style>
+<title>2026-08 敌情月度洞察 · 盯发货，别盯发布会</title>
+<script>try{if(localStorage.getItem('colin-theme')==='light')document.documentElement.removeAttribute('data-theme')}catch(e){}</script>
+<style>
+/* ===========================================
+   THEME · colin-deck DUAL（单文件双主题）
+   :root = 浅底（默认） · html[data-theme="dark"] = 暗底
+   变量名两套完全一致，核心 CSS/SVG/内容全共用
+   =========================================== */
+:root{
+  --stage-bg:#e2e3e8;
+  --slide-bg:#eff0f3;
+  --card-bg:rgba(255,255,254,.72);
+  --card-bg-2:#fffffe;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0d0d0d;
+  --cardw-ink2:#3a3a3f;
+  --cardw-tag:#8b8b93;
+  --cardw-am:#c2410c;
+  --cardw-co:#b8215a;
+  --file-bg:#fffffe;
+
+  --hair:rgba(13,13,13,.16);
+  --hair-soft:rgba(13,13,13,.075);
+  --hair-strong:rgba(13,13,13,.30);
+
+  --ink:#0d0d0d;
+  --ink-2:#2a2a2a;
+  --ink-3:#7a7a83;
+
+  --amber:#ff8e3c;
+  --coral:#d9376e;
+  --magenta:#d9376e;
+  --mq:#ff8e3c;              /* 金句主色（浅底用暖橙，按 skill 规范） */
+  --mq-2:#d9376e;
+
+  --flow-line:rgba(255,142,60,.42);
+  --flow-line-2:rgba(13,13,13,.13);
+  --flow-op:.40;
+
+  --on-bg:linear-gradient(180deg,rgba(255,142,60,.13),rgba(255,142,60,.03));
+  --warn-bg:linear-gradient(180deg,rgba(217,55,110,.10),rgba(217,55,110,.025));
+}
+html[data-theme="dark"]{
+  --stage-bg:#07070b;
+  --slide-bg:#0f0e17;
+  --card-bg:#16151f;
+  --card-bg-2:#1c1b26;
+  --cardw-bg:#fffffe;
+  --cardw-ink:#0f0e17;
+  --cardw-ink2:#3d3d4e;
+  --cardw-tag:#8a8aa0;
+  --cardw-am:#c2410c;
+  --cardw-co:#d1392a;
+  --file-bg:#0a0910;
+
+  --hair:rgba(255,255,254,.10);
+  --hair-soft:rgba(255,255,254,.055);
+  --hair-strong:rgba(255,255,254,.20);
+
+  --ink:#fffffe;
+  --ink-2:#a7a9be;
+  --ink-3:#6f7186;
+
+  --amber:#ff8906;
+  --coral:#f25f4c;
+  --magenta:#e53170;
+  --mq:#f25f4c;              /* 金句主色（暗底用珊瑚红） */
+  --mq-2:#ff8906;
+
+  --flow-line:rgba(255,137,6,.30);
+  --flow-line-2:rgba(255,255,254,.16);
+  --flow-op:.42;
+
+  --on-bg:linear-gradient(180deg,rgba(255,137,6,.075),rgba(255,137,6,.02));
+  --warn-bg:linear-gradient(180deg,rgba(242,95,76,.075),rgba(242,95,76,.02));
+}
+
+/* =========================================================
+    · 动效内核 motion.css
+   —— 这份文件是《带一个新同事上班》92 页课程 deck 的实战实现，
+      已通过 92 页 × 双主题的像素级自检（零裁切、零溢出）。
+      直接整份复制，不要凭记忆重写。
+   包含：舞台底流场 / 七种入场质感 / 分步展开(build) / 换页交叠
+   依赖：theme-*.css 提供的颜色变量 + 下面这几个基础变量
+   ========================================================= */
+:root{
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-flow:cubic-bezier(.22,.9,.24,1);  /* 水的缓动，不是弹的 */
+  --step:88ms;                              /* 逐层错峰步进 */
+}
+
+/* ===========================================
+   2. 舞台底流场 —— 全场一直在走的暗流
+   =========================================== */
+
+.deck-flow{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:var(--flow-op);}
+.deck-flow path{fill:none;stroke-linecap:round;}
+.deck-flow .l1{stroke:var(--flow-line);}
+.deck-flow .l2{stroke:var(--flow-line-2);}
+@keyframes drift{0%{stroke-dashoffset:0;}100%{stroke-dashoffset:-1600;}}
+@keyframes sway{0%,100%{transform:translate3d(0,0,0);}50%{transform:translate3d(-34px,14px,0);}}
+.deck-flow g{animation:sway 26s ease-in-out infinite;}
+.deck-flow g:nth-child(2){animation-duration:34s;animation-direction:reverse;}
+.deck-flow g:nth-child(3){animation-duration:41s;}
+.deck-flow path{stroke-dasharray:220 180;animation:drift linear infinite;}
+.deck-flow .s1{animation-duration:38s;} .deck-flow .s2{animation-duration:52s;}
+.deck-flow .s3{animation-duration:64s;} .deck-flow .s4{animation-duration:46s;}
+
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,var(--hair-soft) 1px,transparent 1px);
+  background-size:240px 100%;background-position:120px 0;}
+
+/* ===========================================
+   3. 入场动效库 —— 七种质感，按页选用
+   全部由 .vis 触发，按 --i 逐层错峰
+   =========================================== */
+
+/* ① .flow —— 墨从左侧漫开（正文主力）
+   注意：结束态 clip-path 用负 inset，避免抗锯齿边缘吃掉字形 */
+.flow{opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);
+  transition:opacity .9s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.05s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.2s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.vis .flow{opacity:1;transform:translate3d(0,0,0);filter:blur(0);clip-path:inset(-10px -16px);}
+.flow.rev{transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.vis .flow.rev{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+.flow.dn{transform:translate3d(0,-22px,0);clip-path:inset(0 0 100% 0);}
+.vis .flow.dn{transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ② .rise —— 从下方卷起（书卷展开感；用于三栏提示、卡片阵、带走页） */
+.rise{opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);
+  transition:opacity .85s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.15s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.vis .rise{opacity:1;transform:translate3d(0,0,0);clip-path:inset(-10px -16px);}
+
+/* ③ .spread —— 从中心向两侧展开（对称结构、金句、幕扉页中文） */
+.spread{opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);
+  transition:opacity .8s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             transform 1.1s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             clip-path 1.25s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.vis .spread{opacity:1;transform:scale(1);clip-path:inset(-12px -20px);}
+
+/* ④ .settle —— 大字从虚空落定（大数字、大序号、幕扉页英文） */
+.settle{opacity:0;transform:scale(1.10);filter:blur(20px);
+  transition:opacity .9s var(--ease) calc(var(--i,0)*var(--step)),
+             transform 1.2s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             filter .9s var(--ease) calc(var(--i,0)*var(--step));}
+.vis .settle{opacity:1;transform:scale(1);filter:blur(0);}
+
+/* ⑤ .ink —— 标题液态扫过
+   结束态 -4%：把整块元素推进 mask 的纯黑区，防止最右侧字符被渐变吃掉 */
+/* mask-size 300% 时，position:0% 下元素只覆盖 mask 的 0~33.3%。
+   所以纯黑段必须 ≥ 38%，整块字才会完全不透明。
+   （踩过的坑：用负 position 去躲渐变，会让元素左侧滑出 mask 图像范围而被整块切掉。） */
+.ink{
+  -webkit-mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  mask-image:linear-gradient(96deg,#000 0%,#000 38%,rgba(0,0,0,.42) 54%,rgba(0,0,0,0) 74%);
+  -webkit-mask-size:300% 100%;mask-size:300% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:128% 0;mask-position:128% 0;
+  transition:-webkit-mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step)),
+             mask-position 1.5s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.vis .ink{-webkit-mask-position:0% 0;mask-position:0% 0;}
+
+/* ⑥ .dw —— SVG 线条自绘 / .pop —— 图元浮起 */
+.dw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);
+  transition:stroke-dashoffset 1.7s var(--ease-flow) calc(var(--i,0)*var(--step));}
+.vis .dw{stroke-dashoffset:0;}
+.pop{opacity:0;transform:translateY(14px) scale(.94);transform-origin:center;
+  transition:opacity .7s var(--ease) calc(var(--i,0)*var(--step)),transform .8s var(--ease) calc(var(--i,0)*var(--step));}
+.vis .pop{opacity:1;transform:translateY(0) scale(1);}
+
+/* ⑦ 持续动效 —— 只给最关键的两三页用 */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite;}
+@keyframes trace{to{stroke-dashoffset:-1200;}}
+.trace{stroke-dasharray:14 26;animation:trace 9s linear infinite;}
+.trace.fast{animation-duration:5s;}
+@keyframes breathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+.breathe{animation:breathe 4.5s ease-in-out infinite;}
+
+/* ===========================================
+   4. 分步展开（按键 build）
+   [data-step="N"] 的内容，要按第 N 次按键才出现
+   =========================================== */
+.vis [data-step]:not(.on) .flow,
+.vis .flow[data-step]:not(.on){
+  opacity:0;transform:translate3d(-30px,12px,0);filter:blur(8px);clip-path:inset(0 100% 0 0);}
+.vis [data-step]:not(.on) .flow.rev,
+.vis .flow.rev[data-step]:not(.on){transform:translate3d(30px,12px,0);clip-path:inset(0 0 0 100%);}
+.vis [data-step]:not(.on) .rise,
+.vis .rise[data-step]:not(.on){opacity:0;transform:translate3d(0,42px,0);clip-path:inset(100% 0 0 0);}
+.vis [data-step]:not(.on) .spread,
+.vis .spread[data-step]:not(.on){opacity:0;transform:scale(.985);clip-path:inset(0 50% 0 50%);}
+.vis [data-step]:not(.on) .settle,
+.vis .settle[data-step]:not(.on){opacity:0;transform:scale(1.09);filter:blur(18px);}
+.vis [data-step]:not(.on) .pop,
+.vis .pop[data-step]:not(.on){opacity:0;transform:translateY(14px) scale(.94);}
+.vis [data-step]:not(.on) .dw,
+.vis .dw[data-step]:not(.on){stroke-dashoffset:var(--len,1200);}
+.vis [data-step]:not(.on) .ink,
+.vis .ink[data-step]:not(.on){-webkit-mask-position:128% 0;mask-position:128% 0;}
+/* 没有动效类的裸容器：整体淡入 */
+.vis [data-step]:not(.on):not(.flow):not(.rise):not(.spread):not(.settle):not(.pop):not(.dw):not(.ink){
+  opacity:0;transition:opacity .7s var(--ease-flow);}
+.vis [data-step].on{opacity:1;}
+
+/* 分步指示器（舞台外） */
+.deck-steps{position:fixed;right:26px;bottom:22px;z-index:1000;display:flex;gap:9px;align-items:center;opacity:0;transition:opacity .3s;}
+.deck-steps.on{opacity:1;}
+.deck-steps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-3);display:block;transition:all .3s var(--ease);}
+.deck-steps i.done{background:var(--amber);border-color:var(--amber);}
+.deck-steps b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3);
+  text-transform:uppercase;font-weight:400;margin-right:4px;}
+
+/* ═══ 长卷版排版（scroll 坐标系，借 colin-deck 视觉语言） ═══ */
+:root{--f-cn:'Noto Sans SC','Source Han Sans SC',sans-serif;--f-mono:'JetBrains Mono','Noto Sans SC',monospace;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--slide-bg);color:var(--ink);font-family:var(--f-cn);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+.deck-flow{width:100vw;height:100vh;}
+.sec{position:relative;z-index:1;padding:108px 0 84px;border-bottom:1px solid var(--hair-soft);}
+.wrap{max-width:1120px;margin:0 auto;padding:0 48px;}
+@media(max-width:760px){.wrap{padding:0 22px}.sec{padding:72px 0 60px}}
+
+/* 顶部机密横幅 + 进度线 */
+.banner{position:sticky;top:0;z-index:50;background:var(--card-bg-2);border-bottom:1px solid var(--hair);
+  font-family:var(--f-mono);font-size:11.5px;letter-spacing:.18em;color:var(--coral);
+  text-transform:uppercase;padding:8px 48px;display:flex;justify-content:space-between;gap:16px;}
+.banner .r{color:var(--ink-3);}
+.scrollbar{position:fixed;left:0;top:0;height:2px;background:var(--amber);z-index:60;width:0;}
+
+/* cover */
+.cover{min-height:92vh;display:flex;flex-direction:column;justify-content:center;}
+.kicker{font-family:var(--f-mono);font-size:13px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:34px;}
+.cover h1{font-size:clamp(44px,7vw,84px);line-height:1.12;font-weight:900;letter-spacing:-.018em;padding-right:.08em;margin-bottom:18px;}
+.cover .subtitle{font-size:clamp(20px,2.6vw,30px);font-weight:500;color:var(--amber);margin-bottom:30px;}
+.lede{font-size:17.5px;line-height:1.95;color:var(--ink-2);font-weight:300;max-width:760px;margin-bottom:44px;}
+.meta{display:flex;flex-wrap:wrap;gap:34px 52px;padding-top:26px;border-top:1px solid var(--hair);}
+.meta div{display:flex;flex-direction:column;gap:7px;}
+.meta .k{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase;}
+.meta .v{font-size:15.5px;color:var(--ink);font-weight:500;}
+
+/* 章头 */
+.eyebrow{font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--amber);display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.eyebrow::before{content:'';width:30px;height:2px;background:var(--amber);flex:none;}
+.eyebrow.coral{color:var(--coral);} .eyebrow.coral::before{background:var(--coral);}
+h2{font-size:clamp(30px,4vw,44px);line-height:1.22;font-weight:900;letter-spacing:-.014em;padding-right:.08em;margin-bottom:18px;}
+h3{font-size:17px;font-weight:700;margin:34px 0 12px;color:var(--ink);}
+.sub{font-size:17px;line-height:1.9;color:var(--ink-2);font-weight:300;max-width:900px;margin-bottom:30px;}
+p{font-weight:300;}
+b,strong{font-weight:700;color:var(--ink);}
+.am{color:var(--amber);} .co{color:var(--coral);} .dim{color:var(--ink-3);}
+.mono{font-family:var(--f-mono);}
+
+/* 组件 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:8px 0 22px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:8px 0 22px;}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
+.card{background:var(--card-bg);border:1px solid var(--hair);border-radius:5px;padding:24px 26px;display:flex;flex-direction:column;gap:10px;}
+.card.on{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:var(--on-bg);}
+.card .tag{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+.card .n{font-family:var(--f-mono);font-size:clamp(21px,2.5vw,27px);font-weight:700;line-height:1.15;color:var(--amber);letter-spacing:-.01em;}
+.card .n i{font-style:normal;color:var(--ink-3);font-size:.72em;padding:0 2px;}
+.card .n.sn{font-size:22px;color:var(--amber);}
+.card .t{font-size:17.5px;font-weight:700;color:var(--ink);}
+.card .d{font-size:14.5px;line-height:1.78;color:var(--ink-2);font-weight:300;}
+.card.sm{padding:19px 21px;}
+.note{border-left:3px solid var(--amber);padding:5px 0 5px 20px;font-size:15px;line-height:1.85;color:var(--ink-2);font-weight:300;margin:18px 0;}
+.note.co{border-left-color:var(--coral);} .note.grey{border-left-color:var(--ink-3);}
+.land{border-left:4px solid var(--amber);padding:9px 0 9px 22px;font-size:19px;line-height:1.6;color:var(--ink);font-weight:700;margin:26px 0 4px;}
+.land.co{border-left-color:var(--coral);}
+.land .s{display:block;font-size:14.5px;font-weight:300;color:var(--ink-2);margin-top:7px;line-height:1.8;}
+
+/* stat */
+.stat{display:flex;flex-direction:column;gap:7px;background:var(--card-bg);border:1px solid var(--hair);border-radius:5px;padding:22px 24px;}
+.stat .v{font-family:var(--f-mono);font-size:clamp(26px,3.2vw,36px);font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--amber);}
+.stat .v.co{color:var(--coral);}
+.stat .l{font-size:14px;color:var(--ink-2);font-weight:300;line-height:1.6;}
+.stat .u{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+
+/* 表格 */
+.tblwrap{overflow-x:auto;margin:6px 0 20px;border:1px solid var(--hair);border-radius:5px;background:var(--card-bg);}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px;}
+thead th{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  text-align:left;padding:13px 16px 11px;border-bottom:1px solid var(--hair);white-space:nowrap;}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--hair-soft);color:var(--ink-2);font-weight:300;line-height:1.62;vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{color:var(--ink);font-weight:500;}
+tr.hl td{background:var(--on-bg);color:var(--ink);}
+tr.hot td{background:var(--warn-bg);}
+table.k thead th:not(:first-child){width:104px;}
+table.k tbody td:not(:first-child){white-space:nowrap;}
+table.src{min-width:960px;font-size:13.5px;}
+table.src td{padding:12px 14px;}
+table.src td:nth-child(2){white-space:nowrap;font-weight:700;color:var(--ink);}
+table.src td:nth-child(3){white-space:nowrap;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;}
+table.src td.am{color:var(--amber);} table.src td.co{color:var(--coral);}
+
+/* 公式条 */
+.formula{background:var(--card-bg-2);border:1px solid var(--hair);border-radius:6px;padding:22px 26px;margin:10px 0 30px;overflow-x:auto;}
+.formula code{font-family:var(--f-mono);font-size:clamp(13px,1.7vw,17.5px);color:var(--ink);white-space:nowrap;letter-spacing:.01em;}
+.formula .fx{color:var(--amber);font-size:.82em;}
+
+/* 图区 */
+.fig{margin:14px 0 22px;overflow-x:auto;}
+.fig svg{overflow:visible;display:block;margin:0 auto;min-width:860px;}
+.fig text{font-family:var(--f-cn);}
+.fig .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;fill:var(--ink-3);}
+.fig .ttl{font-size:16.5px;font-weight:700;fill:var(--ink);}
+.fig .txt{font-size:14.5px;font-weight:500;fill:var(--ink);}
+.fig .sm{font-size:13px;font-weight:300;fill:color-mix(in srgb,var(--ink-2) 74%,var(--ink));}
+.fig .big{font-family:var(--f-mono);font-size:26px;font-weight:700;fill:var(--amber);}
+.fig .stroke{stroke:var(--hair-strong);fill:none;} .fig .stroke-am{stroke:var(--amber);fill:none;} .fig .stroke-co{stroke:var(--coral);fill:none;}
+.fig .fill-am{fill:var(--amber);} .fig .fill-co{fill:var(--coral);} .fig .fill-ink{fill:var(--ink);}
+.fig .box{fill:var(--card-bg);stroke:var(--hair);}
+
+/* rows 清单 */
+.rows{display:flex;flex-direction:column;border-top:1px solid var(--hair);margin-top:8px;}
+.rows .r{display:flex;align-items:baseline;gap:20px;padding:17px 0;border-bottom:1px solid var(--hair-soft);}
+.rows .r .n{font-family:var(--f-mono);font-size:17px;font-weight:700;color:var(--amber);width:34px;flex:none;}
+.rows .r .k{font-size:16.5px;font-weight:700;color:var(--ink);width:148px;flex:none;line-height:1.4;}
+.rows .r .v{font-size:14.5px;color:var(--ink-2);font-weight:300;line-height:1.8;flex:1;}
+.rows .r .v .dim{display:block;margin-top:3px;font-size:13px;}
+.rows .r.hot .n,.rows .r.hot .k{color:var(--coral);}
+@media(max-width:700px){.rows .r{flex-wrap:wrap}.rows .r .k{width:auto}}
+
+/* duo */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hair);border-radius:5px;overflow:hidden;margin:8px 0 20px;}
+@media(max-width:900px){.duo{grid-template-columns:1fr}}
+.duo>div{padding:24px 26px;display:flex;flex-direction:column;gap:9px;background:var(--card-bg);}
+.duo>div+div{border-left:1px solid var(--hair);background:var(--on-bg);}
+@media(max-width:900px){.duo>div+div{border-left:none;border-top:1px solid var(--hair)}}
+.duo .h{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);}
+.duo>div+div .h{color:var(--amber);}
+.duo .b{font-size:18.5px;font-weight:700;color:var(--ink);line-height:1.4;}
+.duo .s{font-size:14px;color:var(--ink-2);font-weight:300;line-height:1.8;}
+
+/* 金句区 */
+.mqsec{text-align:left;}
+.mark{font-family:var(--f-mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-3);margin-bottom:26px;}
+.mq{font-size:clamp(30px,4.6vw,52px);line-height:1.34;font-weight:900;color:var(--mq);letter-spacing:-.016em;}
+.mq i{font-style:normal;display:block;}
+.mq.end{margin-top:52px;}
+.rule{width:0;height:2px;background:var(--mq);transition:width 1.15s var(--ease-flow) .55s;margin:26px 0;}
+.vis .rule{width:76px;}
+.mqs{font-size:15.5px;color:var(--ink-2);font-weight:300;line-height:1.95;max-width:860px;margin-bottom:34px;}
+.anchors{margin-top:10px;}
+
+/* 页脚行 */
+.secfoot{width:100%;max-width:1120px;margin:44px auto 0;padding:0 48px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+@media(max-width:760px){.secfoot{padding:0 22px}}
+.idt{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3);}
+.stamp{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--hair);border-radius:2px;padding:6px 12px;background:var(--card-bg);color:var(--ink-3);}
+.stamp::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink-3);}
+.stamp.int{color:var(--coral);border-color:color-mix(in srgb,var(--coral) 46%,transparent);}
+.stamp.int::before{background:var(--coral);}
+
+
+/* 口播金句拍 */
+.sec.beat{padding:96px 0 88px;border-bottom:1px dashed var(--hair-soft);min-height:56vh;display:flex;flex-direction:column;justify-content:center;}
+.sec.beat .mq{font-size:clamp(32px,5vw,58px);}
+.bigmath{font-family:var(--f-mono);display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 18px;margin:26px 0 8px;
+  font-size:clamp(17px,2.4vw,27px);font-weight:500;color:var(--ink);letter-spacing:-.01em;}
+.bigmath .op{color:var(--ink-3);font-weight:400;}
+.bigmath b{color:var(--amber);font-weight:700;font-size:clamp(22px,3.4vw,40px);}
+
+/* 主题切换 */
+.deck-swap{position:fixed;left:22px;bottom:20px;z-index:70;font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;
+  color:var(--ink-3);border:1px solid var(--hair);border-radius:3px;padding:7px 12px;opacity:.55;
+  transition:opacity .3s,color .3s,border-color .3s;background:var(--card-bg-2);cursor:pointer;}
+.deck-swap:hover{opacity:1;color:var(--amber);border-color:var(--amber);}
+@media print{.deck-swap,.scrollbar,.banner{display:none!important;}.sec{page-break-inside:avoid;}
+  .flow,.ink,.dw,.pop,.rise,.spread,.settle{opacity:1!important;transform:none!important;filter:none!important;
+  clip-path:none!important;-webkit-mask-image:none!important;mask-image:none!important;stroke-dashoffset:0!important;}}
+/* 终版追加 */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:8px 0 22px;}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr;}}
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:16px 0 8px;}
+.chain .f{border:1.5px solid var(--hair);border-radius:5px;padding:12px 14px;background:var(--card-bg);min-width:118px;display:flex;flex-direction:column;gap:4px;flex:1;}
+.chain .f .t{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);}
+.chain .f .v{font-family:var(--f-mono);font-size:16.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
+.chain .f .s{font-size:11.5px;color:var(--ink-2);font-weight:300;line-height:1.5;}
+.chain .f.ev{border-color:color-mix(in srgb,var(--amber) 55%,transparent);}
+.chain .f.ev .t{color:var(--amber);}
+.chain .f.as{border-color:color-mix(in srgb,var(--coral) 50%,transparent);}
+.chain .f.as .t{color:var(--coral);}
+.chain .f.res{background:var(--on-bg);border-color:var(--amber);}
+.chain .f.res .v{color:var(--amber);font-size:19px;}
+.chain .op{align-self:center;font-family:var(--f-mono);font-size:20px;color:var(--ink-3);flex:0;}
+.legendrow{display:flex;gap:22px;flex-wrap:wrap;margin:10px 0 4px;font-size:12.5px;color:var(--ink-2);}
+.legendrow i{font-style:normal;display:inline-flex;align-items:center;gap:7px;}
+.legendrow em{font-style:normal;width:12px;height:12px;border-radius:2px;display:inline-block;border:1.5px solid var(--hair);}
+.legendrow .ev em{border-color:var(--amber);} .legendrow .as em{border-color:var(--coral);}
+.legendrow .dv em{border-color:var(--amber);border-style:dashed;}
+.chain .f.dv{border:1.5px dashed color-mix(in srgb,var(--amber) 62%,transparent);}
+.chain .f.dv .t{color:var(--amber);}
+
+/* ── S4 三旋钮卡（HTML 文本 + mini SVG，说明不进 SVG） ── */
+.knob .mini{margin:2px 0 2px;}
+.knob .mini svg{width:100%;max-width:262px;height:auto;display:block;overflow:visible;}
+.knob .mini .ln{fill:none;stroke-width:2.4px;}
+.knob .mini .ln.co{stroke:var(--coral);} .knob .mini .ln.am{stroke:var(--amber);} .knob .mini .ln.ik{stroke:var(--ink);stroke-opacity:.8;}
+.knob .mini text{font-family:var(--f-mono);font-size:24px;font-weight:700;}
+.knob .mini .tx-co{fill:var(--coral);} .knob .mini .tx-am{fill:var(--amber);} .knob .mini .tx-ik{fill:var(--ink);}
+.knob .kv{font-size:12.5px;line-height:1.72;color:var(--ink-2);font-weight:300;border-top:1px solid var(--hair-soft);padding-top:8px;}
+.knob .kv b{color:var(--ink);font-weight:700;}
+.knob .kv i{font-style:normal;font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:3px;}
+
+/* ── Reference 表（可折行，1280 视口全列可见；替代 .src 的 nowrap 方案） ── */
+table.refs{min-width:640px;width:100%;font-size:13px;}
+table.refs td{padding:11px 14px;vertical-align:top;line-height:1.62;overflow-wrap:anywhere;}
+table.refs td:nth-child(1){font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);white-space:nowrap;}
+table.refs td:nth-child(2){font-weight:700;color:var(--ink);min-width:148px;max-width:216px;}
+table.refs td:nth-child(4){font-family:var(--f-mono);font-size:11px;letter-spacing:.03em;white-space:nowrap;color:var(--ink-3);}
+
+/* 月度洞察补充：表第四列自由换行变体 + 时间轴泳道标签 */
+table.refs.free td:nth-child(4){white-space:normal;font-family:var(--f-cn);font-size:13px;letter-spacing:0;color:var(--ink-2);text-transform:none;}
+
+</style>
+</head>
+<body>
+<svg class="deck-flow" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g>
+    <path class="l1 s1" stroke-width="1.6" d="M-200 250 C 260 120, 520 400, 900 260 S 1560 90, 2120 240"/>
+    <path class="l2 s2" stroke-width="1.2" d="M-200 340 C 300 220, 620 500, 980 350 S 1600 200, 2120 330"/>
+    <path class="l2 s3" stroke-width="1"   d="M-200 160 C 340 60, 700 300, 1060 150 S 1660 20, 2120 140"/>
+  </g>
+  <g>
+    <path class="l1 s2" stroke-width="1.4" d="M-200 700 C 300 580, 640 860, 1020 720 S 1640 560, 2120 690"/>
+    <path class="l2 s4" stroke-width="1.1" d="M-200 800 C 260 700, 600 960, 1000 820 S 1620 670, 2120 790"/>
+    <path class="l2 s1" stroke-width="1"   d="M-200 610 C 380 500, 720 780, 1100 620 S 1700 470, 2120 600"/>
+  </g>
+  <g>
+    <path class="l2 s3" stroke-width=".9"  d="M-200 980 C 320 880, 680 1120, 1080 980 S 1680 840, 2120 960"/>
+    <path class="l1 s4" stroke-width="1.1" d="M-200 470 C 340 380, 660 640, 1040 500 S 1660 360, 2120 470"/>
+  </g>
+</svg>
+
+<div class="scrollbar" id="scrollbar"></div>
+<div class="banner"><span>内部分享 · 判断与事实分离</span><span class="r">敌情月度洞察 · 2026-08</span></div>
+<!-- ════ S0 · 封面即总判 ════ -->
+<section class="sec cover" id="s0" style="min-height:70vh">
+  <div class="wrap">
+    <div class="kicker flow" style="--i:0">COMPETITIVE INTELLIGENCE · 敌情月度洞察 · 2026-08</div>
+    <h1 class="ink" style="--i:1">盯发货，别盯发布会</h1>
+    <div class="subtitle spread" style="--i:3">叙事在天上 · 位移在运行时控件和价卡上</div>
+    <p class="lede flow" style="--i:5"><b>一句话总判：</b>8 月的表面剧情是「全双工大官宣」——GPT-Live 架构文（8/3）、SeedRealtime（8/5）；但到月末，全双工族在<b>可采购的 API 层一单未发</b>。真正落进开发者手里的是三样便宜东西：<b>轮次控制权下放</b>（Deepgram ForceEndTurn、Bland 自适应接话）、<b>TTS 换代与私有化</b>（Sonic-3.6 GA、Flux self-host+FIPS）、<b>定价透明化</b>（NICE 从 Price on Application 转明码五档）。<br>本卷合成自 8 月全月竞品监测序列；<b>判断与事实分段标注</b>——标【事实】的只汇编带来源锚的内容，标【判断】的欢迎挑战，挑战入口就是推翻它挂的事实。</p>
+  </div>
+  <div class="secfoot"><span class="idt">合成自 2026-08 竞品监测全月序列（W31–W35）</span><span class="stamp int">内部分享 · 请勿外传</span></div>
+</section>
+
+<!-- ════ S1 · 月度时间轴 ════ -->
+<section class="sec" id="s1">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">01 · 一张图看整月 · 两条泳道，一条缺席</div>
+    <h2 class="ink" style="--i:1">官宣在月初，发货在月末，API 在缺席</h2>
+    <div class="fig">
+      <svg viewBox="0 0 1260 520" style="max-width:1120px;width:100%">
+        <line class="stroke dw" style="--len:1030;--i:1" x1="120" y1="440" x2="1150" y2="440" stroke-width="1.2"/>
+        <text class="lbl" x="120" y="468">08-01</text>
+        <text class="lbl" x="290" y="468" text-anchor="middle">W31</text>
+        <text class="lbl" x="528" y="468" text-anchor="middle">W32</text>
+        <text class="lbl" x="766" y="468" text-anchor="middle">W33</text>
+        <text class="lbl" x="1004" y="468" text-anchor="middle">W35 · LIVE</text>
+        <text class="lbl" x="1140" y="468" text-anchor="end">08-31</text>
+        <line class="stroke" x1="120" y1="140" x2="1140" y2="140" stroke-width=".7" opacity=".35"/>
+        <line class="stroke" x1="120" y1="330" x2="1140" y2="330" stroke-width=".7" opacity=".35"/>
+        <text class="txt pop" style="--i:2" x="120" y="106">叙事层 · 官宣与奖项</text>
+        <text class="txt fill-am pop" style="--i:2" x="120" y="296">发货层 · 可采购 / 可下载</text>
+        <!-- 叙事层事件 -->
+        <circle class="fill-ink pop" style="--i:3" cx="188" cy="140" r="6" fill-opacity=".6"/>
+        <circle class="fill-ink pop" style="--i:3" cx="256" cy="140" r="6" fill-opacity=".6"/>
+        <circle class="fill-ink pop" style="--i:3" cx="902" cy="140" r="5" fill-opacity=".45"/>
+        <circle class="fill-ink pop" style="--i:3" cx="970" cy="140" r="5" fill-opacity=".45"/>
+        <text class="sm pop" style="--i:4" x="188" y="170" text-anchor="middle">8/3 GPT-Live 架构文</text>
+        <text class="sm pop" style="--i:4" x="276" y="194" text-anchor="middle">8/5 SeedRealtime 官宣</text>
+        <text class="sm pop" style="--i:4" x="902" y="170" text-anchor="end">8/24 TTEC 奖</text>
+        <text class="sm pop" style="--i:4" x="982" y="194" text-anchor="middle">8/26 Five9 IDC Leader</text>
+        <!-- API 真零带 -->
+        <path class="stroke-co dw" style="--len:320;--i:9" d="M834 235 L1140 235" stroke-width="2" stroke-dasharray="7 8"/>
+        <text class="sm fill-co pop" style="--i:10" x="1140" y="222" text-anchor="end">OpenAI Realtime API：8/22 起零发货（changelog 止于 Aug 21，2025 旧徽章已拒收）</text>
+        <!-- 发货层事件 -->
+        <circle class="fill-am pop" style="--i:5" cx="188" cy="330" r="6"/>
+        <circle class="fill-am pop" style="--i:5" cx="460" cy="330" r="6"/>
+        <circle class="fill-am pop" style="--i:5" cx="664" cy="330" r="6"/>
+        <circle class="fill-am pop" style="--i:6" cx="970" cy="330" r="7"/>
+        <circle class="fill-am pop" style="--i:6" cx="1004" cy="330" r="7"/>
+        <circle class="fill-am pop" style="--i:6" cx="1038" cy="330" r="7"/>
+        <text class="sm pop" style="--i:7" x="188" y="362" text-anchor="middle">8/3 Bland 自适应接话</text>
+        <text class="sm pop" style="--i:7" x="460" y="362" text-anchor="middle">8/11 Ink-2 keyterm</text>
+        <text class="sm pop" style="--i:7" x="664" y="386" text-anchor="middle">8/17 EL MCP · 并发排队</text>
+        <text class="sm pop" style="--i:8" x="968" y="302" text-anchor="middle">8/26 Gemini Transcribe · Flux TTS GA+FIPS</text>
+        <text class="sm pop" style="--i:8" x="1002" y="362" text-anchor="middle">8/27 Sonic-3.6 GA · PhoneLLM α1</text>
+        <text class="sm pop" style="--i:8" x="1038" y="386" text-anchor="middle">8/28 Flux ForceEndTurn</text>
+      </svg>
+    </div>
+    <div class="tblwrap flow" style="--i:11"><table class="k">
+      <thead><tr><th>信号计数（两套体制，不可加成单一总数）</th><th>窗口</th><th>净新增</th><th>P0 / P1 / P2</th></tr></thead>
+      <tbody>
+        <tr><td>月初回补归档（W31–W34，单日集中回补生成）</td><td>08-03～08-24</td><td><b>24</b></td><td>0 / 20 / 4</td></tr>
+        <tr><td>逐日实测周报（W35 起，双源核验）</td><td>08-24～08-30</td><td><b>13</b></td><td>0 / 5 / 8</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note grey rise" style="--i:12">全双工族月末状态：OpenAI 全月 API 零发货；SeedRealtime 无 OpenAPI 化动作（官方 8 月无带日期发布）；Gemini 8/26 发的是 Transcribe（STT），不是 Live 语音对语音新模型。<b>官宣与 API 之间的时滞 ≥4 周且未闭合——这个「时滞」本身，就是本月最重要的敌情</b>；月初还是 Realtime 模型叙事周，月末已是 STT/TTS 运行时与轮次控件的发货周。</div>
+  </div>
+  <div class="secfoot"><span class="idt">源：8 月竞品周报序列 · 逐条带官方 URL 与页面日期</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S2 · 位移一 ════ -->
+<section class="sec" id="s2">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">02 · 位移一 · 全双工是叙事层，运行时控件才是发货层</div>
+    <h2 class="ink" style="--i:1">轮次控制权，正在下放给应用</h2>
+    <p class="sub flow" style="--i:2">模型侧的全双工还在官宣期，但「谁决定什么时候接话」这件事，这个月实实在在换了主人——从模型层交到了应用层手里。前半月拆的是模型侧回合制，后半月把拆下来的控制权交给了集成方。</p>
+    <div class="g3">
+      <div class="card sm flow" style="--i:3"><div class="tag">8/3 · Bland</div><div class="t">自适应接话</div><div class="d">按来电者语速与停顿调整接话时机，pace 变化随之匹配——打断体验第一次成为厂商级可调项。</div></div>
+      <div class="card sm on flow" style="--i:4"><div class="tag">8/28 · Deepgram Flux</div><div class="t">ForceEndTurn</div><div class="d">轮次三模式（Automatic / Semi-manual / Fully manual）＋ <b>eot_threshold=1.0</b> 热切换——EOT 判定权整体交给应用，可 BYO-VAD、可按键说话。</div></div>
+      <div class="card sm flow" style="--i:5"><div class="tag">8/27 · Daily/Pipecat</div><div class="t">PhoneLLM Alpha 1</div><div class="d">开源电话 LLM＋自建 PhoneBench，自报对旗舰 API「94% cheaper」。Alpha 非 GA；$0.00025/agent-min 是自托管测算<b>不是价目</b>。</div></div>
+    </div>
+    <div class="land rise" style="--i:7">【判断】对标材料里，全双工族只能写「叙事基准」；供给对比表继续以现售 API 为准。<span class="s">真正在改变集成方行为的是轮次控制权下放——电话 Agent 的打断参数面（ForceEndTurn 类）应进能力对比的固定列：它已经是可采购差异。</span></div>
+  </div>
+  <div class="secfoot"><span class="idt">源：各厂官方 changelog / 博客（页面带日期）</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S3 · 位移二 NICE ════ -->
+<section class="sec" id="s3">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">03 · 位移二 · 定价面从「不透明」向「明码」挪了一格</div>
+    <h2 class="ink" style="--i:1">NICE：从「请询价」到明码五档</h2>
+    <div class="fig">
+      <svg viewBox="0 0 1010 410" style="max-width:1010px;width:100%">
+        <rect class="pop" style="--i:2" x="40" y="130" width="290" height="120" rx="6" fill="none" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="7 6"/>
+        <text class="txt" x="66" y="168">Price On Application</text>
+        <text class="sm" x="66" y="196">08-26 上午采集口径 · 询价制</text>
+        <text class="sm" x="66" y="220">页面无标准单价 · 不猜价不造数</text>
+        <path class="stroke-am dw" style="--len:110;--i:3" d="M340 190 L420 190" stroke-width="2.2"/>
+        <path class="fill-am pop" style="--i:3" d="M420 182 L438 190 L420 198 Z"/>
+        <rect class="fill-am pop" style="--i:4" x="460" y="242" width="70" height="88" fill-opacity=".8"/>
+        <rect class="fill-am pop" style="--i:5" x="562" y="222" width="70" height="108" fill-opacity=".8"/>
+        <rect class="fill-am pop" style="--i:6" x="664" y="195" width="70" height="135" fill-opacity=".8"/>
+        <rect class="fill-am pop" style="--i:7" x="766" y="163" width="70" height="167" fill-opacity=".8"/>
+        <rect class="fill-am pop" style="--i:8" x="868" y="131" width="70" height="199" fill-opacity=".85"/>
+        <line class="stroke dw" style="--len:540;--i:4" x1="440" y1="330" x2="960" y2="330" stroke-width="1.2"/>
+        <text class="sm" x="495" y="232" text-anchor="middle">$110</text>
+        <text class="sm" x="597" y="212" text-anchor="middle">$135</text>
+        <text class="sm" x="699" y="185" text-anchor="middle">$169</text>
+        <text class="sm" x="801" y="153" text-anchor="middle">$209</text>
+        <text class="ttl fill-am" x="903" y="120" text-anchor="middle">$249</text>
+        <text class="txt pop" style="--i:9" x="440" y="86">明码五档 · per agent/month（同日复核实测）</text>
+        <text class="sm pop" style="--i:9" x="440" y="360">Ultimate 另 $0.25/session；同套价跨 4 个能力分区重复出现，勿当 20 个数据点</text>
+        <text class="sm pop" style="--i:10" x="40" y="392">两态快照均已带时间戳归档；10 月起纳入价卡月度对比跟踪</text>
+      </svg>
+    </div>
+    <div class="g2">
+      <div class="note rise" style="--i:11"><b>【判断】位移窗口 ≤2026-08-26</b>（两次读数间隔小时级，精确改价日未考）。CCaaS 头部从报价制转明码通常是<b>竞价压力</b>信号——与 Genesys / Talkdesk / Five9 全部明码同台后，「不给价」在采购短名单里开始变成劣势。坐席订阅带 $110–249 首次可全公开锚定，我方市场空间测算里「坐席替代」镜头的价格锚由此站稳。</div>
+      <div class="note grey rise" style="--i:12"><b>同月定价面的其它动静</b>：AWS 定价页重构（费率移入 appendix、区域标注缺失）、Zoom 价页链接失效——公开价卡本身处在变动期，<b>任何采购对比须以当日打开的页面为准</b>，引用旧截图会踩空。</div>
+    </div>
+  </div>
+  <div class="secfoot"><span class="idt">源：NICE 官方价页两次读数（同日）· 各厂公开价卡</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S4 · 位移三/四 ════ -->
+<section class="sec" id="s4">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">04 · 位移三 · STT/TTS 运行时进入「采购门槛」竞争</div>
+    <h2 class="ink" style="--i:1">胜负手不在 WER，在实体、端点与部署形态</h2>
+    <div class="g3">
+      <div class="card sm flow" style="--i:2"><div class="tag">Google · 8/26</div><div class="t">Gemini 3.5 Transcribe</div><div class="d">进实时转写（流式自报 sub-second）；生态句<b>点名 LiveKit / Pipecat / Agora</b>。博客写 public preview、changelog 写 GA——两套官方口径并列不洗。页内无定价。</div></div>
+      <div class="card sm flow" style="--i:3"><div class="tag">Cartesia · 8/27</div><div class="t">Sonic-3.6 GA</div><div class="d">自报 &lt;90ms 首包；对 Eleven v3 盲测偏好 92% 系<b>厂商自测</b>。生产须手动改模型 ID——3.5 流量不会自动切。前半月同族：Ink-2 keyterm（8/11）。</div></div>
+      <div class="card sm flow" style="--i:4"><div class="tag">Deepgram · 8/26</div><div class="t">Flux TTS self-host GA</div><div class="d">私有化部署＋ <b>FIPS 140-3 镜像</b>——这是拿政企/合规单的门槛牌，不是体验牌。同厂三天连发（8/26 TTS / 8/27 语言包 / 8/28 轮次控件），本月最密单厂动作。</div></div>
+    </div>
+    <div class="land rise" style="--i:6">【判断】STT 的竞争维度继续从「谁听得准」移向「谁交出实体、端点和轮次的控制权」；TTS 从音质进入部署形态。<span class="s">附带一条：Google 点名的三家编排层里有 Agora——我方第一次被写进超一线厂商的产品日生态句。性质是「被列为可集成生态」，非合作官宣，勿升格引用。</span></div>
+    <div class="note grey rise" style="--i:8"><b>位移四（并存的另一面）</b>：叙事层热闹——Five9 拿 IDC Agentic CCaaS Leader（8/26）、TTEC 拿 Brandon Hall Gold（8/24），均无新 SKU 无新价，只进叙事台账不进运行时评分；国内层静默——SeedRealtime 之后，思必驰/百应/火山呼叫中心等官网 8 月无带日期发布。<b>静默是「官网低披露习惯＋只采官方一手」的合成结果，不可读成国内无动作</b>；下一个可证伪窗口：IFA（9/4–8）与华为全联接（9/17–19）。</div>
+  </div>
+  <div class="secfoot"><span class="idt">源：各厂官方产品日 · 分层记账（运行时 / 叙事）</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S5 · Hume 专项 ════ -->
+<section class="sec" id="s5">
+  <div class="wrap">
+    <div class="eyebrow coral flow" style="--i:0">05 · 专项 · 一条流传中的说法，请以本条为准更新</div>
+    <h2 class="ink" style="--i:1">Hume「沉寂」说，是怎么死掉的</h2>
+    <div class="chain flow" style="--i:2">
+      <div class="f"><span class="t">① 流传说法</span><span class="v">“沉寂”</span><span class="s">曾有简报称：Hume 2026 沉寂＝核心团队 1 月被 DeepMind 收编</span></div><span class="op">→</span>
+      <div class="f as"><span class="t">② 8/24 定向复核</span><span class="v">不成立</span><span class="s">所谓「全年零动作」实为检索式太窄漏采——3/10 开源 TADA TTS（1B/3B）、7/14 发 Real World VoiceEQ 基准，官方页面均带日期</span></div><span class="op">→</span>
+      <div class="f as"><span class="t">③ 归因修正</span><span class="v">个人≠公司</span><span class="s">DeepMind 一事系创始人 Alan Cowen 个人自 2026-01 起的身份变化，Hume CEO 已易人——推不出「公司停止发布」</span></div><span class="op">→</span>
+      <div class="f"><span class="t">④ 8/26 再拦</span><span class="v">二次拦截</span><span class="s">该前提在内部简报中再次出现，再次拦下，未流入任何产出</span></div><span class="op">→</span>
+      <div class="f res"><span class="t">⑤ 全月续测</span><span class="v">live 0</span><span class="s">放宽检索下 8 月官方产品日仍为 0——正确画像：低发布密度，不是沉寂</span></div>
+    </div>
+    <div class="land co rise" style="--i:4">结论：Hume 处于低发布密度状态，并未「沉寂」；「团队被 DeepMind 收编」系创始人个人去向的误传。<span class="s">如在其它材料或口头场合见到「Hume 沉寂/被收编」的说法，请以本条为准更正——快照给结论，序列给结论的可信度。</span></div>
+  </div>
+  <div class="secfoot"><span class="idt">源：8/24 定向复核（官方博客/GitHub 逐页带日期）· 全月持续观测</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S6 · 阅读边界 ════ -->
+<section class="sec" id="s6">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">06 · 怎么读这份材料 · 边界先说清</div>
+    <h2 class="ink" style="--i:1">四条阅读护栏</h2>
+    <div class="rows">
+      <div class="r flow" style="--i:2"><span class="n">①</span><span class="k">两套计数</span><span class="v">「24」与「13」生成方式不同（单日集中回补 vs 逐日双源实测），<b>相加没有意义</b>；比较月度密度请分体制看。</span></div>
+      <div class="r flow" style="--i:3"><span class="n">②</span><span class="k">自报不升格</span><span class="v">所有厂商自测/自报数字（Sonic 92% 盲测偏好、Gemini WER 4.0%/2.6%、PhoneLLM「94% cheaper」等）在本卷始终保持「厂商自报」等级，<b>未经独立复测，引用时须带此限定</b>。</span></div>
+      <div class="r flow" style="--i:4"><span class="n">③</span><span class="k">渠道≠事实</span><span class="v">部分厂商的日更渠道月内失效（如 ElevenLabs 日 changelog 连续多日 404）——相应厂商的「无动作」是<b>监测渠道受限之上的观测</b>，不是确证的零；国内层同理。</span></div>
+      <div class="r hot flow" style="--i:5"><span class="n">④</span><span class="k">密度≠实力</span><span class="v">Deepgram 的三天连发部分反映其 changelog 勤快——<b>渠道可得性在塑造计数</b>，密度信号用于节奏判断，不用于产品力排序。</span></div>
+    </div>
+  </div>
+  <div class="secfoot"><span class="idt">判断与事实分离 · 每条判断的挑战入口＝推翻其事实锚</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S7 · 九月观察 ════ -->
+<section class="sec" id="s7">
+  <div class="wrap">
+    <div class="eyebrow flow" style="--i:0">07 · 接下来 · 九月的观察与行动窗</div>
+    <h2 class="ink" style="--i:1">五件可证伪的事</h2>
+    <div class="rows">
+      <div class="r flow" style="--i:2"><span class="n">1</span><span class="k">IFA 柏林</span><span class="v">9/4–8 开展。ElevenLabs 已在合作方名单——观察是否从「站台」升级成「发货稿」；展会 72 小时内的产品日最有含金量。</span></div>
+      <div class="r flow" style="--i:3"><span class="n">2</span><span class="k">三个口径收口</span><span class="v">Gemini Transcribe 的 preview（博客）vs GA（changelog）是否收口并出公开价目；OpenAI changelog 是否走出 Aug 21；Cartesia Sonic-3.6 是否上公开价页。</span></div>
+      <div class="r flow" style="--i:4"><span class="n">3</span><span class="k">评测窗口</span><span class="v">Deepgram Flux TTS 免费期 <b>9/12 截止</b>——若要做对比评测（bake-off），须在窗口内完成。</span></div>
+      <div class="r flow" style="--i:5"><span class="n">4</span><span class="k">下线日</span><span class="v">Amazon <b>nova-sonic-v1:0 于 9/14 在 Bedrock EOL</b>——有依赖的集成需在此前完成迁移评估。</span></div>
+      <div class="r flow" style="--i:6"><span class="n">5</span><span class="k">国内窗口</span><span class="v">华为全联接 9/17–19（官网已核）；国内语音厂商若有动作，大概率挂在会期——静默判断届时重验。</span></div>
+    </div>
+  </div>
+  <div class="secfoot"><span class="idt">全部为可证伪观察项 · 到期逐条回验</span><span class="stamp">INTERNAL</span></div>
+</section>
+
+<!-- ════ S8 · 收尾 ════ -->
+<section class="sec" id="s8">
+  <div class="wrap">
+    <div class="mark flow" style="--i:0">收尾</div>
+    <div class="mq"><i class="rise" style="--i:1">盯发货，</i><i class="rise" style="--i:2">别盯发布会。</i></div>
+    <div class="rule"></div>
+    <p class="mqs rise" style="--i:5">叙事在天上，位移在运行时控件和价卡上。官宣与 API 之间 ≥4 周且未闭合的时滞，是 8 月最重要的敌情——它意味着：短期内真正的竞争发生在轮次控制、部署形态与价格透明度上，而不是发布会的标题里。<br>9 月的五个观察窗，到期逐条回验。</p>
+  </div>
+  <div class="secfoot"><span class="idt">2026-08-31 · 敌情月度洞察</span><span class="stamp int">内部分享 · 请勿外传</span></div>
+</section>
+
+<button class="deck-swap" id="deckSwap">浅底</button>
+<script>
+(function(){
+  // 主题切换（colin-theme 全站共用键；本卷暗底默认）
+  var b=document.getElementById('deckSwap');
+  function apply(t){if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');b.textContent='\u6d45\u5e95';}
+    else{document.documentElement.removeAttribute('data-theme');b.textContent='\u6697\u5e95';}}
+  var cur='dark';try{cur=localStorage.getItem('colin-theme')||'dark';}catch(e){}
+  apply(cur);
+  b.addEventListener('click',function(){cur=(cur==='light')?'dark':'light';
+    try{localStorage.setItem('colin-theme',cur);}catch(e){}apply(cur);});
+
+  // 滚动进度线
+  var bar=document.getElementById('scrollbar');
+  function prog(){var h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?(window.scrollY/h*100):0)+'%';}
+
+  // 入场触发：scroll handler + 轮询 + 硬兜底（headless 可靠三件套）
+  var secsEl=[].slice.call(document.querySelectorAll('.sec'));
+  function check(){var vh=window.innerHeight;
+    secsEl.forEach(function(s){if(s.classList.contains('vis'))return;
+      var r=s.getBoundingClientRect();
+      if(r.top<vh*0.82&&r.bottom>0)s.classList.add('vis');});}
+  window.addEventListener('scroll',function(){check();prog();},{passive:true});
+  window.addEventListener('resize',check);
+  check();prog();
+  var n=0,t=setInterval(function(){check();if(++n>=24)clearInterval(t);},120);
+  setTimeout(function(){check();},1500);
+})();
+</script>
+
+<style>
+/* deck-ruler · 顶线即尺子：整体进度 + 跳页（hover 出刻度齿，点击/拖动直达，数字+Enter 跳页） */
+.deck-progress,#progress{display:none!important;}
+.deck-ruler{position:fixed;top:0;left:0;right:0;height:20px;z-index:1200;cursor:pointer;}
+.dr-track{position:absolute;top:0;left:0;right:0;height:2px;background:var(--hair,rgba(128,128,128,.22));transition:height .25s ease;}
+.dr-fill{position:absolute;top:0;left:0;height:2px;width:0;background:var(--amber,#ff8906);transition:width .45s cubic-bezier(.22,.9,.24,1),height .25s ease;}
+.dr-teeth{position:absolute;top:0;left:0;right:0;height:7px;opacity:0;transition:opacity .25s ease;pointer-events:none;}
+.dr-teeth i{position:absolute;top:0;width:1px;height:4px;background:var(--ink-3,#8a8a99);opacity:.55;}
+.dr-teeth i.maj{height:7px;opacity:.95;}
+.deck-ruler:hover .dr-track,.deck-ruler:hover .dr-fill{height:6px;}
+.deck-ruler:hover .dr-teeth{opacity:1;}
+.dr-tip{position:absolute;top:13px;left:50%;transform:translateX(-50%);
+  font-family:var(--f-mono,monospace);font-size:11px;line-height:1;letter-spacing:.1em;
+  color:var(--ink,#fff);background:var(--card-bg-2,var(--panel,#1c1b26));
+  border:1px solid var(--hair,rgba(128,128,128,.25));border-radius:2px;padding:5px 8px;
+  opacity:0;transition:opacity .2s;white-space:nowrap;pointer-events:none;}
+.deck-ruler:hover .dr-tip{opacity:1;}
+@media print{.deck-ruler{display:none!important;}}
+</style>
+<div class="deck-ruler" id="deckRuler" aria-hidden="true"><div class="dr-track"></div><div class="dr-teeth"></div><div class="dr-fill"></div><div class="dr-tip">1</div></div>
+<script>
+(function(){
+  var slides=document.querySelectorAll('.slide');var N=slides.length;if(!N)return;
+  var ruler=document.getElementById('deckRuler'),fill=ruler.querySelector('.dr-fill'),
+      tip=ruler.querySelector('.dr-tip'),teeth=ruler.querySelector('.dr-teeth');
+  /* 刻度齿：页多自动抽稀（≤96 根），每 5 根一长齿 */
+  var step=Math.max(1,Math.ceil(N/96));
+  for(var i=0;i<N;i+=step){var t=document.createElement('i');
+    if((i/step)%5===0)t.className='maj';t.style.left=(((i+0.5)/N)*100)+'%';teeth.appendChild(t);}
+  function cur(){for(var i=0;i<N;i++)if(slides[i].classList.contains('active'))return i;return 0;}
+  function paint(){fill.style.width=(((cur()+1)/N)*100)+'%';}
+  var mo=new MutationObserver(paint);
+  slides.forEach(function(s){mo.observe(s,{attributes:true,attributeFilter:['class']});});
+  paint();
+  function target(e){var r=ruler.getBoundingClientRect();
+    var x=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX);
+    var f=(x-r.left)/r.width;return Math.max(0,Math.min(N-1,Math.floor(f*N)));}
+  function jump(n){
+    if(window.deck&&typeof window.deck.go==='function'){window.deck.go(n);return;}
+    var d=n-cur(),key=d>0?'ArrowRight':'ArrowLeft';
+    for(var i=0;i<Math.abs(d);i++)document.dispatchEvent(new KeyboardEvent('keydown',{key:key,bubbles:true}));
+  }
+  var dragging=false;
+  ruler.addEventListener('mousemove',function(e){var n=target(e);
+    tip.textContent=(n+1)+' / '+N;tip.style.left=(((n+0.5)/N)*100)+'%';if(dragging)jump(n);});
+  ruler.addEventListener('mousedown',function(e){dragging=true;jump(target(e));e.preventDefault();});
+  addEventListener('mouseup',function(){dragging=false;});
+  ruler.addEventListener('click',function(e){jump(target(e));});
+  ruler.addEventListener('touchstart',function(e){jump(target(e));e.preventDefault();},{passive:false});
+  ruler.addEventListener('touchmove',function(e){jump(target(e));e.preventDefault();},{passive:false});
+  /* 数字键 + Enter 直达 */
+  var buf='',bufT=null;
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true')return;
+    if(e.key>='0'&&e.key<='9'){buf+=e.key;clearTimeout(bufT);bufT=setTimeout(function(){buf='';tip.style.opacity='';},1600);
+      tip.textContent=buf+' / '+N;tip.style.left='50%';tip.style.opacity='1';}
+    else if(e.key==='Enter'&&buf){var n=parseInt(buf,10);buf='';tip.style.opacity='';
+      if(n>=1&&n<=N)jump(n-1);}
+    else if(buf){buf='';tip.style.opacity='';}
+  });
+})();
+</script>
+</body>
+</html>
