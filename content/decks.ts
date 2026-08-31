@@ -269,4 +269,20 @@ export const deckRoutes: { source: string; file: string }[] = [
   //      美式拼写闸 + 语言钮闸 + 两版互跳 round-trip 实测）
   //      + DECK=postloan-en node scripts/qa-motion.mjs
   { source: "/convoai-postloan-en", file: "/decks/convoai-postloan-en.html" },
+  // 2026-08-31 Colin：three.js Phase 0 spike · 私享实验路由 · 不进任何索引数组。
+  // /lab-globe = SD-RTN 全球实时网络地球原型，验证 WebGL 能不能进生产 deck：
+  // 陆地点云（14.5k 点 · 构建期离线栅格化 · 位掩码内嵌 8.5KB）+ 228 枚示意节点 +
+  // 五槽并发大圆弧飞包 + 双主题实时换色（材质色全部 getComputedStyle 读 --g-* CSS
+  // 变量，three 代码里零色号）+ poster SVG 降级层（与 WebGL 逐字同参的相机矩阵
+  // 离线投影，WebGL 起不来就常驻）+ reduced-motion 停帧 / print 藏 canvas /
+  // document.hidden 掐 rAF / DPR ≤ 2。three r185 自托管在
+  // public/decks/assets/three/（three.module.min.js + three.core.min.js +
+  // OrbitControls.js），页面走 importmap 指自托管路径，**零外链**。
+  // 数字红线：全页只许出现「200+」与「毫秒级」，弧线一律不标延迟数值。
+  // 重建：node scripts/build-lab-globe.mjs
+  //      （陆地数据重生成才需要 node scripts/build-lab-globe-land.mjs，
+  //        依赖 npm i world-atlas topojson-client，仅构建期）
+  // 自检：node scripts/shot-lab-globe.mjs（lab 级：双主题静置 + 拖拽 + 禁 WebGL
+  //      降级 + reduced-motion + pageerror=0 + 双主题 GIF + FPS 记录）
+  { source: "/lab-globe", file: "/decks/lab-globe.html" },
 ];
