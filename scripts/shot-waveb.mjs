@@ -12,6 +12,10 @@
                             附**零位移**自证：两版的 DOM 标注逐像素相同
      labv2-pairs-sheet.png  16 页双主题并排联览
      labv2-final-contact-dark.png  22 页暗底全联览
+     ── DO=fix（2026-09-01 · P13 两处硬伤的定点修复出片）──────────────────────
+     fix-p13-{light,dark}.png  修后双主题整页静帧（与上面那两张同一拍 t=7.2）
+     fix-p13-ab.png            修前 | 修后 并排，两个主题各一行
+     fix-p13.gif               4.0s 中枢腔特写（转子的呼吸 / 翻滚 / 光弧 + 流的形态与落点）
    ⚠ GIF **一律用 TOUR.pace 录**（波A 的教训）：容器里 SwiftShader 只有 3–4fps，
      老办法录出来名义 12fps、实际 3.4fps ⇒ 放出来快 3.5×。
    用法：BASE=http://localhost:8899 node scripts/shot-waveb.mjs
@@ -141,6 +145,77 @@ if (DO.has('ab')) {
     '-pointsize', '22', '-fill', '#222', `${OUT}/waveB-p10-ab.png`], { stdio: 'pipe' });
   if (existsSync(OLD)) unlinkSync(OLD);
   console.log(`✔ waveB-p10-ab.png（上 = 改前 · 下 = 改后）· 零位移自证：${cap}`);
+}
+
+/* ═══ ③b P13 定点修复出片（DO=fix · 2026-09-01）═════════════════════════
+   终审在 P13 的双主题静帧上判了两处硬伤：呼吸核压字 / 贯通流糊成污迹且漏出版心。
+   这一段专出「修后」的验收材料：
+     fix-p13-{light,dark}.png  修后双主题整页静帧（与 waveB-p13-* 同一拍 t=7.2 ⇒ 可直接叠比）
+     fix-p13-ab.png            修前 | 修后 并排，两个主题各一行（修前 = HEAD 的产物本人）
+     fix-p13.gif               4.0s —— 看转子的呼吸 / 翻滚 / 环上跑动的光弧 + 流的形态
+   ⚠ 与 ③ 同一手法：修前那一版从 git 里现取，出完就删（不留在 public 里）。 */
+if (DO.has('fix')) {
+  const OLD = 'public/decks/_ab-p13-before.html';
+  writeFileSync(OLD, execFileSync('git', ['show', 'HEAD:public/decks/convoai-lab.html'],
+                                  { maxBuffer: 1 << 28 }));
+  mkdirSync(TMP, { recursive: true });
+  const cells = [];
+  for (const theme of ['light', 'dark']) {
+    for (const [file, tag] of [[OLD.replace('public', ''), 'before'],
+                               ['/decks/convoai-lab.html', 'after']]) {
+      const { ctx, pg } = await open(theme);
+      await pg.goto(BASE + file + '?lab=hold#1', { waitUntil: 'load' });
+      await pg.waitForTimeout(6800);
+      await goto(pg, 13);
+      await pg.evaluate(() => window.__labTour.pace(12));
+      await pg.evaluate(() => window.__labTour.seek(7.2));    // 与终审那两张同一拍
+      await pg.waitForTimeout(900);
+      const full = `${TMP}/fix-p13-${theme}-${tag}.png`;
+      await pg.screenshot({ path: full, clip: { x: 0, y: 0, width: 1920, height: 1080 } });
+      if (tag === 'after') execFileSync('cp', [full, `${OUT}/fix-p13-${theme}.png`]);
+      // A/B 只裁图形区（版心内的那张图）—— 整页并排会把两处硬伤缩得看不见
+      const cell = `${TMP}/ab-p13-${theme}-${tag}.png`;
+      await pg.screenshot({ path: cell, clip: { x: 110, y: 262, width: 1700, height: 470 } });
+      cells.push(cell);
+      // 修后那一版顺手把净空实测抄出来（口说无凭，数字随图走）
+      if (tag === 'after') {
+        const s2 = await pg.evaluate(() => window.__labTour.unit().state());
+        console.log(`  ${theme} 修后：转子净空 ${s2.clr.toFixed(1)}px · `
+          + `贯通流落点 x${Math.round(s2.flowEnd[0])} · 幅度 [w,floor,ghost,λ]=${s2.flowAmp}`);
+      }
+      await pg.evaluate(() => window.__labTour.pace(0));
+      await ctx.close();
+    }
+  }
+  execFileSync('montage', ['-tile', '2x2', '-geometry', '900x+8+8', '-background', '#9a9aa2',
+    '-label', 'LIGHT · BEFORE（核压字 · 流漏出版心）', cells[0],
+    '-label', 'LIGHT · AFTER（字坐在转子里 · 流落在发布槽右缘）', cells[1],
+    '-label', 'DARK · BEFORE', cells[2], '-label', 'DARK · AFTER',
+    cells[3], '-pointsize', '20', '-fill', '#111', `${OUT}/fix-p13-ab.png`], { stdio: 'pipe' });
+  if (existsSync(OLD)) unlinkSync(OLD);
+  console.log('✔ fix-p13-{light,dark}.png · fix-p13-ab.png（每主题一行：左修前 / 右修后）');
+}
+if (DO.has('fix')) {                                   // 4s GIF：转子在转、流在走
+  const dir = `${TMP}/fix13`;
+  rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
+  const { ctx, pg } = await open('dark');
+  await pg.goto(URL_ + '#1', { waitUntil: 'load' });
+  await pg.waitForTimeout(6500);
+  await goto(pg, 13, 3600);
+  await pg.addStyleTag({ content: '*,*::before,*::after{animation-play-state:paused!important}' });
+  const FPS = 12, N = Math.round(4.0 * FPS);
+  await pg.evaluate((f) => { window.__labTour.pace(f); window.__labTour.seek(2.0); }, FPS);
+  for (let i = 0; i < N; i++) {
+    await pg.screenshot({ path: `${dir}/f${String(i).padStart(3, '0')}.png`,
+                          clip: { x: 600, y: 300, width: 1120, height: 470 } });
+    await pg.evaluate(() => window.__labTour.step(1));
+    await pg.waitForTimeout(40);
+  }
+  await ctx.close();
+  execFileSync('ffmpeg', ['-y', '-framerate', String(FPS), '-i', `${dir}/f%03d.png`,
+    '-vf', 'scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=200[p];[b][p]paletteuse=dither=bayer:bayer_scale=3',
+    '-loop', '0', `${OUT}/fix-p13.gif`], { stdio: 'pipe' });
+  console.log(`✔ fix-p13.gif · ${N} 帧 @ ${FPS}fps · 4.0s（中枢腔特写：转子 + 贯通流的落点）`);
 }
 
 /* ═══ ④ 16 页双主题并排联览 ═══════════════════════════════════════════ */

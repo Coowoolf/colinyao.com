@@ -2075,15 +2075,35 @@ _P12RUN = [(200, 155, _W_ZAPEX, 236, 155, _W_ZMOUTH, 0.65, 2),
 #     · 机腔深 150（= 单元腔深 52 的 2.9 倍）——全页最大的一处尺度对比，
 #       机腔一深，六只槽就成了「插在机身上的模块」而不是「并排的六只盒」；
 #     · 三道**逐层内缩**的内肋（37.5px 一道）——腔壁有结构，深度才是「机器内部」；
-#     · 腔底一枚**呼吸核**：三枚异面环慢转 + 420 点脉动。
-#       「实时调试 / 一键发布」不写第二遍字，写在核的脉动里 ——
-#       每 4.4s 一记发布脉冲沿页上 vline(840,348,398) **注光**进发布槽。
+#     · 腔底一台**呼吸转子**：三枚异面轨道环 + 420 点脉动。
+#       「实时调试 / 一键发布」不写第二遍字，写在转子的脉动里 ——
+#       每 4.4s 一记发布脉冲从转子下缘沿页上 vline(840,348,398) **注光**进发布槽。
+#
+#   ── 终审硬伤一的修法（2026-09-01）：核压字 ⇒ 核**放大到字之外**变成轨道 ────
+#   病灶不是「太亮」，是**位置**：核原来坐在机腔的几何中心，而「对话引擎 /
+#   实时编排」两行字正坐在那里。三枚异面环里必然有一枚是**侧着**的，侧着的圆
+#   投影成一条直线段，正好从「引擎」两个字里穿过去；420 点是**实心球**，
+#   投影必然盖住中心。把它调暗是回避不是修 —— 那等于承认这台机器的心脏画错了地方。
+#   修法：核不再躲在字后面，而是把半径放大到**字盒之外**，成为环抱两行字的
+#   一台转子 ⇒ 读成「引擎的核心里坐着这两行字」，语义比原来更准，量级也没缩水。
+#   硬指标：转子的任何一处可见几何（环 / 粒子 / 粒径）与两行墨迹盒净空 ≥ 16px，
+#   墨迹盒与 ghost 窗口**同源**（_P13INK ⊂ _P13GHOST），构建期逐点断言（见 _k_orb_clear）。
 _P13SLOT = [(60, _y, 380, 68) for _y in (60, 168, 276, 384)] \
          + [(1240, _y, 380, 68) for _y in (168, 296)]
 _P13HUB = (620, 180, 440, 160)
 _K_CYC, _K_SW, _K_CAV = 6.4, 1.6, 52    # 一轮换一只槽 / 一次热切换的时长 / **单元**腔深
 _K_HUBCAV, _K_RIB = 150.0, 3            # 机腔深（= 52 × 2.9）/ 内肋道数
-_K_CORE_N, _K_CORE_R = 420, 58.0        # 呼吸核：点数 / 基准半径
+_K_CORE_N = 420                         # 呼吸转子的粒子数（一枚没少）
+#   三枚轨道环 (ax, ay, az)：az 是**出平面**分量 —— 轨道面绕屏幕 x 轴倾一个角度，
+#   三枚 az 正负 / 大小两两不同 ⇒ 真的异面（不是三枚同心圆）。
+#   投影后的椭圆必须整只**包住**两行墨迹盒 + 16px 净空，同时整只留在机腔里。
+_K_ORB = [(214.0, 70.0,  52.0),         # 外圈：最扁最宽
+          (198.0, 72.0, -42.0),         # 中圈：反向倾（与外圈交叉）
+          (184.0, 74.0,  26.0)]         # 内圈：最竖 —— 三条椭圆互相穿插
+_K_ORB_BR = 0.026                       # 呼吸：整台转子随 beat 只**向外**涨（内界即基准）
+_K_ORB_ROLL = (9.7, 12.3, 7.9)          # 三枚环各自「翻滚」一周的秒数（az 走一趟余弦）
+_K_ORB_ARC = (0.34, -0.27, 0.21)        # 三枚环上光弧的角速度（圈/秒 · 正负 = 转向相反）
+_K_CLR = 16.0                           # 净空硬指标（px · 墨迹盒外缘起算）
 _K_PUB = 4.4                            # 发布脉冲周期（秒）
 _K_SWZ = -320.0                         # 热切换：在位机体沿 −z 退到这里再淡出
 _K_SWA, _K_SWB = (0.0, 0.58), (0.42, 1.0)   # 一进一出**错峰**（退场 / 进场各占的相位段）
@@ -2100,17 +2120,38 @@ _P13RUN = [(440, _y + 34, 540, _y + 34, 1.06, 1) for _y in (60, 168, 276, 384)] 
         + [(540, 260, 618, 260, 0.84, 1),
            (1240, 202, 1140, 202, 1.06, 1), (1240, 330, 1140, 330, 1.06, 1),
            (1140, 260, 1074, 260, 0.70, 1)]
-# ── 贯通流（波B）：语音 → ASR → 左总线 → 中枢 → 发布槽 → 输出 ─────────────
+# ── 贯通流（波B）：语音 → ASR → 左总线 → 中枢 → 发布槽 ────────────────────
 #   一条 audioStream 走完全程（lab-kit ⑨）。它是**介质**（语音一直在来），
 #   所以是一条有厚度、会起伏、波峰自己往前走的带子，不是一串包。
-#   两端都伸到舞台外（x −40 / 1720）—— 进来之前它就在，出去之后它还在。
-_P13FLOW = [(-40, 94), (540, 94), (540, 260), (840, 260), (840, 430), (1720, 430)]
+#
+#   ── 终审硬伤二的修法（2026-09-01）：糊成污迹 + 漏出舞台 ────────────────────
+#   ① **落点**：原来右端伸到 x1720（页上 1840）—— 越过版心右缘 1800 流向虚空，
+#      「流要有落点」这条纪律当场破。改成**终结在发布槽的右缘**（x1060 = 页 1180）：
+#      语音 → ASR → 左总线 → 中枢 → 发布槽，到「一键发布」为止，这就是全部语义。
+#      左端仍留在画外（−40）：语音进来之前它就在，而 22px 的淡入在**版心左缘之外**
+#      就收满 ⇒ 版心边上是一条满幅的带子被画框切住（画外还在继续），不是一个淡出的头；
+#      右端同一档反过来用，落在发布槽右缘上的是一记真正的收口，不是硬切也不漏出画外。
+#   ② **形态**：原来幅度档相对路径尺度过大（半宽 11 + 地板 .30）⇒ 最窄也有七成宽，
+#      读成一朵云不是一条波。这一页把三个数字**只在本页 opt 里**覆写（lab-kit ⑨ 的
+#      _AS_* 全局常量一个没动）：半宽 11 → 8、地板 .30 → .12 —— 包络两端的宽度比
+#      3.3× → 8.3×，波谷真的收下去；λ 由**全长 ÷ 12** 反推（≈120px）——
+#      这条流被 ghost 窗口切成几段，最长的一段净跨度 220px，λ 必须短到
+#      **每一段里都装得下一个半波峰**，否则静帧上只剩一坨鼓包。
+#      让位档（ghost）反过来抬一档 .055 → .075：宽 8 × .075 = 宽 11 × .055，
+#      细线的**绝对**粗细一格没变（「流不断」是纪律，不是这一页的手感）。
+_P13FLOW = [(-40, 94), (540, 94), (540, 260), (840, 260), (840, 430), (1060, 430)]
+_K_FLOWW, _K_FLOWFLOOR = 8.0, 0.12     # 本页覆写：基准半宽 / 幅度地板
+_K_FLOWGHOST = 0.075                   # 本页覆写：让位档（带子瘦了，细线不能跟着瘦没）
+_K_FLOWN = 12                          # 全长上的呼吸次数 ⇒ λ = 全长 ÷ 12
+_K_FLOWFADE = 22.0                     # 两端渐隐收口的弧长（px）
 #   穿模块、穿字段的那几段走 **aG ghost**（剖面收成细线）⇒ 流不断，字读得清。
 #   这几只框逐条对着页上的墨迹取：ASR 模块板 / 中枢两行字 / 发布槽那行字。
 _P13GHOST = [(74, 72, 352, 44),        # ASR 模块板（不透明，流从它「背后」过）
              (795, 274, 90, 28),       # 中枢「实时编排」
              (760, 226, 160, 40),      # 中枢「对话引擎」
              (716, 414, 248, 30)]      # 发布槽「实时调试 → 一键发布」
+#   转子净空断言用的墨迹盒 = ghost 窗口那两只中枢字盒**本人**（同一份真相，不另立一套）
+_P13INK = [_P13GHOST[2], _P13GHOST[1]]
 _K_GZF = 26.0                          # ghost 窗口的渐隐半宽（px 弧长 · smootherstep）
 #   两条往返闭环：中枢 ⇄ LLM（行 y202）/ 中枢 ⇄ TTS（行 y310）。
 #   去一条走总线**左** 8px、回一条走总线**右** 8px ⇒ 「往返」在图上分得开。
@@ -2118,8 +2159,86 @@ _K_BUSX = 540
 _P13LOOP = [[(620, 255), (_K_BUSX - 8, 255), (_K_BUSX - 8, _y - 5), (444, _y - 5),
              (444, _y + 5), (_K_BUSX + 8, _y + 5), (_K_BUSX + 8, 265), (620, 265)]
             for _y in (202, 310)]
-#   发布脉冲：从腔底的呼吸核出发，沿页上 vline(840,348,398) 注光进发布槽。
-_P13PUB = [(840, 260), (840, 348), (840, 398)]
+#   发布脉冲：从腔底转子的**下缘**出发，沿页上 vline(840,348,398) 注光进发布槽。
+#   起点原来取转子中心 (840,260) —— 那正是「对话引擎 / 实时编排」两行字的位置，
+#   整条注光路径竖着劈过两行字（终审硬伤一的第二处）。改到 y336：投影后落在 y331，
+#   在「实时编排」墨迹盒下缘（302）之外 29px，且正好贴着转子外圈的下缘出发。
+_P13PUB = [(840, 336), (840, 348), (840, 398)]
+
+
+def _k_flow_lam():
+    """贯通流的波长：**全长 ÷ _K_FLOWN 次呼吸**（本页覆写 —— lab-kit ⑨ 的
+       _AS_LAM 一个字没动，别的七页照旧吃 232px 那一档）"""
+    return _plen(_P13FLOW) / _K_FLOWN
+
+
+def _k_flow_edge():
+    """两端渐隐收口占全长的比例（_K_FLOWFADE px ÷ 全长）。
+       左端的几何还在画外 40px 处 ⇒ 淡入在**版心左缘之外**就收满：
+       版心边上是一条满幅的带子被画框切住（画外还在继续），不是一个淡出的头。
+       右端反过来 —— 落在发布槽右缘上的是一记真正的收口。"""
+    return _K_FLOWFADE / _plen(_P13FLOW)
+
+
+# ── 转子净空的**构建期**断言（终审硬伤一的硬指标）────────────────────────────
+#   与运行时逐字同解：投影锁 LZ(x,y,z,zref) 把 (x,y) 抬到 zref 预缩放、再换成真 z，
+#   透视除法之后屏点 = 舞台中心 + (页点 − 舞台中心) · (D−zref)/(D−z)。
+#   这里把 makeSlots 里那几行 JS 原样翻成 Python，逐点量到两只墨迹盒的距离 ——
+#   「≥16px」因此不是手感，是一条构建失败条件。
+_K_D = 1500.0                                   # camPx 的相机距离（与 makeSlots 同参）
+def _k_proj(px, py, oz):
+    """转子上一点（页坐标 px,py + 出平面 oz）投影回舞台像素"""
+    _cx, _cy = LAB_RECTS[13][3] / 2.0, LAB_RECTS[13][4] / 2.0
+    s = (_K_D - _K_ZHUB) / (_K_D - (_K_ZHUB - _K_HUBCAV * 0.82) - oz)
+    return _cx + (px - _cx) * s, _cy + (py - _cy) * s
+
+
+def _k_orb_center():
+    """转子中心的**预像**：投影之后正好落在两行墨迹盒并集的中心"""
+    _cx, _cy = LAB_RECTS[13][3] / 2.0, LAB_RECTS[13][4] / 2.0
+    sx = (min(b[0] for b in _P13INK) + max(b[0] + b[2] for b in _P13INK)) / 2.0
+    sy = (min(b[1] for b in _P13INK) + max(b[1] + b[3] for b in _P13INK)) / 2.0
+    k = (_K_D - (_K_ZHUB - _K_HUBCAV * 0.82)) / (_K_D - _K_ZHUB)
+    return _cx + (sx - _cx) * k, _cy + (sy - _cy) * k
+
+
+def _k_orb_at(t):
+    """粒子带：三枚环之间的分段线性插值（t=0 内圈 / .5 中圈 / 1 外圈）——
+       与 makeSlots 里的 orbAt() 逐字同解。"""
+    a, b, s = ((_K_ORB[2], _K_ORB[1], t * 2) if t <= 0.5
+               else (_K_ORB[1], _K_ORB[0], (t - 0.5) * 2))
+    return tuple(a[i] + (b[i] - a[i]) * s for i in range(3))
+
+
+def _k_orb_clear(nb=480, naz=9, nt=33):
+    """转子（三枚环 + 整条粒子带）到两行墨迹盒的**最小净空**与整体包围盒。
+       az 走满 [−az, +az]（环在翻滚）、半径走 [1, 1+_K_ORB_BR]（呼吸只向外涨，
+       所以最窄的一档就是基准档 —— 净空的最坏情形在 rad=1）。"""
+    ocx, ocy = _k_orb_center()
+    mn, bx0, bx1, by0, by1 = 1e9, 1e9, -1e9, 1e9, -1e9
+    fams = [_K_ORB[i] for i in range(3)] + [_k_orb_at(k / (nt - 1.0)) for k in range(nt)]
+    for ax, ay, az in fams:
+        for ir, rad in enumerate((1.0, 1.0 + _K_ORB_BR)):
+            for ia in range(naz):
+                m = -1.0 + 2.0 * ia / (naz - 1)
+                for ib in range(nb):
+                    th = 2 * math.pi * ib / nb
+                    x, y = _k_proj(ocx + ax * rad * math.cos(th),
+                                   ocy + ay * rad * math.sin(th),
+                                   az * m * rad * math.sin(th))
+                    bx0, bx1 = min(bx0, x), max(bx1, x)
+                    by0, by1 = min(by0, y), max(by1, y)
+                    if ir == 0:
+                        for r in _P13INK:
+                            dx = max(r[0] - x, 0.0, x - (r[0] + r[2]))
+                            dy = max(r[1] - y, 0.0, y - (r[1] + r[3]))
+                            mn = min(mn, math.hypot(dx, dy))
+    return mn, (bx0, by0, bx1, by1)
+
+
+_K_CLR_MIN, _K_ORB_BOX = _k_orb_clear()     # 构建期实测（build() 末尾断言 ≥ _K_CLR）
+
+
 # ── P14 接入架构三塔 ──────────────────────────────────────────────────────
 _P14T = [(40, 120, 460, 300, 0, 0), (610, 120, 460, 300, 1, 0),
          (1180, 120, 460, 300, 2, 1)]
@@ -2338,6 +2457,16 @@ def lab_data(p):
               ("hubcav", _n(_K_HUBCAV)), ("ribs", _K_RIB),
               ("core", _K_CORE_N), ("pub", _n(_K_PUB)),
               ("pubpath", ";".join("%d,%d" % q for q in _P13PUB)),
+              # 终审硬伤一：转子净空 —— 墨迹盒 / 三枚轨道 / 构建期实测净空 / 包围盒
+              ("ink", ";".join("%d,%d,%d,%d" % b for b in _P13INK)),
+              ("orb", ";".join("%s,%s,%s" % tuple(_n(v) for v in o) for o in _K_ORB)),
+              ("clr", _n(_K_CLR)), ("clr-min", _f1(_K_CLR_MIN)),
+              # 终审硬伤二：贯通流的落点（页坐标）与发布槽右缘 —— ⑲p13 逐条复算
+              ("flow-end", "%d,%d" % (LAB_RECTS[13][1] + _P13FLOW[-1][0],
+                                      LAB_RECTS[13][2] + _P13FLOW[-1][1])),
+              ("flow-sink", "%d" % (LAB_RECTS[13][1] + _P13PILL[0] + _P13PILL[2])),
+              ("flow-amp", "%s,%s,%s,%s" % (_n(_K_FLOWW), _n(_K_FLOWFLOOR),
+                                            _n(_K_FLOWGHOST), _f1(_k_flow_lam()))),
               ("flow-len", _n(_plen(_P13FLOW))),
               ("gz", ";".join("%s,%s" % (_f1(g[0]), _f1(g[1]))
                               for g in (_box_u(_P13FLOW, b) for b in _P13GHOST) if g)),
@@ -4615,7 +4744,10 @@ function mkStream(SH, pts, opt){
   const mat = mkMat(SH, AS_VS, AS_FS, {
     uRun:{value:0}, uLam:{value:o.lam || AS.lam}, uLen:{value:geo.userData.len},
     uFloor:{value:o.floor === undefined ? AS.floor : o.floor},
-    uGhost:{value:AS.ghost}, uEdge:{value:o.edge === undefined ? AS.edge : o.edge},
+    // ghost 也开成 opt（默认值 = 全局档 ⇒ 别的页一个像素不变）：带子瘦一档的页面，
+    // 让位那条细线不能跟着瘦没 —— 「流不断」是纪律，不是这一页的手感。
+    uGhost:{value:o.ghost === undefined ? AS.ghost : o.ghost},
+    uEdge:{value:o.edge === undefined ? AS.edge : o.edge},
     uCrest:{value:AS.crest}, uComp:{value:AS.comp},
     uGrain:{value:AS.grain}, uGrainL:{value:AS.grainL}, uW:{value:1},
     uRms:{value:new THREE.Color()}, uRmsOp:{value:1},
@@ -5869,10 +6001,25 @@ function makeVision(ctx){
        腔一深，六只槽立刻读成「插在机身上的模块」，而不是「并排的六只盒」。
      · **三道逐层内缩的内肋**（37.5px 一道）：腔壁有结构，深度才是「机器内部」
        而不是「一个黑洞」。
-     · **呼吸核**坐在腔底：三枚**异面**环慢转（三个法向两两正交 ⇒ 无论从哪个角度
-       看都有一枚环是侧着的，体积感靠它成立）+ 420 点脉动。
-       「实时调试 / 一键发布」不写第二遍字，**写在核的脉动里**：每 4.4s 一记
-       发布脉冲从核出发，沿页上 vline(840,348,398) 注光进发布槽。
+     · **呼吸转子**坐在腔底：三枚**异面**轨道环（三张倾斜平面上的椭圆，出平面分量
+       az 正负 / 大小两两不同 ⇒ 真异面；az 随时间走一趟余弦 = 翻滚，近侧远侧互换）
+       + 420 点在内圈↔外圈之间迁徙的脉动。
+       「实时调试 / 一键发布」不写第二遍字，**写在转子的脉动里**：每 4.4s 一记
+       发布脉冲从转子下缘出发，沿页上 vline(840,348,398) 注光进发布槽。
+
+   ── 终审硬伤一：核压字 ⇒ 核**放大到字之外**（2026-09-01 定点修复）────────────
+   原来核坐在机腔的几何中心 —— 而「对话引擎 / 实时编排」两行字正坐在那里。
+   三枚法向两两正交的异面环里**必有一枚是侧着的**，侧着的圆投影成一条直线段，
+   正好从「引擎」两个字里竖着劈过去；420 点是实心球，投影必然盖住中心。
+   把它调暗是回避不是修 —— 那等于承认这台机器的心脏画错了地方。
+   修法是**换位置不是换亮度**：半径放大到字盒之外，核成为环抱两行字的一台转子，
+   读成「引擎的核心里坐着这两行字」，语义比原来更准、量级也没缩水（占满整只机腔）。
+   发布脉冲的起点同步从腔心 (840,260) 挪到转子下缘 (840,336)。
+   硬指标：转子的任何一处可见几何（环 / 粒子 / 粒径 / 注光路径）与两行墨迹盒
+   净空 **≥16px**，墨迹盒与贯通流的 ghost 窗口同源。两道机器证明：
+     · 构建期 `_k_orb_clear()` 逐点解析断言（环翻滚一整趟 × 整条粒子带 × 呼吸两档）；
+     · 运行时 `state().clr` 把**这一帧真的传上去的那批顶点**投影回舞台像素重量一遍，
+       qa ⑲p13 在一整个呼吸 / 翻滚周期上逐帧断言。
 
    ── 六枚模块各一处小巧思（全部画在槽名两侧 96px 净区内，一个字都不压）──────
      ASR 声波进 / 字节出 ｜ LLM 深部巨核 ｜ TTS 字节进 / 波形出 ｜
@@ -5881,9 +6028,21 @@ function makeVision(ctx){
    小巧思只许住在这两格里 —— 「每个模块都有小巧思」不能以压字为代价。
 
    ── 贯通流：一条 audioStream 走完全程 ────────────────────────────────────
-   语音 → ASR → 左总线 → 中枢 → 发布槽 → 输出（两端都伸出舞台外）。
+   语音 → ASR → 左总线 → 中枢 → **发布槽**（左端伸出舞台外，右端落在发布槽右缘）。
    它是**介质**（语音一直在来），所以是带子不是包（接入指南 ⑨）。
    穿模块、穿字段的那几段走 **aG ghost**：剖面收成细线 ⇒ 流不断，字读得清。
+
+   ── 终审硬伤二：糊成污迹 + 漏出舞台（2026-09-01 定点修复）────────────────────
+   ① 落点：右端原来伸到页上 x1840 —— 越过版心右缘 1800 流向虚空，「流要有落点」
+      当场破。改成终结在**发布槽右缘**（页 1180）：到「一键发布」为止就是全部语义；
+      两端各 22px 渐隐收口（_AS_EDGE 那条通道）：左端在版心之外就收满 ⇒ 边上那一刀
+      是画框，不是笔尖；右端落在发布槽右缘，是真正的收口。
+   ② 形态：幅度档相对这条路径的尺度过大（半宽 11 + 地板 .30 ⇒ 最窄也有七成宽）
+      ⇒ 读成一朵云不是一条波。**只在本页 opt 里**覆写半宽 8 / 地板 .12 /
+      λ = 全长 ÷ 12 ≈ 120px（包络两端的宽度比 3.3× → 8.3×；λ 由「被 ghost 切出来的
+      最长一段净跨度 220px」反推 —— 每一段里都要装得下一个半波峰），
+      让位档反抬到 .075（8×.075 = 11×.055 ⇒ 细线的绝对粗细一格没变）。
+      lab-kit ⑨ 的 `_AS_*` 全局常量一个字没动 —— 别的七页逐像素不变。
    窗口是构建期从页上的墨迹框算出来的弧长区间（K.k.gz），运行时只做一次连乘 ——
    **零分支**。中枢⇄LLM、中枢⇄TTS 两条往返闭环**分居总线 ±8px**，
    一条走左、一条走右，「往返」在图上分得开。
@@ -5948,40 +6107,77 @@ function makeSlots(ctx){
       scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
     });
 
-  /* ═══ 呼吸核：三枚异面环 + 420 点脉动 ═══════════════════════════════════ */
-  const CZ = Q.zHub - Q.hubCav*0.82;               // 核坐在腔底（内肋之后）
-  const CX = Q.hub[0] + Q.hub[2]/2, CY = Q.hub[1] + Q.hub[3]/2;
+  /* ═══ 呼吸转子：三枚异面轨道环 + 420 点脉动（终审硬伤一的修法）═══════════
+     核原来是「腔心的一团」—— 而腔心正是「对话引擎 / 实时编排」两行字的位置：
+     三枚异面环里必有一枚侧着，侧着的圆投影成一条**直线段**劈过「引擎」；
+     420 点是实心球，投影必然盖住中心。调暗是回避不是修。
+     现在把它**放大到字盒之外**：三枚扁而宽的轨道椭圆环抱两行字，420 枚粒子在
+     内圈↔外圈之间迁徙 ⇒ 读成「引擎的核心里坐着这两行字」。
+     几何上是真的 3D：每一枚轨道是一张**倾斜平面上的椭圆**（出平面分量 az·sinθ
+     与面内 ay·sinθ 同相 ⇒ 共面），az 三枚正负 / 大小两两不同 ⇒ 真异面；
+     az 还随时间走一趟余弦（翻滚），近侧远侧因此互换，透视缩放是真的。
+     净空由构建期逐点断言（_k_orb_clear ≥ K.k.clr），运行时 state().clr 复量。 */
+  const CZ = Q.zHub - Q.hubCav*0.82;               // 转子坐在腔底（内肋之后）
+  /* 转子中心的**预像**：投影之后正好落在两行墨迹盒并集的中心 */
+  const IK = Q.ink, D_ = 1500, HCX = w/2, HCY = h/2;
+  const IKX = (Math.min.apply(null, IK.map(b => b[0]))
+             + Math.max.apply(null, IK.map(b => b[0]+b[2])))/2;
+  const IKY = (Math.min.apply(null, IK.map(b => b[1]))
+             + Math.max.apply(null, IK.map(b => b[1]+b[3])))/2;
+  const CX = HCX + (IKX - HCX)*(D_-CZ)/(D_-Q.zHub);
+  const CY = HCY + (IKY - HCY)*(D_-CZ)/(D_-Q.zHub);
   const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value = .03;
   const ringMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const CN = Q.coreN, coreGeo = new THREE.BufferGeometry();
+  const CN = Q.coreN, OB = Q.orb, coreGeo = new THREE.BufferGeometry();
   const cpos = new Float32Array(CN*3);
   coreGeo.setAttribute('position', new THREE.BufferAttribute(cpos,3));
   const cA = fillAH(coreGeo, 1, 0);
-  const cDir = new Float32Array(CN*3);
-  { const ga = Math.PI*(3-Math.sqrt(5));           // 黄金角球面点：分布均匀、无摩尔纹
+  /* 逐粒子的两枚固定相位：θ₀ 走黄金角（沿轨道铺得均匀、不结块）；
+     ν 是「内外迁徙」的相位（与旧版 420 点脉动同一条式子，只是脉动改成**换轨道**）*/
+  const cTh = new Float32Array(CN), cNu = new Float32Array(CN), cSp = new Float32Array(CN);
+  { const ga = Math.PI*(3-Math.sqrt(5));
     for(let i = 0; i < CN; i++){
-      const y = 1 - 2*(i+0.5)/CN, r = Math.sqrt(Math.max(0,1-y*y)), a = i*ga;
-      cDir[i*3] = Math.cos(a)*r; cDir[i*3+1] = y; cDir[i*3+2] = Math.sin(a)*r;
+      // 角速度**逐粒子恒定**（含正负两向 ⇒ 带子自己剪切）：随 ν 换向会让 θ 跳变
+      cTh[i] = i*ga; cNu[i] = i/CN*3;
+      cSp[i] = (0.30 + 0.22*((i*7919 % 97)/96)) * (i % 2 ? 1 : -1);
     } }
   scene.add(Object.assign(new THREE.Points(coreGeo, coreMat), { frustumCulled:false }));
-  /* 三枚**异面**环：法向两两正交 ⇒ 任何角度看都有一枚是侧着的（体积感靠它） */
-  const RSEG = 64, ringGeo = new THREE.BufferGeometry();
+  /* 三枚轨道环：一枚 = 一条闭合折线（RSEG 段）。环本身不「自转」（自转在自己的
+     平面里看不出来），转的是**翻滚**（az 走余弦）与环上那道**跑动的光弧**。 */
+  const RSEG = 96, ringGeo = new THREE.BufferGeometry();
   const rpos = new Float32Array(3*RSEG*2*3);
   ringGeo.setAttribute('position', new THREE.BufferAttribute(rpos,3));
   const rA = fillAH(ringGeo, 1, 0);
   scene.add(Object.assign(new THREE.LineSegments(ringGeo, ringMat), { frustumCulled:false }));
-  const RAX = [[1,0,0],[0,1,0],[0.577,0.577,0.577]];   // 三条互不共面的转轴
-  function ringPoint(k, a, rr){
-    const ax = RAX[k], ca = Math.cos(a), sa = Math.sin(a);
-    // 绕 ax 的圆：取两条与 ax 正交的基
-    const t = Math.abs(ax[1]) < 0.9 ? [0,1,0] : [1,0,0];
-    let ux = ax[1]*t[2]-ax[2]*t[1], uy = ax[2]*t[0]-ax[0]*t[2], uz = ax[0]*t[1]-ax[1]*t[0];
-    const ul = Math.hypot(ux,uy,uz)||1; ux/=ul; uy/=ul; uz/=ul;
-    const vx = ax[1]*uz-ax[2]*uy, vy = ax[2]*ux-ax[0]*uz, vz = ax[0]*uy-ax[1]*ux;
-    return [(ux*ca+vx*sa)*rr, (uy*ca+vy*sa)*rr, (uz*ca+vz*sa)*rr];
+  /* 粒子带 = 三枚环之间的分段线性插值（t=0 内圈 / .5 中圈 / 1 外圈）——
+     与构建期 _k_orb_at() 逐字同解，净空断言因此覆盖整条带。 */
+  function orbAt(t){
+    const s = t <= .5 ? t*2 : (t-.5)*2;
+    const a = t <= .5 ? OB[2] : OB[1], b = t <= .5 ? OB[1] : OB[0];
+    return [a[0]+(b[0]-a[0])*s, a[1]+(b[1]-a[1])*s, a[2]+(b[2]-a[2])*s];
+  }
+  /* 轨道上一点 → 世界坐标（LZ 的投影锁 + 真深度）*/
+  function orbPt(ax, ay, az, th, rad){
+    return LZ(CX + ax*rad*Math.cos(th), CY + ay*rad*Math.sin(th),
+              CZ + az*rad*Math.sin(th), Q.zHub);
+  }
+  /* 一枚世界点投影回舞台像素（camPx + 透视除法的解析解）—— state().clr 用它复量 */
+  function toPx(X, Y, Z){
+    const s = D_/(D_-Z);
+    return [HCX + (X-HCX)*s, HCY + (-Y-HCY)*s];
+  }
+  function inkClr(X, Y, Z){
+    const p = toPx(X, Y, Z); let m = 1e9;
+    for(let i = 0; i < IK.length; i++){
+      const r = IK[i];
+      const dx = Math.max(r[0]-p[0], 0, p[0]-(r[0]+r[2]));
+      const dy = Math.max(r[1]-p[1], 0, p[1]-(r[1]+r[3]));
+      m = Math.min(m, Math.hypot(dx, dy));
+    }
+    return m;
   }
 
-  /* ═══ 发布脉冲：从核出发，沿页上 vline(840,348,398) 注光进发布槽 ═══════ */
+  /* ═══ 发布脉冲：从转子下缘出发，沿页上 vline(840,348,398) 注光进发布槽 ═══ */
   const pubPts = Q.pubPath.map((q, i) => i === 0 ? LZ(q[0], q[1], CZ, Q.zHub)
                                                 : L(q[0], q[1], Q.zBus));
   const pubMat = mkBeamMat(SH, 30, 0.0);
@@ -6122,10 +6318,15 @@ function makeSlots(ctx){
   }
 
   /* ═══ 贯通流：一条 audioStream 走完全程（穿模块穿字段走 aG ghost）═══════ */
-  // 等弧长重采样到 ~7px 一段：aG 是逐顶点属性，点疏了 ghost 窗口就落不到点上
+  // 等弧长重采样：aG 是逐顶点属性，点疏了 ghost 窗口就落不到点上（本页 1436px ÷ 299 ≈ 4.8px 一段）
   const FLOWN = 300;
   const flowPts = resamplePoly(Q.flow, FLOWN).map(q => L(q[0], q[1], Q.zBus + 12));
-  const flow = mkStream(SH, flowPts, { w: Q.flowW, spd: Q.flowSpd, edge: 0 }).add(scene);
+  /* 幅度 / 波长 / 让位档 / 收口**全部在这只 opt 里覆写** —— lab-kit ⑨ 的 AS.* 全局档
+     一个字没动（别的七页照旧吃全局值）。为什么要覆写：这条流的路径尺度比别的页短，
+     全局那一档（半宽 11 · 地板 .30 · λ232）在这里读成一朵云而不是一条波。 */
+  const flow = mkStream(SH, flowPts, {
+    w: Q.flowW, spd: Q.flowSpd, lam: Q.flowLam,
+    floor: Q.flowFloor, ghost: Q.flowGhost, edge: Q.flowEdge }).add(scene);
   /* 幅度剖面 = ghost 窗口的**连乘**（每只窗口一记 smootherstep 凹槽）—— 零分支。
      窗口本身是构建期从页上的墨迹框算出来的弧长区间：流在哪里收细，由页面决定。 */
   flow.gain((u) => {
@@ -6156,32 +6357,41 @@ function makeSlots(ctx){
     setIntro(e){ SH.uIntro.value = e; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      /* ── 呼吸核 ── */
+      /* ── 呼吸转子：呼吸只**向外**涨（内界 = 基准档 ⇒ 净空的最坏情形恒在 rad=1）── */
       const beat = 0.5 - 0.5*Math.cos(TAU*clock/Q.beat);
-      const CR = Q.coreR*(0.86 + 0.14*beat);
+      const rad = 1 + Q.orbBr*beat;
+      // 420 枚粒子：沿轨道跑（θ）+ 在内圈↔外圈之间迁徙（ν —— 旧版 420 点脉动那条式子）
+      const azb = Math.cos(TAU*clock/Q.orbRoll[1]);   // 整条带同一趟翻滚（连续 · 无跳变）
       for(let i = 0; i < CN; i++){
-        const w2 = 0.72 + 0.28*Math.sin(TAU*(i/CN*3 - clock/2.4));
-        const q = LZ(CX + cDir[i*3]*CR*1.35*w2, CY + cDir[i*3+1]*CR*w2,
-                     CZ + cDir[i*3+2]*CR*w2, Q.zHub);
+        const nu = 0.5 + 0.5*Math.sin(TAU*(cNu[i] - clock/2.4));
+        const o = orbAt(nu);
+        const q = orbPt(o[0], o[1], o[2]*azb, cTh[i] + clock*cSp[i], rad);
         cpos[i*3] = q[0]; cpos[i*3+1] = q[1]; cpos[i*3+2] = q[2];
-        cA.a[i] = .34 + .66*w2;
+        cA.a[i] = .30 + .70*nu;                    // 迁到外圈最亮 ⇒ 脉动看得见
       }
       coreGeo.attributes.position.needsUpdate = true;
       coreGeo.attributes.aA.needsUpdate = true;
+      /* 三枚环：翻滚（az 走余弦）+ 一道**跑动的光弧**（环在转，靠它读出来）*/
       let n2 = 0;
       for(let k = 0; k < 3; k++){
-        const spin = clock*(0.20 + k*0.07)*(k === 1 ? -1 : 1);
-        for(let i = 0; i < RSEG; i++){
-          const a0 = ringPoint(k, i/RSEG*TAU + spin, CR*1.55);
-          const a1 = ringPoint(k, (i+1)/RSEG*TAU + spin, CR*1.55);
-          const p0 = LZ(CX + a0[0]*1.35, CY + a0[1], CZ + a0[2], Q.zHub);
-          const p1 = LZ(CX + a1[0]*1.35, CY + a1[1], CZ + a1[2], Q.zHub);
-          rpos[n2*3] = p0[0]; rpos[n2*3+1] = p0[1]; rpos[n2*3+2] = p0[2]; n2++;
-          rpos[n2*3] = p1[0]; rpos[n2*3+1] = p1[1]; rpos[n2*3+2] = p1[2]; n2++;
+        const az = OB[k][2]*Math.cos(TAU*clock/Q.orbRoll[k]);
+        const arc = TAU*(clock*Q.orbArc[k]);
+        for(let i = 0; i <= RSEG; i++){
+          const th = i/RSEG*TAU;
+          const p = orbPt(OB[k][0], OB[k][1], az, th, rad);
+          // 光弧：一段 cos 亮斑绕着环跑（余晖 .22，弧心 1.0）
+          const lit = .22 + .78*Math.pow(Math.max(0, Math.cos(th - arc)), 6);
+          if(i > 0){
+            rA.a[n2] = lit; rpos[n2*3] = p[0]; rpos[n2*3+1] = p[1]; rpos[n2*3+2] = p[2]; n2++;
+          }
+          if(i < RSEG){
+            rA.a[n2] = lit; rpos[n2*3] = p[0]; rpos[n2*3+1] = p[1]; rpos[n2*3+2] = p[2]; n2++;
+          }
         }
       }
       ringGeo.attributes.position.needsUpdate = true;
-      /* ── 发布脉冲：4.4s 一记，从核注光进发布槽 ── */
+      ringGeo.attributes.aA.needsUpdate = true;
+      /* ── 发布脉冲：4.4s 一记，从转子下缘注光进发布槽 ── */
       const pu = (clock % Q.pub) / Q.pub;
       pubMat.uniforms.uHead.value = sstep(0, .34, pu)*pubMat.userData.len*1.14;
       pubMat.uniforms.uRest.value = 0.06*(1 - sstep(.34, .92, pu));
@@ -6240,8 +6450,36 @@ function makeSlots(ctx){
       //   那个名字是构建期摊上去的换装时长（data-lab-swap），运行时覆盖它闸门会读到 NaN
     },
     state(){
+      /* ⚑ 净空闸的量法：不是「代码看起来对」，是**把这一帧真的传上去的那批顶点**
+         逐点投影回舞台像素，量到两只墨迹盒的距离。环 / 粒子 / 发布脉冲三样一起量，
+         再减掉粒径的一半（点是个圆盘，不是数学点）—— 这才是「可见几何的净空」。 */
+      const clrOf = () => {
+        let m = 1e9;
+        const half = coreMat.uniforms.uSize.value*0.5*(D_/(D_-CZ)) + 0.5;
+        for(let i = 0; i < CN; i++)
+          m = Math.min(m, inkClr(cpos[i*3], cpos[i*3+1], cpos[i*3+2]) - half);
+        const rn = rpos.length/3;
+        for(let i = 0; i < rn; i++)
+          m = Math.min(m, inkClr(rpos[i*3], rpos[i*3+1], rpos[i*3+2]) - 0.5);
+        // 发布脉冲：整条路径都带余光 ⇒ 整条路径都算「可见几何」，逐段密采
+        for(let i = 0; i < pubPts.length-1; i++)
+          for(let k = 0; k <= 40; k++){
+            const t = k/40, a = pubPts[i], b2 = pubPts[i+1];
+            m = Math.min(m, inkClr(a[0]+(b2[0]-a[0])*t, a[1]+(b2[1]-a[1])*t,
+                                   a[2]+(b2[2]-a[2])*t) - 0.5);
+          }
+        return m;
+      };
+      const fe = toPx(flowPts[flowPts.length-1][0], flowPts[flowPts.length-1][1],
+                      flowPts[flowPts.length-1][2]);
       return { flowOp: flow.mat.uniforms.uOpacity.value,
                gz: Q.gz.length, flowLen: flow.len, spd: flow.spd,
+               clr: clrOf(), orb: OB.length,
+               flowEnd: [ctx.rect[0] + fe[0], ctx.rect[1] + fe[1]],
+               flowAmp: [flow.mat.uniforms.uW.value*Q.flowW,
+                         flow.mat.uniforms.uFloor.value,
+                         flow.mat.uniforms.uGhost.value,
+                         flow.mat.uniforms.uLam.value],
                core: CN, ribs: Q.rib, hubCav: Q.hubCav, pub: Q.pub,
                swz: Q.swz, zIn: bodies.map(b => b.gIn.position.z),
                zCd: bodies.map(b => b.gCd.position.z),
@@ -7065,14 +7303,21 @@ def lab_k():
         ("cav", _n(float(_K_CAV))), ("dz", "34"), ("pad", "14"), ("pad2", "12"),
         ("cyc", _n(_K_CYC)), ("sw", _n(_K_SW)), ("beat", "3.6"),
         ("pill", _arr(_P13PILL)), ("brk", _rows(_P13BRK)),
-        # 机腔 / 内肋 / 呼吸核 / 发布脉冲
+        # 机腔 / 内肋 / 呼吸转子 / 发布脉冲
         ("hubCav", _n(_K_HUBCAV)), ("rib", str(_K_RIB)),
-        ("coreN", str(_K_CORE_N)), ("coreR", _n(_K_CORE_R)), ("pub", _n(_K_PUB)),
+        ("coreN", str(_K_CORE_N)), ("pub", _n(_K_PUB)),
         ("pubPath", _rows(_P13PUB)),
+        # 转子：三枚轨道环 (ax,ay,az) + 呼吸幅度 + 翻滚周期 + 光弧角速度 + 墨迹盒与净空
+        ("orb", _rows(_K_ORB)), ("orbBr", _n(_K_ORB_BR)),
+        ("orbRoll", _arr(_K_ORB_ROLL)), ("orbArc", _arr(_K_ORB_ARC)),
+        ("ink", _rows(_P13INK)), ("clr", _n(_K_CLR)),
         # 贯通流：折线 + ghost 窗口（弧长区间，px）+ 渐隐半宽 + 波峰速度
         ("flow", _rows(_P13FLOW)), ("flowLen", _n(_fl)),
         ("gz", _rows(_gz)), ("gzF", _n(_K_GZF)), ("flowSpd", _n(_SPD_P13)),
-        ("flowW", _n(11.0)),
+        # 本页覆写的幅度档（lab-kit ⑨ 的 _AS_* 全局常量一个没动）
+        ("flowW", _n(_K_FLOWW)), ("flowFloor", _n(_K_FLOWFLOOR)),
+        ("flowGhost", _n(_K_FLOWGHOST)), ("flowLam", _f1(_k_flow_lam())),
+        ("flowEdge", "%.5f" % _k_flow_edge()),
         # 两条往返闭环（分居总线 ±8px）
         ("loop", "[" + ",".join(_rows(lp2) for lp2 in _P13LOOP) + "]"),
         ("busx", str(_K_BUSX)), ("loopOff", _n(_K_LOOP_OFF)),
@@ -9781,6 +10026,48 @@ def build():
     for _i in range(3):
         assert _P6SEG[_i][1] == _P6SEG[_i + 1][0], \
             "⑨ P6 符号行第 %d 处接缝有缝：%r" % (_i + 1, _P6SEG[_i:_i + 2])
+    # ── 终审硬伤一：P13 转子净空 ≥16px（构建失败条件，不是手感）─────────────
+    #   构建期量的是**几何**（环 / 轨道的中心线），运行时 state().clr 还要再减掉
+    #   粒子的半径（--k-core-size 3.4 ⇒ ≈1.7px）与线宽的一半 —— 所以这里预留 2px：
+    #   构建期 ≥ 18 才保证「可见几何」在运行时也 ≥ 16。
+    assert _K_CLR_MIN >= _K_CLR + 2.0, \
+        ("⑮ P13 转子压字：与「对话引擎 / 实时编排」墨迹盒最小净空 %.1fpx < %.0f+2px"
+         % (_K_CLR_MIN, _K_CLR))
+    _obx = _K_ORB_BOX
+    assert (_obx[0] >= _P13HUB[0] + 4 and _obx[2] <= _P13HUB[0] + _P13HUB[2] - 4
+            and _obx[1] >= _P13HUB[1] + 4 and _obx[3] <= _P13HUB[1] + _P13HUB[3] - 4), \
+        "⑮ P13 转子越出机腔：包围盒 %r vs 机腔 %r" % ([round(v) for v in _obx], _P13HUB)
+    # 三枚轨道必须**真异面**（az 两两不同、且不全同号），否则就是三枚同心圆
+    assert len({o[2] for o in _K_ORB}) == 3 and min(o[2] for o in _K_ORB) < 0 < max(
+        o[2] for o in _K_ORB), "⑮ P13 三枚轨道不是异面（az=%r）" % [o[2] for o in _K_ORB]
+    # 发布脉冲的注光路径也不许压字：起点坐在腔底（按转子那一档深度投影），
+    # 其余两点走投影锁（页坐标本人）。透视是线性的 ⇒ 投影后逐段仍是直线段。
+    _pubpx = [_k_proj(_P13PUB[0][0], _P13PUB[0][1], 0.0)] + [
+        (float(q[0]), float(q[1])) for q in _P13PUB[1:]]
+    for _i in range(len(_pubpx) - 1):
+        _a, _b = _pubpx[_i], _pubpx[_i + 1]
+        for _k in range(41):
+            _t = _k / 40.0
+            _px, _py = (_a[0] + (_b[0] - _a[0]) * _t, _a[1] + (_b[1] - _a[1]) * _t)
+            for _r in _P13INK:
+                _dx = max(_r[0] - _px, 0.0, _px - (_r[0] + _r[2]))
+                _dy = max(_r[1] - _py, 0.0, _py - (_r[1] + _r[3]))
+                assert math.hypot(_dx, _dy) >= _K_CLR, \
+                    "⑮ P13 发布脉冲注光路径压字：(%.0f,%.0f) 距墨迹盒 %.1fpx" % (
+                        _px, _py, math.hypot(_dx, _dy))
+    # ── 终审硬伤二：P13 贯通流必须有落点，且不许溢出版心 ─────────────────────
+    _fend = (LAB_RECTS[13][1] + _P13FLOW[-1][0], LAB_RECTS[13][2] + _P13FLOW[-1][1])
+    _sink = LAB_RECTS[13][1] + _P13PILL[0] + _P13PILL[2]     # 发布槽右缘（页坐标）
+    assert _fend[0] <= 1800, "⑨ P13 贯通流溢出版心：终点 x=%d > 1800" % _fend[0]
+    assert abs(_fend[0] - _sink) <= 40, \
+        "⑨ P13 贯通流没有落点：终点 x=%d 不在发布槽右缘 %d ±40 内" % (_fend[0], _sink)
+    assert _P13PILL[1] <= _P13FLOW[-1][1] <= _P13PILL[1] + _P13PILL[3], \
+        "⑨ P13 贯通流的终点没落在发布槽的高度区间里（y=%d）" % _P13FLOW[-1][1]
+    assert 0 < _K_FLOWGHOST < _K_FLOWFLOOR < _AS_FLOOR and _K_FLOWW < 11.0, \
+        "⑨ P13 幅度覆写不成立（ghost %.3f / floor %.3f / w %.1f）" % (
+            _K_FLOWGHOST, _K_FLOWFLOOR, _K_FLOWW)
+    assert (_AS_LAM, _AS_FLOOR, _AS_GHOST) == (232.0, 0.30, 0.055), \
+        "⑨ lab-kit ⑨ 的全局幅度档被动了 —— P13 只准在本页 opt 里覆写"
     # P14 一轮 = 生长 + 全亮停驻 + 收尾，且生长由三段路由 ÷ 同一档注光速度反推
     _rt = [_plen_d(_a[0]) for _a in _P14ARC]
     assert abs(sum(_rt) / _Y_BEAM - _Y_GROW) < 1e-9, "⑨ P14 生长时长不是三段 ÷ 400px/s"
@@ -9884,6 +10171,11 @@ def build():
     print("  版式分歧名册：%s" % " / ".join("P%d·%s" % (p, k) for p, k, _w in _DIVERGE))
     print("  波A 速度表：A 档 %d 股 · %.1f–%.1f px/s · 极差 %.2f×（基准 %.0f ±%d%%）"
           % (len(_SPD_ALL), _spdlo, _spdhi, _spdhi / _spdlo, _SPD_A, int(_SPD_TOL * 100)))
+    print("  P13 定点修复：转子净空 %.1fpx（下限 %.0f）· 包围盒 %r ⊂ 机腔 %r · "
+          "贯通流 %.0fpx → 落点 x%d（发布槽右缘 %d）· 幅度 w%.0f/floor%.2f/ghost%.3f/λ%.0f"
+          % (_K_CLR_MIN, _K_CLR, [round(v) for v in _K_ORB_BOX], list(_P13HUB),
+             _plen(_P13FLOW), _fend[0], _sink,
+             _K_FLOWW, _K_FLOWFLOOR, _K_FLOWGHOST, _k_flow_lam()))
     print("  波A 音频流：λ=%.0fpx @ %.0fpx/s ⇒ %.2fs 一次呼吸 · Σa=%.2f · P14 注光 %.0fpx/s "
           "⇒ 一轮 %.2fs（生长 %.2f + 停驻 %.2f + 收 %.2f）"
           % (_AS_LAM, _SPD_A, _AS_LAM / _SPD_A, sum(_AS_A), _Y_BEAM,

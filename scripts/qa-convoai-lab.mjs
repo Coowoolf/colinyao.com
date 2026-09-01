@@ -33,6 +33,13 @@
 //   P8  让位窗口 = 页上「收声」那段相位括号（840→1040，200px）+ 剖面 1→0
 //   P14 光束三段有序 / 等速 / 停驻窗口里三段常亮 / 收尾是「把光抽回去」
 //   P18 舞台横跨两图 + 左移 80 + mkRelock 的机器证明（屏点偏差 0）+ 两图墨迹间距 ≥200px
+// 2026-09-01 波B 定点修复（P13 两处硬伤）新增：
+//   ⑲h  P13 转子净空的**静态**复算：墨迹盒 == ghost 窗口那两只字盒、三枚轨道真异面、
+//       每一枚轨道的投影椭圆都装得下「墨迹盒 + 16px」且不越机腔；
+//       贯通流落点 ≤1800 且在发布槽右缘 ±40px 内；幅度覆写确实收紧且让位细线粗细不变
+//   ⑲p13c **运行时**净空闸：把这一帧真的传上 GPU 的顶点（环 / 420 粒子 / 注光路径）
+//       逐点投影回舞台像素，跨 24s × 97 帧断言与两行字的最小净空 ≥16px，
+//       并与构建期声明对表（两边的解必须同源）
 // 用法：node scripts/qa-convoai-lab.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-lab.mjs   （换端口）
 //
@@ -932,7 +939,12 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
            hubcav: +k.labHubcav, ribs: +k.labRibs, core: +k.labCore, pub: +k.labPub,
            pubpath: rows(k.labPubpath), flowLen: +k.labFlowLen, gz: rows(k.labGz),
            loops: +k.labLoops, loopOff: +k.labLoopOff, busx: +k.labBusx,
-           swz: +k.labSwz, swA: nums(k.labSwA), swB: nums(k.labSwB) },
+           swz: +k.labSwz, swA: nums(k.labSwA), swB: nums(k.labSwB),
+           // 定点修复：转子净空 / 三枚轨道 / 贯通流落点与幅度覆写
+           ink: rows(k.labInk), orb: rows(k.labOrb),
+           clr: +k.labClr, clrMin: +k.labClrMin,
+           flowEnd: nums(k.labFlowEnd), flowSink: +k.labFlowSink,
+           flowAmp: nums(k.labFlowAmp) },
       y: { towers: +y.labTowers, arcs: +y.labArcs, steps: +y.labSteps,
            z: nums(y.labZ), cyc: +y.labCyc },
       v: { spin: +v.labSpin, amp: +v.labAmp, w0: +v.labW0, pts: +v.labPts,
@@ -1112,13 +1124,54 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(Math.abs(K2.hubcav / K2.cav - 2.9) < 0.05,
        `⑲h P13 机腔 ${K2.hubcav} 不是单元腔 ${K2.cav} 的 2.9 倍（${(K2.hubcav/K2.cav).toFixed(2)}×）`);
     ok(K2.ribs === 3, `⑲h P13 内肋 ${K2.ribs} 道 != 3`);
-    ok(K2.core === 420, `⑲h P13 呼吸核 ${K2.core} 点 != 420`);
+    ok(K2.core === 420, `⑲h P13 呼吸转子 ${K2.core} 点 != 420`);
     ok(Math.abs(K2.pub - 4.4) < 1e-9, `⑲h P13 发布脉冲周期 ${K2.pub}s != 4.4s`);
-    ok(String(K2.pubpath.map(q => q.join(','))) === '840,260,840,348,840,398',
+    ok(String(K2.pubpath.map(q => q.join(','))) === '840,336,840,348,840,398',
        `⑲h P13 发布脉冲没有走页上那条 vline(840,348,398)：${K2.pubpath}`);
     ok(K2.gz.length === 4 && K2.gz.every(z => z[1] > z[0]),
        `⑲h P13 贯通流的 ghost 窗口不合法：${K2.gz}`);
-    ok(K2.flowLen > 2000, `⑲h P13 贯通流只有 ${K2.flowLen}px —— 那不叫「走完全程」`);
+    ok(K2.flowLen > 1200, `⑲h P13 贯通流只有 ${K2.flowLen}px —— 那不叫「走完全程」`);
+    /* ── 终审硬伤一：转子净空（构建期实测摊在 data-lab-clr-min 上）───────────
+       墨迹盒必须**就是** ghost 窗口那两只中枢字盒（同一份真相，不许另立一套）*/
+    ok(K2.ink.length === 2 && String(K2.ink[0]) === '760,226,160,40'
+       && String(K2.ink[1]) === '795,274,90,28',
+       `⑲h P13 净空用的墨迹盒不是页上那两行字：${K2.ink.map(b => b.join(','))}`);
+    ok(K2.clr === 16, `⑲h P13 净空指标 ${K2.clr} != 16px`);
+    ok(K2.clrMin >= K2.clr,
+       `⑲h P13 转子压字：构建期实测净空 ${K2.clrMin}px < ${K2.clr}px`);
+    // 三枚轨道必须真异面（az 两两不同、且不全同号），否则就是三枚同心圆
+    ok(K2.orb.length === 3, `⑲h P13 轨道环 ${K2.orb.length} 枚 != 3`);
+    {
+      const az = K2.orb.map(o => o[2]);
+      ok(new Set(az).size === 3 && Math.min(...az) < 0 && Math.max(...az) > 0,
+         `⑲h P13 三枚轨道不是异面（az=${az}）`);
+      // 每一枚轨道的投影椭圆都必须把「墨迹盒 + 16px」整只装进去（角点判据）。
+      // 中心与半径**从墨迹盒现算**，不另抄一份数字：盒改了这一闸自己跟着改。
+      const x0 = Math.min(...K2.ink.map(b => b[0])), x1 = Math.max(...K2.ink.map(b => b[0]+b[2]));
+      const y0 = Math.min(...K2.ink.map(b => b[1])), y1 = Math.max(...K2.ink.map(b => b[1]+b[3]));
+      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      const hx = (x1 - x0) / 2 + K2.clr, hy = (y1 - y0) / 2 + K2.clr;
+      const s = 1580 / 1703;         // 腔口 → 腔底的投影缩放（(D−zHub)/(D−CZ)）
+      K2.orb.forEach((o) => {
+        const A = o[0] * s, B = o[1] * s;
+        ok(Math.pow(hx / A, 2) + Math.pow(hy / B, 2) < 1,
+           `⑲h P13 轨道 ${o} 的投影椭圆装不下「墨迹盒 + ${K2.clr}px」（角点在环外）`);
+        ok(cx - A > 620 && cx + A < 1060 && cy - B > 180 && cy + B < 340,
+           `⑲h P13 轨道 ${o} 越出机腔（半轴 ${A.toFixed(0)}×${B.toFixed(0)}）`);
+      });
+    }
+    /* ── 终审硬伤二：贯通流必须有落点，且不许溢出版心 ─────────────────────── */
+    ok(K2.flowEnd[0] <= 1800,
+       `⑲h P13 贯通流溢出版心：终点 x=${K2.flowEnd[0]} > 1800`);
+    ok(Math.abs(K2.flowEnd[0] - K2.flowSink) <= 40,
+       `⑲h P13 贯通流没有落点：终点 x=${K2.flowEnd[0]} 不在发布槽右缘 ${K2.flowSink} ±40 内`);
+    ok(K2.flowAmp[0] < 11 && K2.flowAmp[1] < 0.30 && K2.flowAmp[3] < 232,
+       `⑲h P13 幅度档没有收紧（w/floor/ghost/λ = ${K2.flowAmp}）`);
+    ok(K2.flowAmp[2] < K2.flowAmp[1],
+       `⑲h P13 让位档不比幅度地板低（${K2.flowAmp[2]} / ${K2.flowAmp[1]}）`);
+    ok(Math.abs(K2.flowAmp[2] * K2.flowAmp[0] - 0.055 * 11) < 0.05,
+       `⑲h P13 让位细线的绝对粗细变了：${(K2.flowAmp[2]*K2.flowAmp[0]).toFixed(3)}px`
+       + ` != ${(0.055*11).toFixed(3)}px`);
     ok(K2.loops === 2 && K2.loopOff === 8,
        `⑲h P13 往返闭环 ${K2.loops} 条 / 偏 ${K2.loopOff}px（要 2 条 · 分居总线 ±8px）`);
     ok(K2.swz === -320, `⑲h P13 退场深度 ${K2.swz} != −320`);
@@ -1450,6 +1503,41 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
        '⑲p13 一进一出没有错峰重叠（交接的那一段应当两具机体同时在场）');
     console.log(`  · ⑲p13 不断流：切换窗口 ${w13.length} 帧 · data-lab-flow 恒 ${flows[0]} · data-lab-run 恒 1`
       + ` · 机体 z ${Math.min(...zIn).toFixed(0)} → 0`);
+
+    /* ── ⑲p13c · 转子净空闸（终审硬伤一的机器证明）─────────────────────────
+       量的不是参数，是**这一帧真的传上 GPU 的那批顶点**：state().clr 把环 /
+       420 枚粒子 / 发布脉冲整条路径逐点投影回舞台像素，减掉粒径的一半，
+       取到「对话引擎 / 实时编排」两只墨迹盒的最小距离。这里跨**一整个呼吸周期
+       + 三枚环各自的翻滚周期**（取三者的公倍尺度 24s）逐帧断言。            */
+    const c13 = await pg.evaluate(async () => {
+      const t = window.__labTour; t.pace(24);
+      const out = [];
+      for (let s2 = 0; s2 <= 24.0001; s2 += 0.25) {
+        t.seek(s2);
+        const u = t.unit().state();
+        out.push({ t: +s2.toFixed(2), clr: u.clr, end: u.flowEnd, amp: u.flowAmp });
+      }
+      t.pace(0);
+      return out;
+    });
+    const worst = c13.reduce((a, b) => (b.clr < a.clr ? b : a));
+    ok(worst.clr >= dta.k.clr,
+       `⑲p13c 转子压字：t=${worst.t}s 时可见几何距墨迹盒仅 ${worst.clr.toFixed(1)}px`
+       + `（下限 ${dta.k.clr}px）`);
+    // 构建期声明与运行时实测必须对得上（差一档就说明两边的解不同源）
+    ok(Math.abs(worst.clr - dta.k.clrMin) < 2.5,
+       `⑲p13c 构建期声明 ${dta.k.clrMin}px 与运行时实测 ${worst.clr.toFixed(1)}px 分叉`);
+    // 落点：整个窗口里终点恒定，落在发布槽右缘 ±40 内、且不越版心
+    const ends = [...new Set(c13.map(r => r.end.map(v => Math.round(v)).join(',')))];
+    ok(ends.length === 1, `⑲p13c 贯通流的落点在飘：${ends.join(' / ')}`);
+    ok(c13[0].end[0] <= 1800 && Math.abs(c13[0].end[0] - dta.k.flowSink) <= 40,
+       `⑲p13c 贯通流落点 x=${c13[0].end[0]} 不在发布槽右缘 ${dta.k.flowSink} ±40 内`);
+    // 运行时的幅度档 = 构建期覆写的那一档（opt 真的进了 uniform，不是写了没生效）
+    ok(String(c13[0].amp.map(v => +v.toFixed(3))) === String(dta.k.flowAmp.map(v => +v.toFixed(3))),
+       `⑲p13c 幅度覆写没生效：运行时 ${c13[0].amp} vs 声明 ${dta.k.flowAmp}`);
+    console.log(`  · ⑲p13c 转子净空：24s × 97 帧最小 ${worst.clr.toFixed(1)}px（下限 ${dta.k.clr}）`
+      + ` · 贯通流落点 x${c13[0].end[0]}（发布槽右缘 ${dta.k.flowSink}）`
+      + ` · 幅度 w${c13[0].amp[0]}/floor${c13[0].amp[1]}/ghost${c13[0].amp[2]}/λ${c13[0].amp[3]}`);
   }
   {
     // ── ⑲p7 · 逐帧亮度突变（定拍 + 同 tick gl.readPixels）────────────────
