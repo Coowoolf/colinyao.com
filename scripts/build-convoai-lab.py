@@ -248,7 +248,16 @@ html[data-theme="dark"]{--on-bg:linear-gradient(180deg,color-mix(in srgb,var(--a
      本来就在动 opacity，写在类上的那一档会被它整条压掉（实测 computed 恒为 1）。
    提的是「看得清」，不是「抢眼」：仍旧远轻于正文与主视觉。 */
 .sig{position:absolute;right:120px;top:47px;z-index:2;font:500 17px/1 var(--f-mono);
-  letter-spacing:.12em;color:var(--ink-3);}
+  letter-spacing:.12em;color:var(--ink-3);
+  /* ── 波B 顺手修：页码 pinned 53px 差异 ────────────────────────────────────
+     真因不是「字变了」，是**同一串「1/22」一次走 subpixel 光栅、一次走 grayscale**：
+     两次跑的合成层不同（有没有别的元素把它提成独立层），抗锯齿路径就不同，
+     逐像素比对当场报 53px 差异。
+     ⚠ `-webkit-font-smoothing:antialiased` 在 Linux / Windows Chromium **根本不生效**
+       （那是 macOS-only 的属性），拿它治这个病等于没治。
+     正解是把它**恒定**提成合成层 —— will-change + translateZ(0) 一起用：
+     两次跑都走 grayscale 光栅 ⇒ 22 页 pinned 差异归 0。 */
+  will-change:opacity;transform:translateZ(0);}
 .src{font:500 17px/1.4 var(--f-mono);letter-spacing:.08em;
   color:color-mix(in srgb,var(--ink-2) 55%,var(--ink-3));}
 /* 版式件（与 convoai-info 同源） */
@@ -951,6 +960,14 @@ def _smoothstep(e0, e1, x):
     return t * t * (3.0 - 2.0 * t)
 
 
+def _smoother(e0, e1, x):
+    """smootherstep（6t⁵−15t⁴+10t³）：一阶与**二阶**导数在两端都归零 ⇒
+       相位边界处不但速度接得上，加速度也接得上 —— 波B 的四道相位边界全走它，
+       这就是「morph 没有接头」的数学理由（smoothstep 只保证一阶）。"""
+    t = max(0.0, min(1.0, (x - e0) / (e1 - e0)))
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+
+
 # ── 声场球：波函数（运行时着色器与这里逐字同式）─────────────────────────────
 def _vwave(y, t=0.0):
     return sum(a * math.sin(w * VW0 * t + k * y + p) for a, w, k, p in VHARM)
@@ -1284,58 +1301,62 @@ def _sec(s):
 LAB_CSS = """<style id="convoai-lab-3d">
 :root{
   /* ── 声场球 · 浅底：纸面上的近黑点云，波峰走 accent ── */
-  --v-ink:var(--ink);      --v-dot-op:.88;  --v-dot-size:.0125; --v-dot-min:1.1;
+  --v-ink:var(--ink);      --v-dot-op:.94;  --v-dot-size:.0138; --v-dot-min:1.1;
   --v-hot:var(--accent);   --v-hot0:.18;    --v-hot1:.70;  --v-hot-gain:.40;
-  --v-wire:var(--ink);     --v-wire-op:.30;
-  --v-back:.24;            --v-add:0;
+  --v-wire:var(--ink);     --v-wire-op:.40;
+  --v-back:.46;            --v-add:0;
   --v-atmo:var(--accent);  --v-atmo-int:.06;
   --v-poster-dot:2.8;
   /* ── 地球 · 浅底 = 近黑线稿 + accent 节点（lab-globe 逐条同源）── */
-  --g-ocean:#f2f2f5;   --g-shade:.22;
+  --g-ocean:#f2f2f5;   --g-shade:.34;
   --g-rim:var(--ink);  --g-rim-int:1;    --g-rim-pow:4.2;
-  --g-land:var(--ink); --g-land-op:.92;  --g-land-size:.0048; --g-land-lit:.14;
-  --g-grat:var(--ink); --g-grat-op:.13;
-  --g-node:var(--accent);      --g-node-op:1;   --g-node-size:.0112;
-  --g-halo:var(--accent);      --g-halo-op:.30; --g-halo-size:.030; --g-halo-add:0;
+  --g-land:var(--ink); --g-land-op:.92;  --g-land-size:.0058; --g-land-lit:.14;
+  --g-grat:var(--ink); --g-grat-op:.20;
+  --g-node:var(--accent);      --g-node-op:1;   --g-node-size:.0124;
+  --g-halo:var(--accent);      --g-halo-op:.40; --g-halo-size:.030; --g-halo-add:0;
   --g-arc:var(--accent-deep);  --g-arc-op:.85;
   --g-head:var(--accent-deep); --g-head-op:.95; --g-head-size:.0128; --g-head-add:0;
-  --g-atmo:var(--accent);      --g-atmo-int:.075;
+  --g-atmo:var(--accent);      --g-atmo-int:.11;
   --g-poster-dot:2.2;  --g-poster-node:4.4;
   /* ── ③ 大脑点云（P17）· 浅底 = 纸面上的体积线稿，放电区走 accent ── */
-  --b-ink:var(--ink);          --b-op:.74;  --b-size:1.95; --b-back:.16;
+  --b-ink:var(--ink);          --b-op:.86;  --b-size:2.15; --b-back:.30;
   --b-hot:var(--accent);       --b-gain:.85;   --b-cap:.62; --b-add:0;
-  --b-arc:var(--accent-deep);  --b-arc-op:.30;
+  --b-arc:var(--accent-deep);  --b-arc-op:.42;
   --b-spark:var(--accent);     --b-spark-op:.92; --b-spark-size:5.2; --b-spark-add:0;
   --b-flow:var(--accent-deep); --b-flow-op:.80;  --b-flow-size:4.6;
   --b-atmo:var(--accent);      --b-atmo-int:.045;
   /* ── ④ 双层防御壳（P9）· 浅底 ── */
-  --s-shell:var(--ink);        --s-shell-op:.10; --s-shell-pow:3.6;
-  --s-inner:var(--accent);     --s-inner-op:.11;
-  --s-grid:var(--ink);         --s-grid-op:.20;
+  --s-shell:var(--ink);        --s-shell-op:.20; --s-shell-pow:3.6;
+  --s-inner:var(--accent);     --s-inner-op:.18;
+  --s-grid:var(--ink);         --s-grid-op:.28;
   --s-n1:var(--ink-3);         --s-n1-op:.52;
   --s-n2:var(--ink-2);         --s-n2-op:.44;
-  --s-n3:var(--accent-deep);   --s-n3-op:.72;   --s-noise-size:3.6;
+  --s-n3:var(--accent-deep);   --s-n3-op:.82;   --s-noise-size:4;
   --s-target:var(--accent);    --s-target-op:.95; --s-target-size:5;
   --s-core:var(--accent);      --s-core-op:.95;  --s-core-size:4.2;
   --s-add:0;
   /* ── ⑤ 复利螺旋（P18）· 浅底 ── */
-  --r-band:var(--accent);      --r-band-op:.40;
+  --r-band:var(--accent);      --r-band-op:.76;
   --r-rail:var(--accent);      --r-rail-op:.88;
   --r-node:var(--accent);      --r-node-op:1;    --r-node-size:12;
   --r-spark:var(--accent-deep);--r-spark-op:.92; --r-spark-size:4.6;
   /* 波A：LOOP 投影锁空间环带 + 站点圆的底色 + 补回的「真人销冠」基准虚线 */
-  --r-loop:var(--accent);      --r-loop-op:.52;
-  --r-loop-rms:var(--accent-deep); --r-loop-rms-op:.55;
+  --r-loop:var(--accent);      --r-loop-op:.88;
+  --r-loop-rms:var(--accent-deep); --r-loop-rms-op:.85;
   --r-fill:var(--card-bg-2);   --r-fill-op:1;
   --r-base:var(--hair-strong); --r-base-op:.80;
   --r-add:0;
   /* ── ⑥ 声学地形（P7）· 浅底 ── */
-  --t-ridge:var(--ink);        --t-ridge-op:.62;
+  --t-ridge:var(--ink);        --t-ridge-op:.92;
   --t-crest:var(--accent);     --t-crest-op:.85;
   --t-band:var(--accent-deep); --t-band-op:.13;
   --t-prob:var(--accent);      --t-prob-op:.90;
   --t-pillar:var(--accent-deep);--t-pillar-op:.72;
-  --t-sem:var(--accent-deep);  --t-sem-op:.85;
+  --t-sem:var(--accent-deep);  --t-sem-op:.70;
+  /* 波B 消闪：判定晕 / 语义流带的 RMS 芯 / 前沿馈送带 */
+  --t-halo:var(--accent);      --t-halo-op:.80; --t-halo-size:3.4;
+  --t-sem-rms:var(--accent);   --t-sem-rms-op:.55;
+  --t-feed:var(--accent);      --t-feed-op:.45;
   --t-add:0;
   /* ── ⑦ 全双工双向声带（P4）· 浅底 ── */
   --d-up:var(--accent);        --d-up-op:.70;
@@ -1348,25 +1369,25 @@ LAB_CSS = """<style id="convoai-lab-3d">
      前缀表：--o-* 决策轨道环(P2) / --l-* 双工三通道(P3) / --c-* 语音链路(P6) /
              --u-* 打断时序(P8) / --m-* 产品大图(P10) / --q-* 弱网 QoS(P11) /
              --w-* 视觉模态(P12) / --k-* 编排插槽(P13) / --y-* 三塔握手(P14) */
-  --o-rail:var(--accent);      --o-rail-op:.62;
-  --o-br:var(--accent-deep);   --o-br-op:.62;
-  --o-node:var(--accent);      --o-node-op:1;   --o-node-size:11;
-  --o-hot:var(--accent-deep);  --o-halo-op:.26;
-  --o-pkt:var(--accent);       --o-pkt-op:.92;  --o-pkt-size:6;
-  --o-face:var(--ink-2);       --o-face-op:.62; --o-hot-op:.95;
-  --o-wall:var(--ink-3);       --o-wall-op:.22;
+  /* --o-* 波B：模态转换剧场（P2）—— 波场走 accent（听得见的那一路），
+     星格走近黑墨（想是纸面上的结构），经线是格的骨架，弧是第二道入射波 */
+  --o-wave:var(--accent);      --o-wave-op:.62;
+  --o-lat:var(--ink);          --o-lat-op:.95;
+  --o-wire-op:.56;             --o-dot-size:3;  --o-dot-w:2.6;
+  --o-arc:var(--accent-deep);  --o-arc-op:.70;
+  --o-arc-rms:var(--accent);   --o-arc-rms-op:.55;
   --o-add:0;
   --l-on:var(--accent);        --l-on-op:.86;
-  --l-off:var(--hair-strong);  --l-off-op:.44;
+  --l-off:var(--hair-strong);  --l-off-op:.80;
   --l-rail:var(--accent);      --l-rail-op:.78;
   --l-dead:var(--ink-3);       --l-dead-op:.30;
-  --l-axis:var(--hair-strong); --l-axis-op:.55;
+  --l-axis:var(--hair-strong); --l-axis-op:.92;
   --l-pkt:var(--accent);       --l-pkt-op:.95;  --l-pkt-size:7;
-  --l-fill-op:.30;
+  --l-fill-op:.70;
   --l-add:0;
-  --c-face:var(--ink-2);       --c-face-op:.60;
+  --c-face:var(--ink-2);       --c-face-op:.96;
   --c-hot:var(--accent);       --c-hot-op:.95;
-  --c-shell:var(--ink-3);      --c-shell-op:.26;
+  --c-shell:var(--ink-3);      --c-shell-op:.66;
   --c-rail:var(--ink-3);       --c-rail-op:.52;
   --c-span:var(--accent);      --c-span-op:.42;
   --c-fork:var(--ink-3);       --c-fork-op:.50;
@@ -1376,7 +1397,7 @@ LAB_CSS = """<style id="convoai-lab-3d">
   /* 波A：横贯全链那条流 + 它的 RMS 芯 + token 段的载流垫底 */
   --c-stream:var(--accent);    --c-stream-op:.56;
   --c-rms:var(--accent-deep);  --c-rms-op:.58;
-  --c-bed:var(--accent);       --c-bed-op:.20;
+  --c-bed:var(--accent);       --c-bed-op:.54;
   --c-add:0;
   --u-agent:var(--accent);     --u-agent-op:.62;
   --u-user:var(--ink-2);       --u-user-op:.46;
@@ -1386,16 +1407,19 @@ LAB_CSS = """<style id="convoai-lab-3d">
   /* 波A：连续媒体流的第二层 —— 峰值淡壳之内那一芯 RMS（Audition 的波形是两层） */
   --u-rms:var(--accent-deep);  --u-rms-b:var(--ink);   --u-rms-op:.62;
   --u-add:0;
-  --m-face:var(--ink-2);       --m-face-op:.58;
+  --m-face:var(--ink-2);       --m-face-op:.86;
   --m-hot:var(--accent);
-  --m-shell:var(--ink-3);      --m-shell-op:.22;
+  --m-shell:var(--ink-3);      --m-shell-op:.48;
   --m-lane:var(--accent);      --m-lane-op:.60;
   --m-beam:var(--accent-deep); --m-beam-op:.46;
   --m-pkt:var(--accent);       --m-pkt-op:.92;  --m-pkt-size:6.5;
+  /* 波B 轻手术：车道与握手的连续流带（峰值淡壳 + RMS 实芯） */
+  --m-flow:var(--accent);      --m-flow-op:.34;
+  --m-flow-rms:var(--accent-deep); --m-flow-rms-op:.55;
   --m-add:0;
   --q-heap:var(--accent);      --q-heap-op:.52; --q-heap-size:3.4;
   --q-hot:var(--accent-deep);
-  --q-wire:var(--ink-3);       --q-wire-op:.42;
+  --q-wire:var(--ink-3);       --q-wire-op:.95;
   --q-pkt:var(--accent);       --q-pkt-op:.92;  --q-pkt-size:6;
   --q-out:var(--accent);       --q-out-op:.55;
   --q-bar:var(--accent);       --q-bar-op:.78;
@@ -1404,30 +1428,41 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --q-mech:var(--ink-2);       --q-mech-op:.55;
   --q-hot2:var(--accent);      --q-mechhot-op:.95;
   --q-add:0;
-  --w-face:var(--ink-2);       --w-face-op:.58;
+  --w-face:var(--ink-2);       --w-face-op:.86;
   --w-hot:var(--accent);       --w-hot-op:.95;
-  --w-shell:var(--ink-3);      --w-shell-op:.22;
-  --w-cone:var(--accent-deep); --w-cone-op:.34;
+  --w-shell:var(--ink-3);      --w-shell-op:.48;
+  --w-cone:var(--accent-deep); --w-cone-op:.66;
   --w-plane:var(--accent);     --w-plane-op:.90;
-  --w-weak:var(--ink-3);       --w-weak-op:.20;
+  --w-weak:var(--ink-3);       --w-weak-op:.44;
   --w-pkt:var(--accent);       --w-pkt-op:.92;  --w-pkt-size:6.5;
   --w-add:0;
   --k-sock:var(--ink-2);       --k-sock-op:.52;
-  --k-wall:var(--ink-3);       --k-wall-op:.22;
+  --k-wall:var(--ink-3);       --k-wall-op:.62;
   --k-hub:var(--accent);       --k-hub-op:.95;
   --k-bus:var(--accent);       --k-bus-op:.58;
   --k-plate:var(--accent);     --k-plate-op:.80;
   --k-pkt:var(--accent);       --k-pkt-op:.92;  --k-pkt-size:6.5;
   --k-pill-op:.42;
+  /* 波B · 编排中枢机：内肋 / 呼吸核 / 异面环 / 发布脉冲 / 往返闭环 /
+     模块小巧思 / 候选机体 / 贯通流（不透明度是常数，与 swap 相位零耦合） */
+  --k-rib:var(--ink-3);        --k-rib-op:.74;
+  --k-core:var(--accent);      --k-core-op:.80; --k-core-size:3.4;
+  --k-ring:var(--accent-deep); --k-ring-op:.58;
+  --k-pub:var(--accent-deep);  --k-pub-op:.90;
+  --k-loop:var(--accent);      --k-loop-op:.52;
+  --k-giz:var(--accent-deep);  --k-giz-op:.82; --k-giz-size:3.2;
+  --k-cand:var(--ink-3);
+  --k-flow:var(--accent);      --k-flow-op:.26;
+  --k-flow-rms:var(--accent-deep); --k-flow-rms-op:.55;
   --k-add:0;
-  --y-face:var(--ink-2);       --y-face-op:.58;
+  --y-face:var(--ink-2);       --y-face-op:.86;
   --y-hot:var(--accent);       --y-hot-op:.95;
-  --y-wall:var(--ink-3);       --y-wall-op:.22;
+  --y-wall:var(--ink-3);       --y-wall-op:.48;
   --y-arc:var(--accent-deep);  --y-arc-op:.55;
   --y-head:var(--accent);      --y-head-op:1;   --y-head-size:7.5;
   /* 波A：光束生长（管腔注光）与塔右内缘的楼层灯瀑 */
   --y-beam:var(--accent-deep); --y-beam-op:.86;
-  --y-floor:var(--accent);     --y-floor-op:.70; --y-floor-size:5.2;
+  --y-floor:var(--accent);     --y-floor-op:.95; --y-floor-size:5.2;
   --y-add:0;
 }
 html[data-theme="dark"]{
@@ -1482,6 +1517,9 @@ html[data-theme="dark"]{
   --t-prob:var(--accent);      --t-prob-op:1;
   --t-pillar:var(--accent-deep);--t-pillar-op:.85;
   --t-sem:var(--accent);       --t-sem-op:.95;
+  --t-halo:var(--accent);      --t-halo-op:.86; --t-halo-size:3.5;
+  --t-sem-rms:var(--ink);      --t-sem-rms-op:.50;
+  --t-feed:var(--accent);      --t-feed-op:.48;
   --t-add:1;
   /* ── 双向声带 · 暗底 ── */
   --d-up:var(--accent);        --d-up-op:.72;
@@ -1491,13 +1529,11 @@ html[data-theme="dark"]{
   --d-cut:var(--accent-deep);  --d-cut-op:.85;
   --d-add:1;
   /* ══ 第二波 · 九枚场景 · 暗底 = 深空霓虹（加色混合，与第一波同一套语汇）══════ */
-  --o-rail:var(--accent);      --o-rail-op:.55;
-  --o-br:var(--ink);           --o-br-op:.50;
-  --o-node:var(--accent);      --o-node-op:1;   --o-node-size:11.5;
-  --o-hot:var(--ink);          --o-halo-op:.34;
-  --o-pkt:var(--ink);          --o-pkt-op:1;    --o-pkt-size:6.2;
-  --o-face:var(--ink-2);       --o-face-op:.54; --o-hot-op:1;
-  --o-wall:var(--ink-3);       --o-wall-op:.18;
+  --o-wave:var(--accent);      --o-wave-op:.58;
+  --o-lat:var(--ink);          --o-lat-op:.50;
+  --o-wire-op:.24;             --o-dot-size:3.1; --o-dot-w:2.4;
+  --o-arc:var(--accent-deep);  --o-arc-op:.72;
+  --o-arc-rms:var(--ink);      --o-arc-rms-op:.50;
   --o-add:1;
   --l-on:var(--accent);        --l-on-op:.80;
   --l-off:var(--ink-3);        --l-off-op:.34;
@@ -1533,6 +1569,8 @@ html[data-theme="dark"]{
   --m-lane:var(--accent);      --m-lane-op:.52;
   --m-beam:var(--accent-deep); --m-beam-op:.52;
   --m-pkt:var(--ink);          --m-pkt-op:1;    --m-pkt-size:6.6;
+  --m-flow:var(--accent);      --m-flow-op:.32;
+  --m-flow-rms:var(--ink);     --m-flow-rms-op:.50;
   --m-add:1;
   --q-heap:var(--accent);      --q-heap-op:.44; --q-heap-size:3.3;
   --q-hot:var(--ink);
@@ -1560,6 +1598,15 @@ html[data-theme="dark"]{
   --k-plate:var(--ink);        --k-plate-op:.90;
   --k-pkt:var(--ink);          --k-pkt-op:1;    --k-pkt-size:6.6;
   --k-pill-op:.36;
+  --k-rib:var(--ink-3);        --k-rib-op:.24;
+  --k-core:var(--accent);      --k-core-op:.82; --k-core-size:3.4;
+  --k-ring:var(--ink);         --k-ring-op:.52;
+  --k-pub:var(--accent);       --k-pub-op:.95;
+  --k-loop:var(--accent);      --k-loop-op:.50;
+  --k-giz:var(--ink);          --k-giz-op:.80; --k-giz-size:3.3;
+  --k-cand:var(--ink-3);
+  --k-flow:var(--accent);      --k-flow-op:.24;
+  --k-flow-rms:var(--ink);     --k-flow-rms-op:.50;
   --k-add:1;
   --y-face:var(--ink-2);       --y-face-op:.50;
   --y-hot:var(--accent);       --y-hot-op:1;
@@ -1643,6 +1690,15 @@ svg .lab-poster,.lab-poster{transition:opacity 1.1s var(--ease-flow,cubic-bezier
 .g-node{fill:none;stroke:var(--g-node);stroke-width:var(--g-poster-node);stroke-linecap:round;
   opacity:.92;}
 .g-arc{fill:none;stroke:var(--g-arc);stroke-width:1.5;opacity:calc(var(--g-arc-op)*.85);}
+/* P2 模态转换剧场的降级层（波B）：t*=12.0 那一帧，构建期逐点算出来 ——
+   与顶点着色器同参（同一批 _MO_* 常量、同一组公式）⇒ poster 与 canvas 是同一张图。 */
+.p2-wave{fill:none;stroke:var(--o-wave);stroke-width:var(--o-dot-w);stroke-linecap:round;
+  opacity:var(--o-wave-op);}
+.p2-lat{fill:none;stroke:var(--o-lat);stroke-width:var(--o-dot-w);stroke-linecap:round;
+  opacity:var(--o-lat-op);}
+.p2-row{fill:none;stroke:var(--o-wave);stroke-width:1;
+  opacity:calc(var(--o-wire-op)*.62);}
+.p2-wire{fill:none;stroke:var(--o-lat);stroke-width:1;opacity:var(--o-wire-op);}
 /* ── FPS 探针：生产页不挂常显探针，?debug=1 才显出来 ───────────────────── */
 .lab-probe{position:fixed;left:26px;top:22px;z-index:1100;font:500 11px/1 var(--f-mono);
   letter-spacing:.13em;color:var(--ink-3);opacity:.62;display:none;gap:9px;align-items:center;
@@ -1682,7 +1738,7 @@ html[data-lab-debug] .lab-probe{display:flex;}
 LAB_RECTS = {
     # 页  场景名      x     y     w     h      局部坐标原点说明
     1:  ("voice",  1305,  328,  500,  500),   # 球心 (1555,578) 居中 · 呼吸极值 466px 内
-    2:  ("ring",    120,  272, 1680,  470),   # = figbox(120,272,1680, vb1680×470)
+    2:  ("morph",   120,  272, 1680,  470),   # = figbox(120,272,1680, vb1680×470)
     3:  ("lanes",   151,  372, 1618,  135),   # 三张卡里那三条 figure 带的并集（实测见下）
     4:  ("duplex",  120,  268, 1680,  352),   # = figbox(120,268,1680, vb1680×352)
     6:  ("chain",   120,  274, 1680,  536),   # = figbox(120,274,1680, vb1680×536)
@@ -1720,11 +1776,56 @@ LAB_PAGES = sorted(LAB_RECTS)
 #     ② **调参**（深度 / 周期 / 相位）—— 3D 独有的那几个数，全部摊进 data-lab-*
 #        供闸门静态复算（见 lab_data）。凡是页上已有的周期，一律照抄页上的值。
 # ═══════════════════════════════════════════════════════════════════════════
-# ── P2 决策轨道环 ─────────────────────────────────────────────────────────
-_O_TZ, _O_YC = 0.95, 207        # 环平面绕水平轴一倾（z = −(y−207)×.95 ⇒ ±114）· 环心 y
-_O_DUR, _O_DURB = 9.0, 6.0      # 主环巡行一圈 / 支轨（点线反馈弧）一趟
-_O_DIM, _O_BEAT = 0.13, 3.6     # 站点盒内的压暗档 / hot 站点心跳（= 页上 --mo-dur:3.6s）
-_O_DZ, _O_HOTBOX = 44, 2        # 站台厚度 / hot 站台（= 「判断」，全页唯一的因）
+# ── P2 模态转换剧场（二轮精修 · 波B · 王冠一）─────────────────────────────
+#   终审（Colin 亲自给的方向）：「我们本质在构建的是拆解对话的本质 —— 听、想、说
+#   是第一性原理出发的对话本质，拆解人类在这个过程如何做模态转换。从你的高维去拆解
+#   这个理念，不用惧怕人类看不懂，很多情况下我们可以意会。」
+#
+#   于是这一页不再画「四步接成一个环」（那是流程图的语域），改画**同一段东西换了
+#   三次形态**：
+#     听 = 入射声波场（等相位线**竖直**的行波 —— 相位只由 x 决定；波长逐字取
+#          `K.as.lam` = 232px ⇒ 它与 lab-kit ⑨ 的那条流是**同一种介质**）
+#     ↓ 升维
+#     想 = 表征星格（34×12×5 点阵被**两道折叠函数**揉成一片流形，内部一道
+#          **位移**涟漪从中心往外传 —— 「理解」是几何变换，不是黑盒）
+#     ↓ 凝聚
+#     说 = 塌回波场，向右倾泻出画
+#
+#   三态是**同一批顶点的三个解析目标**：顶点着色器按 (wIn,wLat,wOut) 线性插值
+#   （MO_HEAD 的 waveAt / latAt），权重和恒为 1。四道相位边界全部走 smootherstep。
+#   无缝三件：① 一套顶点一次插值，没有第二套几何；② 生灭窗把接头藏在画外
+#   （uLife 归零才换位置 ⇒ 形上零跳变）；③ **两代同场**，相位差半周期（7s）——
+#   舞台永不空，而这正是页上「同一时刻 · 并行进行 / 持续在听 · 同时在说」
+#   两行落点句本人。
+_MO_CYC = 14.0                  # 一代走完三态的整周期
+_MO_GEN = 7.0                   # 两代相位差 = 半周期 ⇒ **舞台视觉周期 7s**
+#   四道相位边界（秒）：升维起 / 升维止 / 凝聚起 / 凝聚止
+#     听 0.00–3.20 ｜升维 3.20–4.90｜想 4.90–8.60｜凝聚 8.60–10.30｜说 10.30–12.80
+_MO_PH = (3.20, 4.90, 8.60, 10.30)
+#   生灭窗：生 0.00→0.80 淡入 / 灭 12.80→13.60 淡出，13.60–14.00 全暗
+#   ⇒ 换位置（t 回卷）永远发生在 uLife = 0 的那 0.4s 里，形上零跳变
+_MO_LIFE = (0.00, 0.80, 12.80, 13.60)
+#   让位事件：另一代在本代 t=7.00 出生（第二道入射波沿 `_P2ARC` 切进来），
+#   格架 **0.56s** 内整片转过 uYaw 让位，其后 **3.10s** 慢慢回正
+_MO_YAW = (7.00, 0.56, 3.10)
+_MO_YAWA = 0.40                 # 让位偏航角（rad ≈ 22.9°）
+#   舞台（figbox 局部坐标）：入射从左缘进、出射向右**出画**（终点越过 vb 右缘 1680）
+_MO_X0, _MO_X1, _MO_OUTDX = 300.0, 1560.0, 200.0
+_MO_YC = 154.0                  # 舞台中线（局部 y）
+_MO_D = 1400.0                  # 相机深度（camPx 的 D）—— poster 的透视用同一个数
+_MO_NA, _MO_NB, _MO_NC = 34, 12, 5           # 顶点点阵 34 × 12 × 5 = 2040
+_MO_HW, _MO_AMP, _MO_DZ = 72.0, 52.0, 150.0  # 波场纵向半宽 / 波峰振幅 / 五层总深
+#   ⚠ 行距 2·HW/(NB−1) = 13.1px，振幅 52 是它的 4.0 倍 ⇒ 眼睛先读到「波」再读到「行」。
+#     反过来（振幅 < 行距）读出来就是一张会抖的网格 —— 那正是波A 要治的病。
+_MO_LCX, _MO_LW, _MO_LH, _MO_LD = 930.0, 480.0, 160.0, 170.0   # 星格中心 / 三向尺度
+_MO_F1, _MO_F2, _MO_FB = 0.20, 0.12, 26.0    # 两道折叠函数的幅度 + 深度隆起
+#   ⚠ 深度隆起 26 < 层距 LD/(NC−1) = 42.5：隆起大过层距，五层就会互相穿插，
+#     「流形」当场读成一团乱线（本轮实拍锤过一次）。
+_MO_RIP, _MO_RLAM, _MO_RPER = 12.0, 168.0, 2.6   # 内部位移涟漪：幅 / 波长 / 周期
+_MO_CREST = 0.52                # 波峰亮度增益（与 lab-kit ⑨ 的 uCrest 同语义）
+_MO_ARC = (5.60, 7.00, 0.55)    # 第二道入射波沿 `_P2ARC` 的注入窗：起 / 到达 / 余晖
+_MO_ARCW = 9.0                  # 那条 audioStream 的基准半宽
+_O_HOTCOL = 2                   # 底排四栏里唯一的 hot 栏（= 「判断」，全页的因）
 # ── P4 双向声带（3D 调参；几何是 _tri_fig 那条时间轴本人）─────────────────
 #   二轮精修 · 波A：这几个数从 lab_k() 的字面量提到模块级 —— `_spd_rows(4)` 要用
 #   同一批数把两条带的**弧长**算出来，周期才谈得上「由流速反推」。
@@ -1779,6 +1880,10 @@ _AS_EDGE, _AS_CREST, _AS_COMP = 0.055, 0.55, 0.55   # 接头渐隐 / 波峰增�
 #   P14 弧头 352/682），读者的眼睛把「快慢」读成「重要 / 不重要」，那是错的语义。
 #   本波把 A 档全部按「路径长 ÷ 目标流速」反推周期 —— 周期是**算出来的**，
 #   不是调出来的；`_spd_of()` 把结果摊到 data-lab-spd 上供 ⑲s 逐股复算。
+# A 档股数**声明**在这里（不是随缘的）：波A 30 股；波B 再入册 11 股 ——
+#   P2 入场弧流 +1（3）｜P7 地形整幅左移 +1（1）｜P10 四车道 + 四握手 +8（8）｜
+#   P13 贯通流 +1（10）。⑲s 逐股复算，少一股多一股都当场报。
+_SPD_N = 41
 _SPD_A = 110.0                  # A 档基准（px/s）
 _SPD_TOL = 0.30                 # ±30%：同一条河里允许的语义差异
 
@@ -1797,6 +1902,28 @@ def _plen(pts):
 def _plen_d(d, per=14, tol=1.4):
     """一条 SVG 路径展平后的 xy 像素长（与运行时 unpackPoly/polyCum 同源）"""
     return _plen(_decim(_pathpts(d, per)[0], tol))
+
+
+def _box_u(pts, box, step=2.0):
+    """一条折线**落在某只框里**的弧长区间 [u0,u1]（px）—— 波B P13 的 ghost 窗口
+       就是这么算出来的：框逐条取自页上的墨迹（模块板 / 字段），
+       所以「流在哪里收成细线」由页面决定，不由手感决定。"""
+    x0, y0, bw, bh = box
+    u, lo, hi = 0.0, None, None
+    for i in range(len(pts) - 1):
+        ax, ay = pts[i]
+        bx, by = pts[i + 1]
+        seg = math.hypot(bx - ax, by - ay)
+        n = max(1, int(seg / step))
+        for k in range(n + 1):
+            t = k / float(n)
+            x, y = ax + (bx - ax) * t, ay + (by - ay) * t
+            if x0 <= x <= x0 + bw and y0 <= y <= y0 + bh:
+                uu = u + seg * t
+                lo = uu if lo is None else min(lo, uu)
+                hi = uu if hi is None else max(hi, uu)
+        u += seg
+    return None if lo is None else (lo, hi)
 
 
 def _at_of(pts):
@@ -1833,6 +1960,10 @@ _SPD_P6 = (110.0,                           # 主路（旧：296，12 枚球）
 _SPD_P8 = (110.0, 110.0)                    # 智能体轨 / 用户轨（= 波峰行进速度）
 _SPD_P9 = (110.0, 97.7, 118.0, 124.6)       # 三路噪声 / 目标人声（旧：50–69 vs 155–217）
 _SPD_P12 = (110.1,)                         # 画面平面（旧：77.5）
+_SPD_P13 = 108.0                            # 波B：P13 贯通流（一条走完全程）
+_SPD_P7 = 110.0                             # 波B：P7 地形整幅左移（A 档基准本人）
+_SPD_P10 = (110.0, 109.0, 112.0, 111.0,     # 波B：P10 四条车道
+            108.0, 113.0, 107.0, 114.0)     #       + 四道握手（介质 → 流带）
 _SPD_P18 = (110.0, 110.1)                   # 复利螺旋 / loop 环流
 _Y_BEAM = 400.0                             # B 档：P14 注光速度（离散事件，不进 A 档表）
 
@@ -1880,20 +2011,31 @@ _P10BOX = [                      # [x, y, w, h, 层, hot]
     (0, 566, 1668, 70, 3, 0),
 ]
 _P10RING = [(70, 176, 38, 0), (70, 368, 38, 2)]
-_P10LANE = [                     # [x0, x1, y, 层, 周期, 包数]（周期照抄 _P8TU / _P8TD）
-    (110, 1328, 176, 0, 2.2, 8), (1328, 108, 368, 2, 2.6, 7),
-    (432, 1148, 601, 3, 3.4, 5), (1148, 432, 601, 3, 3.8, 5),
-    (70, 1498, 528, 0, 9.9, 0),                     # 端到端 650ms 跨度线（无包，只是尺）
+#   ── 波B 轻手术（Colin：「P10 表意已满意」⇒ 只把流动感带进底版，不重构）──
+#   末位 med 是**逐条判**出来的，不是一刀切（接入指南 ⑨ 的判据）：
+#     med=1 介质 ——「这条线上跑的东西一直在来」⇒ 必须是流带（有厚度、会起伏、
+#            波峰自己往前走）：上行 / 下行 / 底座两条车道，
+#            实时编排⇄LLM / AEC 参考环 / 底座两道握手。
+#     med=0 离散事件 ——「有起点有终点、发生一次就结束」⇒ **保持粒子**：
+#            SOS·EOS 事件线、打断快路径、客户控制面。
+#   分层 / 投影锁 / **零位移**纪律一格不动（data-lab-drift 仍是 0，⑲h 复算）。
+_P10LANE = [                     # [x0, x1, y, 层, 周期, 包数, med]（周期照抄 _P8TU / _P8TD）
+    (110, 1328, 176, 0, 2.2, 8, 1), (1328, 108, 368, 2, 2.6, 7, 1),
+    (432, 1148, 601, 3, 3.4, 5, 1), (1148, 432, 601, 3, 3.8, 5, 1),
+    (70, 1498, 528, 0, 9.9, 0, 0),                  # 端到端 650ms 跨度线（无包，只是尺）
 ]
-_P10BEAM = [                     # [x0,y0,层0, x1,y1,层1, 周期, 包数] —— 真的在深度里走
-    (1498, 248, 1, 1498, 324, 1, 1.2, 2),           # 实时编排 ⇄ LLM
-    (1030, 250, 0, 1420, 250, 1, 3.0, 3),           # SOS / EOS · 打断事件（跨层）
-    (700, 248, 0, 700, 324, 2, 1.0, 3),             # 打断快路径（上行 → 下行，跨两层）
-    (560, 362, 2, 300, 222, 0, 2.2, 3),             # AEC 参考环（下行 → 上行）
-    (70, 566, 3, 70, 214, 0, 2.8, 2),               # 底座 ↔ 终端
-    (1498, 566, 3, 1498, 412, 1, 3.0, 2),           # 底座 ↔ 中枢
-    (1498, 66, 4, 1498, 116, 1, 2.0, 2),            # 客户控制面 → 编排
+_P10BEAM = [                     # [x0,y0,层0, x1,y1,层1, 周期, 包数, med] —— 真的在深度里走
+    (1498, 248, 1, 1498, 324, 1, 1.2, 2, 1),        # 实时编排 ⇄ LLM        · 介质
+    (1030, 250, 0, 1420, 250, 1, 3.0, 3, 0),        # SOS / EOS · 打断事件  · 离散
+    (700, 248, 0, 700, 324, 2, 1.0, 3, 0),          # 打断快路径            · 离散
+    (560, 362, 2, 300, 222, 0, 2.2, 3, 1),          # AEC 参考环            · 介质
+    (70, 566, 3, 70, 214, 0, 2.8, 2, 1),            # 底座 ↔ 终端           · 介质
+    (1498, 566, 3, 1498, 412, 1, 3.0, 2, 1),        # 底座 ↔ 中枢           · 介质
+    (1498, 66, 4, 1498, 116, 1, 2.0, 2, 0),         # 客户控制面 → 编排     · 离散
 ]
+_M_MEDL = [i for i, r in enumerate(_P10LANE) if r[6]]     # 介质车道
+_M_MEDB = [i for i, r in enumerate(_P10BEAM) if r[8]]     # 介质握手
+_M_FLOWW = 5.0                                            # 流带基准半宽
 _M_DZ, _M_BEAT = 26, 3.4
 # ── P11 弱网 AI QoS ───────────────────────────────────────────────────────
 _P11HEAPTOP = "M114 182 L526 182 L690 224 L764 182 L1020 182"   # = 页上蓄水折线的上沿
@@ -1926,11 +2068,26 @@ _P12RUN = [(200, 155, _W_ZAPEX, 236, 155, _W_ZMOUTH, 0.65, 2),
            (572, 155, _W_ZMOUTH, 610, 155, _W_ZHUB, 0.68, 2),
            (1050, 155, _W_ZHUB, 1090, 155, -10, 0.70, 2),
            (1426, 155, -10, 1448, 155, 40, 0.50, 2)]
-# ── P13 编排插槽机 ────────────────────────────────────────────────────────
+# ── P13 编排中枢机（二轮精修 · 波B · 王冠二）────────────────────────────────
+#   终审：「现在的数据是点状移动，流向表意不清，整体呆板，需要把科技感构建出来，
+#   每一个模块都可以有小巧思，对整个宏大的叙事更要有感觉。」
+#   ⇒ 中枢不再是「一只会呼吸的盒」，是**一台活的机器**：
+#     · 机腔深 150（= 单元腔深 52 的 2.9 倍）——全页最大的一处尺度对比，
+#       机腔一深，六只槽就成了「插在机身上的模块」而不是「并排的六只盒」；
+#     · 三道**逐层内缩**的内肋（37.5px 一道）——腔壁有结构，深度才是「机器内部」；
+#     · 腔底一枚**呼吸核**：三枚异面环慢转 + 420 点脉动。
+#       「实时调试 / 一键发布」不写第二遍字，写在核的脉动里 ——
+#       每 4.4s 一记发布脉冲沿页上 vline(840,348,398) **注光**进发布槽。
 _P13SLOT = [(60, _y, 380, 68) for _y in (60, 168, 276, 384)] \
          + [(1240, _y, 380, 68) for _y in (168, 296)]
 _P13HUB = (620, 180, 440, 160)
-_K_CYC, _K_SW, _K_CAV = 6.4, 1.6, 70    # 一轮换一只槽 / 一次热切换的时长 / 腔深
+_K_CYC, _K_SW, _K_CAV = 6.4, 1.6, 52    # 一轮换一只槽 / 一次热切换的时长 / **单元**腔深
+_K_HUBCAV, _K_RIB = 150.0, 3            # 机腔深（= 52 × 2.9）/ 内肋道数
+_K_CORE_N, _K_CORE_R = 420, 58.0        # 呼吸核：点数 / 基准半径
+_K_PUB = 4.4                            # 发布脉冲周期（秒）
+_K_SWZ = -320.0                         # 热切换：在位机体沿 −z 退到这里再淡出
+_K_SWA, _K_SWB = (0.0, 0.58), (0.42, 1.0)   # 一进一出**错峰**（退场 / 进场各占的相位段）
+_K_LOOP_OFF = 8.0                       # 两条往返闭环分居总线 ±8px（去一条、回一条）
 _K_ZSLOT, _K_ZHUB, _K_ZBUS = -20, -80, 0
 _P13PILL = (620, 400, 440, 60)          # 实时调试 → 一键发布
 _P13BRK = [(60, 472, 440, 472), (60, 460, 60, 472), (440, 460, 440, 472)]   # 四槽集体括号
@@ -1943,6 +2100,26 @@ _P13RUN = [(440, _y + 34, 540, _y + 34, 1.06, 1) for _y in (60, 168, 276, 384)] 
         + [(540, 260, 618, 260, 0.84, 1),
            (1240, 202, 1140, 202, 1.06, 1), (1240, 330, 1140, 330, 1.06, 1),
            (1140, 260, 1074, 260, 0.70, 1)]
+# ── 贯通流（波B）：语音 → ASR → 左总线 → 中枢 → 发布槽 → 输出 ─────────────
+#   一条 audioStream 走完全程（lab-kit ⑨）。它是**介质**（语音一直在来），
+#   所以是一条有厚度、会起伏、波峰自己往前走的带子，不是一串包。
+#   两端都伸到舞台外（x −40 / 1720）—— 进来之前它就在，出去之后它还在。
+_P13FLOW = [(-40, 94), (540, 94), (540, 260), (840, 260), (840, 430), (1720, 430)]
+#   穿模块、穿字段的那几段走 **aG ghost**（剖面收成细线）⇒ 流不断，字读得清。
+#   这几只框逐条对着页上的墨迹取：ASR 模块板 / 中枢两行字 / 发布槽那行字。
+_P13GHOST = [(74, 72, 352, 44),        # ASR 模块板（不透明，流从它「背后」过）
+             (795, 274, 90, 28),       # 中枢「实时编排」
+             (760, 226, 160, 40),      # 中枢「对话引擎」
+             (716, 414, 248, 30)]      # 发布槽「实时调试 → 一键发布」
+_K_GZF = 26.0                          # ghost 窗口的渐隐半宽（px 弧长 · smootherstep）
+#   两条往返闭环：中枢 ⇄ LLM（行 y202）/ 中枢 ⇄ TTS（行 y310）。
+#   去一条走总线**左** 8px、回一条走总线**右** 8px ⇒ 「往返」在图上分得开。
+_K_BUSX = 540
+_P13LOOP = [[(620, 255), (_K_BUSX - 8, 255), (_K_BUSX - 8, _y - 5), (444, _y - 5),
+             (444, _y + 5), (_K_BUSX + 8, _y + 5), (_K_BUSX + 8, 265), (620, 265)]
+            for _y in (202, 310)]
+#   发布脉冲：从腔底的呼吸核出发，沿页上 vline(840,348,398) 注光进发布槽。
+_P13PUB = [(840, 260), (840, 348), (840, 398)]
 # ── P14 接入架构三塔 ──────────────────────────────────────────────────────
 _P14T = [(40, 120, 460, 300, 0, 0), (610, 120, 460, 300, 1, 0),
          (1180, 120, 460, 300, 2, 1)]
@@ -2001,8 +2178,12 @@ def _spd_rows(p):
        结果同时摊进 data-lab-spd 供 ⑲s 复算：表与实现不可能分叉。
        B 档（P14 注光 400px/s，离散事件）与 C 档（页面 CSS 同源）不在这张表里。"""
     if p == 2:
-        lm, lb = _plen_d(_P2MAIN), _plen_d(_P2ARC, per=18, tol=1.2)
-        return [("主环", lm + lb, _SPD_P2[0]), ("支轨", lb, _SPD_P2[1])]
+        # 波B：主环 / 支轨 → **入射波场 / 出射波场**。两条都是声波场，波峰速度就是
+        # 相速度（A 档）；「长」取波场在页上横跨的像素（入射 X0→X1，出射整体右移
+        # _MO_OUTDX 之后越过 vb 右缘 ⇒ 倾泻出画）。
+        span = _MO_X1 - _MO_X0
+        return [("入射波场", span, _SPD_P2[0]), ("出射波场", span, _SPD_P2[1]),
+                ("入场弧流", _plen_d(_P2ARC, per=18, tol=1.2), _SPD_P2[0])]
     if p == 4:
         return [("上行声带", _plen(_d_lane(1, 0.0)), _SPD_P4[0]),
                 ("下行声带", _plen(_d_lane(-1, _D_PHASE)), _SPD_P4[1])]
@@ -2020,14 +2201,29 @@ def _spd_rows(p):
         d = [346.0 - _SR2, 346.0 - _SR2, 346.0 - _SR1, 346.0 - _SAG * 0.46 * 0.8]
         nm = ("噪声01", "噪声02", "噪声03", "目标人声")
         return [(nm[k], d[k], _SPD_P9[k]) for k in range(4)]
+    if p == 7:
+        # 波B：地形整幅左移（A 档基准本人）—— 一趟 980 ÷ 110 = 8.91s
+        return [("地形整幅", _T_X1 - _T_X0, _SPD_P7)]
+    if p == 10:
+        # 波B：四条车道 + 四道握手（介质 → 流带）。长度取**页上**的像素路径长。
+        rows, k = [], 0
+        for i in _M_MEDL:
+            r = _P10LANE[i]
+            rows.append(("车道%d" % (k + 1), abs(r[1] - r[0]), _SPD_P10[k])); k += 1
+        for i in _M_MEDB:
+            r = _P10BEAM[i]
+            rows.append(("握手%d" % (k - 3), math.hypot(r[3] - r[0], r[4] - r[1]),
+                         _SPD_P10[k])); k += 1
+        return rows
     if p == 12:
         m, hub = _W_MOUTH, _P12BOX[0]
         L = math.hypot((hub[0] + hub[2] / 2.0) - (m[0] + m[2] / 2.0),
                        (hub[1] + hub[3] / 2.0) - (m[1] + m[3] / 2.0))
         return [("画面平面", L, _SPD_P12[0])]
     if p == 13:
-        # 本来就在档内（92.9–94.3）—— 一个数没动。已经对的不去动它。
-        out = []
+        # 波B：新增**贯通流**（一条 audioStream 走完全程）—— 它是本页唯一的介质，
+        # 必须进 A 档表。九股总线包本来就在档内（92.9–94.3），一个数没动。
+        out = [("贯通流", _plen(_P13FLOW), _SPD_P13)]
         for k, r in enumerate(_P13RUN):
             L = math.hypot(r[2] - r[0], r[3] - r[1])
             out.append(("总线包%d" % (k + 1), L, L / r[4]))
@@ -2071,15 +2267,29 @@ def lab_data(p):
               ("ring", "%d,%d,%d" % _CA_RING), ("ringdx", _CA_RDX)]
     elif p == 7:
         a += [("pins", "%d,%d" % (_VSOS, _VEOS)), ("band", "%d,%d" % (_VTOP, _VBOT)),
-              ("steps", 1)]
+              ("steps", 1),
+              # 波B 消闪：周期 / 一趟秒数 / 表长 / 首尾落差（周期化之后必须是 0）
+              ("per", _n(_T_X1 - _T_X0)), ("lap", _n((_T_X1 - _T_X0) / _SPD_P7)),
+              ("nt", _T_NT), ("seam", _n(round(_vad_tables()[0][-1] - _vad_tables()[0][0], 6)))]
     elif p == 9:
         a += [("rings", "%d,%d" % (_SR1, _SR2)), ("gap", "35,40"), ("streams", 3)]
     elif p == 4:
         a += [("cut", _XIN), ("now", _XNOW), ("turns", 2.35)]
     # ── 第二波九页（2026-08-31 · 终波）：闸门静态复算要用的周期 / 相位 / 关键几何 ──
     elif p == 2:
-        a += [("nodes", len(_P2NODES)), ("boxes", len(_P2N)), ("tilt", _O_TZ),
-              ("dur", _O_DUR), ("dur-br", _O_DURB), ("hot", _P2NODES[1][0])]
+        # 波B · 模态转换剧场：⑲h 用这几张表**复算相位**（不靠截帧）——
+        # 三态权重和恒为 1、生灭窗落在 uLife=0 的那一段、让位事件坐在「想」的窗口里、
+        # 两代相位差正好是半周期。
+        a += [("cyc", _n(_MO_CYC)), ("gen", _n(_MO_GEN)),
+              ("ph", ",".join(_n(x) for x in _MO_PH)),
+              ("life", ",".join(_n(x) for x in _MO_LIFE)),
+              ("yaw", ",".join(_n(x) for x in _MO_YAW)), ("yawa", _n(_MO_YAWA)),
+              ("grid", "%d,%d,%d" % (_MO_NA, _MO_NB, _MO_NC)),
+              ("verts", _MO_NA * _MO_NB * _MO_NC),
+              ("lam", _n(_AS_LAM)),          # 波长逐字取 lab-kit ⑨ ⇒ 同一种介质
+              ("boxes", len(_P2N)), ("cols", ",".join(str(b[0]) for b in _P2N)),
+              ("hotcol", _O_HOTCOL), ("arc", ",".join(_n(x) for x in _MO_ARC)),
+              ("stage", "%d,%d" % (int(_MO_X0), int(_MO_X1 + _MO_OUTDX)))]
     elif p == 3:
         # 三种模式的通道相位表：与页上 .mo-packet 的实参逐参同源 ——
         # 闸门用 (L+seg)/(seg+ln) 复算占空比、再逐时刻验半双工「任何时刻只有一个方向在途」。
@@ -2109,6 +2319,9 @@ def lab_data(p):
     elif p == 10:
         a += [("layers", len(_M_ZL)), ("boxes", len(_P10BOX)), ("zl", ",".join(str(z) for z in _M_ZL)),
               ("lanes", len(_P10LANE)), ("beams", len(_P10BEAM)),
+              # 波B 轻手术：介质（→ 流带）与离散事件（保持粒子）各几条 —— 逐条判的结果
+              ("med", "%d,%d" % (len(_M_MEDL), len(_M_MEDB))),
+              ("evt", len([r for r in _P10BEAM if not r[8]])),
               ("drift", 0)]      # 相机不动、层不做视差位移（可读性红线：0 就是 0）
     elif p == 11:
         a += [("dark", "%d,%d" % _WN_DARK), ("loss", "%d,%d" % _WN_LOSS),
@@ -2120,7 +2333,19 @@ def lab_data(p):
         a += [("apex", "%d,%d" % _W_APEX), ("mouth", ",".join(str(v) for v in _W_MOUTH)),
               ("weak", len(_P12WEAK)), ("zweak", _W_ZWEAK)]
     elif p == 13:
-        a += [("slots", len(_P13SLOT)), ("cyc", _K_CYC), ("swap", _K_SW), ("cav", _K_CAV)]
+        a += [("slots", len(_P13SLOT)), ("cyc", _K_CYC), ("swap", _K_SW), ("cav", _K_CAV),
+              # 波B · 中枢机：⑲h 逐条复算「机腔 / 内肋 / 核 / 脉冲 / 贯通流 / 闭环 / 热切换」
+              ("hubcav", _n(_K_HUBCAV)), ("ribs", _K_RIB),
+              ("core", _K_CORE_N), ("pub", _n(_K_PUB)),
+              ("pubpath", ";".join("%d,%d" % q for q in _P13PUB)),
+              ("flow-len", _n(_plen(_P13FLOW))),
+              ("gz", ";".join("%s,%s" % (_f1(g[0]), _f1(g[1]))
+                              for g in (_box_u(_P13FLOW, b) for b in _P13GHOST) if g)),
+              ("loops", len(_P13LOOP)), ("loop-off", _n(_K_LOOP_OFF)),
+              ("busx", _K_BUSX),
+              ("swz", _n(_K_SWZ)),
+              ("sw-a", ",".join(_n(x) for x in _K_SWA)),
+              ("sw-b", ",".join(_n(x) for x in _K_SWB))]
     elif p == 14:
         a += [("towers", len(_P14T)), ("arcs", len(_P14ARC)), ("steps", 1),
               ("z", ",".join(str(z) for z in _Y_Z)), ("cyc", _n(_Y_CYC)),
@@ -2221,6 +2446,26 @@ def _lpsplit(items, keep=()):
     return "".join(out)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 版式分歧名册（波B 新增 · **一处不多一处不少**）
+# ───────────────────────────────────────────────────────────────────────────
+#   LAB 演绎的定义是「只加 3D，正文一个字节没动」。但六处地方，几何**确实**与
+#   引擎母本分了叉 —— 每一处都有非动不可的理由。与其让它们散在各页注释里，
+#   不如**声明**成一张表：build() 末尾拿产物与母本逐页对几何 token，
+#   实际分叉的页集合必须与这张表的 geom 行**完全相等**（多一页少一页都当场炸），
+#   poster 行另有一条针对性的自证。
+#   kind：geom = 页上几何 token 与母本不同｜poster = 几何一样、只是 lab-poster 分组不同
+_DIVERGE = [
+    (1,  "geom",   "封面加声场球 poster + kicker 末段「· LAB」（家族名，全 deck 唯一正文改动）"),
+    (21, "geom",   "Why Agora 换盒子（SD-RTN 地球）+ 加「节点分布示意」角注"),
+    (18, "geom",   "波A：双轴坐标**左移 80px**（终审「两张图偏挤」）+ 补回「真人销冠」基准虚线"),
+    (18, "stage",  "波A：lab-stage 从 1240 扩到 1680 —— 舞台横跨两图（扩的是「区域」，字一格没动）"),
+    (2,  "geom",   "波B：四卡四角 → 底排四栏（决策环 → 模态转换剧场；文案零改动、发射顺序对齐母本）"),
+    (13, "poster", "波B：_slot() 改分件方式 ⇒ 模块板从 canvas 之上收进 lab-poster 组"
+                   "（DOM 坐标一格没动，只是分组）"),
+]
+
+
 def lab_garage():
     """车库：单枚 canvas 的常驻位（页面上唯一一块 WebGL 画布）。
        无场景页 / 未起帧 / 已降级时它就停在这儿，屏外零成本。"""
@@ -2310,6 +2555,11 @@ const TAU = Math.PI*2;
 /* C¹ 的 smoothstep：本 deck 所有「渐入渐出的剖面」共用它（幅度剖面禁止用硬分支） */
 function sstep(a, b, x){ const t = Math.max(0, Math.min(1, (x-a)/(b-a||1e-6)));
                          return t*t*(3-2*t); }
+/* C² 的 smootherstep（6t⁵−15t⁴+10t³）：一阶**与二阶**导数在两端都归零。
+   波B 的 P2 四道相位边界全走它 —— 形变的速度与加速度都接得上，
+   接头处那一记可察觉的「顿」（smoothstep 只保证一阶）就没有了。 */
+function smoother(a, b, x){ const t = Math.max(0, Math.min(1, (x-a)/(b-a||1e-6)));
+                            return t*t*t*(t*(t*6-15)+10); }
 function webglOK(){
   try{ const c=document.createElement('canvas');
     return !!(c.getContext('webgl2')||c.getContext('webgl')||c.getContext('experimental-webgl'));
@@ -2327,6 +2577,24 @@ function unpackPoly(s){
   return f;
 }
 function unpackMulti(s){ return s.split('|').map(unpackPoly); }
+/* 折线**等弧长重采样**（波B 新增）：一条 mkStream 的 aG 是**逐顶点**属性 ——
+   幅度剖面（ghost 窗口）能画多细，取决于这条折线有多少个采样点。
+   6 个拐点的折线喂进去，ghost 窗口根本落不到点上（本轮实拍锤过一次）。 */
+function resamplePoly(rows, n){
+  const cum = [0];
+  for(let i = 1; i < rows.length; i++)
+    cum.push(cum[i-1] + Math.hypot(rows[i][0]-rows[i-1][0], rows[i][1]-rows[i-1][1]));
+  const tot = cum[cum.length-1] || 1, out = [];
+  let j = 0;
+  for(let k = 0; k < n; k++){
+    const d = tot*k/(n-1);
+    while(j < cum.length-2 && cum[j+1] < d) j++;
+    const t = (d - cum[j])/((cum[j+1]-cum[j]) || 1);
+    out.push([rows[j][0] + (rows[j+1][0]-rows[j][0])*t,
+              rows[j][1] + (rows[j+1][1]-rows[j][1])*t]);
+  }
+  return out;
+}
 function polyCum(p){
   const n=p.length/2, c=new Float32Array(n);
   for(let i=1;i<n;i++){ const dx=p[i*2]-p[i*2-2], dy=p[i*2+1]-p[i*2-1];
@@ -3744,46 +4012,94 @@ function makeSpiral(ctx){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ⑥ VAD 声学地形（P7）
+   ⑥ VAD 声学地形（P7 · 二轮精修 · 波B「消闪三件」）
    ───────────────────────────────────────────────────────────────────────────
    页上那条逐帧语音概率曲线**就是山脊线** —— 把它沿「帧」这个第二轴（深度 z）
-   挤出去，能量检测从一条线变成一片地形。悬在地形上方的两枚半透明面是滞回带
-   （上下阈值，取页上原来的 y62 / y96）：山脊穿过带子的地方，就是判定发生的地方。
-   SOS / EOS 两枚事件是地形上的立柱光标（x 逐字抄页上的 880 / 1380）。
-   data-step 桥：第 1 步（开源 × 引擎进阶两卡登场）把「+ 语义判停」那一道
-   前排折脊点亮 —— 声学之上再叠一层语义，在地形上看得见。
+   挤出去，能量检测从一条线变成一片地形。
+
+   ── 终审：「色块闪动营造流动感是偷懒的欺骗」——要真流动 ────────────────────
+   本页原来有两处**假流动**，两处都是「同一块像素反复变亮变暗」：
+     ✕ 滞回面：uFlow = 0 ⇒ flow = .74 + .26·sin(−uTime)，整片**原地明灭**；
+     ✕ 立柱帽子：逐帧改 alpha 呼吸。
+   换掉它们的**消闪三件**：
+
+   ① **地形整幅**按 A 档 110px/s 向左平移。要平移就得先**周期化**：页上那条曲线
+      两端差 2px（y 118 → 116），把这 2px 沿全幅**线性摊掉** ⇒ 首尾的高度接得上、
+      斜率也接得上（两端本来近乎水平，摊掉后斜率只差 2/980）。几何**建满两个周期**，
+      每帧**只设 scroll.position.x** —— 一格顶点都不重算，闪的物理前提就不存在。
+      一趟 980 ÷ 110 = **8.91s**，回卷点上第二周期与第一周期逐点相同 ⇒ 无缝。
+
+   ② **理解光束驻位**在 SOS / EOS 两枚事件 x 上。判断在这里做过一次：
+      SOS/EOS 的 DOM 标签钉死在 x=880/1380，而 P7 **不在版式分歧名单**里 ——
+      于是取「滚动的是语音，钉住的是判定」，地形从两道光束下面穿过
+      ⇒「实时馈送」与「标签不指空」同时成立。
+      判定晕的半径是 gap / ons 两张**对材料坐标预计算**的表的连续函数：
+        短谷 → 晕涨到一半就收回来；长谷 → 越过判定线，一边收细一边**凝成晶柱落地**。
+      阈值只出现在构建期那两张表里；运行时是一路连续插值（节点处一阶导归零的
+      smoothstep 内插）—— **零随机、零状态机、零阈值跳变**。
+
+   ③ 语义层从「一条会飘的虚线」改成**贴着折脊走的连续流带**（lab-kit ⑨）
+      + 一条**前沿馈送带**（声学的前沿在喂语义）。两条都坐在 scroll 组里，
+      随地形一起走 ⇒ 它们的波峰速度就是 110px/s，不额外引入第二个速度。
+
+   闸门：`⑲p7` 用 TOUR.pace 定拍 + **同 tick** gl.readPixels 逐帧量亮度突变
+   （整幅上限 4.0/255、8×8 分块上限 26/255）。这一闸量的是「像素有没有跳」，
+   不是「代码看起来对不对」。
    ═══════════════════════════════════════════════════════════════════════════ */
+/* 滞回带专用片元：**去掉时间项**。共用的 PX_RB_FS 里那句
+     flow = .74 + .26·sin((vT·uFlow − uTime·1.7)·2π)
+   无论 uFlow 取多少都带着 uTime —— 那就是「整片原地明灭」的出处本人。
+   这里换成只随 vT（空间）变的版本 ⇒ 判定面上一格像素都不再随时间抖，
+   而且整页的渲染从此**只**通过 run 依赖时钟（run 严格周期）⇒ 回卷逐像素无缝。 */
+const T_BAND_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uGain,uIntro,uFlow;',
+  'varying float vT,vA,vH,vFade;',
+  'void main(){',
+  '  float grow=clamp((uIntro*1.15-vT)/0.10,0.0,1.0);',
+  '  float flow=0.80+0.20*sin(vT*uFlow*6.2831853);',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*grow*flow;',
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(uColor,clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}'].join('\n');
 function makeTerrain(ctx){
   const T = K.t, w = ctx.rect[2], h = ctx.rect[3], D = 520;
   const scene = new THREE.Scene();
   const camera = camPx(w, h, D);
   const SH = pxShared(D, 95);
   const grp = new THREE.Group(); grp.position.set(0,-T.base,0); grp.rotation.x = T.tilt; scene.add(grp);
-  const CV = unpackPoly(T.curve);
-  function crest(x){                       // 页上那条概率曲线在 x 处的 y
-    const n=CV.length/2;
-    if(x<=CV[0]) return CV[1];
-    for(let i=1;i<n;i++){ if(CV[i*2]>=x){
-      const u=(x-CV[i*2-2])/((CV[i*2]-CV[i*2-2])||1);
-      return CV[i*2-1]+(CV[i*2+1]-CV[i*2-1])*u; } }
-    return CV[n*2-1];
+  /* scroll 组：**整幅**地形与两条语义带都坐在里面。每帧只动它的 position.x。 */
+  const scroll = new THREE.Group(); grp.add(scroll);
+  const NT = T.nt, PER = T.per, STEP = PER/(NT-1);
+  /* 表取值：节点处一阶导归零的 smoothstep 内插 ⇒ C¹ 连续（线性内插在节点会有折角，
+     折角在 8×8 分块的亮度差分上是看得见的一记）。u 先环回一个周期。 */
+  function tab(a, u){
+    let x = ((u - T.x0) % PER + PER) % PER / STEP;
+    const i = Math.floor(x), f = x - i, g = f*f*(3-2*f);
+    return a[i % (NT-1)]*(1-g) + a[(i+1) % (NT-1)]*g;
   }
-  const NX=T.nx, NZ=T.nz, X0=T.x0, X1=T.x1, ZW=T.zw;
-  const ridge=(z)=>Math.exp(-(z*z)/(T.sig*T.sig));
-  const hAt=(x,z)=>(T.base-crest(x))*ridge(z);
-  /* ── 地形：等深线（沿 x）+ 稀疏的横向筋（沿 z）── */
+  const crest = (x) => tab(T.hp, x);
+  const NX = T.nx, NZ = T.nz, X0 = T.x0, X1 = T.x1, ZW = T.zw;
+  const ridge = (z) => Math.exp(-(z*z)/(T.sig*T.sig));
+  const hAt = (x,z) => (T.base - crest(x))*ridge(z);
+  /* 采样区间：两个周期，再向两侧各外扩 4 格 —— scroll 走到 −980 时，
+     可见窗口落在几何的 [979, 1989] 上，不外扩右缘会缺 10px（本轮实拍锤过）。
+     第 i 与第 i+(NX−1) 个点整整差一个周期 ⇒ 回卷点上两周期逐点相同。 */
+  const I0 = -4, I1 = (NX-1)*2 + 4, NX2 = I1 - I0 + 1;
+  const xAt = (k) => X0 + (X1-X0)*(k + I0)/(NX-1);
+  /* ── 地形：等深线（沿 x）+ 稀疏的横向筋（沿 z）—— 建满两个周期 ── */
   {
     const seg=[], al=[], hh=[];
     for(let r=0;r<NZ;r++){
       const z=-ZW+2*ZW*r/(NZ-1), aw=Math.pow(ridge(z),.55);
-      for(let i=0;i<NX-1;i++){
-        const xa=X0+(X1-X0)*i/(NX-1), xb=X0+(X1-X0)*(i+1)/(NX-1);
+      for(let i=0;i<NX2-1;i++){
+        const xa=xAt(i), xb=xAt(i+1);
         seg.push(xa,hAt(xa,z),z, xb,hAt(xb,z),z);
         al.push(aw,aw); hh.push(0,0);
       }
     }
-    for(let i=0;i<NX;i+=14){
-      const x=X0+(X1-X0)*i/(NX-1);
+    for(let i=0;i<NX2;i+=14){
+      const x=xAt(i);
       for(let r=0;r<NZ-1;r++){
         const za=-ZW+2*ZW*r/(NZ-1), zb=-ZW+2*ZW*(r+1)/(NZ-1);
         const aw=Math.pow(ridge((za+zb)/2),.55)*.66;
@@ -3795,13 +4111,13 @@ function makeTerrain(ctx){
     g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
     g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(hh),1));
     var ridgeMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-    const ln=new THREE.LineSegments(g,ridgeMat); ln.frustumCulled=false; grp.add(ln);
+    const ln=new THREE.LineSegments(g,ridgeMat); ln.frustumCulled=false; scroll.add(ln);
   }
   /* ── 脊线（z=0）：这一条就是页上那条概率曲线本人 ── */
   {
     const seg=[], al=[];
-    for(let i=0;i<NX-1;i++){
-      const xa=X0+(X1-X0)*i/(NX-1), xb=X0+(X1-X0)*(i+1)/(NX-1);
+    for(let i=0;i<NX2-1;i++){
+      const xa=xAt(i), xb=xAt(i+1);
       seg.push(xa,hAt(xa,0),0, xb,hAt(xb,0),0); al.push(1,1);
     }
     const g=new THREE.BufferGeometry();
@@ -3809,9 +4125,11 @@ function makeTerrain(ctx){
     g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
     g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
     var crestMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-    const ln=new THREE.LineSegments(g,crestMat); ln.frustumCulled=false; grp.add(ln);
+    const ln=new THREE.LineSegments(g,crestMat); ln.frustumCulled=false; scroll.add(ln);
   }
-  /* ── 滞回带：两枚悬浮半透明面（y 取页上的上下阈值）── */
+  /* ── 滞回带：两枚悬浮半透明面（y 取页上的上下阈值）──
+     ⚠ 它**不在 scroll 组里**（判定线是钉住的），而且 uFlow 走**空间相位**：
+     flow 只随 vT 变、不随 uTime 变 ⇒ 面上不再有「原地明灭」。 */
   const bandMats=[];
   T.band.forEach((by)=>{
     const y=T.base-by;
@@ -3822,54 +4140,41 @@ function makeTerrain(ctx){
     g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array([1,1,1,1]),1));
     g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(4),1));
     g.setIndex([0,1,2, 0,2,3]);
-    const m = mkMat(SH, PX_RB_VS, PX_RB_FS, { uFlow:{value:0} });
+    const m = mkMat(SH, PX_RB_VS, T_BAND_FS, { uFlow:{value:3} });
     m.side = THREE.DoubleSide;
     const o=new THREE.Mesh(g,m); o.frustumCulled=false; grp.add(o);
     bandMats.push(m);
   });
-  /* ── SOS / EOS 立柱光标（x 逐字抄页上的事件位）── */
-  {
-    const seg=[], al=[];
-    T.pins.forEach(px=>{
-      const y0=0, y1=T.base-T.pinTop;
-      for(let s=0;s<14;s++){
-        const a=y0+(y1-y0)*s/14, b=y0+(y1-y0)*(s+1)/14;
-        seg.push(px,a,0, px,b,0); const e=1-s/16; al.push(e,e);
-      }
-    });
-    const g=new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
-    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
-    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
-    var pinMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-    const ln=new THREE.LineSegments(g,pinMat); ln.frustumCulled=false; grp.add(ln);
+  /* ═══ ② 理解光束（驻位）：束柱 + 判定晕 + 晶柱 ═══════════════════════════
+     三件的形都由 gap / ons 两张表的连续函数给出；一格随机数都没有。 */
+  const PIN = T.pins, NP = PIN.length, NR = 56;
+  const beamMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const haloMat = mkMat(SH, PX_PT_VS, PX_PT_FS); haloMat.uniforms.uSoft.value = .30;
+  const beamGeo2 = new THREE.BufferGeometry();
+  const bSegs = NP*(2 + 4);                       // 每枚：2 根束柱 + 4 根晶柱棱
+  const bpos = new Float32Array(bSegs*2*3);
+  beamGeo2.setAttribute('position', new THREE.BufferAttribute(bpos,3));
+  const bA = fillAH(beamGeo2, 1, 0);
+  grp.add(Object.assign(new THREE.LineSegments(beamGeo2, beamMat), { frustumCulled:false }));
+  const haloGeo = new THREE.BufferGeometry();
+  const hpos = new Float32Array(NP*NR*3);
+  haloGeo.setAttribute('position', new THREE.BufferAttribute(hpos,3));
+  const hA = fillAH(haloGeo, 1, 0);
+  grp.add(Object.assign(new THREE.Points(haloGeo, haloMat), { frustumCulled:false }));
+  /* ═══ ③ 语义层：贴脊连续流带 + 前沿馈送带（两条都在 scroll 组里）═══════ */
+  function ridgePts(dz, lift){
+    const p = [];
+    for(let i=0;i<NX2;i++){ const x=xAt(i); p.push([x, hAt(x, dz)+lift, dz]); }
+    return p;
   }
-  const capGeo = new THREE.BufferGeometry();
-  {
-    const f=new Float32Array(T.pins.length*3);
-    T.pins.forEach((px,i)=>{ f[i*3]=px; f[i*3+1]=T.base-T.pinTop; f[i*3+2]=0; });
-    capGeo.setAttribute('position', new THREE.BufferAttribute(f,3));
-  }
-  const capA = attrAH(capGeo, T.pins.length, 1, 1);
-  const capMat = mkMat(SH, PX_PT_VS, PX_PT_FS); capMat.uniforms.uSoft.value=.02;
-  const caps = new THREE.Points(capGeo, capMat); caps.frustumCulled=false; grp.add(caps);
-  /* ── 语义层：前排（z=+）一道折脊，第 1 步点亮 ── */
-  const SEM = unpackPoly(T.sem);
-  var semMat;
-  {
-    const seg=[], al=[], n=SEM.length/2;
-    for(let i=0;i<n-1;i++){
-      seg.push(SEM[i*2],T.base-SEM[i*2+1],T.semZ, SEM[i*2+2],T.base-SEM[i*2+3],T.semZ);
-      al.push(1,1);
-    }
-    const g=new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(seg),3));
-    g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(al),1));
-    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
-    semMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-    const ln=new THREE.LineSegments(g,semMat); ln.frustumCulled=false; grp.add(ln);
-  }
-  let stepN = 0, semOp = .85;
+  const sem  = mkStream(SH, ridgePts(0, 7), { w: T.semW, spd: 0, edge: 0 });
+  const feed = mkStream(SH, ridgePts(T.feedZ, 2), { w: T.feedW, spd: 0, edge: 0 });
+  scroll.add(sem.mesh); scroll.add(feed.mesh);
+  /* 幅度剖面：语义带在**起声强的地方**厚、静音谷里收细；馈送带反过来 ——
+     它是「前沿」，在起声之前先鼓起来。两条都只是一条 gain 回调，零分支。 */
+  sem.gain((u) => 0.34 + 0.66*tab(T.ons, X0 + u));
+  feed.gain((u) => 0.28 + 0.72*tab(T.ons, X0 + u + 46));
+  let stepN = 0, semOp = .85, run = 0;
   return {
     scene, camera, intro:1.1, grab:false,
     onDPR(pr){ SH.uPx.value = pr; },
@@ -3877,14 +4182,60 @@ function makeTerrain(ctx){
     setStep(n){ stepN = n; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      // 立柱光标的呼吸：SOS / EOS 错峰（两枚事件不是同一件事）
-      for(let i=0;i<T.pins.length;i++)
-        capA.a[i]=0.55+0.45*(0.5-0.5*Math.cos(TAU*(clock/2.4-i*0.5)));
-      capGeo.attributes.aA.needsUpdate=true;
+      /* ① 整幅左移：每帧**只**动这一个数。回卷点上第二周期与第一周期逐点相同。 */
+      run = (clock*T.spd) % PER;
+      scroll.position.x = -run;
+      /* ② 判定晕 / 晶柱：材料坐标 = 屏上的驻位 + 已经滚过去的距离 */
+      let b = 0, hq = 0;
+      for(let i=0;i<NP;i++){
+        const u = PIN[i] + run;
+        const on = tab(T.ons, u), gp = tab(T.gap, u);
+        const surf = hAt(u, 0), top = T.base - T.pinTop;
+        // 判定晕：起声涨、长谷收（短谷 ⇒ 涨到一半就收回来）
+        const R = T.halo[0] + T.halo[1]*on*(1 - T.halo[2]*gp);
+        const hy = surf + (top-surf)*0.62;
+        for(let k=0;k<NR;k++){
+          const a = k/NR*TAU;
+          hpos[hq*3]   = PIN[i] + Math.cos(a)*R;
+          hpos[hq*3+1] = hy + Math.sin(a)*R*0.34;
+          hpos[hq*3+2] = Math.sin(a)*R*0.9;
+          hA.a[hq] = 0.34 + 0.66*(0.30 + 0.70*on)*(1 - 0.50*gp); hq++;
+        }
+        // 束柱：两根竖线（钉住的判定）
+        for(let k=0;k<2;k++){
+          const dx = (k?1:-1)*3.4;
+          bpos[b*6]   = PIN[i]+dx; bpos[b*6+1] = surf;      bpos[b*6+2] = 0;
+          bpos[b*6+3] = PIN[i]+dx; bpos[b*6+4] = top;       bpos[b*6+5] = 0;
+          bA.a[b*2] = 0.55 + 0.45*on; bA.a[b*2+1] = 0.16 + 0.44*on; b++;
+        }
+        // 晶柱：长谷里越过判定线，一边收细一边落地
+        const ph2 = T.pil[0]*gp, pw = T.pil[1]*(1 - T.pil[2]*gp);
+        const py0 = surf, py1 = surf + ph2;
+        [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sz]) => {
+          bpos[b*6]   = PIN[i]+sx*pw; bpos[b*6+1] = py0; bpos[b*6+2] = sz*pw*1.2;
+          bpos[b*6+3] = PIN[i]+sx*pw*0.42; bpos[b*6+4] = py1; bpos[b*6+5] = sz*pw*0.5;
+          bA.a[b*2] = 0.86*gp; bA.a[b*2+1] = 0.20*gp; b++;
+        });
+      }
+      beamGeo2.attributes.position.needsUpdate = true;
+      beamGeo2.attributes.aA.needsUpdate = true;
+      haloGeo.attributes.position.needsUpdate = true;
+      haloGeo.attributes.aA.needsUpdate = true;
+      // ③ 两条语义带：uRun 恒 0（波峰钉在材料上，由 scroll 带着走 ⇒ 只有一个速度）
+      sem.draw(0); feed.draw(0);
       // data-step → uniform：第 1 步把语义层从「在场但很轻」推到「亮起来」
       const want = stepN>=1 ? semOp : semOp*0.26;
-      const cu = semMat.uniforms.uOpacity;
+      const cu = sem.mat.uniforms.uOpacity;
       cu.value += (want-cu.value)*Math.min(1,dt*3.2);
+      feed.mat.uniforms.uOpacity.value = cu.value*0.55;
+    },
+    state(){
+      return { run, per: PER, spd: T.spd, lap: PER/T.spd, nt: NT,
+               seam: T.hp[NT-1] - T.hp[0], scrollX: scroll.position.x,
+               halo: PIN.map(x => T.halo[0] + T.halo[1]*tab(T.ons, x+run)
+                                  *(1 - T.halo[2]*tab(T.gap, x+run))),
+               gap: PIN.map(x => tab(T.gap, x+run)), ons: PIN.map(x => tab(T.ons, x+run)),
+               semOp: sem.mat.uniforms.uOpacity.value };
     },
     applyTheme(){
       ridgeMat.uniforms.uColor.value.copy(cssColor('--t-ridge'));
@@ -3902,19 +4253,25 @@ function makeTerrain(ctx){
         m.uniforms.uHot.value.copy(cssColor('--t-band'));
         m.uniforms.uOpacity.value = cssNum('--t-band-op',.13);
         m.uniforms.uGain.value = 0;
+        /* T_BAND_FS 里 flow 只随 vT（**空间**）变：整片原地明灭那一档
+           （PX_RB_FS 的 .74+.26·sin(−uTime·1.7)）在这一页彻底不存在。 */
+        m.uniforms.uFlow.value = 3;
       });
-      [pinMat,capMat].forEach(m=>{
-        m.uniforms.uColor.value.copy(cssColor('--t-pillar'));
-        m.uniforms.uHot.value.copy(cssColor('--t-pillar'));
-        m.uniforms.uOpacity.value = cssNum('--t-pillar-op',.75);
-        m.uniforms.uGain.value = 0;
-      });
-      capMat.uniforms.uSize.value = 6;
+      beamMat.uniforms.uColor.value.copy(cssColor('--t-pillar'));
+      beamMat.uniforms.uHot.value.copy(cssColor('--t-pillar'));
+      beamMat.uniforms.uOpacity.value = cssNum('--t-pillar-op',.75)*1.35;
+      beamMat.uniforms.uGain.value = 0;
+      haloMat.uniforms.uColor.value.copy(cssColor('--t-halo'));
+      haloMat.uniforms.uHot.value.copy(cssColor('--t-halo'));
+      haloMat.uniforms.uOpacity.value = cssNum('--t-halo-op',.55);
+      haloMat.uniforms.uSize.value = cssNum('--t-halo-size',3);
+      haloMat.uniforms.uGain.value = 0;
       semOp = cssNum('--t-sem-op',.85);
-      semMat.uniforms.uColor.value.copy(cssColor('--t-sem'));
-      semMat.uniforms.uHot.value.copy(cssColor('--t-sem'));
-      semMat.uniforms.uGain.value = 0;
-      [ridgeMat,crestMat,pinMat,capMat,semMat].concat(bandMats)
+      sem.theme(cssColor('--t-sem'), cssColor('--t-sem-rms'),
+                semOp, cssNum('--t-sem-rms-op',.55), .45);
+      feed.theme(cssColor('--t-feed'), cssColor('--t-feed'),
+                 cssNum('--t-feed-op',.45), .4, .45);
+      [ridgeMat,crestMat,beamMat,haloMat,sem.mat,feed.mat].concat(bandMats)
         .forEach(m=>setBlend(m,cssNum('--t-add',0)));
     },
   };
@@ -4359,145 +4716,253 @@ function mkRelock(c0, D0, c1, D1){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ⑧ 决策轨道环（P2）
+   ⑧ 模态转换剧场（P2 · 二轮精修 · 波B · 王冠一）
    ───────────────────────────────────────────────────────────────────────────
-   页上那条「听 → 理解 → 判断 → 表达 → 点线弧绕回听」的闭环，整条抬进空间：
-   环平面绕水平轴一倾（上沿近、下沿远），包沿环巡行 —— 近处的包大而亮、
-   远处的小而暗，「这是一圈，不是四段」在深度上一眼成立。
-   点线反馈弧（「表达时仍在听」）做**支轨**：另一种材质、另一档速度，
-   与主环同环不同线 —— 它本来就是本页的灵魂，3D 里也不许并进主环。
-   四枚发光站点 = 页上四支箭头的落点（进站瞬间），全部走投影锁 ⇒ 与页上逐像素同位。
-   克制：一环一巡，不做土星（没有第二道环、没有环带、没有粒子云）。
+   Colin 的方向：「拆解人类在对话里如何做**模态转换**——听、想、说。从你的高维
+   去拆解这个理念，不用惧怕人类看不懂。」于是这一页不画流程环，画**同一段东西
+   换了三次形态**：
+
+     听 = 入射声波场   等相位线**竖直**的行波（相位只由 x 决定），波长逐字取
+                       `K.as.lam` = 232px ⇒ 与 lab-kit ⑨ 的流带**是同一种介质**；
+     ↓ 升维
+     想 = 表征星格     34×12×5 点阵被两道正交折叠函数揉成一片流形，内部一道
+                       从中心往外传的**位移**涟漪 —— 「理解」是几何变换，不是黑盒；
+     ↓ 凝聚
+     说 = 塌回波场     整片向右倾泻**出画**（出射波场的右端越过舞台右缘）。
+
+   无缝三件（这是「不闪、不跳、不接头」的全部理由）：
+     ① **一套顶点、一次插值**：三态是同一批顶点的三个解析目标，顶点着色器按
+        (wIn,wLat,wOut) 线性插值，权重和恒为 1 —— 没有第二套几何，也就没有交接。
+     ② **四道相位边界走 smootherstep**：一阶与二阶导数在边界都归零 ⇒ 速度与
+        加速度都接得上（smoothstep 只保证一阶，形上会有一记可察觉的「顿」）。
+     ③ **生灭窗**：uLife 在 12.80→13.60 落到 0、13.60–14.00 全暗，t 回卷（换位置）
+        永远发生在这 0.4s 里 —— 接头藏在画外，形上零跳变。
+   **两代同场**（相位差半周期 7s）：舞台永不空；而这正是页上
+   「同一时刻 · 并行进行 / 持续在听 · 同时在说」两行落点句本人 ——
+   任何一刻台上都有两种形态并行，其中每 7s 有一段是「一代在听 · 一代在说」。
+   ⇒ **舞台视觉周期 = 7s**（两代互换即回到同一张画），GIF 录 7s 就含
+     波→格 与 格→波 两处变形；单代走完 14s。
+
+   高维巧思：**第二道入射波**沿页上那条反馈弧 `_P2ARC` 切进来（3D 里它是一条真的
+   audioStream —— 同一种介质，不是装饰线），到达舞台左缘的那一刻，台上的格架在
+   **0.56s** 内整片转过 uYaw 让位，其后 **3.10s** 慢慢回正。让位是「转身让路」，
+   不是「消失」—— 所以它读得出是两件事在同一个空间里相互避让。
    ═══════════════════════════════════════════════════════════════════════════ */
-function makeRing(ctx){
+const MO = K.o;
+const _gf = (x) => (+x).toFixed(4);          // GLSL 浮点字面量（几何常量只有 K.o 一份）
+/* MO_HEAD —— waveAt / latAt 的**唯一**实现（构建期 _mo_wave/_mo_lat 与它逐行同式）。
+   所有几何常量从 K.o 现取现烘：想改形，改 _MO_* 一处，poster 与着色器一起动。 */
+const MO_HEAD = [
+  'uniform float uT,uRunA,uRunB,uYaw,uLife,uWIn,uWLat,uWOut;',
+  'uniform vec4 uA,uF,uPh;',
+  'const float TAU = 6.28318530718;',
+  'float moS(float th){',
+  '  return uA.x*sin(uF.x*th+uPh.x) + uA.y*sin(uF.y*th+uPh.y)',
+  '       + uA.z*sin(uF.z*th+uPh.z) + uA.w*sin(uF.w*th+uPh.w);',
+  '}',
+  // ── 入射 / 出射声波场：等相位线竖直（相位只由 x 决定）──
+  'float moWaveX(float u,float o){ return ' + _gf(MO.x0) + ' + o*' + _gf(MO.outdx)
+    + ' + (' + _gf(MO.x1) + '-' + _gf(MO.x0) + ')*u; }',
+  'vec3 waveAt(float u,float v,float w,float o,float run){',
+  '  float x  = moWaveX(u,o);',
+  '  float ny = (v-0.5)*2.0, nz = (w-0.5)*2.0;',
+  '  float amp = ' + _gf(MO.amp) + '*(1.0-0.62*abs(ny));',
+  '  float y = ' + _gf(MO.yc) + ' + ny*' + _gf(MO.hw)
+    + ' + amp*moS(TAU*(x-run)/' + _gf(K.as.lam) + ');',
+  '  return vec3(x, y, nz*' + _gf(MO.dz * 0.5) + ');',
+  '}',
+  'float moEnv(float u,float o,float run){',
+  '  return 0.5+0.5*moS(TAU*(moWaveX(u,o)-run)/' + _gf(K.as.lam) + ');',
+  '}',
+  // ── 表征星格：两道正交折叠 + 深度隆起 + 中心往外传的位移涟漪 + 让位偏航 ──
+  'vec3 latAt(float u,float v,float w){',
+  '  float p = (u-0.5)*' + _gf(MO.lw) + ', q = (v-0.5)*' + _gf(MO.lh)
+    + ', r = (w-0.5)*' + _gf(MO.ld) + ';',
+  '  float X = p + ' + _gf(MO.f1 * MO.lw * 0.5) + '*sin(TAU*(q/' + _gf(MO.lh) + ')+r*0.012);',
+  '  float Y = q + ' + _gf(MO.f2 * MO.lh * 0.5) + '*sin(TAU*1.5*(p/' + _gf(MO.lw) + '));',
+  '  float Z = r + ' + _gf(MO.fb) + '*cos(TAU*(p/' + _gf(MO.lw) + '+q/' + _gf(MO.lh) + '));',
+  '  float d = length(vec2(X,Y)) + 1e-3;',
+  '  float rp = ' + _gf(MO.rip) + '*sin(TAU*(d/' + _gf(MO.rlam) + ' - uT/' + _gf(MO.rper) + '));',
+  '  X += rp*X/d; Y += rp*Y/d;',
+  '  float cs = cos(uYaw), sn = sin(uYaw);',
+  '  return vec3(' + _gf(MO.lcx) + ' + X*cs + Z*sn, ' + _gf(MO.yc) + ' + Y, -X*sn + Z*cs);',
+  '}'].join('\n');
+const MO_VS = PX_HEAD + '\n' + MO_HEAD + '\n' + [
+  'attribute float aU,aV,aW;',
+  'varying float vLat,vEn;',
+  'void main(){',
+  '  vec3 p = waveAt(aU,aV,aW,0.0,uRunA)*uWIn',
+  '         + latAt (aU,aV,aW)          *uWLat',
+  '         + waveAt(aU,aV,aW,1.0,uRunB)*uWOut;',   // ← 三个解析目标，一次线性插值
+  '  vLat = uWLat;',
+  '  vEn  = mix(moEnv(aU,0.0,uRunA), moEnv(aU,1.0,uRunB), uWOut);',
+  '  vA = aA*uLife; vH = aH;',
+  '  vec4 mv = pxCore(vec3(p.x, -p.y, p.z), uSize);',
+  '  gl_Position = projectionMatrix*mv;',
+  '}'].join('\n');
+const MO_PT_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uSoft,uLatK,uCrest;',
+  'varying float vFade,vA,vH; varying float vLat,vEn;',
+  'void main(){',
+  '  vec2 c=gl_PointCoord-0.5; float d=dot(c,c);',
+  '  if(d>0.25) discard;',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*smoothstep(0.25,uSoft,d);',
+  '  a *= mix(1.0, uLatK, vLat);',
+  '  a *= 1.0 + uCrest*(1.0-vLat)*(vEn-0.5)*2.0;',      // 波峰亮度增益（格态自动关掉）
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(mix(uColor,uHot,clamp(vLat,0.0,1.0)),clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}'].join('\n');
+/* 骨架线（两路，同一枚着色器靠 uRib 分档）：
+     uRib = 0 **行线**（沿 u）—— 两态都在。波态它是一束**一起起伏的行波线**
+            （光靠点云读不出「等相位线竖直」这件事，线一画出来就一眼看见）；
+            格态它变成流形的经线，颜色随 vLat 从波色过渡到墨色。
+     uRib = 1 **纬筋**（沿 v）—— a ∝ vLat²，只在「格」态长出来：
+            格之所以是格，就在于它有第二个方向的支撑。 */
+const MO_LN_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uWaveK,uRib;',
+  'varying float vFade,vA,vH; varying float vLat,vEn;',
+  'void main(){',
+  '  float k = mix(mix(uWaveK,1.0,vLat), vLat*vLat, uRib);',
+  '  float a=uOpacity*vA*mix(uBack,1.0,vFade)*k;',
+  '  a *= 1.0 + 0.30*(1.0-vLat)*(vEn-0.5)*2.0;',
+  '  if(a<0.004) discard;',
+  '  gl_FragColor=vec4(mix(uColor,uHot,clamp(vLat,0.0,1.0)),clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}'].join('\n');
+
+function makeMorph(ctx){
   const Q = K.o, w = ctx.rect[2], h = ctx.rect[3], D = 1400;
   const scene = new THREE.Scene(), camera = camPx(w, h, D);
-  const SH = pxShared(D, 190), L = mkLock(w, h, D);
-  const mp = unpackPoly(Q.main), mc = polyCum(mp), mLen = mc[mc.length-1];
-  const bp = unpackPoly(Q.br),  bc = polyCum(bp),  bLen = bc[bc.length-1];
-  const TOT = mLen + bLen, tmp = [0,0];
-  const zOf = (y) => -(y - Q.yc) * Q.tz;         // 环平面一倾：y 小（上沿）= 近
-  function dim(x, y){                            // 站点盒内压暗：环从盒背后穿过，字永远压在上面
-    for(let i = 0; i < Q.box.length; i++){
-      const b = Q.box[i];
-      if(x > b[0]-10 && x < b[0]+b[2]+10 && y > b[1]-10 && y < b[1]+b[3]+10) return Q.dim;
-    }
-    return 1;
+  const SH = pxShared(D, 120);                 // 雾半程贴着真实 z 范围（±101）收紧 ——
+                                              // 松了就等于没有体积（本轮实拍锤过：210 时整幅是平的）
+  const NA = Q.na, NB = Q.nb, NC = Q.nc, N = NA*NB*NC;
+  /* ── 一批顶点 · 三个解析目标：几何里只有 (u,v,w)，位置全在 VS 里现算 ── */
+  const aU = new Float32Array(N), aV = new Float32Array(N), aW = new Float32Array(N);
+  const aA = new Float32Array(N), aH = new Float32Array(N);
+  const pos = new Float32Array(N*3);           // 占位（VS 不读它，但 three 要 position）
+  let n = 0;
+  for(let ic = 0; ic < NC; ic++) for(let ib = 0; ib < NB; ib++) for(let ia = 0; ia < NA; ia++){
+    aU[n] = ia/(NA-1); aV[n] = ib/(NB-1); aW[n] = ic/(NC-1);
+    // 层越深越淡（深度雾之外再压一档：五层点云不压层会糊成一团）
+    aA[n] = 0.58 + 0.42*(1.0 - Math.abs(aW[n]-0.5)*2.0);
+    aH[n] = 0; n++;
   }
-  function loopAt(s){                            // s ∈ [0,1) 沿整环的弧长参数
-    const d = ((s % 1) + 1) % 1 * TOT;
-    if(d < mLen) polyAt(mp, mc, d / mLen, tmp); else polyAt(bp, bc, (d - mLen) / bLen, tmp);
-    return tmp;
-  }
-  function railOf(p, c, n){
-    const pts = [], al = [];
-    for(let i = 0; i < n; i++){
-      polyAt(p, c, i / (n - 1), tmp);
-      pts.push(L(tmp[0], tmp[1], zOf(tmp[1])));
-      al.push(dim(tmp[0], tmp[1]));
-    }
-    const g = stripGeo(pts); const A = fillAH(g, 1, 0);
-    for(let i = 0; i < n; i++) A.a[i] = al[i];
-    g.attributes.aA.needsUpdate = true;
+  function moGeo(idx){
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('aU', new THREE.BufferAttribute(aU,1));
+    g.setAttribute('aV', new THREE.BufferAttribute(aV,1));
+    g.setAttribute('aW', new THREE.BufferAttribute(aW,1));
+    g.setAttribute('aA', new THREE.BufferAttribute(aA,1));
+    g.setAttribute('aH', new THREE.BufferAttribute(aH,1));
+    if(idx) g.setIndex(idx);
     return g;
   }
-  const railMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const brMat   = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  { const o1 = new THREE.Line(railOf(mp, mc, 300), railMat); o1.frustumCulled = false; scene.add(o1);
-    const o2 = new THREE.Line(railOf(bp, bc, 160), brMat);   o2.frustumCulled = false; scene.add(o2); }
-  // ── 四只站点盒 → 空间站台：前面锁死在页上那只盒的位置（卡内三行字一格不挪），
-  //    背面沿 −z 退进去 ⇒ 站台有厚度，环从它背后穿过（上面的 dim 已经把环压暗了）。
-  const stMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const stHot = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const wallMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  { const f = [], fh = [], wl = [];
-    Q.box.forEach((bx, i) => {
-      const bb = boxBody(bx[0], bx[1], bx[2], bx[3], zOf(bx[1] + bx[3] / 2), Q.dz, L);
-      (i === Q.hotBox ? fh : f).push.apply(i === Q.hotBox ? fh : f, bb.front);
-      wl.push.apply(wl, bb.shell);
-    });
-    [[f, stMat], [fh, stHot], [wl, wallMat]].forEach(([segs, m]) => {
-      const g = segGeo(segs); fillAH(g, 1, 0);
-      scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
-    }); }
-  // ── 四枚站点：发光节点 + 外晕（hot = 「判断」那一站，全页唯一的因）──
-  const NPTS = Q.node.map(n => L(n[0], n[1], zOf(n[1])));
-  const ngeo = ptsGeo(NPTS), nA = fillAH(ngeo, 1, 0);
-  Q.node.forEach((n, i) => { nA.h[i] = n[2]; });
-  ngeo.attributes.aH.needsUpdate = true;
-  const nodeMat = mkMat(SH, PX_PT_VS, PX_PT_FS); nodeMat.uniforms.uSoft.value = .02;
-  const haloMat = mkMat(SH, PX_PT_VS, PX_PT_FS); haloMat.uniforms.uSoft.value = .25;
-  scene.add(Object.assign(new THREE.Points(ngeo, haloMat), { frustumCulled:false }));
-  scene.add(Object.assign(new THREE.Points(ngeo, nodeMat), { frustumCulled:false }));
-  // ── 巡行的包：主环 NP 枚匀布 + 支轨 NB 枚（慢一档、另一种色）──
-  const NP = 9, NB = 4;
-  const pg = new THREE.BufferGeometry();
-  const ppos = new Float32Array((NP + NB) * 3);
-  pg.setAttribute('position', new THREE.BufferAttribute(ppos, 3));
-  const pA = fillAH(pg, 1, 0);
-  const pktMat = mkMat(SH, PX_PT_VS, PX_PT_FS); pktMat.uniforms.uSoft.value = .03;
-  scene.add(Object.assign(new THREE.Points(pg, pktMat), { frustumCulled:false }));
-  const brA = mLen / TOT;                          // 支轨在整环参数里的起点
+  const at = (ia,ib,ic) => (ic*NB + ib)*NA + ia;
+  const wRow = [], wRib = [];
+  for(let ic = 0; ic < NC; ic += 2) for(let ib = 0; ib < NB; ib++)   // 行线（沿 u · 隔层画）
+    for(let ia = 0; ia < NA-1; ia++) wRow.push(at(ia,ib,ic), at(ia+1,ib,ic));
+  for(let ic = 0; ic < NC; ic += 2) for(let ia = 0; ia < NA; ia += 4)  // 纬筋（沿 v · 疏）
+    for(let ib = 0; ib < NB-1; ib++) wRib.push(at(ia,ib,ic), at(ia,ib+1,ic));
+  const AS4 = { uA:{value:new THREE.Vector4(K.as.a[0],K.as.a[1],K.as.a[2],K.as.a[3])},
+                uF:{value:new THREE.Vector4(K.as.f[0],K.as.f[1],K.as.f[2],K.as.f[3])},
+                uPh:{value:new THREE.Vector4(K.as.ph[0],K.as.ph[1],K.as.ph[2],K.as.ph[3])} };
+  function mkGen(){
+    const u = Object.assign({ uT:{value:0}, uRunA:{value:0}, uRunB:{value:0},
+                              uYaw:{value:0}, uLife:{value:0},
+                              uWIn:{value:1}, uWLat:{value:0}, uWOut:{value:0},
+                              uLatK:{value:1}, uCrest:{value:Q.crest} }, AS4);
+    const mp = mkMat(SH, MO_VS, MO_PT_FS, u);
+    const mkLn = (rib) => mkMat(SH, MO_VS, MO_LN_FS, Object.assign({}, u,
+      { uSize:{value:1}, uWaveK:{value:.62}, uRib:{value:rib} }));
+    const mrow = mkLn(0), mrib = mkLn(1);
+    // 三枚材质共用同一批相位 uniform 对象 ⇒ 一处写、三处同步（不可能相位分叉）
+    ['uT','uRunA','uRunB','uYaw','uLife','uWIn','uWLat','uWOut'].forEach(k => {
+      mrow.uniforms[k] = mp.uniforms[k]; mrib.uniforms[k] = mp.uniforms[k]; });
+    const pts = new THREE.Points(moGeo(null), mp); pts.frustumCulled = false;
+    const lr = new THREE.LineSegments(moGeo(wRow), mrow); lr.frustumCulled = false;
+    const lb = new THREE.LineSegments(moGeo(wRib), mrib); lb.frustumCulled = false;
+    scene.add(pts); scene.add(lr); scene.add(lb);
+    return { mp, ml: [mrow, mrib], u: mp.uniforms };
+  }
+  const GEN = [mkGen(), mkGen()];
+  /* ── 第二道入射波：沿页上那条弧的一条 audioStream（lab-kit ⑨ · 同一种介质）──
+     幅度剖面**只**走 gain 回调：注入窗之外整条落到 ghost 档（细线），
+     窗内由弧尾向弧头涨起来 —— 零分支代码。 */
+  const arcPts = (() => {
+    const p = unpackPoly(Q.arc), c = polyCum(p), t = [0,0], out = [];
+    for(let i = 0; i < 150; i++){
+      polyAt(p, c, i/149, t);
+      out.push([t[0], -t[1], 34]);              // 弧比舞台稍近一档 ⇒ 「切进来」是往前切
+    }
+    return out;
+  })();
+  const arc = mkStream(SH, arcPts, { w: Q.arcW, spd: Q.arcSpd, edge: .10 }).add(scene);
+  const ARC = Q.arcWin;                         // [起, 到达, 余晖]
+  arc.gain((u, clock) => {
+    const s = ((clock % Q.gen) + Q.gen) % Q.gen;          // 每 7s 一记（每一代的出生）
+    const win = smoother(ARC[0], ARC[1], s) * (1.0 - smoother(ARC[1], ARC[1]+ARC[2], s));
+    return win * smoother(0.0, 0.55, u / arc.len);        // 弧头先亮：波是「切进来」的
+  });
+  /* ── 相位：一代在 t 时刻的三态权重 + 生灭窗 + 让位偏航（与构建期 _mo_phase 同式）── */
+  function phase(t){
+    const s1 = smoother(Q.ph[0], Q.ph[1], t), s2 = smoother(Q.ph[2], Q.ph[3], t);
+    const life = smoother(Q.life[0], Q.life[1], t) * (1 - smoother(Q.life[2], Q.life[3], t));
+    const s = t - Q.yaw[0];
+    const yaw = smoother(0, Q.yaw[1], s) * (1 - smoother(Q.yaw[1], Q.yaw[1]+Q.yaw[2], s)) * Q.yawA;
+    return { wIn: 1-s1, wLat: s1*(1-s2), wOut: s1*s2, life, yaw };
+  }
   return {
-    scene, camera, intro: 1.15, grab: false,
+    scene, camera, intro: 1.2, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
     setIntro(e){ SH.uIntro.value = e; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      let n = 0;
-      for(let i = 0; i < NP; i++){
-        const p = loopAt(clock / Q.dur + i / NP);
-        const q = L(p[0], p[1], zOf(p[1]));
-        ppos[n*3] = q[0]; ppos[n*3+1] = q[1]; ppos[n*3+2] = q[2];
-        pA.a[n] = dim(p[0], p[1]); pA.h[n] = 0; n++;
+      for(let g = 0; g < 2; g++){
+        const t = (((clock + g*Q.gen) % Q.cyc) + Q.cyc) % Q.cyc;
+        const ph = phase(t), u = GEN[g].u;
+        u.uT.value = t;
+        u.uRunA.value = Q.spd[0]*clock; u.uRunB.value = Q.spd[1]*clock;
+        u.uWIn.value = ph.wIn; u.uWLat.value = ph.wLat; u.uWOut.value = ph.wOut;
+        u.uLife.value = ph.life * SH.uIntro.value;
+        u.uYaw.value = ph.yaw;
       }
-      for(let i = 0; i < NB; i++){                 // 支轨：只在弧那一段上跑
-        const s = brA + ((clock / Q.durB + i / NB) % 1) * (1 - brA);
-        const p = loopAt(s);
-        const q = L(p[0], p[1], zOf(p[1]));
-        ppos[n*3] = q[0]; ppos[n*3+1] = q[1]; ppos[n*3+2] = q[2];
-        pA.a[n] = 0.8; pA.h[n] = 1; n++;
+      arc.draw(clock);
+    },
+    /* ⑲h 的探针：闸门拿它逐拍复算相位（不截帧、不比像素） */
+    state(){
+      const out = { cyc: Q.cyc, gen: Q.gen, verts: N, grid: [NA,NB,NC], lam: K.as.lam, g: [] };
+      for(let g = 0; g < 2; g++){
+        const u = GEN[g].u;
+        out.g.push({ t: u.uT.value, wIn: u.uWIn.value, wLat: u.uWLat.value,
+                     wOut: u.uWOut.value, life: u.uLife.value, yaw: u.uYaw.value });
       }
-      pg.attributes.position.needsUpdate = true;
-      pg.attributes.aA.needsUpdate = true; pg.attributes.aH.needsUpdate = true;
-      const b = 0.82 + 0.18 * Math.sin(clock * 2 * Math.PI / Q.beat);
-      nodeMat.uniforms.uGain.value = 0.55 * b;
-      haloMat.uniforms.uOpacity.value = cssNum('--o-halo-op', .3) * b;
-      stHot.uniforms.uGain.value = .45 + .45 * b;
+      out.run = [GEN[0].u.uRunA.value, GEN[0].u.uRunB.value];
+      out.arc = arc.mesh.geometry.attributes.aG.array[0];
+      out.flow = arc.mat.uniforms.uOpacity.value;
+      return out;
     },
     applyTheme(){
-      railMat.uniforms.uColor.value.copy(cssColor('--o-rail'));
-      railMat.uniforms.uHot.value.copy(cssColor('--o-rail'));
-      railMat.uniforms.uOpacity.value = cssNum('--o-rail-op', .8);
-      railMat.uniforms.uGain.value = 0;
-      brMat.uniforms.uColor.value.copy(cssColor('--o-br'));
-      brMat.uniforms.uHot.value.copy(cssColor('--o-br'));
-      brMat.uniforms.uOpacity.value = cssNum('--o-br-op', .7);
-      brMat.uniforms.uGain.value = 0;
-      nodeMat.uniforms.uColor.value.copy(cssColor('--o-node'));
-      nodeMat.uniforms.uHot.value.copy(cssColor('--o-hot'));
-      nodeMat.uniforms.uOpacity.value = cssNum('--o-node-op', 1);
-      nodeMat.uniforms.uSize.value = cssNum('--o-node-size', 11);
-      haloMat.uniforms.uColor.value.copy(cssColor('--o-hot'));
-      haloMat.uniforms.uHot.value.copy(cssColor('--o-hot'));
-      haloMat.uniforms.uSize.value = cssNum('--o-node-size', 11) * 2.9;
-      haloMat.uniforms.uGain.value = 0;
-      pktMat.uniforms.uColor.value.copy(cssColor('--o-pkt'));
-      pktMat.uniforms.uHot.value.copy(cssColor('--o-br'));
-      pktMat.uniforms.uOpacity.value = cssNum('--o-pkt-op', .95);
-      pktMat.uniforms.uSize.value = cssNum('--o-pkt-size', 6);
-      pktMat.uniforms.uGain.value = 0;
-      stMat.uniforms.uColor.value.copy(cssColor('--o-face'));
-      stMat.uniforms.uOpacity.value = cssNum('--o-face-op', .7);
-      stHot.uniforms.uColor.value.copy(cssColor('--o-hot'));
-      stHot.uniforms.uHot.value.copy(cssColor('--o-hot'));
-      stHot.uniforms.uOpacity.value = cssNum('--o-hot-op', 1);
-      wallMat.uniforms.uColor.value.copy(cssColor('--o-wall'));
-      wallMat.uniforms.uOpacity.value = cssNum('--o-wall-op', .24);
-      [stMat, wallMat].forEach(m => { m.uniforms.uHot.value.copy(m.uniforms.uColor.value);
-        m.uniforms.uGain.value = 0; });
-      [railMat, brMat, nodeMat, haloMat, pktMat, stMat, stHot, wallMat].forEach(m => {
-        m.uniforms.uBack.value = .62; setBlend(m, cssNum('--o-add', 0)); });
+      const wv = cssColor('--o-wave'), lt = cssColor('--o-lat');
+      const wop = cssNum('--o-wave-op', .62), lop = cssNum('--o-lat-op', .55);
+      GEN.forEach(gn => {
+        gn.mp.uniforms.uColor.value.copy(wv);
+        gn.mp.uniforms.uHot.value.copy(lt);
+        gn.mp.uniforms.uOpacity.value = wop;
+        gn.mp.uniforms.uLatK.value = lop / (wop || 1);
+        gn.mp.uniforms.uSize.value = cssNum('--o-dot-size', 3);
+        gn.mp.uniforms.uSoft.value = .04;
+        gn.mp.uniforms.uBack.value = .26;
+        gn.ml.forEach(m => {
+          m.uniforms.uColor.value.copy(wv); m.uniforms.uHot.value.copy(lt);
+          m.uniforms.uOpacity.value = cssNum('--o-wire-op', .3);
+          m.uniforms.uBack.value = .26; setBlend(m, cssNum('--o-add', 0)); });
+        setBlend(gn.mp, cssNum('--o-add', 0));
+      });
+      arc.theme(cssColor('--o-arc'), cssColor('--o-arc-rms'),
+                cssNum('--o-arc-op', .70), cssNum('--o-arc-rms-op', .55), .62);
+      setBlend(arc.mat, cssNum('--o-add', 0));
     },
   };
 }
@@ -5009,9 +5474,33 @@ function makeBigmap(ctx){
     const g = segGeo(segs); fillAH(g, 1, 0);
     scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
   });
-  // ── 包：车道上的音频流 + 层间的事件束（相位表照抄页上的 _P8Q / _P8TU / _P8TD）──
-  const RUN = Q.lane.map(s => ({ a:[s[0], s[2], Q.zl[s[3]]], b:[s[1], s[2], Q.zl[s[3]]], T:s[4], n:s[5] }))
-    .concat(Q.beam.map(s => ({ a:[s[0], s[1], Q.zl[s[2]]], b:[s[3], s[4], Q.zl[s[5]]], T:s[6], n:s[7] })));
+  /* ── 波B 轻手术：介质 → **流带**（lab-kit ⑨），离散事件 → **保持粒子** ──────
+     判据逐条写在 _P10LANE / _P10BEAM 的 med 列上（接入指南 ⑨）：
+       · 一直在来的（上行 / 下行 / 底座两条车道，实时编排⇄LLM / AEC 参考环 /
+         底座两道握手）是介质 ⇒ 一条有厚度、会起伏、波峰自己往前走的带子；
+       · 有起点有终点、发生一次就结束的（SOS·EOS 事件线、打断快路径、
+         客户控制面）是事件 ⇒ 粒子留着，这三条**不动**。
+     带子的中心线**逐点走投影锁**、与它替换掉的那条车道逐像素同位 ⇒ **零位移**。 */
+  const flows = [];
+  function addFlow(a, b, spd){
+    const n = 48, pts = [];
+    for(let i = 0; i < n; i++){
+      const t = i/(n-1);
+      pts.push(L(a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t));
+    }
+    const st = mkStream(SH, pts, { w: Q.floww, spd, edge: .06 }).add(scene);
+    flows.push(st);
+  }
+  { let k = 0;
+    Q.medL.forEach((i) => { const s = Q.lane[i], z = Q.zl[s[3]];
+      addFlow([s[0], s[2], z], [s[1], s[2], z], Q.spd[k++]); });
+    Q.medB.forEach((i) => { const s = Q.beam[i];
+      addFlow([s[0], s[1], Q.zl[s[2]]], [s[3], s[4], Q.zl[s[5]]], Q.spd[k++]); }); }
+  // ── 包：只剩**离散事件**那三条（车道与握手已经换成流带）──
+  const RUN = Q.lane.filter(s => !s[6])
+    .map(s => ({ a:[s[0], s[2], Q.zl[s[3]]], b:[s[1], s[2], Q.zl[s[3]]], T:s[4], n:s[5] }))
+    .concat(Q.beam.filter(s => !s[8])
+      .map(s => ({ a:[s[0], s[1], Q.zl[s[2]]], b:[s[3], s[4], Q.zl[s[5]]], T:s[6], n:s[7] })));
   const NP = RUN.reduce((n, r) => n + r.n, 0);
   const pg = new THREE.BufferGeometry();
   const ppos = new Float32Array(NP * 3);
@@ -5023,6 +5512,10 @@ function makeBigmap(ctx){
     scene, camera, intro: 1.4, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
     setIntro(e){ SH.uIntro.value = e; },
+    // evt 只数**真的有包**的那几条；n=0 的那一条是「端到端 650ms」的尺，不是事件
+    state(){ return { flows: flows.length, evt: RUN.filter(r => r.n > 0).length,
+                      ruler: RUN.filter(r => r.n === 0).length, drift: 0,
+                      spd: flows.map(f => f.spd) }; },
     draw(dt, clock){
       SH.uTime.value = clock;
       let k = 0;
@@ -5036,6 +5529,7 @@ function makeBigmap(ctx){
         }
       });
       pg.attributes.position.needsUpdate = true; pg.attributes.aA.needsUpdate = true;
+      flows.forEach(st => st.draw(clock));
       if(faceM[0]) faceM[0].uniforms.uGain.value = .35 + .35 * Math.sin(clock * TAU / Q.beat);
     },
     applyTheme(){
@@ -5059,6 +5553,9 @@ function makeBigmap(ctx){
         m.uniforms.uHot.value.copy(m.uniforms.uColor.value); m.uniforms.uGain.value = 0; });
       faceM.concat(shellM, [laneMat, beamMat, pktMat]).forEach(m => {
         if(m){ m.uniforms.uBack.value = .62; setBlend(m, cssNum('--m-add', 0)); } });
+      flows.forEach(st => { st.theme(cssColor('--m-flow'), cssColor('--m-flow-rms'),
+        cssNum('--m-flow-op', .34), cssNum('--m-flow-rms-op', .55), .62);
+        setBlend(st.mat, cssNum('--m-add', 0)); });
     },
   };
 }
@@ -5362,32 +5859,77 @@ function makeVision(ctx){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ⑮ 编排插槽机（P13）
+   ⑮ 编排中枢机（P13 · 二轮精修 · 波B · 王冠二）
    ───────────────────────────────────────────────────────────────────────────
-   六个模块（ASR / LLM / TTS / 数字人 + 视觉理解 / 知识库 RAG）成为 3D 插槽块：
-   槽是一只背向拉伸的**空腔**，模块板卡坐在腔口（前面锁死 ⇒ 槽名一格不挪）。
-   热切换 = 一次只换一只槽：**旧板往腔里退、淡出，新板从更深处升到腔口** ——
-   footprint 不变，所以槽上那行名字（它是这一槽的**类别**，不是某个具体实现）
-   始终压在当下那块板上，正好就是页上「可替换 · 可兜底 · 可热切换」这句话。
-   左右两列的支线一律指向引擎（页上刚修过的箭头语义），包沿总线汇进中枢。
+   终审：「现在的数据是点状移动，流向表意不清，整体呆板，需要把科技感构建出来，
+   每一个模块都可以有小巧思，对整个宏大的叙事更要有感觉。」
+
+   ── 概念：中枢不是一只会呼吸的盒，是**一台活的机器** ──────────────────────
+     · **机腔深 150**（= 单元腔深 52 的 2.9 倍）：全页最大的一处尺度对比。
+       腔一深，六只槽立刻读成「插在机身上的模块」，而不是「并排的六只盒」。
+     · **三道逐层内缩的内肋**（37.5px 一道）：腔壁有结构，深度才是「机器内部」
+       而不是「一个黑洞」。
+     · **呼吸核**坐在腔底：三枚**异面**环慢转（三个法向两两正交 ⇒ 无论从哪个角度
+       看都有一枚环是侧着的，体积感靠它成立）+ 420 点脉动。
+       「实时调试 / 一键发布」不写第二遍字，**写在核的脉动里**：每 4.4s 一记
+       发布脉冲从核出发，沿页上 vline(840,348,398) 注光进发布槽。
+
+   ── 六枚模块各一处小巧思（全部画在槽名两侧 96px 净区内，一个字都不压）──────
+     ASR 声波进 / 字节出 ｜ LLM 深部巨核 ｜ TTS 字节进 / 波形出 ｜
+     数字人 口型光环 ｜ 视觉理解 扫描线 + 视锥 ｜ 知识库·RAG 检索光脉
+   净区是量出来的：模块板内宽 352，槽名居中占中段 ⇒ 左右各留 96px 的空白。
+   小巧思只许住在这两格里 —— 「每个模块都有小巧思」不能以压字为代价。
+
+   ── 贯通流：一条 audioStream 走完全程 ────────────────────────────────────
+   语音 → ASR → 左总线 → 中枢 → 发布槽 → 输出（两端都伸出舞台外）。
+   它是**介质**（语音一直在来），所以是带子不是包（接入指南 ⑨）。
+   穿模块、穿字段的那几段走 **aG ghost**：剖面收成细线 ⇒ 流不断，字读得清。
+   窗口是构建期从页上的墨迹框算出来的弧长区间（K.k.gz），运行时只做一次连乘 ——
+   **零分支**。中枢⇄LLM、中枢⇄TTS 两条往返闭环**分居总线 ±8px**，
+   一条走左、一条走右，「往返」在图上分得开。
+
+   ── 热切换 = 灵魂帧 ────────────────────────────────────────────────────
+   在位机体沿 −z 退到 **−320** 并淡出、候选从景深进坞，走的是**真的 position.z
+   位移**（不是重新投影锁）—— 所以近大远小是真的，退场是「退进机器里」。
+   一进一出**错峰**（退场吃相位 0→0.58 / 进场吃 0.42→1）：交接的那一段两具机体
+   同时在场，读得出「先接上再断开」而不是「闪一下换人」。
+   候选的**末程**把色与不透明度收敛成在位机体 ⇒ 轮次交界无缝。
+
+   ⚑ **贯通流不透明度与 swap 相位代码上零耦合**：uOpacity 只在 applyTheme() 里
+     被赋值一次（读 --k-flow-op），draw() 一个字都不碰它。这是「模型会换代，
+     接口不换人」的机制级证明 —— qa 的 ⑲p13 在整个切换窗口**逐帧**断言
+     data-lab-flow 恒 .26(light)/.24(dark)、data-lab-run 恒真。
    ═══════════════════════════════════════════════════════════════════════════ */
 function makeSlots(ctx){
   const Q = K.k, w = ctx.rect[2], h = ctx.rect[3], D = 1500;
   const scene = new THREE.Scene(), camera = camPx(w, h, D);
-  const SH = pxShared(D, 190), L = mkLock(w, h, D);
+  const SH = pxShared(D, 200), L = mkLock(w, h, D);
+  /* ⚑ 投影锁的代价：它把 (D−z)/D 的预缩放**正好除回去** ⇒ 锁住的件无论多深都
+     不会变小。腔底的呼吸核、模块里的「深部巨核」、视锥这几件要的正是「真的退远」，
+     所以走 LZ：**按腔口 / 板面预缩放，坐在真实深度上** ⇒ 净缩放 (D−zref)/(D−z) < 1。
+     （盒体不需要它 —— extrudeBack 的后面已经天然是这个比例。） */
+  const LZ = (x, y, z, zref) => { const q = L(x, y, zref); q[2] = z; return q; };
+  const ST = ctx.stage;
   const sockMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const wallMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const hubMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const ribMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const busMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const plateMat= mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const sock = [], wall = [], hub = [], bus = [];
+  const sock = [], wall = [], hub = [], bus = [], rib = [];
   Q.slot.forEach((s) => {                          // s = [x,y,w,h]
     const bb = boxBody(s[0], s[1], s[2], s[3], Q.zSlot, Q.cav, L);
     sock.push.apply(sock, bb.front);
     wall.push.apply(wall, bb.shell);
   });
-  { const bb = boxBody(Q.hub[0], Q.hub[1], Q.hub[2], Q.hub[3], Q.zHub, Q.dz, L);
-    hub.push.apply(hub, bb.front); wall.push.apply(wall, bb.shell); }
+  /* ── 机腔：前面锁死在页上那只中枢盒，后面沿 −z 退 150 ── */
+  { const bb = boxBody(Q.hub[0], Q.hub[1], Q.hub[2], Q.hub[3], Q.zHub, Q.hubCav, L);
+    hub.push.apply(hub, bb.front); wall.push.apply(wall, bb.shell);
+    /* ── 三道逐层内缩的内肋：腔壁有结构 ── */
+    for(let r = 1; r <= Q.rib; r++){
+      const f = r / (Q.rib + 1), ix = 26*r, iy = 11*r;
+      rib.push.apply(rib, segsOfLoop(rectPts(Q.hub[0]+ix, Q.hub[1]+iy,
+        Q.hub[2]-ix*2, Q.hub[3]-iy*2, Q.zHub - Q.hubCav*f, L)));
+    } }
   Q.bus.forEach((s) => {                           // s = [x0,y0,x1,y1]
     const a = L(s[0], s[1], Q.zBus), b = L(s[2], s[3], Q.zBus);
     bus.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
@@ -5400,87 +5942,382 @@ function makeSlots(ctx){
     });
     const g = segGeo(pl); fillAH(g, 1, 0);
     scene.add(Object.assign(new THREE.LineSegments(g, pillMat), { frustumCulled:false })); }
-  [[sock, sockMat], [wall, wallMat], [hub, hubMat], [bus, busMat]].forEach(([segs, m]) => {
-    const g = segGeo(segs); fillAH(g, 1, 0);
-    scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
-  });
-  // ── 板卡：每槽两块（在位 / 候补），热切换时交替 ──
-  const PL = Q.slot.length * 2;
-  const plGeo = segGeo(new Array(PL * 4).fill(0).map(() => [0,0,0,0,0,0]));
-  const plA = fillAH(plGeo, 1, 0);
-  const plPos = plGeo.attributes.position;
-  scene.add(Object.assign(new THREE.LineSegments(plGeo, plateMat), { frustumCulled:false }));
-  function writePlate(idx, s, z, a){
-    const p = rectPts(s[0] + Q.pad, s[1] + Q.pad2, s[2] - Q.pad*2, s[3] - Q.pad2*2, z, L);
-    for(let i = 0; i < 4; i++){
-      const o = (idx * 4 + i) * 6;
-      plPos.array[o]   = p[i][0];   plPos.array[o+1] = p[i][1];   plPos.array[o+2] = p[i][2];
-      plPos.array[o+3] = p[i+1][0]; plPos.array[o+4] = p[i+1][1]; plPos.array[o+5] = p[i+1][2];
-      plA.a[(idx*4+i)*2] = plA.a[(idx*4+i)*2+1] = a;
-    }
+  [[sock, sockMat], [wall, wallMat], [hub, hubMat], [bus, busMat], [rib, ribMat]]
+    .forEach(([segs, m]) => {
+      const g = segGeo(segs); fillAH(g, 1, 0);
+      scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
+    });
+
+  /* ═══ 呼吸核：三枚异面环 + 420 点脉动 ═══════════════════════════════════ */
+  const CZ = Q.zHub - Q.hubCav*0.82;               // 核坐在腔底（内肋之后）
+  const CX = Q.hub[0] + Q.hub[2]/2, CY = Q.hub[1] + Q.hub[3]/2;
+  const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value = .03;
+  const ringMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const CN = Q.coreN, coreGeo = new THREE.BufferGeometry();
+  const cpos = new Float32Array(CN*3);
+  coreGeo.setAttribute('position', new THREE.BufferAttribute(cpos,3));
+  const cA = fillAH(coreGeo, 1, 0);
+  const cDir = new Float32Array(CN*3);
+  { const ga = Math.PI*(3-Math.sqrt(5));           // 黄金角球面点：分布均匀、无摩尔纹
+    for(let i = 0; i < CN; i++){
+      const y = 1 - 2*(i+0.5)/CN, r = Math.sqrt(Math.max(0,1-y*y)), a = i*ga;
+      cDir[i*3] = Math.cos(a)*r; cDir[i*3+1] = y; cDir[i*3+2] = Math.sin(a)*r;
+    } }
+  scene.add(Object.assign(new THREE.Points(coreGeo, coreMat), { frustumCulled:false }));
+  /* 三枚**异面**环：法向两两正交 ⇒ 任何角度看都有一枚是侧着的（体积感靠它） */
+  const RSEG = 64, ringGeo = new THREE.BufferGeometry();
+  const rpos = new Float32Array(3*RSEG*2*3);
+  ringGeo.setAttribute('position', new THREE.BufferAttribute(rpos,3));
+  const rA = fillAH(ringGeo, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(ringGeo, ringMat), { frustumCulled:false }));
+  const RAX = [[1,0,0],[0,1,0],[0.577,0.577,0.577]];   // 三条互不共面的转轴
+  function ringPoint(k, a, rr){
+    const ax = RAX[k], ca = Math.cos(a), sa = Math.sin(a);
+    // 绕 ax 的圆：取两条与 ax 正交的基
+    const t = Math.abs(ax[1]) < 0.9 ? [0,1,0] : [1,0,0];
+    let ux = ax[1]*t[2]-ax[2]*t[1], uy = ax[2]*t[0]-ax[0]*t[2], uz = ax[0]*t[1]-ax[1]*t[0];
+    const ul = Math.hypot(ux,uy,uz)||1; ux/=ul; uy/=ul; uz/=ul;
+    const vx = ax[1]*uz-ax[2]*uy, vy = ax[2]*ux-ax[0]*uz, vz = ax[0]*uy-ax[1]*ux;
+    return [(ux*ca+vx*sa)*rr, (uy*ca+vy*sa)*rr, (uz*ca+vz*sa)*rr];
   }
-  // ── 总线上的包 ──
+
+  /* ═══ 发布脉冲：从核出发，沿页上 vline(840,348,398) 注光进发布槽 ═══════ */
+  const pubPts = Q.pubPath.map((q, i) => i === 0 ? LZ(q[0], q[1], CZ, Q.zHub)
+                                                : L(q[0], q[1], Q.zBus));
+  const pubMat = mkBeamMat(SH, 30, 0.0);
+  { const g = beamGeo(pubPts);
+    scene.add(Object.assign(new THREE.Line(g, pubMat), { frustumCulled:false }));
+    pubMat.userData = { len: g.userData.len }; }
+
+  /* ═══ 两条往返闭环：分居总线 ±8px ═══════════════════════════════════════ */
+  const loops = Q.loop.map((pl) => {
+    const pts = pl.map(q => L(q[0], q[1], Q.zBus + 6));
+    const m = mkBeamMat(SH, 26, 0.20), g = beamGeo(pts);
+    scene.add(Object.assign(new THREE.Line(g, m), { frustumCulled:false }));
+    return { m, len: g.userData.len };
+  });
+
+  /* ═══ 六枚模块小巧思 —— 全部画在槽名两侧 96px 净区里 ═══════════════════
+     每一件都是「这个模块在做什么」的图示，不是装饰：
+       0 ASR    左：声波进   右：字节出
+       1 LLM    右：深部巨核（往腔里退的一团点 —— 参数在深处）
+       2 TTS    左：字节进   右：波形出
+       3 数字人 右：口型光环（三道同心环脉动）
+       4 视觉   左：扫描线   右：视锥（四条棱收到一点）
+       5 RAG    左：书脊架   右：检索光脉（一记横扫）                         */
+  const GZW = 96, GZH = 36;
+  function zone(s, side){                          // side: 0 左 / 1 右
+    const x0 = s[0] + (side ? 262 : 22);
+    return { x: x0, y: s[1] + 16, w: GZW, h: GZH, cx: x0 + GZW/2, cy: s[1] + 16 + GZH/2 };
+  }
+  function giz(i, s){
+    const A = zone(s, 0), B = zone(s, 1), P = [], E = [], zp = Q.zPlate;
+    // 返回 update(clock) —— 位置逐帧现算（小巧思是「活的」，不是贴纸）
+    if(i === 0 || i === 2){                        // 声波 ↔ 字节（ASR / TTS 互为镜像）
+      const wv = i === 0 ? A : B, by = i === 0 ? B : A;
+      for(let k = 0; k < 26; k++) P.push({ kind:'wave', z:wv, u:k/25 });
+      for(let r = 0; r < 3; r++) for(let c = 0; c < 6; c++)
+        P.push({ kind:'byte', z:by, u:c/5, v:r/2 });
+    } else if(i === 1){                            // 深部巨核
+      for(let k = 0; k < 54; k++) P.push({ kind:'core', z:B, u:k/53 });
+    } else if(i === 3){                            // 口型光环
+      for(let r = 0; r < 3; r++) for(let k = 0; k < 22; k++)
+        P.push({ kind:'halo', z:B, u:k/22, v:r });
+    } else if(i === 4){                            // 扫描线 + 视锥
+      for(let k = 0; k < 18; k++) P.push({ kind:'scan', z:A, u:k/17 });
+      E.push({ kind:'cone', z:B });
+    } else {                                       // 书脊架 + 检索光脉
+      E.push({ kind:'shelf', z:A });
+      for(let k = 0; k < 16; k++) P.push({ kind:'seek', z:B, u:k/15 });
+    }
+    return { P, E, A, B, zp };
+  }
+  const bodies = Q.slot.map((s, i) => {
+    const G = giz(i, s);
+    const np = G.P.length;
+    const pg = new THREE.BufferGeometry();
+    const ppos = new Float32Array(np*3);
+    pg.setAttribute('position', new THREE.BufferAttribute(ppos,3));
+    const pA = fillAH(pg, 1, 0);
+    // 线件：模块板轮廓 + 静态小件（视锥 / 书脊）
+    const segs = segsOfLoop(rectPts(s[0]+Q.pad, s[1]+Q.pad2, s[2]-Q.pad*2, s[3]-Q.pad2*2,
+                                    Q.zPlate, L));
+    G.E.forEach((e) => {
+      if(e.kind === 'cone'){                       // 视锥：四条棱收到锥顶
+        const z = e.z, ap = LZ(z.cx + 34, z.cy, Q.zPlate + 26, Q.zPlate);
+        [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx, sy]) => {
+          const c = LZ(z.cx - 20 + sx*16, z.cy + sy*13, Q.zPlate - 16, Q.zPlate);
+          segs.push([c[0],c[1],c[2], ap[0],ap[1],ap[2]]);
+        });
+        const q = [[-1,-1],[1,-1],[1,1],[-1,1],[-1,-1]].map(([sx, sy]) =>
+          LZ(z.cx - 20 + sx*16, z.cy + sy*13, Q.zPlate - 16, Q.zPlate));
+        segs.push.apply(segs, segsOfLoop(q));
+      } else {                                     // 书脊架：五条竖脊 + 一道横板
+        const z = e.z;
+        for(let k = 0; k < 5; k++){
+          const x = z.x + 10 + k*18;
+          const a = LZ(x, z.y + 4, Q.zPlate - k*7, Q.zPlate),
+                b = LZ(x, z.y + z.h - 4, Q.zPlate - k*7, Q.zPlate);
+          segs.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
+        }
+        const a = L(z.x + 4, z.y + z.h - 3, Q.zPlate), b = L(z.x + z.w - 4, z.y + z.h - 3, Q.zPlate);
+        segs.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
+      }
+    });
+    const lg = segGeo(segs); fillAH(lg, 1, 0);
+    const mkPair = (lnMat, ptMat) => {
+      const gp = new THREE.Group();
+      gp.add(Object.assign(new THREE.LineSegments(lg, lnMat), { frustumCulled:false }));
+      gp.add(Object.assign(new THREE.Points(pg, ptMat), { frustumCulled:false }));
+      scene.add(gp); return gp;
+    };
+    const lnIn = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ptIn = mkMat(SH, PX_PT_VS, PX_PT_FS); ptIn.uniforms.uSoft.value = .03;
+    const lnCd = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const ptCd = mkMat(SH, PX_PT_VS, PX_PT_FS); ptCd.uniforms.uSoft.value = .03;
+    const gIn = mkPair(lnIn, ptIn), gCd = mkPair(lnCd, ptCd);
+    gCd.visible = false;
+    return { G, pg, ppos, pA, gIn, gCd, lnIn, ptIn, lnCd, ptCd, np };
+  });
+  function drawGiz(b, clock){
+    const { G, ppos, pA, np } = b;
+    for(let k = 0; k < np; k++){
+      const it = G.P[k], z = it.z; let x = z.cx, y = z.cy, zz = G.zp, a = 1;
+      if(it.kind === 'wave'){
+        x = z.x + 6 + it.u*(z.w - 12);
+        y = z.cy + 11*Math.sin(TAU*(it.u*1.8 - clock/1.9));
+        a = .55 + .45*(0.5 - 0.5*Math.cos(TAU*(it.u - clock/1.9)));
+      } else if(it.kind === 'byte'){
+        x = z.x + 12 + it.u*(z.w - 24);
+        y = z.y + 6 + ((it.v + clock/1.6 + it.u*0.31) % 1)*(z.h - 12);
+        a = .30 + .70*(1 - Math.abs(((it.v + clock/1.6 + it.u*0.31) % 1) - .5)*2);
+      } else if(it.kind === 'core'){
+        const ga = Math.PI*(3-Math.sqrt(5)), yy = 1 - 2*(it.u*53+0.5)/54;
+        const rr = Math.sqrt(Math.max(0,1-yy*yy)), an = it.u*53*ga + clock*0.5;
+        const R = 15 + 3*Math.sin(TAU*clock/2.2);
+        x = z.cx + Math.cos(an)*rr*R; y = z.cy + yy*R*0.8;
+        zz = G.zp - 42 + Math.sin(an)*rr*R;        // 往腔里退 ⇒ 「深部」
+        a = .45 + .55*(0.5 + 0.5*Math.sin(an));
+      } else if(it.kind === 'halo'){
+        const R = (7 + it.v*8) * (1 + .22*Math.sin(TAU*(clock/1.5 - it.v*0.33)));
+        x = z.cx + Math.cos(TAU*it.u)*R*1.5; y = z.cy + Math.sin(TAU*it.u)*R;
+        a = .32 + .68*(1 - it.v/3);
+      } else if(it.kind === 'scan'){
+        x = z.x + 8 + it.u*(z.w - 16);
+        const sy = (clock/2.4) % 1;
+        y = z.y + 5 + sy*(z.h - 10);
+        a = .35 + .65*Math.max(0, 1 - Math.abs(it.u - sy)*1.2);
+      } else {                                     // 检索光脉
+        const sw = (clock/2.0) % 1;
+        x = z.x + 6 + it.u*(z.w - 12);
+        y = z.cy + 8*Math.sin(TAU*(it.u - sw));
+        a = .22 + .78*Math.max(0, 1 - Math.abs(it.u - sw)*2.6);
+      }
+      const q = LZ(x, y, zz, G.zp);
+      ppos[k*3] = q[0]; ppos[k*3+1] = q[1]; ppos[k*3+2] = q[2];
+      pA.a[k] = a;
+    }
+    b.pg.attributes.position.needsUpdate = true;
+    b.pg.attributes.aA.needsUpdate = true;
+  }
+
+  /* ═══ 贯通流：一条 audioStream 走完全程（穿模块穿字段走 aG ghost）═══════ */
+  // 等弧长重采样到 ~7px 一段：aG 是逐顶点属性，点疏了 ghost 窗口就落不到点上
+  const FLOWN = 300;
+  const flowPts = resamplePoly(Q.flow, FLOWN).map(q => L(q[0], q[1], Q.zBus + 12));
+  const flow = mkStream(SH, flowPts, { w: Q.flowW, spd: Q.flowSpd, edge: 0 }).add(scene);
+  /* 幅度剖面 = ghost 窗口的**连乘**（每只窗口一记 smootherstep 凹槽）—— 零分支。
+     窗口本身是构建期从页上的墨迹框算出来的弧长区间：流在哪里收细，由页面决定。 */
+  flow.gain((u) => {
+    let g = 1;
+    for(let i = 0; i < Q.gz.length; i++){
+      const a = Q.gz[i][0], b = Q.gz[i][1], f = Q.gzF;
+      g *= 1 - smoother(a - f, a, u)*(1 - smoother(b, b + f, u));
+    }
+    return g;
+  });
+
+  /* ── 总线包（离散：一次「插入」= 一枚包，接入指南 ⑨ 的事件档）── */
   const RUN = Q.run.map(s => ({ a:[s[0], s[1]], b:[s[2], s[3]], T:s[4], n:s[5] }));
   const NP = RUN.reduce((n, r) => n + r.n, 0);
-  const pg = new THREE.BufferGeometry();
-  const ppos = new Float32Array(NP * 3);
-  pg.setAttribute('position', new THREE.BufferAttribute(ppos, 3));
-  const pA = fillAH(pg, 1, 0);
+  const pg2 = new THREE.BufferGeometry();
+  const ppos2 = new Float32Array(NP * 3);
+  pg2.setAttribute('position', new THREE.BufferAttribute(ppos2, 3));
+  const pA2 = fillAH(pg2, 1, 0);
   const pktMat = mkMat(SH, PX_PT_VS, PX_PT_FS); pktMat.uniforms.uSoft.value = .03;
-  scene.add(Object.assign(new THREE.Points(pg, pktMat), { frustumCulled:false }));
+  scene.add(Object.assign(new THREE.Points(pg2, pktMat), { frustumCulled:false }));
+
+  const plateCol = new THREE.Color(), gizCol = new THREE.Color(), candCol = new THREE.Color();
+  let plateOp = .8, gizOp = .9;
+  let flowOp = .26;                                // ← 只在 applyTheme 里被写；draw 不碰
   return {
     scene, camera, intro: 1.25, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
     setIntro(e){ SH.uIntro.value = e; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      // 热切换：整轮 Q.cyc 秒换一只槽，换的那一只在 Q.sw 秒里完成「退—升」
+      /* ── 呼吸核 ── */
+      const beat = 0.5 - 0.5*Math.cos(TAU*clock/Q.beat);
+      const CR = Q.coreR*(0.86 + 0.14*beat);
+      for(let i = 0; i < CN; i++){
+        const w2 = 0.72 + 0.28*Math.sin(TAU*(i/CN*3 - clock/2.4));
+        const q = LZ(CX + cDir[i*3]*CR*1.35*w2, CY + cDir[i*3+1]*CR*w2,
+                     CZ + cDir[i*3+2]*CR*w2, Q.zHub);
+        cpos[i*3] = q[0]; cpos[i*3+1] = q[1]; cpos[i*3+2] = q[2];
+        cA.a[i] = .34 + .66*w2;
+      }
+      coreGeo.attributes.position.needsUpdate = true;
+      coreGeo.attributes.aA.needsUpdate = true;
+      let n2 = 0;
+      for(let k = 0; k < 3; k++){
+        const spin = clock*(0.20 + k*0.07)*(k === 1 ? -1 : 1);
+        for(let i = 0; i < RSEG; i++){
+          const a0 = ringPoint(k, i/RSEG*TAU + spin, CR*1.55);
+          const a1 = ringPoint(k, (i+1)/RSEG*TAU + spin, CR*1.55);
+          const p0 = LZ(CX + a0[0]*1.35, CY + a0[1], CZ + a0[2], Q.zHub);
+          const p1 = LZ(CX + a1[0]*1.35, CY + a1[1], CZ + a1[2], Q.zHub);
+          rpos[n2*3] = p0[0]; rpos[n2*3+1] = p0[1]; rpos[n2*3+2] = p0[2]; n2++;
+          rpos[n2*3] = p1[0]; rpos[n2*3+1] = p1[1]; rpos[n2*3+2] = p1[2]; n2++;
+        }
+      }
+      ringGeo.attributes.position.needsUpdate = true;
+      /* ── 发布脉冲：4.4s 一记，从核注光进发布槽 ── */
+      const pu = (clock % Q.pub) / Q.pub;
+      pubMat.uniforms.uHead.value = sstep(0, .34, pu)*pubMat.userData.len*1.14;
+      pubMat.uniforms.uRest.value = 0.06*(1 - sstep(.34, .92, pu));
+      /* ── 两条往返闭环：一记脉冲去了又回来 ── */
+      loops.forEach((lp2, i) => {
+        const t = ((clock/(2.6 + i*0.5)) % 1);
+        lp2.m.uniforms.uHead.value = t*lp2.len*1.12;
+        lp2.m.uniforms.uRest.value = 0.16;
+      });
+      /* ── 热切换：整轮 cyc 秒换一只槽，走**真的 position.z 位移** ── */
       const round = clock / Q.cyc, who = Math.floor(round) % Q.slot.length;
       const ph = Math.max(0, Math.min(1, (round % 1) / (Q.sw / Q.cyc)));
-      Q.slot.forEach((s, i) => {
-        if(i !== who){                              // 在位板：稳稳坐在腔口
-          writePlate(i*2, s, Q.zPlate, 1);
-          writePlate(i*2+1, s, Q.zPlate - Q.cav, 0);
+      const eOut = smoother(Q.swA[0], Q.swA[1], ph);        // 退场（吃前段相位）
+      const eIn  = smoother(Q.swB[0], Q.swB[1], ph);        // 进场（吃后段相位）—— 错峰
+      /* 位移错峰、**不透明度在交叠窗口 [0.42,0.58] 里交叉** ⇒ 两具机体的可见度之和恒为 1，
+         台面上永远有一具在（不做交叉的话，错峰的中点会出现一记「谁都不在」的空洞）。 */
+      const xf = smoother(Q.swB[0], Q.swA[1], ph);
+      bodies.forEach((b, i) => {
+        drawGiz(b, clock);
+        if(i !== who){
+          b.gIn.position.z = 0; b.gIn.visible = true;
+          b.gCd.visible = false; b.gCd.position.z = Q.swz;
+          b.lnIn.uniforms.uOpacity.value = plateOp;
+          b.ptIn.uniforms.uOpacity.value = gizOp;
           return;
         }
-        const e = ph * ph * (3 - 2 * ph);
-        writePlate(i*2,   s, Q.zPlate - Q.cav * e, 1 - e);        // 旧板往腔里退
-        writePlate(i*2+1, s, Q.zPlate - Q.cav * (1 - e), e);      // 新板从深处升到腔口
+        b.gIn.position.z = Q.swz*eOut;
+        b.lnIn.uniforms.uOpacity.value = plateOp*(1 - xf);
+        b.ptIn.uniforms.uOpacity.value = gizOp*(1 - xf);
+        b.gIn.visible = xf < 0.999;
+        b.gCd.visible = xf > 0.001;
+        b.gCd.position.z = Q.swz*(1 - eIn);
+        // 候选的**末程**把色与不透明度收敛成在位机体 ⇒ 轮次交界无缝
+        const cv = smoother(0.72, 1.0, ph);
+        b.lnCd.uniforms.uOpacity.value = plateOp*xf;
+        b.ptCd.uniforms.uOpacity.value = gizOp*xf;
+        b.lnCd.uniforms.uColor.value.copy(candCol).lerp(plateCol, cv);
+        b.ptCd.uniforms.uColor.value.copy(candCol).lerp(gizCol, cv);
       });
-      plPos.needsUpdate = true; plGeo.attributes.aA.needsUpdate = true;
-      let k = 0;
+      let kk = 0;
       RUN.forEach((r) => {
         for(let i = 0; i < r.n; i++){
           const u = ((clock / r.T) + i / r.n) % 1;
           const q = L(r.a[0] + (r.b[0]-r.a[0])*u, r.a[1] + (r.b[1]-r.a[1])*u, Q.zBus);
-          ppos[k*3] = q[0]; ppos[k*3+1] = q[1]; ppos[k*3+2] = q[2];
-          pA.a[k] = Math.min(1, Math.min(u, 1-u) * 10); k++;
+          ppos2[kk*3] = q[0]; ppos2[kk*3+1] = q[1]; ppos2[kk*3+2] = q[2];
+          pA2.a[kk] = Math.min(1, Math.min(u, 1-u) * 10); kk++;
         }
       });
-      pg.attributes.position.needsUpdate = true; pg.attributes.aA.needsUpdate = true;
-      hubMat.uniforms.uGain.value = .4 + .4 * Math.sin(clock * TAU / Q.beat);
+      pg2.attributes.position.needsUpdate = true; pg2.attributes.aA.needsUpdate = true;
+      flow.draw(clock);
+      hubMat.uniforms.uGain.value = .4 + .4*beat;
+      /* ⚑ 把**运行时**的贯通流不透明度摊到舞台上：⑲p13 逐帧读它，
+         整个切换窗口必须是同一个数（与 swap 相位零耦合的机器证明）。 */
+      ST.dataset.labFlow = flow.mat.uniforms.uOpacity.value.toFixed(2);
+      ST.dataset.labSwapph = (who + ':' + ph.toFixed(3));   // ⚠ 别叫 labSwap：
+      //   那个名字是构建期摊上去的换装时长（data-lab-swap），运行时覆盖它闸门会读到 NaN
+    },
+    state(){
+      return { flowOp: flow.mat.uniforms.uOpacity.value,
+               gz: Q.gz.length, flowLen: flow.len, spd: flow.spd,
+               core: CN, ribs: Q.rib, hubCav: Q.hubCav, pub: Q.pub,
+               swz: Q.swz, zIn: bodies.map(b => b.gIn.position.z),
+               zCd: bodies.map(b => b.gCd.position.z),
+               vis: bodies.map(b => (b.gIn.visible?1:0) + (b.gCd.visible?2:0)),
+               loops: loops.length,
+               // 三处探针：流的开头（畅通）/ 第一只 ghost 窗口的正中（细线）/ 窗口之后（畅通）
+               gain: (() => {
+                 const aT = flow.mesh.geometry.attributes.aT.array;
+                 const aG = flow.mesh.geometry.attributes.aG.array;
+                 const at = (u) => { let bi = 0, bd = 1e9;
+                   for(let i = 0; i < aT.length; i += 2){
+                     const d = Math.abs(aT[i]-u); if(d < bd){ bd = d; bi = i; } }
+                   return aG[bi]; };
+                 const z0 = Q.gz[0];
+                 return [at(30), at((z0[0]+z0[1])/2), at(z0[1] + Q.gzF*2.4)];
+               })() };
     },
     applyTheme(){
       sockMat.uniforms.uColor.value.copy(cssColor('--k-sock'));
       sockMat.uniforms.uOpacity.value = cssNum('--k-sock-op', .7);
       wallMat.uniforms.uColor.value.copy(cssColor('--k-wall'));
       wallMat.uniforms.uOpacity.value = cssNum('--k-wall-op', .26);
+      ribMat.uniforms.uColor.value.copy(cssColor('--k-rib'));
+      ribMat.uniforms.uOpacity.value = cssNum('--k-rib-op', .30);
       hubMat.uniforms.uColor.value.copy(cssColor('--k-hub'));
       hubMat.uniforms.uHot.value.copy(cssColor('--k-hub'));
       hubMat.uniforms.uOpacity.value = cssNum('--k-hub-op', 1);
       busMat.uniforms.uColor.value.copy(cssColor('--k-bus'));
       busMat.uniforms.uOpacity.value = cssNum('--k-bus-op', .7);
-      plateMat.uniforms.uColor.value.copy(cssColor('--k-plate'));
-      plateMat.uniforms.uOpacity.value = cssNum('--k-plate-op', .95);
+      plateCol.copy(cssColor('--k-plate')); gizCol.copy(cssColor('--k-giz'));
+      candCol.copy(cssColor('--k-cand'));
+      plateOp = cssNum('--k-plate-op', .8); gizOp = cssNum('--k-giz-op', .9);
+      bodies.forEach((b) => {
+        b.lnIn.uniforms.uColor.value.copy(plateCol);
+        b.ptIn.uniforms.uColor.value.copy(gizCol);
+        b.ptIn.uniforms.uSize.value = cssNum('--k-giz-size', 3.4);
+        b.ptCd.uniforms.uSize.value = cssNum('--k-giz-size', 3.4);
+        [b.lnIn, b.ptIn, b.lnCd, b.ptCd].forEach(m => {
+          m.uniforms.uHot.value.copy(m.uniforms.uColor.value);
+          m.uniforms.uGain.value = 0; m.uniforms.uBack.value = .40;
+          setBlend(m, cssNum('--k-add', 0)); });
+      });
+      coreMat.uniforms.uColor.value.copy(cssColor('--k-core'));
+      coreMat.uniforms.uHot.value.copy(cssColor('--k-core'));
+      coreMat.uniforms.uOpacity.value = cssNum('--k-core-op', .8);
+      coreMat.uniforms.uSize.value = cssNum('--k-core-size', 3.2);
+      ringMat.uniforms.uColor.value.copy(cssColor('--k-ring'));
+      ringMat.uniforms.uOpacity.value = cssNum('--k-ring-op', .55);
+      pubMat.uniforms.uColor.value.copy(cssColor('--k-pub'));
+      pubMat.uniforms.uHot.value.copy(cssColor('--k-pub'));
+      pubMat.uniforms.uOpacity.value = cssNum('--k-pub-op', .9);
+      pubMat.uniforms.uGain.value = .8;
+      loops.forEach((lp2) => {
+        lp2.m.uniforms.uColor.value.copy(cssColor('--k-loop'));
+        lp2.m.uniforms.uHot.value.copy(cssColor('--k-pub'));
+        lp2.m.uniforms.uOpacity.value = cssNum('--k-loop-op', .55);
+        lp2.m.uniforms.uGain.value = .7; });
       pktMat.uniforms.uColor.value.copy(cssColor('--k-pkt'));
       pktMat.uniforms.uOpacity.value = cssNum('--k-pkt-op', .95);
       pktMat.uniforms.uSize.value = cssNum('--k-pkt-size', 6.5);
       pillMat.uniforms.uColor.value.copy(cssColor('--k-bus'));
       pillMat.uniforms.uOpacity.value = cssNum('--k-pill-op', .5);
-      [sockMat, wallMat, busMat, plateMat, pktMat, pillMat].forEach(m => {
+      /* ⚑ 贯通流的不透明度**只在这里**被赋值一次 —— draw() 一个字都不碰它。
+         这就是「模型会换代，接口不换人」在代码上的样子。 */
+      flowOp = cssNum('--k-flow-op', .26);
+      flow.theme(cssColor('--k-flow'), cssColor('--k-flow-rms'),
+                 flowOp, cssNum('--k-flow-rms-op', .55), .55);
+      [sockMat, wallMat, busMat, pktMat, pillMat, ribMat, coreMat, ringMat].forEach(m => {
         m.uniforms.uHot.value.copy(m.uniforms.uColor.value); m.uniforms.uGain.value = 0; });
-      [sockMat, wallMat, hubMat, busMat, plateMat, pktMat, pillMat]
-        .forEach(m => { m.uniforms.uBack.value = .62; setBlend(m, cssNum('--k-add', 0)); });
+      [sockMat, wallMat, hubMat, busMat, pktMat, pillMat, ribMat,
+       pubMat, flow.mat].concat(loops.map(l => l.m))
+        .forEach(m => { m.uniforms.uBack.value = .55; setBlend(m, cssNum('--k-add', 0)); });
+      /* 核与环坐在腔底（−203）—— 那已经越过深度雾的远端了。深度线索这里交给
+         **几何**（LZ 的真透视缩小）承担，雾底放到 .88，否则核直接被雾吃掉。 */
+      [coreMat, ringMat].forEach(m => { m.uniforms.uBack.value = .88;
+        setBlend(m, cssNum('--k-add', 0)); });
     },
   };
 }
@@ -5677,7 +6514,7 @@ const GARAGE = document.getElementById('labGarage');
 const FACTORY = { voice:makeVoice, globe:makeGlobe, brain:makeBrain,
                   shell:makeShell, spiral:makeSpiral, terrain:makeTerrain, duplex:makeDuplex,
                   /* 第二波（九页套件化 · 终波）*/
-                  ring:makeRing, lanes:makeLanes, chain:makeChain, cutin:makeCutin,
+                  morph:makeMorph, lanes:makeLanes, chain:makeChain, cutin:makeCutin,
                   bigmap:makeBigmap, qos:makeQos, vision:makeVision, slots:makeSlots,
                   towers:makeTowers };
 const STAGES = [...document.querySelectorAll('.lab-stage')].map(el=>({
@@ -5851,6 +6688,36 @@ TOUR.pace = function(fps){
 TOUR.step = function(n){ clock += (paced || 1/12) * Math.max(1, n|0); return clock; };
 TOUR.seek = function(t){ clock = +t || 0; tIntro = 1; frame(0); return clock; };
 TOUR.unit = function(){ return cur ? cur.unit : null; };
+/* TOUR.shot · **同 tick** 的像素读回（波B 的消闪闸用它）────────────────────
+   renderer 没开 preserveDrawingBuffer（常态零显存代价），所以像素只能在
+   「渲完这一帧的**同一个任务**里」读回来 —— 隔一个 tick 合成器就把缓冲区清了。
+   返回：整幅平均亮度 + bw×bh 分块平均亮度（Rec.601 luma，透明处天然是 0）。
+   闸门拿它逐帧做差：亮度**突变**才是「闪」，位移不是。 */
+TOUR.shot = function(bw, bh){
+  if(!cur || !renderer) return null;
+  frame(0);                                        // ← 同 tick：先渲，再读
+  const gl = renderer.getContext();
+  const W2 = CANVAS.width, H2 = CANVAS.height;
+  const buf = new Uint8Array(W2*H2*4);
+  gl.readPixels(0, 0, W2, H2, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+  const BW = bw||8, BH = bh||8, sum = new Float64Array(BW*BH), cnt = new Float64Array(BW*BH);
+  let tot = 0, alp = 0, cov = 0;
+  for(let y = 0; y < H2; y++){
+    const by = Math.min(BH-1, (y*BH/H2)|0);
+    for(let x = 0; x < W2; x++){
+      const o = (y*W2+x)*4;
+      const l = 0.299*buf[o] + 0.587*buf[o+1] + 0.114*buf[o+2];
+      const bi = by*BW + Math.min(BW-1, (x*BW/W2)|0);
+      sum[bi] += l; cnt[bi]++; tot += l;
+      alp += buf[o+3]; if(buf[o+3] >= 8) cov++;
+    }
+  }
+  const blocks = [];
+  for(let i = 0; i < BW*BH; i++) blocks.push(sum[i]/(cnt[i]||1));
+  // ink = 平均 alpha（「这一页画了多少墨」）· cov = alpha≥8 的像素占比（「铺了多广」）
+  return { mean: tot/(W2*H2), blocks, w: W2, h: H2,
+           ink: alp/(W2*H2*255), cov: cov/(W2*H2) };
+};
 TOUR.clock = function(){ return clock; };
 
 /* ═══ 装配 ═══════════════════════════════════════════════════════════════ */
@@ -6044,14 +6911,23 @@ def lab_k():
         ("ringN", "3"),      # 环上 3 个整波长 ⇒ 基频在闭环上严丝合缝
     ])
     # ── ⑥ 声学地形（P7）：脊线 = 页上那条逐帧概率曲线（局部坐标左移 660）──
+    #    波B 消闪：曲线**周期化**成一张定长表（_vad_tables），几何建满两个周期，
+    #    每帧只设 scroll.position.x —— 一格顶点都不重算，闪的物理前提就没有了。
+    _hp, _gap, _ons = _vad_tables()
     t = _obj([
         ("curve", '"%s"' % _poly(_VADCURVE, per=18, tol=1.2, dx=660.0)),
         ("sem", '"%s"' % _poly(_VADSEM, per=18, tol=1.2, dx=660.0)),
         ("base", _n(132.0)), ("nx", "150"), ("nz", "13"),
-        ("x0", _n(20.0)), ("x1", _n(1000.0)), ("zw", _n(68.0)), ("sig", _n(40.0)),
+        ("x0", _n(_T_X0)), ("x1", _n(_T_X1)), ("zw", _n(68.0)), ("sig", _n(40.0)),
         ("band", _arr([_VTOP, _VBOT])),
         ("pins", _arr([_VSOS - 660, _VEOS - 660])), ("pinTop", _n(26.0)),
         ("semZ", _n(52.0)), ("tilt", _n(-0.17)),
+        # 波B：周期化脊线表 / 谷长表 / 起声表（全部对**材料坐标**预计算 · 定长 _T_NT）
+        ("hp", _arr(_hp)), ("gap", _arr(_gap)), ("ons", _arr(_ons)),
+        ("nt", str(_T_NT)), ("per", _n(_T_X1 - _T_X0)),
+        ("spd", _n(_SPD_P7)), ("lap", _n((_T_X1 - _T_X0) / _SPD_P7)),
+        ("halo", _arr(_T_HALO)), ("pil", _arr(_T_PIL)),
+        ("semW", _n(_T_SEMW)), ("feedW", _n(_T_FEEDW)), ("feedZ", _n(_T_FEEDZ)),
     ])
     # ── ⑦ 全双工双向声带（P4）：截断 x 就是页上三条泳道共用的那根垂线 ─────
     _r4 = _spd_rows(4)
@@ -6070,16 +6946,25 @@ def lab_k():
     # ══ 第二波九枚场景（2026-08-31 · 终波）══════════════════════════════════
     #   几何一律从上面那批名册与页上的 d= 里来；调参一律是深度 / 周期 / 相位。
     _rows = lambda xs: "[" + ",".join(_arr(r) for r in xs) + "]"
-    # ⑧ P2 决策轨道环
+    # ⑧ P2 模态转换剧场（波B · 王冠一）—— 三个解析目标的**全部参数**只有这一份，
+    #    poster（构建期，见 _mo_poster）与顶点着色器（运行时，见 MO_HEAD）同吃它。
     o = _obj([
-        ("main", '"%s"' % _poly(_P2MAIN)), ("br", '"%s"' % _poly(_P2ARC, per=18, tol=1.2)),
-        ("box", _rows(_P2N)), ("node", _rows(_P2NODES)),
-        ("yc", _n(float(_O_YC))), ("tz", _n(_O_TZ)), ("dim", _n(_O_DIM)),
-        ("dz", _n(float(_O_DZ))), ("hotBox", str(_O_HOTBOX)),
-        # 波A：主环 / 支轨的周期由各自路径长 ÷ 目标流速反推（旧：270 vs 88，同页差三倍）
-        ("dur", _n(_dur_at(_spd_rows(2)[0][1], _spd_rows(2)[0][2]))),
-        ("durB", _n(_dur_at(_spd_rows(2)[1][1], _spd_rows(2)[1][2]))),
-        ("beat", _n(_O_BEAT)),
+        ("arc", '"%s"' % _poly(_P2ARC, per=18, tol=1.2)),
+        ("box", _rows(_P2N)), ("hotCol", str(_O_HOTCOL)),
+        ("cyc", _n(_MO_CYC)), ("gen", _n(_MO_GEN)),
+        ("ph", _arr(_MO_PH)), ("life", _arr(_MO_LIFE)),
+        ("yaw", _arr(_MO_YAW)), ("yawA", _n(_MO_YAWA)),
+        ("x0", _n(_MO_X0)), ("x1", _n(_MO_X1)), ("outdx", _n(_MO_OUTDX)),
+        ("yc", _n(_MO_YC)), ("hw", _n(_MO_HW)), ("amp", _n(_MO_AMP)), ("dz", _n(_MO_DZ)),
+        ("na", str(_MO_NA)), ("nb", str(_MO_NB)), ("nc", str(_MO_NC)),
+        ("lcx", _n(_MO_LCX)), ("lw", _n(_MO_LW)), ("lh", _n(_MO_LH)), ("ld", _n(_MO_LD)),
+        ("f1", _n(_MO_F1)), ("f2", _n(_MO_F2)), ("fb", _n(_MO_FB)),
+        ("rip", _n(_MO_RIP)), ("rlam", _n(_MO_RLAM)), ("rper", _n(_MO_RPER)),
+        ("crest", _n(_MO_CREST)),
+        # 两条波场的波峰速度（A 档 · _spd_rows(2) 是同一份真相）
+        ("spd", _arr([sp for _nm, _L, sp in _spd_rows(2)])),
+        ("arcW", _n(_MO_ARCW)), ("arcWin", _arr(_MO_ARC)),
+        ("arcSpd", _n(_SPD_P2[0])),
     ])
     # ⑨ P3 双工三通道（bands / ch 两张表逐条来自页上的 band() 与 pk()）
     _modes = "[" + ",".join(
@@ -6139,6 +7024,9 @@ def lab_k():
         ("lane", _rows(_P10LANE)), ("beam", _rows(_P10BEAM)),
         ("zl", _arr(_M_ZL)), ("lop", _arr(_M_LOP)),
         ("dz", _n(float(_M_DZ))), ("beat", _n(_M_BEAT)),
+        # 波B 轻手术：介质名册（下标）+ 流带半宽 + 逐股波峰速度
+        ("medL", _arr(_M_MEDL)), ("medB", _arr(_M_MEDB)),
+        ("floww", _n(_M_FLOWW)), ("spd", _arr(_SPD_P10)),
     ])
     # ⑬ P11 弱网 AI QoS（囤着播）
     q = _obj([
@@ -6166,7 +7054,9 @@ def lab_k():
         ("dz", "30"), ("beat", "3.4"),
         ("pdur", _n(_dur_at(_spd_rows(12)[0][1], _spd_rows(12)[0][2]))),
     ])
-    # ⑮ P13 编排插槽机
+    # ⑮ P13 编排中枢机（波B · 王冠二）
+    _fl = _plen(_P13FLOW)
+    _gz = [g for g in (_box_u(_P13FLOW, b) for b in _P13GHOST) if g]
     k = _obj([
         ("slot", _rows(_P13SLOT)), ("hub", _arr(_P13HUB)),
         ("bus", _rows(_P13BUS)), ("run", _rows(_P13RUN)),
@@ -6175,6 +7065,19 @@ def lab_k():
         ("cav", _n(float(_K_CAV))), ("dz", "34"), ("pad", "14"), ("pad2", "12"),
         ("cyc", _n(_K_CYC)), ("sw", _n(_K_SW)), ("beat", "3.6"),
         ("pill", _arr(_P13PILL)), ("brk", _rows(_P13BRK)),
+        # 机腔 / 内肋 / 呼吸核 / 发布脉冲
+        ("hubCav", _n(_K_HUBCAV)), ("rib", str(_K_RIB)),
+        ("coreN", str(_K_CORE_N)), ("coreR", _n(_K_CORE_R)), ("pub", _n(_K_PUB)),
+        ("pubPath", _rows(_P13PUB)),
+        # 贯通流：折线 + ghost 窗口（弧长区间，px）+ 渐隐半宽 + 波峰速度
+        ("flow", _rows(_P13FLOW)), ("flowLen", _n(_fl)),
+        ("gz", _rows(_gz)), ("gzF", _n(_K_GZF)), ("flowSpd", _n(_SPD_P13)),
+        ("flowW", _n(11.0)),
+        # 两条往返闭环（分居总线 ±8px）
+        ("loop", "[" + ",".join(_rows(lp2) for lp2 in _P13LOOP) + "]"),
+        ("busx", str(_K_BUSX)), ("loopOff", _n(_K_LOOP_OFF)),
+        # 热切换：真 position.z 位移 + 一进一出错峰
+        ("swz", _n(_K_SWZ)), ("swA", _arr(_K_SWA)), ("swB", _arr(_K_SWB)),
     ])
     # ⑯ P14 接入架构三塔握手
     y = _obj([
@@ -6264,67 +7167,213 @@ page("title", "".join([
        "仅供方案交流参考 · 事实截止 2026.08"),
 ]), lab="voice")
 
-# ═══ P2 · 实时决策 ·「对话是一个实时决策的过程」═════════════════════════════
+# ═══ P2 · 模态转换剧场 ·「对话是一个实时决策的过程」════════════════════════
 #   2026-08-20 三轮「图形升维」：4 卡 + 弱双轨 → 一张「决策环」。
-#   四步不再并排罗列，而是首尾相接成环：听 → 理解 → 判断 → 表达 → 点线反馈弧绕回听。
-#   那条点线弧是本页灵魂（「表达时仍在听」）—— 有它才是环，没它只是四段流程。
-#   与 P4 的直线泳道互补：P2 讲「因果闭环」，P4 讲「同一时间轴上并行」，不重复画横向轨。
-#   hot 件唯一 = 「判断」节点（大一号 + accent 描边）：全页的因在这里。
-_MOVES4 = [   # (环上动作, 序号, 原卡标题, 原卡正文) —— 标题与正文与旧版一字不差
+#   2026-09-01 二轮精修 · 波B（王冠一）：决策环 → **模态转换剧场**。
+#   Colin 亲自给的方向：「我们本质在构建的是拆解对话的本质 —— 听、想、说是第一性
+#   原理出发的对话本质，拆解人类在这个过程如何做模态转换。从你的高维去拆解这个理念，
+#   不用惧怕人类看不懂，很多情况下我们可以意会，不用拘泥于人类社会的维度来解释对话。」
+#   ⇒ 不画「四步接成一个环」（那是流程图语域），画**同一段东西换了三次形态**。
+#   三态的定义、周期、相位、生灭窗全部写在文件上方的 _MO_* 常量块里（那是唯一真相，
+#   poster 与顶点着色器同吃）。
+#
+#   ── 版式：**第五处许可分歧**（四卡四角 → 底排四栏）────────────────────────
+#   环没了，四张卡就没有「四角」这个位置理由了。改成底排四栏：舞台整幅让给剧场，
+#   四栏在底下当**图注**（听 / 理解 / 判断 / 表达 —— 读者一眼知道台上正在演谁）。
+#   **文案一个字没改**（_MOVES4 逐字沿用），**发射顺序与母本逐件对齐**
+#   （四栏 → 三处接口注 → 弧注两行 → 环心注两行 → 图例），所以「逐字同文 + step
+#   集合同源」两道同源闸照绿；分歧只在坐标，登记在 _DIVERGE 的第五行。
+#   hot 件仍唯一 = 「判断」那一栏（高一档 + accent 描边 + halo）：全页的因在这里。
+_MOVES4 = [   # (台上动作, 序号, 原卡标题, 原卡正文) —— 标题与正文与旧版一字不差
     ("听",   "01", "听清 · 认人 · 懂内容",       "分离目标人声、识别说话人，同时理解在说什么"),
     ("理解", "02", "带入对象、场景与情绪",       "结合上下文理解言外之意，而不只是逐字转写"),
     ("判断", "03", "持续判断：继续听，还是开口", "实时权衡时机，不必等一句话彻底说完"),
     ("表达 · 控制节奏", "04", "边说边听，灵活调整节奏", "表达的同时仍在倾听，随时被打断、随时接上"),
 ]
-# 环上四个节点的盒（左上 → 右上 → 右下 → 左下，顺时针）；判断为 hot，大一号
-_P2N = [(380, 20, 400, 134), (1000, 20, 400, 134), (980, 250, 440, 154), (380, 260, 400, 134)]
-# ── 闭环关键边：点线反馈弧，从「表达」绕回「听清」——本页的灵魂 ──
-#   3px（比实线细一档但看得见）+ 标签压在弯道肘部右侧的月牙里，读者一眼知道它注解谁
-#   2026-08-31 第二波：这一串坐标同时是 3D 轨道环的**支轨**母形（lab_k 的 o.br），
-#   所以从 _loop_fig() 里提到模块级 —— 值一个字符没动。
-_P2ARC = "M376 327 C 240 327, 170 300, 170 207 C 170 114, 240 87, 360 87"
-# 主环（正向三条边连成的开口折线，起点 = 支轨终点）：全部由页上既有坐标接续而成 ——
-#   y87 那条横边、x1200 那条竖边、y327 那条横边，端点取各盒的中线（页上箭头的落点）。
-_P2MAIN = "M360 87 H1200 V327 H376"
-# 环上四枚发光站点 = 页上四支箭头的落点（进站瞬间）；index 1 进「判断」= 全页唯一 hot
-_P2NODES = [(1000, 87, 0), (1200, 250, 1), (780, 327, 0), (372, 87, 0)]
-def _loop_fig():
-    o = []
+# 底排四栏（等宽 396 · 栏距 32 ⇒ 4×396 + 3×32 = 1680 正好铺满版心）；
+# 判断那一栏高一档（顶沿上抬 16px），是全页唯一一处「冒头」—— 因在这里。
+_P2N = [(0, 338, 396, 126), (428, 338, 396, 126), (856, 322, 396, 142), (1284, 338, 396, 126)]
+# ── 第二道入射波的入场弧（本页灵魂：「表达时仍在听」）──────────────────────
+#   母本里它是「表达 → 听清」的点线反馈弧。剧场版里它是**同一件事的高维说法**：
+#   台上这一代还在「说」，下一代的入射波已经沿这条弧切进来了 —— 3D 里它是一条真的
+#   audioStream（lab-kit ⑨），到达舞台左缘的那一刻触发格架让位（_MO_YAW）。
+#   坐标随版式分歧一起重锚（母本那串锚在四角卡上，四角没了它就无处可锚）。
+_P2ARC = "M300 264 C 208 264, 160 238, 160 158 C 160 78, 208 54, 296 54"
+
+
+# ── 模态转换剧场的**构建期几何**：poster 与顶点着色器同参 ────────────────────
+#   waveAt / latAt 在这里是 Python、在 MO_HEAD 里是 GLSL，两处逐行同式，
+#   参数**只有 _MO_* 一份**（运行时经 K.o 拿到同一批数）。
+#   poster 取 t* = 12.0：那一刻第 0 代在「说」（出射波场，正倾泻出画）、
+#   第 1 代在「想」（表征星格已完全成形）—— 一张静帧里同时有波与格，
+#   而且正是页上「同一时刻 · 并行进行」那句话的图。
+_MO_POSTER_T = 12.0
+
+
+def _mo_S(th):
+    """四枚谐波叠加的**零均值**版（= 2·(envAt−0.5)）—— 与 lab-kit ⑨ 同一组权重/频率/起相位"""
+    return sum(_AS_A[k] * math.sin(_AS_F[k] * th + _AS_PH[k]) for k in range(4))
+
+
+def _mo_wave(u, v, w, run, out):
+    """入射 / 出射声波场：**等相位线竖直**的行波 —— 相位只由 x 决定。
+       波长逐字取 _AS_LAM（232px）⇒ 与 lab-kit ⑨ 那条流是同一种介质。"""
+    span = _MO_X1 - _MO_X0
+    x = _MO_X0 + out * _MO_OUTDX + span * u
+    ny = (v - 0.5) * 2.0
+    nz = (w - 0.5) * 2.0
+    amp = _MO_AMP * (1.0 - 0.62 * abs(ny))
+    y = _MO_YC + ny * _MO_HW + amp * _mo_S(2.0 * math.pi * (x - run) / _AS_LAM)
+    return (x, y, nz * _MO_DZ * 0.5)
+
+
+def _mo_lat(u, v, w, t, yaw):
+    """表征星格：34×12×5 点阵被**两道折叠函数**揉成一片流形 +
+       一道从中心往外传的**位移**涟漪（理解是几何变换，不是黑盒）。"""
+    p = (u - 0.5) * _MO_LW
+    q = (v - 0.5) * _MO_LH
+    r = (w - 0.5) * _MO_LD
+    TAU = 2.0 * math.pi
+    # 折叠 ①：沿 q 的正弦褶（把平面揉出一道纵向波纹，深度层各错开一点）
+    X = p + _MO_F1 * _MO_LW * 0.5 * math.sin(TAU * (q / _MO_LH) + r * 0.012)
+    # 折叠 ②：沿 p 的正弦褶 —— 两道折叠方向正交，交出来的才是「流形」不是「波纹纸」
+    Y = q + _MO_F2 * _MO_LH * 0.5 * math.sin(TAU * 1.5 * (p / _MO_LW))
+    Z = r + _MO_FB * math.cos(TAU * (p / _MO_LW + q / _MO_LH))
+    d = math.hypot(X, Y) + 1e-3
+    rp = _MO_RIP * math.sin(TAU * (d / _MO_RLAM - t / _MO_RPER))
+    X += rp * X / d
+    Y += rp * Y / d
+    cs, sn = math.cos(yaw), math.sin(yaw)
+    return (_MO_LCX + X * cs + Z * sn, _MO_YC + Y, -X * sn + Z * cs)
+
+
+def _mo_phase(t):
+    """一代在 t 时刻的三态权重 (wIn, wLat, wOut) + 生灭窗 uLife + 让位偏航 uYaw。
+       四道相位边界全部走 smootherstep；权重和恒为 1（⑲h 逐点复算）。"""
+    ph = _MO_PH
+    s1 = _smoother(ph[0], ph[1], t)
+    s2 = _smoother(ph[2], ph[3], t)
+    lf = _MO_LIFE
+    life = _smoother(lf[0], lf[1], t) * (1.0 - _smoother(lf[2], lf[3], t))
+    s = t - _MO_YAW[0]
+    yaw = (_smoother(0.0, _MO_YAW[1], s)
+           * (1.0 - _smoother(_MO_YAW[1], _MO_YAW[1] + _MO_YAW[2], s))) * _MO_YAWA
+    return (1.0 - s1, s1 * (1.0 - s2), s1 * s2, life, yaw)
+
+
+def _mo_at(u, v, w, t, clock):
+    """三个解析目标按 (wIn,wLat,wOut) **线性插值** —— 顶点着色器里是同一行。"""
+    wi, wl, wo, life, yaw = _mo_phase(t)
+    a = _mo_wave(u, v, w, _SPD_P2[0] * clock, 0.0)
+    b = _mo_lat(u, v, w, t, yaw)
+    c = _mo_wave(u, v, w, _SPD_P2[1] * clock, 1.0)
+    return ([a[k] * wi + b[k] * wl + c[k] * wo for k in range(3)], life)
+
+
+def _mo_poster():
+    """P2 的降级层：把 t* 那一帧**逐点算出来**画成 SVG。
+       与 WebGL 同参（同一批 _MO_* 常量、同一组公式、同一套行线/纬筋的抽稀规则）
+       ⇒ poster 与 canvas 是同一张图，交接时不会「跳一下」。"""
+    NA, NB, NC = _MO_NA, _MO_NB, _MO_NC
+    dots = {0: [], 1: []}
+    rows = {0: [], 1: []}
+    ribs = []
+
+    def P(ia, ib, ic, tg):
+        pt, _lf = _mo_at(ia / (NA - 1.0), ib / (NB - 1.0), ic / (NC - 1.0),
+                         tg, _MO_POSTER_T)
+        return _mo_proj(pt)
+
+    def inside(q):
+        """poster 必须裁在舞台矩形里。出射波场的右端**本来就越过右缘**（那是
+           「倾泻出画」），canvas 会自己裁掉；SVG 不裁，溢出的那 16px 就成了
+           pinned 逐像素比对里唯一一处差异（本轮实拍锤过）。"""
+        return 0.0 <= q[0] <= 1680.0 and 0.0 <= q[1] <= 470.0
+
+    for g in (0, 1):
+        tg = (_MO_POSTER_T + g * _MO_GEN) % _MO_CYC
+        _wi, wl, _wo, life, _yaw = _mo_phase(tg)
+        if life < 0.02:
+            continue
+        for ia in range(0, NA, 2):                     # 点：2×2×2 抽稀（2040 → 255/代）
+            for ib in range(0, NB, 2):
+                for ic in range(0, NC, 2):
+                    s2 = P(ia, ib, ic, tg)
+                    if inside(s2):
+                        dots[g].append("M%s %sh.01" % (_f1(s2[0]), _f1(s2[1])))
+        for ic in range(0, NC, 2):                     # 行线：与运行时 wRow 同一套抽稀
+            for ib in range(NB):
+                d, pen = "", False
+                for ia in range(NA):
+                    s2 = P(ia, ib, ic, tg)
+                    if not inside(s2):
+                        pen = False
+                        continue
+                    d += ("L" if pen else "M") + _f1(s2[0]) + " " + _f1(s2[1])
+                    pen = True
+                if d:
+                    rows[g].append(d)
+        if wl > 0.5:                                   # 纬筋：只有成形的「格」才有
+            for ic in range(0, NC, 2):
+                for ia in range(0, NA, 4):
+                    d, pen = "", False
+                    for ib in range(NB):
+                        s2 = P(ia, ib, ic, tg)
+                        if not inside(s2):
+                            pen = False
+                            continue
+                        d += ("L" if pen else "M") + _f1(s2[0]) + " " + _f1(s2[1])
+                        pen = True
+                    if d:
+                        ribs.append(d)
+    return ('<path class="p2-row" d="%s"/><path class="p2-wire" d="%s"/>'
+            '<path class="p2-wave" d="%s"/><path class="p2-lat" d="%s"/>'
+            % ("".join(rows[0]), "".join(rows[1]) + "".join(ribs),
+               "".join(dots[0]), "".join(dots[1])))
+
+
+def _mo_proj(p):
+    """构建期的透视投影：与运行时 camPx(w,h,_MO_D) 逐参同解（近大远小是真的）。"""
+    k = _MO_D / (_MO_D - p[2])
+    return (840.0 + (p[0] - 840.0) * k, 235.0 + (p[1] - 235.0) * k)
+
+
+def _theatre_fig():
+    o = [lp(_mo_poster())]                    # 剧场的降级层：整幅让给它，字全在外面
     for k, (act, no, ttl, body) in enumerate(_MOVES4):
         x, y, w, h = _P2N[k]
-        hot = (k == 2)
-        # 运动原语 ④：全页唯一 hot 件（判断节点）呼吸 + 光晕 —— 「因」在这里一直在跳
-        # 盒是「形」⇒ 进 poster 组（3D 起来时让位给轨道环上的发光站点）；卡内的字全留在外面。
-        o.append(lp(*(([halo_rect(x, y, w, h, 10, sc="1.05", op=".3", dur="3.6s")] if hot else [])
-                      + [box(x, y, w, h, 10, hot=hot, i=k + 1,
-                             cls="mo-breathe" if hot else "", sty="--mo-dur:3.6s" if hot else "")])))
+        hot = (k == _O_HOTCOL)
+        # 运动原语 ④：全页唯一 hot 件（判断栏）呼吸 + 光晕 —— 「因」在这里一直在跳。
+        # ⚠ 四栏的框**不入 poster**：它们是底排图注，3D 起来时也要在（剧场在它们上方）。
+        o.append("".join(([halo_rect(x, y, w, h, 10, sc="1.05", op=".3", dur="3.6s")] if hot else [])
+                         + [box(x, y, w, h, 10, hot=hot, i=k + 1,
+                                cls="mo-breathe" if hot else "", sty="--mo-dur:3.6s" if hot else "")]))
         o.append(txt(x + 26, y + (38 if hot else 34), "%s · %s" % (no, act), "sm",
                      size=14, col=AC, mono=True, ls=".14em"))
         o.append(txt(x + 26, y + (80 if hot else 70), ttl, "ttl",
                      size=25 if hot else 23, col=AC if hot else None))
         o.append(txt(x + 26, y + (118 if hot else 104), body, "sm", size=17 if hot else 16))
-    # ── 三条实线主流程边（环的正向）：每条都带标注，说清「这一步交出去的是什么」──
-    o.append(lp(packet("M780 87 H988", 208, seg=22, dur="2.6s", i=2),
-                hline(780, 988, 87, AC, 2.5, 2), ah_r(1000, 87, AC)))
-    o.append(txt(890, 69, "对象 · 场景 · 情绪", "sm", size=16, anchor="middle"))
-    o.append(lp(packet("M1200 154 V238", 84, seg=22, dur="1.2s", i=3),
-                vline(1200, 154, 238, AC, 2.5, 3), ah_d(1200, 250, AC)))
-    o.append(txt(1222, 208, "何时开口", "sm", size=16))
-    o.append(lp(packet("M980 327 H792", 188, seg=22, dur="2.4s", i=4),
-                hline(980, 792, 327, AC, 2.5, 4), ah_l(780, 327, AC)))
-    o.append(txt(880, 309, "开口表达", "sm", size=16, anchor="middle"))
-    o.append(lp(packet(_P2ARC, 330, seg=26, col=AD, w=9, op=".3", dur="4s", i=5, cls="mo-cycle"),
+    # ── 三处接口注（母本那三条环边的注，按新语义重锚）──────────────────────
+    #   ① 升维接口（波 → 格）：入射波场把「对象 · 场景 · 情绪」交给星格
+    #   ② 格内：判断在格里发生 —— 「何时开口」指着星格本人
+    #   ③ 凝聚接口（格 → 波）：星格塌回波场，「开口表达」倾泻出画
+    for _ax, _s in ((615, "对象 · 场景 · 情绪"), (930, "何时开口"), (1290, "开口表达")):
+        o.append(lp(vline(_ax, 38, 56, AC, 2, 2)))
+        o.append(ah_d(_ax, 68, AC))
+        o.append(txt(_ax, 30, _s, "sm", size=16, anchor="middle"))
+    # ── 第二道入射波的入场弧（本页灵魂）──────────────────────────────────
+    o.append(lp(packet(_P2ARC, 400, seg=26, col=AD, w=9, op=".3", dur="4s", i=5, cls="mo-cycle"),
                 dline(_P2ARC, AD, 3, 5, dash="3 8"),
-                ah_r(372, 87, AD, 7)))
-    o.append(txt(190, 190, "表达时仍在听", "ttl", size=18, col=AD, weight=700))
-    o.append(txt(190, 216, "随时被打断、随时接上", "sm", size=15, col=AD))
-    # ── 环心：这四件事不是先后，是同一刻 ──
-    o.append(txt(900, 196, "同一时刻 · 并行进行", "ttl", size=20, anchor="middle"))
-    o.append(txt(900, 224, "持续在听 · 同时在说", "sm", size=15, anchor="middle", mono=True))
+                ah_r(308, 54, AD, 7)))
+    o.append(txt(0, 152, "表达时仍在听", "ttl", size=18, col=AD, weight=700))
+    o.append(txt(0, 178, "随时被打断、随时接上", "sm", size=15, col=AD))
+    # ── 剧场落点句：两代同场（相位差半周期）⇒ 台上永远是「同一时刻」──────────
+    o.append(txt(840, 282, "同一时刻 · 并行进行", "ttl", size=20, anchor="middle"))
+    o.append(txt(840, 306, "持续在听 · 同时在说", "sm", size=15, anchor="middle", mono=True))
     # ── 图例（只列本页用到的两种线型）──
-    o.append(legend(0, 440, [("solid", "主数据流"), ("dot", "参考 / 反馈")]))
+    o.append(legend(0, 30, [("solid", "主数据流"), ("dot", "参考 / 反馈")]))
     return "".join(o)
-# 回合制反例条：线性三段，与环形主图形成对照（note 语域 —— 灰、虚线、小一号）
+# 回合制反例条：线性三段，与剧场主图形成对照（note 语域 —— 灰、虚线、小一号）
 _P2ANTI = "".join(
     [txt(2, 40, "回合制", "sm", size=14, col="var(--ink-3)", mono=True, ls=".16em")]
     + [x for k, s in enumerate(["听完", "想", "说"]) for x in (
@@ -6337,12 +7386,12 @@ _P2ANTI = "".join(
 page("content", "".join([
     head("REAL-TIME DECISION · 边听边说", "对话，是一个<strong>实时决策</strong>的过程。"),
     lab(120, 236, "01 · FOUR MOVES · 同一时刻发生"),
-    figbox(120, 272, 1680, 1680, 470, _loop_fig(), i=1),
+    figbox(120, 272, 1680, 1680, 470, _theatre_fig(), i=1),
     lab(120, 756, "02 · SAME MOMENT · 边说边听", i=6),
     figbox(120, 788, 900, 900, 58, _P2ANTI, i=7),
     rule(850),
     land("自然对话不是“听完再回答”，而是边说边听、持续判断——这正是引擎要还原的能力。"),
-]), lab="ring")
+]), lab="morph")
 
 # ═══ P3 · 双工三模式 ·「一次对话，线路先分三种」════════════════════════════
 #   01 三列等宽卡（120 / 700 / 1280 · w520 —— 与 P5「三件极致」同一栅格）：
@@ -6814,6 +7863,102 @@ _VADCURVE = ("M680 118 C 770 116, 836 102, 880 62 C 922 30, 980 40, 1042 48 "
              "C 1104 56, 1140 40, 1200 50 C 1256 60, 1272 84, 1302 96 "
              "C 1344 112, 1420 118, 1660 116")
 _VADSEM = "M1430 78 C 1500 62, 1560 54, 1660 46"
+# ── 波B 消闪 ③ 的常量与预计算表 ───────────────────────────────────────────
+#   Colin 终审：「色块闪动营造流动感是偷懒的欺骗」——要真流动。
+#   本页原来有两处**假流动**：滞回面靠 uFlow=0 的 sin(−uTime) 整片原地明灭、
+#   立柱帽子逐帧改 alpha 呼吸。两件都是「同一块像素反复变亮变暗」= 闪。
+#   换掉它们的三件（消闪三件）：
+#     ① **地形整幅**按 A 档 110px/s 向左平移。要平移就得先**周期化**：
+#        页上那条概率曲线两端差 2px（y 118 → 116），把这 2px 沿全幅**线性摊掉**
+#        ⇒ 首尾的高度与斜率都接得上（两端本来就近乎水平，摊掉后斜率差 2/980）。
+#        几何建满**两个周期**，每帧只设 scroll.position.x ——
+#        一格顶点都不重算，闪的物理前提就不存在。一趟 980 ÷ 110 = **8.91s** 无缝。
+#     ② 理解光束**驻位**在 SOS / EOS 两枚事件 x 上（滚动的是语音，钉住的是判定 ——
+#        SOS/EOS 的 DOM 标签钉死在 x=880/1380，P7 又不在版式分歧名单里，
+#        所以只能让地形从两道光束下穿过）。判定晕的半径是 gap / ons 两张
+#        **对材料坐标预计算**的表的连续函数：
+#          短谷 → 晕涨到一半就收回来；长谷 → 越过判定线，一边收细一边凝成晶柱落地。
+#        阈值只在**构建期**（下面这两张表里）出现；运行时是一路连续插值，
+#        **零随机、零状态机、零阈值跳变**。
+#     ③ 语义层从「一条会飘的虚线」改成**贴着折脊走的连续流带** + 一条前沿馈送带。
+_T_X0, _T_X1 = 20.0, 1000.0     # 地形的材料坐标区间（= 一个周期 980px）
+_T_NT = 197                     # 预计算表长度（196 段 × 5px）
+_T_HALO = (13.0, 26.0, 0.75)    # 判定晕：基半径 / 起声增益 / 长谷收缩系数
+_T_PIL = (34.0, 7.0, 0.62)      # 晶柱：满高 / 基半宽 / 长谷收细系数
+_T_SEMW, _T_FEEDW, _T_FEEDZ = 5.0, 3.0, 34.0   # 语义流带半宽 / 馈送带半宽 / 馈送带 z
+
+
+def _vad_p(y):
+    """页上纵轴：y=40 是概率 1、y=124 是概率 0（_vad_signal 的刻度本人）"""
+    return max(0.0, min(1.0, (124.0 - y) / 84.0))
+
+
+def _vad_tables():
+    """三张对材料坐标预计算的表（长度 _T_NT，覆盖一个周期 [x0, x1]）：
+         hp  周期化后的脊线 y（两端 2px 落差沿全幅线性摊掉）
+         gap 该点所在静音谷的**长度**（归一到 260px 上限）
+         ons 起声强度（概率的正向斜率）
+       gap / ons 里可以出现阈值与分段 —— 它们是**构建期**的事。
+       运行时只做「按弧长取表 + smoothstep 插值」，一条连续函数，**零阈值跳变**。"""
+    pts = _decim(_pathpts(_VADCURVE, 18)[0], 1.2)
+    xs = [q[0] - 660.0 for q in pts]
+    ys = [q[1] for q in pts]
+
+    def raw(x):
+        if x <= xs[0]:
+            return ys[0]
+        for i in range(1, len(xs)):
+            if xs[i] >= x:
+                u = (x - xs[i - 1]) / ((xs[i] - xs[i - 1]) or 1.0)
+                return ys[i - 1] + (ys[i] - ys[i - 1]) * u
+        return ys[-1]
+
+    y0, y1, span = raw(_T_X0), raw(_T_X1), _T_X1 - _T_X0
+    step = span / (_T_NT - 1)
+    # ① 周期化：把两端落差沿全幅线性摊掉（高度接得上，斜率只差 (y1−y0)/span = 2/980）
+    hp = [raw(_T_X0 + i * step) - (y1 - y0) * (i * step) / span for i in range(_T_NT)]
+    hp[-1] = hp[0]                                   # 末点钉死等于首点（浮点尾差归零）
+    pr = [_vad_p(v) for v in hp]
+    # ② 起声：概率的正向斜率（周期环上取差分）→ 高斯平滑 → 归一
+    d = [max(0.0, (pr[(i + 1) % (_T_NT - 1)] - pr[(i - 1) % (_T_NT - 1)]) / (2 * step))
+         for i in range(_T_NT)]
+    ons = _gauss_ring(d, 18.0 / step)
+    m = max(ons) or 1.0
+    ons = [v / m for v in ons]
+    # ③ 谷长：p < .5 的连通段长度 / 260（**阈值只在这里**，运行时看到的是平滑后的表）
+    low = [1 if v < 0.5 else 0 for v in pr[:-1]]
+    n = len(low)
+    gl = [0.0] * n
+    i = 0
+    while i < n:
+        if not low[i]:
+            i += 1
+            continue
+        j = i
+        while j < n and low[j]:
+            j += 1
+        L = (j - i) * step
+        for k in range(i, j):
+            gl[k] = min(1.0, L / 260.0)
+        i = j
+    gap = _gauss_ring(gl + [gl[0]], 26.0 / step)
+    hp[-1] = hp[0]
+    return ([round(v, 3) for v in hp], [round(v, 4) for v in gap], [round(v, 4) for v in ons])
+
+
+def _gauss_ring(a, sig):
+    """环上高斯平滑（首尾相接 ⇒ 表本身也是周期的，滚过接头不会有一记跳）"""
+    n = len(a) - 1
+    r = max(1, int(sig * 3))
+    w = [math.exp(-(k * k) / (2.0 * sig * sig)) for k in range(-r, r + 1)]
+    sw = sum(w) or 1.0
+    out = []
+    for i in range(n):
+        out.append(sum(a[(i + k) % n] * w[k + r] for k in range(-r, r + 1)) / sw)
+    out.append(out[0])
+    return out
+
+
 def _vad_signal():
     o = []
     # ① 波形段
@@ -7544,15 +8689,23 @@ _ADDONS = ["视觉理解", "知识库 · RAG"]   # 产品口径：知识库 RAG 
 #     · 引擎 → 发布带改成无箭头细连线：它是引擎的附属说明，不是第三种流向
 #   同屏箭头语义共 2 种（插入 / 换装），图例逐条对上；线型 2 种（实线主链 / 虚线按需）。
 def _slot(x, y, w, h, name, i=1, dashed=False):
-    """插槽：槽框（可虚线）+ 内模块块 + 块上方的 ⇄ 换装小件（灰、小号 = 注记，不是流向）"""
-    o = [box(x, y, w, h, 8, dashed=dashed, i=i)]
-    o.append('<rect class="pop" style="--i:%d;fill:var(--card-bg-2)" x="%d" y="%d" width="%d" '
-             'height="%d" rx="6" stroke="%s" stroke-width="1.4"/>'
-             % (i, x + 14, y + 12, w - 28, h - 24, HS))
-    o.append(txt(x + w // 2, y + h // 2 + 8, name, "ttl", size=22, anchor="middle"))
-    o.append(swap_mark(x + w - 46, y - 14, i=i,
-                       sty="--mo-lo:.5;--mo-dur:5.4s;--mo-del:-%.1fs" % (0.9 * i)))
-    return "".join(o)
+    """插槽：槽框（可虚线）+ 内模块块 + 槽名 + 块上方的 ⇄ 换装小件。
+
+       ── 波B **第六处许可分歧：poster 分组** ────────────────────────────────
+       原来这个函数把四件拼成**一整条带字的串**返回。`_lpsplit` 的判据是
+       「片段里出现 <text 就整件留在 canvas 之上」—— 于是那块**不透明**的模块板
+       （fill:var(--card-bg-2)）跟着字一起留在了 canvas 上面，把 3D 画进单元里的
+       每一处小巧思全盖死了。本轮**只改分件方式**：四件各自成片段返回，
+       `_lpsplit` 就能把「形」（槽框 / 模块板 / ⇄）收进 poster 组、只把「字」留在外面。
+       **DOM 坐标一格没动**（⑳ 名册闸与 pinned 逐像素闸都照绿），
+       变的只是 <g class="lab-poster"> 的分组 —— 登记在 _DIVERGE 的第六行。"""
+    return [box(x, y, w, h, 8, dashed=dashed, i=i),
+            '<rect class="pop" style="--i:%d;fill:var(--card-bg-2)" x="%d" y="%d" width="%d" '
+            'height="%d" rx="6" stroke="%s" stroke-width="1.4"/>'
+            % (i, x + 14, y + 12, w - 28, h - 24, HS),
+            txt(x + w // 2, y + h // 2 + 8, name, "ttl", size=22, anchor="middle"),
+            swap_mark(x + w - 46, y - 14, i=i,
+                      sty="--mo-lo:.5;--mo-dur:5.4s;--mo-del:-%.1fs" % (0.9 * i))]
 def _orch_fig():
     o = [txt(250, 26, "可自由替换 · 模型层", "lbl", size=16, anchor="middle", col=AC),
          txt(1430, 26, "按需叠加 · 高阶能力", "lbl", size=16, anchor="middle", col=AC)]
@@ -7560,7 +8713,7 @@ def _orch_fig():
     _LY = [60, 168, 276, 384]
     for i, n in enumerate(_MODELS):
         y = _LY[i]
-        o.append(_slot(60, y, 380, 68, n, i=i + 1))
+        o += _slot(60, y, 380, 68, n, i=i + 1)
         o.append(packet("M440 %d H528" % (y + 34), 88, seg=18, w=10, op=".32", dur="1.06s", i=i + 2))
         o.append(hline(440, 528, y + 34, AC, 2, i + 2)); o.append(ah_r(540, y + 34, AC, 7))
     o.append(vline(540, _LY[0] + 34, _LY[3] + 34, AC, 2, 5))
@@ -7580,7 +8733,7 @@ def _orch_fig():
     _RY = [168, 296]
     for i, n in enumerate(_ADDONS):
         y = _RY[i]
-        o.append(_slot(1240, y, 380, 68, n, i=i + 3, dashed=True))
+        o += _slot(1240, y, 380, 68, n, i=i + 3, dashed=True)
         o.append(packet("M1240 %d H1152" % (y + 34), 88, seg=18, w=10, op=".32", dur="1.06s", i=i + 3))
         o.append(dline("M1240 %d H1152" % (y + 34), AC, 2, i + 3, dash="7 6"))
         o.append(ah_l(1140, y + 34, AC, 7))
@@ -8366,7 +9519,10 @@ def build():
         + "<style>" + css("conf-chrome.css").split("<svg class=\"deck-flow\"")[0] + "</style>"   # 流场退役：只取 CSS
         + BOARDS_CSS + DECK_CSS + LAB_CSS
         + "\n</head>\n<body>\n"
-        '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
+        # data-lab-diverge：版式分歧名册摊到产物上 —— qa 的同源自证复算它
+        # （六处一处不多一处不少；构建期已与母本逐页对过几何）
+        '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage" '
+        'data-lab-diverge="%s">\n' % ";".join("%d:%s" % (p, k) for p, k, _w in _DIVERGE)
         + chrome + "\n" + "\n".join(secs) + "\n  </div>\n</div>\n"
         # 车库：全 deck 唯一那块 canvas 的常驻位（屏外）。挂在 .deck-viewport 之外 ——
         # 舞台自带 overflow:hidden + transform:scale，canvas 停在里面会被裁 / 被缩。
@@ -8632,7 +9788,7 @@ def build():
     assert _Y_HOLD >= 2.0, "⑨ P14 全亮停驻不足 2s —— 那一帧是本页的重点帧"
     # ── 全局速度品味检查：A 档 30 股全部落在 110 ±30% 内 ─────────────────
     _SPD_ALL = [(_p, nm, sp) for _p in sorted(LAB_RECTS) for nm, _L, sp in _spd_rows(_p)]
-    assert len(_SPD_ALL) == 30, "④ A 档股数漂移：%d（应为 30）" % len(_SPD_ALL)
+    assert len(_SPD_ALL) == _SPD_N, "④ A 档股数漂移：%d（应为 %d）" % (len(_SPD_ALL), _SPD_N)
     _lo, _hi = _SPD_A * (1 - _SPD_TOL), _SPD_A * (1 + _SPD_TOL)
     for _p, _nm, _sp in _SPD_ALL:
         assert _lo <= _sp <= _hi, "④ P%d「%s」流速 %.1f 越出 110±30%%" % (_p, _nm, _sp)
@@ -8684,7 +9840,37 @@ def build():
         _GN = "节点分布示意 · 200+ 全球节点 · SD-RTN"
         _l21 = _re2.sub(r"\s+", " ", _txt(_L[21]).replace(_GN, "")).strip()
         assert _l21 == _txt(_E[21]), "P21 正文与引擎母本分叉（只准换盒子 + 加角注）"
-        _twin = "逐字节同源 %d 页 + 3D %d 页逐字同文（含 data-step 集合同源）" % (len(_same), len(_INPAGE))
+        # ── 版式分歧名册 × 产物逐页对表（一处不多一处不少）────────────────
+        #   几何 token = 页上所有 <rect>/<circle>/<path> 的 x/y/cx/cy/d 序列。
+        #   3D 化本身**不改**这个序列（它只是把片段裹进 <g class="lab-poster">），
+        #   所以序列一旦与母本不同，就一定是真的动了版式。
+        def _geom(h):
+            h2 = _re2.sub(r'<g class="lab-poster">|</g>', "", h)
+            # ⚠ 必须带左边界：没有它，`id="labStage2"` 会被当成一处 d=（本轮踩过）
+            return _re2.findall(r'\s(?:x|y|cx|cy|d)="[^"]*"', h2)
+        _geomdiff = {p for p in range(1, 23) if _geom(_E[p]) != _geom(_L[p])}
+        _declared = {p for p, k, _w in _DIVERGE if k == "geom"}
+        assert _geomdiff == _declared, \
+            "版式分歧名册对不上：产物实际分叉 %r，名册声明 %r" % (sorted(_geomdiff), sorted(_declared))
+        assert len(_DIVERGE) == 6, "版式分歧应为 6 处，名册里有 %d 处" % len(_DIVERGE)
+        # stage 行：P18 的舞台真的横跨了两图（母本那只 figbox 只有 1240 宽）
+        assert LAB_RECTS[18][3] > 1240, \
+            "版式分歧 stage 行不成立：P18 舞台宽 %d 没有横跨两图" % LAB_RECTS[18][3]
+        # poster 行的针对性自证：P13 那块**不透明**模块板必须已经进了 poster 组
+        # （母本里它是裸 <rect>；不进 poster 组就会把 3D 画进单元的小巧思全盖死）
+        _p13 = _svg_of(13)
+        _plate = ('fill:var(--card-bg-2)" x="%d" y="%d" width="%d" height="%d"'
+                  % (_P13SLOT[0][0] + 14, _P13SLOT[0][1] + 12,
+                     _P13SLOT[0][2] - 28, _P13SLOT[0][3] - 24))
+        assert _plate in _p13, "⑥ P13 模块板的几何漂了（poster 分组分歧的对象找不到）"
+        _pi = _p13.index(_plate)
+        _pg = _p13.rfind('<g class="lab-poster">', 0, _pi)
+        assert _pg >= 0 and _p13.find("</g>", _pg) > _pi, \
+            "⑥ P13 模块板没有进 lab-poster 组 —— 它会把每一处 3D 小巧思盖死"
+        assert _plate in _E[13] and '<g class="lab-poster">' not in _E[13], \
+            "⑥ 引擎母本的 P13 不该有 poster 组（分歧的另一半不成立）"
+        _twin = ("逐字节同源 %d 页 + 3D %d 页逐字同文（含 data-step 集合同源）· 版式分歧 %d 处"
+                 % (len(_same), len(_INPAGE), len(_DIVERGE)))
     else:
         _twin = "⚠ 引擎产物不在身边，同源自证跳过"
 
@@ -8695,6 +9881,7 @@ def build():
     print("  poster：声场球 %d 点 / 地球陆地 %d 点 · %d 节点 · %d 弧 · three r%s"
           % (VPOSTER["n"], GPOSTER["nLand"], GPOSTER["nNode"], len(GPOSTER["arcs"]), THREE_REV))
     print("  同源自证：%s" % _twin)
+    print("  版式分歧名册：%s" % " / ".join("P%d·%s" % (p, k) for p, k, _w in _DIVERGE))
     print("  波A 速度表：A 档 %d 股 · %.1f–%.1f px/s · 极差 %.2f×（基准 %.0f ±%d%%）"
           % (len(_SPD_ALL), _spdlo, _spdhi, _spdhi / _spdlo, _SPD_A, int(_SPD_TOL * 100)))
     print("  波A 音频流：λ=%.0fpx @ %.0fpx/s ⇒ %.2fs 一次呼吸 · Σa=%.2f · P14 注光 %.0fpx/s "

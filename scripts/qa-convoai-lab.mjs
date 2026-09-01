@@ -88,7 +88,7 @@ const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 // ── LAB 场景表（第一波全量 3D 化 · 七枚场景）───────────────────────────────
 //   页码表 = 单渲染器巡游的 registry；qa 与产物两头对表，加错页 / 漏页当场炸。
-const LAB_SCENES = { 1: 'voice', 2: 'ring', 3: 'lanes', 4: 'duplex', 6: 'chain',
+const LAB_SCENES = { 1: 'voice', 2: 'morph', 3: 'lanes', 4: 'duplex', 6: 'chain',
                      7: 'terrain', 8: 'cutin', 9: 'shell', 10: 'bigmap', 11: 'qos',
                      12: 'vision', 13: 'slots', 14: 'towers',
                      17: 'brain', 18: 'spiral', 21: 'globe' };
@@ -101,6 +101,7 @@ const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // 不关掉自动降级的话主跑全程都是 poster，⑲b 那条就验不到「起来了」）。
 // 自动降级本身在 ⑲i 用**不带** hold 的 URL 单独验 —— 两条互为对照。
 const HOLD = '?lab=hold';
+const K_AS_LAM = 232;      // lab-kit ⑨ 的波长（P2 的波场必须逐字取它 ⇒ 同一种介质）
 // 分步页：P6 实时语音链路 / P7 VAD / P14 接入架构 / P20 视频页，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
 [6, 7, 14, 20].forEach(p => { EXP_STEPS[p - 1] = 1; });
@@ -893,7 +894,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     const c2 = await pg.evaluate(() => ({ ...window.__labTour, leaves: { ...window.__labTour.leaves },
       p2glup: document.querySelector('.slide[data-p="2"] .lab-stage').classList.contains('gl-up'),
       p3glup: document.querySelector('.slide[data-p="3"] .lab-stage').classList.contains('gl-up') }));
-    ok(c1.scene === 'ring' && c2.scene === 'lanes',
+    ok(c1.scene === 'morph' && c2.scene === 'lanes',
        `⑲k P2→P3 热切换没换人：${c1.scene} → ${c2.scene}`);
     ok((c2.leaves[2] || 0) === (c1.leaves[2] || 0) + 1,
        `⑲k P2 没走 leave（${c1.leaves[2] || 0}→${c2.leaves[2] || 0}）`);
@@ -910,20 +911,28 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     const nums = (s) => (s || '').split(',').map(Number);
     const rows = (s) => (s || '').split(';').filter(Boolean).map(x => nums(x));
     return {
-      o: { nodes: +o.labNodes, boxes: +o.labBoxes, tilt: +o.labTilt,
-           dur: +o.labDur, durBr: +o.labDurBr, hot: +o.labHot },
+      o: { cyc: +o.labCyc, gen: +o.labGen, ph: nums(o.labPh), life: nums(o.labLife),
+           yaw: nums(o.labYaw), yawa: +o.labYawa, grid: nums(o.labGrid),
+           verts: +o.labVerts, lam: +o.labLam, boxes: +o.labBoxes,
+           cols: nums(o.labCols), hotcol: +o.labHotcol, arc: nums(o.labArc),
+           stage: nums(o.labStage) },
       l: { seg: +l.labSeg, modes: +l.labModes, dep: +l.labDep,
            simplex: rows(l.labSimplex), half: rows(l.labHalf), full: rows(l.labFull) },
       c: { stations: +c.labStations, steps: +c.labSteps, bands: +c.labBands,
            znear: +c.labZnear, zdeep: +c.labZdeep },
       u: { in: +u.labIn, cut: +u.labCut, fall: +u.labFall, ghost: +u.labGhost },
       m: { layers: +m.labLayers, boxes: +m.labBoxes, zl: nums(m.labZl),
-           lanes: +m.labLanes, beams: +m.labBeams, drift: +m.labDrift },
+           lanes: +m.labLanes, beams: +m.labBeams, drift: +m.labDrift,
+           med: nums(m.labMed), evt: +m.labEvt },
       qs: { dark: nums(qs.labDark), loss: nums(qs.labLoss), heap: nums(qs.labHeap),
             rain: +qs.labRain, rainDark: +qs.labRainDark, out: +qs.labOut },
       w: { apex: nums(w.labApex), mouth: nums(w.labMouth), weak: +w.labWeak,
            zweak: +w.labZweak },
-      k: { slots: +k.labSlots, cyc: +k.labCyc, swap: +k.labSwap, cav: +k.labCav },
+      k: { slots: +k.labSlots, cyc: +k.labCyc, swap: +k.labSwap, cav: +k.labCav,
+           hubcav: +k.labHubcav, ribs: +k.labRibs, core: +k.labCore, pub: +k.labPub,
+           pubpath: rows(k.labPubpath), flowLen: +k.labFlowLen, gz: rows(k.labGz),
+           loops: +k.labLoops, loopOff: +k.labLoopOff, busx: +k.labBusx,
+           swz: +k.labSwz, swA: nums(k.labSwA), swB: nums(k.labSwB) },
       y: { towers: +y.labTowers, arcs: +y.labArcs, steps: +y.labSteps,
            z: nums(y.labZ), cyc: +y.labCyc },
       v: { spin: +v.labSpin, amp: +v.labAmp, w0: +v.labW0, pts: +v.labPts,
@@ -933,7 +942,8 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       b: { zper: nums(b.labZper), zoff: nums(b.labZoff), arcs: +b.labArcs,
            sparks: +b.labSparks, sway: +b.labSway, swayP: +b.labSwayP },
       r: { days: nums(r.labDays), turns: +r.labTurns, climb: +r.labClimb },
-      t: { pins: nums(t.labPins), band: nums(t.labBand), steps: +t.labSteps },
+      t: { pins: nums(t.labPins), band: nums(t.labBand), steps: +t.labSteps,
+           per: +t.labPer, lap: +t.labLap, nt: +t.labNt, seam: +t.labSeam },
       s: { rings: nums(sh.labRings), gap: nums(sh.labGap), streams: +sh.labStreams },
       q: { cut: +q.labCut, now: +q.labNow, turns: +q.labTurns },
     };
@@ -962,11 +972,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   ok(dta.s.gap[0] > 0 && dta.s.gap[1] > dta.s.gap[0],
      `⑲h P9 缺口锥角不合法（${dta.s.gap}）—— 内壳的口必须开得比外壳大`);
   // ══ 第二波九页的静态复算（2026-08-31 终波）════════════════════════════════
-  //   P2 决策轨道环：四站四盒 · hot 站点 = 「判断」那一支箭头的落点 x1200
-  ok(dta.o.nodes === 4 && dta.o.boxes === 4, `⑲h P2 站点/站台数 ${dta.o.nodes}/${dta.o.boxes} != 4/4`);
-  ok(dta.o.tilt > 0 && dta.o.tilt <= 1.6, `⑲h P2 环平面倾角系数 ${dta.o.tilt} 越界（微倾斜，不是竖起来）`);
-  ok(dta.o.dur > dta.o.durBr, `⑲h P2 支轨没有比主环快一档（${dta.o.dur} vs ${dta.o.durBr}）`);
-  ok(dta.o.hot === 1200, `⑲h P2 hot 站点 x 漂移：${dta.o.hot}`);
+  //   P2 模态转换剧场（波B · 王冠一）：三态权重、生灭窗、让位事件、两代相位差 —— 见 ⑲p2
   //   P3 三通道 —— **语义闸**：半双工任何时刻只有一个方向在途，全双工两向恒同框，
   //   单工回向永远无包。三条全部用页上那套占空比算法在 3D 相位表上复算（不靠截帧）。
   ok(dta.l.modes === 3 && dta.l.seg === 14, `⑲h P3 相位表规格漂移：${dta.l.modes}/${dta.l.seg}`);
@@ -1041,6 +1047,86 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   ok(dta.y.z[0] > dta.y.z[1] && dta.y.z[1] > dta.y.z[2],
      `⑲h P14 三塔没有纵深排布（${dta.y.z}）—— 终端要最近、引擎云要最远`);
   ok(dta.y.cyc > 0, `⑲h P14 握手没有轮次周期`);
+
+  /* ══ 波B 的四组静态复算（⑲h · P2 / P7 / P10 / P13）══════════════════════ */
+  //   P2 模态转换剧场：三态权重恒和 1、四道相位边界有序、生灭窗盖住回卷、
+  //   让位事件坐在「想」的窗口里、两代相位差正好是半周期、点阵 34×12×5、
+  //   波长逐字取 lab-kit ⑨（同一种介质）。
+  {
+    const O = dta.o;
+    ok(String(O.grid) === '34,12,5' && O.verts === 34*12*5,
+       `⑲h P2 点阵 ${O.grid} / ${O.verts} 不是 34×12×5 = 2040`);
+    ok(Math.abs(O.gen - O.cyc/2) < 1e-9,
+       `⑲h P2 两代相位差 ${O.gen} != 半周期 ${O.cyc/2} —— 舞台就会出现空档`);
+    ok(Math.abs(O.lam - K_AS_LAM) < 1e-9,
+       `⑲h P2 波长 ${O.lam} != lab-kit ⑨ 的 ${K_AS_LAM} —— 那就不是同一种介质了`);
+    const P = O.ph;
+    ok(P.length === 4 && P[0] < P[1] && P[1] < P[2] && P[2] < P[3],
+       `⑲h P2 四道相位边界没有严格递增：${P}`);
+    const sm = (a, b, x) => { const t = Math.max(0, Math.min(1, (x-a)/(b-a)));
+                              return t*t*t*(t*(t*6-15)+10); };
+    const ph = (t) => { const s1 = sm(P[0],P[1],t), s2 = sm(P[2],P[3],t);
+      return { wIn: 1-s1, wLat: s1*(1-s2), wOut: s1*s2,
+               life: sm(O.life[0],O.life[1],t)*(1-sm(O.life[2],O.life[3],t)) }; };
+    let worst = 0, latMax = 0, deadT = 0;
+    for (let t = 0; t < O.cyc; t += 0.005) {
+      const w = ph(t);
+      worst = Math.max(worst, Math.abs(w.wIn + w.wLat + w.wOut - 1));
+      latMax = Math.max(latMax, w.wLat);
+      if (w.life < 1e-4) deadT += 0.005;
+    }
+    ok(worst < 1e-9, `⑲h P2 三态权重和不恒为 1（最大偏差 ${worst}）—— 插值会漏出空洞`);
+    ok(latMax > 0.999, `⑲h P2「想」这一态没有完全成形（wLat 最大 ${latMax.toFixed(3)}）`);
+    ok(deadT > 0.2 && deadT < 1.2, `⑲h P2 生灭窗 ${deadT.toFixed(2)}s 越界（要够藏接头，又不许台上真空）`);
+    ok(ph(O.cyc - 1e-6).life < 1e-4 && ph(0).life < 1e-4,
+       `⑲h P2 回卷点上 uLife 不是 0 —— 换位置会被看见（接头就藏不住了）`);
+    // 让位事件必须落在「想」的窗口里（否则「格架转身让位」根本无格可转）
+    ok(O.yaw[0] > P[1] && O.yaw[0] < P[2],
+       `⑲h P2 让位事件 t=${O.yaw[0]} 不在「想」的窗口 [${P[1]}, ${P[2]}] 里`);
+    ok(Math.abs(O.yaw[0] - O.gen) < 1e-9,
+       `⑲h P2 让位事件不是另一代的出生时刻（${O.yaw[0]} vs ${O.gen}）`);
+    ok(Math.abs(O.yaw[1] - 0.56) < 1e-9 && Math.abs(O.yaw[2] - 3.10) < 1e-9,
+       `⑲h P2 让位 / 回正时长漂移：${O.yaw}`);
+    ok(O.yawa > 0.15 && O.yawa < 0.9, `⑲h P2 让位偏航 ${O.yawa} rad 越界（让位不是转身走人）`);
+    ok(O.boxes === 4 && String(O.cols) === '0,428,856,1284',
+       `⑲h P2 底排四栏漂移：${O.cols}`);
+    ok(O.hotcol === 2, `⑲h P2 hot 栏不是「判断」那一栏（${O.hotcol}）`);
+    ok(O.stage[1] > 1680, `⑲h P2 出射波场没有越过舞台右缘（${O.stage}）—— 「倾泻出画」不成立`);
+  }
+  //   P7 消闪：周期化的首尾落差必须是 0、一趟 8.91s、表长与周期对得上
+  ok(Math.abs(dta.t.seam) < 1e-6,
+     `⑲h P7 概率曲线周期化之后首尾还差 ${dta.t.seam}px —— 回卷会看得见一记跳`);
+  ok(Math.abs(dta.t.lap - dta.t.per / 110) < 1e-6,
+     `⑲h P7 一趟 ${dta.t.lap}s != 周期 ${dta.t.per} ÷ 110px/s`);
+  ok(Math.abs(dta.t.lap - 8.909091) < 1e-4, `⑲h P7 一趟不是 8.91s（${dta.t.lap}）`);
+  ok(dta.t.nt === 197, `⑲h P7 预计算表长 ${dta.t.nt} != 197`);
+  //   P10 轻手术：介质与离散事件的名册（逐条判，不是一刀切）+ 零位移仍是 0
+  ok(String(dta.m.med) === '4,4',
+     `⑲h P10 介质名册 ${dta.m.med} != 4 条车道 + 4 道握手`);
+  ok(dta.m.evt === 3,
+     `⑲h P10 保持粒子的离散事件 ${dta.m.evt} != 3（SOS·EOS / 打断快路径 / 客户控制面）`);
+  //   P13 编排中枢机：机腔 2.9 倍 · 三道内肋 · 420 点核 · 4.4s 发布脉冲 ·
+  //   贯通流的 ghost 窗口 · 两条闭环分居总线 ±8px · 热切换错峰
+  {
+    const K2 = dta.k;
+    ok(Math.abs(K2.hubcav / K2.cav - 2.9) < 0.05,
+       `⑲h P13 机腔 ${K2.hubcav} 不是单元腔 ${K2.cav} 的 2.9 倍（${(K2.hubcav/K2.cav).toFixed(2)}×）`);
+    ok(K2.ribs === 3, `⑲h P13 内肋 ${K2.ribs} 道 != 3`);
+    ok(K2.core === 420, `⑲h P13 呼吸核 ${K2.core} 点 != 420`);
+    ok(Math.abs(K2.pub - 4.4) < 1e-9, `⑲h P13 发布脉冲周期 ${K2.pub}s != 4.4s`);
+    ok(String(K2.pubpath.map(q => q.join(','))) === '840,260,840,348,840,398',
+       `⑲h P13 发布脉冲没有走页上那条 vline(840,348,398)：${K2.pubpath}`);
+    ok(K2.gz.length === 4 && K2.gz.every(z => z[1] > z[0]),
+       `⑲h P13 贯通流的 ghost 窗口不合法：${K2.gz}`);
+    ok(K2.flowLen > 2000, `⑲h P13 贯通流只有 ${K2.flowLen}px —— 那不叫「走完全程」`);
+    ok(K2.loops === 2 && K2.loopOff === 8,
+       `⑲h P13 往返闭环 ${K2.loops} 条 / 偏 ${K2.loopOff}px（要 2 条 · 分居总线 ±8px）`);
+    ok(K2.swz === -320, `⑲h P13 退场深度 ${K2.swz} != −320`);
+    ok(String(K2.swA) === '0,0.58' && String(K2.swB) === '0.42,1',
+       `⑲h P13 一进一出没有错峰：${K2.swA} / ${K2.swB}`);
+    ok(K2.swB[0] < K2.swA[1],
+       `⑲h P13 进场起点 ${K2.swB[0]} 不早于退场终点 ${K2.swA[1]} —— 交接处会出现空洞`);
+  }
 
   //   P4 截断 x = 页上「用户插话 = TTS 截断 = 快路径」共用的那根垂线
   ok(dta.q.cut === 1080, `⑲h P4 截断 x 漂移：${dta.q.cut}`);
@@ -1281,6 +1367,143 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     console.log(`  · ⑲(P18) 两图墨迹间距 ${r18.gap.toFixed(0)}px（左移 ${r18.shift}px）`
       + ` · relock 屏点偏差 ${r18.st.relockDev.toExponential(1)}px（D${r18.st.D0}→D${r18.st.D}）`);
   }
+  /* ═══ 波B 的三道运行时闸（⑲p2 / ⑲p13 / ⑲p7）══════════════════════════
+     这三道都不是「读一读参数」，而是**把场跑起来逐帧量**：
+       ⑲p2  morph 相位复算：运行时的 (wIn,wLat,wOut) 与构建期声明逐拍相符；
+       ⑲p13 贯通流不断流：整个热切换窗口里 data-lab-flow 恒定、data-lab-run 恒真；
+       ⑲p7  逐帧亮度突变：定拍 + **同 tick** gl.readPixels，整幅 / 8×8 分块两条上限。
+     ══════════════════════════════════════════════════════════════════════ */
+  {
+    // ── ⑲p2 · P2 morph 相位复算 ──────────────────────────────────────────
+    const O = dta.o;
+    const p2 = await pg.evaluate(async (T) => {
+      window.deck.go(1); await new Promise(r => setTimeout(r, 900));
+      const t = window.__labTour; t.pace(12);
+      const out = [];
+      for (const s2 of T) { t.seek(s2); out.push(t.unit().state()); }
+      t.pace(0);
+      return out;
+    }, [0.4, 2.0, 4.1, 6.5, 7.6, 9.5, 11.8, 13.7]);
+    const sm = (a, b, x) => { const t = Math.max(0, Math.min(1, (x-a)/(b-a)));
+                              return t*t*t*(t*(t*6-15)+10); };
+    p2.forEach((st, i) => {
+      ok(st && st.g && st.g.length === 2, `⑲p2 舞台上不是两代（第 ${i} 拍）`);
+      st.g.forEach((g, k) => {
+        const s1 = sm(O.ph[0], O.ph[1], g.t), s2 = sm(O.ph[2], O.ph[3], g.t);
+        ok(Math.abs(g.wIn - (1-s1)) < 1e-6 && Math.abs(g.wLat - s1*(1-s2)) < 1e-6
+           && Math.abs(g.wOut - s1*s2) < 1e-6,
+           `⑲p2 第 ${i} 拍 · 第 ${k} 代的三态权重与声明分叉：${[g.wIn,g.wLat,g.wOut]}`);
+        ok(Math.abs(g.wIn + g.wLat + g.wOut - 1) < 1e-6,
+           `⑲p2 三态权重和 != 1（${g.wIn+g.wLat+g.wOut}）`);
+      });
+      // 两代永远差半周期 ⇒ 舞台永不空（至少一代 life > 0）
+      const d = Math.abs(((st.g[1].t - st.g[0].t) % O.cyc + O.cyc) % O.cyc - O.gen);
+      ok(d < 1e-6, `⑲p2 第 ${i} 拍两代相位差 ${d} 不是半周期`);
+      ok(Math.max(st.g[0].life, st.g[1].life) > 0.35,
+         `⑲p2 第 ${i} 拍舞台空了（life ${st.g[0].life.toFixed(2)}/${st.g[1].life.toFixed(2)}）`);
+    });
+    // 让位：t=7.56 那一拍偏航必须到顶，t=7.0 之前必须是 0
+    const yawAt = (arr, t) => { const g = arr.g.find(x => Math.abs(x.t - t) < 0.06); return g ? g.yaw : null; };
+    ok(p2.some(st => st.g.some(g => g.yaw > O.yawa*0.9)),
+       '⑲p2 让位偏航整轮都没到顶 —— 格架没让位');
+    ok(p2.every(st => st.g.every(g => g.t < O.yaw[0] ? g.yaw < 1e-9 : true)),
+       '⑲p2 让位事件之前就已经在偏航了 —— 那不是「被切入触发」');
+    const runs = p2[1].run;
+    ok(Math.abs(runs[0] - 110.0*2.0) < 1e-3 && Math.abs(runs[1] - 109.9*2.0) < 1e-3,
+       `⑲p2 两条波场的波峰速度不是 110.0 / 109.9px/s：${runs.map(x => x/2)}`);
+    console.log(`  · ⑲p2 morph：14s 一代 / 7s 一台 · 三态权重恒和 1 · 让位 ${O.yaw[1]}s + 回正 ${O.yaw[2]}s`);
+  }
+  {
+    // ── ⑲p13 · 贯通流不断流（与 swap 相位零耦合的机器证明）────────────────
+    const w13 = await pg.evaluate(async () => {
+      window.deck.go(12); await new Promise(r => setTimeout(r, 1000));
+      const t = window.__labTour; t.pace(24);
+      const el = document.getElementById('labStage13');
+      const cv = document.getElementById('labGl');
+      const out = [];
+      // 覆盖整整一次热切换窗口（第 1 轮 6.4 → 8.0s），前后各留 0.4s
+      for (let s2 = 6.0; s2 <= 8.4001; s2 += 1/24) {
+        t.seek(s2);
+        out.push({ t: +s2.toFixed(3), flow: el.dataset.labFlow, run: cv.dataset.labRun,
+                   swap: el.dataset.labSwapph, st: t.unit().state() });
+      }
+      t.pace(0);
+      return out;
+    });
+    const flows = [...new Set(w13.map(r => r.flow))];
+    ok(flows.length === 1, `⑲p13 贯通流不透明度在切换窗口里变了：${flows.join(' / ')}`);
+    ok(flows[0] === (THEME === 'dark' ? '0.24' : '0.26'),
+       `⑲p13 贯通流不透明度 ${flows[0]} != ${THEME === 'dark' ? '0.24' : '0.26'}`);
+    ok(w13.every(r => r.run === '1'), '⑲p13 切换窗口里渲染循环停过');
+    // ghost 剖面也不许被 swap 带着走（穿字段那一段恒是细线）
+    ok(w13.every(r => r.st.gain[1] < 0.02),
+       '⑲p13 穿字段那一段的 ghost 剖面漂了（流会盖住字）');
+    ok(w13.every(r => r.st.gain[0] > 0.98 && r.st.gain[2] > 0.98),
+       '⑲p13 非 ghost 段没有满幅 —— 流被无端收细了');
+    // 热切换本身**确实发生了**（否则「不耦合」是空的）：z 从 0 走到 −320 再回来
+    const zIn = w13.map(r => r.st.zIn[1]), zCd = w13.map(r => r.st.zCd[1]);
+    ok(Math.min(...zIn) <= -319 && Math.max(...zIn) >= -1,
+       `⑲p13 在位机体没有真的沿 −z 退场：${Math.min(...zIn).toFixed(0)}…${Math.max(...zIn).toFixed(0)}`);
+    ok(Math.min(...zCd) <= -319 && Math.max(...zCd) >= -1,
+       `⑲p13 候选机体没有从景深进坞：${Math.min(...zCd).toFixed(0)}…${Math.max(...zCd).toFixed(0)}`);
+    ok(w13.some(r => r.st.vis[1] === 3),
+       '⑲p13 一进一出没有错峰重叠（交接的那一段应当两具机体同时在场）');
+    console.log(`  · ⑲p13 不断流：切换窗口 ${w13.length} 帧 · data-lab-flow 恒 ${flows[0]} · data-lab-run 恒 1`
+      + ` · 机体 z ${Math.min(...zIn).toFixed(0)} → 0`);
+  }
+  {
+    // ── ⑲p7 · 逐帧亮度突变（定拍 + 同 tick gl.readPixels）────────────────
+    //   量的是「像素有没有跳」，不是「代码看起来对不对」。
+    //   上限：整幅 4.0/255 · 8×8 分块 26/255。跨过 8.91s 的回卷点整整一趟。
+    const fl = await pg.evaluate(async (n) => {
+      window.deck.go(6); await new Promise(r => setTimeout(r, 1000));
+      document.querySelector('.slide.active').querySelectorAll('[data-step]')
+        .forEach(e => e.classList.add('on'));
+      await new Promise(r => setTimeout(r, 1400));
+      const t = window.__labTour; t.pace(30); t.seek(0);
+      let prev = null, dMean = 0, dBlk = 0, atM = 0, atB = 0;
+      for (let i = 0; i < n; i++) {
+        const s2 = t.shot(8, 8);
+        if (prev) {
+          const dm = Math.abs(s2.mean - prev.mean);
+          if (dm > dMean) { dMean = dm; atM = i; }
+          for (let k = 0; k < s2.blocks.length; k++) {
+            const d = Math.abs(s2.blocks[k] - prev.blocks[k]);
+            if (d > dBlk) { dBlk = d; atB = i; }
+          }
+        }
+        prev = s2; t.step(1);
+      }
+      t.pace(0);
+      return { dMean, dBlk, atM, atB, size: [prev.w, prev.h] };
+    }, 300);
+    ok(fl.dMean <= 4.0, `⑲p7 整幅亮度帧间跳变 ${fl.dMean.toFixed(2)}/255 > 4.0（第 ${fl.atM} 帧）`);
+    ok(fl.dBlk <= 26.0, `⑲p7 8×8 分块亮度帧间跳变 ${fl.dBlk.toFixed(2)}/255 > 26（第 ${fl.atB} 帧）`);
+    console.log(`  · ⑲p7 消闪实测（30fps × 300 帧 = 10s，跨过 8.91s 回卷点）：`
+      + `整幅 ${fl.dMean.toFixed(2)}/255（上限 4.0）· 8×8 分块 ${fl.dBlk.toFixed(2)}/255（上限 26）`);
+  }
+  {
+    // ── ⑲p10 · 介质逐条判据（不是一刀切）──────────────────────────────────
+    const m10 = await pg.evaluate(async () => {
+      window.deck.go(9); await new Promise(r => setTimeout(r, 900));
+      return window.__labTour.unit().state();
+    });
+    ok(m10.flows === 8, `⑲p10 流带 ${m10.flows} 条 != 8（四车道 + 四握手）`);
+    ok(m10.evt === 3, `⑲p10 保持粒子的离散事件 ${m10.evt} 条 != 3`);
+    ok(m10.ruler === 1, `⑲p10 「端到端 650ms」那把尺不见了（${m10.ruler}）`);
+    ok(m10.spd.every(v => v >= 77 && v <= 143),
+       `⑲p10 流带波峰速度越出 A 档：${m10.spd}`);
+    ok(m10.drift === 0, `⑲p10 大图起了视差位移（${m10.drift}）—— 零位移是红线`);
+    console.log(`  · ⑲p10 轻手术：介质 ${m10.flows} 条 → 流带 / 离散 ${m10.evt} 条 → 保持粒子 · 位移 0`);
+  }
+  {
+    // ── 版式分歧名册：六处，一处不多一处不少 ───────────────────────────
+    const dv = await pg.evaluate(() => document.getElementById('deckStage').dataset.labDiverge);
+    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster';
+    ok(dv === want, `⑲ 版式分歧名册漂移：${dv}`);
+    ok(dv.split(';').length === 6, `⑲ 版式分歧 ${dv.split(';').length} 处 != 6`);
+  }
+
   // ── ⑲s 全局流速复算：A 档 30 股全部落在 110 ±30% ───────────────────────
   {
     const rows = await pg.evaluate(() => [...document.querySelectorAll('.lab-stage[data-lab-spd]')]
@@ -1288,8 +1511,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
-    ok(all.length === 30, `⑲s A 档股数 ${all.length} != 30`);
-    ok(rows.length === 8, `⑲s A 档页数 ${rows.length} != 8`);
+    // 波A 30 股 8 页 → 波B 41 股 10 页（P2 +1 / P7 +1 / P10 +8 / P13 +1，见 _SPD_N）
+    ok(all.length === 41, `⑲s A 档股数 ${all.length} != 41`);
+    ok(rows.length === 10, `⑲s A 档页数 ${rows.length} != 10`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑲s P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
