@@ -15,15 +15,33 @@
 //   ⑫  口径锁：P2 四大数 + 近一半 + IDC 注 + SOURCE / P5 96.5% + 2,475 / P8 三不三步逐字
 //   ⑭  红线反向闸：价格 / staging / 引擎 P16 的「盲测 · 32,000」/ 旧分类学 / 旧措辞
 //   ⑮  P7 案例墙 14 家客户名逐字（名单硬编码在本文件，改名必须两处同改）
+// 2026-09-01 LAB 整体重构轮新增 ⑲/⑳ **WebGL 豁免通道**（照抄 qa-convoai-lab 的闸门体系）：
+//   ⑲a  逐页舞台结构：场景名 / data-lab-rect / poster 层 / 打印帧位 / 层序 /
+//       poster 组里**一个字也没有**（字必须压在 canvas 之上）
+//   ⑲a2 **单渲染器巡游**：全文档 WebGL canvas 恰 1 枚 + 车库在位 + registry 页码表
+//   ⑲b  逐页起帧 + 逐页对位（±1.2px）+ 绘制缓冲区跟着矩形走 + poster 淡出 / canvas 淡入
+//   ⑲c  **禁用 WebGL 启动 ⇒ 8 页照常完整可读**（速讲版的生命线：客户端多样）
+//   ⑲d  prefers-reduced-motion ⇒ 渲一帧停帧　⑲f DPR ≤ 2　⑲g print 藏 canvas 显 poster
+//   ⑲e  非激活页 ⇒ canvas 回车库 / rAF 停 / gl-up 全摘　⑲i FPS 自动降级
+//   ⑲j  双主题 × 逐 3D 页静置帧 + 材质 token 真的分叉
+//   ⑲k  翻页热切换：当前景换人 + 前一景确实走了 leave
+//   ⑳clr **净空**：运行时逐顶点 × 构建期解析，两条算路对表；名册 × 活 DOM 对表
+//   ⑳chip P4 的 hot 是抽屉 chip —— 正面断言它离 3D 至少 16px
+//   ⑳spd A 档流速逐股复算（110 ±30% · 同页极差 ≤1.35×）
+//   ⑳rv  P8 接力相位复算：off_k + Lw_k − k·λ/3 = 0（不瞬移 / 不叠影）
+//   ⑳flick 消闪：定拍逐帧亮度突变上限　⑳ink 浅 / 暗墨量比 ≥ 0.90
 // 用法：node scripts/qa-convoai-info.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8899 node scripts/qa-convoai-info.mjs
 import { chromium } from 'playwright-core';
+import { mkdirSync } from 'fs';
 const THEME = process.env.THEME || 'light';
-const BASE = process.env.BASE || 'http://localhost:8777';
+const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 8;
 const EXP_STEPS = [0, 0, 0, 1, 1, 0, 1, 0];
 const BOARD = { 1: 'title' };            // 其余一律 content
-const HERO = { 1: 'hero-cover-v2' };     // hero-art 只上封面
+// P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
+// （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
+const HERO = {};
 const ECO = { 7: 'ecosystem-stack-v4' }; // eco-art 只上 P7 生态主视觉（polish-v4）
 // P7 案例墙客户名：逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）
 const CASES = ['集贤科技', 'Robopoet', 'luwu',
@@ -31,9 +49,24 @@ const CASES = ['集贤科技', 'Robopoet', 'luwu',
   'LOOKTECH', 'HeyCyan', 'LOOKEE', '莲偶科技', '豆神 AI'];
 // 深链契约：页 → 引擎章号
 const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: 'physExpand', hash: 19 }];
+// ── LAB 场景表（qa 与产物两头对表，加错页 / 漏页当场炸）────────────────────
+const LAB_SCENES = { 1: 'voice', 2: 'band', 3: 'grow', 4: 'release', 5: 'agent', 8: 'river' };
+const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
+// 逐页语义审查判定保持 2D：P6 R1 实拍照片页 / P7 定稿五层生态图 —— 故意不在表里
+const FLAT_PAGES = [6, 7];
+// P1 走构建期离线投影出来的专用 poster；另外五页的 poster = 页上原来那张 SVG
+const INPAGE = LAB_PAGES.filter(p => p !== 1);
+const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+// 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
+const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
+// 主跑一律带 ?lab=hold（容器软渲染只有个位数 fps，不关掉自动降级就全程 poster，
+// ⑲b 那条就验不到「起来了」）。自动降级本身在 ⑲i 用**不带** hold 的 URL 单独验。
+const HOLD = '?lab=hold';
+const OUT = process.env.OUT || '/home/claude/eco-review';
+mkdirSync(OUT, { recursive: true });
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: CHROME, args: GL_ARGS });
 const pg = await b.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 const errs = [];
 pg.on('pageerror', e => errs.push('PAGEERROR ' + e.message));
@@ -41,7 +74,7 @@ pg.on('console', m => {
   if (m.type() === 'error' && !(m.location()?.url || '').includes('favicon')) errs.push(m.text());
 });
 if (THEME === 'dark') await pg.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
-await pg.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
+await pg.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
 // 动效归零：入场是 transition（.rise 起手 translateY(42px)），不掐掉就会把「还没落位」
 // 读成「卡片冲出 .sh 盒」的假溢出（occlusion-scan.mjs 同一手法）
 await pg.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important;}' });
@@ -181,11 +214,313 @@ const sw = await pg.evaluate(() => {
 const flipped = THEME === 'dark' ? 'light' : 'dark';
 ok(THEME === 'dark' ? sw.theme !== 'dark' : sw.theme === 'dark', `⑦ 切换后主题态 ${sw.theme}`);
 ok(sw.bg.includes('-' + flipped + '.png'), '⑦ 切换后板源未换');
-ok(flipped === 'dark' ? (sw.lt === 'none' && sw.dk === 'block') : (sw.dk === 'none' && sw.lt === 'block'),
-   `⑦ hero 双源 ${sw.lt}/${sw.dk}`);
+// 封面自 2026-09-01 改走声场球（3D）⇒ 全 deck 无 hero-art，这一条随之退役；
+// 位图那一版（INFO_P1=art）只在终审出图时构建，不进 qa。
+if (Object.keys(HERO).length)
+  ok(flipped === 'dark' ? (sw.lt === 'none' && sw.dk === 'block') : (sw.dk === 'none' && sw.lt === 'block'),
+     `⑦ hero 双源 ${sw.lt}/${sw.dk}`);
 ok(flipped === 'dark' ? (sw.elt === 'none' && sw.edk === 'block') : (sw.edk === 'none' && sw.elt === 'block'),
    `⑩ 切换后 eco 双源 ${sw.elt}/${sw.edk}`);
 await pg.click('#deckSwap'); await pg.waitForTimeout(250);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑲/⑳ WebGL 豁免通道 · 主跑内联段
+   （a 结构 / a2 单渲染器巡游 / b 起帧对位 / e 非激活停 rAF / k 热切换 /
+     clr 净空两条算路 / chip / spd / rv 相位 / flick 消闪）
+   独立上下文才验得了的五条（禁 WebGL / reduced-motion / print / DPR / 自动降级）
+   在文件末尾的「⑲ 独立上下文段」。
+   ═══════════════════════════════════════════════════════════════════════════ */
+{
+  // ── a 结构 ──────────────────────────────────────────────────────────────
+  const struct = await pg.evaluate(() => [...document.querySelectorAll('.slide')].map((s, i) => {
+    const st = s.querySelector('.lab-stage');
+    return {
+      p: i + 1,
+      stage: s.querySelectorAll('.lab-stage').length,
+      scene: st ? st.dataset.labScene : null,
+      rect: st ? st.dataset.labRect : null,
+      ready: st ? st.dataset.labReady : null,
+      print: s.querySelectorAll('.lab-print').length,
+      poster: s.querySelectorAll('.lab-poster').length,
+      posterInPP: s.querySelectorAll('.pp .lab-poster').length,
+      posterText: [...s.querySelectorAll('.lab-poster')]
+        .reduce((n, g) => n + g.querySelectorAll('text').length, 0),
+      posterPoly: [...s.querySelectorAll('.lab-poster')]
+        .reduce((n, g) => n + g.querySelectorAll('polygon').length, 0),
+      inPP: !!s.querySelector('.pp .lab-stage'),
+      order: [...s.children].map(el => (el.className || '').split(' ')[0]).join('>'),
+    };
+  }));
+  struct.forEach((v) => {
+    const want = LAB_SCENES[v.p] || null;
+    ok(v.scene === want, `⑲a P${v.p} 3D 舞台种类 ${v.scene} != ${want}`);
+    ok(v.stage === (want ? 1 : 0), `⑲a P${v.p} .lab-stage 数 ${v.stage}`);
+    if (!want) { ok(v.poster === 0, `⑲a P${v.p} 无场景却挂了 poster 层`); return; }
+    ok(v.poster >= 1, `⑲a P${v.p} 缺 poster 降级层`);
+    ok(v.print === 1, `⑲a P${v.p} 缺打印帧位 .lab-print`);
+    ok(!v.inPP, `⑲a P${v.p} 3D 舞台落在 .pp 里了 —— 必须是 .pp 的兄弟`);
+    ok(v.order === 'conf-bg>lab-stage>pp', `⑲a P${v.p} 层序漂移：${v.order}`);
+    ok(/^\d+,\d+,\d+,\d+$/.test(v.rect || ''), `⑲a P${v.p} 图形区矩形声明缺失：${v.rect}`);
+    ok(v.ready === '1', `⑲a P${v.p} 场景没建起来（data-lab-ready=${v.ready}）`);
+    // poster 组里一个字也不许有；箭头头（方向标注）也必须留在 canvas 之上
+    ok(v.posterText === 0, `⑲a P${v.p} poster 层里裹进了 ${v.posterText} 个文字件`);
+    ok(v.posterPoly === 0, `⑲a P${v.p} poster 层里裹进了 ${v.posterPoly} 枚箭头头`);
+    if (INPAGE.includes(v.p))
+      ok(v.posterInPP >= 1, `⑲a P${v.p} 的图形没有原地留作 poster 层`);
+  });
+
+  // ── a2 单渲染器巡游的硬红线 ────────────────────────────────────────────
+  {
+    const one = await pg.evaluate(() => {
+      const all = [...document.querySelectorAll('canvas')];
+      return { n: all.length, id: all[0] && all[0].id,
+        garage: document.querySelectorAll('.lab-garage').length,
+        scenes: document.documentElement.dataset.labScenes,
+        ready: window.__labReady,
+        ctxOK: (() => { try { const c = all[0];
+          return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } })() };
+    });
+    ok(one.n === 1, `⑲a2 全文档 WebGL canvas ${one.n} 枚 —— 单渲染器巡游只准 1 枚`);
+    ok(one.id === 'labGl', `⑲a2 canvas id 漂移：${one.id}`);
+    ok(one.garage === 1, '⑲a2 缺 canvas 车库 .lab-garage');
+    ok(one.ctxOK, '⑲a2 那一枚 canvas 拿不到 WebGL 上下文');
+    ok(one.scenes === LAB_PAGES.join(','),
+       `⑲a2 场景 registry 页码表漂移：${one.scenes} != ${LAB_PAGES.join(',')}`);
+    ok(one.ready === LAB_PAGES.length, `⑲a2 建起来的场景数 ${one.ready} != ${LAB_PAGES.length}`);
+    FLAT_PAGES.forEach(p => ok(!LAB_PAGES.includes(p),
+      `⑲a2 P${p} 不该有 3D 场景（P6 实拍照片 / P7 定稿生态图 —— 既定判断）`));
+  }
+
+  // ── a' 生产页不挂常显探针 ───────────────────────────────────────────────
+  {
+    const hidden = await pg.evaluate(() => {
+      const p = document.getElementById('labProbe');
+      return { has: !!p, disp: p ? getComputedStyle(p).display : null,
+               flag: document.documentElement.hasAttribute('data-lab-debug') };
+    });
+    ok(hidden.has, '⑲a 缺 FPS 探针节点（?debug=1 时要用它）');
+    ok(!hidden.flag, '⑲a 默认 URL 却挂上了 data-lab-debug');
+    ok(hidden.disp === 'none', `⑲a 生产页挂了常显 FPS 探针（display=${hidden.disp}）`);
+  }
+
+  // ── b 逐页起帧 + 对位 + poster 交接 ────────────────────────────────────
+  for (const P of LAB_PAGES) {
+    await pg.evaluate(k => window.deck.go(k - 1), P);
+    await pg.waitForTimeout(1500);
+    const v = await pg.evaluate((k) => {
+      const c = document.getElementById('labGl');
+      const st = document.querySelector(`.slide[data-p="${k}"] .lab-stage`);
+      const r = c.getBoundingClientRect();
+      const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+      const K = sc.width / 1920;
+      return { mode: c.dataset.labMode, run: c.dataset.labRun, dpr: +c.dataset.labDpr,
+        page: +c.dataset.labPage, scene: c.dataset.labScene,
+        inStage: c.parentNode === st, glup: st.classList.contains('gl-up'),
+        want: (st.dataset.labRect || '').split(',').map(Number),
+        got: [(r.x - sc.x) / K, (r.y - sc.y) / K, r.width / K, r.height / K],
+        posterOp: [...document.querySelectorAll(`.slide[data-p="${k}"] .lab-poster`)]
+          .map(e => +getComputedStyle(e).opacity),
+        canvasOp: +getComputedStyle(c).opacity, buf: [c.width, c.height] };
+    }, P);
+    ok(v.mode === 'LIVE', `⑲b P${P} WebGL 未进 LIVE（mode=${v.mode}）`);
+    ok(v.run === '1', `⑲b P${P} 渲染循环没跑（run=${v.run}）`);
+    ok(v.page === P && v.scene === LAB_SCENES[P], `⑲b P${P} 当前景不对：P${v.page}/${v.scene}`);
+    ok(v.inStage, `⑲b P${P} canvas 没搬进该页舞台`);
+    ok(v.glup, `⑲b P${P} .lab-stage 没挂 gl-up —— poster 不会让位`);
+    const d = v.want.map((x, i) => Math.abs(x - v.got[i]));
+    ok(Math.max(...d) <= 1.2,
+       `⑲b P${P} canvas 对位偏了：want=[${v.want}] got=[${v.got.map(x => x.toFixed(1))}]`);
+    ok(Math.abs(v.buf[0] / v.dpr - v.want[2]) < 2 && Math.abs(v.buf[1] / v.dpr - v.want[3]) < 2,
+       `⑲b P${P} 绘制缓冲区尺寸没跟着矩形走：${v.buf} @dpr ${v.dpr}`);
+    ok(v.posterOp.length >= 1 && v.posterOp.every(o => o < 0.02),
+       `⑲b P${P} poster 没淡出（opacity=${v.posterOp}）`);
+    ok(v.canvasOp === 1, `⑲b P${P} canvas 没淡入（opacity=${v.canvasOp}）`);
+    ok(v.dpr <= 2, `⑲f P${P} DPR ${v.dpr} > 2（上限 2 是硬的）`);
+  }
+
+  // ── e 非激活页 ⇒ canvas 回车库、rAF 停 ─────────────────────────────────
+  await pg.evaluate(k => window.deck.go(k - 1), FLAT_PAGES[0]);
+  await pg.waitForTimeout(700);
+  const off = await pg.evaluate(() => {
+    const c = document.getElementById('labGl');
+    return { run: c.dataset.labRun, mode: c.dataset.labMode, page: c.dataset.labPage,
+      parent: c.parentNode.className,
+      glup: [...document.querySelectorAll('.lab-stage.gl-up')].length,
+      posterBack: [...document.querySelectorAll('.slide[data-p="8"] .lab-poster')]
+        .map(e => +getComputedStyle(e).opacity) };
+  });
+  ok(off.run === '0', `⑲e 站在 P${FLAT_PAGES[0]} 上渲染循环还在跑（run=${off.run}）`);
+  ok(off.mode === 'IDLE', `⑲e 站在 P${FLAT_PAGES[0]} 上 mode=${off.mode}（应为 IDLE）`);
+  ok(off.parent === 'lab-garage', `⑲e canvas 没回车库（parent=${off.parent}）`);
+  ok(off.page === '0', `⑲e 离场后 data-lab-page 没清（=${off.page}）`);
+  ok(off.glup === 0, `⑲e 还有 ${off.glup} 枚舞台挂着 gl-up —— 离场必须把 poster 交还回去`);
+  ok(off.posterBack.every(o => o > 0.98),
+     `⑲e 离场后 P8 的 poster 没回到常驻态（opacity=${off.posterBack}）`);
+
+  // ── k 翻页热切换（P4 → P5 · 两枚相邻 3D 页）────────────────────────────
+  {
+    await pg.evaluate(() => window.deck.go(3));
+    await pg.waitForTimeout(1400);
+    const a = await pg.evaluate(() => ({ ...window.__labTour, leaves: { ...window.__labTour.leaves },
+      cvsPage: +document.getElementById('labGl').dataset.labPage }));
+    await pg.evaluate(() => window.deck.go(4));
+    await pg.waitForTimeout(1400);
+    const b2 = await pg.evaluate(() => ({ ...window.__labTour, leaves: { ...window.__labTour.leaves },
+      cvsPage: +document.getElementById('labGl').dataset.labPage,
+      p4glup: document.querySelector('.slide[data-p="4"] .lab-stage').classList.contains('gl-up'),
+      p5glup: document.querySelector('.slide[data-p="5"] .lab-stage').classList.contains('gl-up'),
+      p4poster: [...document.querySelectorAll('.slide[data-p="4"] .lab-poster')]
+        .map(e => +getComputedStyle(e).opacity) }));
+    ok(a.scene === 'release' && a.cvsPage === 4, `⑲k P4 当前景不是 release：${a.scene}/${a.cvsPage}`);
+    ok(b2.scene === 'agent' && b2.cvsPage === 5, `⑲k P5 当前景没换成 agent：${b2.scene}/${b2.cvsPage}`);
+    ok(b2.mounts === a.mounts + 1, `⑲k 场景热切换没发生（mounts ${a.mounts}→${b2.mounts}）`);
+    ok((b2.leaves[4] || 0) === (a.leaves[4] || 0) + 1,
+       `⑲k 前一景没走 leave（P4 leaves ${a.leaves[4] || 0}→${b2.leaves[4] || 0}）`);
+    ok(!b2.p4glup && b2.p5glup, `⑲k gl-up 没跟着搬家（P4=${b2.p4glup} P5=${b2.p5glup}）`);
+    ok(b2.p4poster.every(o => o > 0.98),
+       `⑲k 离开 P4 后它的 poster 没回来（opacity=${b2.p4poster}）`);
+  }
+
+  // ── ⑳clr 净空：两条独立算路对表 + 墨迹名册 × 活 DOM 对表 ─────────────────
+  {
+    const covers = (b2, g, tol) =>
+      g[0] >= b2[0] - tol && g[1] >= b2[1] - tol
+      && g[0] + g[2] <= b2[0] + b2[2] + tol && g[1] + g[3] <= b2[1] + b2[3] + tol;
+    for (const P of LAB_PAGES.filter(p => p !== 1)) {
+      await pg.evaluate(k => window.deck.go(k - 1), P);
+      await pg.waitForTimeout(2400);
+      const D = await pg.evaluate((k) => {
+        const d = document.getElementById('labStage' + k).dataset;
+        const u = window.__labTour.unit();
+        const rc = (d.labRect || '').split(',').map(Number);
+        const s = document.querySelector(`.slide[data-p="${k}"]`);
+        const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+        const K = sc.width / 1920, gs = [];
+        const w = document.createTreeWalker(s.querySelector('.pp'), NodeFilter.SHOW_TEXT);
+        let t;
+        while ((t = w.nextNode())) {
+          if (!t.textContent.trim()) continue;
+          const r = document.createRange(); r.selectNodeContents(t);
+          for (const q of r.getClientRects()) {
+            if (q.width <= 1 || q.height <= 1) continue;
+            const g = [(q.x - sc.x) / K, (q.y - sc.y) / K, q.width / K, q.height / K];
+            // 只管落在该页 3D 矩形之内的字（矩形之外的字轮不到 3D 去压）
+            if (g[0] + g[2] > rc[0] && g[0] < rc[0] + rc[2]
+             && g[1] + g[3] > rc[1] && g[1] < rc[1] + rc[3]) gs.push(g);
+          }
+        }
+        return { clr: +d.labClr, clrMin: +d.labClrMin, rect: rc, gs,
+          ink: (d.labInk || '').split(';').filter(Boolean).map(r => r.split(',').map(Number)),
+          st: u && u.state ? u.state() : null };
+      }, P);
+      ok(D.ink.length >= 4, `⑳clr P${P} 墨迹名册只有 ${D.ink.length} 只盒`);
+      ok(D.st && isFinite(D.st.clr), `⑳clr P${P} 场景没有交出 state().clr`);
+      ok(D.st.clr >= D.clr,
+         `⑳clr P${P} 的 3D 压字：运行时实测 ${D.st.clr.toFixed(2)}px < 下限 ${D.clr}px`);
+      ok(Math.abs(D.st.clr - D.clrMin) <= 0.5,
+         `⑳clr P${P} 两条算路分叉：构建期解析 ${D.clrMin}px vs 运行时逐顶点 ${D.st.clr.toFixed(2)}px`);
+      // 名册 × 活 DOM：矩形内每一处字形行框都得被名册（或已知穿越名册）盖住
+      const SKIP = { 8: [[150, 332, 140.9, 17], [150, 532, 133.4, 17], [150, 732, 167.5, 17]] };
+      const reg = D.ink.concat(SKIP[P] || []);
+      const miss = D.gs.filter(g => !reg.some(b2 => covers(b2, g, 3)));
+      ok(miss.length === 0,
+         `⑳clr-a P${P} 有 ${miss.length} 处字形行框不在墨迹名册里（首处 ${
+           miss[0] && miss[0].map(v => Math.round(v))}）—— 改了文案就得同步那张表`);
+      console.log(`  · ⑳clr P${P}（${LAB_SCENES[P]}）：字形 ${D.gs.length} 处 ⊂ 名册 ${
+        reg.length} 只 · 净空 ${D.st.clr.toFixed(2)}px（声明 ${D.clrMin} · 下限 ${D.clr}）`);
+    }
+  }
+
+  // ── ⑳chip P4 的 hot 是抽屉 chip：它绝不许被 3D 压 ────────────────────────
+  {
+    await pg.evaluate(() => window.deck.go(3));
+    await pg.waitForTimeout(1000);
+    await pg.evaluate(() => document.querySelectorAll('.slide[data-p="4"] [data-step]')
+      .forEach(e => e.classList.add('on')));
+    await pg.waitForTimeout(400);
+    const c = await pg.evaluate(() => {
+      const d = document.getElementById('labStage4').dataset;
+      const r = (d.labRect || '').split(',').map(Number);
+      const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+      const K = sc.width / 1920;
+      const q = document.getElementById('engineExpand').getBoundingClientRect();
+      const g = [(q.x - sc.x) / K, (q.y - sc.y) / K, q.width / K, q.height / K];
+      const dx = Math.max(r[0] - (g[0] + g[2]), 0, g[0] - (r[0] + r[2]));
+      const dy = Math.max(r[1] - (g[1] + g[3]), 0, g[1] - (r[1] + r[3]));
+      return { d: Math.hypot(dx, dy), decl: (d.labChip || ''), lim: +d.labChipclr, g, r };
+    });
+    ok(c.d >= c.lim, `⑳chip P4 抽屉 chip 距 3D 矩形仅 ${c.d.toFixed(1)}px（下限 ${c.lim}）`);
+    const dc = c.decl.split(',').map(Number);
+    ok(dc.length === 4 && Math.abs(dc[0] - c.g[0]) < 3 && Math.abs(dc[1] - c.g[1]) < 3,
+       `⑳chip 构建期声明的 chip 盒 [${c.decl}] 与活 DOM [${c.g.map(v => v.toFixed(1))}] 分叉`);
+    console.log(`  · ⑳chip P4 抽屉 chip 离 3D 矩形 ${c.d.toFixed(0)}px（下限 ${c.lim}）`);
+  }
+
+  // ── ⑳spd A 档流速逐股复算 ───────────────────────────────────────────────
+  {
+    const rows = await pg.evaluate(() => [...document.querySelectorAll('.lab-stage[data-lab-spd]')]
+      .map(el => [+el.dataset.labPage, el.dataset.labSpd]));
+    const all = [];
+    rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
+      .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
+    ok(all.length === 13, `⑳spd A 档股数 ${all.length} != 13`);
+    ok(rows.length === 5, `⑳spd A 档页数 ${rows.length} != 5（P1 声场球不是介质，不进表）`);
+    all.forEach(r => ok(r.v >= 77 && r.v <= 143,
+      `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
+    const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
+    ok(hi / lo <= 1.5, `⑳spd 全局极差 ${(hi / lo).toFixed(2)}×`);
+    rows.forEach(([p, s2]) => {
+      const v = s2.split(';').filter(Boolean).map(r => +r.slice(r.lastIndexOf(',') + 1));
+      ok(Math.max(...v) / Math.min(...v) <= 1.35,
+         `⑳spd P${p} 页内极差 ${(Math.max(...v) / Math.min(...v)).toFixed(2)}×`);
+    });
+    console.log(`  · ⑳spd A 档：${rows.length} 页 ${all.length} 股 · ${lo}–${hi}px/s`);
+  }
+
+  // ── ⑳rv P8 三条支流的接力相位（解出来的，不是调出来的）────────────────────
+  {
+    const d = await pg.evaluate(() => {
+      const q = document.getElementById('labStage8').dataset;
+      return { off: q.labRvphase.split(',').map(Number), tlen: q.labTlen.split(',').map(Number),
+               lam: +q.labLam, trib: +q.labTrib, w: q.labW };
+    });
+    ok(d.trib === 3, `⑳rv 支流数 ${d.trib} != 3`);
+    ok(Math.abs(d.lam - 232) < 1e-6, `⑳rv 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
+    d.off.forEach((o, k) => {
+      const res = o + d.tlen[k] - k * d.lam / 3;
+      ok(Math.abs(res) < 1e-3,
+         `⑳rv 支流${k + 1} 接力相位没对齐（off ${o} + Lw ${d.tlen[k]} − ${k}·λ/3，余 ${res.toFixed(4)}）`);
+    });
+    console.log(`  · ⑳rv P8 接力：三条支流相位差 λ/3 = ${(d.lam / 3).toFixed(1)}px，余项全 0`);
+  }
+
+  // ── ⑳flick 消闪：定拍逐帧亮度突变上限（波B 的第一条验收红线）──────────────
+  {
+    for (const P of LAB_PAGES) {
+      await pg.evaluate(k => window.deck.go(k - 1), P);
+      await pg.waitForTimeout(1600);
+      const fl = await pg.evaluate(() => {
+        const T = window.__labTour; T.pace(24);
+        let dMean = 0, dBlk = 0, prev = null;
+        for (let i = 0; i < 48; i++) {
+          T.seek(3 + i / 24);
+          const s = T.shot(8, 8);
+          if (prev) {
+            dMean = Math.max(dMean, Math.abs(s.mean - prev.mean));
+            for (let j = 0; j < s.blocks.length; j++)
+              dBlk = Math.max(dBlk, Math.abs(s.blocks[j] - prev.blocks[j]));
+          }
+          prev = s;
+        }
+        T.pace(0);
+        return { dMean, dBlk };
+      });
+      ok(fl.dMean <= 4.0, `⑳flick P${P} 整幅亮度帧间跳变 ${fl.dMean.toFixed(2)}/255 > 4.0`);
+      ok(fl.dBlk <= 26.0, `⑳flick P${P} 8×8 分块亮度帧间跳变 ${fl.dBlk.toFixed(2)}/255 > 26`);
+    }
+    console.log('  · ⑳flick 消闪：6 页 × 48 帧逐帧亮度突变全部在档内');
+  }
+}
 
 // ⑪ 引擎详解抽屉：chip → Enter 展开 → Esc 收回 → deck 按键恢复 → 引擎 deck 自身可达
 async function goPage(n, pushSteps) {
@@ -439,8 +774,200 @@ ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改'
  'callagent-landingpage-staging', 'staging', '盲测', '32,000']
   .forEach(n => ok(!ALL.includes(n), `⑭ 红线：8 页宿主出现「${n}」`));
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑲/⑳ WebGL 豁免通道 · 独立上下文段
+   —— 下面六条各自需要一套不同的浏览器 / 媒体条件，只能另开上下文跑。
+   （THEME=dark 二跑时全部跳过：这几条是主题无关层，跑两遍只是浪费三分钟。）
+   ═══════════════════════════════════════════════════════════════════════════ */
+if (THEME !== 'dark') {
+  /* ── c 禁用 WebGL 启动 ⇒ 8 页照常完整可读 ────────────────────────────────
+     速讲版的**生命线**：客户会在各种设备上打开。「3D 起不来」不许等于
+     「这份 deck 废了」—— 六页退回 poster 静帧（= 页上原来那张 SVG），
+     另外两页本来就没有 canvas，一格不受影响。 */
+  {
+    const b2 = await chromium.launch({ executablePath: CHROME,
+      args: ['--disable-webgl', '--disable-webgl2', '--disable-gpu'] });
+    const ctx = await b2.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+    const pg2 = await ctx.newPage();
+    const err2 = [];
+    pg2.on('pageerror', e => err2.push('PAGEERROR ' + e.message));
+    await pg2.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
+    await pg2.waitForTimeout(7500);                       // 看门狗 6s
+    const fb = await pg2.evaluate((pages) => {
+      const one = (p) => {
+        const st = document.querySelector(`.slide[data-p="${p}"] .lab-stage`);
+        const posters = [...document.querySelectorAll(`.slide[data-p="${p}"] .lab-poster`)];
+        return { glup: st.classList.contains('gl-up'),
+          posterOp: posters.map(e => +getComputedStyle(e).opacity),
+          ink: posters.reduce((n, g) =>
+            n + g.querySelectorAll('path,rect,circle,line,polygon,ellipse').length, 0),
+          // 「降级层里真的有一张图」用**包围盒**判，不用路径字符数：
+          // P2 的活动带是「一条轴 + 五枚圆」，d 串本来就只有 12 个字符，
+          // 按字符数判会把一张完整的图误判成空壳。
+          bw: posters.reduce((m, g) => { try { return Math.max(m, g.getBBox().width); }
+                                         catch (e) { return m; } }, 0) };
+      };
+      const c = document.getElementById('labGl');
+      const txt = [...document.querySelectorAll('.slide')].map(s => s.textContent.replace(/\s+/g, '').length);
+      return { cvs: { mode: c.dataset.labMode, run: c.dataset.labRun,
+                      parent: c.parentNode.className, n: document.querySelectorAll('canvas').length },
+               per: Object.fromEntries(pages.map(p => [p, one(p)])), txt,
+               all: document.getElementById('deckStage').textContent.replace(/\s+/g, ' ') };
+    }, LAB_PAGES);
+    ok(fb.cvs.mode === 'POSTER', `⑲c 无 WebGL · mode=${fb.cvs.mode}（应为 POSTER）`);
+    ok(fb.cvs.run === '0', '⑲c 无 WebGL · 还在跑 rAF');
+    ok(fb.cvs.parent === 'lab-garage', `⑲c 无 WebGL · canvas 没停在车库（${fb.cvs.parent}）`);
+    ok(fb.cvs.n === 1, `⑲c 无 WebGL · canvas 数 ${fb.cvs.n}`);
+    LAB_PAGES.forEach((P) => {
+      const u = fb.per[P];
+      ok(!u.glup, `⑲c 无 WebGL · P${P} 假装起来了（gl-up 还挂着）`);
+      ok(u.posterOp.length >= 1 && u.posterOp.every(o => o === 1),
+         `⑲c 无 WebGL · P${P} poster 没常驻（opacity=${u.posterOp}）`);
+      ok(u.ink >= 3, `⑲c 无 WebGL · P${P} 降级层只有 ${u.ink} 个几何件 —— 这一页降不下去`);
+      ok(u.bw > 100, `⑲c 无 WebGL · P${P} 降级层包围盒只有 ${u.bw.toFixed(0)} 单位宽 —— 这一页降不下去`);
+    });
+    ok(fb.txt.length === N, `⑲c 无 WebGL · 页数 ${fb.txt.length} != ${N}`);
+    fb.txt.forEach((n, i) => ok(n >= 20, `⑲c 无 WebGL · P${i + 1} 正文只剩 ${n} 字 —— 这一页读不了了`));
+    // 口径锁在降级态里照样在（poster 只换图，不换字）
+    ['No.1', '100万+', '900亿+', '50+', '96.5%', '2,475', '三条支流，一条河',
+     'IDC 中国视频云市场报告'].forEach(s2 =>
+      ok(fb.all.includes(s2), `⑲c 无 WebGL · 全 deck 缺「${s2}」`));
+    CASES.forEach(n => ok(fb.all.includes(n), `⑲c 无 WebGL · 案例墙缺「${n}」`));
+    ok(err2.length === 0, `⑲c 无 WebGL · pageerror ${err2.length}：${err2.slice(0, 2).join(' | ')}`);
+    for (const [pp, name] of [[8, 'info-fallback'], [1, 'info-fallback-p1']]) {
+      await pg2.evaluate(k => window.deck.go(k - 1), pp);
+      await pg2.waitForTimeout(2600);
+      await pg2.screenshot({ path: `${OUT}/${name}.png`, clip: { x: 0, y: 0, width: 1920, height: 1080 } });
+    }
+    await b2.close();
+  }
+
+  /* ── d prefers-reduced-motion ⇒ 渲一帧停帧（不是黑屏，也不是继续转）+ f DPR + g print ── */
+  {
+    const b3 = await chromium.launch({ executablePath: CHROME, args: GL_ARGS });
+    const ctx = await b3.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1,
+      reducedMotion: 'reduce' });
+    const pg3 = await ctx.newPage();
+    await pg3.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+    await pg3.waitForTimeout(3500);
+    const rm = await pg3.evaluate(() => {
+      const c = document.getElementById('labGl');
+      return { mode: c.dataset.labMode, run: c.dataset.labRun,
+               glup: document.getElementById('labStage1').classList.contains('gl-up') };
+    });
+    ok(rm.mode === 'STILL', `⑲d reduced-motion · mode=${rm.mode}（应为 STILL）`);
+    ok(rm.run === '0', '⑲d reduced-motion · rAF 还在跑');
+    ok(rm.glup, '⑲d reduced-motion · 应当渲出一帧并让 poster 让位（不是退回 poster）');
+
+    const ctx2 = await b3.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 3 });
+    const pg4 = await ctx2.newPage();
+    await pg4.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+    await pg4.waitForTimeout(2500);
+    const dpr = await pg4.evaluate(() => ({ dpr: +document.getElementById('labGl').dataset.labDpr,
+      dev: window.devicePixelRatio }));
+    ok(dpr.dev > 2, `⑲f 上下文 devicePixelRatio=${dpr.dev} —— 这条闸没在真正的高 DPR 下跑`);
+    ok(dpr.dpr <= 2, `⑲f DPR 未封顶（devicePixelRatio=${dpr.dev} ⇒ 渲染 DPR=${dpr.dpr}）`);
+
+    await pg4.evaluate(() => window.deck.go(0));
+    await pg4.waitForTimeout(1200);
+    const pr = await pg4.evaluate(() => {
+      window.dispatchEvent(new Event('beforeprint'));
+      const im1 = document.getElementById('labPrint1');
+      return { s1: (im1.getAttribute('src') || '').length,
+               head1: (im1.getAttribute('src') || '').slice(0, 22) };
+    });
+    ok(pr.s1 > 5000, `⑲g P1 打印帧是空的（dataURL ${pr.s1} 字节）`);
+    ok(pr.head1.startsWith('data:image/png;base64'), `⑲g 打印帧不是 PNG dataURL：${pr.head1}`);
+    await pg4.emulateMedia({ media: 'print' });
+    const pm = await pg4.evaluate(() => ({
+      cv: getComputedStyle(document.getElementById('labGl')).display,
+      poAll: [...document.querySelectorAll('.lab-poster')].map(e => +getComputedStyle(e).opacity),
+      pi: getComputedStyle(document.getElementById('labPrint1')).display,
+      probe: getComputedStyle(document.getElementById('labProbe')).display }));
+    ok(pm.poAll.every(o => o === 1), `⑲g print · 有 poster 没显（${pm.poAll.filter(o => o !== 1).length} 枚）`);
+    ok(pm.cv === 'none', `⑲g print · canvas 没藏（display=${pm.cv}）`);
+    ok(pm.pi === 'block', `⑲g print · 打印帧没盖上去（display=${pm.pi}）`);
+    ok(pm.probe === 'none', '⑲g print · FPS 探针没藏');
+    await pg4.emulateMedia({ media: 'screen' });
+    await b3.close();
+  }
+
+  /* ── i FPS 自动降级：**不带** ?lab=hold 的默认 URL，软渲染 <20fps ⇒ 2s 内退 poster ── */
+  {
+    const b4 = await chromium.launch({ executablePath: CHROME, args: GL_ARGS });
+    const ctx = await b4.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+    const pg5 = await ctx.newPage();
+    await pg5.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
+    await pg5.waitForTimeout(5000);
+    const dg = await pg5.evaluate(() => {
+      const c = document.getElementById('labGl');
+      return { mode: c.dataset.labMode, run: c.dataset.labRun, deg: c.dataset.labDegraded,
+               fps: +c.dataset.labFps,
+               glup: document.getElementById('labStage1').classList.contains('gl-up'),
+               posterOp: +getComputedStyle(document.querySelector('#labStage1 .lab-poster')).opacity };
+    });
+    ok(dg.mode === 'POSTER' && dg.deg === '1',
+       `⑲i 软渲染下没有自动降级（mode=${dg.mode} fps=${dg.fps}）—— 探针那条闸失效了`);
+    ok(dg.run === '0', '⑲i 降级后 rAF 还在跑');
+    ok(!dg.glup && dg.posterOp === 1, `⑲i 降级后 poster 没接管（glup=${dg.glup} op=${dg.posterOp}）`);
+    await b4.close();
+  }
+
+  /* ── j 双主题 × 逐 3D 页静置帧 + 材质 token 真的分叉 + ⑳ink 浅/暗墨量比 ──────
+     浅底走正常混合、暗底走加色混合 ⇒ 浅色中间调天生容易塌。
+     同一支尺（TOUR.shot().ink = 该页 3D 层的平均 alpha）逐页量两遍，比值 ≥ 0.90。 */
+  {
+    const b5 = await chromium.launch({ executablePath: CHROME, args: GL_ARGS });
+    const tok = {}, ink = {};
+    for (const th of ['light', 'dark']) {
+      const ctx = await b5.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      await ctx.addInitScript((t) => { try { localStorage.setItem('colin-theme', t); } catch (e) {} }, th);
+      const pg6 = await ctx.newPage();
+      await pg6.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+      await pg6.waitForTimeout(6500);
+      for (const P of LAB_PAGES) {
+        await pg6.evaluate(k => window.deck.go(k - 1), P);
+        await pg6.waitForTimeout(P === 1 ? 3200 : 2600);
+        const st = await pg6.evaluate((k) => {
+          const c = document.getElementById('labGl');
+          const el = document.querySelector(`.slide[data-p="${k}"] .lab-stage`);
+          const T = window.__labTour; T.pace(30); T.seek(6);
+          const s = T.shot(4, 4); T.pace(0);
+          return { mode: c.dataset.labMode, page: +c.dataset.labPage,
+                   rect: (el.dataset.labRect || '').split(',').map(Number), ink: s.ink };
+        }, P);
+        ok(st.mode === 'LIVE' && st.page === P,
+           `⑲j ${th} · P${P} 静置帧不是 WebGL 态（mode=${st.mode} page=${st.page}）`);
+        (ink[P] = ink[P] || {})[th] = st.ink;
+        await pg6.screenshot({ path: `${OUT}/info-still-p${P}-${th}.png`,
+          clip: { x: st.rect[0], y: st.rect[1], width: st.rect[2], height: st.rect[3] } });
+      }
+      tok[th] = await pg6.evaluate(() => {
+        const cs = getComputedStyle(document.documentElement);
+        return { vInk: cs.getPropertyValue('--v-ink').trim(),
+                 vAdd: cs.getPropertyValue('--v-add').trim(),
+                 tlAdd: cs.getPropertyValue('--tl-add').trim(),
+                 rvAdd: cs.getPropertyValue('--rv-add').trim(),
+                 vBack: cs.getPropertyValue('--v-back').trim() };
+      });
+      await ctx.close();
+    }
+    await b5.close();
+    ok(tok.light.vInk !== tok.dark.vInk, `⑲j 声场球点色两主题相同（--v-ink=${tok.light.vInk}）`);
+    ok(tok.light.vAdd !== tok.dark.vAdd, '⑲j 混合模式两主题相同（--v-add）');
+    ok(tok.light.tlAdd !== tok.dark.tlAdd, '⑲j 活动带混合模式两主题相同（--tl-add）');
+    ok(tok.light.rvAdd !== tok.dark.rvAdd, '⑲j 合流页混合模式两主题相同（--rv-add）');
+    const rows = LAB_PAGES.map(P => [P, ink[P].light / ink[P].dark]);
+    rows.forEach(([P, r]) => ok(r >= 0.90,
+      `⑳ink P${P} 浅/暗墨量比 ${r.toFixed(3)} < 0.90 —— 浅色中间调塌了`));
+    console.log('  · ⑳ink 浅/暗墨量比：' + rows.map(([P, r]) => `P${P} ${r.toFixed(2)}`).join(' · '));
+    console.log(`  · WebGL 静置帧已出：${OUT}/info-still-p{${LAB_PAGES}}-{light,dark}.png`);
+  }
+}
+
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P4/P5/P7 各 1 步 · 深链 P4→#1 / P5→#16 / P6→#19`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P4/P5/P7 各 1 步 · 深链 P4→#1 / P5→#16 / P6→#19`
+                           + ` · LAB 六景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 / A 档 13 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);

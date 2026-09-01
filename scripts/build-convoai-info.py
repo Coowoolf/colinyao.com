@@ -69,9 +69,16 @@ A = "/decks/assets/convoai/"
 B = "/decks/assets/conf-boards/"
 R26 = "/decks/assets/robot26/"
 
-# P1 封面主视觉开关：默认保留 AI-art（INFO_HERO=0 出无 art 的一版供终审对比）。
-# 两版只差 P1 的 .hero-art 两枚 img，其余 8 页逐字节相同。
-HERO_ART = os.environ.get("INFO_HERO", "1") != "0"
+# ── P1 封面主视觉：**声场球 orb（默认）** 与 AI-art 位图二选一 ────────────────
+#   两者占的是同一块地（art 盒 left720..1920 / top220..895 与球的极值轮廓
+#   x1322–1788 / y345–811 完全重叠），而 3D 舞台在文档序上压在 hero-art 之上 ——
+#   同时开只会把位图糊掉。所以这是一枚**互斥**开关，不是叠加：
+#     INFO_P1=orb（默认）3D 声场球 · 无 .hero-art
+#     INFO_P1=art        AI-art 位图 · P1 不入场景表（终审对比版）
+#   两版的其余 7 页逐字节相同。
+P1_MODE = os.environ.get("INFO_P1", "orb")
+assert P1_MODE in ("orb", "art"), "INFO_P1 只认 orb / art：%r" % P1_MODE
+HERO_ART = (P1_MODE == "art")
 
 AC = "var(--accent)"
 AD = "var(--accent-deep)"
@@ -104,6 +111,266 @@ html[data-theme="dark"] .conf-bg-title{background-image:url('%(B)stitle-02-orbit
 html[data-theme="dark"] .conf-bg-content{background-image:url('%(B)scontent-01-matrix-dark.png');}
 html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
 </style>""" % {"B": B}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LAB 层 · three.js 语义 3D 升维（2026-09-01 · convoai-info 整体重构）
+# ───────────────────────────────────────────────────────────────────────────
+#   Colin：「按一样的逻辑去整体重构一下 convoai-info。」
+#   —— 把 convoai-lab 那一整套 LAB 工艺（语义 3D / 单渲染器巡游 / 流质铁律 /
+#      降级链 / 四条验收红线）搬到速讲版上。**基建一行都不重写**：
+#      lab-kit、单渲染器巡游 TOUR、降级链、poster 分件刀 `_lpsplit` 全部
+#      从 `scripts/build-convoai-lab.py` **现取**（见 `_LAB` / `_cutmod`）——
+#      单一真相在旗舰那边，这里只写本 deck 的语义几何。
+#
+# ── info 与 lab 的身份差别（本层每一处取舍的理由）─────────────────────────
+#   ① **浅色默认**：`colin-theme` 无值时是浅底（速讲 / 微信转发场景）。
+#      浅底走正常混合（--x-add:0）、暗底走加色混合（--x-add:1） ⇒ 浅色中间调
+#      天然容易塌。本层的浅色档参数按 lab 波B 的教训**预先校足**，
+#      并由 qa 的 ⑳ink 闸逐页量「浅/暗墨量比 ≥0.9」。
+#   ② **降级链是生命线**：客户会在各种设备上打开（禁 WebGL / reduced-motion /
+#      print / 离线归档四条路），8 页必须完整可读。所以每一枚场景都**替换**
+#      页上原有的一张 SVG 图 —— poster 就是那张图本人，起不来就是原来的 2D 版。
+#      本 deck **没有加法层**（lab 的 P5/P15/P16/P22 那一类）：速讲版页面本就密，
+#      版面之外没有可加场的空档（P2 的实测见 lab_data 的注）。
+#   ③ **抽屉不动**：引擎抽屉仍指 `convoai-engine`（2D 正装）——速讲现场展开要
+#      秒开，不该等 750KB three.js。这是既定判断，见本轮 commit message。
+#
+# ── 逐页语义审查（8 页 · 一页一判）───────────────────────────────────────
+#   P1 封面        → 声场球（lab P1 血统：谐波行波驱动点云球面呼吸 · 波峰上色）
+#   P2 公司        → 发布时间线**活动带**（audioStream 沿时间轴 · 5 个里程碑为节点脉冲）
+#                    ⚠ 地球：**停手**。P2 上最大的一块无字矩形是 820×96（03 右下），
+#                      放得下的球直径 96px —— 比同页「No.1」的字还小，那是装饰不是语义。
+#                      要地球就得动 DOM 坐标，本轮纪律不许。见交付报告。
+#   P3 矩阵        → 空间生长（底座 = 纵深基面 · 三条产品线从底座抽出向上 · 辅件入景深）
+#   P4 ENGINE      → 发版活动带（audioStream 沿时间轴 · 17 次发版为带上的节点脉冲）
+#   P5 AGENT       → Agent 骨架（四件能力模块环绕运行时核 · 安全是包住全部的虚线域）
+#   P6 PHYSICAL AI → **维持 2D**（R1 实拍照片页 —— 照片就是照片，与 lab P19 同一判断）
+#   P7 案例        → **维持 2D · 停手**。eco 五层主视觉是定稿资产，而且它是 .pp 里的
+#                    一枚 <img>；3D 舞台按家族层序坐在 .pp **之下**，canvas 会被底图
+#                    整幅盖住 —— 要让流看得见就只能把 canvas 抬进 .pp 压在定稿底图之上，
+#                    那正是历史指令明令禁止的。结构性冲突，不是口味问题。见交付报告。
+#   P8 合流        → 三条空间支流汇入 ONE NET 主河道（本 deck 的标杆页 · 投入最高）
+# ═══════════════════════════════════════════════════════════════════════════
+import importlib.util as _ilu
+import re as _re2
+
+# ── 从旗舰 builder 现取地基（**不改它一个字节**）──────────────────────────
+_LAB_SPEC = _ilu.spec_from_file_location("_convoai_lab", ROOT / "scripts" / "build-convoai-lab.py")
+_LAB = _ilu.module_from_spec(_LAB_SPEC)
+_LAB_SPEC.loader.exec_module(_LAB)
+
+
+def _cutmod(a, b=None, head=True):
+    """按锚点从 lab 的运行时里切一段出来（锚点缺失 = 旗舰改了结构 ⇒ 当场炸，
+       绝不静默分叉）。head=True 时把锚点**之前**那一段 `/* ═` 大注释一起带走 ——
+       注释是这套地基的一部分，照抄就连注释一起抄。"""
+    src = _LAB.LAB_MODULE_BODY
+    i = src.index(a)
+    if head:
+        j = src.rfind("\n/* ═", 0, i)
+        assert j > 0, "lab 运行时里 %r 前面没有大注释块 —— 旗舰改了结构" % a
+        i = j
+    if b is None:
+        return src[i:]
+    k = src.index(b)
+    if head:
+        k2 = src.rfind("\n/* ═", 0, k)
+        assert k2 > 0, "lab 运行时里 %r 前面没有大注释块" % b
+        k = k2
+    assert k > i, "切片区间反了：%r … %r" % (a, b)
+    return src[i:k]
+
+
+# lab-kit ①②③④（主题色桥 / 缓动 / 折线工具 / px 场景材质）——「场景 registry」之前的全部
+_K_BASE = _cutmod("import * as THREE from 'three';", "function makeVoice(ctx){", head=False)
+_K_BASE = _K_BASE[:_K_BASE.rfind("\n/* ═")]        # 尾巴那段大注释归 _K_VOICE，不许重复一遍
+# 旗舰的 OrbitControls 只有地球那一枚场景在用；本 deck 没有地球 ⇒ 连这枚外链一起省掉
+_K_BASE = _K_BASE.replace(
+    "import { OrbitControls } from '/decks/assets/three/OrbitControls.js';\n", "")
+assert "OrbitControls" not in _K_BASE
+_K_VOICE = _cutmod("function makeVoice(ctx){", "function makeGlobe(ctx){")
+_K_LOCK = _cutmod("function mkLock(w, h, D){", "const AS = K.as;")          # ⑤ 投影锁套件
+_K_AS = _cutmod("const AS = K.as;", "const MO = K.o;")                      # ⑨ audioStream
+_K_CLR = _cutmod("function unlock(w, h, D, rect){", "const QT_VS = [")      # ㉒ 净空三小件
+_K_TOUR = _cutmod("const CANVAS = document.getElementById('labGl');")       # 单渲染器巡游
+for _need, _in in (("function mkStream(SH, pts, opt)", _K_AS),
+                   ("function mkLock(w, h, D)", _K_LOCK),
+                   ("function extrudeBack(", _K_LOCK),
+                   ("function geoClr(geo, U, ink, pad)", _K_CLR),
+                   ("function camPx(w,h,D)", _K_BASE),
+                   ("TOUR.pace = function(fps)", _K_TOUR)):
+    assert _need in _in, "lab 地基件缺失：%s" % _need
+
+# ── 舞台位表（每个 3D 页的图形区矩形 · 舞台坐标 1920×1080）─────────────────
+#   矩形 = 该页 2D 图形所占的那块地，**不是整屏** ⇒ 3D 形与它替换掉的 SVG 形
+#   逐像素同位，页上其余的字全部压在 canvas 之上（canvas 坐在 .pp 之下）。
+#   ⚠ 本 deck 的 figbox 有两处 vbw ≠ 盒宽（P2 1620/1680、P5 840/820），
+#     所以 figure 坐标 → 舞台像素**有缩放**（见各页的 _S2 / _S5）。
+LAB_RECTS = {
+    1: ("voice",  1305,  328,  500,  500),   # 球心 (1555,578) 居中 —— 与 lab P1 逐字同参
+    2: ("band",    120,  866, 1680,  114),   # = figbox(120,866,1680, vb1620×110) ⇒ ×1.037
+    3: ("grow",    120,  272, 1680,  480),   # = figbox(120,272,1680, vb1680×480) ⇒ ×1
+    4: ("release", 120,  268, 1440,  120),   # = figbox(120,268,1440, vb1440×120) ⇒ ×1
+    5: ("agent",   980,  514,  820,  322),   # = figbox(980,514,820, vb840×330)  ⇒ ×0.97619
+    8: ("river",   120,  272,  820,  560),   # = figbox(120,272,820, vb820×560)  ⇒ ×1
+}
+if P1_MODE == "art":                       # 对比版：封面让给位图，P1 不入场景表
+    del LAB_RECTS[1]
+LAB_PAGES = sorted(LAB_RECTS)
+# 逐页语义审查判定保持 2D：P6 R1 实拍照片页（照片就是照片，与 lab P19 同一判断）/
+# P7 定稿五层生态图（结构性冲突：底图是 .pp 里的 <img>，舞台在 .pp 之下会被整幅盖住）
+FLAT_PAGES = [6, 7]
+
+# ── poster 分件刀：形进 <g class="lab-poster">，字原位留在 DOM ──────────────
+#   `lp` / `_lpsplit` 逐字取自旗舰（判据两条：片段里出现 `<text` ⇒ 带字的；
+#   `<polygon` ⇒ 箭头头，它是方向标注，留在 canvas 之上正好钉住每条 3D 线的流向）。
+#   `_LP_TRACE` 记下每一次包装的净荷 —— build() 末尾的同源自证要用它。
+_LP_TRACE = []
+
+
+def lp(*parts):
+    body = "".join(parts)
+    _LP_TRACE.append(body)
+    return '<g class="lab-poster">%s</g>' % body
+
+
+def _lpsplit(items, keep=()):
+    out, buf = [], []
+    for it in items:
+        if it in keep or "<text" in it or "<polygon" in it:
+            if buf:
+                out.append(lp(*buf))
+                buf = []
+            out.append(it)
+        else:
+            buf.append(it)
+    if buf:
+        out.append(lp(*buf))
+    return "".join(out)
+
+
+def lab_garage():
+    """车库：单枚 canvas 的常驻位（页面上唯一一块 WebGL 画布 · 屏外零成本）"""
+    return ('<div class="lab-garage" id="labGarage" aria-hidden="true">'
+            '<canvas class="lab-canvas" id="labGl" width="16" height="16"'
+            ' data-lab-canvas="1" data-lab-mode="BOOT" data-lab-run="0"'
+            ' data-lab-page="0" data-lab-scene="" aria-hidden="true"></canvas></div>')
+
+
+LAB_PRELUDE = _LAB.LAB_PRELUDE          # ① classic 前奏 + FPS 探针位 + importmap
+
+# ═══ LAB CSS ═══════════════════════════════════════════════════════════════
+#   变量段是本 deck 自己的（六枚前缀），**舞台 / poster / 降级语域那一段逐字取自
+#   旗舰**（`/* ── 舞台层` 起到文件末尾）—— 层序、poster 淡出规则、print 与
+#   reduced-motion 四条降级路，一个字都不重写。
+#
+#   ── 浅色档的定标法（lab 波B 的教训，写在这里免得下轮又踩）───────────────
+#   暗底走加色混合：一层压一层越叠越亮，所以不透明度可以给得低。
+#   浅底走正常混合：同样的不透明度叠在纸白上只会越叠越**灰**，中间调直接塌掉。
+#   ⇒ 浅色档一律：① 主色改用 --ink / --accent-deep（纸面上的墨，不是荧光）；
+#                 ② 不透明度整体上抬 1.3–1.6×；③ 点径 / 带宽略粗一档。
+#   出稿前由 qa 的 ⑳ink 闸逐页实测 `TOUR.shot().ink` 的浅/暗比，目标 ≥0.90。
+_LAB_TAIL = _LAB.LAB_CSS[_LAB.LAB_CSS.index("/* ── 舞台层"):]
+assert _LAB_TAIL.endswith("</style>")
+
+LAB_CSS = """<style id="convoai-info-3d">
+:root{
+  /* ── ① 声场球（P1 封面）· 浅底 —— 与 lab P1 逐字同参 ── */
+  --v-ink:var(--ink);      --v-dot-op:.94;  --v-dot-size:.0138; --v-dot-min:1.1;
+  --v-hot:var(--accent);   --v-hot0:.18;    --v-hot1:.70;  --v-hot-gain:.40;
+  --v-wire:var(--ink);     --v-wire-op:.40;
+  --v-back:.46;            --v-add:0;
+  --v-atmo:var(--accent);  --v-atmo-int:.06;
+  --v-poster-dot:2.8;
+  /* ── ② 发布时间线活动带（P2）· 浅底 = 纸面上的墨带 ── */
+  --tl-flow:var(--accent);      --tl-flow-op:.62;
+  --tl-rms:var(--accent-deep);  --tl-rms-op:.72;
+  --tl-axis:var(--ink-3);       --tl-axis-op:.85;
+  /* 点径 = 页上那两枚圆的直径（r7 / r8）—— 3D 与它替换掉的 2D 同尺寸 */
+  --tl-node:var(--ink-2);       --tl-node-op:.92; --tl-node-size:14;
+  --tl-hot:var(--accent);       --tl-hot-op:1;    --tl-hot-size:16;
+  --tl-add:0;
+  /* ── ③ 空间生长（P3）· 浅底 ── */
+  --gw-base:var(--accent);      --gw-base-op:.90;
+  --gw-deck:var(--accent-deep); --gw-deck-op:.34;
+  --gw-rib:var(--ink-3);        --gw-rib-op:.52;
+  --gw-box:var(--ink-2);        --gw-box-op:.72;
+  --gw-aux:var(--ink-3);        --gw-aux-op:.50;
+  --gw-e:var(--l-eng);          --gw-a:var(--l-agent);  --gw-p:var(--l-phys);
+  --gw-flow-op:.58;             --gw-rms-op:.70;
+  --gw-add:0;
+  /* ── ④ 发版活动带（P4）· 浅底 ── */
+  --rl-flow:var(--l-eng);       --rl-flow-op:.58;
+  --rl-rms:var(--accent-deep);  --rl-rms-op:.70;
+  --rl-axis:var(--ink-3);       --rl-axis-op:.80;
+  --rl-tick:var(--ink-3);       --rl-tick-op:.80;
+  --rl-big:var(--l-eng);        --rl-big-op:1;
+  --rl-add:0;
+  /* ── ⑤ Agent 骨架（P5）· 浅底 ── */
+  --ag-core:var(--l-agent);     --ag-core-op:.95;
+  --ag-mod:var(--ink-2);        --ag-mod-op:.74;
+  --ag-rib:var(--ink-3);        --ag-rib-op:.46;
+  --ag-dom:var(--hair-strong);  --ag-dom-op:.86;
+  --ag-flow:var(--l-agent);     --ag-flow-op:.60;
+  --ag-rms:var(--accent-deep);  --ag-rms-op:.70;
+  --ag-add:0;
+  /* ── ⑥ 三条支流一条河（P8 · 标杆）· 浅底 ── */
+  --rv-main:var(--accent);      --rv-main-op:.72;
+  --rv-rms:var(--accent-deep);  --rv-rms-op:.78;
+  --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
+  --rv-trib-op:.78;             --rv-trib-rms-op:.80;
+  --rv-bed:var(--accent);       --rv-bed-op:.34;
+  --rv-rail:var(--accent);      --rv-rail-op:.88;
+  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
+  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
+  --rv-add:0;
+}
+html[data-theme="dark"]{
+  --v-ink:var(--ink-2);    --v-dot-op:.84;  --v-dot-size:.0120; --v-dot-min:1.1;
+  --v-hot:var(--accent);   --v-hot0:.16;    --v-hot1:.66;  --v-hot-gain:.80;
+  --v-wire:var(--ink);     --v-wire-op:.22;
+  --v-back:.26;            --v-add:1;
+  --v-atmo:var(--accent);  --v-atmo-int:.17;
+  --v-poster-dot:2.6;
+  --tl-flow:var(--accent);      --tl-flow-op:.52;
+  --tl-rms:var(--ink);          --tl-rms-op:.55;
+  --tl-axis:var(--ink-3);       --tl-axis-op:.62;
+  --tl-node:var(--ink-2);       --tl-node-op:.86; --tl-node-size:14;
+  --tl-hot:var(--accent);       --tl-hot-op:1;    --tl-hot-size:16;
+  --tl-add:1;
+  --gw-base:var(--accent);      --gw-base-op:.92;
+  --gw-deck:var(--accent-deep); --gw-deck-op:.26;
+  --gw-rib:var(--ink-3);        --gw-rib-op:.36;
+  --gw-box:var(--ink-3);        --gw-box-op:.62;
+  --gw-aux:var(--ink-3);        --gw-aux-op:.34;
+  --gw-e:var(--l-eng);          --gw-a:var(--l-agent);  --gw-p:var(--l-phys);
+  --gw-flow-op:.50;             --gw-rms-op:.55;
+  --gw-add:1;
+  --rl-flow:var(--l-eng);       --rl-flow-op:.52;
+  --rl-rms:var(--ink);          --rl-rms-op:.55;
+  --rl-axis:var(--ink-3);       --rl-axis-op:.58;
+  --rl-tick:var(--ink-3);       --rl-tick-op:.62;
+  --rl-big:var(--l-eng);        --rl-big-op:1;
+  --rl-add:1;
+  --ag-core:var(--l-agent);     --ag-core-op:1;
+  --ag-mod:var(--ink-3);        --ag-mod-op:.60;
+  --ag-rib:var(--ink-3);        --ag-rib-op:.32;
+  --ag-dom:var(--ink-3);        --ag-dom-op:.62;
+  --ag-flow:var(--l-agent);     --ag-flow-op:.54;
+  --ag-rms:var(--ink);          --ag-rms-op:.52;
+  --ag-add:1;
+  --rv-main:var(--accent);      --rv-main-op:.62;
+  --rv-rms:var(--ink);          --rv-rms-op:.58;
+  --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
+  --rv-trib-op:.56;             --rv-trib-rms-op:.55;
+  --rv-bed:var(--accent);       --rv-bed-op:.22;
+  --rv-rail:var(--accent);      --rv-rail-op:.90;
+  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
+  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
+  --rv-add:1;
+}
+""" + _LAB_TAIL
+
 
 # ═══ 本 deck 专属 CSS ═══════════════════════════════════════════════════════
 #   顶部是 deck 级运动原语（与 build-convoai-engine.py 的 DECK_CSS 顶部逐字同源，
@@ -676,8 +943,8 @@ def path_len(d):
 PAGES = []          # (board, steps, body_html, hero)
 
 
-def page(board, body, hero=None, steps=0):
-    PAGES.append((board, steps, body, hero))
+def page(board, body, hero=None, steps=0, lab=None):
+    PAGES.append((board, steps, body, hero, lab))
 
 
 # ═══ P1 · 封面（title 板 · 家族封面骨架）═══════════════════════════════════
@@ -704,7 +971,8 @@ page("title", "".join([
        + dot("l-phys") + 'PHYSICAL AI'),
     sh("flow mono-sm", "left:120px;top:930px;width:1200px;height:24px;--i:6",
        "主讲人：姚光华 Colin · 声网 AI 产品线负责人"),
-]), hero=("info-v2/hero-cover-v2", "left:720px;top:220px;width:1200px;height:675px"))
+]), hero=("info-v2/hero-cover-v2", "left:720px;top:220px;width:1200px;height:675px"),
+     lab=("voice" if P1_MODE == "orb" else None))
 
 # ═══ P2 · 公司 · Why Agora 速讲版 ═════════════════════════════════════════
 #   01 SCALE 四大数（**与引擎 P21 逐字同源**）/ 02 ADOPTION 近一半 /
@@ -762,7 +1030,7 @@ def _p2band():
         o.append(txt(cx, 32, date, "sm", size=17, anchor=anc, mono=True,
                      col=AC if hot else "var(--ink-3)", ls=".04em"))
         o.append(txt(cx, 100, name, "ttl", size=18, anchor=anc, col=AC if hot else None))
-    return "".join(o)
+    return _lpsplit(o)
 
 
 page("content", "".join([
@@ -815,7 +1083,7 @@ page("content", "".join([
     # SOURCE ledger（四段制）· 本行与引擎 P21 逐字同源，两份 deck 不许分叉
     src("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08",
         x=940, w=860, align="right"),
-]))
+]), lab="band")
 
 # ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（真架构图）════════════════════
 #   2026-08-20 仲裁 P0 的分类学在本轮**进图**：底座（SD-RTN / RTE）→ 三条产品线
@@ -884,7 +1152,7 @@ def _p3fig():
     o.append(legend(10, 466, [("solid", "Engine 主干", 2.5, LE), ("solid", "Agent 主干", 2.5, LA),
                               ("solid", "Physical AI 主干", 2.5, LP),
                               ("dash", "配套 / 交付形态 · 旁挂", 1.4, HS)]))
-    return "".join(o)
+    return _lpsplit(o)
 
 
 page("content", "".join([
@@ -905,7 +1173,7 @@ page("content", "".join([
        '<span class="chip">开源　TEN 开源工具库</span></div></div>'),
     land(dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
          + dot("l-phys") + "Physical AI 走进物理世界。"),
-]))
+]), lab="grow")
 
 # ═══ P4 · Engine ·「超低延迟、可打断、高自然度」════════════════════════════
 #   01 VELOCITY 17 版活动带（主图 · packet 沿轴跑）/ 02 VS LIVEKIT 四项 /
@@ -960,7 +1228,7 @@ def _p4band():
     o.append(txt(x1, 34, "2026.08.11 · v2.11 最新", "sm", size=16, anchor="end", mono=True, col=LE))
     o.append(txt(x0, 110, "RELEASE FLOW · 每一格 = 一次公开发版 · 包在跑 = 版本一直在出",
                  "sm", size=14, mono=True, col="var(--ink-3)"))
-    return "".join(o)
+    return _lpsplit(o)
 
 
 _p4 = [
@@ -1028,7 +1296,7 @@ _p4.append(land("模型会换代，接口不换人。", w=620))
 _p4.append(src("SOURCE · 引擎公开发版 / 同题评测 默认配置口径 · "
                "18 个月 17 次发版 / 2026-03 时点 · 事实截止 2026.08",
                x=700, w=1100, align="right"))
-page("content", "".join(_p4), steps=1)
+page("content", "".join(_p4), steps=1, lab="release")
 
 # ═══ P5 · Agent ·「已经超越真人的企业级智能体」════════════════════════════
 #   01 TURING 96.5% + 漏斗（左）/ 02 CONVERSION 2.05×（右上）/
@@ -1135,7 +1403,7 @@ def _p5five():
     o.append(txt(96, 288, _FIVE[2][2], "sm", size=15))
     o.append(legend(14, 318, [("solid", "能力供给", 2.2, LA), ("dash", "安全域 · 包住全部", 1.4, HS)],
                     size=13))
-    return "".join(o)
+    return _lpsplit(o)
 
 
 page("content", "".join([
@@ -1184,7 +1452,7 @@ page("content", "".join([
     # SOURCE ledger：本页两个数据块（96.5% 漏斗 / 2.05× 转化）同属一份生产外呼数据集
     src("SOURCE · 真实生产数据 · 生产外呼 n=2,475 · 事实截止 2026.08",
         x=1120, w=680, align="right"),
-]), steps=1)
+]), steps=1, lab="agent")
 
 # ═══ P6 · PhysicalAI ·「让对话，走出屏幕」════════════════════════════════
 #   01 R1 KIT 双形态（**带实拍图**，跨 deck 引用 robot26 原片，不复制文件）/
@@ -1436,7 +1704,7 @@ def _p8fig():
     o.append(legend(14, 534, [("solid", "Engine", 2.5, LE), ("solid", "Agent", 2.5, LA),
                               ("solid", "Physical AI", 2.5, LP),
                               ("fast", "ONE NET 主河道", 4, AC)], gap=40, size=13))
-    return "".join(o)
+    return _lpsplit(o)
 
 
 page("content", "".join([
@@ -1484,8 +1752,1238 @@ page("content", "".join([
     # 本页没有自己的样本或时间窗 ⇒ 该段留空（缺口已记入交付报告）。
     src("SOURCE · 声网官网 / IR 公开口径 · 事实截止 2026.08", x=560, w=580, align="right"),
     rail("姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM", x=1200, w=600, align="right"),
-]))
+]), lab="river")
 
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LAB 层 · 场景几何（五枚 · 每一个坐标都取自上面各页自己的常量，一个不新造）
+# ───────────────────────────────────────────────────────────────────────────
+#   投影锁（lab-kit ⑤ mkLock）是本层的地基：页上的 2D 点 (x,y) 抬到深度 z 之后
+#   先按 (D−z)/D 预缩放，透视除法正好把这一档除回去 ⇒ **投影落点与 2D 逐像素相同**。
+#   于是「有真深度」与「标签一格不挪」不再互斥 —— 本 deck 五页的图上全是标签，
+#   这条不成立的话，3D 一起来页上的字就全指空了。
+#
+#   ⚠ 流速账（A 档 110px/s 是**屏上**的速度，不是世界坐标里的）：投影锁把
+#     页坐标按 k=(D−z)/D 放大进世界，所以世界弧长 = ∫k·ds_page。
+#     `_lock_len()` 把两个长度都算出来，`spd_world = 110 × Lw/Lp` ⇒
+#     波峰在**屏上**走满 Lp 恰好用 Lp/110 秒。data-lab-spd 摊的是屏上速度。
+_SPD_A = 110.0                     # A 档基准（px/s · 与旗舰同一个数）
+_SPD_TOL = 0.30                    # ±30%
+_CLR_PAD = 0.5                     # 构建期声明与运行时实测允许的误差
+
+
+def _lockpt(x, y, z, w, h, D):
+    """mkLock 的 Python 同解（世界坐标 · y 取负，与 three 同）"""
+    cx, cy = w / 2.0, h / 2.0
+    k = (D - z) / D
+    return (cx + (x - cx) * k, -(cy + (y - cy) * k), z)
+
+
+def _lock_path(pts, w, h, D):
+    return [_lockpt(p[0], p[1], p[2] if len(p) > 2 else 0.0, w, h, D) for p in pts]
+
+
+def _xylen(pts):
+    return sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])
+               for i in range(len(pts) - 1))
+
+
+def _lock_len(pts, w, h, D):
+    """(页面 xy 长, 世界 xy 长) —— 前者是屏上看得见的那个长度（data-lab-spd 的分子）"""
+    return _xylen([(p[0], p[1]) for p in pts]), _xylen(_lock_path(pts, w, h, D))
+
+
+def _spd_world(pts, w, h, D, spd=_SPD_A):
+    Lp, Lw = _lock_len(pts, w, h, D)
+    return spd * Lw / (Lp or 1.0), Lp
+
+
+def _pk3(pts):
+    """世界折线打包成 "x,y,z;…"（构建期算一遍，运行时不再算第二遍）"""
+    return ";".join("%s,%s,%s" % (_n3(p[0]), _n3(p[1]), _n3(p[2])) for p in pts)
+
+
+def _n3(x):
+    return ("%.4f" % float(x)).rstrip("0").rstrip(".") or "0"
+
+
+def _arr3(xs):
+    return "[" + ",".join(_n3(v) for v in xs) + "]"
+
+
+def _lerp_line(a, b, n):
+    return [(a[0] + (b[0] - a[0]) * i / (n - 1.0), a[1] + (b[1] - a[1]) * i / (n - 1.0),
+             a[2] + (b[2] - a[2]) * i / (n - 1.0)) for i in range(n)]
+
+
+# ── ① 声场球（P1）：与 lab P1 **逐字同参** —— 球心 / 半径 / 谐波 / 自转全部现取 ──
+#    构图账（lab 的原注）：球心 (1555,578) · 屏上半径 218 ⇒ 极值轮廓
+#    x1322–1788 / y345–811。本页墨迹右缘是 kicker 的 x875（y197–223），
+#    主标右缘 x684 —— 球离最近的一处字 447px，封面构图上它坐在右侧留白正中。
+_V_POSTER = _LAB._voice_poster()
+
+# ── ② 发布时间线活动带（P2）· 几何逐条抄 _p2band() ─────────────────────────
+_S2 = 1680.0 / 1620.0                     # figbox(…,1680, vb1620×110) ⇒ figure → 舞台像素
+_TL_X0, _TL_X1, _TL_AY = 40, 1580, 62     # = _p2band() 里那三个数
+_TL_STEP = (_TL_X1 - _TL_X0) / (len(_MILE) - 1.0)
+_TL_NODE = [round(_TL_X0 + k * _TL_STEP) for k in range(len(_MILE))]
+_TL_HOTK = [k for k, m in enumerate(_MILE) if m[2]][0]
+_TL_D, _TL_HALF = 1400.0, 170.0
+_TL_Z0, _TL_Z1 = -96.0, 24.0              # 时间的纵深：最早的里程碑在远处，最新的到眼前
+_TL_W = 8.0                               # 带的基准半宽 = 页上节点圆的半径（8）—— 净空同源
+_TL_N = 160
+
+
+def _tl_path():
+    """活动带的中心线（画布像素 · 含 z）—— x 逐点取自页上那条 hline 的跨度"""
+    o = []
+    for i in range(_TL_N):
+        t = i / (_TL_N - 1.0)
+        o.append(((_TL_X0 + (_TL_X1 - _TL_X0) * t) * _S2, _TL_AY * _S2,
+                  _TL_Z0 + (_TL_Z1 - _TL_Z0) * t))
+    return o
+
+
+def _tl_z(x):
+    return _TL_Z0 + (_TL_Z1 - _TL_Z0) * (x - _TL_X0) / float(_TL_X1 - _TL_X0)
+
+
+# ── ③ 空间生长（P3）· 几何逐条抄 _p3fig() ─────────────────────────────────
+_GW_BASEY, _GW_TOP = 370, 172             # = _p3fig() 里的 base_y / trunk_top
+_GW_D, _GW_HALF = 1500.0, 430.0
+_GW_BOXDZ = 46.0                          # 三只产品线盒的体厚
+_GW_AUXZ = -150.0                         # 辅件（TEN / 评测 / 转录）退到景深里
+_GW_AUXDZ = 26.0
+_GW_ZTOP = 8.0                            # 主干抵达产品线盒时的深度（贴着版面）
+_GW_W = 5.0                               # 三股流的基准半宽（页上 packet 是 w13 ⇒ 半宽 6.5）
+_GW_N = 90
+# ── 底座 = **纵深基面**（不是一只盒）· 几何账 ──────────────────────────────
+#   页上那只 rect(0,370,1668,76) 里坐着两行字（fig y387–407 / 415–436）——
+#   任何「向后拉伸」的框都会绕画布中心缩进去、正好压在那两行上（本轮实拍锤过：
+#   deck=210 时后框底边落在 fig y420，净空 0）。所以底座**不做体**：
+#     · 前框锁死在页上那只 rect 上（hot · 一个像素不动）；
+#     · 纵深由它**身后**的一片透视栅格承担 —— 栅格整片坐在
+#       fig y322–368 那条**无字空带**里（上方 aux 盒文字止于 y291，
+#       下方底座顶沿 y370），横向止于 fig x1450（右边 y332 那行域分带注记从
+#       x1472 起，留 22px）。
+#   栅格是真的地平面：screen = 消失点 + (近边 − 消失点)·d0/(d+d0)，
+#   d 是 0..1 的深度参数，z = −_GW_ZFAR·d ⇒ 深度雾把远端自然压弱。
+_GW_GN, _GW_GM = 8, 15                    # 栅格：8 道横 / 15 道竖
+_GW_GY0, _GW_GY1 = 368.0, 308.0           # 近边 y / 消失点 y（fig）
+_GW_GX0, _GW_GX1 = 10.0, 1450.0           # 近边左右缘（fig）
+_GW_GXV = 840.0                           # 消失点 x（fig · 画布中线）
+_GW_GD0 = 0.3043                          # 透视常数：d=1 时落在 fig y322（= 近边到消失点的 23.3%）
+_GW_ZFAR = 760.0                          # 栅格最远处的深度
+
+
+def _gw_grid_pt(xj, d):
+    """基面上一点（fig 坐标 + 深度）—— 真地平面的解析式，不是手调出来的"""
+    f = _GW_GD0 / (d + _GW_GD0)
+    return (_GW_GXV + (xj - _GW_GXV) * f, _GW_GY1 + (_GW_GY0 - _GW_GY1) * f, -_GW_ZFAR * d)
+
+
+def _gw_grid():
+    """8 道横 + 15 道竖 —— 每一道都是一条独立折线（世界坐标里各自成线）"""
+    rows, cols = [], []
+    for i in range(_GW_GN):
+        d = i / (_GW_GN - 1.0)
+        rows.append([_gw_grid_pt(_GW_GX0 + (_GW_GX1 - _GW_GX0) * j / 40.0, d) for j in range(41)])
+    for j in range(_GW_GM):
+        xj = _GW_GX0 + (_GW_GX1 - _GW_GX0) * j / (_GW_GM - 1.0)
+        cols.append([_gw_grid_pt(xj, i / 24.0) for i in range(25)])
+    return rows + cols
+
+
+def _gw_trunk(tx):
+    """主干：从基面深处抽出来，一路生长到产品线盒 —— 投影锁 ⇒ 屏上仍是页上那条竖线"""
+    return _lerp_line((tx, _GW_BASEY - 2.0, -_GW_ZFAR * 0.55), (tx, _GW_TOP, _GW_ZTOP), _GW_N)
+
+
+# ── ④ 发版活动带（P4）· 几何逐条抄 _p4band() ──────────────────────────────
+_RL_X0, _RL_X1, _RL_AY = 40, 1400, 70     # = _p4band() 里那三个数
+_RL_D, _RL_HALF = 1400.0, 150.0
+_RL_Z0, _RL_Z1 = -84.0, 22.0
+_RL_W = 10.0
+_RL_N = 150
+_RL_TICK = [_RL_X0 + round(k * (_RL_X1 - _RL_X0) / 16.0) for k in range(17)]
+_RL_BIG = (0, 16)
+# 3D 的格比页上短一档（页上 ±16/±11，这里 ±12/±8）：它们是**带上的脉冲**不是刻度尺，
+# 而且这一档正好把与「RELEASE FLOW」那行 mono 的净空从 10px 抬到 14px。
+_RL_HB, _RL_HS = 12.0, 8.0
+
+
+def _rl_path():
+    o = []
+    for i in range(_RL_N):
+        t = i / (_RL_N - 1.0)
+        o.append((_RL_X0 + (_RL_X1 - _RL_X0) * t, float(_RL_AY),
+                  _RL_Z0 + (_RL_Z1 - _RL_Z0) * t))
+    return o
+
+
+def _rl_z(x):
+    return _RL_Z0 + (_RL_Z1 - _RL_Z0) * (x - _RL_X0) / float(_RL_X1 - _RL_X0)
+
+
+# ── ⑤ Agent 骨架（P5）· 几何逐条抄 _p5five() ──────────────────────────────
+_S5 = 820.0 / 840.0                       # figbox(980,514,820, vb840×330) ⇒ figure → 舞台像素
+_AG_D, _AG_HALF = 1200.0, 230.0
+_AG_SAT = [(10, 18), (550, 18), (10, 182), (550, 182)]     # = _p5five() 的 sats 四角
+_AG_SATW, _AG_SATH = 280, 66
+_AG_CORE = (330, 96, 180, 76)             # = 核心盒（页上那只 hot）
+_AG_DOM = (4, 4, 832, 260)                # = 安全域虚线框
+_AG_ZMOD, _AG_ZCORE = -78.0, 26.0
+_AG_DZMOD, _AG_DZCORE = 34.0, 40.0
+_AG_ZDOM, _AG_DZDOM = 58.0, 178.0         # 域是**包住全部**的一只腔：前框在最前、后框在最深
+# ── 为什么 P5 的盒体不走 extrudeBack ────────────────────────────────────────
+#   extrudeBack 的后框是「前框的世界 xy 换个更深的 z」⇒ 投影时绕**画布中心**缩一档。
+#   本页的画布中心 (1390,675) 落在四只能力盒围出来的中庭里，于是后框一缩就往
+#   字上压：实测安全域后框的左边竖线落在 x1038.7，正好穿过「01 · 运行时」那行
+#   （x1003–1094）—— 净空 0。所以 P5 的盒体改成**两枚都锁住**的框：
+#   前框 = 页上那只 rect（一个像素不动），后框 = 同一只 rect 内缩 ins 之后再锁到更深的 z。
+#   投影落点因此由我定，而深度（雾 / 遮挡 / 粒径）仍然是真的。
+_AG_INS_MOD, _AG_INS_CORE, _AG_INS_DOM = 5.0, 5.0, 10.0
+_AG_W = 4.6
+_AG_N = 60
+_AG_DASH, _AG_GAP = 6.0, 8.0              # = 页上 stroke-dasharray="6 8"
+
+
+def _lockbox(x, y, w, h, z0, dz, ins, W, H, D):
+    """锁住的盒体：前框 = 页上那只 rect@z0；后框 = 同一只 rect 内缩 ins @(z0−dz)。
+       两枚都过投影锁 ⇒ 屏上落点由这四个数决定，深度只影响雾与遮挡。"""
+    f = [(x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y)]
+    b = [(x + ins, y + ins), (x + w - ins, y + ins), (x + w - ins, y + h - ins),
+         (x + ins, y + h - ins), (x + ins, y + ins)]
+    return (_lock_path([(q[0], q[1], z0) for q in f], W, H, D),
+            _lock_path([(q[0], q[1], z0 - dz) for q in b], W, H, D),
+            f, b)
+
+
+def _ag_link(k):
+    """第 k 件能力 → 核心的那条线（端点与 _p5five() 里那四条逐字同源）"""
+    bx, by = _AG_SAT[k]
+    side = 1 if by < 100 else -1
+    if bx < 400:
+        x1, y1 = bx + _AG_SATW, by + 33
+        x2, y2 = 330, 118 if side > 0 else 150
+    else:
+        x1, y1 = bx, by + 33
+        x2, y2 = 510, 118 if side > 0 else 150
+    return _lerp_line((x1 * _S5, y1 * _S5, _AG_ZMOD),
+                      (x2 * _S5, y2 * _S5, _AG_ZCORE), _AG_N)
+
+
+# ── ⑥ 三条支流一条河（P8 · 标杆）· 几何逐条抄 _p8fig() ────────────────────
+_RV_D, _RV_HALF = 1200.0, 330.0
+_RV_ZSRC = -270.0                         # 三条支流的源头深度（在纵深里）
+_RV_ZMEET = 0.0                           # 汇合点 = 版面平面（主河道就在眼前）
+_RV_WT, _RV_WM = 6.5, 9.5                 # 支流 / 主河道半宽（页上 packet 是 13 / 15）
+_RV_N = 140
+_RV_LAM = _LAB._AS_LAM                    # 波长逐字取 lab-kit ⑨ ⇒ 与全家族同一种介质
+
+
+def _rv_trib(k, y):
+    """一条支流的空间中心线：页上那条贝塞尔 + 从源头到汇合点的深度爬升。
+       xy 逐点取自 _p8trib_d(k, y)（同一串控制点），z 按弧长比例线性收到 0。"""
+    d = _p8trib_d(k, y)
+    s = d.replace(",", " ")
+    for c in "MC":
+        s = s.replace(c, " " + c + " ")
+    t2 = s.split()
+    i = t2.index("C")
+    p0 = (float(t2[1]), float(t2[2]))
+    p1 = (float(t2[i + 1]), float(t2[i + 2]))
+    p2 = (float(t2[i + 3]), float(t2[i + 4]))
+    p3 = (float(t2[i + 5]), float(t2[i + 6]))
+    o = []
+    for j in range(_RV_N):
+        t = j / (_RV_N - 1.0)
+        o.append((_cub(p0[0], p1[0], p2[0], p3[0], t),
+                  _cub(p0[1], p1[1], p2[1], p3[1], t),
+                  _RV_ZSRC + (_RV_ZMEET - _RV_ZSRC) * (t * t * (3 - 2 * t))))
+    return o
+
+
+def _rv_main():
+    return _lerp_line((float(_P8_CX), float(_P8_CY), _RV_ZMEET),
+                      (790.0, float(_P8_CY), _RV_ZMEET), 60)
+
+
+def _rrect(x, y, w, h, r, per=9):
+    """圆角矩形 → 闭合折线（页上那只 rx26 的 ONE NET 河道盒本人）"""
+    o = []
+    for cx, cy, a0 in ((x + w - r, y + r, -90.0), (x + w - r, y + h - r, 0.0),
+                       (x + r, y + h - r, 90.0), (x + r, y + r, 180.0)):
+        for i in range(per + 1):
+            a = (a0 + 90.0 * i / per) * math.pi / 180.0
+            o.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    o.append(o[0])
+    return o
+
+
+# ── 墨迹名册（每页 3D 矩形之内的**字形行框** · Range.getClientRects 实测）──────
+#   这张表是「不压字」从纪律变成机器判据的地方：qa 的 ⑳clr-a 闸拿活 DOM 逐处对表，
+#   改了文案而没同步这张表 ⇒ 当场报。坐标是舞台坐标（1920×1080）。
+_INK = {
+    2: [(161.6, 881.2, 112.7, 23), (161.6, 952.7, 193.2, 21),
+        (504.4, 881.2, 112.7, 23), (464.2, 952.7, 193.2, 21),
+        (903.6, 881.2, 112.7, 23), (886.6, 952.7, 146.7, 21),
+        (1302.9, 881.2, 112.7, 23), (1303.2, 952.7, 111.9, 21),
+        (1645.7, 881.2, 112.7, 23), (1605.7, 952.7, 152.7, 21)],
+    3: [(388.9, 286, 62.2, 18), (338, 339, 163.9, 28), (345.8, 382, 148.4, 17),
+        (438, 463, 256, 17), (934.1, 286, 51.8, 18), (885, 339, 150, 28),
+        (911.2, 382, 97.5, 17), (978, 463, 208, 17), (1443, 286, 114, 18),
+        (1450, 339, 100, 28), (1434.1, 382, 131.7, 17), (1518, 463, 208, 17),
+        (187.2, 516, 145.6, 22), (188, 547, 143.9, 16),
+        (732.2, 516, 145.6, 22), (756.8, 547, 96.5, 16),
+        (1265, 516, 120, 22), (1276.8, 547, 96.5, 16),
+        (150, 659, 390.3, 20), (150, 687, 665.7, 21),
+        (180, 730, 75.5, 16), (396, 730, 68.5, 16), (599, 730, 100.4, 16),
+        (881, 730, 136.1, 16), (1592.4, 604, 187.6, 18)],
+    4: [(160, 286, 204.8, 21), (1305.6, 286, 214.4, 21), (160, 364, 453.6, 18),
+        (1524.6, 356, 275.4, 20)],
+    5: [(1003.4, 544, 90.3, 17), (1003.4, 568.3, 169.3, 17), (1228, 598.6, 25.4, 17),
+        (1530.6, 544, 75.9, 17), (1530.6, 568.3, 194.5, 17), (1526.7, 598.6, 25.4, 17),
+        (1003.4, 704, 75.9, 17), (1003.4, 728.4, 198.6, 17), (1215.3, 668.9, 38.1, 17),
+        (1530.6, 704, 75.9, 17), (1530.6, 728.4, 179.3, 17), (1526.7, 668.9, 25.4, 17),
+        (1325.6, 623.9, 128.8, 24), (1333.7, 654.3, 112.6, 16),
+        (993.7, 782.1, 75.9, 17), (1073.7, 782.1, 259.3, 16),
+        (1042.5, 818.3, 50.8, 14), (1188.9, 818.3, 100.1, 14)],
+    8: [(292.5, 293, 75, 20), (702.5, 293, 75, 20),
+        (150, 332, 140.9, 17), (150, 532, 133.4, 17), (150, 732, 167.5, 17),
+        (537.5, 519, 45, 20), (570, 617, 77.7, 20), (570, 644, 265.2, 25),
+        (570, 678, 219.2, 17), (184, 799, 40.5, 15), (353, 799, 34, 15),
+        (509, 799, 63.6, 15), (744, 799, 100.2, 15)],
+}
+# ── 已知穿越名册（P8 · 三行支流标注）──────────────────────────────────────
+#   `txt(30, y−16, label)` 把标注钉在源头点正上方 16px，而支流曲线从源头就往右上爬
+#   ⇒ **页上那条 2D 曲线本来就从这三行字底下穿过**（2D 半宽 6.5px，净空 −6.5）。
+#   3D 的流带在同一处半宽 5.46px（透视把深处的带子收窄了）⇒ 比 2D 还让出 1.0px。
+#   这不是「3D 压字」，是页面既有的图文叠压关系；把它写成名册**正面登记**，
+#   而不是把它混进净空名册去把下限拖成负数。qa 的 ⑳clr-a 闸认这张表。
+_INK_SKIP = {
+    8: [(150, 332, 140.9, 17), (150, 532, 133.4, 17), (150, 732, 167.5, 17)],
+}
+for _p8, _bs in _INK_SKIP.items():
+    _INK[_p8] = [b for b in _INK[_p8] if tuple(b) not in {tuple(x) for x in _bs}]
+
+# ── 净空下限：**「3D 不许比它替换掉的 2D 更近」**─────────────────────────────
+#   加法层（lab 的 P5/P15/P16/P22）可以要求 16px，因为它们画在版面之外的空档里。
+#   本 deck 五枚全是**替换**：3D 落在页上那张图原来的位置上，而那张图本来就是
+#   贴着标签画的。所以下限逐页取「页上 2D 与同一批字形的既有净空」，
+#   每一条都记下**证人**（哪两只盒），qa 的 ⑳clr 闸两头对表。
+#   每一条都记下**证人**（哪一处几何 vs 哪一只字盒）与页上 2D 的同处净空，
+#   报告里逐条摆出来 —— 这一闸真正管的是「不许比 2D 更近」。
+_CLR = {
+    2: (14.0, "末枚节点圆 r8（轴 y930.3, x1758.5）vs「Call Agent 全球版」行 y952.7"
+              "；页上同处 14.2px ⇒ 平手"),
+    3: (8.0,  "产品线盒顶 y312 vs 其上 mono 名（ENGINE y286–304）；页上同处 8px ⇒ 平手"),
+    4: (7.5,  "末格下端 y350（3D 收到 ±12）vs「PUBLIC RELEASES」行左上角 (1524.6,356)"
+              "；页上同格是 ±16 ⇒ 只有 5.0px，3D 让出 2.6px"),
+    5: (2.5,  "能力盒**前框**底 y596 vs 其下两字 mono 标（承载 y598.6）；页上同处 2.6px ⇒ 平手"),
+    8: (6.9,  "ONE NET 河道盒顶 y546 vs「合流点」行 y519–539；页上同处 7.0px ⇒ 平手"),
+}
+# P4 的 hot 是抽屉 chip（本页唯一「可以按下去」的东西）：它绝不许被 3D 压。
+# chip 实测盒 (1005,900,258.4,42)，而 P4 的 3D 矩形是 (120,268,1440,120) ——
+# 相距 512px，这一条是**正面断言**不是顺带（qa ⑳chip 复算）。
+_P4_CHIP = (1005.0, 900.0, 258.4, 42.0)
+_P4_CHIP_CLR = 16.0
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LAB 层 · 五枚场景的运行时（只写语义几何 —— 地基件全部来自旗舰的 lab-kit）
+# ═══════════════════════════════════════════════════════════════════════════
+INFO_SCENES = r"""
+/* ═══ info 场景共用小件（五行胶水 · 基建一件不重写）════════════════════════ */
+const AS_K = 6.2831853 / AS.lam;
+function asEnv(u){                      /* lab-kit ⑨ 解析包络的 JS 同解（与 AS_VS 逐行同式） */
+  return 0.5 + 0.5*( AS.a[0]*Math.sin(AS_K*AS.f[0]*u+AS.ph[0])
+                   + AS.a[1]*Math.sin(AS_K*AS.f[1]*u+AS.ph[1])
+                   + AS.a[2]*Math.sin(AS_K*AS.f[2]*u+AS.ph[2])
+                   + AS.a[3]*Math.sin(AS_K*AS.f[3]*u+AS.ph[3]) );
+}
+function unpk3(s){                      /* "x,y,z;…" → 世界折线（构建期算好，运行时不重算） */
+  return s.split(';').map(t => { const q = t.split(','); return [+q[0], +q[1], +q[2]]; });
+}
+function iLine(pts, mat){ const g = stripGeo(pts); fillAH(g,1,0);
+  const o = new THREE.Line(g, mat); o.frustumCulled = false; return o; }
+function iSegs(segs, mat){ const g = segGeo(segs); fillAH(g,1,0);
+  const o = new THREE.LineSegments(g, mat); o.frustumCulled = false; return o; }
+function iPts(pts, mat){ const g = stripGeo(pts); fillAH(g,1,0);
+  const o = new THREE.Points(g, mat); o.frustumCulled = false; return o; }
+/* 闭合折线 → 虚线段表：3D 里的「虚线域」，dash/gap 逐字取页上的 stroke-dasharray */
+function dashSegs(pts, dash, gap){
+  const out = []; let on = true, rem = dash;
+  for(let i = 0; i < pts.length-1; i++){
+    const a = pts[i], b = pts[i+1];
+    const L = Math.hypot(b[0]-a[0], b[1]-a[1], b[2]-a[2]);
+    let t0 = 0;
+    while(L - t0 > 1e-6){
+      const step = Math.min(rem, L - t0), t1 = t0 + step;
+      if(on){
+        const P = (t) => [a[0]+(b[0]-a[0])*t/L, a[1]+(b[1]-a[1])*t/L, a[2]+(b[2]-a[2])*t/L];
+        const p0 = P(t0), p1 = P(t1);
+        out.push([p0[0],p0[1],p0[2], p1[0],p1[1],p1[2]]);
+      }
+      rem -= step; t0 = t1;
+      if(rem <= 1e-6){ on = !on; rem = on ? dash : gap; }
+    }
+  }
+  return out;
+}
+/* 段加密：`geoClr` 逐**顶点**量净空 —— 一只只有四个角的框会把「边中段离字最近」
+   这件事整个漏掉（本轮实测：P3 的盒框运行时报 12.25px，构建期解析是 8.0px）。
+   把每一段切成 ≤step 的小段，渲出来一模一样，而顶点密到足以代表整条边。 */
+function denseSegs(segs, step){
+  const out = [], st = step || 12;
+  for(let i = 0; i < segs.length; i++){
+    const s = segs[i];
+    const L = Math.hypot(s[3]-s[0], s[4]-s[1], s[5]-s[2]);
+    const n = Math.max(1, Math.ceil(L / st));
+    for(let k = 0; k < n; k++){
+      const a = k/n, b = (k+1)/n;
+      out.push([s[0]+(s[3]-s[0])*a, s[1]+(s[4]-s[1])*a, s[2]+(s[5]-s[2])*a,
+                s[0]+(s[3]-s[0])*b, s[1]+(s[4]-s[1])*b, s[2]+(s[5]-s[2])*b]);
+    }
+  }
+  return out;
+}
+/* 锁住的盒体：前后两枚框都过投影锁 ⇒ 屏上落点由构建期定死，深度只影响雾与遮挡。
+   （P5 的画布中心落在四只能力盒围出来的中庭里，extrudeBack 的后框一缩就压字。） */
+function lockBox(f, b){
+  const e = [];
+  for(let i = 0; i < 4; i++) e.push([f[i][0],f[i][1],f[i][2], b[i][0],b[i][1],b[i][2]]);
+  return { front: segsOfLoop(f), shell: segsOfLoop(b).concat(e), f: f, b: b, edges: e };
+}
+/* 净空：把这一帧真的传上 GPU 的几何投影回舞台像素，量到页上字形墨迹盒的最小距离。
+   items = [[geometry, pad], …]；pad 扣掉带宽 / 点半径（那是几何之外的墨）。 */
+function clrMin(U, ink, items){
+  let m = 1e9;
+  for(let i = 0; i < items.length; i++)
+    m = Math.min(m, geoClr(items[i][0], U, ink, items[i][1] || 0));
+  return m;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ② 发布时间线活动带（P2 公司 · 04 MILESTONES）
+   ───────────────────────────────────────────────────────────────────────────
+   语义：里程碑不是五个孤立的点，是**一条一直在供给的流**上的五处涌起。
+   audioStream 沿页上那条时间轴走（波长逐字取 lab-kit ⑨ 的 232px ⇒ 与全家族
+   同一种介质），z 从 −96 爬到 +24：**时间从纵深走到眼前**。
+   节点的亮与色由**流本身**决定 —— aH = 该节点处的包络值 ⇒ 波峰走到哪个里程碑，
+   哪个里程碑亮。这是「一枚包 = 时间在走」那行 mono 线标的 3D 版本。
+   ⚠ 地球：见 builder 顶部 LAB 层大注释 —— P2 上放不下，本轮停手。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeBand(ctx){
+  const C = K.tl, w = ctx.rect[2], h = ctx.rect[3], D = C.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, C.half);
+  const U = unlock(w, h, D, ctx.rect);
+  const path = unpk3(C.path);
+  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam }).add(scene);
+  const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const axis = iLine(path, axisMat); scene.add(axis);
+  const coldMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  const hotMat  = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  const cold = [], coldU = [], hotP = [], hotU = [];
+  for(let i = 0; i < C.node.length; i++){
+    (i === C.hot ? hotP : cold).push(C.node[i]);
+    (i === C.hot ? hotU : coldU).push(C.nodeU[i]);
+  }
+  const coldO = iPts(cold, coldMat), hotO = iPts(hotP, hotMat);
+  scene.add(coldO); scene.add(hotO);
+  const cA = coldO.geometry.attributes.aH, hA = hotO.geometry.attributes.aH;
+  return {
+    scene, camera, intro: 1.0, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flow.draw(clock);
+      const run = C.spd * clock;
+      for(let i = 0; i < coldU.length; i++) cA.array[i] = asEnv(coldU[i] - run);
+      for(let i = 0; i < hotU.length;  i++) hA.array[i] = asEnv(hotU[i] - run);
+      cA.needsUpdate = true; hA.needsUpdate = true;
+    },
+    state(){ return { clr: clrMin(U, C.ink, [
+      [flow.geo, C.wpx], [axis.geometry, 0],
+      [coldO.geometry, cssNum('--tl-node-size',7)/2],
+      [hotO.geometry,  cssNum('--tl-hot-size',9)/2] ]) }; },
+    applyTheme(){
+      axisMat.uniforms.uColor.value.copy(cssColor('--tl-axis'));
+      axisMat.uniforms.uHot.value.copy(cssColor('--tl-axis'));
+      axisMat.uniforms.uOpacity.value = cssNum('--tl-axis-op', .8);
+      axisMat.uniforms.uGain.value = 0;
+      coldMat.uniforms.uColor.value.copy(cssColor('--tl-node'));
+      coldMat.uniforms.uHot.value.copy(cssColor('--tl-hot'));
+      coldMat.uniforms.uOpacity.value = cssNum('--tl-node-op', .9);
+      coldMat.uniforms.uSize.value = cssNum('--tl-node-size', 7);
+      coldMat.uniforms.uGain.value = .85;
+      hotMat.uniforms.uColor.value.copy(cssColor('--tl-hot'));
+      hotMat.uniforms.uHot.value.copy(cssColor('--tl-hot'));
+      hotMat.uniforms.uOpacity.value = cssNum('--tl-hot-op', 1);
+      hotMat.uniforms.uSize.value = cssNum('--tl-hot-size', 9);
+      hotMat.uniforms.uGain.value = .45;
+      flow.theme(cssColor('--tl-flow'), cssColor('--tl-rms'),
+                 cssNum('--tl-flow-op', .6), cssNum('--tl-rms-op', .7), .58);
+      [axisMat, coldMat, hotMat].forEach(m => {
+        m.uniforms.uBack.value = .58; setBlend(m, cssNum('--tl-add', 0)); });
+      setBlend(flow.mat, cssNum('--tl-add', 0));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ③ 空间生长（P3 矩阵 ·「一个实时底座，三条产品线」）
+   ───────────────────────────────────────────────────────────────────────────
+   页上是一张平面架构图：底座横贯、三条主干向上、配套虚线旁挂。升维之后，
+   这三层关系变成**三层空间**：
+     · 底座 = 一块有厚度的**纵深基面**（前框锁死在页上那只 rect，向 −z 拉 210，
+       15 道横肋把纵深读出来）—— 它托举一切，所以它是全页最厚的一件，也是 hot；
+     · 三条产品线 = 三股从基面内部**抽出来向上生长**的流（audioStream）：
+       起点在基面深处、终点贴着版面平面 ⇒ 越往上越近、越亮、越宽；
+     · 辅件（TEN / 评测 / 转录）退到 z=−150 的**景深处**：投影锁保证它们仍然
+       落在页上那三只虚线盒的位置上，但深度雾把它们压弱一档 —— 层级差不再靠
+       标签自说自话，靠的是它们真的在后面。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeGrow(ctx){
+  const G = K.gw, w = ctx.rect[2], h = ctx.rect[3], D = G.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, G.half);
+  const L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const baseMat = mkMat(SH, PX_LN_VS, PX_LN_FS);   /* 底座前框（hot） */
+  const deckMat = mkMat(SH, PX_LN_VS, PX_LN_FS);   /* 底座的后框与棱 */
+  const ribMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);   /* 备用（盒壳与栅格分色时用） */
+  const boxMat  = [0,1,2].map(() => mkMat(SH, PX_LN_VS, PX_LN_FS));
+  const shellMat = mkMat(SH, PX_LN_VS, PX_LN_FS);  /* 三只盒的体壳 */
+  const auxMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);   /* 景深处的辅件 + 旁挂虚线 */
+  /* 底座：**只有前框**（锁死在页上那只 rect 上）—— 它是 hot，一个像素不动 */
+  const baseO = iSegs(denseSegs(segsOfLoop(G.base)), baseMat); scene.add(baseO);
+  /* 纵深基面：底座身后那片真地平面（8 道横 + 15 道竖 · 各自成线） */
+  const gridO = G.grid.map((s2) => { const o = iLine(unpk3(s2), deckMat);
+                                     scene.add(o); return o; });
+  const ribO = gridO[0];                 /* 净空取样时的代表（下面统一遍历 gridO） */
+  const flows = G.trunk.map((s, k) =>
+    mkStream(SH, unpk3(s), { w: G.w, spd: G.spd[k], lam: AS.lam }).add(scene));
+  const boxO = G.box.map((b, k) => {
+    const bd = boxBody(b[0], b[1], b[2], b[3], 0, G.boxdz, L);
+    const f = iSegs(denseSegs(bd.front), boxMat[k]); scene.add(f);
+    const s = iSegs(denseSegs(bd.shell), shellMat); scene.add(s);
+    return [f, s];
+  });
+  const auxSegs = [];
+  G.aux.forEach((b) => {
+    const bd = boxBody(b[0], b[1], b[2], b[3], G.auxz, G.auxdz, L);
+    bd.front.forEach(e => auxSegs.push(e)); bd.shell.forEach(e => auxSegs.push(e));
+  });
+  G.link.forEach(p => dashSegs(unpk3(p), 5, 6).forEach(e => auxSegs.push(e)));
+  const auxO = iSegs(denseSegs(auxSegs), auxMat); scene.add(auxO);
+  return {
+    scene, camera, intro: 1.1, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){ SH.uTime.value = clock; flows.forEach(f => f.draw(clock)); },
+    state(){ return { clr: clrMin(U, G.ink,
+      flows.map(f => [f.geo, G.wpx]).concat(
+        [[baseO.geometry, 0], [auxO.geometry, 0]],
+        gridO.map(o => [o.geometry, 0]),
+        boxO.map(o => [o[0].geometry, 0]), boxO.map(o => [o[1].geometry, 0]))) }; },
+    applyTheme(){
+      const pair = (m, c, hot, op, gain) => {
+        m.uniforms.uColor.value.copy(cssColor(c));
+        m.uniforms.uHot.value.copy(cssColor(hot || c));
+        m.uniforms.uOpacity.value = op; m.uniforms.uGain.value = gain || 0; };
+      pair(baseMat, '--gw-base', '--gw-base', cssNum('--gw-base-op', .9));
+      pair(deckMat, '--gw-deck', '--gw-deck', cssNum('--gw-deck-op', .3));
+      pair(ribMat,  '--gw-rib',  '--gw-rib',  cssNum('--gw-rib-op', .5));
+      pair(shellMat,'--gw-rib',  '--gw-rib',  cssNum('--gw-rib-op', .5) * .8);
+      pair(auxMat,  '--gw-aux',  '--gw-aux',  cssNum('--gw-aux-op', .5));
+      ['--gw-e','--gw-a','--gw-p'].forEach((v, k) => {
+        pair(boxMat[k], v, v, cssNum('--gw-box-op', .7));
+        flows[k].theme(cssColor(v), cssColor('--accent-deep'),
+                       cssNum('--gw-flow-op', .55), cssNum('--gw-rms-op', .7), .40);
+        setBlend(flows[k].mat, cssNum('--gw-add', 0));
+      });
+      [baseMat, deckMat, ribMat, shellMat, auxMat].concat(boxMat).forEach(m => {
+        m.uniforms.uBack.value = .40; setBlend(m, cssNum('--gw-add', 0)); });
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ④ 发版活动带（P4 ENGINE · 01 VELOCITY）
+   ───────────────────────────────────────────────────────────────────────────
+   页上是「17 格 + 一枚包」。升维之后它是一条**发版的介质**：audioStream 沿时间轴，
+   17 次发版是带上的**节点脉冲** —— 波峰走到哪一格，哪一格亮。
+   「版本一直在出」因此不再靠一枚包在跑来暗示，而是这条带子本身在供给。
+   ⚠ 本页的 hot 是抽屉 chip（唯一「可以按下去」的东西）：3D 矩形止于 y388，
+     chip 在 y900 —— 相距 512px，qa 的 ⑳chip 闸正面复算这一条。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeRelease(ctx){
+  const C = K.rl, w = ctx.rect[2], h = ctx.rect[3], D = C.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, C.half);
+  const U = unlock(w, h, D, ctx.rect);
+  const path = unpk3(C.path);
+  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam }).add(scene);
+  const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const axis = iLine(path, axisMat); scene.add(axis);
+  const tickMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const bigMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  /* 格：每一枚切成 4 小段 —— 渲出来一模一样，而顶点密到足以代表整条格
+     （净空是逐顶点量的）。aH 因此按「每枚 8 个顶点」写。 */
+  const NSEG = 4;
+  const smallO = iSegs(denseSegs(C.small.map(r => r[0]), (2*C.hh[1])/NSEG), tickMat);
+  scene.add(smallO);
+  const bigO = iSegs(denseSegs(C.big.map(r => r[0]), (2*C.hh[0])/NSEG), bigMat); scene.add(bigO);
+  const sU = C.small.map(r => r[1]), bU = C.big.map(r => r[1]);
+  const sA = smallO.geometry.attributes.aH, bA = bigO.geometry.attributes.aH;
+  return {
+    scene, camera, intro: 1.0, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flow.draw(clock);
+      const run = C.spd * clock;
+      for(let i = 0; i < sU.length; i++){ const e = asEnv(sU[i] - run);
+        for(let j = 0; j < NSEG*2; j++) sA.array[i*NSEG*2 + j] = e; }
+      for(let i = 0; i < bU.length; i++){ const e = asEnv(bU[i] - run);
+        for(let j = 0; j < NSEG*2; j++) bA.array[i*NSEG*2 + j] = e; }
+      sA.needsUpdate = true; bA.needsUpdate = true;
+    },
+    state(){ return { clr: clrMin(U, C.ink, [
+      [flow.geo, C.wpx], [axis.geometry, 0],
+      [smallO.geometry, 0], [bigO.geometry, 0] ]) }; },
+    applyTheme(){
+      axisMat.uniforms.uColor.value.copy(cssColor('--rl-axis'));
+      axisMat.uniforms.uHot.value.copy(cssColor('--rl-axis'));
+      axisMat.uniforms.uOpacity.value = cssNum('--rl-axis-op', .8);
+      axisMat.uniforms.uGain.value = 0;
+      tickMat.uniforms.uColor.value.copy(cssColor('--rl-tick'));
+      tickMat.uniforms.uHot.value.copy(cssColor('--rl-flow'));
+      tickMat.uniforms.uOpacity.value = cssNum('--rl-tick-op', .8);
+      tickMat.uniforms.uGain.value = .9;
+      bigMat.uniforms.uColor.value.copy(cssColor('--rl-big'));
+      bigMat.uniforms.uHot.value.copy(cssColor('--rl-big'));
+      bigMat.uniforms.uOpacity.value = cssNum('--rl-big-op', 1);
+      bigMat.uniforms.uGain.value = .40;
+      flow.theme(cssColor('--rl-flow'), cssColor('--rl-rms'),
+                 cssNum('--rl-flow-op', .55), cssNum('--rl-rms-op', .7), .55);
+      [axisMat, tickMat, bigMat].forEach(m => {
+        m.uniforms.uBack.value = .55; setBlend(m, cssNum('--rl-add', 0)); });
+      setBlend(flow.mat, cssNum('--rl-add', 0));
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑤ Agent 骨架（P5 AGENT · 03 FIVE）
+   ───────────────────────────────────────────────────────────────────────────
+   沿用页面既有语义，不新造一条关系：四件能力**供养**同一通对话，安全是**包住
+   全部**的域。升维之后三者各占一层空间：
+     · 四件能力退到 z=−78 的模块层（有体厚，看得见四面侧壁）；
+     · 运行时核推到 z=+26 的最前 —— 它是你真正握在手里的那一件（hot · l-agent）；
+     · 安全域从 z=+58 一路罩到 z=−120：**一只腔**，不是一个框。
+       前后两圈虚线的 dash/gap 逐字取页上的 `stroke-dasharray="6 8"`。
+   四条能力供给线换成 audioStream：能力不是「连上了」，是**一直在供**。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeAgent(ctx){
+  const A = K.ag, w = ctx.rect[2], h = ctx.rect[3], D = A.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, A.half);
+  const L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const modMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const ribMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const coreMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const domMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const LB = A.lb.map(q => lockBox(unpk3(q[0]), unpk3(q[1])));
+  const modSegs = [], ribSegs = [];
+  for(let i = 0; i < 4; i++){
+    LB[i].front.forEach(e => modSegs.push(e));
+    LB[i].shell.forEach(e => ribSegs.push(e));
+  }
+  const modO = iSegs(denseSegs(modSegs), modMat); scene.add(modO);
+  const ribO = iSegs(denseSegs(ribSegs), ribMat); scene.add(ribO);
+  const coreO = iSegs(denseSegs(LB[4].front), coreMat); scene.add(coreO);
+  const coreShell = iSegs(denseSegs(LB[4].shell), ribMat); scene.add(coreShell);
+  /* 安全域：**包住全部的一只腔** —— 前框在最前 (+58)、后框在最深 (−120)，
+     两圈虚线的 dash/gap 逐字取页上的 stroke-dasharray="6 8"（按 figure 缩放折算）。 */
+  const domSegs = dashSegs(LB[5].f, A.dash, A.gap).concat(dashSegs(LB[5].b, A.dash, A.gap));
+  LB[5].edges.forEach(e => dashSegs([[e[0],e[1],e[2]],[e[3],e[4],e[5]]], A.dash, A.gap)
+    .forEach(q => domSegs.push(q)));
+  const domO = iSegs(domSegs, domMat); scene.add(domO);
+  const flows = A.link.map((s, k) =>
+    mkStream(SH, unpk3(s), { w: A.w, spd: A.spd[k], lam: AS.lam }).add(scene));
+  return {
+    scene, camera, intro: 1.1, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){ SH.uTime.value = clock; flows.forEach(f => f.draw(clock)); },
+    state(){ return { clr: clrMin(U, A.ink,
+      flows.map(f => [f.geo, A.wpx]).concat([
+        [modO.geometry,0], [ribO.geometry,0], [coreO.geometry,0],
+        [coreShell.geometry,0], [domO.geometry,0]])) }; },
+    applyTheme(){
+      const pair = (m, c, hot, op, gain) => {
+        m.uniforms.uColor.value.copy(cssColor(c));
+        m.uniforms.uHot.value.copy(cssColor(hot || c));
+        m.uniforms.uOpacity.value = op; m.uniforms.uGain.value = gain || 0; };
+      pair(modMat,  '--ag-mod',  '--ag-mod',  cssNum('--ag-mod-op', .7));
+      pair(ribMat,  '--ag-rib',  '--ag-rib',  cssNum('--ag-rib-op', .4));
+      pair(coreMat, '--ag-core', '--ag-core', cssNum('--ag-core-op', .95));
+      pair(domMat,  '--ag-dom',  '--ag-dom',  cssNum('--ag-dom-op', .8));
+      flows.forEach(f => { f.theme(cssColor('--ag-flow'), cssColor('--ag-rms'),
+                                   cssNum('--ag-flow-op', .6), cssNum('--ag-rms-op', .7), .42);
+                           setBlend(f.mat, cssNum('--ag-add', 0)); });
+      [modMat, ribMat, coreMat, domMat].forEach(m => {
+        m.uniforms.uBack.value = .42; setBlend(m, cssNum('--ag-add', 0)); });
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑥ 三条支流，一条河（P8 合流 · 本 deck 的标杆页）
+   ───────────────────────────────────────────────────────────────────────────
+   这一页天生就是 3D 语义：三条支流在**纵深**里各自成流（源头 z=−270），
+   一路爬升汇入版面平面上的 ONE NET 主河道（z=0）。
+   ── 接力的相位账（「同速同相」不是感觉，是解出来的）──────────────────────
+   四条流**共用同一个世界速度** v（= 主河道的 110px/s；主河道 z 恒 0 ⇒ 世界即屏幕）。
+   支流 k 的世界弧长 Lw_k，相位偏移 off_k = −Lw_k + k·λ/3：
+     u_支流末 = Lw_k − v·t + off_k = −v·t + k·λ/3 = u_主河道首 + k·λ/3
+   ⇒ ① 支流末端与主河道首端的波**严丝合缝**（不瞬移、不叠影）；
+      ② 三条支流的波峰各差 λ/3 到达汇合点 ⇒ 读起来就是**轮流接力进主河道**。
+   支流在纵深里的屏上速度天然比主河道慢（透视，越远越慢）—— 那是对的：
+   它是真的在远处。qa 的 ⑳rv 闸拿 data-lab-rvphase 逐条复算这三个偏移。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeRiver(ctx){
+  const R = K.rv, w = ctx.rect[2], h = ctx.rect[3], D = R.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, R.half);
+  const L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const bedMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const railMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const srcMat  = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  const meetMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  const trib = R.trib.map((s, k) =>
+    mkStream(SH, unpk3(s), { w: R.wt, spd: R.spd, lam: AS.lam }).add(scene));
+  const main = mkStream(SH, unpk3(R.main), { w: R.wm, spd: R.spd, lam: AS.lam }).add(scene);
+  /* ONE NET 主河道：页上那只 rx26 的圆角盒 —— 前框锁死、向后拉出河床 */
+  const rail = unpk3(R.rail), bed = unpk3(R.bed);
+  const railO = iSegs(denseSegs(segsOfLoop(rail)), railMat); scene.add(railO);
+  const bedSegs = segsOfLoop(bed);
+  for(let i = 0; i < rail.length; i += 4)
+    bedSegs.push([rail[i][0],rail[i][1],rail[i][2], bed[i][0],bed[i][1],bed[i][2]]);
+  const bedO = iSegs(denseSegs(bedSegs), bedMat); scene.add(bedO);
+  const srcO = iPts(unpk3(R.src), srcMat); scene.add(srcO);
+  const meetO = iPts(unpk3(R.meet), meetMat); scene.add(meetO);
+  const mA = meetO.geometry.attributes.aH, sA = srcO.geometry.attributes.aH;
+  return {
+    scene, camera, intro: 1.25, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      const run = R.spd * clock;
+      main.draw(clock);
+      trib.forEach((f, k) => { f.draw(clock); f.mat.uniforms.uRun.value = run - R.off[k]; });
+      /* 汇合点：三条支流在此刻交出去的包络之和 —— 「三条流轮流接力」看得见的那一处 */
+      let s = 0;
+      for(let k = 0; k < R.off.length; k++) s += asEnv(-run + R.off[k] + R.tlen[k]);
+      mA.array[0] = Math.max(0, Math.min(1, (s / R.off.length - 0.35) / 0.5));
+      mA.needsUpdate = true;
+      for(let k = 0; k < R.off.length; k++) sA.array[k] = asEnv(R.off[k] - run) * .8;
+      sA.needsUpdate = true;
+    },
+    state(){ return { clr: clrMin(U, R.ink,
+      trib.map(f => [f.geo, R.wtpx]).concat([
+        [main.geo, R.wmpx], [railO.geometry, 0], [bedO.geometry, 0],
+        [srcO.geometry, cssNum('--rv-src-size',6)/2],
+        [meetO.geometry, cssNum('--rv-meet-size',9)/2]])) }; },
+    applyTheme(){
+      const pair = (m, c, hot, op, gain, sz) => {
+        m.uniforms.uColor.value.copy(cssColor(c));
+        m.uniforms.uHot.value.copy(cssColor(hot || c));
+        m.uniforms.uOpacity.value = op; m.uniforms.uGain.value = gain || 0;
+        if(sz !== undefined) m.uniforms.uSize.value = sz; };
+      pair(railMat, '--rv-rail', '--rv-rail', cssNum('--rv-rail-op', .88));
+      pair(bedMat,  '--rv-bed',  '--rv-bed',  cssNum('--rv-bed-op', .3));
+      pair(srcMat,  '--rv-src',  '--rv-main', cssNum('--rv-src-op', .8), .9,
+           cssNum('--rv-src-size', 6.4));
+      pair(meetMat, '--rv-meet', '--rv-meet', cssNum('--rv-meet-op', 1), .8,
+           cssNum('--rv-meet-size', 9));
+      main.theme(cssColor('--rv-main'), cssColor('--rv-rms'),
+                 cssNum('--rv-main-op', .7), cssNum('--rv-rms-op', .78), .38);
+      ['--rv-e','--rv-a','--rv-p'].forEach((v, k) =>
+        trib[k].theme(cssColor(v), cssColor('--accent-deep'),
+                      cssNum('--rv-trib-op', .6), cssNum('--rv-trib-rms-op', .7), .38));
+      [railMat, bedMat, srcMat, meetMat].forEach(m => {
+        m.uniforms.uBack.value = .38; setBlend(m, cssNum('--rv-add', 0)); });
+      [main].concat(trib).forEach(f => setBlend(f.mat, cssNum('--rv-add', 0)));
+    },
+  };
+}
+"""
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LAB 层 · 构建期常量表（运行时直接吃）+ 净空的**解析算路**
+# ───────────────────────────────────────────────────────────────────────────
+#   净空有两条独立算路，两边必须给出同一个数（qa 的 ⑳clr 闸对表）：
+#     ① 构建期（这里）：投影锁 ⇒ 锁住的点投影落点 = 它的页坐标；
+#        向后拉伸的框投影 = 页矩形绕**画布中心**按 s=(D−z0)/(D−z0+dz) 缩一档。
+#        于是净空可以纯解析地算出来，不需要跑浏览器。
+#     ② 运行时（scene.state().clr）：把这一帧真的传上 GPU 的顶点用 `unlock`
+#        投影回舞台像素，逐顶点量。
+#   两条算路从几何到代码都不共用，对得上才算真的没压字。
+# ═══════════════════════════════════════════════════════════════════════════
+def _cssmax(name):
+    """从 LAB_CSS 里现取某个尺寸变量的**最大值**（浅 / 暗两档取大的那一档）——
+       净空探针的 pad 因此与页面上真正画出来的点径同源，不会两处各写一个数。"""
+    v = [float(x) for x in _re2.findall(r"%s\s*:\s*([0-9.]+)" % _re2.escape(name), LAB_CSS)]
+    assert v, "LAB_CSS 里找不到 %s" % name
+    return max(v)
+
+
+def _back_s(z0, dz, D):
+    """向后拉伸 dz 之后，后框在屏上相对**画布中心**的缩放"""
+    return (D - z0) / (D - z0 + dz)
+
+
+def _probe_lock(pts, rect, pad=0.0):
+    """锁住的几何：投影落点 = 页坐标（pts 是画布局部坐标）"""
+    return [(rect[0] + p[0], rect[1] + p[1], pad) for p in pts]
+
+
+def _probe_back(pts, z0, dz, D, rect, pad=0.0):
+    """向后拉伸出来的框 / 棱：绕画布中心缩 s 之后落在哪儿"""
+    cx, cy = rect[2] / 2.0, rect[3] / 2.0
+    s = _back_s(z0, dz, D)
+    return [(rect[0] + cx + (p[0] - cx) * s, rect[1] + cy + (p[1] - cy) * s, pad) for p in pts]
+
+
+def _probe_rect(x, y, w, h, per=26):
+    o = []
+    for i in range(per):
+        t = i / float(per)
+        o += [(x + w * t, y), (x + w * t, y + h), (x, y + h * t), (x + w, y + h * t)]
+    return o
+
+
+def _wpx(w0, pts, D):
+    """一条流带在**屏上**的最大半宽：世界半宽 w0 经透视放大 D/(D−z)，取路径上的最大值。
+       净空的 pad 用它 —— 与 `_probe_stream` 同一条式子，构建期与运行时不会各算各的。"""
+    return w0 * max(D / (D - q[2]) for q in pts)
+
+
+def _probe_stream(pts, rect, w0, D):
+    """连续流带：中心线锁住 ⇒ 落点 = 页坐标；屏上半宽 = w0 / k（k=(D−z)/D）"""
+    return [(rect[0] + p[0], rect[1] + p[1], w0 / ((D - p[2]) / D)) for p in pts]
+
+
+def _dist_box(px, py, b):
+    dx = max(b[0] - px, 0.0, px - (b[0] + b[2]))
+    dy = max(b[1] - py, 0.0, py - (b[1] + b[3]))
+    return math.hypot(dx, dy)
+
+
+def _clr_of(probe, ink):
+    m = 1e9
+    for px, py, pad in probe:
+        for b in ink:
+            d = _dist_box(px, py, b) - pad
+            if d < m:
+                m = d
+    return m
+
+
+def _cum_world(pagepts, w, h, D):
+    wp = _lock_path(pagepts, w, h, D)
+    cum = [0.0]
+    for i in range(1, len(wp)):
+        cum.append(cum[-1] + math.hypot(wp[i][0] - wp[i - 1][0], wp[i][1] - wp[i - 1][1]))
+    return wp, cum
+
+
+def _u_at_x(pagepts, cum, x):
+    for i in range(len(pagepts) - 1):
+        a, b = pagepts[i][0], pagepts[i + 1][0]
+        if min(a, b) - 1e-6 <= x <= max(a, b) + 1e-6:
+            t = 0.0 if b == a else (x - a) / (b - a)
+            return cum[i] + (cum[i + 1] - cum[i]) * t
+    return cum[-1]
+
+
+# ── ② P2 活动带 ────────────────────────────────────────────────────────────
+def _tl_build():
+    r = LAB_RECTS[2]
+    w, h = r[3], r[4]
+    page = _tl_path()
+    wp, cum = _cum_world(page, w, h, _TL_D)
+    Lp = _xylen([(p[0], p[1]) for p in page])
+    spd = _SPD_A * cum[-1] / Lp
+    node, nodeU = [], []
+    for x in _TL_NODE:
+        px, py, z = x * _S2, _TL_AY * _S2, _tl_z(x)
+        node.append(_lockpt(px, py, z, w, h, _TL_D))
+        nodeU.append(_u_at_x(page, cum, px))
+    probe = _probe_stream(page, r[1:], _TL_W, _TL_D)
+    probe += [(r[1] + x * _S2, r[2] + _TL_AY * _S2,
+               _cssmax("--tl-%s-size" % ("hot" if k == _TL_HOTK else "node")) / 2.0)
+              for k, x in enumerate(_TL_NODE)]
+    return dict(w=w, h=h, page=page, wp=wp, spd=spd, Lp=Lp, node=node, nodeU=nodeU,
+                probe=probe)
+
+
+# ── ③ P3 空间生长 ─────────────────────────────────────────────────────────
+def _gw_build():
+    r = LAB_RECTS[3]
+    w, h = r[3], r[4]
+    box = [(tx - 150, 40, 300, 112) for tx, _c, _m, _t, _f, _y in _MX_LINES]
+    aux = [(x, 232, bw, 74) for x, bw, _n2, _f, _how in _MX_AUX]
+    link = []
+    for x, bw, _n2, _f, how in _MX_AUX:
+        if how == "trunk":
+            link.append([(x + bw + 4, 269, _GW_AUXZ), (300, 269, _GW_AUXZ)])
+        else:
+            link.append([(x + bw // 2, 306, _GW_AUXZ), (x + bw // 2, _GW_BASEY, _GW_AUXZ)])
+    grid = _gw_grid()
+    trunk, spd, probe = [], [], []
+    for tx, _c, _m, _t, _f, _y in _MX_LINES:
+        pts = _gw_trunk(tx)
+        _wp, cum = _cum_world(pts, w, h, _GW_D)
+        Lp = _xylen([(p[0], p[1]) for p in pts])
+        trunk.append(pts)
+        spd.append(_SPD_A * cum[-1] / Lp)
+        probe += _probe_stream(pts, r[1:], _GW_W, _GW_D)
+    # 底座：**只有前框**（锁死在页上那只 rect 上）+ 身后那片透视基面栅格
+    probe += _probe_lock(_probe_rect(0, _GW_BASEY, 1668, 76), r[1:])
+    for g in grid:
+        probe += _probe_lock([(q[0], q[1]) for q in g], r[1:])
+    for b in box:
+        pr = _probe_rect(*b)
+        probe += _probe_lock(pr, r[1:]) + _probe_back(pr, 0.0, _GW_BOXDZ, _GW_D, r[1:])
+    for b in aux:
+        pr = _probe_rect(*b)
+        probe += _probe_lock(pr, r[1:]) + _probe_back(pr, _GW_AUXZ, _GW_AUXDZ, _GW_D, r[1:])
+    for ln2 in link:
+        probe += _probe_lock([(p[0], p[1]) for p in _lerp_line(ln2[0], ln2[1], 24)], r[1:])
+    return dict(w=w, h=h, box=box, aux=aux, link=link, grid=grid,
+                trunk=trunk, spd=spd, probe=probe)
+
+
+# ── ④ P4 发版活动带 ───────────────────────────────────────────────────────
+def _rl_build():
+    r = LAB_RECTS[4]
+    w, h = r[3], r[4]
+    page = _rl_path()
+    wp, cum = _cum_world(page, w, h, _RL_D)
+    Lp = _xylen([(p[0], p[1]) for p in page])
+    spd = _SPD_A * cum[-1] / Lp
+    small, big, probe = [], [], []
+    for k, x in enumerate(_RL_TICK):
+        z = _rl_z(x)
+        hh = _RL_HB if k in _RL_BIG else _RL_HS
+        a = _lockpt(x, _RL_AY - hh, z, w, h, _RL_D)
+        b = _lockpt(x, _RL_AY + hh, z, w, h, _RL_D)
+        row = ([a[0], a[1], a[2], b[0], b[1], b[2]], _u_at_x(page, cum, x))
+        (big if k in _RL_BIG else small).append(row)
+        probe += _probe_lock([(x, _RL_AY - hh), (x, _RL_AY), (x, _RL_AY + hh)], r[1:])
+    probe += _probe_stream(page, r[1:], _RL_W, _RL_D)
+    return dict(w=w, h=h, page=page, spd=spd, Lp=Lp, small=small, big=big, probe=probe)
+
+
+# ── ⑤ P5 Agent 骨架 ───────────────────────────────────────────────────────
+def _ag_build():
+    r = LAB_RECTS[5]
+    w, h = r[3], r[4]
+    mod = [(x * _S5, y * _S5, _AG_SATW * _S5, _AG_SATH * _S5) for x, y in _AG_SAT]
+    core = tuple(v * _S5 for v in _AG_CORE)
+    dom = tuple(v * _S5 for v in _AG_DOM)
+    link, spd, probe = [], [], []
+    for k in range(4):
+        pts = _ag_link(k)
+        _wp, cum = _cum_world(pts, w, h, _AG_D)
+        Lp = _xylen([(p[0], p[1]) for p in pts])
+        link.append(pts)
+        spd.append(_SPD_A * cum[-1] / Lp)
+        probe += _probe_stream(pts, r[1:], _AG_W, _AG_D)
+    boxes = [(b, _AG_ZMOD, _AG_DZMOD, _AG_INS_MOD) for b in mod] \
+        + [(core, _AG_ZCORE, _AG_DZCORE, _AG_INS_CORE),
+           (dom, _AG_ZDOM, _AG_DZDOM, _AG_INS_DOM)]
+    lb = []
+    for b, z0, dz, ins in boxes:
+        wf, wb, pf, pb = _lockbox(b[0], b[1], b[2], b[3], z0, dz, ins, w, h, _AG_D)
+        lb.append((wf, wb))
+        probe += _probe_lock(_probe_rect(b[0], b[1], b[2], b[3]), r[1:])
+        probe += _probe_lock(_probe_rect(b[0] + ins, b[1] + ins,
+                                         b[2] - 2 * ins, b[3] - 2 * ins), r[1:])
+    return dict(w=w, h=h, mod=mod, core=core, dom=dom, link=link, spd=spd,
+                lb=lb, probe=probe)
+
+
+# ── ⑥ P8 三条支流一条河 ───────────────────────────────────────────────────
+_RV_BED = 90.0
+
+
+def _rv_build():
+    r = LAB_RECTS[8]
+    w, h = r[3], r[4]
+    trib, tlen, off, spdrow, probe = [], [], [], [], []
+    for k, (y, _c, _lb) in enumerate(_TRIB):
+        pts = _rv_trib(k, y)
+        _wp, cum = _cum_world(pts, w, h, _RV_D)
+        Lp = _xylen([(p[0], p[1]) for p in pts])
+        trib.append(pts)
+        tlen.append(cum[-1])
+        # 接力：off_k = −Lw_k + k·λ/3 ⇒ 支流末端与主河道首端严丝合缝，且三条差 λ/3
+        off.append(-cum[-1] + k * _RV_LAM / 3.0)
+        spdrow.append(("支流%d" % (k + 1), Lp, _SPD_A * Lp / cum[-1]))
+        probe += _probe_stream(pts, r[1:], _RV_WT, _RV_D)
+    main = _rv_main()
+    _mw, mcum = _cum_world(main, w, h, _RV_D)
+    spdrow.append(("ONE NET 主河道", _xylen([(p[0], p[1]) for p in main]), _SPD_A))
+    probe += _probe_stream(main, r[1:], _RV_WM, _RV_D)
+    rail = [(p[0], p[1], 0.0) for p in _rrect(440, 274, 350, 52, 26)]
+    probe += _probe_lock([(p[0], p[1]) for p in rail], r[1:])
+    probe += _probe_back([(p[0], p[1]) for p in rail], 0.0, _RV_BED, _RV_D, r[1:])
+    # ⚠ 页上那条域分带 `M418 48 V520`（stage x538）**不进 3D**：它的左缘正贴着
+    #   「合流点」标注的左缘 x537.5（2D 净空 ≈ −0.5px，是页面既有的贴合）。
+    #   而它要说的那件事，3D 里已经由**深度**说了：支流在纵深、主河道在版面平面。
+    #   两枚域标注（三条产品线 / 一张实时网）是文字件，照常留在 DOM 里。
+    src = [(30.0, float(y), _RV_ZSRC) for y, _c, _lb in _TRIB]
+    probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-src-size") / 2.0) for p in src]
+    meet = [(float(_P8_CX), float(_P8_CY), 0.0)]
+    probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-meet-size") / 2.0) for p in meet]
+    return dict(w=w, h=h, trib=trib, tlen=tlen, off=off, main=main, rail=rail,
+                src=src, meet=meet, spd=spdrow, probe=probe)
+
+
+_TL = _tl_build()
+_GW = _gw_build()
+_RL = _rl_build()
+_AG = _ag_build()
+_RV = _rv_build()
+_PROBE = {2: _TL["probe"], 3: _GW["probe"], 4: _RL["probe"], 5: _AG["probe"], 8: _RV["probe"]}
+_CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
+
+
+def _spd_rows(p):
+    """逐股**屏上**流速（px/s）—— A 档 110 ±30%，qa 的 ⑳spd 闸逐股复算"""
+    if p == 2:
+        return [("时间线活动带", _TL["Lp"], _SPD_A)]
+    if p == 3:
+        return [("%s 主干" % m[2], _xylen([(q[0], q[1]) for q in _GW["trunk"][k]]), _SPD_A)
+                for k, m in enumerate(_MX_LINES)]
+    if p == 4:
+        return [("发版活动带", _RL["Lp"], _SPD_A)]
+    if p == 5:
+        return [("%s 供给" % _FIVE[[0, 3, 1, 4][k]][1],
+                 _xylen([(q[0], q[1]) for q in _AG["link"][k]]), _SPD_A) for k in range(4)]
+    if p == 8:
+        return _RV["spd"]
+    return []
+
+
+_SPD_N = sum(len(_spd_rows(p)) for p in LAB_PAGES)
+
+
+def _spd_attr(p):
+    r = _spd_rows(p)
+    return [("spd", ";".join("%s,%s" % (nm, _n3(round(s, 1))) for nm, _L, s in r))] if r else []
+
+
+def _lw(pts, p):
+    return _n3(_xylen([(q[0], q[1]) for q in pts]))
+
+
+def lab_data(p):
+    """把该页场景的周期 / 相位 / 关键几何 / 墨迹名册摊到舞台的 data-* 上。
+       闸门因此可以**静态复算**，不必去读着色器、也不必截图比对。"""
+    a = []
+    if p == 1:
+        a += [("spin", _LAB.VSPIN), ("intro", _LAB.VINTRO), ("pts", _LAB.VN),
+              ("amp", _LAB.VAMP), ("w0", _LAB.VW0),
+              ("harm", ";".join(",".join(str(x) for x in hh) for hh in _LAB.VHARM)),
+              ("hot", "%s,%s" % _LAB.VHOT)]
+    elif p == 2:
+        a += [("nodes", len(_TL_NODE)), ("hot", _TL_HOTK),
+              ("span", "%d,%d" % (_TL_X0, _TL_X1)),
+              ("z", "%s,%s" % (_n3(_TL_Z0), _n3(_TL_Z1))),
+              ("lam", _n3(_LAB._AS_LAM)), ("w", _n3(_TL_W)),
+              ("nodex", ",".join(str(x) for x in _TL_NODE)),
+              ("globe", "0")]      # ⚠ 地球：本轮停手（版面上放不下），见 LAB 层大注释
+    elif p == 3:
+        a += [("trunks", len(_MX_LINES)), ("aux", len(_MX_AUX)),
+              ("trunkx", ",".join(str(m[0]) for m in _MX_LINES)),
+              ("grid", "%d,%d" % (_GW_GN, _GW_GM)), ("zfar", _n3(_GW_ZFAR)),
+              ("z", "%s,%s,%s" % (_n3(-_GW_ZFAR), _n3(_GW_AUXZ), _n3(_GW_ZTOP))),
+              ("base", "%d,%d" % (_GW_BASEY, _GW_TOP)), ("w", _n3(_GW_W))]
+    elif p == 4:
+        a += [("ticks", len(_RL_TICK)), ("big", ",".join(str(k) for k in _RL_BIG)),
+              ("span", "%d,%d" % (_RL_X0, _RL_X1)),
+              ("z", "%s,%s" % (_n3(_RL_Z0), _n3(_RL_Z1))),
+              ("hh", "%s,%s" % (_n3(_RL_HB), _n3(_RL_HS))), ("w", _n3(_RL_W)),
+              ("chip", "%s,%s,%s,%s" % tuple(_n3(v) for v in _P4_CHIP)),
+              ("chipclr", _n3(_P4_CHIP_CLR))]
+    elif p == 5:
+        a += [("mods", len(_AG_SAT)), ("dash", "%s,%s" % (_n3(_AG_DASH), _n3(_AG_GAP))),
+              ("z", "%s,%s,%s,%s" % (_n3(_AG_ZMOD), _n3(_AG_ZCORE),
+                                     _n3(_AG_ZDOM), _n3(_AG_ZDOM - _AG_DZDOM))),
+              ("core", "%s,%s,%s,%s" % tuple(_n3(v) for v in _AG_CORE)), ("w", _n3(_AG_W))]
+    elif p == 8:
+        a += [("trib", len(_TRIB)), ("lam", _n3(_RV_LAM)),
+              ("tlen", ",".join(_n3(v) for v in _RV["tlen"])),
+              ("rvphase", ",".join(_n3(v) for v in _RV["off"])),
+              ("zsrc", _n3(_RV_ZSRC)), ("bed", _n3(_RV_BED)),
+              ("meet", "%d,%d" % (_P8_CX, _P8_CY)),
+              ("w", "%s,%s" % (_n3(_RV_WT), _n3(_RV_WM)))]
+    if p in _INK:
+        a += [("ink", ";".join("%s,%s,%s,%s" % tuple(_n3(v) for v in b) for b in _INK[p])),
+              ("clr", _n3(_CLR[p][0])), ("clr-min", _n3(round(_CLR_MIN[p], 2)))]
+    return "".join(' data-lab-%s="%s"' % kv for kv in a + _spd_attr(p))
+
+
+def lab_stage(p):
+    """一页的 3D 舞台层：辉光（仅声场球）+ poster（仅 P1 有专用 svg）+ 打印帧位。
+       **canvas 不在这里** —— 全 deck 只有一枚，常驻车库，翻页时搬进来。"""
+    kind, rx, ry, rw, rh = LAB_RECTS[p]
+    atmo = poster = ""
+    if kind == "voice":
+        aw = _LAB.VGR * 2 * 1.35
+        atmo = ('<div class="lab-atmo" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
+                'background:radial-gradient(circle closest-side,transparent 62%%,var(--v-atmo) 74%%,'
+                'transparent 87%%);opacity:var(--v-atmo-int)"></div>'
+                % (_LAB.VCX - aw / 2, _LAB.VCY - aw / 2, aw, aw))
+        poster = ('<svg class="lab-poster" id="labPoster1" viewBox="0 0 1920 1080" aria-hidden="true">'
+                  '<path class="v-wire-b" d="%s"/><path class="v-dot-b" d="%s"/>'
+                  '<path class="v-wire" d="%s"/><path class="v-dot" d="%s"/>'
+                  '<path class="v-dot-h" d="%s"/></svg>'
+                  % (_V_POSTER["wireB"], _V_POSTER["back"], _V_POSTER["wire"],
+                     _V_POSTER["front"], _V_POSTER["hot"]))
+    pr = ('<img class="lab-print" id="labPrint%d" alt="" aria-hidden="true" '
+          'style="left:%dpx;top:%dpx;width:%dpx;height:%dpx">' % (p, rx, ry, rw, rh))
+    return ('<div class="lab-stage" id="labStage%d" data-lab-page="%d" data-lab-scene="%s" '
+            'data-lab-rect="%d,%d,%d,%d"%s aria-hidden="true">%s%s%s</div>'
+            % (p, p, kind, rx, ry, rw, rh, lab_data(p), atmo, poster, pr))
+
+
+def info_k():
+    """常量表：构建期算好，运行时直接吃 —— 也是「3D 不新造坐标」的唯一保证。"""
+    def O(d):
+        return "{" + ",".join("%s:%s" % (k, v) for k, v in d) + "}"
+
+    def PL(pts, w, h, D):
+        return '"%s"' % _pk3(_lock_path(pts, w, h, D))
+
+    def PA(pts, w, h, D):
+        return "[" + ",".join(_arr3(q) for q in _lock_path(pts, w, h, D)) + "]"
+
+    def INK(p):
+        return "[" + ",".join(_arr3(b) for b in _INK[p]) + "]"
+
+    tl = O([("D", _n3(_TL_D)), ("half", _n3(_TL_HALF)),
+            ("path", '"%s"' % _pk3(_lock_path(_TL["page"], _TL["w"], _TL["h"], _TL_D))),
+            ("node", "[" + ",".join(_arr3(q) for q in _TL["node"]) + "]"),
+            ("nodeU", "[" + ",".join(_n3(v) for v in _TL["nodeU"]) + "]"),
+            ("hot", str(_TL_HOTK)), ("w", _n3(_TL_W)), ("spd", _n3(_TL["spd"])),
+            ("wpx", _n3(_wpx(_TL_W, _TL["page"], _TL_D))),
+            ("ink", INK(2))])
+    gw = O([("D", _n3(_GW_D)), ("half", _n3(_GW_HALF)),
+            ("basey", str(_GW_BASEY)),
+            ("grid", "[" + ",".join(PL(g, _GW["w"], _GW["h"], _GW_D)
+                                    for g in _GW["grid"]) + "]"),
+            ("boxdz", _n3(_GW_BOXDZ)), ("auxz", _n3(_GW_AUXZ)), ("auxdz", _n3(_GW_AUXDZ)),
+            ("box", "[" + ",".join(_arr3(b) for b in _GW["box"]) + "]"),
+            ("aux", "[" + ",".join(_arr3(b) for b in _GW["aux"]) + "]"),
+            ("link", "[" + ",".join(
+                PL(_lerp_line(a, b, 24), _GW["w"], _GW["h"], _GW_D)
+                for a, b in _GW["link"]) + "]"),
+            ("base", "[" + ",".join(_arr3(q) for q in
+                     _lock_path([(0, _GW_BASEY, 0), (1668, _GW_BASEY, 0),
+                                 (1668, _GW_BASEY + 76, 0), (0, _GW_BASEY + 76, 0),
+                                 (0, _GW_BASEY, 0)], _GW["w"], _GW["h"], _GW_D)) + "]"),
+            ("trunk", "[" + ",".join(PL(q, _GW["w"], _GW["h"], _GW_D)
+                                     for q in _GW["trunk"]) + "]"),
+            ("spd", "[" + ",".join(_n3(v) for v in _GW["spd"]) + "]"),
+            ("w", _n3(_GW_W)),
+            ("wpx", _n3(max(_wpx(_GW_W, q, _GW_D) for q in _GW["trunk"]))),
+            ("ink", INK(3))])
+    rl = O([("D", _n3(_RL_D)), ("half", _n3(_RL_HALF)),
+            ("path", PL(_RL["page"], _RL["w"], _RL["h"], _RL_D)),
+            ("small", "[" + ",".join("[%s,%s]" % (_arr3(r[0]), _n3(r[1]))
+                                     for r in _RL["small"]) + "]"),
+            ("big", "[" + ",".join("[%s,%s]" % (_arr3(r[0]), _n3(r[1]))
+                                   for r in _RL["big"]) + "]"),
+            ("w", _n3(_RL_W)), ("spd", _n3(_RL["spd"])),
+            ("wpx", _n3(_wpx(_RL_W, _RL["page"], _RL_D))),
+            ("hh", "[%s,%s]" % (_n3(_RL_HB), _n3(_RL_HS))), ("ink", INK(4))])
+    ag = O([("D", _n3(_AG_D)), ("half", _n3(_AG_HALF)),
+            ("mod", "[" + ",".join(_arr3(b) for b in _AG["mod"]) + "]"),
+            ("core", _arr3(_AG["core"])), ("dom", _arr3(_AG["dom"])),
+            ("lb", "[" + ",".join('["%s","%s"]' % (_pk3(q[0]), _pk3(q[1]))
+                                  for q in _AG["lb"]) + "]"),
+            ("zmod", _n3(_AG_ZMOD)), ("dzmod", _n3(_AG_DZMOD)),
+            ("zcore", _n3(_AG_ZCORE)), ("dzcore", _n3(_AG_DZCORE)),
+            ("zdom", _n3(_AG_ZDOM)), ("dzdom", _n3(_AG_DZDOM)),
+            ("dash", _n3(_AG_DASH * _S5)), ("gap", _n3(_AG_GAP * _S5)),
+            ("link", "[" + ",".join(PL(q, _AG["w"], _AG["h"], _AG_D)
+                                    for q in _AG["link"]) + "]"),
+            ("spd", "[" + ",".join(_n3(v) for v in _AG["spd"]) + "]"),
+            ("w", _n3(_AG_W)),
+            ("wpx", _n3(max(_wpx(_AG_W, q, _AG_D) for q in _AG["link"]))),
+            ("ink", INK(5))])
+    rv = O([("D", _n3(_RV_D)), ("half", _n3(_RV_HALF)),
+            ("trib", "[" + ",".join(PL(q, _RV["w"], _RV["h"], _RV_D)
+                                    for q in _RV["trib"]) + "]"),
+            ("main", PL(_RV["main"], _RV["w"], _RV["h"], _RV_D)),
+            ("rail", PL(_RV["rail"], _RV["w"], _RV["h"], _RV_D)),
+            ("bed", PL([(q[0], q[1], -_RV_BED) for q in _RV["rail"]],
+                       _RV["w"], _RV["h"], _RV_D)),
+            ("src", PL(_RV["src"], _RV["w"], _RV["h"], _RV_D)),
+            ("meet", PL(_RV["meet"], _RV["w"], _RV["h"], _RV_D)),
+            ("off", "[" + ",".join(_n3(v) for v in _RV["off"]) + "]"),
+            ("tlen", "[" + ",".join(_n3(v) for v in _RV["tlen"]) + "]"),
+            ("spd", _n3(_SPD_A)), ("wt", _n3(_RV_WT)), ("wm", _n3(_RV_WM)),
+            ("wtpx", _n3(max(_wpx(_RV_WT, q, _RV_D) for q in _RV["trib"]))),
+            ("wmpx", _n3(_wpx(_RV_WM, _RV["main"], _RV_D))),
+            ("ink", INK(8))])
+    return "{" + ",".join([
+        "W:1920", "H:1080", "FPX:%s" % _n3(_LAB.FPX), 'rev:"%s"' % _LAB.THREE_REV,
+        # ① 声场球：与 lab P1 **逐字同参**（球心 / 半径 / 谐波 / 自转 / 入场全部现取）
+        "v:{" + ",".join([
+            "cam:" + _arr3(_LAB.VCAM.C), "tilt:%s" % _n3(_LAB.VTILT),
+            "spin:%s" % _n3(_LAB.VSPIN), "n:%d" % _LAB.VN, "amp:%s" % _n3(_LAB.VAMP),
+            "w0:%s" % _n3(_LAB.VW0),
+            "ha:" + _arr3([hh[0] for hh in _LAB.VHARM]),
+            "hw:" + _arr3([hh[1] for hh in _LAB.VHARM]),
+            "hk:" + _arr3([hh[2] for hh in _LAB.VHARM]),
+            "hp:" + _arr3([hh[3] for hh in _LAB.VHARM]),
+            "hot:" + _arr3(_LAB.VHOT), "introSec:%s" % _n3(_LAB.VINTRO)]) + "}",
+        # lab-kit ⑨ · audioStream 参数表（与旗舰同一份 —— 全家族同一种介质）
+        "as:" + O([("a", _arr3(_LAB._AS_A)), ("f", _arr3(_LAB._AS_F)),
+                   ("ph", _arr3(_LAB._AS_PH)), ("lam", _n3(_LAB._AS_LAM)),
+                   ("floor", _n3(_LAB._AS_FLOOR)), ("ghost", _n3(_LAB._AS_GHOST)),
+                   ("grain", _n3(_LAB._AS_GRAIN)), ("grainL", _n3(_LAB._AS_GRAINL)),
+                   ("edge", _n3(_LAB._AS_EDGE)), ("crest", _n3(_LAB._AS_CREST)),
+                   ("comp", _n3(_LAB._AS_COMP)), ("spd", _n3(_SPD_A))]),
+        "tl:" + tl, "gw:" + gw, "rl:" + rl, "ag:" + ag, "rv:" + rv,
+    ]) + "}"
+
+
+# ── 运行时装配：地基（旗舰现取）+ 本 deck 五枚场景 + 单渲染器巡游 ──────────
+_FACTORY_JS = ("const FACTORY = { voice:makeVoice, band:makeBand, grow:makeGrow,\n"
+               "                  release:makeRelease, agent:makeAgent, river:makeRiver };")
+_TOUR_JS = _re2.sub(r"const FACTORY = \{[\s\S]*?\};", lambda _m: _FACTORY_JS, _K_TOUR, count=1)
+assert "makeBand" in _TOUR_JS and "makeBrain" not in _TOUR_JS, "FACTORY 替换失败"
+INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_LOCK + _K_AS + _K_CLR
+                    + INFO_SCENES + _TOUR_JS)
 
 # ═══ 引擎详解抽屉 + 深链的行为层（独立 <script>，不碰共享的 deck.js）═══════════
 #   入口三处（chip 点击 与 该页 Enter 同效）：
@@ -1608,8 +3106,14 @@ window.addEventListener("keydown",function(e){
 def build():
     total = len(PAGES)
     secs = []
-    for i, (board, steps, body, hero) in enumerate(PAGES, 1):
+    for i, (board, steps, body, hero, labk) in enumerate(PAGES, 1):
         sig = '<div class="sig">%d/%d</div>' % (i, total)
+        # 3D 舞台夹在背景板与 .pp 之间：两者都是 z-index:0，靠**文档序**分先后。
+        # 无场景的页插入空串 ⇒ 这条模板拼出的字节与改造之前完全相同。
+        assert (labk is not None) == (i in LAB_RECTS), "P%d 的 lab= 声明与 LAB_RECTS 不一致" % i
+        if labk is not None:
+            assert labk == LAB_RECTS[i][0], "P%d 场景名分叉：%s vs %s" % (i, labk, LAB_RECTS[i][0])
+        labh = ("  " + lab_stage(i) + "\n") if labk else ""
         hero_html = ""
         if hero and HERO_ART:
             name, style = hero
@@ -1620,8 +3124,9 @@ def build():
                          % (A, name, st, A, name, st))
         secs.append(
             '<section class="slide conf-boarded" data-p="%d" data-steps="%d">\n'
-            '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>%s\n'
-            '  <div class="pp">%s%s</div>\n</section>' % (i, steps, board, hero_html, sig, body))
+            '  <div class="conf-bg conf-bg-%s" aria-hidden="true"></div>%s\n%s'
+            '  <div class="pp">%s%s</div>\n</section>'
+            % (i, steps, board, hero_html, labh, sig, body))
     chrome = ('<div class="deck-grid" aria-hidden="true"></div>'
               '<div class="deck-rail t" aria-hidden="true"></div>'
               '<div class="deck-rail b" aria-hidden="true"></div>')
@@ -1639,10 +3144,13 @@ def build():
         + "<style>" + css("motion.css") + "</style>"
         + "<style>" + css("components.css") + "</style>"
         + "<style>" + css("conf-chrome.css").split("<svg class=\"deck-flow\"")[0] + "</style>"   # 流场退役：只取 CSS
-        + BOARDS_CSS + DECK_CSS
+        + BOARDS_CSS + DECK_CSS + LAB_CSS
         + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
         + chrome + "\n" + "\n".join(secs) + "\n  </div>\n</div>\n"
+        # 车库：全 deck 唯一那块 canvas 的常驻位（屏外）。挂在 .deck-viewport 之外 ——
+        # 舞台自带 overflow:hidden + transform:scale，canvas 停在里面会被裁 / 被缩。
+        + lab_garage() + "\n"
         # 引擎详解抽屉：必须与 .deck-viewport 平级 —— 塞进 .deck-stage 就会吃到舞台的
         # translate+scale，iframe 内的原生滚动/点击坐标系全歪。
         '<div id="engineOverlay" hidden>\n'
@@ -1684,33 +3192,44 @@ def build():
         'var now=document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light";'
         'var nxt=(now==="dark")?"light":"dark";'
         'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
-        + ENGINE_DRAWER_JS +
-        "</body></html>\n")
+        + ENGINE_DRAWER_JS
+        # ── LAB 运行时（前奏 classic + importmap + module 本体）────────────
+        #   放在抽屉之后：抽屉是速讲现场的 action，它的键路由必须先装上；
+        #   three 是 module（defer 语义），本来就排在最后跑。
+        + LAB_PRELUDE
+        + '<script type="module">\nconst K=' + info_k() + ';\n' + INFO_MODULE_BODY + '</script>\n'
+        + "</body></html>\n")
     OUT.write_text(doc, encoding="utf-8")
 
     # ── 构建期断言（别等到 qa）──────────────────────────────────────────────
     assert total == 8, "页数漂移：%d != 8" % total
     assert doc.count("<section") == 8, "section 数漂移：%d" % doc.count("<section")
     assert 'name="robots" content="noindex' in doc, "缺 noindex"
-    boards = {i: b for i, (b, _s, _y, _h) in enumerate(PAGES, 1)}
+    boards = {i: b for i, (b, _s, _y, _h, _l) in enumerate(PAGES, 1)}
     assert {i for i, b in boards.items() if b == "title"} == {1}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
-    steps_map = {i: s for i, (_b, s, _y, _h) in enumerate(PAGES, 1) if s}
+    steps_map = {i: s for i, (_b, s, _y, _h, _l) in enumerate(PAGES, 1) if s}
     assert steps_map == {4: 1, 5: 1, 7: 1}, "分步页漂移：%r" % steps_map
     # 常显容器不许挂 data-step（引擎 P20 空页事故根因：裸容器兜底规则会把它摁成白页）
     assert 'class="sh vid"' not in doc, "本 deck 无视频页"
-    # 红线反向断言：价格 / staging / 引擎 P16 的盲测口径，一个都不许上页
+    # ── 红线 / 口径断言一律走**页上可见文本**，不走整份产物 ─────────────────
+    #   LAB 层把一大批几何常量（逗号分隔的数组）烘进了 <script>，
+    #   「8,500」这种串会在数字数组里偶然出现 —— 那不是页上的价格，是坐标。
+    #   红线管的本来就是「客户看得见的字」，所以判据落在 section 的文本上
+    #   （与 qa 的 ⑭ 闸读 deckStage.textContent 是同一把尺）。
+    import re as _re
+    _VIS = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ",
+                   "".join(_re.findall(r"<section class=\"slide.*?</section>", doc, _re.S))))
     for _bad in ("8,500", "2,999", "5,501", "staging", "盲测", "32,000"):
-        assert _bad not in doc, "红线：全 deck 不许出现「%s」" % _bad
+        assert _bad not in _VIS, "红线：8 页可见文本不许出现「%s」" % _bad
     # 正向口径断言：本 deck 自己的两个数据集锚点必须在
     for _must in ("96.5%", "2,475", "近一半", "No.1", "900亿+", "100万+", "50+"):
-        assert _must in doc, "口径丢失：「%s」" % _must
+        assert _must in _VIS, "口径丢失：「%s」" % _must
     # 深链契约：三处入口的 hash 表必须齐
     for _h in ('data-eng-hash="1"', 'data-eng-hash="16"', 'data-eng-hash="19"'):
         assert _h in doc, "深链入口缺失：%s" % _h
     # SOURCE ledger（采纳项 C）：六页各一行、四段制、结尾一律「事实截止 2026.08」。
     # P1 封面与 P3 矩阵没有事实声明 ⇒ 不带 SOURCE 行（这是规格，不是遗漏）。
-    import re as _re
     _srcs = _re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
     assert len(_srcs) == 6, "SOURCE ledger 行数漂移：%d != 6（%r）" % (len(_srcs), _srcs)
     for _s in _srcs:
@@ -1722,6 +3241,71 @@ def build():
     assert 'e.key!=="colin-theme"' in doc, "storage 监听未限定 colin-theme 键"
     # 96.5% cohort 标注（采纳项 B）：三段口径一个都不许掉
     assert "生产外呼 · n=2,475 · 未出现明确 AI 识别信号" in doc, "P5 96.5% cohort 标注缺失"
+    # ═══ LAB 层的构建期自证（六道 · 别等到 qa）═══════════════════════════════
+    # ⓐ **与改造前逐字同文**：8 页可见文本的摘要 + data-step 集合逐页钉死。
+    #    基线取自 LAB 化之前那一版产物（f04f7b2 的 convoai-info.html）——
+    #    LAB 层只做两件事：section 里插一层 .lab-stage（无字）、SVG 里把「形」
+    #    裹进 <g class="lab-poster">（无字）⇒ 文本流一个字节都不该动。
+    #    改一个字、挪一处 data-step，这一闸当场炸。两种 P1 模式共用同一批摘要
+    #    （hero 位图与 poster 都不带字）。
+    _BASE = [("6a266af55cce4643", []), ("eb2989003f48954d", []), ("4b2f7c95b2815283", []),
+             ("7c0347c4fbcfcc39", [1]), ("c1b8c46aac675b4b", [1]), ("316007f0dc2c5635", []),
+             ("223f79954c8628e5", [1]), ("1375f9ad7f62c571", [])]
+    import hashlib as _hl
+    _secs = _re.findall(r'<section class="slide.*?</section>', doc, _re.S)
+    assert len(_secs) == 8, "section 切分失败：%d" % len(_secs)
+    for _i, _sec in enumerate(_secs):
+        _t = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ", _sec)).strip()
+        _d = _hl.sha1(_t.encode()).hexdigest()[:16]
+        _st = sorted(set(int(x) for x in _re.findall(r'data-step="(\d+)"', _sec)))
+        assert _d == _BASE[_i][0], ("ⓐ P%d 文本与改造前分叉（%s != %s）—— "
+                                    "LAB 层不许动一个字" % (_i + 1, _d, _BASE[_i][0]))
+        assert _st == _BASE[_i][1], "ⓐ P%d data-step 集合分叉：%r != %r" % (_i + 1, _st, _BASE[_i][1])
+    # ⓑ poster 分件：裹进去的**只有形** —— 一个 <text>、一枚 <polygon> 都不许进
+    assert _LP_TRACE, "ⓑ 一个 poster 组都没有 —— _lpsplit 没接上"
+    for _q in _LP_TRACE:
+        assert "<text" not in _q, "ⓑ poster 组里裹进了文字件（字必须压在 canvas 之上）"
+        assert "<polygon" not in _q, "ⓑ poster 组里裹进了箭头头（它是方向标注，留在 DOM）"
+    for _pp in LAB_PAGES:
+        if LAB_RECTS[_pp][0] == "voice":
+            continue
+        assert 'class="lab-poster"' in _secs[_pp - 1], "ⓑ P%d 的图形没有原地留作 poster 层" % _pp
+    # ⓒ 单渲染器巡游：全文档恰一枚 canvas + 车库在位 + 舞台数与场景表同源
+    assert doc.count("<canvas") == 1, "ⓒ WebGL canvas %d 枚 —— 单渲染器巡游只准 1 枚" % doc.count("<canvas")
+    assert doc.count('class="lab-garage"') == 1, "ⓒ 缺 canvas 车库"
+    assert doc.count('class="lab-stage"') == len(LAB_PAGES), \
+        "ⓒ .lab-stage %d 枚 != 场景表 %d 页" % (doc.count('class="lab-stage"'), len(LAB_PAGES))
+    for _pp in FLAT_PAGES:
+        assert _pp not in LAB_RECTS, "ⓒ P%d 是既定的 2D 页，不该有场景" % _pp
+    # ⓓ 净空：构建期解析算路 ≥ 该页的下限（下限 = 它替换掉的那张 2D 图的既有净空）
+    for _pp, (_lo, _why) in _CLR.items():
+        assert _pp in _CLR_MIN, "ⓓ P%d 没有净空实测" % _pp
+        assert _CLR_MIN[_pp] >= _lo - 1e-6, \
+            "ⓓ P%d 的 3D 压字：解析净空 %.2fpx < 下限 %.1fpx（%s）" % (_pp, _CLR_MIN[_pp], _lo, _why)
+    # ⓓ' P4 的 hot 是抽屉 chip —— 它绝不许被 3D 压（这一条是正面断言，不是顺带）
+    _chipclr = _clr_of(_PROBE[4], [_P4_CHIP])
+    assert _chipclr >= _P4_CHIP_CLR, \
+        "ⓓ' P4 抽屉 chip 被 3D 压到 %.1fpx（下限 %.0f）" % (_chipclr, _P4_CHIP_CLR)
+    # ⓔ 流速：A 档 110 ±30%，且任一页内极差 ≤ 1.35×（同页快慢会被读成主次）
+    _lo2, _hi2 = _SPD_A * (1 - _SPD_TOL), _SPD_A * (1 + _SPD_TOL)
+    for _pp in LAB_PAGES:
+        _rows = _spd_rows(_pp)
+        for _nm, _L2, _v in _rows:
+            assert _lo2 - 1e-6 <= _v <= _hi2 + 1e-6, \
+                "ⓔ P%d「%s」%.1fpx/s 越出 A 档 %.0f–%.0f" % (_pp, _nm, _v, _lo2, _hi2)
+        if len(_rows) > 1:
+            _vs = [r[2] for r in _rows]
+            assert max(_vs) / min(_vs) <= 1.35, "ⓔ P%d 页内极差 %.2f×" % (_pp, max(_vs) / min(_vs))
+    # ⓕ audioStream 参数表（与旗舰同一份 · 解析包络的两条数学前提）
+    assert abs(sum(_LAB._AS_A) - 1.0) < 1e-9, "ⓕ 谐波权重和 != 1 —— 包络会出现尖角"
+    for _i2 in range(4):
+        for _j2 in range(_i2 + 1, 4):
+            _r2v = _LAB._AS_F[_j2] / _LAB._AS_F[_i2]
+            assert abs(_r2v - round(_r2v)) > 1e-3, "ⓕ 谐波频率整除 —— 包络会逐拍重复"
+    # ⓖ P8 接力的相位账：off_k + Lw_k − k·λ/3 必须恰好归零（不瞬移 / 不叠影）
+    for _k2, _o2 in enumerate(_RV["off"]):
+        _res = _o2 + _RV["tlen"][_k2] - _k2 * _RV_LAM / 3.0
+        assert abs(_res) < 1e-6, "ⓖ P8 支流%d 的接力相位没对齐（余 %.6f）" % (_k2 + 1, _res)
     print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · hero-art=%s"
           % (total, len(doc) // 1024, steps_map, "on" if HERO_ART else "off"))
 

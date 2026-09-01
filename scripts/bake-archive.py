@@ -88,6 +88,19 @@ def bake(src, dst):
     print(f'{dst}: {len(refs)-len(miss)} inlined, miss={miss}, left={len(left)}, '
           f'ext={ext[:5]}, media→线上={media_out}, size={pathlib.Path(dst).stat().st_size:,}')
 
+# 2026-09-01 convoai-info 整体 LAB 化：8 页里六页上了语义 3D（P1 声场球 / P2 发布时间线
+#   活动带 / P3 空间生长 / P4 发版活动带 / P5 Agent 骨架 / P8 三条支流一条河）。
+#   资产口径随之变了两处：① 封面 AI-art 两张 2048×1152 PNG 退场（换成声场球）⇒
+#   归档**反而瘦了 0.37MB**（2.44 → 2.07MB）；② three.module.min.js 走 MEDIA_ABS 绝对地址。
+#   ── 归档态的准确口径（速讲版会被直接发给客户，这一条必须说准）──────────────
+#     在线打开：六枚场景照常起。
+#     离线打开：three 拉不到 ⇒ 前奏里的 6s 看门狗把六页钉死在 poster 上，而这六页的
+#       poster **就是页上原来那张 SVG**（P1 是构建期离线投影出的专用静帧，另五页是
+#       各页图形原地留用）⇒ 离线归档 = **完整可读的 2D 版 8 页**，一个字一张图都不少。
+#       实测（scripts/qa-info-archive.mjs · file:// + 断网）：mode=POSTER / run=0 /
+#       canvas 回车库 / 六页 poster 全 opacity 1 且各有 5–21 个几何件 /
+#       八页正文 114·539·456·548·645·521·467·575 字 / 口径锁与 14 家客户名一条不缺。
+#   验收线：miss=[] / left=0 / media→线上 里出现 three.module.min.js。
 bake(ROOT/'decks/convoai-info.html', '/home/claude/eco-review/convoai-info-速讲版-8p.html')
 # 2026-08-21 Colin：31 页初次拜访版退役下线，本清单只剩速讲版一行（终版归档已在 Vault）。
 # 2026-08-24：新增 ELI5 版。它只引一张 R1 实拍 webp（34KB）与四张字体，没有大体积媒体、
