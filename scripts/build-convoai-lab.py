@@ -1464,6 +1464,33 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --y-beam:var(--accent-deep); --y-beam-op:.86;
   --y-floor:var(--accent);     --y-floor-op:.95; --y-floor-size:5.2;
   --y-add:0;
+  /* ═══ 三轮「静态页升维」· 四枚加法层 ═══════════════════════════════════
+     四枚共同的色域纪律：它们画在**既有版面之外**的空档里，所以整体比另外 16 页
+     更暗一档 —— 尤其 P22（--e-*）：末页是余韵，墨量上闸（≤ P1 的 60%）。 */
+  /* ── P22 余韵星野（末页 · 全 deck 最安静的一层）── */
+  --e-star:var(--ink-3);       --e-star-op:.46;
+  --e-hot:var(--accent);       --e-hotk:.85;   --e-meet:1.5;
+  --e-back:.40;                --e-add:0;
+  /* ── P5 三件极致的底场（伴奏：墨量 ≤ 三卡的 25%）── */
+  --x-flow:var(--accent);      --x-flow-op:.40;
+  --x-rms:var(--accent-deep);  --x-rms-op:.55;
+  --x-noise:var(--ink-3);      --x-noise-op:.30;
+  --x-haze:var(--ink-3);       --x-haze-op:.22; --x-haze-size:2.0;
+  --x-beam:var(--accent-deep); --x-beam-op:.88;
+  --x-shield:var(--ink-2);     --x-shield-op:.62;
+  --x-add:0;
+  /* ── P15 中心辐射（核与支线在卡间空档全亮；六簇在卡背后透出三成）── */
+  --h-core:var(--accent);      --h-core-op:.92; --h-core-size:3.0;
+  --h-ring:var(--accent-deep); --h-ring-op:.66;
+  --h-spoke:var(--accent);     --h-spoke-op:.42;
+  --h-rms:var(--accent-deep);  --h-rms-op:.58;
+  --h-node:var(--accent);      --h-node-op:1;   --h-node-size:4.6;
+  --h-far:var(--ink-2);        --h-far-op:1;    --h-far-size:3.4;
+  --h-add:0;
+  /* ── P16 通话流（均质一束 —— 不给任何一张卡加权，96.5% 的 hot 是页面的事）── */
+  --n-flow:var(--accent);      --n-flow-op:.34;
+  --n-rms:var(--accent-deep);  --n-rms-op:.55;
+  --n-add:0;
 }
 html[data-theme="dark"]{
   --v-ink:var(--ink-2);    --v-dot-op:.84;  --v-dot-size:.0120; --v-dot-min:1.1;
@@ -1616,6 +1643,27 @@ html[data-theme="dark"]{
   --y-beam:var(--accent);      --y-beam-op:.90;
   --y-floor:var(--accent);     --y-floor-op:.66; --y-floor-size:5.4;
   --y-add:1;
+  /* ═══ 三轮 · 四枚加法层 · 暗底 ═══════════════════════════════════════ */
+  --e-star:var(--ink-2);       --e-star-op:.42;
+  --e-hot:var(--accent);       --e-hotk:.80;   --e-meet:1.6;
+  --e-back:.30;                --e-add:1;
+  --x-flow:var(--accent);      --x-flow-op:.36;
+  --x-rms:var(--accent-deep);  --x-rms-op:.50;
+  --x-noise:var(--ink-3);      --x-noise-op:.34;
+  --x-haze:var(--ink-3);       --x-haze-op:.24; --x-haze-size:2.0;
+  --x-beam:var(--accent);      --x-beam-op:.80;
+  --x-shield:var(--ink-2);     --x-shield-op:.55;
+  --x-add:1;
+  --h-core:var(--accent);      --h-core-op:.88; --h-core-size:3.0;
+  --h-ring:var(--accent-deep); --h-ring-op:.60;
+  --h-spoke:var(--accent);     --h-spoke-op:.38;
+  --h-rms:var(--accent-deep);  --h-rms-op:.52;
+  --h-node:var(--accent);      --h-node-op:1;   --h-node-size:4.6;
+  --h-far:var(--ink-2);        --h-far-op:.92;  --h-far-size:3.4;
+  --h-add:1;
+  --n-flow:var(--accent);      --n-flow-op:.30;
+  --n-rms:var(--accent-deep);  --n-rms-op:.50;
+  --n-add:1;
 }
 /* ── 舞台层：压在 .conf-bg 之上、.pp 正文之下 ─────────────────────────────
    两者都是 z-index:0，靠**文档序**分先后（背景板在前、3D 层在后）——
@@ -1741,6 +1789,10 @@ LAB_RECTS = {
     2:  ("morph",   120,  272, 1680,  470),   # = figbox(120,272,1680, vb1680×470)
     3:  ("lanes",   151,  372, 1618,  135),   # 三张卡里那三条 figure 带的并集（实测见下）
     4:  ("duplex",  120,  268, 1680,  352),   # = figbox(120,268,1680, vb1680×352)
+    # ── 三轮「静态页升维」的四枚**加法层**（页上没有图，3D 是加在版面之外的一层场）──
+    #    矩形不是「figbox」，是该页**无字的那块地**：底场 / 无字带 / 空带 / 整页。
+    5:  ("three",   120,  780, 1680,  124),   # 卡底 y800 与落点句墨迹 y915 之间的空带
+    15: ("hub",     120,  274, 1680,  576),   # 六卡栅格 + 其下的空带（核坐在无字带心）
     6:  ("chain",   120,  274, 1680,  536),   # = figbox(120,274,1680, vb1680×536)
     7:  ("terrain", 780,  414, 1010,  146),   # = figbox 右段（figure x 660→1670）
     8:  ("cutin",   120,  276, 1680,  372),   # = figbox(120,276,1680, vb1680×372)
@@ -1750,11 +1802,13 @@ LAB_RECTS = {
     12: ("vision",  120,  292, 1680,  450),   # = figbox(120,292,1680, vb1680×450)
     13: ("slots",   120,  272, 1680,  545),   # = figbox(120,272,1680, vb1680×545)
     14: ("towers",  120,  266, 1680,  578),   # = figbox(120,266,1680, vb1680×578)
+    16: ("calls",   120,  570, 1680,  110),   # 成绩单卡底与对照表之间的空带
     17: ("brain",   120,  282, 1680,  580),   # = figbox(120,282,1680, vb1680×580)
     # 二轮精修 · 波A：1240 → 1680 —— 舞台横跨**两图**（成长曲线 + LOOP 环带）。
     # 扩的是「区域」，页上的字一格没动：右图 figbox 仍钉在 x1420，环带走投影锁。
     18: ("spiral",  120,  276, 1680,  310),   # = figbox(120,276,1240) ∪ figbox(1420,276,380)
     21: ("globe",  1150,  180,  640,  640),   # 球心 (1470,500) 居中 · 弧顶 1.243r 内
+    22: ("quiet",     0,    0, 1920, 1080),   # 末页：整页就是场（logo 与字浮在场中）
 }
 # ── P3 的矩形是全 deck 唯一一处**不能照抄 figbox 参数**的（本 deck 也只有这一页
 #    把图形区放进了卡里）：卡是 border-box + 1px 边 + 30px 内边距 ⇒ figure 实宽
@@ -1883,7 +1937,9 @@ _AS_EDGE, _AS_CREST, _AS_COMP = 0.055, 0.55, 0.55   # 接头渐隐 / 波峰增�
 # A 档股数**声明**在这里（不是随缘的）：波A 30 股；波B 再入册 11 股 ——
 #   P2 入场弧流 +1（3）｜P7 地形整幅左移 +1（1）｜P10 四车道 + 四握手 +8（8）｜
 #   P13 贯通流 +1（10）。⑲s 逐股复算，少一股多一股都当场报。
-_SPD_N = 41
+# 三轮「静态页升维」再入册 20 股 3 页：P5 底场 +7｜P15 六条支线 +6｜P16 通话流 +7
+# ⇒ 41 → 61 股、10 → 13 页。P22 的涟漪**故意不在这张表里**（它不是介质，见 ㉒-①）。
+_SPD_N = 61
 _SPD_A = 110.0                  # A 档基准（px/s）
 _SPD_TOL = 0.30                 # ±30%：同一条河里允许的语义差异
 
@@ -2291,6 +2347,380 @@ def _spiral_pts():
     return out
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 三轮「静态页升维」· 四枚**加法层**场景（2026-09-01 · Colin 点名 P22 + 全 deck 静态页）
+# ───────────────────────────────────────────────────────────────────────────
+#   Colin：「/convoai-lab#22 作为结尾页是有问题的，这个是平面的，没有任何动效，
+#           要对齐一下整体的质量。另外看下这个 deck 里全部的静态页，优化一下。」
+#
+#   ── 与前两波的**根本差别**：这四页的 3D 是「加法」不是「替换」──────────────
+#   前 16 枚场景都在替换页上的一张 SVG 图（poster = 那张图本人，六道降级链的第一道）。
+#   P5 / P15 / P16 / P22 页上**根本没有图** —— 只有卡片、logo 与文案。所以：
+#     · 3D 在这里是一层**氛围场**：它加在既有版面之外，一件 DOM 都不动；
+#     · 它们的**降级层就是整页本身**（WebGL 起不来 = 今天这一页，一个像素不差）
+#       ⇒ 这四页**不挂 poster 元素**（挂一枚空 svg 只是骗闸门）。
+#       这条判断在 build() 的㉒闸与 qa 的 ⑲a/⑲c 上都写成了机器断言：
+#       加法层页必须 poster 件数 = 0，且几何 token 与引擎母本**逐条相同**
+#       （比另外 14 页的「逐字同文」更硬 —— 那 14 页允许几何被裹进 poster 组）。
+#
+#   ── 共同纪律：净空 ≥16px，判据是**字形墨迹盒**不是元素盒 ────────────────────
+#   沿用 P13 转子那一套（_K_CLR / _k_orb_clear）：页上每一处**字形行框**（Range
+#   .getClientRects 量出来的墨迹，不是 line-height 撑出来的元素盒）逐条登记在
+#   `_ADD_INK` 里，构建期逐点解析断言、运行时 `state().clr` 把这一帧真的传上 GPU
+#   的顶点投影回舞台像素再量一遍。卡片 / 图片盒**不算墨迹**：卡里那几十像素的空白
+#   本来就是版面留白，3D 在那里画东西不压任何字（P15 的六簇正是画在那儿）。
+#   ⚠ 墨迹盒会随字体 / 换行变 —— 所以 qa 的 ㉒ 闸每次都从**活 DOM 重量一遍**，
+#     与这里登记的逐条对表：改文案而没改这张表 ⇒ 当场报，不会静默压字。
+_ADD_CLR = 16.0                 # 净空下限（px · 与 P13 转子同一档）
+_ADD_PAD = 0.7                  # 构建期留量（运行时还要减掉点半径 / 线宽的一半）
+_ADD_PAGES = (5, 15, 16, 22)    # 加法层页名册（build() 与 qa 三处对表）
+_PHI2 = 1.3247179572447460      # 塑性数 ρ：R2 低差异序列的底（Roberts, 2018）
+
+
+def _r2(i):
+    """R2 低差异序列 —— 铺点比黄金角螺旋更均匀，且**不会与螺旋自己共振**
+       （lab-globe 那条注里记的摩尔纹病根，在平面上换成 R2 就从根上没有）。"""
+    return ((0.5 + i / _PHI2) % 1.0, (0.5 + i / (_PHI2 * _PHI2)) % 1.0)
+
+
+def _h1p(i, s):
+    """确定性随机（与运行时 h1(i,s) 逐字同式 ⇒ 两次构建、poster 与 WebGL 全同）"""
+    x = math.sin((i + 1) * s) * 43758.5453
+    return x - math.floor(x)
+
+
+def _ink_clr(pt, boxes):
+    """一点到一组墨迹盒的最小净空（px）"""
+    m = 1e9
+    for (bx, by, bw, bh) in boxes:
+        dx = max(bx - pt[0], 0.0, pt[0] - (bx + bw))
+        dy = max(by - pt[1], 0.0, pt[1] - (by + bh))
+        d = math.hypot(dx, dy)
+        if d < m:
+            m = d
+    return m
+
+
+def _poly_clr(pts, boxes, step=3.0):
+    """一条折线到一组墨迹盒的最小净空（按 step px 采样 —— 段中间也要量）"""
+    m = 1e9
+    for i in range(len(pts) - 1):
+        ax, ay = pts[i][0], pts[i][1]
+        bx, by = pts[i + 1][0], pts[i + 1][1]
+        n = max(1, int(math.hypot(bx - ax, by - ay) / step))
+        for k in range(n + 1):
+            t = k / float(n)
+            m = min(m, _ink_clr((ax + (bx - ax) * t, ay + (by - ay) * t), boxes))
+    return m
+
+
+def _pk(pts):
+    """折线打包成运行时可复活的串（"x,y;x,y;…" · 1 位小数）——
+       加法层四页的几何全部走这一条：**构建期算一遍、运行时不再算第二遍**，
+       于是「构建期的净空断言」与「屏上真的画出来的形」不可能是两套解。"""
+    return ";".join("%s,%s" % (_f1(q[0]), _f1(q[1])) for q in pts)
+
+
+def _lerp_poly(pts, n):
+    """把一条折线重采样成 n 个等弧长点（喂给 mkStream 的中心线）"""
+    at = _at_of(pts)
+    return [at(i / float(n - 1)) for i in range(n)]
+
+
+# ── ㉒-① P22 末页 · 余韵星野（quiet）──────────────────────────────────────
+#   气质定调（这一页最容易做错的地方，写在最前面）：
+#   kicker 是「2024.10.01 · A QUIET ENDORSEMENT」——**末页是余韵不是高潮**。
+#   全场 21 页的流、脑、球都讲完了，末页要**安静地收束**：不许烟花、不许爆闪、
+#   不许星际穿越。做错方向比不做还糟。
+#
+#   概念：前面所有页的「流」在这里沉降成一片**极缓的涟漪场**。两枚字标
+#   （OpenAI / agora，DOM 图片，一个像素不动）浮在场中；**它们各自是一处涟漪源**，
+#   两道涟漪在场里往外传、在中途相遇 —— 这就是页上那句「同样的工程能力，
+#   我们用来支撑你的对话式智能体」：不是箭头、不是连线，是同一片场里的两处泛起。
+#
+#   为什么是「点场 + 径向包络」而不是画圆环：
+#     · 圆环有边缘 ⇒ 边缘扫过就是一记亮度突变（闪）。点场只有**亮度**在变，
+#       而亮度用的是 lab-kit ⑨ 的**解析包络**（Σa=1 ⇒ 恒 ∈[0,1]、C^∞），
+#       数学上不可能出现角 ⇒ 「无高频闪动」是构造出来的，不是调出来的。
+#     · 两道涟漪叠加 = 双源干涉：相长的那几处沿垂直平分线（x≈985）上下扫过，
+#       正好落在 logo 上下的空场里 —— 「在中途相遇」这句话有了确切的几何位置。
+#   相遇处走 `meet = e1·e2`（两个波峰同时到才亮）：只在真正相遇的地方
+#   给一点点 accent 与一点点粒径 —— 全页唯一一处暖色，克制到只有一记。
+#
+#   克制指标（硬 · 三条都在闸上）：
+#     ① 墨量 ≤ P1 声场球的 60%（TOUR.shot().ink，同一支尺量两页）；
+#     ② **基频周期** = λ/v = 608/32 = **19.0s**，比全场任何一页都慢
+#        （四枚谐波两两不整除 ⇒ 场永不逐拍重复 —— 重复的起伏会被读成心跳。
+#         所以闸验的是「基频周期 ≥18s + 亮度变化速率 ≤ .26/s」，不是逐拍相同）；
+#     ③ 逐帧亮度突变沿用 ⑲p7 同一档上限（整幅 4.0/255 · 8×8 分块 26/255）。
+#   ⚠ 这条涟漪**故意不进 A 档流速表**：A 档管的是「介质」（一直在来、带载荷的流），
+#     32px/s 连 A 档下限 77 的一半都不到。末页的场不是介质，是余韵 ——
+#     所以它反过来上一道 ⑲q 闸：**必须低于 A 档下限**，把「慢」变成机器判据。
+_E22RECT = (0, 0, 1920, 1080)          # 整页就是场（形不替换任何东西，只是加一层）
+#   墨迹盒逐条量自活 DOM（Range.getClientRects），qa ㉒ 闸每跑一次重量一次对表
+_E22INK = [
+    (1735, 44, 61, 22),                # 页码 22/22
+    (678, 125, 563, 26),               # kicker
+    (671, 197, 578, 364),              # logo 锁定版的**墨迹**（不是 838×570 的原片整幅）
+    (241, 631, 1438, 65),              # 落点句 · 第一行
+    (434, 708, 1052, 65),              # 落点句 · 第二行
+    (900, 826, 120, 4),                # accent 短棒
+    (592, 874, 736, 36),               # 「同样的工程能力…」
+    (712, 966, 496, 20),               # 「2024 OpenAI Realtime API 发布…」
+    (728, 1004, 464, 20),              # CTA 行
+]
+#   两处涟漪源 = 两枚**字标**的中心（不是四枚胶囊）：字标才是「谁」，
+#   胶囊是 Realtime API 的声波图形。位置从原片 alpha 通道量出来再按 838/1100 缩放：
+#     OpenAI 字标 图 x170–576 / y403–525 ⇒ 心 (373,464) ⇒ 舞台 (826.2, 513.6)
+#     agora  字标 图 x651–928 / y425–500 ⇒ 心 (789.5,462) ⇒ 舞台 (1143.4, 512.1)
+_E22SRC = [(826.2, 513.6), (1143.4, 512.1)]
+_E22LAM, _E22SPD = 608.0, 32.0         # 涟漪波长 / 相速度 ⇒ 循环 19.0s
+_E22Z = (-260.0, 90.0)                 # 星野的深度范围（深度雾是这一页唯一的立体线索）
+_E22D = 1500.0                         # 相机距（投影锁 ⇒ 每颗星的投影落点 = 它的页坐标）
+_E22KEEP = 9000                        # 留下来的星数（候选按密度权重 + 净空剔除）
+_E22SZ = (2.0, 4.2)                    # 粒径区间（px）
+_E22MEETSZ = 1.4                       # 相遇处额外的粒径（全页唯一一处「加了一点点」）
+_E22LIFTSZ = 0.34                      # 波峰处的粒径增益（1.0 − .1 + .2·lift ⇒ ≤ 1.10×）
+_E22FLOOR = 0.46                       # 亮度地板：场永远不熄 —— 「安静」不是「一闪一闪」
+_E22HALO = 58.0                        # 墨迹边上的**软晕**：净空 16→74 之间由 0 淡到 1
+#   —— 硬剔除会在每一段字周围切出一只矩形空洞（读成「这里挖了一个方框」）；
+#      软晕让场自己往字那边淡下去，读成「字把场推开了」，logo 与落点句才是浮在场中。
+_E22EDGE = 46.0                        # 版心边缘的淡出（场不该在画布边上被一刀切断）
+_PHI3 = 1.2207440846057594             # x⁴ = x + 1 的正实根（R3 序列的底）
+_B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-"
+
+
+def _e22_rad(sz):
+    """一颗星在屏上可能占到的**最大半径**：基粒径 × 波峰增益 + 相遇处的加成，取半。
+       净空是拿这个半径量的 —— 量中心点不算数，字被压的是边缘。"""
+    return (sz * (1.0 + _E22LIFTSZ) + _E22MEETSZ) * 0.5
+
+
+def _e22_a3(j):
+    """R3 低差异序列的第 j 个基（逐次相除 —— 与 JS 侧同一串运算顺序 ⇒ 同一批 double）"""
+    a = 1.0
+    for _ in range(j):
+        a = a / _PHI3
+    return a
+
+
+def _e22_attr(i):
+    """第 i 颗**已录取**的星的粒径 / 深度 / 底亮度。
+       只用乘除与取模（不碰 sin/exp）⇒ Python 与 JS 逐位同解：
+       位置由构建期打包下发，这三样两边各算一遍，`state().clr` 与构建期声明
+       因此可以互为独立证据（qa ㉒ 对表，容差 0.5px）。"""
+    u1 = (0.5 + i * _e22_a3(1)) % 1.0
+    u2 = (0.5 + i * _e22_a3(2)) % 1.0
+    u3 = (0.5 + i * _e22_a3(3)) % 1.0
+    return (_E22SZ[0] + (_E22SZ[1] - _E22SZ[0]) * u1,
+            _E22Z[0] + (_E22Z[1] - _E22Z[0]) * u2,
+            0.55 + 0.45 * u3)
+
+
+def _e22_stars():
+    """余韵星野：R2 铺点 → 密度权重接受 → **净空剔除**。
+       密度两条：① 离两处涟漪源越近越密（涟漪要在有星的地方才看得见）；
+                 ② 越往下越密（「沉降」——全场的流在末页落定）。
+       净空一条：任何一颗星与任何一只墨迹盒 ≥ 16px + **最大**半径 + 0.7 留量
+                 （用最大半径而不是自己的半径：录取顺序决定粒径，粒径又决定录取，
+                  拿最大半径一刀切就把这个循环拆开了，代价只是保守一点点）。"""
+    out, i = [], 0
+    lim = _ADD_CLR + _e22_rad(_E22SZ[1]) + _ADD_PAD
+    while len(out) < _E22KEEP and i < 400000:
+        u, v = _r2(i)
+        i += 1
+        x = 8.0 + u * (_E22RECT[2] - 16.0)
+        y = 8.0 + v * (_E22RECT[3] - 16.0)
+        d = min(math.hypot(x - q[0], y - q[1]) for q in _E22SRC)
+        w = (0.30 + 0.70 * math.exp(-d / 440.0)) * (0.70 + 0.30 * (y / _E22RECT[3]))
+        if _h1p(i, 12.9898) > w:
+            continue
+        if _ink_clr((x, y), _E22INK) < lim:
+            continue
+        out.append((round(x), round(y)))
+    return out
+
+
+_E22PTS = _e22_stars()
+_E22CLR = min(_ink_clr(q, _E22INK) - _e22_rad(_e22_attr(k)[0])
+              for k, q in enumerate(_E22PTS))
+_E22CYC = _E22LAM / _E22SPD
+
+
+def _e22_pack():
+    """位置打包：x / y 各 11 bit ⇒ 22 bit ⇒ 4 个 base64 字（9000 颗 = 36KB）。
+       为什么打包而不是写 "x,y;"：9000 颗写成十进制串是 90KB，末页一页吃掉整份
+       产物的 13% —— 场要密才成其为场，产物不该为此翻倍。"""
+    o = []
+    for (x, y) in _E22PTS:
+        v = (int(x) << 11) | int(y)
+        o.append(_B64[(v >> 18) & 63] + _B64[(v >> 12) & 63]
+                 + _B64[(v >> 6) & 63] + _B64[v & 63])
+    return "".join(o)
+
+
+# ── ㉒-② P5 三件极致 · 章头的底场（three）──────────────────────────────────
+#   语义：这一页是「三件事」的**宣告与索引**，三张数字卡是主角。底场是伴奏 ——
+#   三条极细的语义微线在卡下方跑，各自是那件事的**最小表意**，并且都朝下收尾，
+#   与卡右上角那三枚章内指针（↓P6 / ↓P7–8 / ↓P9）同向：
+#     650ms 延时 = 一记从左到右的**接力**（介质在跑 + 一道注光走完即到）
+#     340ms 打断 = 一记**让位**（智能体轨跑到一半落 ghost，用户轨接上并带走收尾）
+#     95%  屏蔽 = 一层**薄盾**（三路杂线撞盾消解，只有目标人声从缺口穿过去）
+#   ⇒ 底场其实是 P6/P7–8/P9 三章的缩影：读者在索引页就先看见了后面三页的形。
+#   克制：底场墨量 ≤ 卡片墨量的 25%（qa ㉒r 用「有/无 canvas 两帧作差」实测）；
+#         一根线都不进卡里 —— 三卡的形与字一个像素不动。
+_X5RECT = (120, 780, 1680, 124)        # 卡底（y800）与落点句墨迹（y915）之间的空带
+_X5INK = [
+    (1747, 44, 49, 22), (120, 89, 522, 26), (120, 149, 800, 76), (120, 237, 207, 18),
+    (566, 343, 43, 18), (1125, 343, 64, 18), (1726, 343, 43, 18),   # 三枚章内指针
+    (161, 392, 438, 308), (741, 409, 438, 283), (1321, 392, 438, 308),   # 三卡内的字
+    (150, 915, 609, 32),               # 导航 land
+    (120, 1015, 698, 22),              # SOURCE
+]
+#   ① 延时：接力（一条介质 + 一道走完即到的注光）
+_X5L1 = [(150, 824), (560, 824), (592, 848), (600, 886)]
+#   ② 打断：智能体轨让位 + 用户轨接上（让位窗口 = 页上「插话」的语义位置）
+_X5L2A = [(730, 816), (1150, 816)]
+_X5L2B = [(940, 840), (1150, 840), (1176, 860), (1180, 886)]
+_X5DUCK = (930.0, 1000.0)              # 让位窗口（页 x）：轨上落 ghost 的那一段
+#   ③ 屏蔽：三路杂线撞薄盾 + 目标人声从缺口穿过
+_X5L3N = [[(1300, 794), (1556, 794)], [(1300, 806), (1556, 806)],
+          [(1300, 852), (1556, 852)]]
+_X5L3T = [(1300, 826), (1740, 826), (1770, 852), (1776, 886)]
+_X5SH = [[(1546, 786), (1564, 800), (1568, 815)],      # 薄盾 · 上半
+         [(1568, 837), (1564, 852), (1546, 866)]]      # 薄盾 · 下半（缺口 y815–837）
+_X5HAZE = (140, 806, 1640, 88)         # 底场微粒的铺放区（卡底之下、落点句之上）
+_X5HAZEN = 520
+_X5HAZER = 1.6                         # 微粒半径留量（--x-haze-size 2.0 ⇒ 半径 1.0 + 余量）
+_X5W = 3.2                             # 微线基准半宽（「极细」：主图流带的 1/3 档）
+_X5LAM = 138.0                         # 本页 λ 覆写：线短，λ 得跟着短才看得出起伏
+_X5BEAM = 360.0                        # B 档：接力注光（离散事件 —— 走完即到）
+_SPD_P5 = (110.0, 112.0, 108.0, 106.0, 114.0, 109.0, 111.0)
+
+
+# ── ㉒-③ P15 六场景 · 中心辐射（hub）───────────────────────────────────────
+#   语义：「一套引擎，支撑多类场景」= **一个核 + 六条支线 + 六簇**。
+#   版面给这张图留的路，正好是六张卡之间那条**无字带**：row1 的字止于 y478、
+#   row2 的字起于 y631 ⇒ y494–615 整条横带（1680 宽）一个字都没有。核坐在带心
+#   (960,556)，六条支线**直线**发散到六簇 —— 真辐射，不是绕来绕去的总线。
+#   六簇各落在自家卡的下缘留白里：卡底是 --card-bg（72% 不透明）⇒ 簇在卡**背后**
+#   透出来约三成，读成「每个场景自己在跑」；核与支线在卡间空档里是全亮的
+#   ⇒ 「中心最亮、六簇微光」这层主次是版面本身给的，不是调出来的。
+#   六处身份微动（一处一巧思，全部关在自家 140×40 的簇框里）：
+#     外呼=拨号脉冲串 ｜ 智能硬件=设备点阵亮灭 ｜ 虚拟陪伴=柔和呼吸
+#     口语陪练=一来一回 ｜ 智能客服=排队消解 ｜ 更多场景=景深处待命的微光星丛
+#   ⚠ 中间两卡（02 / 05）的簇**故意不放在核的正上 / 正下方**：那样支线只有 40px，
+#     读不成「一条支线」。它们各自挪到卡内的三分位（800 / 1120），
+#     顺带让整把扇子有一点旋感 —— 六个方向，不是一面镜子。
+_H15RECT = (120, 274, 1680, 576)
+_H15INK = [
+    (1735, 44, 61, 22), (120, 89, 314, 26), (120, 149, 800, 76), (120, 237, 197, 18),
+    (153, 337, 456, 141), (720, 352, 437, 110), (1288, 352, 437, 110),   # row1 三卡的字
+    (153, 631, 323, 110), (720, 631, 371, 110), (1288, 631, 437, 110),   # row2 三卡的字
+    (120, 988, 826, 20),               # 底部 rail
+]
+_H15CORE = (960.0, 556.0)
+_H15CR = 26.0                          # 核的外半径（≤ 无字带的一半 ⇒ 天然净空）
+#   六簇：[心 x, 心 y, 深度 z, 微动种类]  —— 种类逐条对应页上那六张卡的顺序
+_H15CL = [(392.0, 518.0, -140.0, 0), (800.0, 518.0, -200.0, 1), (1527.0, 518.0, -170.0, 2),
+          (392.0, 594.0, -180.0, 3), (1120.0, 594.0, -150.0, 4), (1527.0, 594.0, -320.0, 5)]
+_H15CLW, _H15CLH = 70.0, 17.0          # 簇框半宽 / 半高（净空判据按这只框逐点量）
+_H15D = 1400.0
+_H15LAM = 150.0                        # 本页 λ 覆写：最短的支线只有 165px
+_H15W = 3.6
+_SPD_P15 = (110.0, 113.0, 108.0, 112.0, 106.0, 109.0)
+
+
+def _h15_spoke(k):
+    """一条支线的页坐标折线（核 → 簇心）—— 直线，六条真发散"""
+    c = _H15CL[k]
+    return [(_H15CORE[0], _H15CORE[1]), (c[0], c[1])]
+
+
+# ── ㉒-④ P16 Call Agent 成绩单 · 通话流（calls）────────────────────────────
+#   这一页 3D 语义最弱（数字卡 + 对照表），所以做**克制的证据场**，不硬上：
+#   「1,000+ 通 / 天 · 多路并发」的可视化 = 一束细密的**通话流**（audioStream 血统），
+#   七股并行、从左涌入、过了 x624 之后向右铺开 —— 读作「一直在打、并发在跑」。
+#   为什么是「先并拢再铺开」而不是七条平行线：页面左侧 x120–520 有
+#   「02 · KEY DIFFERENCE」那行小标，铺开就压字；右半是空的，扇形正好占住。
+#   这条形也顺手把上面的成绩单与下面的对照表**缝在一起**（原本两块是断的）。
+#   红线：不出价格、不出 staging URL、不出智能体人名；96.5% 的 hot 是页面既有语义，
+#   3D **不新造第二处 hot**（流是均质的一束，不给任何一卡加权）。
+_N16RECT = (120, 570, 1680, 110)
+_N16INK = [
+    (1735, 44, 61, 22), (120, 89, 539, 26), (120, 149, 1137, 76), (120, 251, 797, 30),
+    (120, 307, 153, 18),
+    (151, 367, 463, 210), (721, 367, 333, 199), (1291, 367, 320, 199),   # 三张成绩单卡的字
+    (120, 641, 400, 18),               # 02 · KEY DIFFERENCE 小标
+    (120, 678, 1081, 161),             # 对照表的字（表头 + 三行）
+    (150, 959, 450, 32), (120, 1015, 643, 22),
+]
+_N16X0, _N16X1 = 120.0, 1800.0
+_N16FAN = 0.30                         # 扇形起点（归一化 x）：0.30×1680+120 = 624 > 536
+_N16YL = (611.0, 621.0)                # 左端（并拢）上下界
+_N16YR = (596.0, 658.0)                # 右端（铺开）上下界
+_N16N = 7                              # 股数（「多路并发」——不是一条）
+_N16W = 2.6
+_N16LAM = 196.0
+_SPD_P16 = (110.0, 107.0, 113.0, 109.0, 112.0, 106.0, 111.0)
+
+
+def _n16_lane(k, n=64):
+    """一股通话流的页坐标折线：x120→1800，y 从并拢档 smootherstep 铺到扇形档"""
+    t = k / float(_N16N - 1)
+    yl = _N16YL[0] + (_N16YL[1] - _N16YL[0]) * t
+    yr = _N16YR[0] + (_N16YR[1] - _N16YR[0]) * t
+    out = []
+    for i in range(n):
+        u = i / float(n - 1)
+        x = _N16X0 + (_N16X1 - _N16X0) * u
+        out.append((x, yl + (yr - yl) * _smoother(_N16FAN, 1.0, u)))
+    return out
+
+
+# ── 加法层四页的墨迹名册（build() ㉒ 闸与 qa ㉒ 闸共用同一张表）─────────────
+_ADD_INK = {5: _X5INK, 15: _H15INK, 16: _N16INK, 22: _E22INK}
+_ADD_RECT = {5: _X5RECT, 15: _H15RECT, 16: _N16RECT, 22: _E22RECT}
+
+
+def _box_pts(x, y, w, h):
+    return [(x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y)]
+
+
+def _box_hit(box, ink):
+    """一只框里有没有落进任何一只墨迹盒（有 ⇒ 只量边界是不够的，得当场报）"""
+    x, y, w, h = box
+    return any(not (bx + bw <= x or bx >= x + w or by + bh <= y or by >= y + h)
+               for (bx, by, bw, bh) in ink)
+
+
+def _add_clr_min(p):
+    """一页 3D 几何与该页**字形墨迹盒**的最小净空（px · 已扣掉带宽 / 粒半径）。
+       与运行时 `state().clr` 是同一个量的两条独立算路：构建期解析、运行期把
+       真的传上 GPU 的顶点投影回舞台像素 —— 两边对不上就是两套解，当场报。"""
+    if p == 22:
+        return _E22CLR
+    if p == 5:
+        m = min(_poly_clr(q, _X5INK) for q in
+                [_X5L1, _X5L2A, _X5L2B, _X5L3T] + _X5L3N + _X5SH) - _X5W
+        assert not _box_hit(_X5HAZE, _X5INK), "㉒ P5 底场铺放区压上了墨迹盒"
+        return min(m, _poly_clr(_box_pts(*_X5HAZE), _X5INK) - _X5HAZER)
+    if p == 15:
+        m = min(_poly_clr(_h15_spoke(k), _H15INK) for k in range(6)) - _H15W
+        m = min(m, _ink_clr(_H15CORE, _H15INK) - _H15CR)
+        for c in _H15CL:
+            box = (c[0] - _H15CLW, c[1] - _H15CLH, _H15CLW * 2, _H15CLH * 2)
+            assert not _box_hit(box, _H15INK), "㉒ P15 第 %d 簇压上了墨迹盒" % c[3]
+            m = min(m, _poly_clr(_box_pts(*box), _H15INK) - 2.5)
+        return m
+    if p == 16:
+        return min(_poly_clr(_n16_lane(k), _N16INK) for k in range(_N16N)) - _N16W
+    raise SystemExit("㉒ 未知的加法层页 P%d" % p)
+
+
+_ADD_CLRMIN = {p: _add_clr_min(p) for p in _ADD_PAGES}
+
+
 def _spd_rows(p):
     """A 档（连续媒体流）**逐股速度表**：[(名字, 页上像素路径长, px/s)]。
        这是本波「速度品味检查」的唯一真相 —— 周期由 `长 ÷ 速` 反推（_dur_at），
@@ -2347,6 +2777,21 @@ def _spd_rows(p):
             L = math.hypot(r[2] - r[0], r[3] - r[1])
             out.append(("总线包%d" % (k + 1), L, L / r[4]))
         return out
+    if p == 5:
+        # 三轮：底场七股（接力 / 让位两轨 / 三路杂线 + 目标人声）——「极细」是**宽度**
+        # 的事，不是速度的事：它们与主图那些流是同一条河，速度必须在同一档里。
+        rows = [("接力", _plen(_X5L1), _SPD_P5[0]),
+                ("智能体轨", _plen(_X5L2A), _SPD_P5[1]),
+                ("用户轨", _plen(_X5L2B), _SPD_P5[2])]
+        for _k, _n3 in enumerate(_X5L3N):
+            rows.append(("杂线%d" % (_k + 1), _plen(_n3), _SPD_P5[3 + _k]))
+        rows.append(("目标人声", _plen(_X5L3T), _SPD_P5[6]))
+        return rows
+    if p == 15:
+        return [("支线%d" % (k + 1), _plen(_h15_spoke(k)), _SPD_P15[k]) for k in range(6)]
+    if p == 16:
+        return [("通话流%d" % (k + 1), _plen(_n16_lane(k)), _SPD_P16[k])
+                for k in range(_N16N)]
     if p == 18:
         return [("复利螺旋", _plen(_spiral_pts()), _SPD_P18[0]),
                 ("loop 环流", 2 * math.pi * float(_CA_RING[2]), _SPD_P18[1])]
@@ -2482,6 +2927,32 @@ def lab_data(p):
               ("beam", _n(_Y_BEAM)),
               ("route", ",".join(_n(_plen_d(a2[0])) for a2 in _P14ARC)),
               ("grow", _n(_Y_GROW)), ("hold", _n(_Y_HOLD)), ("rel", _n(_Y_REL))]
+    # ── 三轮：四枚加法层（共同摊 add / ink / clr —— ㉒ 闸靠这三样逐页复算）──────
+    elif p == 5:
+        a += [("add", 1), ("lines", 3), ("streams", len(_SPD_P5)),
+              ("duck", "%s,%s" % (_f1(_X5DUCK[0]), _f1(_X5DUCK[1]))),
+              ("haze", "%d,%d,%d,%d" % _X5HAZE), ("hazen", _X5HAZEN),
+              ("lam", _n(_X5LAM)), ("beam", _n(_X5BEAM)), ("w", _n(_X5W))]
+    elif p == 15:
+        a += [("add", 1), ("core", "%s,%s,%s" % (_f1(_H15CORE[0]), _f1(_H15CORE[1]),
+                                                 _f1(_H15CR))),
+              ("cl", ";".join("%s,%s,%s,%d" % (_f1(c[0]), _f1(c[1]), _f1(c[2]), c[3])
+                              for c in _H15CL)),
+              ("clbox", "%s,%s" % (_f1(_H15CLW), _f1(_H15CLH))),
+              ("lam", _n(_H15LAM)), ("w", _n(_H15W))]
+    elif p == 16:
+        a += [("add", 1), ("lanes", _N16N), ("fan", _n(_N16FAN)),
+              ("yl", "%s,%s" % (_f1(_N16YL[0]), _f1(_N16YL[1]))),
+              ("yr", "%s,%s" % (_f1(_N16YR[0]), _f1(_N16YR[1]))),
+              ("lam", _n(_N16LAM)), ("w", _n(_N16W))]
+    elif p == 22:
+        a += [("add", 1), ("stars", len(_E22PTS)), ("lam", _n(_E22LAM)),
+              ("qspd", _n(_E22SPD)), ("cyc", _f1(_E22CYC)), ("floor", _n(_E22FLOOR)),
+              ("src", ";".join("%s,%s" % (_f1(q[0]), _f1(q[1])) for q in _E22SRC)),
+              ("z", "%s,%s" % (_f1(_E22Z[0]), _f1(_E22Z[1])))]
+    if p in _ADD_PAGES:
+        a += [("ink", ";".join("%d,%d,%d,%d" % b for b in _ADD_INK[p])),
+              ("clr", _n(_ADD_CLR)), ("clr-min", _f1(_ADD_CLRMIN[p]))]
     return "".join(' data-lab-%s="%s"' % kv for kv in a + _spd_attr(p))
 
 
@@ -2529,6 +3000,12 @@ def lab_stage(p):
                 'margin-left:-450px;margin-top:-310px;'
                 'background:radial-gradient(closest-side,var(--b-atmo),transparent 72%);'
                 'opacity:var(--b-atmo-int)"></div>')
+    # ── 加法层四页（三轮）：**不挂 poster** ────────────────────────────────
+    #    另外 16 页的 poster 是「3D 替换掉的那张图」，降级时它顶上来。这四页
+    #    3D 没有替换任何东西（页上本来就没有图）—— 它们的降级层**就是整页本身**：
+    #    卡片 / logo / 文案全在 .pp 里，WebGL 起不来时这一页与今天逐像素相同。
+    #    挂一枚空 <svg class="lab-poster"> 只是骗闸门，所以这里一个字都不挂，
+    #    改由 build() 的 ㉒ 闸与 qa 的 ⑲a/⑲c 正面断言「加法层页 poster 件数 = 0」。
     pr = ('<img class="lab-print" id="labPrint%d" alt="" aria-hidden="true" '
           'style="left:%dpx;top:%dpx;width:%dpx;height:%dpx">' % (p, rx, ry, rw, rh))
     return ('<div class="lab-stage" id="labStage%d" data-lab-page="%d" data-lab-scene="%s" '
@@ -6734,6 +7211,500 @@ function makeTowers(ctx){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   ㉒ 加法层四页（P22 / P5 / P15 / P16 · 三轮「静态页升维」）
+   ───────────────────────────────────────────────────────────────────────────
+   与前 16 枚场景的**根本差别**：那 16 枚在替换页上的一张 SVG 图（poster 是它的
+   降级层）；这四页页上没有图，3D 是加在既有版面之外的一层**氛围场**，
+   降级层就是整页本身。所以它们：
+     · 一件 DOM 都不动、一枚 poster 都不挂；
+     · 几何一律走**投影锁**（每一点的投影落点 = 它的页坐标）⇒ 深度只影响
+       雾与粒径，绝不会把形挪到字上去；
+     · 共用下面三只小件把「不压字」变成机器判据：`unlock` 把这一帧真的传上
+       GPU 的顶点投影回舞台像素、`inkClr` 量它到页上字形墨迹盒的距离、
+       `geoClr` 逐顶点取最小值 —— 与构建期的解析断言是**两条独立算路**。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function unlock(w, h, D, rect){
+  const cx = w/2, cy = h/2;
+  return function(X, Y, z){
+    const k = (D - z)/D;                       // mkLock 的逆
+    return [cx + (X-cx)/k + rect[0], cy + (-Y-cy)/k + rect[1]];
+  };
+}
+function inkClr(p, ink){
+  let m = 1e9;
+  for(let j = 0; j < ink.length; j++){
+    const b = ink[j];
+    const dx = Math.max(b[0]-p[0], 0, p[0]-(b[0]+b[2]));
+    const dy = Math.max(b[1]-p[1], 0, p[1]-(b[1]+b[3]));
+    const d = Math.hypot(dx, dy);
+    if(d < m) m = d;
+  }
+  return m;
+}
+function geoClr(geo, U, ink, pad){
+  const a = geo.attributes.position.array;
+  let m = 1e9;
+  for(let i = 0; i < a.length; i += 3)
+    m = Math.min(m, inkClr(U(a[i], a[i+1], a[i+2]), ink) - (pad || 0));
+  return m;
+}
+/* 折线复活（与 Python 侧 _pk 同格式："x,y;x,y;…"）—— 加法层四页的几何
+   **构建期算一遍，运行时不再算第二遍**，两边不可能是两套解。 */
+function unpk(s, z){
+  return s.split(';').map(t => { const q = t.split(','); return [+q[0], +q[1], z || 0]; });
+}
+/* R2 低差异序列（与 Python 侧 _r2 同式）：铺点均匀且不与螺旋共振 */
+const PHI2 = 1.3247179572447460;
+function r2(i){ return [(0.5 + i/PHI2) % 1, (0.5 + i/(PHI2*PHI2)) % 1]; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ㉒-① 余韵星野（P22 · 末页 · Colin 点名）
+   ───────────────────────────────────────────────────────────────────────────
+   「末页是余韵不是高潮」：全场 21 页的流、脑、球都讲完了，这里要**安静地收束**。
+   一片极缓的涟漪场，两枚字标（OpenAI / agora）各是一处涟漪源；两道涟漪往外传、
+   在中途相遇 —— 不是箭头、不是连线，是同一片场里的两处泛起。
+   亮度用的是 lab-kit ⑨ 的**解析包络**（Σa=1 ⇒ 恒 ∈[0,1] · C^∞）：
+   「不闪」是构造出来的，不是调出来的。相遇处 meet = e1·e2（两个波峰同时到才亮），
+   只给一点点 accent 与一点点粒径 —— 全页唯一一处暖色。
+   ═══════════════════════════════════════════════════════════════════════════ */
+const QT_VS = [
+  'uniform float uIntro,uTime,uPx,uD,uNear,uFar,uLam,uSpd,uMeetSz,uLiftSz;',
+  'uniform vec4 uA,uF,uPh;',
+  'attribute float aA,aS,aR1,aR2;',
+  'varying float vFade,vA,vLift,vMeet;',
+  'float envAt(float u){ float k = 6.2831853/uLam;',
+  '  return 0.5 + 0.5*( uA.x*sin(k*uF.x*u+uPh.x) + uA.y*sin(k*uF.y*u+uPh.y)',
+  '                   + uA.z*sin(k*uF.z*u+uPh.z) + uA.w*sin(k*uF.w*u+uPh.w) ); }',
+  'void main(){',
+  '  float run = uSpd*uTime;',
+  '  float e1 = envAt(aR1-run), e2 = envAt(aR2-run);',
+  '  vLift = 0.5*(e1+e2);',                       // 两道涟漪叠加
+  '  vMeet = e1*e2;',                             // **相遇**：两个波峰同时到才亮
+  // 入场从两处字标往外一圈圈亮起来（1.6s —— 全 deck 最慢的一记入场）
+  '  float ord = clamp(min(aR1,aR2)/900.0, 0.0, 1.0);',
+  '  vA = aA*clamp((uIntro*1.35-ord)/0.35, 0.0, 1.0);',
+  '  vec4 mv = modelViewMatrix*vec4(position,1.0);',
+  '  float z = max(-mv.z, 1.0);',
+  '  vFade = clamp((uFar-z)/(uFar-uNear), 0.0, 1.0);',
+  '  gl_PointSize = max((aS*(1.0-uLiftSz*0.5+uLiftSz*vLift)+uMeetSz*vMeet)*uPx*uD/z, 0.5);',
+  '  gl_Position = projectionMatrix*mv;',
+  '}'].join('\n');
+const QT_FS = [
+  'uniform vec3 uColor,uHot; uniform float uOpacity,uBack,uFloor,uHotK;',
+  'varying float vFade,vA,vLift,vMeet;',
+  'void main(){',
+  '  vec2 c = gl_PointCoord-0.5; float d = dot(c,c);',
+  '  if(d > 0.25) discard;',
+  '  float a = uOpacity*vA*mix(uBack,1.0,vFade)*(uFloor+(1.0-uFloor)*vLift)',
+  '          * smoothstep(0.25,0.03,d);',
+  '  if(a < 0.004) discard;',
+  '  gl_FragColor = vec4(mix(uColor,uHot,clamp(vMeet*uHotK,0.0,1.0)), clamp(a,0.0,1.0));',
+  '  #include <colorspace_fragment>',
+  '}'].join('\n');
+
+function makeQuiet(ctx){
+  const Q = K.e, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
+  const scene = new THREE.Scene(), camera = camPx(w, h, D);
+  const SH = pxShared(D, Q.half), L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  // 位置：构建期打好的 11bit×2 base64 串（一颗四个字）——「场要密才成其为场」，
+  // 9000 颗写成十进制是 90KB，打包之后 36KB。
+  const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-';
+  const IDX = {}; for(let i = 0; i < 64; i++) IDX[B64[i]] = i;
+  const n = +Q.n;
+  const pos = new Float32Array(n*3), aA = new Float32Array(n), aS = new Float32Array(n);
+  const r1 = new Float32Array(n), r2a = new Float32Array(n);
+  const px = new Float32Array(n), py = new Float32Array(n);
+  // 粒径 / 深度 / 底亮度：R3 低差异序列（**只有乘除与取模**，不碰 sin/exp）——
+  // 与 Python 侧 _e22_attr 是同一串运算，两边逐位同解 ⇒ 构建期声明的净空与
+  // 运行时实测可以互为独立证据（qa ㉒ 对表，容差 0.5px）。
+  const A3 = [1, 0, 0, 0];
+  for(let j = 1; j <= 3; j++) A3[j] = A3[j-1]/Q.phi3;
+  for(let i = 0; i < n; i++){
+    const o = i*4;
+    const v = (IDX[Q.pk[o]] << 18) | (IDX[Q.pk[o+1]] << 12)
+            | (IDX[Q.pk[o+2]] << 6) | IDX[Q.pk[o+3]];
+    const x = v >> 11, y = v & 2047;
+    const u1 = (0.5 + i*A3[1]) % 1, u2 = (0.5 + i*A3[2]) % 1, u3 = (0.5 + i*A3[3]) % 1;
+    const sz = Q.sz[0] + (Q.sz[1]-Q.sz[0])*u1, z = Q.zr[0] + (Q.zr[1]-Q.zr[0])*u2;
+    const q = L(x, y, z);
+    pos[i*3] = q[0]; pos[i*3+1] = q[1]; pos[i*3+2] = q[2];
+    px[i] = x; py[i] = y; aS[i] = sz;
+    // 软晕：越靠近墨迹越淡（硬剔除会在字周围切出方框；软晕才读成「字把场推开了」）
+    // + 版心边缘的淡出（场不该在画布边上被一刀切断）
+    const clr = inkClr([x + ctx.rect[0], y + ctx.rect[1]], Q.ink);
+    const ed = Math.min(x, y, Q.rect[0]-x, Q.rect[1]-y);
+    aA[i] = (0.55 + 0.45*u3) * sstep(Q.clr, Q.clr + Q.halo, clr) * sstep(0, Q.edge, ed);
+    r1[i] = Math.sqrt((x-Q.src[0])*(x-Q.src[0]) + (y-Q.src[1])*(y-Q.src[1]));
+    r2a[i] = Math.sqrt((x-Q.src[2])*(x-Q.src[2]) + (y-Q.src[3])*(y-Q.src[3]));
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('aA', new THREE.BufferAttribute(aA,1));
+  geo.setAttribute('aS', new THREE.BufferAttribute(aS,1));
+  geo.setAttribute('aR1', new THREE.BufferAttribute(r1,1));
+  geo.setAttribute('aR2', new THREE.BufferAttribute(r2a,1));
+  const mat = mkMat(SH, QT_VS, QT_FS, {
+    uLam:{value:Q.lam}, uSpd:{value:Q.spd}, uFloor:{value:Q.floor},
+    uMeetSz:{value:Q.meet}, uLiftSz:{value:Q.lift}, uHotK:{value:.85},
+    uA:{value:new THREE.Vector4(AS.a[0],AS.a[1],AS.a[2],AS.a[3])},
+    uF:{value:new THREE.Vector4(AS.f[0],AS.f[1],AS.f[2],AS.f[3])},
+    uPh:{value:new THREE.Vector4(AS.ph[0],AS.ph[1],AS.ph[2],AS.ph[3])} });
+  scene.add(Object.assign(new THREE.Points(geo, mat), { frustumCulled:false }));
+  // 与着色器 envAt 逐字同式（闸门复算「循环 = λ/v」用它，不必截帧比像素）
+  const env = (u) => { const k = TAU/Q.lam;
+    return .5 + .5*(AS.a[0]*Math.sin(k*AS.f[0]*u+AS.ph[0])
+                  + AS.a[1]*Math.sin(k*AS.f[1]*u+AS.ph[1])
+                  + AS.a[2]*Math.sin(k*AS.f[2]*u+AS.ph[2])
+                  + AS.a[3]*Math.sin(k*AS.f[3]*u+AS.ph[3])); };
+  return {
+    scene, camera, intro: 1.6, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){ SH.uTime.value = clock; },
+    applyTheme(){
+      mat.uniforms.uColor.value.copy(cssColor('--e-star'));
+      mat.uniforms.uHot.value.copy(cssColor('--e-hot'));
+      mat.uniforms.uOpacity.value = cssNum('--e-star-op', .30);
+      mat.uniforms.uHotK.value = cssNum('--e-hotk', .85);
+      mat.uniforms.uMeetSz.value = Q.meet*cssNum('--e-meet', 1.5)/1.5;
+      mat.uniforms.uBack.value = cssNum('--e-back', .40);
+      setBlend(mat, cssNum('--e-add', 0));
+    },
+    /* 三样机器判据：净空（投影回舞台像素逐顶点量）· 循环（λ/v 复算）·
+       场的亮度剖面（闸门比 t 与 t+cyc 两拍是否逐位相同）。 */
+    state(){
+      const run = Q.spd*SH.uTime.value;
+      const smp = [];
+      for(let k = 0; k < 6; k++){ const i = ((n-1)*k/5)|0;
+        smp.push(+(0.5*(env(r1[i]-run)+env(r2a[i]-run))).toFixed(9)); }
+      let clr = 1e9;
+      for(let i = 0; i < n; i++){
+        const q = U(pos[i*3], pos[i*3+1], pos[i*3+2]);   // 投影锁的逆 ⇒ 舞台像素
+        clr = Math.min(clr, inkClr(q, Q.ink) - (aS[i]*(1+Q.lift)+Q.meet)*0.5);
+      }
+      return { n, clr, cyc:Q.cyc, lam:Q.lam, spd:Q.spd, floor:Q.floor,
+               run:+run.toFixed(6), lift:smp };
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ㉒-② 章头底场（P5 · 三件极致）
+   ───────────────────────────────────────────────────────────────────────────
+   三张数字卡是主角，底场是伴奏（墨量 ≤ 卡片的 25%，闸上有）。三条极细的
+   语义微线在卡下方跑，各自是那件事的**最小表意**，并且都朝下收尾 ——
+   与卡右上角那三枚章内指针（↓P6 / ↓P7–8 / ↓P9）同向：
+     650ms 延时 = 接力（介质在跑 + 一道注光走完即到）
+     340ms 打断 = 让位（智能体轨跑到一半落 ghost，用户轨接上并带走收尾）
+     95%  屏蔽 = 薄盾（三路杂线撞盾消解，目标人声从缺口穿过去）
+   幅度剖面**全部走 gain 回调，零分支**（lab-kit ⑨ 的 aG 双通道）。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeThree(ctx){
+  const Q = K.x, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
+  const scene = new THREE.Scene(), camera = camPx(w, h, D);
+  const SH = pxShared(D, Q.half), L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const R = ctx.rect;
+  const loc = (p, z) => L(p[0]-R[0], p[1]-R[1], z);      // 页坐标 → 本景局部 → 投影锁
+  // ── 七条流（接力 / 智能体轨 / 用户轨 / 三路杂线 / 目标人声）──
+  const flows = Q.s.map((s, i) => {
+    const z = Q.sz[i], pts = unpk(s).map(p => loc(p, z));
+    return mkStream(SH, pts, { w:Q.w, spd:Q.spd[i], lam:Q.lam }).add(scene);
+  });
+  flows[1].gain((u) => 1 - sstep(Q.duck[0], Q.duck[1], u));        // 让位：跑到一半让开
+  flows[2].gain((u) => sstep(0, 60, u));                           // 用户轨：接上
+  [3,4,5].forEach(k => flows[k].gain((u) => 1 - sstep(Q.blk-66, Q.blk-6, u)));  // 撞盾消解
+  flows[6].gain((u) => 1 - 0.55*Math.exp(-Math.pow((u-Q.gap)/30, 2)));          // 过缺口
+  // ── 接力注光（B 档 · 离散事件：有起点有终点，走完即到）──
+  const bgeo = beamGeo(unpk(Q.s[0]).map(p => loc(p, Q.sz[0])));
+  const bmat = mkBeamMat(SH, 24, .22);
+  scene.add(Object.assign(new THREE.Line(bgeo, bmat), { frustumCulled:false }));
+  const grow = Q.blen/Q.beam, cyc = grow + Q.hold + Q.rel;
+  // ── 薄盾：两段短弧，缺口正对目标人声 ──
+  const sh = [];
+  Q.sh.forEach(s => sh.push.apply(sh, segsOfLoop(unpk(s).map(p => loc(p, Q.sz[3])))));
+  const shMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  { const g = segGeo(sh); fillAH(g, 1, 0);
+    scene.add(Object.assign(new THREE.LineSegments(g, shMat), { frustumCulled:false })); }
+  // ── 底场微粒：三条微线共同的那层「地」（R2 铺点 · 确定性）──
+  const HN = +Q.hazen, hz = Q.haze;
+  const hg = new THREE.BufferGeometry(), hp = new Float32Array(HN*3);
+  for(let i = 0; i < HN; i++){
+    const uv = r2(i), z = -90 + 130*h1(i, 41.7);
+    const q = loc([hz[0] + uv[0]*hz[2], hz[1] + uv[1]*hz[3]], z);
+    hp[i*3] = q[0]; hp[i*3+1] = q[1]; hp[i*3+2] = q[2];
+  }
+  hg.setAttribute('position', new THREE.BufferAttribute(hp,3));
+  const hA = fillAH(hg, 1, 0);
+  for(let i = 0; i < HN; i++) hA.a[i] = 0.35 + 0.65*h1(i, 63.1);
+  hg.attributes.aA.needsUpdate = true;
+  const hMat = mkMat(SH, PX_PT_VS, PX_PT_FS); hMat.uniforms.uSoft.value = .05;
+  scene.add(Object.assign(new THREE.Points(hg, hMat), { frustumCulled:false }));
+  let beamOp = .88;
+  return {
+    scene, camera, intro: 1.15, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flows.forEach(f => f.draw(clock));
+      const t = clock % cyc;
+      bmat.uniforms.uHead.value = t < grow ? t*Q.beam : Q.blen + 40;
+      bmat.uniforms.uOpacity.value = beamOp
+        * (t < grow + Q.hold ? 1 : 1 - sstep(0, Q.rel, t - grow - Q.hold));
+      shMat.uniforms.uGain.value = .25 + .25*Math.sin(clock*TAU/4.2);
+    },
+    applyTheme(){
+      const pk = cssColor('--x-flow'), rms = cssColor('--x-rms');
+      const nz = cssColor('--x-noise');
+      const op = cssNum('--x-flow-op', .40), rop = cssNum('--x-rms-op', .55);
+      const nop = cssNum('--x-noise-op', .30);
+      flows.forEach((f, i) => {
+        const noise = i >= 3 && i <= 5;
+        f.theme(noise ? nz : pk, noise ? nz : rms, noise ? nop : op, noise ? 0 : rop, .55);
+        setBlend(f.mat, cssNum('--x-add', 0));
+      });
+      beamOp = cssNum('--x-beam-op', .88);
+      bmat.uniforms.uColor.value.copy(cssColor('--x-beam'));
+      bmat.uniforms.uHot.value.copy(cssColor('--x-beam'));
+      bmat.uniforms.uOpacity.value = beamOp; bmat.uniforms.uGain.value = .5;
+      shMat.uniforms.uColor.value.copy(cssColor('--x-shield'));
+      shMat.uniforms.uHot.value.copy(cssColor('--x-flow'));
+      shMat.uniforms.uOpacity.value = cssNum('--x-shield-op', .62);
+      hMat.uniforms.uColor.value.copy(cssColor('--x-haze'));
+      hMat.uniforms.uHot.value.copy(cssColor('--x-haze'));
+      hMat.uniforms.uOpacity.value = cssNum('--x-haze-op', .22);
+      hMat.uniforms.uSize.value = cssNum('--x-haze-size', 2.0);
+      hMat.uniforms.uGain.value = 0;
+      [bmat, shMat, hMat].forEach(m => { m.uniforms.uBack.value = .55;
+        setBlend(m, cssNum('--x-add', 0)); });
+    },
+    state(){
+      let clr = Math.min(geoClr(hg, U, Q.ink, 1.4), geoClr(bgeo, U, Q.ink, 1.2));
+      flows.forEach(f => { clr = Math.min(clr, geoClr(f.geo, U, Q.ink, Q.w)); });
+      const gA = flows[1].geo.attributes.aG.array, gT = flows[1].geo.attributes.aT.array;
+      const duck = [gA[0], gA[gA.length-2]];
+      return { clr, flows: flows.length, haze: HN, cyc:+cyc.toFixed(4),
+               grow:+grow.toFixed(4), duck,
+               head:+bmat.uniforms.uHead.value.toFixed(2), blen:Q.blen,
+               spd: flows.map(f => f.spd), lam:Q.lam };
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ㉒-③ 中心辐射（P15 · 六场景）
+   ───────────────────────────────────────────────────────────────────────────
+   「一套引擎，支撑多类场景」= **一个核 + 六条支线 + 六簇**。版面给这张图留的路
+   正好是六张卡之间那条无字带（row1 的字止于 y478、row2 的字起于 y631）：核坐在
+   带心，六条支线**直线**发散到六簇 —— 真辐射。六簇各落在自家卡的下缘留白里，
+   卡底是 72% 不透明 ⇒ 簇在卡**背后**透出三成：「中心最亮、六簇微光」这层主次
+   是版面本身给的。深度上核在最前、六簇各自退到不同的 z ⇒ 发散是真的在深度里。
+   六处身份微动，一处一巧思，全部关在自家 140×34 的簇框里（净空闸逐点量）：
+     0 外呼=拨号脉冲串 1 智能硬件=设备点阵亮灭 2 虚拟陪伴=柔和呼吸
+     3 口语陪练=一来一回 4 智能客服=排队消解 5 更多场景=景深处待命的微光星丛
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeHub(ctx){
+  const Q = K.hb, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
+  const scene = new THREE.Scene(), camera = camPx(w, h, D);
+  const SH = pxShared(D, Q.half), L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const R = ctx.rect, CX = Q.core[0], CY = Q.core[1], CR = Q.core[2];
+  const loc = (x, y, z) => L(x-R[0], y-R[1], z);
+  // ── 六条支线：核（z=+70）→ 簇（各自的深度）——「发散」在深度里是真的 ──
+  const flows = Q.s.map((s, i) => {
+    const raw = unpk(s), zc = Q.cl[i][2];
+    const pts = raw.map((p, j) => loc(p[0], p[1], Q.cz + (zc-Q.cz)*(j/(raw.length-1))));
+    return mkStream(SH, pts, { w:Q.w, spd:Q.spd[i], lam:Q.lam }).add(scene);
+  });
+  // ── 核：一团实心点 + 两枚缓慢翻滚的细环（占满无字带的高度，不越界）──
+  const CN = 150, cg = new THREE.BufferGeometry(), cp = new Float32Array(CN*3);
+  const cbase = [];
+  for(let i = 0; i < CN; i++){
+    const uv = r2(i), a = uv[0]*TAU, rr = CR*0.46*Math.sqrt(uv[1]);
+    cbase.push([Math.cos(a)*rr, Math.sin(a)*rr*0.62, (h1(i,17.3)-0.5)*40]);
+  }
+  cg.setAttribute('position', new THREE.BufferAttribute(cp,3));
+  const cA = fillAH(cg, 1, 1);
+  const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value = .03;
+  scene.add(Object.assign(new THREE.Points(cg, coreMat), { frustumCulled:false }));
+  const RN = 44, rings = [0.74, 1.0].map(() => new Float32Array(RN*2*3));
+  const ringGeo = rings.map((arr) => { const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(arr,3)); fillAH(g, 1, 0); return g; });
+  const ringMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  ringGeo.forEach(g => scene.add(Object.assign(new THREE.LineSegments(g, ringMat),
+                                               { frustumCulled:false })));
+  // ── 六簇：一处一巧思，逐帧只改 position / aA（几何件数恒定 ⇒ 没有「突然多一枚」）──
+  //   前五簇画在 kg 上，第六簇（更多场景 · 景深星丛）单独走 fg（更暗一档的材质）。
+  //   ⚠ kg 只开前五簇的点数：多开的顶点会留在原点 (0,0,0)，而原点投影回舞台
+  //     正好落在版心左上角 —— 净空闸会把这枚**根本没画出来的**假顶点算进去
+  //     （本轮实测：clr 从 20.5 掉到 16.5，查了半天是它）。
+  const LAY = [12, 15, 16, 8, 9, 20];                 // 六簇各自的点数
+  const OFF = []; let CT = 0;
+  LAY.slice(0, 5).forEach(k => { OFF.push(CT); CT += k; });
+  const kg = new THREE.BufferGeometry(), kp = new Float32Array(CT*3);
+  kg.setAttribute('position', new THREE.BufferAttribute(kp,3));
+  const kA = fillAH(kg, 1, 0);
+  const nodeMat = mkMat(SH, PX_PT_VS, PX_PT_FS); nodeMat.uniforms.uSoft.value = .04;
+  scene.add(Object.assign(new THREE.Points(kg, nodeMat), { frustumCulled:false }));
+  const farMat = mkMat(SH, PX_PT_VS, PX_PT_FS); farMat.uniforms.uSoft.value = .06;
+  const fg = new THREE.BufferGeometry(), fp = new Float32Array(LAY[5]*3);
+  fg.setAttribute('position', new THREE.BufferAttribute(fp,3));
+  const fA = fillAH(fg, 1, 0);
+  scene.add(Object.assign(new THREE.Points(fg, farMat), { frustumCulled:false }));
+  function put(arr, i, x, y, z){ const q = loc(x, y, z);
+    arr[i*3] = q[0]; arr[i*3+1] = q[1]; arr[i*3+2] = q[2]; }
+  return {
+    scene, camera, intro: 1.2, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flows.forEach(f => f.draw(clock));
+      // 核：呼吸 + 两枚环缓慢翻滚（异面 ⇒ 近侧远侧互换，不是两枚同心圆）
+      const br = 0.90 + 0.10*Math.sin(clock*TAU/5.4);
+      for(let i = 0; i < CN; i++){
+        const b = cbase[i];
+        put(cp, i, CX + b[0]*br, CY + b[1]*br, Q.cz + b[2]*br);
+        cA.a[i] = 0.55 + 0.45*(0.5 + 0.5*Math.sin(clock*1.7 + i*0.7));
+      }
+      cg.attributes.position.needsUpdate = true; cg.attributes.aA.needsUpdate = true;
+      rings.forEach((arr, k) => {
+        const rr = CR*(k ? 1 : 0.74), tilt = clock*TAU/(k ? 26 : 19) + k*1.1;
+        const ct = Math.cos(tilt), st = Math.sin(tilt);
+        for(let i = 0; i < RN; i++){
+          const a0 = (i/RN)*TAU, a1 = ((i+0.5)/RN)*TAU;
+          [a0, a1].forEach((a, j) => {
+            const x = Math.cos(a)*rr, yy = Math.sin(a)*rr*0.42;
+            const q = loc(CX + x, CY + yy*ct, Q.cz + yy*st*1.6);
+            const o = (i*2+j)*3; arr[o] = q[0]; arr[o+1] = q[1]; arr[o+2] = q[2];
+          });
+        }
+        ringGeo[k].attributes.position.needsUpdate = true;
+      });
+      // 六处身份微动
+      Q.cl.forEach((c, k) => {
+        const x0 = c[0], y0 = c[1], z0 = c[2], o = OFF[k], nk = LAY[k];
+        if(k === 0){                       // 外呼：拨号脉冲串（一串一串地打出去）
+          const ph = (clock/1.9) % 1, head = ph*1.45 - 0.22;
+          for(let i = 0; i < nk; i++){ const u = i/(nk-1);
+            put(kp, o+i, x0 - 56 + 112*u, y0, z0);
+            kA.a[o+i] = 0.26 + 0.74*Math.exp(-Math.pow((u-head)/0.11, 2)); }
+        }else if(k === 1){                 // 智能硬件：设备点阵亮灭
+          const lit = ((clock/0.21)|0) % nk;
+          for(let i = 0; i < nk; i++){
+            put(kp, o+i, x0 - 48 + (i%5)*24, y0 - 12 + ((i/5)|0)*12, z0);
+            kA.a[o+i] = i === lit ? 1 : (i === (lit+7)%nk ? .66 : .28); }
+        }else if(k === 2){                 // 虚拟陪伴：柔和呼吸
+          const rr = 12 + 8*(0.5 + 0.5*Math.sin(clock*TAU/4.6));
+          for(let i = 0; i < nk; i++){ const a = (i/nk)*TAU;
+            put(kp, o+i, x0 + Math.cos(a)*rr*2.4, y0 + Math.sin(a)*rr*0.68, z0);
+            kA.a[o+i] = 0.42 + 0.36*(0.5 + 0.5*Math.sin(clock*TAU/4.6 + a)); }
+        }else if(k === 3){                 // 口语陪练：一来一回
+          for(let i = 0; i < 6; i++){ put(kp, o+i, x0 - 50 + 20*i, y0, z0);
+            kA.a[o+i] = .28; }
+          const p = 0.5 - 0.5*Math.cos(clock*TAU/3.0);
+          put(kp, o+6, x0 - 50 + 100*p, y0 - 7, z0);      kA.a[o+6] = .95;
+          put(kp, o+7, x0 + 50 - 100*p, y0 + 7, z0);      kA.a[o+7] = .95;
+        }else if(k === 4){                 // 智能客服：排队消解（队头走一个，队伍前移）
+          const t = (clock/0.62) % 1, gone = ((clock/0.62)|0) % nk;
+          for(let i = 0; i < nk; i++){
+            const idx = (i - gone + nk*2) % nk;
+            put(kp, o+i, x0 - 56 + (idx - t)*13.5, y0, z0);
+            kA.a[o+i] = idx === 0 ? (1-t)*.95 : .38 + .40*(1 - idx/nk); }
+        }else{                             // 更多场景：景深处待命的微光星丛
+          for(let i = 0; i < nk; i++){ const uv = r2(i+3);
+            put(fp, i, x0 - 62 + uv[0]*124, y0 - 14 + uv[1]*28, z0);
+            fA.a[i] = 0.30 + 0.60*(0.5 + 0.5*Math.sin(clock*0.55 + i*1.9)); }
+        }
+      });
+      kg.attributes.position.needsUpdate = true; kg.attributes.aA.needsUpdate = true;
+      fg.attributes.position.needsUpdate = true; fg.attributes.aA.needsUpdate = true;
+    },
+    applyTheme(){
+      const pk = cssColor('--h-spoke'), rms = cssColor('--h-rms');
+      flows.forEach(f => { f.theme(pk, rms, cssNum('--h-spoke-op', .42),
+                                   cssNum('--h-rms-op', .58), .48);
+        setBlend(f.mat, cssNum('--h-add', 0)); });
+      coreMat.uniforms.uColor.value.copy(cssColor('--h-core'));
+      coreMat.uniforms.uHot.value.copy(cssColor('--h-core'));
+      coreMat.uniforms.uOpacity.value = cssNum('--h-core-op', .92);
+      coreMat.uniforms.uSize.value = cssNum('--h-core-size', 3.0);
+      coreMat.uniforms.uGain.value = 0;
+      ringMat.uniforms.uColor.value.copy(cssColor('--h-ring'));
+      ringMat.uniforms.uHot.value.copy(cssColor('--h-ring'));
+      ringMat.uniforms.uOpacity.value = cssNum('--h-ring-op', .66);
+      ringMat.uniforms.uGain.value = 0;
+      nodeMat.uniforms.uColor.value.copy(cssColor('--h-node'));
+      nodeMat.uniforms.uHot.value.copy(cssColor('--h-node'));
+      nodeMat.uniforms.uOpacity.value = cssNum('--h-node-op', 1);
+      nodeMat.uniforms.uSize.value = cssNum('--h-node-size', 4.0);
+      nodeMat.uniforms.uGain.value = 0;
+      farMat.uniforms.uColor.value.copy(cssColor('--h-far'));
+      farMat.uniforms.uHot.value.copy(cssColor('--h-far'));
+      farMat.uniforms.uOpacity.value = cssNum('--h-far-op', .90);
+      farMat.uniforms.uSize.value = cssNum('--h-far-size', 3.0);
+      farMat.uniforms.uGain.value = 0;
+      // ⚠ 六簇坐在 --card-bg（72% 不透明）**背后**：屏上只剩三成。
+      //   所以 uBack（深度雾的余亮）要按「透过卡之后还读不读得出」定档 ——
+      //   核与两枚环在卡间空档里是全亮的，两者的档次因此不一样。
+      coreMat.uniforms.uBack.value = .50; ringMat.uniforms.uBack.value = .50;
+      nodeMat.uniforms.uBack.value = .74; farMat.uniforms.uBack.value = .70;
+      [coreMat, ringMat, nodeMat, farMat].forEach(m => setBlend(m, cssNum('--h-add', 0)));
+    },
+    state(){
+      let clr = 1e9;
+      flows.forEach(f => { clr = Math.min(clr, geoClr(f.geo, U, Q.ink, Q.w)); });
+      const nsz = nodeMat.uniforms.uSize.value*0.5 + 0.5;
+      clr = Math.min(clr, geoClr(kg, U, Q.ink, nsz), geoClr(fg, U, Q.ink, nsz),
+                     geoClr(cg, U, Q.ink, coreMat.uniforms.uSize.value*0.5 + 0.5));
+      ringGeo.forEach(g => { clr = Math.min(clr, geoClr(g, U, Q.ink, 1.0)); });
+      return { clr, spokes: flows.length, nodes: CT, core: CN,
+               spd: flows.map(f => f.spd), lam: Q.lam,
+               z: Q.cl.map(c => c[2]), cz: Q.cz };
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ㉒-④ 通话流（P16 · Call Agent 成绩单）
+   ───────────────────────────────────────────────────────────────────────────
+   这一页 3D 语义最弱（数字卡 + 对照表），所以做**克制的证据场**：
+   「1,000+ 通 / 天 · 多路并发」= 一束细密的通话流（audioStream 血统），七股并行、
+   从左涌入、过了 x624 之后向右铺开 —— 读作「一直在打、并发在跑」。
+   先并拢再铺开不是造型：页面左半有「02 · KEY DIFFERENCE」那行小标，铺开就压字；
+   右半是空的，扇形正好占住。这条形也顺手把上面的成绩单与下面的对照表缝在一起。
+   ⚠ 流是**均质的一束**：不给任何一张卡加权 —— 96.5% 的 hot 是页面既有语义，
+     3D 不新造第二处热点。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeCalls(ctx){
+  const Q = K.nb, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
+  const scene = new THREE.Scene(), camera = camPx(w, h, D);
+  const SH = pxShared(D, Q.half), L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
+  const R = ctx.rect;
+  const flows = Q.s.map((s, i) => {
+    const pts = unpk(s).map(p => L(p[0]-R[0], p[1]-R[1], Q.sz[i]));
+    return mkStream(SH, pts, { w:Q.w, spd:Q.spd[i], lam:Q.lam }).add(scene);
+  });
+  return {
+    scene, camera, intro: 1.1, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){ SH.uTime.value = clock; flows.forEach(f => f.draw(clock)); },
+    applyTheme(){
+      const pk = cssColor('--n-flow'), rms = cssColor('--n-rms');
+      flows.forEach(f => { f.theme(pk, rms, cssNum('--n-flow-op', .34),
+                                   cssNum('--n-rms-op', .55), .42);
+        setBlend(f.mat, cssNum('--n-add', 0)); });
+    },
+    state(){
+      let clr = 1e9;
+      flows.forEach(f => { clr = Math.min(clr, geoClr(f.geo, U, Q.ink, Q.w)); });
+      return { clr, lanes: flows.length, spd: flows.map(f => f.spd), lam: Q.lam,
+               z: Q.sz.slice() };
+    },
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    单渲染器巡游 · TOUR
    ───────────────────────────────────────────────────────────────────────────
    全 deck **一个 WebGLRenderer、一块 canvas**。canvas 平时停在车库（屏外），
@@ -6754,7 +7725,9 @@ const FACTORY = { voice:makeVoice, globe:makeGlobe, brain:makeBrain,
                   /* 第二波（九页套件化 · 终波）*/
                   morph:makeMorph, lanes:makeLanes, chain:makeChain, cutin:makeCutin,
                   bigmap:makeBigmap, qos:makeQos, vision:makeVision, slots:makeSlots,
-                  towers:makeTowers };
+                  towers:makeTowers,
+                  /* 三轮「静态页升维」· 四枚加法层 */
+                  quiet:makeQuiet, three:makeThree, hub:makeHub, calls:makeCalls };
 const STAGES = [...document.querySelectorAll('.lab-stage')].map(el=>({
   el, page:+el.dataset.labPage, name:el.dataset.labScene,
   rect:el.dataset.labRect.split(',').map(Number),
@@ -7340,6 +8313,59 @@ def lab_k():
         # 楼层灯瀑：贴塔**右内缘**的一列灯（不横穿塔身、不压任何一行字）
         ("fl", _n(float(_Y_FLOOR))), ("fln", str(_Y_FLOORN)), ("fld", _n(_Y_FLOORD)),
     ])
+    # ═══ 三轮「静态页升维」· 四枚加法层的常量 ════════════════════════════
+    #   K 键 ↔ CSS 前缀：e ↔ --e-（P22 quiet）· x ↔ --x-（P5 three）
+    #                    hb ↔ --h-（P15 hub）· nb ↔ --n-（P16 calls）
+    #   （K.h 会与舞台高 K.H 只差大小写，读代码时容易看错 ⇒ 用 hb / nb）
+    e22 = _obj([
+        # 位置：11bit x + 11bit y 打成 4 个 base64 字（9000 颗 = 36KB，见 _e22_pack）
+        ("pk", '"%s"' % _e22_pack()), ("n", str(len(_E22PTS))),
+        # 粒径 / 深度 / 底亮度：两边各按**同一串纯乘除**从录取序号算（不碰 sin/exp）
+        ("phi3", _n(_PHI3)), ("sz", _arr(_E22SZ)), ("zr", _arr(_E22Z)),
+        ("halo", _n(_E22HALO)), ("edge", _n(_E22EDGE)),
+        ("rect", _arr([_E22RECT[2], _E22RECT[3]])),
+        ("src", _arr([_E22SRC[0][0], _E22SRC[0][1], _E22SRC[1][0], _E22SRC[1][1]])),
+        ("lam", _n(_E22LAM)), ("spd", _n(_E22SPD)), ("cyc", _n(_E22CYC)),
+        ("floor", _n(_E22FLOOR)), ("D", _n(_E22D)), ("half", _n(420.0)),
+        ("meet", _n(_E22MEETSZ)), ("lift", _n(_E22LIFTSZ)),
+        ("ink", "[" + ",".join(_arr(b) for b in _E22INK) + "]"),
+        ("clr", _n(_ADD_CLR)),
+    ])
+    x5 = _obj([
+        # 七条流的中心线（页坐标 · 已重采样成等弧长点）+ 各自的深度平面
+        ("s", "[" + ",".join('"%s"' % _pk(_lerp_poly(q, m2)) for q, m2 in
+                             [(_X5L1, 56), (_X5L2A, 44), (_X5L2B, 40)]
+                             + [(q2, 28) for q2 in _X5L3N] + [(_X5L3T, 56)]) + "]"),
+        ("sz", _arr([10, 0, 0, -14, -14, -14, -14])),
+        ("spd", _arr(_SPD_P5)), ("lam", _n(_X5LAM)), ("w", _n(_X5W)),
+        # 让位窗口：以「沿流的像素弧长」表达（智能体轨从 x730 起算）
+        ("duck", _arr([_X5DUCK[0] - _X5L2A[0][0], _X5DUCK[1] - _X5L2A[0][0]])),
+        ("blk", _n(_X5SH[0][0][0] - _X5L3N[0][0][0])),      # 杂线撞盾处的弧长
+        ("gap", _n(_X5SH[0][0][0] - _X5L3T[0][0])),         # 目标人声过缺口处的弧长
+        ("sh", "[" + ",".join('"%s"' % _pk(q) for q in _X5SH) + "]"),
+        ("haze", _arr(_X5HAZE)), ("hazen", str(_X5HAZEN)),
+        ("beam", _n(_X5BEAM)), ("blen", _n(_plen(_X5L1))),
+        ("hold", _n(1.40)), ("rel", _n(0.80)),
+        ("ink", "[" + ",".join(_arr(b) for b in _X5INK) + "]"), ("clr", _n(_ADD_CLR)),
+        ("D", _n(1400.0)), ("half", _n(190.0)),
+    ])
+    h15 = _obj([
+        ("core", _arr([_H15CORE[0], _H15CORE[1], _H15CR])), ("cz", _n(70.0)),
+        ("cl", "[" + ",".join(_arr(c) for c in _H15CL) + "]"),
+        ("box", _arr([_H15CLW, _H15CLH])),
+        ("s", "[" + ",".join('"%s"' % _pk(_lerp_poly(_h15_spoke(k), 40))
+                             for k in range(6)) + "]"),
+        ("spd", _arr(_SPD_P15)), ("lam", _n(_H15LAM)), ("w", _n(_H15W)),
+        ("ink", "[" + ",".join(_arr(b) for b in _H15INK) + "]"), ("clr", _n(_ADD_CLR)),
+        ("D", _n(_H15D)), ("half", _n(300.0)),
+    ])
+    n16 = _obj([
+        ("s", "[" + ",".join('"%s"' % _pk(_n16_lane(k)) for k in range(_N16N)) + "]"),
+        ("sz", _arr([-30 - 22 * k for k in range(_N16N)])),
+        ("spd", _arr(_SPD_P16)), ("lam", _n(_N16LAM)), ("w", _n(_N16W)),
+        ("ink", "[" + ",".join(_arr(b) for b in _N16INK) + "]"), ("clr", _n(_ADD_CLR)),
+        ("D", _n(1400.0)), ("half", _n(220.0)),
+    ])
     return "{" + ",".join([
         "W:%d" % LW, "H:%d" % LH, "FPX:%s" % _n(FPX), 'rev:"%s"' % THREE_REV,
         "v:{" + ",".join([
@@ -7369,6 +8395,8 @@ def lab_k():
         # 第二波九枚（终波）
         "o:" + o, "l:" + l, "c:" + c, "u:" + u, "m:" + m,
         "q:" + q, "w:" + w, "k:" + k, "y:" + y,
+        # 三轮：四枚加法层
+        "e:" + e22, "x:" + x5, "hb:" + h15, "nb:" + n16,
         'landBits:"%s"' % LAND_BITS, "landN:%d" % LAND_N,
         'nodeTable:"%s"' % NODE_TABLE, 'routeTable:"%s"' % ROUTE_TABLE,
         "arcDur:%s" % ARC_DUR_S, "arcGap:%s" % ARC_GAP_S, "arcOff:%s" % ARC_OFF_S,
@@ -7944,7 +8972,7 @@ page("content", "".join([
     # 必须自带出处与「典型值」限定（2026-08-20 仲裁 P0）。
     # 2026-08-23 采纳项 C：并入四段 ledger —— 两个来源用「/」并列，「典型值」占样本段。
     src(_SRC_TYP),
-]))
+]), lab="three")
 
 # ═══ P6 · 实时语音链路 ·「一条深度优化的实时语音链路」══════════════════════
 #   2026-08-20 仲裁 P0：数字人移出串行主链 —— TTS 之后分两路并行，
@@ -9112,7 +10140,7 @@ page("content", "".join([
            for _i, (_t, _n, _d) in enumerate(_SCENES)) + '</div>'),
     rule(850),
     rail("AI OUTBOUND · SMART DEVICE · COMPANION · SPEAKING TUTOR · CUSTOMER SERVICE · MORE"),
-]))
+]), lab="hub")
 
 # ═══ P16 · Call Agent 登场 · 成绩单（2026-08-21「Call Agent 章」新增 ◆）════
 #   Colin 的章序指令：场景（P15）之后接 Call Agent 三页，Call Agent 之后才接 R1（P19）。
@@ -9172,7 +10200,7 @@ page("content", "".join([
     rule(850),
     land("TA 不疲惫、不带情绪、句句合规。", y=944),
     src(_CA_SRC),
-]))
+]), lab="calls")
 
 # ═══ P17 · 五个大脑 · Agent Harness（2026-08-21「Call Agent 章」新增 ◆ · 同日重做）══
 #   2026-08-21 Colin：「不够 fancy —— 要一个脑子、五个区域一起工作、炫酷动起来」。
@@ -9727,7 +10755,7 @@ page("title", "".join([
     # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线/悬停态）
     sh("flow mono-sm", "left:120px;top:1004px;width:1680px;height:24px;text-align:center;--i:6",
        "DEMO / 文档 · agora.io › 对话式 AI 引擎 · 联系团队"),
-]))
+]), lab="quiet")
 
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
 def build():
@@ -9900,16 +10928,20 @@ def build():
     assert "都在这张图上" in _page_txt[10], "P10 缺章尾收束句"
     # ── LAB 断言（构建期就拦住，别等到 qa）────────────────────────────────
     #   _INPAGE = poster 就是页上那张 SVG 的十四页（P1/P21 走专用离线 poster，不在内）
-    _INPAGE = tuple(sorted(set(LAB_RECTS) - {1, 21}))
+    #   加法层四页（三轮）另有一条**更硬**的自证（见下面的 ㉒ 闸），不走 poster 那条路
+    _INPAGE = tuple(sorted(set(LAB_RECTS) - {1, 21} - set(_ADD_PAGES)))
     lab_map = {i: l for i, (_b, _s, _y, l) in enumerate(PAGES, 1) if l}
     _want = {i: v[0] for i, v in LAB_RECTS.items()}
     assert lab_map == _want, "LAB 3D 页漂移：%r != %r" % (lab_map, _want)
-    assert sorted(lab_map) == [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 21], \
-        "全量 3D 化场景页码表漂移（第一波七页 + 第二波九页 = 16）：%r" % sorted(lab_map)
-    # 逐页语义审查的留白：P5/P15/P16/P19/P20/P22 是数字卡 / 成绩单 / 实拍 / 视频 / 末页，
-    # 没有 3D 语义 ⇒ 保持 2D。这六页是**故意**不在表里的，不是漏了。
-    assert sorted(set(range(1, 23)) - set(lab_map)) == [5, 15, 16, 19, 20, 22], \
-        "保持 2D 的六页漂移：%r" % sorted(set(range(1, 23)) - set(lab_map))
+    assert sorted(lab_map) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                               17, 18, 21, 22], \
+        "场景页码表漂移（七 + 九 + 三轮四枚加法层 = 20）：%r" % sorted(lab_map)
+    # 逐页语义审查的留白：只剩 P19（R1 实拍照片页）与 P20（视频页）。
+    #   P19 照片就是照片，加 3D 画蛇添足；P20 那支片子本身在动 —— 这是**既定判断**，
+    #   两页一个像素不许改（2026-09-01 三轮复核，与 Colin 的「看下全部静态页」并不冲突：
+    #   静态页升维指的是「页上没有动效的**图形页**」，实拍与视频不在其内）。
+    assert sorted(set(range(1, 23)) - set(lab_map)) == [19, 20], \
+        "保持 2D 的两页漂移：%r" % sorted(set(range(1, 23)) - set(lab_map))
     # ── 单渲染器巡游的硬红线：**全文档恰好一枚 canvas**（不是每页一枚）────────
     #   只数 <canvas> 标签：`lab-canvas` 这个串在 CSS 与运行时选择器里也出现。
     assert doc.count("<canvas") == 1, "canvas 件数漂移：%d（单渲染器巡游只准一枚）" % doc.count("<canvas")
@@ -9925,7 +10957,12 @@ def build():
         _sec = doc.split('data-p="%d"' % _p, 1)[1].split("</section>", 1)[0]
         assert 'data-lab-scene="%s"' % _kind in _sec, "P%d 舞台缺场景名" % _p
         assert 'data-lab-rect="%d,%d,%d,%d"' % (_x, _y2, _w, _h) in _sec, "P%d 图形区矩形漂移" % _p
-        assert 'class="lab-poster"' in _sec, "P%d 缺 poster 降级层" % _p
+        if _p in _ADD_PAGES:
+            # 加法层：3D 没有替换任何东西 ⇒ **不许**挂 poster（挂一枚空的只是骗闸门）
+            assert 'class="lab-poster"' not in _sec, \
+                "㉒ P%d 是加法层页，不该有 poster —— 它的降级层是整页本身" % _p
+        else:
+            assert 'class="lab-poster"' in _sec, "P%d 缺 poster 降级层" % _p
         assert 'class="lab-print"' in _sec, "P%d 缺打印帧位" % _p
         assert _sec.count('class="lab-stage"') == 1, "P%d 舞台层不是一枚" % _p
         # 矩形必须落在版心内（超出就是对位算错了，别等到截图才发现）
@@ -10068,6 +11105,43 @@ def build():
             _K_FLOWGHOST, _K_FLOWFLOOR, _K_FLOWW)
     assert (_AS_LAM, _AS_FLOOR, _AS_GHOST) == (232.0, 0.30, 0.055), \
         "⑨ lab-kit ⑨ 的全局幅度档被动了 —— P13 只准在本页 opt 里覆写"
+    # ── ㉒ 三轮「静态页升维」· 加法层四页的构建期硬闸 ─────────────────────────
+    #    ① 净空：每一页的 3D 几何与该页**字形墨迹盒**的最小距离 ≥ 16px
+    #       （已扣掉带宽 / 粒半径 —— 量的是「屏上真的画出来的边缘」，不是中心线）；
+    #    ② 出界：几何必须落在该页声明的 lab-rect 里（越界就是被 canvas 裁掉一半）；
+    #    ③ 末页克制：循环 ≥18s，且相速度**低于** A 档下限（余韵不是介质）。
+    for _p in _ADD_PAGES:
+        assert _ADD_CLRMIN[_p] >= _ADD_CLR, \
+            "㉒ P%d 的 3D 压字：与字形墨迹盒最小净空 %.1fpx < %.0f" % (
+                _p, _ADD_CLRMIN[_p], _ADD_CLR)
+        for _b in _ADD_INK[_p]:
+            assert 0 <= _b[0] and 0 <= _b[1] and _b[0] + _b[2] <= 1920 \
+                and _b[1] + _b[3] <= 1080, "㉒ P%d 的墨迹盒出界：%r" % (_p, _b)
+    _addgeo = {
+        5: [_X5L1, _X5L2A, _X5L2B, _X5L3T] + _X5L3N + _X5SH + [_box_pts(*_X5HAZE)],
+        15: [_h15_spoke(_k) for _k in range(6)]
+            + [_box_pts(_c[0] - _H15CLW, _c[1] - _H15CLH, _H15CLW * 2, _H15CLH * 2)
+               for _c in _H15CL]
+            + [_box_pts(_H15CORE[0] - _H15CR, _H15CORE[1] - _H15CR, _H15CR * 2, _H15CR * 2)],
+        16: [_n16_lane(_k) for _k in range(_N16N)],
+        22: [[(q[0], q[1]) for q in _E22PTS]],
+    }
+    for _p, _gs in _addgeo.items():
+        _rx, _ry, _rw, _rh = _ADD_RECT[_p]
+        for _g in _gs:
+            for _q in _g:
+                assert _rx <= _q[0] <= _rx + _rw and _ry <= _q[1] <= _ry + _rh, \
+                    "㉒ P%d 的几何越出 lab-rect：%r ∉ %r" % (_p, (round(_q[0]), round(_q[1])),
+                                                        _ADD_RECT[_p])
+    assert _E22CYC >= 18.0, "㉒ P22 单个循环 %.1fs < 18s —— 末页必须比全场任何一页都慢" % _E22CYC
+    assert _E22SPD < _SPD_A * (1 - _SPD_TOL), \
+        "㉒ P22 涟漪相速度 %.0fpx/s 落进了 A 档 —— 末页的场不是介质，它必须更慢" % _E22SPD
+    assert len(_E22SRC) == 2 and 260 < abs(_E22SRC[1][0] - _E22SRC[0][0]) < 380, \
+        "㉒ P22 两处涟漪源不是那两枚字标的中心：%r" % (_E22SRC,)
+    # 加法层不许新造文字 / 数字：这四页的 3D 一个字都不画（数字红线的机器面）
+    for _p in _ADD_PAGES:
+        assert _p in LAB_RECTS and LAB_RECTS[_p][0] in ("three", "hub", "calls", "quiet")
+
     # P14 一轮 = 生长 + 全亮停驻 + 收尾，且生长由三段路由 ÷ 同一档注光速度反推
     _rt = [_plen_d(_a[0]) for _a in _P14ARC]
     assert abs(sum(_rt) / _Y_BEAM - _Y_GROW) < 1e-9, "⑨ P14 生长时长不是三段 ÷ 400px/s"
@@ -10111,6 +11185,14 @@ def build():
             return _re2.sub(r"\s+", " ", _re2.sub(r"<[^>]+>", " ", h)).strip()
         # ① 非 3D 页：**逐字节**同源（一个字节都没动）
         _same = [p for p in range(1, 23) if p not in LAB_RECTS]
+        # ── ㉒ 加法层四页：把 .lab-stage 那一层摘掉之后必须与母本**逐字节**相同 ──
+        #    这是全 deck 最硬的一条同源自证：另外 14 页只保证「逐字同文」（几何被裹进
+        #    poster 组、片段分组变了），这四页保证**一个字节都没动**——
+        #    3D 在这里是加法，加法层拿掉就是原来那一页。
+        for _p in _ADD_PAGES:
+            _peel = _L[_p].replace("  " + lab_stage(_p) + "\n", "", 1)
+            assert _peel == _E[_p], \
+                "㉒ P%d 摘掉加法层之后与母本不是逐字节相同 —— 3D 动了这一页的 DOM" % _p
         for _p in _same:
             assert _E[_p] == _L[_p], "LAB 与引擎母本在 P%d 上分叉（非 3D 页必须逐字节同源）" % _p
         # ② 3D 页：**逐字**同文 —— 3D 化只动「形」（几何被裹进 <g class="lab-poster">、
@@ -10176,6 +11258,13 @@ def build():
           % (_K_CLR_MIN, _K_CLR, [round(v) for v in _K_ORB_BOX], list(_P13HUB),
              _plen(_P13FLOW), _fend[0], _sink,
              _K_FLOWW, _K_FLOWFLOOR, _K_FLOWGHOST, _k_flow_lam()))
+    print("  三轮加法层：P5 底场 / P15 中心辐射 / P16 通话流 / P22 余韵星野 · "
+          "净空 %s（下限 %.0f）· 摘层即母本（逐字节）"
+          % (" / ".join("P%d %.1f" % (p, _ADD_CLRMIN[p]) for p in _ADD_PAGES), _ADD_CLR))
+    print("  P22 余韵：%d 颗星 · λ=%.0fpx @ %.0fpx/s ⇒ 循环 %.1fs（A 档下限 %.0f，故意更慢）"
+          " · 两处涟漪源 %s"
+          % (len(_E22PTS), _E22LAM, _E22SPD, _E22CYC, _SPD_A * (1 - _SPD_TOL),
+             " / ".join("(%.0f,%.0f)" % q for q in _E22SRC)))
     print("  波A 音频流：λ=%.0fpx @ %.0fpx/s ⇒ %.2fs 一次呼吸 · Σa=%.2f · P14 注光 %.0fpx/s "
           "⇒ 一轮 %.2fs（生长 %.2f + 停驻 %.2f + 收 %.2f）"
           % (_AS_LAM, _SPD_A, _AS_LAM / _SPD_A, sum(_AS_A), _Y_BEAM,

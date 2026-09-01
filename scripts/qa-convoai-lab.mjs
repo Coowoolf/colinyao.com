@@ -86,6 +86,7 @@
 //   同轮 ① title 改「深入讲解」（封面定位随 Colin 主标一起换）。
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
+import sharp from 'sharp';   // ㉒d 的光度实测（底场 / 卡片墨量比）需要逐像素
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 22;
@@ -95,14 +96,23 @@ const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 // ── LAB 场景表（第一波全量 3D 化 · 七枚场景）───────────────────────────────
 //   页码表 = 单渲染器巡游的 registry；qa 与产物两头对表，加错页 / 漏页当场炸。
-const LAB_SCENES = { 1: 'voice', 2: 'morph', 3: 'lanes', 4: 'duplex', 6: 'chain',
-                     7: 'terrain', 8: 'cutin', 9: 'shell', 10: 'bigmap', 11: 'qos',
-                     12: 'vision', 13: 'slots', 14: 'towers',
-                     17: 'brain', 18: 'spiral', 21: 'globe' };
+const LAB_SCENES = { 1: 'voice', 2: 'morph', 3: 'lanes', 4: 'duplex', 5: 'three',
+                     6: 'chain', 7: 'terrain', 8: 'cutin', 9: 'shell', 10: 'bigmap',
+                     11: 'qos', 12: 'vision', 13: 'slots', 14: 'towers', 15: 'hub',
+                     16: 'calls', 17: 'brain', 18: 'spiral', 21: 'globe', 22: 'quiet' };
+// ── 三轮「静态页升维」：四枚**加法层**（2026-09-01 · Colin 点名 P22 + 全 deck 静态页）──
+//   与另外 16 枚的根本差别：那 16 枚在**替换**页上的一张 SVG 图（poster 是它的降级层）；
+//   这四页页上根本没有图，3D 是加在既有版面之外的一层氛围场 ⇒
+//     · 一件 DOM 都不动、**一枚 poster 都不挂**（挂一枚空的只是骗闸门）；
+//     · 降级层就是整页本身：WebGL 起不来时这一页与今天逐像素相同。
+//   这条判断在下面的 ⑲a / ⑲c / ㉒ 三处都写成了正面断言，不是「跳过不管」。
+const ADDITIVE = [5, 15, 16, 22];
 // poster 就是页上那张 SVG 的十四页（P1/P21 走构建期离线投影出来的专用 poster）
-const INPAGE = Object.keys(LAB_SCENES).map(Number).filter(p => p !== 1 && p !== 21);
-// 保持 2D 的六页：数字卡 / 成绩单 / 实拍 / 视频 / 末页 —— 故意不在表里，不是漏了
-const FLAT_PAGES = [5, 15, 16, 19, 20, 22];
+const INPAGE = Object.keys(LAB_SCENES).map(Number)
+  .filter(p => p !== 1 && p !== 21 && !ADDITIVE.includes(p));
+// 保持 2D 的两页：P19 R1 实拍照片页（照片就是照片）/ P20 视频页（片子本身在动）
+// —— 故意不在表里，不是漏了。三轮复核仍维持这条既定判断。
+const FLAT_PAGES = [19, 20];
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // LAB 的 WebGL 页：主跑一律带 ?lab=hold（容器软渲染只有个位数 fps，
 // 不关掉自动降级的话主跑全程都是 poster，⑲b 那条就验不到「起来了」）。
@@ -738,7 +748,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       ok(v.poster === 0, `⑲a P${v.p} 无场景却挂了 poster 层`);
       return;
     }
-    ok(v.poster >= 1, `⑲a P${v.p} 缺 poster 降级层`);
+    if (ADDITIVE.includes(v.p))
+      ok(v.poster === 0,
+         `⑲a P${v.p} 是加法层页，挂了 ${v.poster} 枚 poster —— 它的降级层是整页本身`);
+    else
+      ok(v.poster >= 1, `⑲a P${v.p} 缺 poster 降级层`);
     ok(v.print === 1, `⑲a P${v.p} 缺打印帧位 .lab-print`);
     // 层序：背景板 → 3D 舞台 → .pp 正文。舞台掉进 .pp 里就会被入场系的 opacity 连坐。
     ok(!v.inPP, `⑲a P${v.p} 3D 舞台落在 .pp 里了 —— 必须是 .pp 的兄弟`);
@@ -773,9 +787,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     // 场景 registry 页码表：本波七页，一页不多一页不少
     ok(one.scenes === LAB_PAGES.join(','),
        `⑲a2 场景 registry 页码表漂移：${one.scenes} != ${LAB_PAGES.join(',')}`);
-    ok(LAB_PAGES.length === 16, `⑲a2 全量 3D 化应为 16 页，实为 ${LAB_PAGES.length}`);
+    ok(LAB_PAGES.length === 20,
+       `⑲a2 场景页应为 20（七 + 九 + 三轮四枚加法层），实为 ${LAB_PAGES.length}`);
     FLAT_PAGES.forEach(p => ok(!LAB_PAGES.includes(p),
-      `⑲a2 P${p} 不该有 3D 场景（数字卡 / 成绩单 / 实拍 / 视频 / 末页，逐页语义审查判定保持 2D）`));
+      `⑲a2 P${p} 不该有 3D 场景（P19 实拍照片 / P20 视频页 —— 既定判断，一个像素不许改）`));
+    ADDITIVE.forEach(p => ok(LAB_PAGES.includes(p), `⑲a2 加法层 P${p} 没进场景表`));
     ok(one.ready === LAB_PAGES.length, `⑲a2 建起来的场景数 ${one.ready} != ${LAB_PAGES.length}`);
   }
 
@@ -839,16 +855,19 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
        `⑲b P${P} canvas 对位偏了：want=[${v.want}] got=[${v.got.map(x => x.toFixed(1))}]`);
     ok(Math.abs(v.buf[0] / v.dpr - v.want[2]) < 2 && Math.abs(v.buf[1] / v.dpr - v.want[3]) < 2,
        `⑲b P${P} 绘制缓冲区尺寸没跟着矩形走：${v.buf} @dpr ${v.dpr}`);
-    ok(v.posterOp.length >= 1 && v.posterOp.every(o => o < 0.02),
-       `⑲b P${P} poster 没淡出（opacity=${v.posterOp}）`);
+    if (ADDITIVE.includes(P))
+      ok(v.posterOp.length === 0, `⑲b P${P} 加法层页不该有 poster（${v.posterOp}）`);
+    else
+      ok(v.posterOp.length >= 1 && v.posterOp.every(o => o < 0.02),
+         `⑲b P${P} poster 没淡出（opacity=${v.posterOp}）`);
     ok(v.canvasOp === 1, `⑲b P${P} canvas 没淡入（opacity=${v.canvasOp}）`);
     ok(v.dpr <= 2, `⑲f P${P} DPR ${v.dpr} > 2（上限 2 是硬的）`);
   }
 
   // ── e 非激活页 ⇒ canvas 回车库、rAF 停 ───────────────────────────────
   //    （22 页里没有任何一页在偷偷空转 —— 也没有第二块画布在别处渲）
-  // 第二波之后 P2 也是 3D 页了 —— 离场闸必须站在**真正没有场景**的一页上。
-  // FLAT_PAGES[0] = P5（三件极致 · 三张数字卡），逐页语义审查判定保持 2D。
+  // 三轮之后连 P5 / P15 / P16 / P22 都是 3D 页了 —— 离场闸必须站在**真正没有场景**
+  // 的一页上。FLAT_PAGES[0] = P19（R1 实拍照片页），既定判断保持 2D。
   await pg.evaluate(k => window.deck.go(k - 1), FLAT_PAGES[0]);
   await pg.waitForTimeout(700);
   const off = await pg.evaluate(() => {
@@ -1584,6 +1603,181 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(m10.drift === 0, `⑲p10 大图起了视差位移（${m10.drift}）—— 零位移是红线`);
     console.log(`  · ⑲p10 轻手术：介质 ${m10.flows} 条 → 流带 / 离散 ${m10.evt} 条 → 保持粒子 · 位移 0`);
   }
+  /* ═══════════════════════════════════════════════════════════════════════
+     ㉒ 三轮「静态页升维」· 四枚加法层（P5 / P15 / P16 / P22）的机器自证
+     ───────────────────────────────────────────────────────────────────────
+     这四页的 3D 是**加法**：页上没有图，一件 DOM 都不动，3D 只是加了一层场。
+     加法层唯一真正的风险是**压字**，所以这一段的重量全压在净空上，而且是
+     两条独立算路互证：
+       ㉒a 墨迹名册 × 活 DOM 对表 —— 页上每一处**字形行框**（Range.getClientRects
+           量出来的墨迹，不是 line-height 撑出来的元素盒）都必须被 builder 声明的
+           墨迹盒盖住。改文案而没改那张表 ⇒ 当场报，不会静默压字。
+       ㉒b 净空 —— `state().clr` 把**这一帧真的传上 GPU 的顶点**投影回舞台像素，
+           逐顶点量到墨迹盒的距离（已扣掉带宽 / 粒半径），必须 ≥16px，
+           且与构建期的解析声明同源（P13 转子那一套判据本人）。
+       ㉒c P22 克制三条（Colin：「末页是余韵不是高潮」）——
+           墨量 ≤ P1 声场球的 60%（同一支尺 TOUR.shot().ink 量两页）·
+           循环 ≥18s 且相速度低于 A 档下限（慢是机器判据，不是手感）·
+           逐帧亮度突变沿用 ⑲p7 同一档上限。
+       ㉒d P5 底场墨量 ≤ 三张数字卡的 25% —— 光度实测：有 canvas / 无 canvas
+           两帧作差得底场墨量，卡片墨量取卡区相对众数底色的平均绝对偏差。
+     ═══════════════════════════════════════════════════════════════════════ */
+  {
+    // 页上所有**字形行框**（与 occlusion-scan 同一把尺：Range.getClientRects）
+    const glyphs = async (P) => pg.evaluate((k) => {
+      const s = document.querySelector(`.slide[data-p="${k}"]`);
+      const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+      const K = sc.width / 1920, out = [];
+      const w = document.createTreeWalker(s.querySelector('.pp'), NodeFilter.SHOW_TEXT);
+      let t;
+      while ((t = w.nextNode())) {
+        if (!t.textContent.trim()) continue;
+        const r = document.createRange(); r.selectNodeContents(t);
+        for (const rc of r.getClientRects())
+          if (rc.width > 1 && rc.height > 1)
+            out.push([(rc.x - sc.x) / K, (rc.y - sc.y) / K, rc.width / K, rc.height / K]);
+      }
+      return out;
+    }, P);
+    const covers = (b, g, tol) =>
+      g[0] >= b[0] - tol && g[1] >= b[1] - tol
+      && g[0] + g[2] <= b[0] + b[2] + tol && g[1] + g[3] <= b[1] + b[3] + tol;
+
+    for (const P of ADDITIVE) {
+      await pg.evaluate(k => window.deck.go(k - 1), P);
+      await pg.waitForTimeout(2600);                 // 等入场缓动落位再量墨迹
+      const D = await pg.evaluate((k) => {
+        const d = document.getElementById('labStage' + k).dataset;
+        const u = window.__labTour.unit();
+        return { add: d.labAdd, clr: +d.labClr, clrMin: +d.labClrMin,
+                 ink: (d.labInk || '').split(';').filter(Boolean)
+                        .map(r => r.split(',').map(Number)),
+                 st: u && u.state ? u.state() : null };
+      }, P);
+      ok(D.add === '1', `㉒ P${P} 没声明成加法层（data-lab-add=${D.add}）`);
+      ok(D.clr === 16, `㉒ P${P} 净空下限漂移：${D.clr}`);
+      ok(D.ink.length >= 5, `㉒ P${P} 墨迹名册只有 ${D.ink.length} 只盒 —— 不可能盖住整页`);
+      // ㉒a 名册 × 活 DOM
+      const gs = await glyphs(P);
+      const miss = gs.filter(g => !D.ink.some(b => covers(b, g, 2.5)));
+      ok(miss.length === 0,
+         `㉒a P${P} 有 ${miss.length} 处字形行框不在墨迹名册里（首处 ${
+           miss[0] && miss[0].map(v => Math.round(v))}）—— 改了文案就得同步那张表`);
+      ok(gs.length >= 6, `㉒a P${P} 只量到 ${gs.length} 处字形 —— 这一页量歪了`);
+      // ㉒b 净空（运行时逐顶点 × 构建期解析，两条算路对表）
+      ok(D.st && isFinite(D.st.clr), `㉒b P${P} 场景没有交出 state().clr`);
+      ok(D.st.clr >= 16,
+         `㉒b P${P} 的 3D 压字：可见几何距字形墨迹盒仅 ${D.st.clr.toFixed(1)}px（下限 16）`);
+      ok(D.st.clr >= D.clrMin - 0.5,
+         `㉒b P${P} 构建期声明 ${D.clrMin}px 与运行时实测 ${D.st.clr.toFixed(1)}px 分叉`);
+      console.log(`  · ㉒ P${P}（${LAB_SCENES[P]}）：字形 ${gs.length} 处 ⊂ 墨迹盒 ${
+        D.ink.length} 只 · 净空 ${D.st.clr.toFixed(1)}px（声明 ${D.clrMin}）`);
+    }
+
+    // ── ㉒c · P22 末页的三条克制指标 ─────────────────────────────────────
+    {
+      const inkOf = async (P) => {
+        await pg.evaluate(k => window.deck.go(k - 1), P);
+        await pg.waitForTimeout(1600);
+        return pg.evaluate(() => { const t = window.__labTour; t.pace(30); t.seek(6);
+          const s = t.shot(8, 8); t.pace(0); return { ink: s.ink, cov: s.cov, mean: s.mean }; });
+      };
+      const i1 = await inkOf(1), i22 = await inkOf(22);
+      ok(i22.ink <= i1.ink * 0.60,
+         `㉒c P22 墨量 ${i22.ink.toFixed(5)} > P1 声场球的 60%（${(i1.ink*0.6).toFixed(5)}）—— 末页是余韵`);
+      ok(i22.ink > i1.ink * 0.005,
+         `㉒c P22 墨量 ${i22.ink.toFixed(5)} 低到看不见了（P1 的 ${(i22.ink/i1.ink*100).toFixed(2)}%）`);
+      /* 「单个循环」= **基频周期** λ/v。四枚谐波两两不整除（lab-kit ⑨ 的纪律，
+         ⑲as 已单独复算过）⇒ 场**永不逐拍重复** —— 这是特性不是缺陷：重复的起伏
+         会被眼睛读成心跳。所以这一闸验的不是「t 与 t+cyc 逐位相同」（那本来就不该
+         成立），而是三件真正该管的事：基频周期 ≥18s · 变化速率有上限（慢是判据）·
+         场确实在传（不是一潭死水）。 */
+      const q = await pg.evaluate(() => {
+        const d = document.getElementById('labStage22').dataset;
+        const t = window.__labTour; t.pace(30);
+        const cyc = +d.labCyc, seq = [];
+        for (let s2 = 0; s2 <= cyc + 1e-9; s2 += 0.25) { t.seek(s2); seq.push(t.unit().state().lift); }
+        t.pace(0);
+        return { cyc, spd: +d.labQspd, stars: +d.labStars, lam: +d.labLam, seq };
+      });
+      ok(q.cyc >= 18, `㉒c P22 基频周期 ${q.cyc}s < 18s —— 末页必须比全场任何一页都慢`);
+      ok(Math.abs(q.cyc - q.lam / q.spd) < 1e-6, `㉒c P22 基频周期 ${q.cyc} != λ/v`);
+      ok(q.spd < 77, `㉒c P22 涟漪相速度 ${q.spd}px/s 落进了 A 档（下限 77）—— 余韵不是介质`);
+      let dmax = 0, span = 0;
+      for (let k = 0; k < q.seq[0].length; k++) {
+        const col = q.seq.map(r => r[k]);
+        for (let i = 1; i < col.length; i++) dmax = Math.max(dmax, Math.abs(col[i] - col[i-1]));
+        span = Math.max(span, Math.max(...col) - Math.min(...col));
+      }
+      ok(dmax * 4 <= 0.26,
+         `㉒c P22 亮度变化速率 ${(dmax*4).toFixed(3)}/s > 0.26/s —— 场太急，末页要的是余韵`);
+      ok(span > 0.35,
+         `㉒c P22 一个周期里亮度只摆动了 ${span.toFixed(3)} —— 涟漪根本没在传`);
+      ok(q.stars > 3000, `㉒c P22 只有 ${q.stars} 颗星 —— 场不成其为场`);
+      // 逐帧亮度突变（沿用 ⑲p7 同一档上限：整幅 4.0/255 · 8×8 分块 26/255）
+      const fl = await pg.evaluate(async (n) => {
+        window.deck.go(21); await new Promise(r => setTimeout(r, 1200));
+        const t = window.__labTour; t.pace(30); t.seek(0);
+        let prev = null, dMean = 0, dBlk = 0;
+        for (let i = 0; i < n; i++) {
+          const s2 = t.shot(8, 8);
+          if (prev) {
+            dMean = Math.max(dMean, Math.abs(s2.mean - prev.mean));
+            for (let k = 0; k < s2.blocks.length; k++)
+              dBlk = Math.max(dBlk, Math.abs(s2.blocks[k] - prev.blocks[k]));
+          }
+          prev = s2; t.step(1);
+        }
+        t.pace(0);
+        return { dMean, dBlk };
+      }, 150);
+      ok(fl.dMean <= 4.0, `㉒c P22 整幅亮度帧间跳变 ${fl.dMean.toFixed(3)}/255 > 4.0`);
+      ok(fl.dBlk <= 26.0, `㉒c P22 8×8 分块亮度帧间跳变 ${fl.dBlk.toFixed(3)}/255 > 26`);
+      console.log(`  · ㉒c P22 克制实测：墨量 ${i22.ink.toFixed(5)} = P1 的 ${
+        (i22.ink / i1.ink * 100).toFixed(1)}%（上限 60%）· 循环 ${q.cyc}s @ ${q.spd}px/s`
+        + `（A 档下限 77）· ${q.stars} 颗星 · 亮度速率 ${(dmax*4).toFixed(3)}/s（上限 .26）`
+        + ` · 周期内摆幅 ${span.toFixed(2)} · 逐帧跳变 整幅 ${fl.dMean.toFixed(3)} / 分块 ${
+          fl.dBlk.toFixed(3)}`);
+    }
+
+    // ── ㉒d · P5 底场墨量 ≤ 三卡的 25%（光度实测 · 有 / 无 canvas 两帧作差）──
+    {
+      await pg.evaluate(() => window.deck.go(4));
+      await pg.waitForTimeout(2400);
+      await pg.evaluate(() => { const t = window.__labTour; t.pace(30); t.seek(6); });
+      const cardBox = { x: 120, y: 300, width: 1680, height: 500 };
+      const fieldBox = { x: 120, y: 780, width: 1680, height: 124 };
+      const withGl = await pg.screenshot({ clip: fieldBox });
+      await pg.evaluate(() => { document.getElementById('labGl').style.visibility = 'hidden'; });
+      await pg.waitForTimeout(150);
+      const noGl = await pg.screenshot({ clip: fieldBox });
+      const cards = await pg.screenshot({ clip: cardBox });
+      await pg.evaluate(() => { document.getElementById('labGl').style.visibility = '';
+                                window.__labTour.pace(0); });
+      const raw = async (b) => (await sharp(b).removeAlpha().raw()
+        .toBuffer({ resolveWithObject: true }));
+      const [A, B, C] = await Promise.all([raw(withGl), raw(noGl), raw(cards)]);
+      let mad = 0;
+      for (let i = 0; i < A.data.length; i++) mad += Math.abs(A.data[i] - B.data[i]);
+      const fieldInk = mad / A.data.length / 255;
+      // 卡片墨量：相对**众数底色**的平均绝对偏差（众数 = 卡面白，偏差 = 字与卡边）
+      const hist = new Uint32Array(256);
+      for (let i = 0; i < C.data.length; i += 3) hist[C.data[i]]++;
+      let mode = 0; for (let v = 0; v < 256; v++) if (hist[v] > hist[mode]) mode = v;
+      let cad = 0;
+      for (let i = 0; i < C.data.length; i++) cad += Math.abs(C.data[i] - mode);
+      const cardInk = cad / C.data.length / 255;
+      ok(fieldInk <= cardInk * 0.25,
+         `㉒d P5 底场墨量 ${fieldInk.toFixed(5)} > 三卡墨量 ${cardInk.toFixed(5)} 的 25%`
+         + `（实测 ${(fieldInk / cardInk * 100).toFixed(1)}%）—— 底场是伴奏不是主角`);
+      ok(fieldInk > cardInk * 0.004,
+         `㉒d P5 底场墨量 ${fieldInk.toFixed(5)} 低到看不见了（卡片的 ${
+           (fieldInk / cardInk * 100).toFixed(2)}%）`);
+      console.log(`  · ㉒d P5 底场 / 卡片墨量 = ${fieldInk.toFixed(5)} / ${
+        cardInk.toFixed(5)} = ${(fieldInk / cardInk * 100).toFixed(1)}%（上限 25%）`);
+    }
+  }
+
   {
     // ── 版式分歧名册：六处，一处不多一处不少 ───────────────────────────
     const dv = await pg.evaluate(() => document.getElementById('deckStage').dataset.labDiverge);
@@ -1599,9 +1793,13 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
-    // 波A 30 股 8 页 → 波B 41 股 10 页（P2 +1 / P7 +1 / P10 +8 / P13 +1，见 _SPD_N）
-    ok(all.length === 41, `⑲s A 档股数 ${all.length} != 41`);
-    ok(rows.length === 10, `⑲s A 档页数 ${rows.length} != 10`);
+    // 波A 30 股 8 页 → 波B 41 股 10 页 → 三轮 61 股 13 页
+    //   （P5 底场 +7 / P15 六条支线 +6 / P16 通话流 +7，见 _SPD_N）
+    //   ⚠ P22 的涟漪**故意不在这张表里**：A 档管的是「介质」，末页的场是余韵 ——
+    //     它反过来上一道 ㉒c 闸「必须低于 A 档下限」。
+    ok(all.length === 61, `⑲s A 档股数 ${all.length} != 61`);
+    ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
+    ok(!rows.some(([p]) => p === 22), '⑲s P22 的涟漪进了 A 档表 —— 它不是介质');
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑲s P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -1679,6 +1877,12 @@ mkdirSync(OUT, { recursive: true });
   LAB_PAGES.forEach((P) => {
     const u = fb.per[P];
     ok(!u.glup, `⑲c 无 WebGL · P${P} 假装起来了（gl-up 还挂着）`);
+    if (ADDITIVE.includes(P)) {
+      // 加法层：降级层就是整页本身 —— 不该有 poster，而正文完整性由下面那条
+      // 「每页正文字数」的闸兜底（卡片 / logo / 文案一件不少）。
+      ok(u.posterOp.length === 0, `⑲c 无 WebGL · P${P} 加法层页挂了 poster`);
+      return;
+    }
     ok(u.posterOp.length >= 1 && u.posterOp.every(o => o === 1),
        `⑲c 无 WebGL · P${P} poster 没常驻（opacity=${u.posterOp}）`);
     ok(u.ink >= 3, `⑲c 无 WebGL · P${P} 降级层只有 ${u.ink} 个几何件 —— 这一页降不下去`);
