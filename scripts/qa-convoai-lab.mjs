@@ -25,6 +25,14 @@
 //   i  FPS 自动降级：默认 URL（软渲染 <20fps）2s 内退 poster；?lab=hold 则保持 LIVE
 //   j  双主题 × 逐 3D 页 WebGL 静置帧（各裁自己的图形区）+ 材质 token 真的分叉
 //   k  **翻页热切换**：P17 → P18 ⇒ 当前景换人 + 前一景确实走了 leave + gl-up 跟着搬家
+// 2026-09-01 二轮精修 · 波A（四页换血 + lab-kit ⑨ audioStream）新增：
+//   as 包络平滑度用**收敛阶**判据（步长减半：C² 掉 4×、折角只掉 2×），
+//      并**带反证** —— 旧的逐柱采样包络必须过不了这一闸，否则闸是空的
+//   s  全局流速复算：A 档 8 页 30 股全部落在 110 ±30%，且任一页内极差 ≤ 1.35×
+//   P6  符号行四段三处接缝严丝合缝 + 主路横贯全链 + token 高密度脉冲串
+//   P8  让位窗口 = 页上「收声」那段相位括号（840→1040，200px）+ 剖面 1→0
+//   P14 光束三段有序 / 等速 / 停驻窗口里三段常亮 / 收尾是「把光抽回去」
+//   P18 舞台横跨两图 + 左移 80 + mkRelock 的机器证明（屏点偏差 0）+ 两图墨迹间距 ≥200px
 // 用法：node scripts/qa-convoai-lab.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8777 node scripts/qa-convoai-lab.mjs   （换端口）
 //
@@ -940,7 +948,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   ok(dta.b.sway > 0 && dta.b.sway <= 15,
      `⑲h P17 摇摆 ±${dta.b.sway}° 越界 —— 侧视轮廓是构图身份，不许整圈转`);
   //   P18 四枚站点必须落在页上四条 DAY 刻度的 x 上
-  ok(String(dta.r.days) === '150,420,700,1060', `⑲h P18 站点 x 漂移：${dta.r.days}`);
+  //   （二轮精修 · 波A：整条曲线图**改坐标本身**左移 80 ⇒ 四条刻度一起走 80；
+  //    刻度与站点必须同步 —— 只走一边就等于站点指空了）
+  ok(String(dta.r.days) === '70,340,620,980', `⑲h P18 站点 x 漂移：${dta.r.days}`);
   ok(dta.r.turns >= 2 && dta.r.turns <= 4.5, `⑲h P18 圈数 ${dta.r.turns} 越界`);
   //   P7 事件柱 x 与滞回带 y 必须与页上一致
   ok(String(dta.t.pins) === '880,1380', `⑲h P7 SOS/EOS 事件 x 漂移：${dta.t.pins}`);
@@ -1107,6 +1117,190 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     // three 零外链：库文件只准指自托管路径
     ok(!/src="https?:\/\/(?!colinyao)/.test(html.split('<body')[0]), '⑲ head 里出现外链');
     ok(html.includes('"three":"/decks/assets/three/three.module.min.js"'), '⑲ importmap 未指自托管 three');
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     ⑲as / ⑲s / ⑲(P6,P8,P14,P18) —— 二轮精修 · 波A 的机器自证
+     ═════════════════════════════════════════════════════════════════════ */
+  // ── ⑲as 包络平滑度：**收敛阶**判据（不是量 max|Δ²| 的绝对值）─────────────
+  //   max|Δ²| 的绝对值随采样步长走，量它没有意义。真正区分「有角 / 没角」的是
+  //   **步长减半时它掉多少倍**：C² 光滑的函数掉 4×（O(h²)），折角只掉 2×（O(h)）。
+  //   闸里带反证 —— **旧的逐柱采样包络必须过不了这一闸**，否则这一闸是空的。
+  {
+    const u8 = await pg.evaluate(() => {
+      const el = document.querySelector('.lab-stage[data-lab-page="8"]');
+      return { as: el.dataset.labAs, hs: el.dataset.labHs, bar: el.dataset.labBar,
+               duck: el.dataset.labDuck, spd: el.dataset.labSpd };
+    });
+    const [aS, fS, phS, lamS] = u8.as.split('|');
+    const A = aS.split(',').map(Number), F = fS.split(',').map(Number);
+    const PH = phS.split(',').map(Number), LAM = +lamS;
+    ok(Math.abs(A.reduce((x, y) => x + y, 0) - 1) < 1e-9,
+       `⑲as 谐波权重未归一（Σa=${A.reduce((x, y) => x + y, 0)}）—— en 不再恒 ∈[0,1]，锯齿就回来了`);
+    for (let i = 0; i < F.length; i++) for (let j = i + 1; j < F.length; j++) {
+      const r = F[j] / F[i];
+      ok(Math.abs(r - Math.round(r)) > 0.05, `⑲as 谐波 ${i}/${j} 成整数比（${r}）—— 包络会齐步`);
+    }
+    // 新：解析包络（与着色器 envAt 逐字同式）
+    const envNew = (u) => { const k = 2 * Math.PI / LAM;
+      return 0.5 + 0.5 * A.reduce((s2, a, i) => s2 + a * Math.sin(k * F[i] * u + PH[i]), 0); };
+    // 旧：逐柱采样 + 线性插值（_P9HS 那张定高表本人）—— 反证用
+    const HS = u8.hs.split(',').map(Number), [BX, GAP] = u8.bar.split(',').map(Number);
+    const envOld = (u) => { const x = u + BX;
+      const k = Math.floor((x - BX) / GAP), t = ((x - BX) / GAP) % 1;
+      const a = HS[((k % HS.length) + HS.length) % HS.length];
+      const b2 = HS[(((k + 1) % HS.length) + HS.length) % HS.length];
+      return (a + (b2 - a) * t) / 2; };
+    const d2max = (f, hStep) => { let m = 0;
+      for (let u = 40; u < 1400; u += hStep)
+        m = Math.max(m, Math.abs(f(u - hStep) - 2 * f(u) + f(u + hStep)));
+      return m; };
+    const order = (f) => d2max(f, 0.5) / d2max(f, 0.25);
+    const oN = order(envNew), oO = order(envOld);
+    ok(oN > 3.6, `⑲as 新包络的收敛阶只有 ${oN.toFixed(2)}×（C² 光滑应 ≈4×）—— 还有折角`);
+    ok(oO < 2.6, `⑲as 反证失效：旧逐柱包络竟也拿到 ${oO.toFixed(2)}× —— 这一闸是空的`);
+    ok(oN / oO > 1.5, `⑲as 新旧包络的收敛阶没拉开（${oN.toFixed(2)} vs ${oO.toFixed(2)}）`);
+    console.log(`  · ⑲as 包络收敛阶：新 ${oN.toFixed(2)}× / 旧逐柱 ${oO.toFixed(2)}×（步长减半，C² 应掉 4×、折角只掉 2×）`);
+    // 让位窗口 = 页上「收声」那段相位括号（840→1040，200px），不是旧版 60px 断崖
+    const DK = u8.duck.split(',').map(Number);
+    ok(DK[0] === 840 && DK[1] === 1040, `⑲(P8) 让位窗口漂移：${u8.duck}`);
+    ok(DK[1] - DK[0] === 200, `⑲(P8) 让位窗口 ${DK[1] - DK[0]}px != 200`);
+    ok(DK[0] > dta.u.in && DK[1] === dta.u.cut,
+       `⑲(P8) 让位窗口没有落在「插话 → 收声」之间（${u8.duck} vs ${dta.u.in}/${dta.u.cut}）`);
+    const p8 = await pg.evaluate(async () => {
+      window.deck.go(7); await new Promise(r => setTimeout(r, 900));
+      const u = window.__labTour.unit(); return u && u.state ? u.state() : null; });
+    ok(p8 && p8.gA[0] > 0.98 && p8.gA[2] < 0.02 && Math.abs(p8.gA[1] - 0.5) < 0.02,
+       `⑲(P8) 让位剖面不是「窗口内 1→0」：${p8 && p8.gA}`);
+    ok(p8 && p8.spd.every(x => Math.abs(x - 110) < 1e-6),
+       `⑲(P8) 两条声轨的波峰速度不是 110px/s：${p8 && p8.spd}`);
+  }
+  // ── ⑲(P6) 符号行三处接缝：有缝就不是一条流 ─────────────────────────────
+  {
+    const c6 = await pg.evaluate(async () => {
+      const el = document.querySelector('.lab-stage[data-lab-page="6"]');
+      window.deck.go(5); await new Promise(r => setTimeout(r, 900));
+      const u = window.__labTour.unit();
+      return { seg: el.dataset.labSeg, seam: el.dataset.labSeam, span: el.dataset.labSpan,
+               tok: +el.dataset.labToken, st: u && u.state ? u.state() : null };
+    });
+    const SEG = c6.seg.split(';').map(r => r.split(',').map(Number));
+    ok(SEG.length === 4, `⑲(P6) 符号行 ${SEG.length} 段 != 4`);
+    for (let i = 0; i < 3; i++)
+      ok(SEG[i][1] === SEG[i + 1][0],
+         `⑲(P6) 第 ${i + 1} 处接缝有缝：${SEG[i][1]} → ${SEG[i + 1][0]} —— 那就不是一条流`);
+    ok(c6.seam === '452,752,1052', `⑲(P6) 接缝 x 漂移：${c6.seam}`);
+    ok(c6.span === '70,1610', `⑲(P6) 主路不是横贯全链（${c6.span}）`);
+    ok(c6.tok === 2, `⑲(P6) token 段下标漂移：${c6.tok}`);
+    ok(c6.st && c6.st.pulses >= 20,
+       `⑲(P6) token 脉冲串只有 ${c6.st && c6.st.pulses} 枚 —— 「高密度」不成立`);
+    ok(c6.st && String(c6.st.seam) === '452,752,1052',
+       `⑲(P6) 运行时的接缝与页上不一致：${c6.st && c6.st.seam}`);
+  }
+  // ── ⑲(P14) 光束三段有序与常亮 ─────────────────────────────────────────
+  {
+    const y14 = await pg.evaluate(() => {
+      const el = document.querySelector('.lab-stage[data-lab-page="14"]');
+      return { beam: +el.dataset.labBeam, route: el.dataset.labRoute.split(',').map(Number),
+               grow: +el.dataset.labGrow, hold: +el.dataset.labHold,
+               rel: +el.dataset.labRel, cyc: +el.dataset.labCyc };
+    });
+    ok(String(y14.route) === '634,634,1228', `⑲(P14) 三段路由长漂移：${y14.route}`);
+    ok(Math.abs(y14.route.reduce((a, b2) => a + b2, 0) / y14.beam - y14.grow) < 1e-6,
+       `⑲(P14) 生长时长不是「三段 ÷ ${y14.beam}px/s」（${y14.grow}）`);
+    ok(Math.abs(y14.cyc - (y14.grow + y14.hold + y14.rel)) < 1e-6,
+       `⑲(P14) 一轮 ${y14.cyc} != 生长 ${y14.grow} + 停驻 ${y14.hold} + 收 ${y14.rel}`);
+    ok(y14.hold >= 2, `⑲(P14) 全亮停驻 ${y14.hold}s < 2s —— 那一帧是本页的重点帧`);
+    const probe = await pg.evaluate(async (T) => {
+      window.deck.go(13); await new Promise(r => setTimeout(r, 1000));
+      document.querySelector('.slide.active').querySelectorAll('[data-step]')
+        .forEach(e => e.classList.add('on'));
+      const t = window.__labTour; t.pace(12);
+      const out = [];
+      for (const s2 of T){ t.seek(s2); out.push(t.unit().state()); }
+      t.pace(0);
+      return out;
+    }, [1.0, 2.5, 5.0, 7.0, 8.9]);
+    const [h1, h2, h3, h4, h5] = probe.map(p => p.head);
+    // 三段**有序**：任一时刻，前一段没走完，后一段就不许起步
+    probe.slice(0, 4).forEach((p, i) => {
+      for (let k = 1; k < 3; k++)
+        ok(p.head[k] === 0 || p.head[k - 1] >= p.route[k - 1] - 1e-6,
+           `⑲(P14) 第 ${k + 1} 段抢跑（t=${[1, 2.5, 5, 7][i]}s：${p.head.map(x => x.toFixed(0))}）`);
+    });
+    ok(h1[0] > 0 && h1[1] === 0 && h1[2] === 0, `⑲(P14) t=1.0s 不该只有第一段在走：${h1}`);
+    ok(h2[0] >= 634 - 1e-6 && h2[1] > 0 && h2[2] === 0, `⑲(P14) t=2.5s 时序不对：${h2}`);
+    ok(h3[0] >= 634 - 1e-6 && h3[1] >= 634 - 1e-6 && h3[2] > 0, `⑲(P14) t=5.0s 时序不对：${h3}`);
+    // **常亮**：停驻窗口里三段全部到顶（这就是「①②③ 都通了」那一帧）
+    ok(probe[3].done.every(x => x === 1), `⑲(P14) 停驻窗口里三段没有全亮：${probe[3].done}`);
+    // 三段**等速**：每段用时 = 段长 ÷ 同一档注光速度
+    const t2 = 2.5, t5 = 5.0;
+    ok(Math.abs(h2[1] / (t2 - y14.route[0] / y14.beam) - y14.beam) < 1e-3,
+       `⑲(P14) 第 2 段不是 ${y14.beam}px/s（${(h2[1] / (t2 - y14.route[0] / y14.beam)).toFixed(1)}）`);
+    ok(Math.abs(h3[2] / (t5 - (y14.route[0] + y14.route[1]) / y14.beam) - y14.beam) < 1e-3,
+       `⑲(P14) 第 3 段不是 ${y14.beam}px/s`);
+    ok(h5[0] < 634 && h5[0] > 0, `⑲(P14) 收尾段不是「把光抽回去」：${h5}`);
+    console.log(`  · ⑲(P14) 光束：三段 ${y14.route} ÷ ${y14.beam}px/s = 生长 ${y14.grow}s`
+      + ` → 全亮停驻 ${y14.hold}s → 收 ${y14.rel}s = 一轮 ${y14.cyc}s`);
+  }
+  // ── ⑲(P18) 投影锁 / relock 机器证明 / 两图墨迹间距下限 ─────────────────
+  {
+    const r18 = await pg.evaluate(async () => {
+      window.deck.go(17); await new Promise(r => setTimeout(r, 1000));
+      const el = document.querySelector('.lab-stage[data-lab-page="18"]');
+      const u = window.__labTour.unit();
+      // 两图墨迹间距：左图 svg 内容的右缘 → 右图 svg 内容的左缘（舞台像素）
+      const svgs = [...document.querySelectorAll('.slide[data-p="18"] .fig svg')];
+      const sc = document.querySelector('.slide[data-p="18"]')
+        .getBoundingClientRect().width / 1920;
+      const bx = svgs.map(s2 => { const b2 = s2.getBBox(), r2 = s2.getBoundingClientRect();
+        return { l: (r2.left + b2.x * sc) / sc, r: (r2.left + (b2.x + b2.width) * sc) / sc }; });
+      return { rect: el.dataset.labRect, shift: +el.dataset.labShift,
+               days: el.dataset.labDays, base: el.dataset.labBase, ring: el.dataset.labRing,
+               gap: bx.length === 2 ? bx[1].l - bx[0].r : -1,
+               leftInk: bx.length === 2 ? bx[0].l : -1,
+               st: u && u.state ? u.state() : null };
+    });
+    ok(r18.rect === '120,276,1680,310', `⑲(P18) 舞台没有横跨两图：${r18.rect}`);
+    ok(r18.shift === 80, `⑲(P18) 左移量漂移：${r18.shift}`);
+    ok(r18.days === '70,340,620,980', `⑲(P18) 四条 DAY 刻度 x 没跟着左移：${r18.days}`);
+    ok(r18.base === '70,160,980', `⑲(P18) 「真人销冠」基准虚线的两端漂移：${r18.base}`);
+    ok(r18.ring === '190,155,96', `⑲(P18) LOOP 环几何漂移：${r18.ring}`);
+    ok(r18.st && r18.st.D === 1500 && r18.st.D0 === 560,
+       `⑲(P18) 相机没有换到 D1500：${r18.st && [r18.st.D0, r18.st.D]}`);
+    // relock 的**机器证明**：新旧相机下的屏点与雾值偏差必须是 0（不是「小」，是 0）
+    ok(r18.st && r18.st.relockDev < 1e-6,
+       `⑲(P18) mkRelock 没有逐像素还原：屏点最大偏差 ${r18.st && r18.st.relockDev}px`);
+    ok(r18.st && r18.st.fogDev < 1e-9,
+       `⑲(P18) mkRelock 之后深度雾变了：${r18.st && r18.st.fogDev}`);
+    // 两图墨迹间距下限：终审「两张图偏挤」—— 改前 ≈140px，本波必须 ≥ 200px
+    ok(r18.gap >= 200, `⑲(P18) 两图墨迹间距 ${r18.gap.toFixed(0)}px < 200 —— LOOP 还是被挤着`);
+    // 左移之后最左墨迹仍须稳在版心（120）之内
+    ok(r18.leftInk >= 0, `⑲(P18) 左图墨迹越过 figbox 左缘（${r18.leftInk.toFixed(1)}）`);
+    console.log(`  · ⑲(P18) 两图墨迹间距 ${r18.gap.toFixed(0)}px（左移 ${r18.shift}px）`
+      + ` · relock 屏点偏差 ${r18.st.relockDev.toExponential(1)}px（D${r18.st.D0}→D${r18.st.D}）`);
+  }
+  // ── ⑲s 全局流速复算：A 档 30 股全部落在 110 ±30% ───────────────────────
+  {
+    const rows = await pg.evaluate(() => [...document.querySelectorAll('.lab-stage[data-lab-spd]')]
+      .map(el => [+el.dataset.labPage, el.dataset.labSpd]));
+    const all = [];
+    rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
+      .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
+    ok(all.length === 30, `⑲s A 档股数 ${all.length} != 30`);
+    ok(rows.length === 8, `⑲s A 档页数 ${rows.length} != 8`);
+    all.forEach(r => ok(r.v >= 77 && r.v <= 143,
+      `⑲s P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
+    const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
+    ok(hi / lo <= 1.5, `⑲s 全局极差 ${(hi / lo).toFixed(2)}× —— 同一条河不该有这么大落差`);
+    console.log(`  · ⑲s 全局流速：${rows.length} 页 ${all.length} 股 · ${lo}–${hi}px/s · 极差 ${(hi / lo).toFixed(2)}×`);
+    // 同页之内也不许有「重要 = 快」的错觉：任一页内极差 ≤ 1.35×
+    rows.forEach(([p, s2]) => {
+      const v = s2.split(';').filter(Boolean).map(r => +r.split(',')[1]);
+      ok(Math.max(...v) / Math.min(...v) <= 1.35,
+         `⑲s P${p} 页内极差 ${(Math.max(...v) / Math.min(...v)).toFixed(2)}× —— 同页快慢会被读成主次`);
+    });
   }
 
   // ── P1 kicker 必须挂上家族名（LAB 演绎的唯一一处正文改动）──
