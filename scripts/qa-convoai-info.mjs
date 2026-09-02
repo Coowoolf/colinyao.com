@@ -37,7 +37,10 @@ import { mkdirSync } from 'fs';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 8;
-const EXP_STEPS = [0, 0, 0, 1, 1, 0, 1, 0];
+// v3 波A：P2 / P3 各多一枚**细节层**（该页的 data-step=1）⇒ 分步页从三页变五页
+const EXP_STEPS = [0, 1, 1, 1, 1, 0, 1, 0];
+// 有细节层的页（细节层 = 该页 data-step=1 的那枚 .detail 面板）
+const DETAIL_PAGES = [2, 3];
 const BOARD = { 1: 'title' };            // 其余一律 content
 // P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
 // （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
@@ -54,13 +57,18 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   3D 坐在标题右侧那条空带上，poster 是构建期离线投影出来的一枚**无字 figbox**。
 //   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
-const LAB_SCENES = { 1: 'voice', 2: 'band', 3: 'grow', 4: 'release', 5: 'agent', 6: 'exit', 8: 'river' };
+const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'release', 5: 'agent', 6: 'exit', 8: 'river' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // 逐页语义审查判定保持 2D：P7 定稿五层生态图（底图是 .pp 里的 <img>）—— 故意不在表里
 const FLAT_PAGES = [7];
-// P1 走构建期离线投影出来的**全屏专用** poster；另外六页的 poster 都在 .pp 里：
-// 五页是「页上原来那张 SVG」，P6 是加法层自己的那枚无字 figbox（同样在 .pp 里）
-const INPAGE = LAB_PAGES.filter(p => p !== 1);
+// P1 声场球 / P2 地球走构建期离线投影出来的**全屏专用** poster（落在舞台里）；
+// 另外四页的 poster 都在 .pp 里：三页是「页上原来那张 SVG」，P6 是加法层自己的
+// 那枚无字 figbox（同样在 .pp 里）
+const INPAGE = LAB_PAGES.filter(p => p !== 1 && p !== 2);
+// ⑳clr 的「两条算路对表」只对 px 投影锁场景 —— P1 声场球 / P2 地球是**球面场景**
+// （camSphere），没有 unlock/geoClr 那套机制、也不交 state().clr。
+// 地球的净空由 ⑳globe 单独验（弧外包络圆 vs 页上字形行框）。
+const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -391,7 +399,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const covers = (b2, g, tol) =>
       g[0] >= b2[0] - tol && g[1] >= b2[1] - tol
       && g[0] + g[2] <= b2[0] + b2[2] + tol && g[1] + g[3] <= b2[1] + b2[3] + tol;
-    for (const P of LAB_PAGES.filter(p => p !== 1)) {
+    for (const P of CLR_PAGES) {
       await pg.evaluate(k => window.deck.go(k - 1), P);
       await pg.waitForTimeout(2400);
       const D = await pg.evaluate((k) => {
@@ -405,6 +413,9 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
         let t;
         while ((t = w.nextNode())) {
           if (!t.textContent.trim()) continue;
+          // 细节层（.detail）压在 canvas **之上**，3D 压不到它 ⇒ 不进净空名册。
+          // 与 builder 的 _INK 是同一把尺（那边也不登记面板内的字）。
+          if (t.parentElement && t.parentElement.closest('.detail')) continue;
           const r = document.createRange(); r.selectNodeContents(t);
           for (const q of r.getClientRects()) {
             if (q.width <= 1 || q.height <= 1) continue;
@@ -425,7 +436,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       ok(Math.abs(D.st.clr - D.clrMin) <= 0.5,
          `⑳clr P${P} 两条算路分叉：构建期解析 ${D.clrMin}px vs 运行时逐顶点 ${D.st.clr.toFixed(2)}px`);
       // 名册 × 活 DOM：矩形内每一处字形行框都得被名册（或已知穿越名册）盖住
-      const SKIP = { 8: [[150, 332, 140.9, 17], [150, 532, 133.4, 17], [150, 732, 167.5, 17]] };
+      const SKIP = { 8: [[168, 597, 189.9, 19]] };   // v3：只剩支流3 那一行被 2D 曲线本来就穿过
       const reg = D.ink.concat(SKIP[P] || []);
       const miss = D.gs.filter(g => !reg.some(b2 => covers(b2, g, 3)));
       ok(miss.length === 0,
@@ -434,6 +445,57 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       console.log(`  · ⑳clr P${P}（${LAB_SCENES[P]}）：字形 ${D.gs.length} 处 ⊂ 名册 ${
         reg.length} 只 · 净空 ${D.st.clr.toFixed(2)}px（声明 ${D.clrMin} · 下限 ${D.clr}）`);
     }
+  }
+
+  /* ── ⑳globe P2 地球的净空（球面场景专用通道）─────────────────────────────
+     地球没有 px 投影锁，交不出 state().clr ⇒ 它走这一条：把「弧的外包络圆」
+     （心 = data-lab-globe 的球心，半径 = data-lab-genv）拿去逐处量页上的字形行框，
+     下限 16px（加法层规则 —— 页上这块地本来没有图）。
+     同时与 builder 的解析算路对表（data-lab-clr-min），两头必须给出同一个数。
+     ⚠ 跳过 .detail 子树：细节层压在 canvas 之上，3D 压不到它。 */
+  {
+    await pg.evaluate(() => window.deck.go(1));
+    await pg.waitForTimeout(2000);
+    const G = await pg.evaluate(() => {
+      const d = document.getElementById('labStage2').dataset;
+      const gl = (d.labGlobe || '').split(',').map(Number);
+      const env = +d.labGenv;
+      const s = document.querySelector('.slide[data-p="2"]');
+      const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+      const K = sc.width / 1920;
+      const w = document.createTreeWalker(s.querySelector('.pp'), NodeFilter.SHOW_TEXT);
+      let t, worst = 1e9, at = null, n = 0;
+      const dist = (b) => {           // 圆心到字形盒的最短距离 − 包络半径
+        const dx = Math.max(b[0] - gl[0], 0, gl[0] - (b[0] + b[2]));
+        const dy = Math.max(b[1] - gl[1], 0, gl[1] - (b[1] + b[3]));
+        return Math.hypot(dx, dy) - env;
+      };
+      while ((t = w.nextNode())) {
+        if (!t.textContent.trim()) continue;
+        if (t.parentElement && t.parentElement.closest('.detail')) continue;
+        const r = document.createRange(); r.selectNodeContents(t);
+        for (const q of r.getClientRects()) {
+          if (q.width <= 1 || q.height <= 1) continue;
+          const b = [(q.x - sc.x) / K, (q.y - sc.y) / K, q.width / K, q.height / K];
+          n++;
+          const dd = dist(b);
+          if (dd < worst) { worst = dd; at = b.map(v => Math.round(v)); }
+        }
+      }
+      return { gl, env, worst, at, n, clr: +d.labClr, clrMin: +d.labClrMin,
+               mode: document.getElementById('labGl').dataset.labMode,
+               page: +document.getElementById('labGl').dataset.labPage };
+    });
+    ok(G.mode === 'LIVE' && G.page === 2, `⑳globe P2 不在 WebGL 态（${G.mode}/${G.page}）`);
+    ok(Math.abs(G.env - 312.06) < 0.5, `⑳globe 弧外包络半径 ${G.env} != 312.06`);
+    ok(G.gl.length === 3 && G.gl[0] === 1470 && G.gl[1] === 500 && G.gl[2] === 250,
+       `⑳globe 球心/半径漂移：[${G.gl}]`);
+    ok(G.worst >= G.clr, `⑳globe 地球压字：最近一处字形行框 ${G.worst.toFixed(1)}px `
+       + `< 下限 ${G.clr}px（${G.at}）`);
+    ok(Math.abs(G.worst - G.clrMin) <= 1.0,
+       `⑳globe 两条算路分叉：构建期解析 ${G.clrMin}px vs 活 DOM ${G.worst.toFixed(2)}px`);
+    console.log(`  · ⑳globe P2：字形 ${G.n} 处 · 弧外包络 R=${G.env} · 最近净空 `
+      + `${G.worst.toFixed(1)}px（声明 ${G.clrMin} · 下限 ${G.clr}）`);
   }
 
   // ── ⑳chip P4 的 hot 是抽屉 chip：它绝不许被 3D 压 ────────────────────────
@@ -468,8 +530,8 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    ok(all.length === 14, `⑳spd A 档股数 ${all.length} != 14`);
-    ok(rows.length === 6, `⑳spd A 档页数 ${rows.length} != 6（P1 声场球不是介质，不进表）`);
+    ok(all.length === 13, `⑳spd A 档股数 ${all.length} != 13`);
+    ok(rows.length === 5, `⑳spd A 档页数 ${rows.length} != 5（P1 声场球 / P2 地球不是介质，不进表）`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -525,6 +587,102 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     }
     console.log(`  · ⑳flick 消闪：${LAB_PAGES.length} 页 × 48 帧逐帧亮度突变全部在档内`);
   }
+}
+
+/* ═══ ⑰ 面板闸 · 细节层（v3 新机制）══════════════════════════════════════════
+   每一枚细节层面板逐条验四件事：
+     ① 收起态：面板挂在该页 data-step="1" 上、opacity 0、不吃指针；
+     ② chip「细节 ⏎」按下 ⇒ 面板可见（opacity 1 · deck.step=1 · BUILD 指示器亮 1 格）；
+     ③ 展开态**不压** land / SOURCE / 页码（三只盒逐一做 AABB 相交判定）；
+     ④ Esc 收回；→ 再展开、← 再收回（面板不是另一套开关，就是家族既有的步进）。
+   ⚠ ⑳clr 的净空是按面板**收起态**量的（面板压在 canvas 之上，与 3D 压字无关）——
+     这一条与 ⑳clr 是两条独立的闸，别混。 */
+{
+  const hit = (a, b2, tol) =>
+    a[0] < b2[0] + b2[2] - tol && a[0] + a[2] > b2[0] + tol
+    && a[1] < b2[1] + b2[3] - tol && a[1] + a[3] > b2[1] + tol;
+  for (const P of DETAIL_PAGES) {
+    await pg.evaluate(() => { document.activeElement?.blur(); });
+    await pg.evaluate((k) => { location.hash = '#' + k; }, P);
+    await pg.waitForTimeout(1200);
+    const R = () => pg.evaluate((k) => {
+      const s = document.querySelector(`.slide[data-p="${k}"]`);
+      const sc = document.querySelector('.deck-stage').getBoundingClientRect();
+      const K = sc.width / 1920;
+      const box = (el) => { if (!el) return null; const q = el.getBoundingClientRect();
+        return [(q.x - sc.x) / K, (q.y - sc.y) / K, q.width / K, q.height / K]; };
+      const d = s.querySelector('.detail');
+      const chip = s.querySelector('.chip-detail');
+      return {
+        has: !!d, n: s.querySelectorAll('.detail').length,
+        step: d ? +d.dataset.step : null, on: d ? d.classList.contains('on') : null,
+        op: d ? +getComputedStyle(d).opacity : null,
+        pe: d ? getComputedStyle(d).pointerEvents : null,
+        disp: d ? getComputedStyle(d).display : null,
+        panel: box(d), land: box(s.querySelector('.land')),
+        src: box(s.querySelector('.src')), sig: box(s.querySelector('.sig')),
+        chipVis: chip ? (getComputedStyle(chip).display !== 'none' && +getComputedStyle(chip).opacity > .01) : false,
+        chipTxt: chip ? chip.textContent.trim() : null,
+        chipBox: box(chip),
+        deckStep: window.deck.step, maxStep: window.deck.maxStep[k - 1],
+        buildOn: document.getElementById('deckSteps').classList.contains('on'),
+      };
+    }, P);
+    // ① 收起态
+    let v = await R();
+    ok(v.has && v.n === 1, `⑰ P${P} 细节层面板数 ${v.n} != 1`);
+    ok(v.step === 1, `⑰ P${P} 细节层没挂在 data-step="1" 上（=${v.step}）`);
+    ok(v.maxStep === 1, `⑰ P${P} deck 认到的分步数 ${v.maxStep} != 1`);
+    ok(!v.on && v.op < 0.02, `⑰ P${P} 面板默认没收起（on=${v.on} opacity=${v.op}）`);
+    ok(v.pe === 'none', `⑰ P${P} 收起态面板还在吃指针（pointer-events=${v.pe}）`);
+    ok(v.chipVis, `⑰ P${P} 细节层入口 chip 不可见`);
+    ok(/细节/.test(v.chipTxt || '') && /⏎/.test(v.chipTxt || ''),
+       `⑰ P${P} chip 文案不符「${v.chipTxt}」`);
+    ok(v.panel[2] <= 760 + 1 && v.panel[3] <= 640 + 1,
+       `⑰ P${P} 面板 ${v.panel[2]}×${v.panel[3]} 越过 760×640`);
+    // ② chip 按下 ⇒ 展开
+    await pg.click(`.slide[data-p="${P}"] .chip-detail`);
+    await pg.waitForTimeout(700);
+    v = await R();
+    ok(v.on && v.op > 0.98, `⑰ P${P} chip 按下后面板没展开（on=${v.on} opacity=${v.op}）`);
+    ok(v.deckStep === 1, `⑰ P${P} chip 没走 deck 的第 1 步（step=${v.deckStep}）`);
+    ok(v.buildOn, `⑰ P${P} BUILD 指示器没亮`);
+    // ③ 展开态不压 land / SOURCE / 页码
+    [['land', v.land], ['SOURCE', v.src], ['页码', v.sig]].forEach(([nm, b2]) => {
+      if (!b2) return;
+      ok(!hit(v.panel, b2, 0.5),
+         `⑰ P${P} 展开态面板压住了 ${nm}（面板 [${v.panel.map(x => Math.round(x))}] `
+         + `vs [${b2.map(x => Math.round(x))}]）`);
+    });
+    ok(v.panel[0] >= 0 && v.panel[1] >= 0 && v.panel[0] + v.panel[2] <= 1920
+       && v.panel[1] + v.panel[3] <= 1080, `⑰ P${P} 面板出画布 [${v.panel}]`);
+    // ④ Esc 收回 → → 再展开 → ← 再收回
+    await pg.keyboard.press('Escape');
+    await pg.waitForTimeout(500);
+    v = await R();
+    ok(!v.on && v.deckStep === 0, `⑰ P${P} Esc 没收回面板（on=${v.on} step=${v.deckStep}）`);
+    await pg.keyboard.press('ArrowRight');
+    await pg.waitForTimeout(500);
+    v = await R();
+    ok(v.on && v.deckStep === 1, `⑰ P${P} → 没把面板推上来（step=${v.deckStep}）`);
+    await pg.keyboard.press('ArrowLeft');
+    await pg.waitForTimeout(500);
+    v = await R();
+    ok(!v.on && v.deckStep === 0, `⑰ P${P} ← 没把面板收回（step=${v.deckStep}）`);
+    console.log(`  · ⑰ 面板闸 P${P}：收起/展开/Esc/→/← 五态全过 · 面板 `
+      + `${Math.round(v.panel[2])}×${Math.round(v.panel[3])}`);
+  }
+  // 只有 DETAIL_PAGES 有面板：别的页一枚都不许有
+  const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide')]
+    .map((s, i) => [i + 1, s.querySelectorAll('.detail').length]).filter(r => r[1]));
+  ok(JSON.stringify(stray.map(r => r[0])) === JSON.stringify(DETAIL_PAGES),
+     `⑰ 细节层落点漂移：${JSON.stringify(stray)} != ${JSON.stringify(DETAIL_PAGES)}`);
+  // print 语域：面板不上纸（按需内容不上纸）
+  await pg.emulateMedia({ media: 'print' });
+  const pm = await pg.evaluate(() => [...document.querySelectorAll('.detail')]
+    .map(e => getComputedStyle(e).display));
+  await pg.emulateMedia({ media: 'screen' });
+  ok(pm.length === 2 && pm.every(d => d === 'none'), `⑰ print 语域面板没藏（${pm}）`);
 }
 
 // ⑪ 引擎详解抽屉：chip → Enter 展开 → Esc 收回 → deck 按键恢复 → 引擎 deck 自身可达
@@ -951,7 +1109,8 @@ if (THEME !== 'dark') {
         const cs = getComputedStyle(document.documentElement);
         return { vInk: cs.getPropertyValue('--v-ink').trim(),
                  vAdd: cs.getPropertyValue('--v-add').trim(),
-                 tlAdd: cs.getPropertyValue('--tl-add').trim(),
+                 gOcean: cs.getPropertyValue('--g-ocean').trim(),
+                 gHaloAdd: cs.getPropertyValue('--g-halo-add').trim(),
                  rvAdd: cs.getPropertyValue('--rv-add').trim(),
                  vBack: cs.getPropertyValue('--v-back').trim() };
       });
@@ -960,7 +1119,8 @@ if (THEME !== 'dark') {
     await b5.close();
     ok(tok.light.vInk !== tok.dark.vInk, `⑲j 声场球点色两主题相同（--v-ink=${tok.light.vInk}）`);
     ok(tok.light.vAdd !== tok.dark.vAdd, '⑲j 混合模式两主题相同（--v-add）');
-    ok(tok.light.tlAdd !== tok.dark.tlAdd, '⑲j 活动带混合模式两主题相同（--tl-add）');
+    ok(tok.light.gOcean !== tok.dark.gOcean, `⑲j 地球海球色两主题相同（--g-ocean=${tok.light.gOcean}）`);
+  ok(tok.light.gHaloAdd !== tok.dark.gHaloAdd, '⑲j 地球光晕混合模式两主题相同（--g-halo-add）');
     ok(tok.light.rvAdd !== tok.dark.rvAdd, '⑲j 合流页混合模式两主题相同（--rv-add）');
     const rows = LAB_PAGES.map(P => [P, ink[P].light / ink[P].dark]);
     rows.forEach(([P, r]) => ok(r >= 0.90,
@@ -972,7 +1132,8 @@ if (THEME !== 'dark') {
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P4/P5/P7 各 1 步 · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 / A 档 14 股 / 禁 WebGL 8 页可读`);
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2/P3/P4/P5/P7 各 1 步（P2/P3 = 细节层）`
+                           + ` · 深链 P4→#1 / P5→#16 / P6→#19`
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 13 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);

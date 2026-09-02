@@ -194,11 +194,11 @@ def _cutmod(a, b=None, head=True):
 # lab-kit ①②③④（主题色桥 / 缓动 / 折线工具 / px 场景材质）——「场景 registry」之前的全部
 _K_BASE = _cutmod("import * as THREE from 'three';", "function makeVoice(ctx){", head=False)
 _K_BASE = _K_BASE[:_K_BASE.rfind("\n/* ═")]        # 尾巴那段大注释归 _K_VOICE，不许重复一遍
-# 旗舰的 OrbitControls 只有地球那一枚场景在用；本 deck 没有地球 ⇒ 连这枚外链一起省掉
-_K_BASE = _K_BASE.replace(
-    "import { OrbitControls } from '/decks/assets/three/OrbitControls.js';\n", "")
-assert "OrbitControls" not in _K_BASE
+# v3：P2 换成 SD-RTN 地球 ⇒ OrbitControls 那枚外链**留着**（makeGlobe 现取，它要用）。
+# 全路径外链，不进 importmap（旗舰同写法）。
+assert "import { OrbitControls } from '/decks/assets/three/OrbitControls.js';" in _K_BASE
 _K_VOICE = _cutmod("function makeVoice(ctx){", "function makeGlobe(ctx){")
+_K_GLOBE = _cutmod("function makeGlobe(ctx){", "function makeBrain(ctx){")   # ② SD-RTN 地球
 _K_LOCK = _cutmod("function mkLock(w, h, D){", "const AS = K.as;")          # ⑤ 投影锁套件
 _K_AS = _cutmod("const AS = K.as;", "const MO = K.o;")                      # ⑨ audioStream
 _K_CLR = _cutmod("function unlock(w, h, D, rect){", "const QT_VS = [")      # ㉒ 净空三小件
@@ -208,8 +208,17 @@ for _need, _in in (("function mkStream(SH, pts, opt)", _K_AS),
                    ("function extrudeBack(", _K_LOCK),
                    ("function geoClr(geo, U, ink, pad)", _K_CLR),
                    ("function camPx(w,h,D)", _K_BASE),
+                   ("function camSphere(w,h,C)", _K_BASE),
+                   ("const controls = new OrbitControls(camera, ctx.canvas);", _K_GLOBE),
                    ("TOUR.pace = function(fps)", _K_TOUR)):
     assert _need in _in, "lab 地基件缺失：%s" % _need
+# 地球的 K 表常量（位掩码陆地 / 示意节点 / 取道表 / 三组弧相位）—— 模块常量现取，
+# 一个数都不在本文件里重写；poster 也直接用旗舰算好的那一份 `_LAB.GPOSTER`。
+_G_KEYS = ("LAND_BITS", "LAND_N", "NODE_TABLE", "ROUTE_TABLE",
+           "ARC_DUR_S", "ARC_GAP_S", "ARC_OFF_S", "GPOSTER", "GCAM",
+           "GGR", "GCX", "GCY", "GTILT", "GY0", "GSPIN", "GINTRO")
+for _k in _G_KEYS:
+    assert hasattr(_LAB, _k), "lab 地球常量缺失：%s" % _k
 
 # ── ⑦ 走出屏幕（P6 · 加法层）· 几何全部是新写的（页上本来没有图）──────────────
 #   语义：标题「让对话，走出屏幕。」的**图解**，不是装饰。
@@ -260,13 +269,15 @@ _EX_DOT = (_EX_XFRAME, 50.0, 0.0)         # 出口那一枚点（meet 写法：a
 #     所以 figure 坐标 → 舞台像素**有缩放**（见各页的 _S2 / _S5）。
 LAB_RECTS = {
     1: ("voice",  1305,  328,  500,  500),   # 球心 (1555,578) 居中 —— 与 lab P1 逐字同参
-    2: ("band",    120,  866, 1680,  114),   # = figbox(120,866,1680, vb1620×110) ⇒ ×1.037
-    3: ("grow",    120,  272, 1680,  480),   # = figbox(120,272,1680, vb1680×480) ⇒ ×1
+    # v3：P2 换成 **SD-RTN 地球**（lab P21 的矩形逐字同参：球心 (1470,500) 居中，
+    # 弧顶 1.243r=310.75 仍在 320 半宽之内）。左栏四大数占 x120–1050，与球留 100px。
+    2: ("globe",  1150,  180,  640,  640),
+    3: ("grow",    120,  272, 1680,  600),   # v3 全舞台 = figbox(120,272,1680, vb1680×600)
     4: ("release", 120,  268, 1440,  120),   # = figbox(120,268,1440, vb1440×120) ⇒ ×1
     5: ("agent",   980,  514,  820,  322),   # = figbox(980,514,820, vb840×330)  ⇒ ×0.97619
     # ⑦ 加法层（第二波）：标题右侧那条空带 —— 页上本来没有图，vb 与盒同宽 ⇒ ×1
     6: ("exit",    740,  140, 1060,  100),
-    8: ("river",   120,  272,  820,  560),   # = figbox(120,272,820, vb820×560)  ⇒ ×1
+    8: ("river",   120,  272, 1680,  420),   # v3 全舞台 = figbox(120,272,1680, vb1680×420)
 }
 if P1_MODE == "art":                       # 对比版：封面让给位图，P1 不入场景表
     del LAB_RECTS[1]
@@ -330,6 +341,21 @@ LAB_PRELUDE = _LAB.LAB_PRELUDE          # ① classic 前奏 + FPS 探针位 + i
 _LAB_TAIL = _LAB.LAB_CSS[_LAB.LAB_CSS.index("/* ── 舞台层"):]
 assert _LAB_TAIL.endswith("</style>")
 
+
+def _lab_gvars(a, b):
+    """地球的材质 token **从旗舰现取**（一处改两处一起动）：从 lab 的 :root / dark
+       两段里各切下 `--g-*` 那一小块，一个数都不在本文件里重抄。"""
+    s = _LAB.LAB_CSS
+    i = s.index(a)
+    j = s.index(b, i)
+    out = s[i:j]
+    assert "--g-ocean" in out and "--g-poster-node" in out, "lab 的地球 token 块改结构了"
+    return out
+
+
+_G_LIGHT = _lab_gvars("  /* ── 地球 · 浅底", "  /* ── ③ 大脑点云")
+_G_DARK = _lab_gvars("  /* ── 地球 · 暗底", "  /* ── 大脑 · 暗底")
+
 LAB_CSS = """<style id="convoai-info-3d">
 :root{
   /* ── ① 声场球（P1 封面）· 浅底 ──
@@ -344,15 +370,7 @@ LAB_CSS = """<style id="convoai-info-3d">
   --v-back:.46;            --v-add:0;
   --v-atmo:var(--accent);  --v-atmo-int:.06;
   --v-poster-dot:2.8;
-  /* ── ② 发布时间线活动带（P2）· 浅底 = 纸面上的墨带 ── */
-  --tl-flow:var(--accent);      --tl-flow-op:.62;
-  --tl-rms:var(--accent-deep);  --tl-rms-op:.72;
-  --tl-axis:var(--ink-3);       --tl-axis-op:.85;
-  /* 点径 = 页上那两枚圆的直径（r7 / r8）—— 3D 与它替换掉的 2D 同尺寸 */
-  --tl-node:var(--ink-2);       --tl-node-op:.92; --tl-node-size:14;
-  --tl-hot:var(--accent);       --tl-hot-op:1;    --tl-hot-size:16;
-  --tl-add:0;
-  /* ── ③ 空间生长（P3）· 浅底 ── */
+""" + _G_LIGHT + """  /* ── ③ 空间生长（P3）· 浅底 ── */
   --gw-base:var(--accent);      --gw-base-op:.90;
   --gw-deck:var(--accent-deep); --gw-deck-op:.46;
   --gw-rib:var(--ink-3);        --gw-rib-op:.52;
@@ -393,8 +411,8 @@ LAB_CSS = """<style id="convoai-info-3d">
   --rv-trib-op:.78;             --rv-trib-rms-op:.80;
   --rv-bed:var(--accent);       --rv-bed-op:.34;
   --rv-rail:var(--accent);      --rv-rail-op:.88;
-  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
-  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
+  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:14;
+  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:20;
   --rv-add:0;
   /* ── ⑦ 走出屏幕（P6 · 全 deck 唯一的加法层）· 浅底 ──
      媒介与全家族同一种（audioStream · λ232 · 110px/s）；峰值色取 Physical AI 页的
@@ -415,13 +433,7 @@ html[data-theme="dark"]{
   --v-back:.26;            --v-add:1;
   --v-atmo:var(--accent);  --v-atmo-int:.17;
   --v-poster-dot:2.6;
-  --tl-flow:var(--accent);      --tl-flow-op:.52;
-  --tl-rms:var(--ink);          --tl-rms-op:.55;
-  --tl-axis:var(--ink-3);       --tl-axis-op:.62;
-  --tl-node:var(--ink-2);       --tl-node-op:.86; --tl-node-size:14;
-  --tl-hot:var(--accent);       --tl-hot-op:1;    --tl-hot-size:16;
-  --tl-add:1;
-  --gw-base:var(--accent);      --gw-base-op:.92;
+""" + _G_DARK + """  --gw-base:var(--accent);      --gw-base-op:.92;
   --gw-deck:var(--accent-deep); --gw-deck-op:.26;
   --gw-rib:var(--ink-3);        --gw-rib-op:.36;
   --gw-box:var(--ink-3);        --gw-box-op:.62;
@@ -452,8 +464,8 @@ html[data-theme="dark"]{
   --rv-trib-op:.56;             --rv-trib-rms-op:.55;
   --rv-bed:var(--accent);       --rv-bed-op:.22;
   --rv-rail:var(--accent);      --rv-rail-op:.90;
-  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
-  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
+  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:14;
+  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:20;
   --rv-add:1;
   /* 暗底实芯本来就是白芯 —— 身份由峰值色（--l-phys）承担，与 P3/P8 同一档 */
   --ex-frame:var(--ink-3);      --ex-frame-op:.62;
@@ -739,6 +751,37 @@ html:not([data-theme="dark"]) .r1-shot{box-shadow:inset 0 0 0 1px rgba(17,17,17,
 html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
 @media print{.r1-shot{box-shadow:none;}}
 
+/* ═══ P2 · 半屏 KPI 卡（四大数 2×2 · 逐字取自 lab P21 的 .lab-kpi）════════════
+   四张卡从「一行四张 × 1680 宽」改成「2×2 × 930 宽」之后卡内高度成了瓶颈：
+   家族 .card 的 30/32 padding + gap 13 在 196px 的行高里差 7px。这里把它收到
+   24/26 + gap 10（**只动白边**），80px 的数字与 20px 的说明一个像素不改。 */
+.lab-kpi .card{padding:24px 26px;gap:10px;}
+
+/* ═══ 细节层 ·「密的东西进抽屉」（v3 新机制 · 每页至多一枚）═══════════════════
+   .detail 面板 = 该页的 data-step="1"：默认收起，按 → / 空格 / chip 展开（BUILD
+   指示器自然显示 1 步），Esc / ← 收回。展开态是一块从右侧滑入的卡（宽 ≤760 ·
+   高 ≤640 · --card-bg 92% 不透明），盖在主图右半之上；3D 照跑 —— canvas 坐在 .pp
+   之下，面板在 .pp 里，天然压在它之上。
+   ⚠ 收起态**只走 opacity / clip-path**（motion.css 的 .flow.rev 那一路），不写
+     display:none —— 写了就把「滑入」与「离线归档照常可按键展开」一起弄没了。
+     收起态 pointer-events:none：面板压在图上，收起时不许吃走点击。
+   ⚠ 面板内容仍在该 slide 的 DOM 里 ⇒ ⑫⑭⑮ 的字串闸门照过。
+   ⚠ ⑳clr 的墨迹名册**不登记面板内的字**：面板压在 canvas 之上，3D 压不到它；
+     qa 的 ⑳clr-a 文字遍历同步跳过 .detail 子树（两头一把尺，见 qa 里的注）。
+   ⚠ @media print：面板 display:none —— 按需内容不上纸。 */
+.detail{background:color-mix(in srgb,var(--card-bg-2) 92%,transparent);
+  border:1px solid var(--hair);border-radius:18px;padding:24px 30px 22px;
+  box-shadow:0 26px 64px rgba(11,14,28,.16);}
+html[data-theme="dark"] .detail{box-shadow:0 26px 64px rgba(0,0,0,.46);}
+/* `.pp .sh{overflow:visible}`（0,2,0）压过 `.detail{overflow:hidden}`（0,1,0） */
+.pp .sh.detail{overflow:hidden;}
+.detail:not(.on){pointer-events:none;}
+.d-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;}
+.d-head .esc{margin-left:auto;font:500 12px/1 var(--f-mono);letter-spacing:.14em;
+  color:var(--ink-3);}
+.d-sec{margin-top:18px;}
+@media print{.detail{display:none!important;}}
+
 /* ═══ 引擎详解抽屉（P4 / P5 / P6 三个入口 · 视口级 overlay）═════════════════
    触发 chip：形制与 .chip 家族一字不差，只把描边/文字换成 accent。
    position:relative 是给 .hot-ring 用的（P4 的 hot 件 = 抽屉 chip）。 */
@@ -828,6 +871,33 @@ def land(txt, y=988, x=120, w=1680, i=6):
 def rail(txt, y=1010, x=120, w=1680, i=7, align=None):
     a = ";text-align:%s" % align if align else ""
     return sh("flow mono-sm", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
+
+
+_DETAIL_X, _DETAIL_Y, _DETAIL_W, _DETAIL_HMAX = 1060, 250, 740, 640
+
+
+def detail(title, body, h=640, y=_DETAIL_Y, i=2):
+    """细节层面板（该页的 data-step=1 · 从右侧滑入 · Esc / ← 收回）。
+       几何锁死：x 1060（右缘 1800 = 版心右缘 · 左缘让开 P2 左栏卡的 x1050）·
+       顶 250（页码 sig 底 y64 之下）·
+       底 ≤890（land y988 之上）⇒ 展开态压不到 land / SOURCE / 页码。
+       走 `.flow.rev`：motion.css 的收起态是 translate3d(30px,·) + inset(0 0 0 100%)
+       ——「从右侧滑入」这四个字就是这条规则本人，不新造 keyframe。"""
+    assert h <= _DETAIL_HMAX, "细节层面板高 %d > 上限 %d" % (h, _DETAIL_HMAX)
+    assert y + h <= 900, "细节层面板底 %d 压到 land 带了" % (y + h)
+    return sh("flow rev detail", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d"
+              % (_DETAIL_X, y, _DETAIL_W, h, i),
+              '<div class="d-head"><span class="seclab">%s</span>'
+              '<span class="esc">ESC · 收回</span></div>%s' % (title, body), step=1)
+
+
+def detail_chip(x=1500, y=986, w=300, i=6):
+    """细节层入口 chip（mono · 与引擎抽屉 chip 同款 · 放在 land 行右侧）。
+       它不是另一套开关：按下 = 走 deck 的第 1 步，与 → / 空格完全同一条路。"""
+    return sh("flow", "left:%dpx;top:%dpx;width:%dpx;height:50px;text-align:right;--i:%d"
+              % (x, y, w, i),
+              '<span class="chip chip-expand chip-detail" role="button" tabindex="0" '
+              'data-detail="1" style="margin-right:0">⤢ 细节 · ⏎</span>')
 
 
 def src(txt, y=1010, x=120, w=1680, i=7, align=None):
@@ -1069,25 +1139,33 @@ page("title", "".join([
 ]), hero=("info-v2/hero-cover-v2", "left:720px;top:220px;width:1200px;height:675px"),
      lab=("voice" if P1_MODE == "orb" else None))
 
-# ═══ P2 · 公司 · Why Agora 速讲版 ═════════════════════════════════════════
-#   01 SCALE 四大数（**与引擎 P21 逐字同源**）/ 02 ADOPTION 近一半 /
-#   03 ENDORSEMENT OpenAI 首批 / 04 MILESTONES 时间线活动带（主图 · packet 沿线跑）
-#   hot 件 = No.1 大数（DOM 光晕环）。
+# ═══ P2 · 公司 · Why Agora（v3「一页一讲」重建）═════════════════════════════
+#   主图 = **SD-RTN 地球**（lab P21 的场景与矩形逐字同参 · 现取 makeGlobe）。
+#   页上留的：左栏四大数 2×2 + IDC 注（与引擎 P21 / lab P21 逐字同源）+ 一句落点。
+#   密材料（03 OpenAI 首批两行 · 使用声网/其他 RTC 条 · 04 五里程碑）全部进**细节层**。
 #
 #   ── 口径锁（2026-08-21 Colin：「四大数与来源标注改为与引擎 P21 逐字同源」）──
 #   禁止回归的旧错误：93万 / 700亿 /「对话式 AI 引擎市场占有率」/「200+ 覆盖场景 · 20+ 行业」。
 #   ⚠ 43.4% 这个具体数字**不写**：引擎 P21 的仲裁 P0 已把它换成「份额超过第 2–8 位厂商
 #     总和」的定性表述（理由：未取得公司批准口径）。「拷贝原句」= 拷贝改过之后的那一句。
-#   200+ 不进四卡（引擎 P21：「四卡足够，不补第五个数字」）；它的正确用法是
-#   「全球节点 · SD-RTN」，本 deck 里落在 P3 底座与 P8 主河道上。
+#   200+ 不进四卡（引擎 P21：「四卡足够，不补第五个数字」）；它在本页的正确落点是
+#   地球的**角注**（节点分布示意 · 200+ 全球节点 · SD-RTN）。
+#
+#   ── 版式账（改任一个数就得把这一段一起改）──────────────────────────────
+#     左栏 x120–1050（930 宽）：seclab y236 · 四卡 2×2 y272–688 · IDC 注 y706–766。
+#     地球矩形 (1150,180,640,640)：球心 (1470,500) · 屏上半径 250 ⇒ 限界 x1220–1720 /
+#       y250–750，弧的外包络半径 312 ⇒ x1158–1782 / y188–812，全在矩形之内。
+#       离左栏右缘 100px、离版心右缘 18px（1782 vs 1800）。
+#     rule(850) 压住 content 背景板自带的那条 accent 细线（y848–852 · x120–761）。
+#     角注 y872–896（右对齐到 1800）· land y940 · SOURCE y1022。
 _WHY = [
     ("市场占有率", "No.1",   "稳居第一 · 份额超过第 2–8 位总和", True),
     ("技术突破",   "50+",    "突破性自主创新技术（全球发明专利）", False),
     ("开发者生态", "100万+", "全球注册应用数",                   False),
     ("生产规模",   "900亿+", "单月支撑通话分钟数",               False),
 ]
-# 五节点时间线活动带（原五卡片轴改造）：轴 + 节点 + 日期在上 / 名称在下，
-# 卡框全撤 —— 收口线之下的页脚带只有 114px 高，框会把字挤成 12px。
+# 五节点里程碑（内容逐字未改）—— v3 里它从「页脚横带」搬进细节层，改**竖排**：
+# 760 宽的面板里横排 5 段名称只能缩到 8px，那是装饰不是信息。
 _MILE = [
     # 2026-08-20 仲裁 P0：「全球首个 Realtime API」是 OpenAI 的事，不是声网的事，
     # 且与同页 03 · ENDORSEMENT 的「全球首批合作伙伴」自相矛盾。改为首批口径。
@@ -1097,96 +1175,116 @@ _MILE = [
     ("2025.10.31", "产品全栈发布",           False),
     ("2026.03.10", "Call Agent 全球版",      True),
 ]
-_P2_Q, _P2_T = 380, "3.8s"          # 时间线活动带的包距与周期（v = 100 单位/秒）
-#   包距 380 ⇒ 1540 长的轴上同时只有 4 枚软streak：再密就读成「虚线装饰」而不是「一枚包在走」。
+_P2_Q, _P2_T = 110, "1.1s"          # 里程碑竖轴的包距与周期（v = 100 单位/秒 · 全 deck 同速）
 
 
-def _p2band():
-    """04 · MILESTONES 时间线活动带（viewBox 1620×110）
-       线型只有一种（时间轴），所以不上图例；「流的什么 / 为什么」写在轴下的 mono 线标里。"""
+def _p2mile():
+    """04 · MILESTONES 竖排时间线（viewBox 700×250 · 细节层内）
+       线型只有一种（时间轴），所以不上图例；「流的什么 / 为什么」写在 seclab 那一行。
+       ⚠ 它在**细节层**里，不是 poster ⇒ 不走 _lpsplit（本页的 poster 是地球）。"""
     o = []
-    x0, x1, ay = 40, 1580, 62
-    o.append(hline(x0, x1, ay, "var(--hair)", 1.5, 0))
-    # 能量包：一条轴一枚包，从最早的里程碑跑向最新的（方向 = 时间方向）
-    o.append(packet("M%d %d H%d" % (x0, ay, x1), _P2_Q, _P2_T, col=AC, w=8, seg=34, op=".20", i=1))
-    o.append(ah_r(x1 + 12, ay, "var(--ink-3)", 7))
-    step = (x1 - x0) / (len(_MILE) - 1)
+    ax, y0, y1 = 26, 18, 232
+    o.append(vline(ax, y0, y1, "var(--hair)", 1.5, 0))
+    # 能量包：一枚包从最早的里程碑跑向最新的（方向 = 时间方向 · 自上而下）
+    o.append(packet("M%d %d V%d" % (ax, y0, y1), _P2_Q, _P2_T, col=AC, w=8, seg=30, op=".20", i=1))
+    o.append(ah_d(ax, y1 + 14, "var(--ink-3)", 7))
+    step = (y1 - y0) / (len(_MILE) - 1)
     for k, (date, name, hot) in enumerate(_MILE):
-        cx = round(x0 + k * step)
+        cy = round(y0 + k * step)
         if hot:
             o.append('<circle class="mo-halo" style="--mo-sc:3.2;--mo-op:.5;--mo-dur:3.2s" '
                      'cx="%d" cy="%d" r="7" fill="none" stroke="%s" stroke-width="2" opacity="0"/>'
-                     % (cx, ay, AC))
-            o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="%d" r="8"/>' % (2 + k, AC, cx, ay))
+                     % (ax, cy, AC))
+            o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="%d" r="8"/>' % (2 + k, AC, ax, cy))
         else:
             o.append('<circle class="pop box" style="--i:%d" cx="%d" cy="%d" r="7" stroke-width="1.6"/>'
-                     % (2 + k, cx, ay))
-        anc = "start" if k == 0 else ("end" if k == len(_MILE) - 1 else "middle")
-        o.append(txt(cx, 32, date, "sm", size=17, anchor=anc, mono=True,
+                     % (2 + k, ax, cy))
+        o.append(txt(52, cy + 6, date, "sm", size=17, mono=True,
                      col=AC if hot else "var(--ink-3)", ls=".04em"))
-        o.append(txt(cx, 100, name, "ttl", size=18, anchor=anc, col=AC if hot else None))
-    return _lpsplit(o)
+        o.append(txt(186, cy + 7, name, "ttl", size=19, col=AC if hot else None))
+    return "".join(o)
+
+
+def _p2detail():
+    """细节层内容：03 ENDORSEMENT 两行 + 使用声网/其他 RTC 条 + 04 MILESTONES 竖排。
+       字串**逐字同源**（与 v2 的 03 / 02 两区、_MILE 表一字不差）。"""
+    return "".join([
+        '<div style="font:700 26px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
+        'margin-top:6px">2024.10.01</div>',
+        '<div style="margin-top:14px;font:700 27px/1.36 var(--f-cn);color:var(--ink)">'
+        "OpenAI Realtime API · Agora <strong style='color:var(--accent)'>全球首批合作伙伴</strong>"
+        '</div>',
+        '<div style="margin-top:12px;font:500 18px/1.5 var(--f-cn);color:var(--accent)">'
+        '同样的工程能力，今天用来支撑你的对话式 AI 业务。</div>',
+        # 02 · ADOPTION 的那两条（逐字同源）：使用声网 / 其他 RTC
+        '<div class="d-sec" style="display:flex;gap:10px">'
+        '<div style="flex:0 0 344px;height:38px;background:var(--accent);border-radius:6px;'
+        'font:700 17px/38px var(--f-cn);color:var(--slide-bg);text-align:center">使用声网</div>'
+        '<div style="flex:1;height:38px;background:var(--card-bg);border:1px solid var(--hair);'
+        'border-radius:6px;font:500 17px/36px var(--f-cn);color:var(--ink-2);text-align:center">'
+        '其他 RTC</div></div>',
+        '<div class="d-sec seclab">04 · MILESTONES · 18 个月 · 5 个公开里程碑</div>',
+        '<div class="fig" style="margin-top:8px">'
+        '<svg viewBox="0 0 700 250" style="width:100%%;height:auto">%s</svg></div>' % _p2mile(),
+    ])
 
 
 page("content", "".join([
     head("公司 · 声网 RTE · ONE-PAGE BRIEF",
          "RTE 行业领导者，<strong>一页讲完</strong>。"),
-    # 区 01 · SCALE（四大数 · 引擎 P21 口径锁）· hot = No.1
-    lab(120, 236, "01 · SCALE"),
-    sh("", "left:120px;top:268px;width:1680px;height:150px",
-       '<div class="g4" style="height:100%">' + "".join(
-           '<div class="stat flow" style="--i:%d;justify-content:flex-start">'
-           '<span class="u">%s</span>'
-           '<span class="v%s" style="font-size:64px">%s</span>'
-           '<span class="l" style="font-size:15px">%s</span></div>'
-           % (2 + _i, _tag, "" if _on else " w", _v, _l)
+    # 区 01 · SCALE（四大数 2×2 · 引擎 P21 口径锁）· hot = No.1
+    lab(120, 236, "01 · SCALE", w=930),
+    sh("", "left:120px;top:272px;width:930px;height:416px",
+       '<div class="g2 lab-kpi" style="height:100%">' + "".join(
+           '<div class="card%s rise" style="--i:%d;justify-content:center">'
+           '<div class="tag%s">%s</div>'
+           '<div class="stat"><span class="v%s" style="font-size:80px">%s</span>'
+           '<span class="l">%s</span></div></div>'
+           % (" on" if _on else "", 2 + _i, " am" if _on else "", _tag,
+              "" if _on else " w", _v, _l)
            for _i, (_tag, _v, _l, _on) in enumerate(_WHY)) + '</div>'),
-    # hot 光晕环：贴着 No.1 那一格（g4 单格宽 = (1680-3×20)/4 = 405 ⇒ 第一格 x120..525）。
-    # sc 1.06 ⇒ 峰值只涨 12px，右缘 537 仍在第二格起点 545 之内（**改格宽必须重算这条**）。
-    sh("", "left:120px;top:264px;width:405px;height:154px;pointer-events:none",
-       halo_div("position:absolute;inset:0", sc="1.06", op=".22", dur="3.4s", radius="16px")),
+    # hot 光晕环：贴着 No.1 那一格（g2 单格宽 = (930−24)/2 = 453 ⇒ 第一格 x120..573）。
+    # sc 1.05 ⇒ 峰值只涨 ~11px，右缘 584 仍在第二格起点 597 之内。
+    sh("", "left:116px;top:268px;width:461px;height:200px;pointer-events:none",
+       halo_div("position:absolute;inset:0", sc="1.05", op=".22", dur="3.4s", radius="16px")),
     # 引擎 P21 的 note 逐字：43.4% 已被仲裁换成定性表述，这里不许回填
-    sh("flow", "left:120px;top:432px;width:1680px;height:48px;--i:5",
+    sh("flow", "left:120px;top:706px;width:930px;height:60px;--i:5",
        '<div class="note grey">注：IDC《中国视频云市场报告》音视频通信（RTC）赛道 · '
        '<b>份额超过第 2–8 位厂商总和</b></div>'),
-    rule(504),
-    # 区 02 · ADOPTION（左半）
-    lab(120, 526, "02 · ADOPTION"),
-    sh("settle", "left:120px;top:558px;width:800px;height:122px;--i:2",
-       '<div class="stat"><div class="v" style="font-size:76px;font-family:var(--f-cn)">近一半</div>'
-       '<div class="l" style="font-size:19px">集成 RTC 的 Top 10,000（MAU）App 里，近一半使用声网</div></div>'),
-    sh("spread", "left:120px;top:696px;width:406px;height:38px;background:var(--accent);border-radius:6px;"
-       "font:700 17px/38px var(--f-cn);color:var(--slide-bg);text-align:center;--i:3", "使用声网"),
-    sh("spread", "left:526px;top:696px;width:394px;height:38px;background:var(--card-bg);border:1px solid var(--hair);"
-       "border-radius:6px;font:500 17px/36px var(--f-cn);color:var(--ink-2);text-align:center;--i:4", "其他 RTC"),
-    # 区 03 · ENDORSEMENT（右半 · x980 = 全 deck 右列统一栏位）
-    lab(980, 526, "03 · ENDORSEMENT"),
-    sh("settle", "left:980px;top:558px;width:820px;height:40px;font:700 28px/1 var(--f-mono);"
-       "letter-spacing:.1em;color:var(--accent);--i:2", "2024.10.01"),
-    sh("flow", "left:980px;top:610px;width:820px;height:86px;font:700 30px/1.4 var(--f-cn);"
-       "color:var(--ink);--i:3",
-       "OpenAI Realtime API · Agora <strong style='color:var(--accent)'>全球首批合作伙伴</strong>"),
-    sh("flow", "left:980px;top:706px;width:820px;height:48px;font:500 20px/1.5 var(--f-cn);"
-       "color:var(--accent);--i:4", "同样的工程能力，今天用来支撑你的对话式 AI 业务。"),
     rule(850),
-    # 区 04 · MILESTONES（收口线之下的页脚带 · 主图 = 时间线活动带）
-    lab(120, 800, "04 · MILESTONES · 18 个月 · 5 个公开里程碑"),
-    sh("flow mono-sm", "left:1100px;top:800px;width:700px;height:20px;text-align:right;--i:1",
-       "RELEASE TIMELINE · 一枚包 = 时间在走 · 终点 = 最新一次公开发布"),
-    figbox(120, 866, 1680, 1620, 110, _p2band(), i=2),
-    land("全球最受欢迎的实时音视频云服务提供商。", w=820),
+    # ── 地球角注（从 lab P21 原样搬来的那一行）───────────────────────────────
+    #   这一行是**硬要求**，不是装饰：228 枚节点是示意分布，不标它就等于默认它是
+    #   真实 PoP 清单。弧线同理 —— 全页一个延迟数值都不许出现（数字红线）。
+    sh("flow mono-sm", "left:1150px;top:872px;width:650px;height:24px;text-align:right;--i:6",
+       "节点分布示意 · 200+ 全球节点 · SD-RTN"),
+    # 落点句（含「近一半」逐字）
+    land("集成 RTC 的 Top 10,000（MAU）App 里，<strong>近一半</strong>使用声网。",
+         y=940, w=1200),
+    detail_chip(x=1400, y=938, w=400),
+    # 细节层：03 OpenAI 首批 + 使用声网/其他 RTC 条 + 04 五里程碑（竖排）
+    #   高 600 而不是上限 640：底 850 让开地球角注（y872）那一行。
+    detail("03 · ENDORSEMENT", _p2detail(), h=600),
     # SOURCE ledger（四段制）· 本行与引擎 P21 逐字同源，两份 deck 不许分叉
     src("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08",
-        x=940, w=860, align="right"),
-]), lab="band")
+        y=1022, x=940, w=860, align="right"),
+]), steps=1, lab="globe")
 
-# ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（真架构图）════════════════════
-#   2026-08-20 仲裁 P0 的分类学在本轮**进图**：底座（SD-RTN / RTE）→ 三条产品线
+# ═══ P3 · 矩阵 ·「一个实时底座，三条产品线」（v3 · 空间生长放大到全舞台）═══════
+#   2026-08-20 仲裁 P0 的分类学在图里：底座（SD-RTN / RTE）→ 三条产品线
 #   （Engine / Agent / Physical AI）→ Engine 的两种交付形态（闭源引擎 / 开源 TEN）；
 #   评测平台、实时转录翻译是「配套能力 · 工具」，旁挂、不与产品线并列 —— 图里用
 #   「细虚线 + 弱化 + 不占主干」把这层级差画出来，不靠标签自说自话。
 #   六个 chip 的内容逐字进图（名称 + 形态标签一字未改）。
 #   hot 件 = SD-RTN 底座（这页的论点：托举一切的是那一条）。
+#
+#   ── v3 放大账（矩形 480 → 600 · 图形区吃满全舞台）────────────────────────
+#     产品线盒 300×112 → **380×140**（规格下限 360×140）：盒里三行字（mono 名在盒外、
+#       标题 25px、形态标签 15px）从「挤在 112 里」变成「有呼吸」。
+#     主干 base_y 370→450 / trunk_top 172→200 ⇒ 生长段 196→248px（长了 27%）。
+#     辅件盒 74→84 高、下沉到 y290–374（与主干注解 y245 留 45px）。
+#     底座 rect 76→96 高（两行字 y486 / y520）。
+#     纵深基面栅格整片坐在 fig y402–448 那条**无字空带**里（上方 aux 盒文字止于 y354，
+#       下方底座顶沿 y450），横向止于 fig x1450（右边 y426 那行域分带注记从 x1460 起）。
 _MX_LINES = [
     # (trunk_x, 色, mono 名, 盒内标题, 盒内形态标签, 主干注解 = _ENG3 的描述逐字)
     (300,  LE, "ENGINE",      "对话式 AI 引擎", "产品线 · Engine · 闭源", "提供能力——把「会说话」做到极致"),
@@ -1195,56 +1293,69 @@ _MX_LINES = [
 ]
 _MX_AUX = [
     # (x, w, 名称, 形态标签, 挂法)  · 挂法 "trunk" = 挂在 Engine 主干上；"base" = 挂在底座上
+    # ⚠ 右缘必须**停在主干之前**（三条主干在 fig x 300 / 840 / 1380）：
+    #   盒宽一放到 300 就被主干从盒里穿过去（本轮实拍锤过）。260 宽留 30–40px 让路。
     (10,   260, "TEN 开源工具库",  "Engine 交付形态 · 开源", "trunk"),
-    (560,  250, "AI 模型评测平台", "配套能力 · 工具",        "base"),
-    (1080, 250, "实时转录翻译",    "配套能力 · 工具",        "base"),
+    (540,  260, "AI 模型评测平台", "配套能力 · 工具",        "base"),
+    (1080, 260, "实时转录翻译",    "配套能力 · 工具",        "base"),
 ]
+_MX_BW, _MX_BH = 380, 140                 # 产品线盒（规格下限 360×140）
+_MX_BOXY = 40                             # 盒顶（fig）
+_MX_AUXY, _MX_AUXH = 290, 84              # 辅件盒
+_MX_SEP = 432                             # 细虚线域分带的 y
+# 底座顶沿 / 高 / 主干终点 —— **2D 与 3D 共用这三个数**（LAB 层的 makeGrow 直接引用，
+# 不许两处各写一个字面量：v2 就是这么埋雷的）。
+# 高 86 而不是 96：底座底沿 fig 536 与图例（fig 556）留 20px，而图例又必须收在
+# content 背景板那条 accent 细线之前（stage y848–852 = fig 576–580）。
+_GW_BASEY, _GW_BASEH, _GW_TOP = 450, 86, 200
 
 
 def _p3fig():
     o = []
-    base_y, trunk_top = 370, 172
+    base_y, trunk_top = _GW_BASEY, _GW_TOP
     # ── 细虚线域分带：上方是产品线与配套，下方是实时底座 ──
-    o.append(dline("M0 352 H1668", HS, 1, 0, dash="3 9",
+    o.append(dline("M0 %d H1668" % _MX_SEP, HS, 1, 0, dash="3 9",
                    cls="mo-drift", sty="--mo-off:-24;--mo-dur:4.2s"))
-    o.append(txt(1660, 346, "↑ 产品线与配套　↓ 实时底座", "sm", size=14, anchor="end",
+    o.append(txt(1660, _MX_SEP - 6, "↑ 产品线与配套　↓ 实时底座", "sm", size=14, anchor="end",
                  col="var(--ink-3)", mono=True))
     # ── 三条主干（实线三色 · 由底座向上生长）+ 能量包（同速 v=100 单位/秒）──
     for k, (tx, col, mono, title, form, why) in enumerate(_MX_LINES):
-        o.append(box(tx - 150, 40, 300, 112, 6, i=1 + k))
-        o.append(txt(tx, 28, mono, "lbl", size=14, anchor="middle", col=col))
-        o.append(txt(tx, 90, title, "ttl", size=25, anchor="middle"))
-        o.append(txt(tx, 124, form, "sm", size=15, anchor="middle"))
+        o.append(box(tx - _MX_BW // 2, _MX_BOXY, _MX_BW, _MX_BH, 6, i=1 + k))
+        o.append(txt(tx, 25, mono, "lbl", size=15, anchor="middle", col=col))
+        o.append(txt(tx, _MX_BOXY + 62, title, "ttl", size=28, anchor="middle"))
+        o.append(txt(tx, _MX_BOXY + 100, form, "sm", size=16, anchor="middle"))
         d = "M%d %d V%d" % (tx, base_y - 2, trunk_top)
-        o.append(packet(d, 200, "2.0s", delay="%.2fs" % (-0.5 * k), col=col,
-                        w=13, seg=22, op=".34", i=2 + k))
-        o.append('<path class="dw" style="--len:200;--i:%d" d="%s" stroke="%s" stroke-width="2.5" '
+        o.append(packet(d, 248, "2.48s", delay="%.2fs" % (-0.62 * k), col=col,
+                        w=16, seg=26, op=".34", i=2 + k))
+        o.append('<path class="dw" style="--len:248;--i:%d" d="%s" stroke="%s" stroke-width="2.5" '
                  'fill="none"/>' % (2 + k, d, col))
         o.append(ah_u(tx, trunk_top - 12, col, 8))
-        o.append(txt(tx + 18, 205, why, "sm", size=16, col="var(--ink-2)"))
+        o.append(txt(tx + 18, 245, why, "sm", size=17, col="var(--ink-2)"))
     # ── 配套 / 交付形态：细虚线旁挂，**无箭头**（它是附属说明，不是第三种流向）──
     for x, w, name, form, how in _MX_AUX:
-        o.append(box(x, 232, w, 74, 5, dashed=True, i=5))
-        o.append(txt(x + w // 2, 262, name, "ttl", size=20, anchor="middle", col="var(--ink-2)"))
-        o.append(txt(x + w // 2, 288, form, "sm", size=14, anchor="middle", col="var(--ink-3)"))
+        o.append(box(x, _MX_AUXY, w, _MX_AUXH, 5, dashed=True, i=5))
+        o.append(txt(x + w // 2, _MX_AUXY + 36, name, "ttl", size=21, anchor="middle", col="var(--ink-2)"))
+        o.append(txt(x + w // 2, _MX_AUXY + 64, form, "sm", size=15, anchor="middle", col="var(--ink-3)"))
         if how == "trunk":
-            o.append(dline("M%d 269 H300" % (x + w + 4), HS, 1.4, 6, dash="5 6",
+            o.append(dline("M%d %d H300" % (x + w + 4, _MX_AUXY + 42), HS, 1.4, 6, dash="5 6",
                            cls="mo-drift", sty="--mo-off:-33;--mo-dur:3.8s"))
         else:
-            o.append(dline("M%d 306 V%d" % (x + w // 2, base_y), HS, 1.4, 6, dash="5 6",
-                           cls="mo-drift", sty="--mo-off:-33;--mo-dur:3.8s"))
+            o.append(dline("M%d %d V%d" % (x + w // 2, _MX_AUXY + _MX_AUXH, base_y), HS, 1.4, 6,
+                           dash="5 6", cls="mo-drift", sty="--mo-off:-33;--mo-dur:3.8s"))
     # ── 底座（hot）：accent 描边 + 光晕；条内两枚反向包 = 端 ↔ 云 一直在跑 ──
-    o.append(halo_rect(0, base_y, 1668, 76, 8, sc="1.03", op=".26", dur="3.8s"))
+    o.append(halo_rect(0, base_y, 1668, _GW_BASEH, 8, sc="1.03", op=".26", dur="3.8s"))
     o.append('<rect class="pop" style="--i:7;fill:var(--card-bg-2)" x="0" y="%d" width="1668" '
-             'height="76" rx="8" stroke="none"/>' % base_y)
-    o.append(box(0, base_y, 1668, 76, 8, hot=True, i=7))
-    o.append(txt(30, base_y + 32, "实时底座 · RTE · REAL-TIME ENGAGEMENT", "lbl", size=15, col=AC))
-    o.append(txt(30, base_y + 62, "SD-RTN 全球实时网络——一个实时底座，托举上面三条产品线与全部配套能力",
-                 "txt", size=19))
-    o.append(packet("M1180 %d H1640" % (base_y + 46), 260, "2.6s", col=AC, w=9, seg=18, op=".22", i=8))
-    o.append(packet("M1640 %d H1180" % (base_y + 46), 260, "3.0s", col=AC, w=9, seg=18, op=".22", i=8))
+             'height="%d" rx="8" stroke="none"/>' % (base_y, _GW_BASEH))
+    o.append(box(0, base_y, 1668, _GW_BASEH, 8, hot=True, i=7))
+    o.append(txt(30, base_y + 34, "实时底座 · RTE · REAL-TIME ENGAGEMENT", "lbl", size=16, col=AC))
+    o.append(txt(30, base_y + 68, "SD-RTN 全球实时网络——一个实时底座，托举上面三条产品线与全部配套能力",
+                 "txt", size=21))
+    o.append(packet("M1180 %d H1640" % (base_y + 52), 260, "2.6s", col=AC, w=9, seg=18, op=".22", i=8))
+    o.append(packet("M1640 %d H1180" % (base_y + 52), 260, "3.0s", col=AC, w=9, seg=18, op=".22", i=8))
     # ── 迷你图例（真线样 · 只列本页真正用到的线型）──
-    o.append(legend(10, 466, [("solid", "Engine 主干", 2.5, LE), ("solid", "Agent 主干", 2.5, LA),
+    # 图例 y556（stage 828）而不是 580：content 背景板自带一条 accent 细线在
+    # stage y848–852（fig 576–580），图例落在 580 会被那条线从字里穿过去。
+    o.append(legend(10, 556, [("solid", "Engine 主干", 2.5, LE), ("solid", "Agent 主干", 2.5, LA),
                               ("solid", "Physical AI 主干", 2.5, LP),
                               ("dash", "配套 / 交付形态 · 旁挂", 1.4, HS)]))
     return _lpsplit(o)
@@ -1254,21 +1365,20 @@ page("content", "".join([
     head("矩阵 · 对话式 AI 产品线 · PRODUCT MATRIX",
          "一个实时底座，<strong>三条产品线</strong>。"),
     lab(120, 236, "01 · ARCHITECTURE · 一个底座 · 三条主干 · 配套旁挂"),
-    figbox(120, 272, 1680, 1680, 480, _p3fig(), i=1),
-    sh("flow", "left:120px;top:772px;width:1680px;height:60px;--i:5",
-       '<div class="note">Engine 的<strong style="color:var(--accent)">两种交付形态</strong>'
-       '：闭源引擎 · 开源 TEN。</div>'),
+    figbox(120, 272, 1680, 1680, 600, _p3fig(), i=1),
     rule(850),
-    # 收口线之下的页脚带（引擎 P19「02 · SHARED CAPABILITIES」同款破例，经 Fable 终审）
-    sh("rise", "left:120px;top:878px;width:1680px;height:56px;--i:7",
-       '<div style="display:flex;align-items:center;gap:24px">'
-       '<span class="seclab" style="flex:none">02 · ENGINE DELIVERY FORMS</span>'
-       '<div style="flex:1">'
-       '<span class="chip">闭源 · 已上线　对话式 AI 引擎</span>'
-       '<span class="chip">开源　TEN 开源工具库</span></div></div>'),
     land(dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
-         + dot("l-phys") + "Physical AI 走进物理世界。"),
-]), lab="grow")
+         + dot("l-phys") + "Physical AI 走进物理世界。", y=940, w=1200),
+    detail_chip(x=1400, y=938, w=400),
+    # 细节层：02 · ENGINE DELIVERY FORMS（一句 + 两枚 chip）
+    detail("02 · ENGINE DELIVERY FORMS", "".join([
+        '<div style="margin-top:10px" class="note">Engine 的'
+        '<strong style="color:var(--accent)">两种交付形态</strong>：闭源引擎 · 开源 TEN。</div>',
+        '<div class="d-sec">'
+        '<span class="chip">闭源 · 已上线　对话式 AI 引擎</span>'
+        '<span class="chip">开源　TEN 开源工具库</span></div>',
+    ]), h=260, y=300),
+]), steps=1, lab="grow")
 
 # ═══ P4 · Engine ·「超低延迟、可打断、高自然度」════════════════════════════
 #   01 VELOCITY 17 版活动带（主图 · packet 沿轴跑）/ 02 VS LIVEKIT 四项 /
@@ -1750,18 +1860,27 @@ page("content", "".join([
         x=1120, w=680, align="right"),
 ]), steps=1)
 
-# ═══ P8 · 合流 ·「三条支流，一条河」（本 deck 标杆动效页）════════════════
-#   左：合流大图 —— 三色支流从左侧三源头以贝塞尔曲线汇入 ONE NET 主河道。
-#   右：02 NEUTRALITY 三不 / 03 START 三步 / 收口句 / CTA / 收尾金句。
+# ═══ P8 · 合流 ·「三条支流，一条河」（v3 · 河放大到全舞台 · 本 deck 标杆动效页）═══
+#   主图：三色支流从左侧三源头以贝塞尔曲线汇入 ONE NET 主河道，铺满 (120,272,1680,420)。
+#   其下：02 三不（三行）与 03 三步（三 chip）并排；再下是两句落点 / DEMO / SOURCE / 署名。
 #   hot 件 = 合流点 + ONE NET 主河道（accent 描边 + 光晕 + 合流点脉冲）。
 #
+#   ── v3 放大账（1.6× · 只放大「形」，介质与相位规则一格不动）─────────────────
+#     图形区 820×560（vb×1）→ **1680×420**（vb×1）：河从「左半的一张图」变成
+#       「横贯全舞台的一条河」——「一条河」这三个字第一次在版面上是字面意思。
+#     线宽 / 盒 / 半宽全部 ×1.6（宽度是这张图的语义：河比支流宽 = 能量守恒）：
+#       支流 2D packet w13→21（半宽 6.5→10.4）· 主河道 hline w4→6.4 / packet w15→24；
+#       3D 支流半宽 4.0–6.5 → **6.4–10.4**，主河道 13→**20.8**、河口涌起 15→**24**，
+#       涌起作用半径 80→128，河床纵深 90→144。
+#     ONE NET 河道盒 350×52 rx26 → **560×84 rx42**（峰值 ±24 仍在盒内）。
+#     包距同步 ×1.6：主河道 Qm 90→144（Tm .9→1.44s）、支流 Qt 270→432（Tt 2.7→4.32s）；
+#       Qt = 3·Qm 的关系不动 ⇒「三条支流各占一格、轮流接力」照旧。
+#     **λ 不变**（lab-kit ⑨ 的 232px —— 全家族同一种介质，放大的是形不是声）。
+#     接力相位 off_k = −Lw_k + k·λ/3 由 builder 按**新的**世界弧长重算（qa ⑳rv 复算）。
+#
 #   ── 相位账（「同速同相接力」不是感觉，是算出来的）─────────────────────────
-#   全图统一速度 v = 100 单位/秒。主河道包距 Qm = 90（dur .9s）；支流包距 Qt = 270（dur 2.7s）。
-#   支流 i 的负 delay：del_i = ((i×0.9 − L_i/100) mod 2.7) − 2.7，L_i = 该支流贝塞尔的**采样弧长**。
-#   推导：dasharray「seg (Q−seg)」+ dashoffset 走满一个 Q ⇒ 包在路径上的位置
-#     p(t) = Q·((t−del)/T mod 1) + kQ；令 p = L_i 解出到达汇合点的时刻 t ≡ del_i + L_i/100 (mod 2.7)。
-#   要它落在主河道包经过 x=440 的时刻栅格 {t ≡ 0 mod 0.9} 上、且三条支流各占一格（0 / .9 / 1.8），
-#   反解即得上式。⇒ 汇合点上不会三包叠影，也不会瞬移，读起来就是「三条流轮流接力进主河道」。
+#   全图统一速度 v = 100 单位/秒。主河道包距 Qm = 144（dur 1.44s）；支流包距 Qt = 432（4.32s）。
+#   支流 i 的负 delay：del_i = ((i×1.44 − L_i/100) mod 4.32) − 4.32，L_i = 该支流贝塞尔的采样弧长。
 #   ⚠ 改任何一条曲线的控制点、或改 Qm / Qt / v，这三条 delay 必须重算（builder 会自动算，
 #     但别把 L_i 写成常量）。
 _NEU = [
@@ -1774,114 +1893,118 @@ _STEP = [
     ("STEP 2 · 两周",     "PoC 共建",   "工程团队陪跑，把你的第一个真实场景跑通"),
     # 2026-08-20 仲裁 P1：「一个季度规模化上线」是承诺口吻，补限定词降成典型节奏
     ("STEP 3 · 一个季度", "规模化上线",
-     "SLA、全球部署、多供应商兜底<br>（典型节奏，视场景与合规而定）"),
+     "SLA、全球部署、多供应商兜底（典型节奏，视场景与合规而定）"),
 ]
-_ARROW = ('<div class="fig"><svg viewBox="0 0 20 28" style="width:100%;height:auto">'
-          '<path class="dw" style="--len:16" d="M10 2 V18" stroke="var(--hair-strong)" '
-          'stroke-width="1.5" fill="none"/>'
-          '<polygon class="fill-ink" points="4,18 16,18 10,26"/></svg></div>')
 _TRIB = [
     # (源头 y, 色, 支流标注 = ONE NET 那一行的原句逐字拆到各自的支流上)
-    ( 90, LE, "Engine 的每一次打断"),
-    (290, LA, "Agent 的每一次交付"),
-    (490, LP, "Physical AI 的每一次唤醒"),
+    ( 68, LE, "Engine 的每一次打断"),
+    (218, LA, "Agent 的每一次交付"),
+    (368, LP, "Physical AI 的每一次唤醒"),
 ]
-_P8_CX, _P8_CY = 440, 300          # 合流点
-_P8_QM, _P8_TM = 90, 0.9           # 主河道包距 / 周期
-_P8_QT, _P8_TT = 270, 2.7          # 支流包距 / 周期
+_P8_SX = 48                        # 三个源头的 x
+_P8_CX, _P8_CY = 700, 225          # 合流点
+_P8_MX1 = 1600                     # 主河道末端
+_P8_BOX = (700, 183, 900, 84, 42)  # ONE NET 河道盒（x, y, w, h, rx）· 铺满整条主河道
+_P8_QM, _P8_TM = 144, 1.44         # 主河道包距 / 周期（= v2 的 90 / 0.9 × 1.6）
+_P8_QT, _P8_TT = 432, 4.32         # 支流包距 / 周期（Qt = 3·Qm 不动）
+_P8_SEPX = 640                     # 细虚线域分带的 x（左「三条产品线」／右「一张实时网」）
 
 
 def _p8trib_d(k, y):
     """三条支流的贝塞尔：控制点让曲线在源头端水平出发、在汇合点端水平进入（河口不折角）。"""
-    c1 = 240 if k != 1 else 230
-    return "M30 %d C %d %d, 300 %d, %d %d" % (y, c1, y, _P8_CY, _P8_CX, _P8_CY)
+    c1 = 400 if k != 1 else 380
+    return "M%d %d C %d %d, 520 %d, %d %d" % (_P8_SX, y, c1, y, _P8_CY, _P8_CX, _P8_CY)
 
 
 def _p8fig():
     o = []
+    bx, by, bw, bh, br = _P8_BOX
     # ── 细虚线域分带：左「三条产品线」／右「一张实时网」──
-    o.append(dline("M418 48 V520", HS, 1, 0, dash="3 9",
+    o.append(dline("M%d 46 V396" % _P8_SEPX, HS, 1, 0, dash="3 9",
                    cls="mo-drift", sty="--mo-off:-24;--mo-dur:4.4s"))
-    o.append(txt(210, 36, "三条产品线", "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
-    o.append(txt(620, 36, "一张实时网", "sm", size=15, anchor="middle", col="var(--ink-3)", mono=True))
+    o.append(txt(330, 34, "三条产品线", "sm", size=16, anchor="middle", col="var(--ink-3)", mono=True))
+    o.append(txt(1000, 34, "一张实时网", "sm", size=16, anchor="middle", col="var(--ink-3)", mono=True))
     # ── 主河道（hot）：低透明 accent 底 + accent 描边 + 光晕 ──
-    o.append(halo_rect(440, 274, 350, 52, 26, sc="1.05", op=".30", dur="3.6s"))
-    o.append('<rect class="pop" style="--i:5;fill:%s;opacity:.12" x="440" y="274" width="350" '
-             'height="52" rx="26"/>' % AC)
-    o.append(box(440, 274, 350, 52, 26, hot=True, i=5))
+    o.append(halo_rect(bx, by, bw, bh, br, sc="1.05", op=".30", dur="3.6s"))
+    o.append('<rect class="pop" style="--i:5;fill:%s;opacity:.12" x="%d" y="%d" width="%d" '
+             'height="%d" rx="%d"/>' % (AC, bx, by, bw, bh, br))
+    o.append(box(bx, by, bw, bh, br, hot=True, i=5))
     # ── 三条支流：实线三色 + 能量包（相位按弧长算，见页头推导）──
     for k, (y, col, label) in enumerate(_TRIB):
         d = _p8trib_d(k, y)
         ln = path_len(d)
         delay = ((k * _P8_TM - ln / 100.0) % _P8_TT) - _P8_TT
         o.append(packet(d, _P8_QT, "%.2fs" % _P8_TT, delay="%.3fs" % delay, col=col,
-                        w=13, seg=24, op=".34", i=2 + k))
-        o.append(curve(d, col, 2.5, 2 + k))
-        o.append('<circle class="pop" style="--i:%d;fill:%s" cx="30" cy="%d" r="6"/>' % (2 + k, col, y))
-        o.append(txt(30, y - 16, label, "sm", size=15, col="var(--ink-2)"))
-    # ── 主河道能量包：包距 90 ⇒ 三条支流各占一格，轮流接力（同速 v=100）──
-    o.append(packet("M440 %d H790" % _P8_CY, _P8_QM, "%.1fs" % _P8_TM, delay="0s",
-                    col=AC, w=15, seg=20, op=".38", i=6))
-    o.append(hline(440, 790, _P8_CY, AC, 4, 6))          # 主河道比支流粗一档（图例的 fast 样线跟着 4）
-    o.append(ah_r(802, _P8_CY, AC))
+                        w=21, seg=38, op=".34", i=2 + k))
+        o.append(curve(d, col, 4, 2 + k))
+        o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="%d" r="10"/>'
+                 % (2 + k, col, _P8_SX, y))
+        o.append(txt(_P8_SX, y - 28, label, "sm", size=17, col="var(--ink-2)"))
+    # ── 主河道能量包：包距 144 ⇒ 三条支流各占一格，轮流接力（同速 v=100）──
+    o.append(packet("M%d %d H%d" % (_P8_CX, _P8_CY, _P8_MX1), _P8_QM, "%.2fs" % _P8_TM,
+                    delay="0s", col=AC, w=24, seg=32, op=".38", i=6))
+    o.append(hline(_P8_CX, _P8_MX1, _P8_CY, AC, 6.4, 6))    # 主河道比支流粗一档
+    o.append(ah_r(_P8_MX1 + 20, _P8_CY, AC, 14))
     # ── 合流点：脉冲事件标（原语 ③）──
     o.append('<circle class="mo-halo" style="--mo-sc:2.6;--mo-op:.45;--mo-dur:3.0s" cx="%d" cy="%d" '
-             'r="9" fill="none" stroke="%s" stroke-width="2" opacity="0"/>' % (_P8_CX, _P8_CY, AC))
+             'r="14" fill="none" stroke="%s" stroke-width="2" opacity="0"/>' % (_P8_CX, _P8_CY, AC))
     o.append('<circle class="pop mo-pulse" style="--i:6;fill:%s;--mo-hi:1;--mo-lo:.45;--mo-dur:2.4s" '
-             'cx="%d" cy="%d" r="9"/>' % (AC, _P8_CX, _P8_CY))
-    o.append(txt(_P8_CX, 262, "合流点", "sm", size=15, anchor="middle", col=AC, mono=True))
+             'cx="%d" cy="%d" r="14"/>' % (AC, _P8_CX, _P8_CY))
+    o.append(txt(_P8_CX, 162, "合流点", "sm", size=16, anchor="middle", col=AC, mono=True))
     # ── 主河道题注（河道自己不携带文字）──
-    o.append(txt(450, 360, "ONE NET", "lbl", size=15, col=AC))
-    o.append(txt(450, 392, "SD-RTN 软件定义实时网络", "ttl", size=22, col=AC))
-    o.append(txt(450, 420, "全球 200+ 节点 · 端到端毫秒级", "sm", size=16))
+    o.append(txt(bx + 16, 306, "ONE NET", "lbl", size=16, col=AC))
+    o.append(txt(bx + 16, 342, "SD-RTN 软件定义实时网络", "ttl", size=26, col=AC))
+    o.append(txt(bx + 16, 374, "全球 200+ 节点 · 端到端毫秒级", "sm", size=18))
     # ── 迷你图例（真线样）──
-    o.append(legend(14, 534, [("solid", "Engine", 2.5, LE), ("solid", "Agent", 2.5, LA),
-                              ("solid", "Physical AI", 2.5, LP),
-                              ("fast", "ONE NET 主河道", 4, AC)], gap=40, size=13))
+    o.append(legend(14, 400, [("solid", "Engine", 4, LE), ("solid", "Agent", 4, LA),
+                              ("solid", "Physical AI", 4, LP),
+                              ("fast", "ONE NET 主河道", 6.4, AC)], gap=40, size=14))
     return _lpsplit(o)
 
 
 page("content", "".join([
     head("合流 · 为什么是声网 · 怎么开始 · ONE NET", "三条支流，<strong>一条河</strong>。"),
-    # 区 01 · ONE NET（左 · 合流大图）
+    # 区 01 · ONE NET（全舞台合流大图）
     lab(120, 236, "01 · ONE NET · 三条支流汇入一条河"),
-    figbox(120, 272, 820, 820, 560, _p8fig(), i=1),
-    # 区 02 · NEUTRALITY（右上）
-    lab(1000, 236, "02 · NEUTRALITY", w=800),
-    sh("", "left:1000px;top:268px;width:800px;height:186px",
+    figbox(120, 272, 1680, 1680, 420, _p8fig(), i=1),
+    # 区 02 · NEUTRALITY（左）/ 03 · START（右）—— 并排，收口线 rule(850) 之上
+    lab(120, 708, "02 · NEUTRALITY", w=760),
+    # 行高账：padding 5×2 + 20px/1.3 的键行 26 + 1px 分隔 = 37/行 ⇒ 三行 110px，
+    # 734+110 = 844 —— 收在 content 背景板那条 accent 细线（stage y848–852）之前。
+    sh("", "left:120px;top:734px;width:760px;height:112px",
        '<div class="rows">' + "".join(
-           '<div class="r flow" style="--i:%d;padding:14px 0"><span class="n" style="width:50px">%s</span>'
-           '<span class="k" style="width:200px;font-size:23px">%s</span>'
-           '<span class="v" style="font-size:17px">%s</span></div>' % (2 + _i, _no, _n, _d)
+           '<div class="r flow" style="--i:%d;padding:5px 0;gap:18px">'
+           '<span class="n" style="width:44px;font-size:21px">%s</span>'
+           '<span class="k" style="width:200px;font-size:20px;line-height:1.3">%s</span>'
+           '<span class="v" style="font-size:16px">%s</span></div>' % (2 + _i, _no, _n, _d)
            for _i, (_no, _n, _d) in enumerate(_NEU)) + '</div>'),
-    # 2026-08-20 仲裁 P0：「OpenAI 选择我们」是不可核实的因果叙述，改为可核实的事实陈述
-    sh("flow", "left:1000px;top:468px;width:800px;height:44px;font:500 22px/1.5 var(--f-cn);"
-       "color:var(--accent);--i:5", "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
-    # 区 03 · START（右下 · 三步竖排，箭头连接）
-    lab(1000, 534, "03 · START", w=800),
+    lab(960, 708, "03 · START", w=840),
     ] + [
-    sh("rise card-c", "left:1000px;top:%dpx;width:800px;height:64px;--i:%d" % (566 + _i * 96, 2 + _i),
-       '<div style="padding:0 26px;height:100%%;display:flex;align-items:center;gap:18px">'
-       # mono 列 172 而不是 150：「STEP 3 · 一个季度」在 150 里会断成两行（实测）
-       '<div style="font:500 14px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
-       'width:172px;flex:none">%s</div>'
-       '<div style="font:700 26px/1.2 var(--f-cn);color:var(--ink);width:142px;flex:none">%s</div>'
-       '<div style="font:400 16px/1.5 var(--f-cn);color:var(--ink-2);flex:1">%s</div></div>'
+    sh("rise", "left:960px;top:%dpx;width:840px;height:38px;--i:%d" % (734 + _i * 38, 2 + _i),
+       '<div class="chip" style="display:flex;align-items:center;gap:14px;width:100%%;'
+       'margin:0 0 4px 0;padding:6px 20px;box-sizing:border-box">'
+       '<span style="font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
+       'width:150px;flex:none">%s</span>'
+       '<span style="font:700 19px/1.2 var(--f-cn);color:var(--ink);width:118px;flex:none">%s</span>'
+       '<span style="font:400 14px/1.4 var(--f-cn);color:var(--ink-2);flex:1">%s</span></div>'
        % (_t, _n, _d))
     for _i, (_t, _n, _d) in enumerate(_STEP)
     ] + [
-    sh("flow", "left:1390px;top:632px;width:20px;height:28px;--i:3", _ARROW),
-    sh("flow", "left:1390px;top:728px;width:20px;height:28px;--i:4", _ARROW),
     rule(850),
-    # 收口句（合流大图的落点句，逐字）+ CTA（纯 mono 文本，不做假链接样式）
+    # 落点一：合流大图的收口句（逐字）
     sh("flow", "left:120px;top:876px;width:900px;height:52px;font:400 24px/1.6 var(--f-cn);"
        "color:var(--ink);--i:6",
        "都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上"
        "——全球 200+ 节点，端到端毫秒级。"),
-    sh("flow mono-sm", "left:1000px;top:884px;width:800px;height:24px;text-align:right;--i:6",
+    # 2026-08-20 仲裁 P0：「OpenAI 选择我们」是不可核实的因果叙述，改为可核实的事实陈述
+    sh("flow", "left:1000px;top:876px;width:800px;height:32px;font:500 20px/1.5 var(--f-cn);"
+       "color:var(--accent);text-align:right;--i:5",
+       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
+    # CTA（纯 mono 文本，不做假链接样式）
+    sh("flow mono-sm", "left:1000px;top:920px;width:800px;height:24px;text-align:right;--i:6",
        "DEMO / 文档 · agora.io › 对话式 AI · 联系团队"),
+    # 落点二 + 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）
     land("让陪伴自然，让生意<strong>成单</strong>。", w=460),
-    # 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）。
     # P8 的数字（200+ 节点 / 毫秒级 / OpenAI 首批）都是 P2 那份口径的回指 ⇒ 来源同 P2；
     # 本页没有自己的样本或时间窗 ⇒ 该段留空（缺口已记入交付报告）。
     src("SOURCE · 声网官网 / IR 公开口径 · 事实截止 2026.08", x=560, w=580, align="right"),
@@ -1957,72 +2080,53 @@ def _lerp_line(a, b, n):
 #    主标右缘 x684 —— 球离最近的一处字 447px，封面构图上它坐在右侧留白正中。
 _V_POSTER = _LAB._voice_poster()
 
-# ── ② 发布时间线活动带（P2）· 几何逐条抄 _p2band() ─────────────────────────
-_S2 = 1680.0 / 1620.0                     # figbox(…,1680, vb1620×110) ⇒ figure → 舞台像素
-_TL_X0, _TL_X1, _TL_AY = 40, 1580, 62     # = _p2band() 里那三个数
-_TL_STEP = (_TL_X1 - _TL_X0) / (len(_MILE) - 1.0)
-_TL_NODE = [round(_TL_X0 + k * _TL_STEP) for k in range(len(_MILE))]
-_TL_HOTK = [k for k, m in enumerate(_MILE) if m[2]][0]
-_TL_D, _TL_HALF = 1400.0, 170.0
-_TL_Z0, _TL_Z1 = -96.0, 24.0              # 时间的纵深：最早的里程碑在远处，最新的到眼前
-_TL_W = 8.0                               # 带的基准半宽 = 页上节点圆的半径（8）—— 净空同源
-_TL_N = 160
-# ── 五处涌起的定标（第二波终审：第一波把带子整体读薄了，回一档）────────────────
-#   基线 .42 → .52（节点之间那一档本来就不该细成一条线：流是**一直在供给**的）；
-#   σ 70 → 85（涌起的肩要宽一档，五处才连成「一条会起伏的带」而不是五枚珠子）；
-#   末端 hot（Call Agent 全球版）σ 100 —— 它坐在轴的**最末点**上，高斯只剩右半边，
-#   σ 不放宽就只鼓一半。
-_TL_SIG, _TL_SIGH = 85.0, 100.0
-_TL_G0 = 0.52
-# 接头渐隐 .055 → .025：默认档在 1630px 的世界弧长上吃掉两端各 90px，正好把末端
-# hot 那一处涌起整个抹平。末端本来就有页上那枚 ah_r 箭头收口，不靠渐隐收边。
-_TL_EDGE = 0.025
-
-
-def _tl_path():
-    """活动带的中心线（画布像素 · 含 z）—— x 逐点取自页上那条 hline 的跨度"""
-    o = []
-    for i in range(_TL_N):
-        t = i / (_TL_N - 1.0)
-        o.append(((_TL_X0 + (_TL_X1 - _TL_X0) * t) * _S2, _TL_AY * _S2,
-                  _TL_Z0 + (_TL_Z1 - _TL_Z0) * t))
-    return o
-
-
-def _tl_z(x):
-    return _TL_Z0 + (_TL_Z1 - _TL_Z0) * (x - _TL_X0) / float(_TL_X1 - _TL_X0)
+# ── ② SD-RTN 地球（P2）· 与 lab P21 **逐字同参**（构图 / 相机 / poster 全部现取）──
+#    球心 (1470,500) · 屏上半径 250 ⇒ 限界 x1220–1720 / y250–750；
+#    弧的外包络（1.243r，见 lab 的 buildArc lift）投影半径 312 ⇒ x1158–1782 / y188–812，
+#    整片仍在矩形 (1150,180,640,640) 之内。
+#    ⚠ 地球是**球面场景**（camSphere），不是 px 投影锁场景 ⇒ 它不进 ⑳clr 的
+#      「两条算路对表」通道（与 P1 声场球同例，也与旗舰 lab 的 ㉒ 闸同例）。
+#      它自己的净空由 ⑳globe 单验：把外包络圆与页上字形行框逐处量，下限 16px。
+_G_POSTER = _LAB.GPOSTER
+_G_R = _LAB.GGR
+_G_CX, _G_CY = _LAB.GCX, _LAB.GCY
+_G_LIFT = 1.243                            # 弧的最大抬升倍率（= lab buildArc 的 0.028+0.215）
+# 球面半径 R 的限界在屏上的投影半径：FPX·R / sqrt(|C|²−R²)
+_G_ENV = _LAB.FPX * _G_LIFT / math.sqrt(_LAB.GCAM.CD ** 2 - _G_LIFT ** 2)
+_G_CLR = 16.0                              # 地球净空下限（加法层 16px 规则）
 
 
 # ── ③ 空间生长（P3）· 几何逐条抄 _p3fig() ─────────────────────────────────
-_GW_BASEY, _GW_TOP = 370, 172             # = _p3fig() 里的 base_y / trunk_top
-_GW_D, _GW_HALF = 1500.0, 430.0
-_GW_BOXDZ = 46.0                          # 三只产品线盒的体厚
+#   _GW_BASEY / _GW_TOP 在 P3 页那一段就定死了（2D 与 3D **共用同两个数**）。
+_GW_D, _GW_HALF = 1500.0, 480.0           # v3：矩形高 480→600，雾的半程跟着放一档
+_GW_BOXDZ = 52.0                          # 三只产品线盒的体厚（盒 300×112→380×140，体厚跟一档）
 _GW_AUXZ = -150.0                         # 辅件（TEN / 评测 / 转录）退到景深里
 _GW_AUXDZ = 26.0
 _GW_ZTOP = 8.0                            # 主干抵达产品线盒时的深度（贴着版面）
-# 三股主干的半宽是**沿程函数**：基面深处 3.5 → 盒底 6.5（≤ 2D packet 的半宽 6.5，
-# 「不许比 2D 更近」不破）。透视本来就把深处收窄（D/(D−z)），叠加后近 2× 生长 ——
-# 「从底座抽出来向上生长」因此在帧上读得出，而不是一根等粗的棍。
-# 净空探针与运行时 pad 一律**保守取最大 6.5**（两条算路同一个数 ⇒ 不会各算各的）。
-_GW_W0, _GW_W1 = 3.5, 6.5
+# 三股主干的半宽是**沿程函数**：基面深处 4.0 → 盒底 8.0（= 2D packet 的半宽 8.0，
+# 页上 packet w 从 13 放到 16 ⇒「不许比 2D 更近」仍是平手）。透视本来就把深处收窄
+# （D/(D−z)），叠加后近 2× 生长 ——「从底座抽出来向上生长」因此在帧上读得出，
+# 而不是一根等粗的棍。
+# 净空探针与运行时 pad 一律**保守取最大 8.0**（两条算路同一个数 ⇒ 不会各算各的）。
+_GW_W0, _GW_W1 = 4.0, 8.0
 _GW_WMAX = _GW_W1
 _GW_N = 90
 # ── 底座 = **纵深基面**（不是一只盒）· 几何账 ──────────────────────────────
-#   页上那只 rect(0,370,1668,76) 里坐着两行字（fig y387–407 / 415–436）——
-#   任何「向后拉伸」的框都会绕画布中心缩进去、正好压在那两行上（本轮实拍锤过：
-#   deck=210 时后框底边落在 fig y420，净空 0）。所以底座**不做体**：
+#   页上那只 rect(0,450,1668,86) 里坐着两行字（fig y468–488 / 500–524）——
+#   任何「向后拉伸」的框都会绕画布中心缩进去、正好压在那两行上（v2 实拍锤过：
+#   deck=210 时后框底边落在字上，净空 0）。所以底座**不做体**：
 #     · 前框锁死在页上那只 rect 上（hot · 一个像素不动）；
 #     · 纵深由它**身后**的一片透视栅格承担 —— 栅格整片坐在
-#       fig y322–368 那条**无字空带**里（上方 aux 盒文字止于 y291，
-#       下方底座顶沿 y370），横向止于 fig x1450（右边 y332 那行域分带注记从
-#       x1472 起，留 22px）。
+#       fig y402–448 那条**无字空带**里（上方 aux 盒文字止于 y354，
+#       下方底座顶沿 y450），横向止于 fig x1450（右边 y426 那行域分带注记从
+#       x1460 起）。
 #   栅格是真的地平面：screen = 消失点 + (近边 − 消失点)·d0/(d+d0)，
 #   d 是 0..1 的深度参数，z = −_GW_ZFAR·d ⇒ 深度雾把远端自然压弱。
 _GW_GN, _GW_GM = 8, 15                    # 栅格：8 道横 / 15 道竖
-_GW_GY0, _GW_GY1 = 368.0, 308.0           # 近边 y / 消失点 y（fig）
+_GW_GY0, _GW_GY1 = 448.0, 388.0           # 近边 y / 消失点 y（fig）
 _GW_GX0, _GW_GX1 = 10.0, 1450.0           # 近边左右缘（fig）
 _GW_GXV = 840.0                           # 消失点 x（fig · 画布中线）
-_GW_GD0 = 0.3043                          # 透视常数：d=1 时落在 fig y322（= 近边到消失点的 23.3%）
+_GW_GD0 = 0.3043                          # 透视常数：d=1 时落在 fig y402（= 近边到消失点的 23.3%）
 _GW_ZFAR = 760.0                          # 栅格最远处的深度
 
 
@@ -2127,21 +2231,22 @@ def _ag_link(k):
 
 
 # ── ⑥ 三条支流一条河（P8 · 标杆）· 几何逐条抄 _p8fig() ────────────────────
+#   v3：所有宽度 ×1.6（形放大 1.6×，介质不变 —— λ 仍是 lab-kit ⑨ 的 232px）。
 _RV_D, _RV_HALF = 1200.0, 330.0
 _RV_ZSRC = -270.0                         # 三条支流的源头深度（在纵深里）
 _RV_ZMEET = 0.0                           # 汇合点 = 版面平面（主河道就在眼前）
 # ── 能量守恒：河**比支流宽**（否则「一条河 = 三条之和」在帧上读不出来）──────
-#   支流半宽 = 沿程函数 4.0（源头）→ 6.5（河口）：透视本来就把源头收窄
+#   支流半宽 = 沿程函数 6.4（源头）→ 10.4（河口）：透视本来就把源头收窄
 #   （D/(D−z) = 1200/1470 = .816），叠加后源头→河口约 2× 生长，正是「越近越宽」。
-#   6.5 = 页上 2D packet 的半宽（stroke 13）⇒「不许比 2D 更近」不破。
-#   主河道半宽 13.0（河道盒 rx26 · 高 52 ⇒ 峰值 ±13 仍在盒内），且 floor 抬到 .55 ——
-#   河是稳定的，脉动归支流。河口 80px 内再抬到 15（三条流交出去的那一处要看得见「合」）。
-#   净空探针与运行时 pad：支流保守取最大 6.5、主河道取最大 15（两条算路同一个数）。
-_RV_WT0, _RV_WT1 = 4.0, 6.5               # 支流半宽：源头 → 河口
+#   10.4 = 页上 2D packet 的半宽（stroke 21）⇒「不许比 2D 更近」不破。
+#   主河道半宽 20.8（河道盒 rx42 · 高 84 ⇒ 峰值 ±24 仍在盒内），且 floor 抬到 .55 ——
+#   河是稳定的，脉动归支流。河口 128px 内再抬到 24（三条流交出去的那一处要看得见「合」）。
+#   净空探针与运行时 pad：支流保守取最大 10.4、主河道取最大 24（两条算路同一个数）。
+_RV_WT0, _RV_WT1 = 6.4, 10.4              # 支流半宽：源头 → 河口（= v2 的 4.0 / 6.5 ×1.6）
 _RV_WT = _RV_WT1                          # 探针 / pad 的保守上界
-_RV_WM = 13.0                             # 主河道基准半宽
-_RV_WMOUTH = 15.0                         # 河口涌起的峰值半宽
-_RV_WACC = 80.0                           # 涌起的作用半径（沿主河道弧长 px）
+_RV_WM = 20.8                             # 主河道基准半宽（= 13 ×1.6）
+_RV_WMOUTH = 24.0                         # 河口涌起的峰值半宽（= 15 ×1.6）
+_RV_WACC = 128.0                          # 涌起的作用半径（沿主河道弧长 px · = 80 ×1.6）
 _RV_WMAX = _RV_WMOUTH                     # 探针 / pad 的保守上界
 _RV_MFLOOR = 0.55                         # 主河道幅度地板（全局档 0.30 ⇒ 河更稳）
 _RV_N = 140
@@ -2172,11 +2277,11 @@ def _rv_trib(k, y):
 
 def _rv_main():
     return _lerp_line((float(_P8_CX), float(_P8_CY), _RV_ZMEET),
-                      (790.0, float(_P8_CY), _RV_ZMEET), 60)
+                      (float(_P8_MX1), float(_P8_CY), _RV_ZMEET), 60)
 
 
 def _rrect(x, y, w, h, r, per=9):
-    """圆角矩形 → 闭合折线（页上那只 rx26 的 ONE NET 河道盒本人）"""
+    """圆角矩形 → 闭合折线（页上那只 rx42 的 ONE NET 河道盒本人）"""
     o = []
     for cx, cy, a0 in ((x + w - r, y + r, -90.0), (x + w - r, y + h - r, 0.0),
                        (x + r, y + h - r, 90.0), (x + r, y + r, 180.0)):
@@ -2197,21 +2302,25 @@ def _ex_path():
 #   这张表是「不压字」从纪律变成机器判据的地方：qa 的 ⑳clr-a 闸拿活 DOM 逐处对表，
 #   改了文案而没同步这张表 ⇒ 当场报。坐标是舞台坐标（1920×1080）。
 _INK = {
-    2: [(161.6, 881.2, 112.7, 23), (161.6, 952.7, 193.2, 21),
-        (504.4, 881.2, 112.7, 23), (464.2, 952.7, 193.2, 21),
-        (903.6, 881.2, 112.7, 23), (886.6, 952.7, 146.7, 21),
-        (1302.9, 881.2, 112.7, 23), (1303.2, 952.7, 111.9, 21),
-        (1645.7, 881.2, 112.7, 23), (1605.7, 952.7, 152.7, 21)],
-    3: [(388.9, 286, 62.2, 18), (338, 339, 163.9, 28), (345.8, 382, 148.4, 17),
-        (438, 463, 256, 17), (934.1, 286, 51.8, 18), (885, 339, 150, 28),
-        (911.2, 382, 97.5, 17), (978, 463, 208, 17), (1443, 286, 114, 18),
-        (1450, 339, 100, 28), (1434.1, 382, 131.7, 17), (1518, 463, 208, 17),
-        (187.2, 516, 145.6, 22), (188, 547, 143.9, 16),
-        (732.2, 516, 145.6, 22), (756.8, 547, 96.5, 16),
-        (1265, 516, 120, 22), (1276.8, 547, 96.5, 16),
-        (150, 659, 390.3, 20), (150, 687, 665.7, 21),
-        (180, 730, 75.5, 16), (396, 730, 68.5, 16), (599, 730, 100.4, 16),
-        (881, 730, 136.1, 16), (1592.4, 604, 187.6, 18)],
+    # ② 地球（P2）：矩形 (1150,180,640,640) 里**没有一处页上的字**（左栏止于 x1050、
+    #   角注在 y872、land 在 y940）。登记的是它的四个真实对手 —— 四卡右列的说明行 /
+    #   IDC 注末行 / 地球角注 / 页码 8/8 ——⑳globe 拿它们量 16px。
+    #   ⚠ 细节层（.detail）里的字**不登记**：面板压在 canvas 之上，3D 压不到它。
+    2: [(1759.2, 44, 36.7, 22), (669.3, 149, 266.6, 76), (935.9, 149, 66.6, 76),
+        (624, 415.3, 340, 22), (624, 536.7, 284.1, 100), (733.3, 717, 268.9, 25),
+        (1464.6, 872, 335.4, 20), (802, 955, 145, 32), (1691.6, 949, 89.4, 20),
+        (1033, 1022, 767, 22)],
+    # ③ 空间生长（P3）：全舞台 (120,272,1680,600) 内的字形行框（构建后实测填表）
+    3: [(386.7, 282, 66.6, 20), (328.2, 349, 183.6, 31), (340.9, 398, 158.3, 17),
+        (438, 502, 272, 19), (932.2, 282, 55.5, 20), (876, 349, 168, 31),
+        (908, 398, 104, 17), (978, 502, 221, 19), (1438.9, 282, 122.1, 20),
+        (1444, 349, 112, 31), (1429.8, 398, 140.5, 17), (1518, 502, 221, 19),
+        (183.6, 579, 152.8, 23), (182.9, 612, 154.2, 17),
+        (713.6, 579, 152.8, 23), (738.3, 612, 103.3, 17),
+        (1267, 579, 126, 23), (1278.3, 612, 103.3, 17),
+        (150, 740, 416.3, 21), (150, 771, 735.8, 23),
+        (180, 820, 75.5, 16), (396, 820, 68.5, 16), (599, 820, 100.4, 16),
+        (881, 820, 136.1, 16), (1592.4, 684, 187.6, 18)],
     4: [(160, 286, 204.8, 21), (1305.6, 286, 214.4, 21), (160, 364, 453.6, 18),
         (1524.6, 356, 275.4, 20)],
     5: [(1003.4, 544, 90.3, 17), (1003.4, 568.3, 169.3, 17), (1228, 598.6, 25.4, 17),
@@ -2228,20 +2337,20 @@ _INK = {
     #   而是为了让 ⑳clr 有四个真实的对手去量 16px。
     6: [(120.0, 89.0, 760.0, 26.0), (653.1, 149.0, 66.6, 76.0),
         (120.0, 236.0, 122.6, 20.0), (1759.2, 47.0, 40.8, 17.0)],
-    8: [(292.5, 293, 75, 20), (702.5, 293, 75, 20),
-        (150, 332, 140.9, 17), (150, 532, 133.4, 17), (150, 732, 167.5, 17),
-        (537.5, 519, 45, 20), (570, 617, 77.7, 20), (570, 644, 265.2, 25),
-        (570, 678, 219.2, 17), (184, 799, 40.5, 15), (353, 799, 34, 15),
-        (509, 799, 63.6, 15), (744, 799, 100.2, 15)],
+    8: [(410, 290, 80, 21), (1080, 290, 80, 21),
+        (168, 297, 159.7, 19), (168, 447, 151.2, 19), (168, 597, 189.9, 19),
+        (796, 418, 48, 21), (836, 562, 82.9, 21), (836, 590, 313.4, 30),
+        (836, 630, 246.5, 20), (184, 664, 43.6, 16), (353, 664, 36.6, 16),
+        (509, 664, 68.5, 16), (744, 664, 107.9, 16)],
 }
 # ── 已知穿越名册（P8 · 三行支流标注）──────────────────────────────────────
-#   `txt(30, y−16, label)` 把标注钉在源头点正上方 16px，而支流曲线从源头就往右上爬
-#   ⇒ **页上那条 2D 曲线本来就从这三行字底下穿过**（2D 半宽 6.5px，净空 −6.5）。
-#   3D 的流带在同一处半宽 5.46px（透视把深处的带子收窄了）⇒ 比 2D 还让出 1.0px。
+#   `txt(_P8_SX, y−28, label)` 把标注钉在源头点正上方 28px，而支流曲线从源头就往
+#   右上爬 ⇒ **页上那条 2D 曲线本来就从这三行字底下穿过**（2D 半宽 10.4px）。
+#   3D 的流带在同一处更窄（透视把深处的带子收窄了）⇒ 比 2D 还让出一点。
 #   这不是「3D 压字」，是页面既有的图文叠压关系；把它写成名册**正面登记**，
 #   而不是把它混进净空名册去把下限拖成负数。qa 的 ⑳clr-a 闸认这张表。
 _INK_SKIP = {
-    8: [(150, 332, 140.9, 17), (150, 532, 133.4, 17), (150, 732, 167.5, 17)],
+    8: [(168, 597, 189.9, 19)],
 }
 for _p8, _bs in _INK_SKIP.items():
     _INK[_p8] = [b for b in _INK[_p8] if tuple(b) not in {tuple(x) for x in _bs}]
@@ -2254,13 +2363,18 @@ for _p8, _bs in _INK_SKIP.items():
 #   每一条都记下**证人**（哪一处几何 vs 哪一只字盒）与页上 2D 的同处净空，
 #   报告里逐条摆出来 —— 这一闸真正管的是「不许比 2D 更近」。
 _CLR = {
-    2: (14.0, "末枚节点圆 r8（轴 y930.3, x1758.5）vs「Call Agent 全球版」行 y952.7"
-              "；页上同处 14.2px ⇒ 平手"),
-    3: (8.0,  "产品线盒顶 y312 vs 其上 mono 名（ENGINE y286–304）；页上同处 8px ⇒ 平手"),
+    # ② 地球：页上这块地本来没有图（左栏四大数占 x120–1050）⇒ 走**加法层 16px 规则**，
+    #   不走「不许比 2D 更近」的平手规则。对手见 _INK[2] 的四邻。
+    2: (_G_CLR, "加法层 · 16px 规则 · 证人 = 弧外包络圆（R=%.1f · 心 1470,500）"
+                "vs 左栏四大数说明行 / IDC 注 / 地球角注 / 页码" % _G_ENV),
+    3: (8.0,  "产品线盒顶 y312（fig y40）vs 其上 mono 名（ENGINE 行底 stage y302）"
+              "；2D 盒画在同一处 ⇒ 平手"),
     4: (7.5,  "末格下端 y350（3D 收到 ±12）vs「PUBLIC RELEASES」行左上角 (1524.6,356)"
               "；页上同格是 ±16 ⇒ 只有 5.0px，3D 让出 2.6px"),
     5: (2.5,  "能力盒**前框**底 y596 vs 其下两字 mono 标（承载 y598.6）；页上同处 2.6px ⇒ 平手"),
-    8: (6.9,  "ONE NET 河道盒顶 y546 vs「合流点」行 y519–539；页上同处 7.0px ⇒ 平手"),
+    8: (13.5, "支流带在源头处（保守 pad = 河口峰值半宽 10.4）vs 其上 28px 的支流标注行"
+              "：24−10.4 = 13.6px；页上 2D packet 的半宽也正是 10.4 ⇒ 逐像素平手。"
+              "真实屏上半宽在源头只有 8.49（透视收窄 1200/1470）⇒ 3D 实际还让出 1.9px"),
 }
 if P6_EXIT:
     # 加法层走 **16px 规则**（版面之外的空档，不走「不许比 2D 更近」的平手规则）。
@@ -2351,95 +2465,14 @@ function clrMin(U, ink, items){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ② 发布时间线活动带（P2 公司 · 04 MILESTONES）
+   ② SD-RTN 地球（P2 公司 · 主图）—— **makeGlobe 现取自旗舰**，不在这里重写
    ───────────────────────────────────────────────────────────────────────────
-   语义：里程碑不是五个孤立的点，是**一条一直在供给的流**上的五处涌起。
-   audioStream 沿页上那条时间轴走（波长逐字取 lab-kit ⑨ 的 232px ⇒ 与全家族
-   同一种介质），z 从 −96 爬到 +24：**时间从纵深走到眼前**。
-   节点的亮与色由**流本身**决定 —— aH = 该节点处的包络值 ⇒ 波峰走到哪个里程碑，
-   哪个里程碑亮。这是「一枚包 = 时间在走」那行 mono 线标的 3D 版本。
-   ⚠ 地球：见 builder 顶部 LAB 层大注释 —— P2 上放不下，本轮停手。
+   实现整体是 lab P21 那一枚（位掩码陆地 / 示意节点 / 五槽并发大圆弧 / 双主题材质 /
+   OrbitControls 可拖不可缩）。本 deck 只提供矩形与 K 表 —— 场景代码一个字节没改。
+   弧**不标任何延迟数值**（数字红线）；节点是示意分布，页上那行角注写死了这一条。
+   ⚠ 它是球面场景（camSphere），没有 px 投影锁 ⇒ 不交 state().clr，
+     净空由 ⑳globe 单验（弧外包络圆 vs 页上字形行框，下限 16px）。
    ═══════════════════════════════════════════════════════════════════════════ */
-function makeBand(ctx){
-  const C = K.tl, w = ctx.rect[2], h = ctx.rect[3], D = C.D;
-  const scene = new THREE.Scene();
-  const camera = camPx(w, h, D);
-  const SH = pxShared(D, C.half);
-  const U = unlock(w, h, D, ctx.rect);
-  const path = unpk3(C.path);
-  /* ── 五处涌起（幅度剖面 · gain 的唯一入口）──────────────────────────────
-     注释里写的是「里程碑是一条**一直在供给**的流上的五处涌起」，而 aG 恒 1 只画得出
-     一条均匀带。改成静态剖面：
-         g(u) = g0 + (1−g0)·min(1, Σ_k A_k·exp(−((u−u_k)/σ_k)²))，
-         u_k = C.nodeU[k]（节点在流上的弧长 —— 与节点脉冲取样的是同一条 u），
-         A_k：hot 节点（Call Agent 全球版）1.0、其余 0.8 ⇒ 本页唯一 hot 在带上也最鼓。
-     ── 第二波终审的回档（第一波把带子整体读薄了）──────────────────────────
-       g0 .42 → .52：节点之间那一档是**一直在供给**的流，不是一条细线；
-       σ 70 → 85：涌起的肩宽一档，五处才连成「一条会起伏的带」而不是五枚珠子；
-       末端 hot 的 σ = 100：它坐在轴的最末点上，高斯只剩右半边，σ 不放宽就只鼓一半。
-       接头渐隐 uEdge 同时从全局档 .055 收到 C.edge（.025）—— 见 mkStream 的 opt。
-     fn 只吃 u ⇒ mkStream 认作静态剖面，整段只算一次，不进每帧开销。 */
-  const TL_SIG = C.sig, TL_SIGH = C.sigh, TL_G0 = C.g0;
-  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam, edge: C.edge })
-    .gain((u) => {
-      let s = 0;
-      for(let k = 0; k < C.nodeU.length; k++){
-        const d = (u - C.nodeU[k]) / (k === C.hot ? TL_SIGH : TL_SIG);
-        s += (k === C.hot ? 1.0 : 0.8) * Math.exp(-d*d);
-      }
-      return TL_G0 + (1 - TL_G0)*Math.min(1, s);
-    }).add(scene);
-  const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const axis = iLine(path, axisMat); scene.add(axis);
-  const coldMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
-  const hotMat  = mkMat(SH, PX_PT_VS, PX_PT_FS);
-  const cold = [], coldU = [], hotP = [], hotU = [];
-  for(let i = 0; i < C.node.length; i++){
-    (i === C.hot ? hotP : cold).push(C.node[i]);
-    (i === C.hot ? hotU : coldU).push(C.nodeU[i]);
-  }
-  const coldO = iPts(cold, coldMat), hotO = iPts(hotP, hotMat);
-  scene.add(coldO); scene.add(hotO);
-  const cA = coldO.geometry.attributes.aH, hA = hotO.geometry.attributes.aH;
-  return {
-    scene, camera, intro: 1.0, grab: false,
-    onDPR(pr){ SH.uPx.value = pr; },
-    setIntro(e){ SH.uIntro.value = e; },
-    draw(dt, clock){
-      SH.uTime.value = clock;
-      flow.draw(clock);
-      const run = C.spd * clock;
-      for(let i = 0; i < coldU.length; i++) cA.array[i] = asEnv(coldU[i] - run);
-      for(let i = 0; i < hotU.length;  i++) hA.array[i] = asEnv(hotU[i] - run);
-      cA.needsUpdate = true; hA.needsUpdate = true;
-    },
-    state(){ return { clr: clrMin(U, C.ink, [
-      [flow.geo, C.wpx], [axis.geometry, 0],
-      [coldO.geometry, cssNum('--tl-node-size',7)/2],
-      [hotO.geometry,  cssNum('--tl-hot-size',9)/2] ]) }; },
-    applyTheme(){
-      axisMat.uniforms.uColor.value.copy(cssColor('--tl-axis'));
-      axisMat.uniforms.uHot.value.copy(cssColor('--tl-axis'));
-      axisMat.uniforms.uOpacity.value = cssNum('--tl-axis-op', .8);
-      axisMat.uniforms.uGain.value = 0;
-      coldMat.uniforms.uColor.value.copy(cssColor('--tl-node'));
-      coldMat.uniforms.uHot.value.copy(cssColor('--tl-hot'));
-      coldMat.uniforms.uOpacity.value = cssNum('--tl-node-op', .9);
-      coldMat.uniforms.uSize.value = cssNum('--tl-node-size', 7);
-      coldMat.uniforms.uGain.value = .85;
-      hotMat.uniforms.uColor.value.copy(cssColor('--tl-hot'));
-      hotMat.uniforms.uHot.value.copy(cssColor('--tl-hot'));
-      hotMat.uniforms.uOpacity.value = cssNum('--tl-hot-op', 1);
-      hotMat.uniforms.uSize.value = cssNum('--tl-hot-size', 9);
-      hotMat.uniforms.uGain.value = .45;
-      flow.theme(cssColor('--tl-flow'), cssColor('--tl-rms'),
-                 cssNum('--tl-flow-op', .6), cssNum('--tl-rms-op', .7), .58);
-      [axisMat, coldMat, hotMat].forEach(m => {
-        m.uniforms.uBack.value = .58; setBlend(m, cssNum('--tl-add', 0)); });
-      setBlend(flow.mat, cssNum('--tl-add', 0));
-    },
-  };
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ③ 空间生长（P3 矩阵 ·「一个实时底座，三条产品线」）
@@ -2967,39 +3000,32 @@ def _u_at_x(pagepts, cum, x):
     return cum[-1]
 
 
-# ── ② P2 活动带 ────────────────────────────────────────────────────────────
-def _tl_build():
-    r = LAB_RECTS[2]
-    w, h = r[3], r[4]
-    page = _tl_path()
-    wp, cum = _cum_world(page, w, h, _TL_D)
-    Lp = _xylen([(p[0], p[1]) for p in page])
-    spd = _SPD_A * cum[-1] / Lp
-    node, nodeU = [], []
-    for x in _TL_NODE:
-        px, py, z = x * _S2, _TL_AY * _S2, _tl_z(x)
-        node.append(_lockpt(px, py, z, w, h, _TL_D))
-        nodeU.append(_u_at_x(page, cum, px))
-    probe = _probe_stream(page, r[1:], _TL_W, _TL_D)
-    probe += [(r[1] + x * _S2, r[2] + _TL_AY * _S2,
-               _cssmax("--tl-%s-size" % ("hot" if k == _TL_HOTK else "node")) / 2.0)
-              for k, x in enumerate(_TL_NODE)]
-    return dict(w=w, h=h, page=page, wp=wp, spd=spd, Lp=Lp, node=node, nodeU=nodeU,
-                probe=probe)
+# ── ② P2 SD-RTN 地球 ───────────────────────────────────────────────────────
+def _g_build():
+    """地球没有 px 投影锁的几何 —— 它的净空探针就是**弧的外包络圆**：
+       半径 _G_ENV（球面 1.243r 的限界投影）绕球心一圈，逐点量到页上字形行框。
+       这与运行时 ⑳globe 那一闸量的是同一个圆（qa 从 data-lab-genv 现取）。"""
+    probe = []
+    for i in range(360):
+        a2 = i * math.pi / 180.0
+        probe.append((_G_CX + _G_ENV * math.cos(a2), _G_CY + _G_ENV * math.sin(a2), 0.0))
+    return dict(env=_G_ENV, probe=probe)
 
 
 # ── ③ P3 空间生长 ─────────────────────────────────────────────────────────
 def _gw_build():
     r = LAB_RECTS[3]
     w, h = r[3], r[4]
-    box = [(tx - 150, 40, 300, 112) for tx, _c, _m, _t, _f, _y in _MX_LINES]
-    aux = [(x, 232, bw, 74) for x, bw, _n2, _f, _how in _MX_AUX]
+    # 盒 / 辅件 / 旁挂虚线的坐标**逐条取自 _p3fig() 的那批常量**（不许两处各写一个数）
+    box = [(tx - _MX_BW // 2, _MX_BOXY, _MX_BW, _MX_BH) for tx, _c, _m, _t, _f, _y in _MX_LINES]
+    aux = [(x, _MX_AUXY, bw, _MX_AUXH) for x, bw, _n2, _f, _how in _MX_AUX]
     link = []
     for x, bw, _n2, _f, how in _MX_AUX:
         if how == "trunk":
-            link.append([(x + bw + 4, 269, _GW_AUXZ), (300, 269, _GW_AUXZ)])
+            link.append([(x + bw + 4, _MX_AUXY + 42, _GW_AUXZ), (300, _MX_AUXY + 42, _GW_AUXZ)])
         else:
-            link.append([(x + bw // 2, 306, _GW_AUXZ), (x + bw // 2, _GW_BASEY, _GW_AUXZ)])
+            link.append([(x + bw // 2, _MX_AUXY + _MX_AUXH, _GW_AUXZ),
+                         (x + bw // 2, _GW_BASEY, _GW_AUXZ)])
     grid = _gw_grid()
     trunk, spd, probe = [], [], []
     for tx, _c, _m, _t, _f, _y in _MX_LINES:
@@ -3010,7 +3036,7 @@ def _gw_build():
         spd.append(_SPD_A * cum[-1] / Lp)
         probe += _probe_stream(pts, r[1:], _GW_WMAX, _GW_D)
     # 底座：**只有前框**（锁死在页上那只 rect 上）+ 身后那片透视基面栅格
-    probe += _probe_lock(_probe_rect(0, _GW_BASEY, 1668, 76), r[1:])
+    probe += _probe_lock(_probe_rect(0, _GW_BASEY, 1668, _GW_BASEH), r[1:])
     for g in grid:
         probe += _probe_lock([(q[0], q[1]) for q in g], r[1:])
     for b in box:
@@ -3080,7 +3106,7 @@ def _ag_build():
 
 
 # ── ⑥ P8 三条支流一条河 ───────────────────────────────────────────────────
-_RV_BED = 90.0
+_RV_BED = 144.0                           # 河床纵深（= 90 ×1.6）
 
 
 def _rv_build():
@@ -3101,14 +3127,14 @@ def _rv_build():
     _mw, mcum = _cum_world(main, w, h, _RV_D)
     spdrow.append(("ONE NET 主河道", _xylen([(p[0], p[1]) for p in main]), _SPD_A))
     probe += _probe_stream(main, r[1:], _RV_WMAX, _RV_D)
-    rail = [(p[0], p[1], 0.0) for p in _rrect(440, 274, 350, 52, 26)]
+    rail = [(p[0], p[1], 0.0) for p in _rrect(_P8_BOX[0], _P8_BOX[1], _P8_BOX[2],
+                                              _P8_BOX[3], _P8_BOX[4])]
     probe += _probe_lock([(p[0], p[1]) for p in rail], r[1:])
     probe += _probe_back([(p[0], p[1]) for p in rail], 0.0, _RV_BED, _RV_D, r[1:])
-    # ⚠ 页上那条域分带 `M418 48 V520`（stage x538）**不进 3D**：它的左缘正贴着
-    #   「合流点」标注的左缘 x537.5（2D 净空 ≈ −0.5px，是页面既有的贴合）。
-    #   而它要说的那件事，3D 里已经由**深度**说了：支流在纵深、主河道在版面平面。
-    #   两枚域标注（三条产品线 / 一张实时网）是文字件，照常留在 DOM 里。
-    src = [(30.0, float(y), _RV_ZSRC) for y, _c, _lb in _TRIB]
+    # ⚠ 页上那条域分带 `M640 46 V396`**不进 3D**：它要说的那件事，3D 里已经由
+    #   **深度**说了 —— 支流在纵深、主河道在版面平面。两枚域标注（三条产品线 /
+    #   一张实时网）是文字件，照常留在 DOM 里。
+    src = [(float(_P8_SX), float(y), _RV_ZSRC) for y, _c, _lb in _TRIB]
     probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-src-size") / 2.0) for p in src]
     meet = [(float(_P8_CX), float(_P8_CY), 0.0)]
     probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-meet-size") / 2.0) for p in meet]
@@ -3149,13 +3175,13 @@ def _ex_build():
                 lb=(wf, wb), inner=inner, quad=quad, probe=probe)
 
 
-_TL = _tl_build()
+_G = _g_build()
 _GW = _gw_build()
 _RL = _rl_build()
 _AG = _ag_build()
 _RV = _rv_build()
 _EX = _ex_build()
-_PROBE = {2: _TL["probe"], 3: _GW["probe"], 4: _RL["probe"], 5: _AG["probe"], 8: _RV["probe"]}
+_PROBE = {2: _G["probe"], 3: _GW["probe"], 4: _RL["probe"], 5: _AG["probe"], 8: _RV["probe"]}
 if P6_EXIT:
     _PROBE[6] = _EX["probe"]
 _CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
@@ -3164,7 +3190,7 @@ _CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
 def _spd_rows(p):
     """逐股**屏上**流速（px/s）—— A 档 110 ±30%，qa 的 ⑳spd 闸逐股复算"""
     if p == 2:
-        return [("时间线活动带", _TL["Lp"], _SPD_A)]
+        return []          # 地球不是「介质流」——它没有 audioStream，不进 A 档流速表
     if p == 3:
         return [("%s 主干" % m[2], _xylen([(q[0], q[1]) for q in _GW["trunk"][k]]), _SPD_A)
                 for k, m in enumerate(_MX_LINES)]
@@ -3202,12 +3228,15 @@ def lab_data(p):
               ("harm", ";".join(",".join(str(x) for x in hh) for hh in _LAB.VHARM)),
               ("hot", "%s,%s" % _LAB.VHOT)]
     elif p == 2:
-        a += [("nodes", len(_TL_NODE)), ("hot", _TL_HOTK),
-              ("span", "%d,%d" % (_TL_X0, _TL_X1)),
-              ("z", "%s,%s" % (_n3(_TL_Z0), _n3(_TL_Z1))),
-              ("lam", _n3(_LAB._AS_LAM)), ("w", _n3(_TL_W)),
-              ("nodex", ",".join(str(x) for x in _TL_NODE)),
-              ("globe", "0")]      # ⚠ 地球：本轮停手（版面上放不下），见 LAB 层大注释
+        # 地球：自转周期 / 入场 / 节点数 / 取道数 / 三组弧相位全部**现取自旗舰**；
+        # globe = 球心与屏上半径，genv = 弧外包络的投影半径（⑳globe 拿它复算净空）。
+        a += [("spin", _LAB.GSPIN), ("intro", _LAB.GINTRO),
+              ("nodes", len(_LAB._NODES_LL)), ("routes", len(_LAB._ROUTES)),
+              ("arc-dur", _LAB.ARC_DUR_S.strip("[]")),
+              ("arc-gap", _LAB.ARC_GAP_S.strip("[]")),
+              ("arc-off", _LAB.ARC_OFF_S.strip("[]")),
+              ("globe", "%s,%s,%s" % (_n3(_G_CX), _n3(_G_CY), _n3(_G_R))),
+              ("genv", _n3(round(_G_ENV, 2)))]
     elif p == 3:
         a += [("trunks", len(_MX_LINES)), ("aux", len(_MX_AUX)),
               ("trunkx", ",".join(str(m[0]) for m in _MX_LINES)),
@@ -3266,6 +3295,22 @@ def lab_stage(p):
                   '<path class="v-dot-h" d="%s"/></svg>'
                   % (_V_POSTER["wireB"], _V_POSTER["back"], _V_POSTER["wire"],
                      _V_POSTER["front"], _V_POSTER["hot"]))
+    elif kind == "globe":
+        # 辉光 + poster 都**现取自旗舰**（`_LAB.GPOSTER` 是构建期用与运行时逐字同参的
+        # 相机矩阵离线投影出来的那一份）⇒ poster 与 WebGL 是同一张图，交接不跳。
+        aw = _G_R * 2 * 1.35
+        atmo = ('<div class="lab-atmo" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
+                'background:radial-gradient(circle closest-side,transparent 62%%,var(--g-atmo) 74%%,'
+                'transparent 87%%);opacity:var(--g-atmo-int)"></div>'
+                % (_G_CX - aw / 2, _G_CY - aw / 2, aw, aw))
+        poster = ('<svg class="lab-poster" id="labPoster2" viewBox="0 0 1920 1080" aria-hidden="true">'
+                  '<circle class="g-ocean" cx="%s" cy="%s" r="%s"/>'
+                  '<path class="g-grat" d="%s"/><path class="g-land" d="%s"/>%s'
+                  '<path class="g-node" d="%s"/>'
+                  '<circle class="g-rim" cx="%s" cy="%s" r="%s"/></svg>'
+                  % (_n3(_G_CX), _n3(_G_CY), _n3(_G_R), _G_POSTER["grat"], _G_POSTER["land"],
+                     "".join('<path class="g-arc" d="%s"/>' % d for d in _G_POSTER["arcs"]),
+                     _G_POSTER["nodes"], _n3(_G_CX), _n3(_G_CY), _n3(_G_R)))
     pr = ('<img class="lab-print" id="labPrint%d" alt="" aria-hidden="true" '
           'style="left:%dpx;top:%dpx;width:%dpx;height:%dpx">' % (p, rx, ry, rw, rh))
     return ('<div class="lab-stage" id="labStage%d" data-lab-page="%d" data-lab-scene="%s" '
@@ -3287,15 +3332,6 @@ def info_k():
     def INK(p):
         return "[" + ",".join(_arr3(b) for b in _INK[p]) + "]"
 
-    tl = O([("D", _n3(_TL_D)), ("half", _n3(_TL_HALF)),
-            ("path", '"%s"' % _pk3(_lock_path(_TL["page"], _TL["w"], _TL["h"], _TL_D))),
-            ("node", "[" + ",".join(_arr3(q) for q in _TL["node"]) + "]"),
-            ("nodeU", "[" + ",".join(_n3(v) for v in _TL["nodeU"]) + "]"),
-            ("hot", str(_TL_HOTK)), ("w", _n3(_TL_W)), ("spd", _n3(_TL["spd"])),
-            ("sig", _n3(_TL_SIG)), ("sigh", _n3(_TL_SIGH)), ("g0", _n3(_TL_G0)),
-            ("edge", _n3(_TL_EDGE)),
-            ("wpx", _n3(_wpx(_TL_W, _TL["page"], _TL_D))),
-            ("ink", INK(2))])
     gw = O([("D", _n3(_GW_D)), ("half", _n3(_GW_HALF)),
             ("basey", str(_GW_BASEY)),
             ("grid", "[" + ",".join(PL(g, _GW["w"], _GW["h"], _GW_D)
@@ -3308,7 +3344,8 @@ def info_k():
                 for a, b in _GW["link"]) + "]"),
             ("base", "[" + ",".join(_arr3(q) for q in
                      _lock_path([(0, _GW_BASEY, 0), (1668, _GW_BASEY, 0),
-                                 (1668, _GW_BASEY + 76, 0), (0, _GW_BASEY + 76, 0),
+                                 (1668, _GW_BASEY + _GW_BASEH, 0),
+                                 (0, _GW_BASEY + _GW_BASEH, 0),
                                  (0, _GW_BASEY, 0)], _GW["w"], _GW["h"], _GW_D)) + "]"),
             ("trunk", "[" + ",".join(PL(q, _GW["w"], _GW["h"], _GW_D)
                                      for q in _GW["trunk"]) + "]"),
@@ -3390,17 +3427,26 @@ def info_k():
                    ("grain", _n3(_LAB._AS_GRAIN)), ("grainL", _n3(_LAB._AS_GRAINL)),
                    ("edge", _n3(_LAB._AS_EDGE)), ("crest", _n3(_LAB._AS_CREST)),
                    ("comp", _n3(_LAB._AS_COMP)), ("spd", _n3(_SPD_A))]),
-        "tl:" + tl, "gw:" + gw, "rl:" + rl, "ag:" + ag, "rv:" + rv, "ex:" + ex,
+        # ② SD-RTN 地球：构图 / 相机 / 位掩码陆地 / 示意节点 / 取道表 / 三组弧相位
+        #    **全部现取自旗舰**（一个数都不在本文件里重写）
+        "g:" + O([("cam", _arr3(_LAB.GCAM.C)), ("tilt", _n3(_LAB.GTILT)),
+                  ("y0", _n3(_LAB.GY0)), ("spin", _n3(_LAB.GSPIN)),
+                  ("introSec", _n3(_LAB.GINTRO))]),
+        'landBits:"%s"' % _LAB.LAND_BITS, "landN:%d" % _LAB.LAND_N,
+        'nodeTable:"%s"' % _LAB.NODE_TABLE, 'routeTable:"%s"' % _LAB.ROUTE_TABLE,
+        "arcDur:%s" % _LAB.ARC_DUR_S, "arcGap:%s" % _LAB.ARC_GAP_S,
+        "arcOff:%s" % _LAB.ARC_OFF_S,
+        "gw:" + gw, "rl:" + rl, "ag:" + ag, "rv:" + rv, "ex:" + ex,
     ]) + "}"
 
 
 # ── 运行时装配：地基（旗舰现取）+ 本 deck 五枚场景 + 单渲染器巡游 ──────────
-_FACTORY_JS = ("const FACTORY = { voice:makeVoice, band:makeBand, grow:makeGrow,\n"
+_FACTORY_JS = ("const FACTORY = { voice:makeVoice, globe:makeGlobe, grow:makeGrow,\n"
                "                  release:makeRelease, agent:makeAgent, river:makeRiver,\n"
                "                  exit:makeExit };")
 _TOUR_JS = _re2.sub(r"const FACTORY = \{[\s\S]*?\};", lambda _m: _FACTORY_JS, _K_TOUR, count=1)
-assert "makeBand" in _TOUR_JS and "makeBrain" not in _TOUR_JS, "FACTORY 替换失败"
-INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_LOCK + _K_AS + _K_CLR
+assert "makeGlobe" in _TOUR_JS and "makeBrain" not in _TOUR_JS, "FACTORY 替换失败"
+INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_GLOBE + _K_LOCK + _K_AS + _K_CLR
                     + INFO_SCENES + _TOUR_JS)
 
 # ═══ 引擎详解抽屉 + 深链的行为层（独立 <script>，不碰共享的 deck.js）═══════════
@@ -3519,6 +3565,41 @@ window.addEventListener("keydown",function(e){
 })();</script>
 """
 
+# ═══ 细节层的行为层（v3 · 独立 <script>，同样不碰共享的 deck.js）═══════════════
+#   面板本身**没有自己的状态**：它就是该页的 data-step=1。所以这里只做两件小事 ——
+#     ① chip「细节 ⏎」：点击 / Enter / 空格 ⇒ 走 deck 的第 1 步（与 → 完全同一条路）；
+#     ② Esc ⇒ 退回第 0 步（← 由 deck.js 的 prev() 天然管着，这里不重复实现）。
+#   键盘纪律：Esc 走 capture 阶段，但**排在引擎抽屉之后**注册 ——
+#     抽屉开着时它的 stopImmediatePropagation 先吞掉 Esc（Esc 归抽屉），
+#     抽屉收起后 Esc 才落到面板上。两层互不打架，靠的是注册顺序，不是标志位。
+DETAIL_JS = """<script>(function(){
+var chips=[].slice.call(document.querySelectorAll(".chip-detail"));
+function step(n){
+  var d=window.deck; if(!d)return;
+  if(d.step===n)return;
+  d.step=n; d.applySteps();
+}
+function hasPanel(){
+  var cur=document.querySelector(".slide.active");
+  return !!(cur&&cur.querySelector(".detail"));
+}
+chips.forEach(function(c){
+  c.addEventListener("click",function(){c.blur();step(1);});
+  c.addEventListener("keydown",function(e){
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();c.blur();step(1);}
+  });
+});
+window.addEventListener("keydown",function(e){
+  if(e.key!=="Escape")return;
+  var ov=document.getElementById("engineOverlay");
+  if(ov&&!ov.hidden)return;                 /* 抽屉开着：Esc 归抽屉 */
+  if(!hasPanel())return;
+  var d=window.deck; if(!d||d.step===0)return;
+  e.preventDefault();e.stopImmediatePropagation();step(0);
+},true);
+})();</script>
+"""
+
 
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
 def build():
@@ -3611,6 +3692,7 @@ def build():
         'var nxt=(now==="dark")?"light":"dark";'
         'try{localStorage.setItem("colin-theme",nxt);}catch(e){}apply(nxt);});})();</script>\n'
         + ENGINE_DRAWER_JS
+        + DETAIL_JS
         # ── LAB 运行时（前奏 classic + importmap + module 本体）────────────
         #   放在抽屉之后：抽屉是速讲现场的 action，它的键路由必须先装上；
         #   three 是 module（defer 语义），本来就排在最后跑。
@@ -3627,7 +3709,13 @@ def build():
     assert {i for i, b in boards.items() if b == "title"} == {1}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y, _h, _l) in enumerate(PAGES, 1) if s}
-    assert steps_map == {4: 1, 5: 1, 7: 1}, "分步页漂移：%r" % steps_map
+    # v3：P2 / P3 各多一枚**细节层**（该页的 data-step=1）⇒ 分步页从三页变五页
+    assert steps_map == {2: 1, 3: 1, 4: 1, 5: 1, 7: 1}, "分步页漂移：%r" % steps_map
+    # 细节层：每页至多一枚，且必须挂在 data-step="1" 上
+    assert doc.count('class="sh flow rev detail"') == 2, \
+        "细节层面板数漂移：%d" % doc.count('class="sh flow rev detail"')
+    assert doc.count('class="chip chip-detail"') + doc.count('chip chip-expand chip-detail') == 2, \
+        "细节层入口 chip 数漂移"
     # 常显容器不许挂 data-step（引擎 P20 空页事故根因：裸容器兜底规则会把它摁成白页）
     assert 'class="sh vid"' not in doc, "本 deck 无视频页"
     # ── 红线 / 口径断言一律走**页上可见文本**，不走整份产物 ─────────────────
@@ -3666,28 +3754,40 @@ def build():
     #    裹进 <g class="lab-poster">（无字）⇒ 文本流一个字节都不该动。
     #    改一个字、挪一处 data-step，这一闸当场炸。两种 P1 模式共用同一批摘要
     #    （hero 位图与 poster 都不带字）。
-    _BASE = [("6a266af55cce4643", []), ("eb2989003f48954d", []), ("4b2f7c95b2815283", []),
-             ("7c0347c4fbcfcc39", [1]), ("c1b8c46aac675b4b", [1]), ("316007f0dc2c5635", []),
-             ("223f79954c8628e5", [1]), ("1375f9ad7f62c571", [])]
+    #    v3 波A：P2 / P3 / P8 三页整页重排（细节层 + 全舞台主图）⇒ 它们的摘要必然分叉，
+    #    这一闸因此改成「**波 A 不许动的那四页**逐字同文」——P4 / P5 / P6 / P7 的摘要
+    #    与 v2（cf3fd73 之后的 LAB 版）逐字节相同，改一个字当场炸。
+    #    P1 封面本轮也不动，一并钉住。data-step 集合仍是八页全钉。
+    _BASE = {1: ("6a266af55cce4643", []), 4: ("7c0347c4fbcfcc39", [1]),
+             5: ("c1b8c46aac675b4b", [1]), 6: ("316007f0dc2c5635", []),
+             7: ("223f79954c8628e5", [1])}
+    _STEPS = [[], [1], [1], [1], [1], [], [1], []]
     import hashlib as _hl
     _secs = _re.findall(r'<section class="slide.*?</section>', doc, _re.S)
     assert len(_secs) == 8, "section 切分失败：%d" % len(_secs)
     for _i, _sec in enumerate(_secs):
+        _pn = _i + 1
         _t = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ", _sec)).strip()
         _d = _hl.sha1(_t.encode()).hexdigest()[:16]
         _st = sorted(set(int(x) for x in _re.findall(r'data-step="(\d+)"', _sec)))
-        assert _d == _BASE[_i][0], ("ⓐ P%d 文本与改造前分叉（%s != %s）—— "
-                                    "LAB 层不许动一个字" % (_i + 1, _d, _BASE[_i][0]))
-        assert _st == _BASE[_i][1], "ⓐ P%d data-step 集合分叉：%r != %r" % (_i + 1, _st, _BASE[_i][1])
+        if _pn in _BASE:
+            assert _d == _BASE[_pn][0], ("ⓐ P%d 文本与 v2 分叉（%s != %s）—— "
+                                         "波 A 不许动这四页" % (_pn, _d, _BASE[_pn][0]))
+        assert _st == _STEPS[_i], "ⓐ P%d data-step 集合分叉：%r != %r" % (_pn, _st, _STEPS[_i])
     # ⓑ poster 分件：裹进去的**只有形** —— 一个 <text>、一枚 <polygon> 都不许进
     assert _LP_TRACE, "ⓑ 一个 poster 组都没有 —— _lpsplit 没接上"
     for _q in _LP_TRACE:
         assert "<text" not in _q, "ⓑ poster 组里裹进了文字件（字必须压在 canvas 之上）"
         assert "<polygon" not in _q, "ⓑ poster 组里裹进了箭头头（它是方向标注，留在 DOM）"
     for _pp in LAB_PAGES:
-        if LAB_RECTS[_pp][0] == "voice":
+        assert 'class="lab-poster"' in _secs[_pp - 1], "ⓑ P%d 缺 poster 降级层" % _pp
+    # P1 声场球 / P2 地球走**构建期离线投影**出来的全屏专用 poster（在舞台里，不在 .pp）；
+    # 其余四页的 poster 就是页上那张 SVG 本人（原地留用）。
+    for _pp in LAB_PAGES:
+        if LAB_RECTS[_pp][0] in ("voice", "globe"):
             continue
-        assert 'class="lab-poster"' in _secs[_pp - 1], "ⓑ P%d 的图形没有原地留作 poster 层" % _pp
+        assert '<g class="lab-poster">' in _secs[_pp - 1], \
+            "ⓑ P%d 的图形没有原地留作 poster 层" % _pp
     # ⓒ 单渲染器巡游：全文档恰一枚 canvas + 车库在位 + 舞台数与场景表同源
     assert doc.count("<canvas") == 1, "ⓒ WebGL canvas %d 枚 —— 单渲染器巡游只准 1 枚" % doc.count("<canvas")
     assert doc.count('class="lab-garage"') == 1, "ⓒ 缺 canvas 车库"
