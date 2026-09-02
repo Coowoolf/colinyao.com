@@ -275,9 +275,14 @@ assert _LAB_TAIL.endswith("</style>")
 
 LAB_CSS = """<style id="convoai-info-3d">
 :root{
-  /* ── ① 声场球（P1 封面）· 浅底 —— 与 lab P1 逐字同参 ── */
-  --v-ink:var(--ink);      --v-dot-op:.94;  --v-dot-size:.0138; --v-dot-min:1.1;
-  --v-hot:var(--accent);   --v-hot0:.18;    --v-hot1:.70;  --v-hot-gain:.40;
+  /* ── ① 声场球（P1 封面）· 浅底 ──
+     几何 / 谐波 / 自转与 lab P1 **逐字同参**（球心 / 半径 / VHARM / VSPIN 全部现取）；
+     **浅色墨量档 info 专属**：lab 暗底默认、浅色是副档，info 正好相反 —— 速讲版默认
+     浅底，黑点一多就把波峰的粉压没了。所以这一档按「点少一档、粉重一档」重新定标：
+     dot-op .94→.82 · dot-size .0138→.0128（墨量下来）/ hot-gain .40→.55 ·
+     hot1 .70→.78（波峰上去）。暗档一个字不动。⑳ink 浅/暗比目标 1.20–1.40。 */
+  --v-ink:var(--ink);      --v-dot-op:.82;  --v-dot-size:.0128; --v-dot-min:1.1;
+  --v-hot:var(--accent);   --v-hot0:.18;    --v-hot1:.78;  --v-hot-gain:.55;
   --v-wire:var(--ink);     --v-wire-op:.40;
   --v-back:.46;            --v-add:0;
   --v-atmo:var(--accent);  --v-atmo-int:.06;
@@ -292,12 +297,15 @@ LAB_CSS = """<style id="convoai-info-3d">
   --tl-add:0;
   /* ── ③ 空间生长（P3）· 浅底 ── */
   --gw-base:var(--accent);      --gw-base-op:.90;
-  --gw-deck:var(--accent-deep); --gw-deck-op:.34;
+  --gw-deck:var(--accent-deep); --gw-deck-op:.46;
   --gw-rib:var(--ink-3);        --gw-rib-op:.52;
   --gw-box:var(--ink-2);        --gw-box-op:.72;
   --gw-aux:var(--ink-3);        --gw-aux-op:.50;
   --gw-e:var(--l-eng);          --gw-a:var(--l-agent);  --gw-p:var(--l-phys);
-  --gw-flow-op:.58;             --gw-rms-op:.70;
+  /* 三股主干的 RMS 实芯**各自本色**（浅底上三条一律 accent-deep = 三条都读成粉，
+     「三条产品线」当场丢失）—— 与 P8 支流同一病同治，见 --rv-*-rms。 */
+  --gw-e-rms:var(--accent-deep); --gw-a-rms:#3b6ae6;    --gw-p-rms:#5a41e6;
+  --gw-flow-op:.70;             --gw-rms-op:.76;
   --gw-add:0;
   /* ── ④ 发版活动带（P4）· 浅底 ── */
   --rl-flow:var(--l-eng);       --rl-flow-op:.58;
@@ -312,12 +320,19 @@ LAB_CSS = """<style id="convoai-info-3d">
   --ag-rib:var(--ink-3);        --ag-rib-op:.46;
   --ag-dom:var(--hair-strong);  --ag-dom-op:.86;
   --ag-flow:var(--l-agent);     --ag-flow-op:.60;
-  --ag-rms:var(--accent-deep);  --ag-rms-op:.70;
+  /* 四条能力供给线的 RMS 实芯：这是 Agent 页 ⇒ 蓝芯（原 accent-deep 是粉，
+     与页上 l-agent 的身份对不上）。暗底实芯本来就是白芯，不动。 */
+  --ag-rms:#3b6ae6;             --ag-rms-op:.70;
   --ag-add:0;
   /* ── ⑥ 三条支流一条河（P8 · 标杆）· 浅底 ── */
   --rv-main:var(--accent);      --rv-main-op:.72;
   --rv-rms:var(--accent-deep);  --rv-rms-op:.78;
   --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
+  /* 三条支流的 RMS 实芯**各自本色** —— 原来三条一律 accent-deep，浅底上
+     Agent（蓝）/ Physical AI（紫）两条从源头起就读成粉，「三条」当场丢失。
+     2D 版的 packet 本来就是各自本色（packet(…, col=col)），3D 不许比 2D 退。
+     主河道不动（粉 = ONE NET，它才是那一条）。 */
+  --rv-e-rms:var(--accent-deep); --rv-a-rms:#3b6ae6;    --rv-p-rms:#5a41e6;
   --rv-trib-op:.78;             --rv-trib-rms-op:.80;
   --rv-bed:var(--accent);       --rv-bed-op:.34;
   --rv-rail:var(--accent);      --rv-rail-op:.88;
@@ -344,6 +359,8 @@ html[data-theme="dark"]{
   --gw-box:var(--ink-3);        --gw-box-op:.62;
   --gw-aux:var(--ink-3);        --gw-aux-op:.34;
   --gw-e:var(--l-eng);          --gw-a:var(--l-agent);  --gw-p:var(--l-phys);
+  /* 暗底实芯本来就是白芯 —— 身份由**峰值色**承担（uColor = --gw-e/a/p），保持 */
+  --gw-e-rms:var(--ink);        --gw-a-rms:var(--ink);  --gw-p-rms:var(--ink);
   --gw-flow-op:.50;             --gw-rms-op:.55;
   --gw-add:1;
   --rl-flow:var(--l-eng);       --rl-flow-op:.52;
@@ -362,6 +379,8 @@ html[data-theme="dark"]{
   --rv-main:var(--accent);      --rv-main-op:.62;
   --rv-rms:var(--ink);          --rv-rms-op:.58;
   --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
+  /* 暗底实芯本来就是白芯 —— 身份由**峰值色**承担（uColor = --rv-e/a/p），保持 */
+  --rv-e-rms:var(--ink);        --rv-a-rms:var(--ink);  --rv-p-rms:var(--ink);
   --rv-trib-op:.56;             --rv-trib-rms-op:.55;
   --rv-bed:var(--accent);       --rv-bed-op:.22;
   --rv-rail:var(--accent);      --rv-rail-op:.90;
@@ -1856,7 +1875,12 @@ _GW_BOXDZ = 46.0                          # 三只产品线盒的体厚
 _GW_AUXZ = -150.0                         # 辅件（TEN / 评测 / 转录）退到景深里
 _GW_AUXDZ = 26.0
 _GW_ZTOP = 8.0                            # 主干抵达产品线盒时的深度（贴着版面）
-_GW_W = 5.0                               # 三股流的基准半宽（页上 packet 是 w13 ⇒ 半宽 6.5）
+# 三股主干的半宽是**沿程函数**：基面深处 3.5 → 盒底 6.5（≤ 2D packet 的半宽 6.5，
+# 「不许比 2D 更近」不破）。透视本来就把深处收窄（D/(D−z)），叠加后近 2× 生长 ——
+# 「从底座抽出来向上生长」因此在帧上读得出，而不是一根等粗的棍。
+# 净空探针与运行时 pad 一律**保守取最大 6.5**（两条算路同一个数 ⇒ 不会各算各的）。
+_GW_W0, _GW_W1 = 3.5, 6.5
+_GW_WMAX = _GW_W1
 _GW_N = 90
 # ── 底座 = **纵深基面**（不是一只盒）· 几何账 ──────────────────────────────
 #   页上那只 rect(0,370,1668,76) 里坐着两行字（fig y387–407 / 415–436）——
@@ -1944,7 +1968,10 @@ _AG_ZDOM, _AG_DZDOM = 58.0, 178.0         # 域是**包住全部**的一只腔�
 #   前框 = 页上那只 rect（一个像素不动），后框 = 同一只 rect 内缩 ins 之后再锁到更深的 z。
 #   投影落点因此由我定，而深度（雾 / 遮挡 / 粒径）仍然是真的。
 _AG_INS_MOD, _AG_INS_CORE, _AG_INS_DOM = 5.0, 5.0, 10.0
-_AG_W = 4.6
+# 4.6 → 5.2：浅底上四条链路存在感不足（正常混合把细带压成灰线）。页上 2D packet
+# 半宽 6.5，5.2 仍在其内 ⇒「不许比 2D 更近」不破。净空下限 2.5 是**前框 vs mono 标**，
+# 与链路无关；但探针与运行时 pad 同步换成 5.2。
+_AG_W = 5.2
 _AG_N = 60
 _AG_DASH, _AG_GAP = 6.0, 8.0              # = 页上 stroke-dasharray="6 8"
 
@@ -1978,7 +2005,20 @@ def _ag_link(k):
 _RV_D, _RV_HALF = 1200.0, 330.0
 _RV_ZSRC = -270.0                         # 三条支流的源头深度（在纵深里）
 _RV_ZMEET = 0.0                           # 汇合点 = 版面平面（主河道就在眼前）
-_RV_WT, _RV_WM = 6.5, 9.5                 # 支流 / 主河道半宽（页上 packet 是 13 / 15）
+# ── 能量守恒：河**比支流宽**（否则「一条河 = 三条之和」在帧上读不出来）──────
+#   支流半宽 = 沿程函数 4.0（源头）→ 6.5（河口）：透视本来就把源头收窄
+#   （D/(D−z) = 1200/1470 = .816），叠加后源头→河口约 2× 生长，正是「越近越宽」。
+#   6.5 = 页上 2D packet 的半宽（stroke 13）⇒「不许比 2D 更近」不破。
+#   主河道半宽 13.0（河道盒 rx26 · 高 52 ⇒ 峰值 ±13 仍在盒内），且 floor 抬到 .55 ——
+#   河是稳定的，脉动归支流。河口 80px 内再抬到 15（三条流交出去的那一处要看得见「合」）。
+#   净空探针与运行时 pad：支流保守取最大 6.5、主河道取最大 15（两条算路同一个数）。
+_RV_WT0, _RV_WT1 = 4.0, 6.5               # 支流半宽：源头 → 河口
+_RV_WT = _RV_WT1                          # 探针 / pad 的保守上界
+_RV_WM = 13.0                             # 主河道基准半宽
+_RV_WMOUTH = 15.0                         # 河口涌起的峰值半宽
+_RV_WACC = 80.0                           # 涌起的作用半径（沿主河道弧长 px）
+_RV_WMAX = _RV_WMOUTH                     # 探针 / pad 的保守上界
+_RV_MFLOOR = 0.55                         # 主河道幅度地板（全局档 0.30 ⇒ 河更稳）
 _RV_N = 140
 _RV_LAM = _LAB._AS_LAM                    # 波长逐字取 lab-kit ⑨ ⇒ 与全家族同一种介质
 
@@ -2182,7 +2222,24 @@ function makeBand(ctx){
   const SH = pxShared(D, C.half);
   const U = unlock(w, h, D, ctx.rect);
   const path = unpk3(C.path);
-  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam }).add(scene);
+  /* ── 五处涌起（幅度剖面 · gain 的唯一入口）──────────────────────────────
+     注释里写的是「里程碑是一条**一直在供给**的流上的五处涌起」，而 aG 恒 1 只画得出
+     一条均匀带。改成静态剖面：
+         g(u) = 0.42 + 0.58·min(1, Σ_k A_k·exp(−((u−u_k)/σ)²))，σ = 70px，
+         u_k = C.nodeU[k]（节点在流上的弧长 —— 与节点脉冲取样的是同一条 u），
+         A_k：hot 节点（Call Agent 全球版）1.0、其余 0.8 ⇒ 本页唯一 hot 在带上也最鼓。
+     节点之间 g = 0.42 ⇒ 幅度 45%、包络权重 42%：细一档，但**仍在动**（不是断带）。
+     fn 只吃 u ⇒ mkStream 认作静态剖面，整段只算一次，不进每帧开销。 */
+  const TL_SIG = 70.0;
+  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam })
+    .gain((u) => {
+      let s = 0;
+      for(let k = 0; k < C.nodeU.length; k++){
+        const d = (u - C.nodeU[k]) / TL_SIG;
+        s += (k === C.hot ? 1.0 : 0.8) * Math.exp(-d*d);
+      }
+      return 0.42 + 0.58*Math.min(1, s);
+    }).add(scene);
   const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const axis = iLine(path, axisMat); scene.add(axis);
   const coldMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
@@ -2266,8 +2323,11 @@ function makeGrow(ctx){
   const gridO = G.grid.map((s2) => { const o = iLine(unpk3(s2), deckMat);
                                      scene.add(o); return o; });
   const ribO = gridO[0];                 /* 净空取样时的代表（下面统一遍历 gridO） */
+  /* 主干半宽**沿程生长**：基面深处 3.5 → 盒底 6.5（透视再叠一道 ⇒ 近 2× 生长）。
+     「从底座抽出来向上长」因此是几何上真的在长，不是靠标签自说自话。 */
   const flows = G.trunk.map((s, k) =>
-    mkStream(SH, unpk3(s), { w: G.w, spd: G.spd[k], lam: AS.lam }).add(scene));
+    mkStream(SH, unpk3(s), { w: (t) => G.w0 + (G.w1 - G.w0)*t,
+                             spd: G.spd[k], lam: AS.lam }).add(scene));
   const boxO = G.box.map((b, k) => {
     const bd = boxBody(b[0], b[1], b[2], b[3], 0, G.boxdz, L);
     const f = iSegs(denseSegs(bd.front), boxMat[k]); scene.add(f);
@@ -2301,9 +2361,11 @@ function makeGrow(ctx){
       pair(ribMat,  '--gw-rib',  '--gw-rib',  cssNum('--gw-rib-op', .5));
       pair(shellMat,'--gw-rib',  '--gw-rib',  cssNum('--gw-rib-op', .5) * .8);
       pair(auxMat,  '--gw-aux',  '--gw-aux',  cssNum('--gw-aux-op', .5));
+      /* RMS 实芯**各自本色**（浅底上原来三条一律 accent-deep = 三条都读成粉）*/
+      const GW_RMS = ['--gw-e-rms','--gw-a-rms','--gw-p-rms'];
       ['--gw-e','--gw-a','--gw-p'].forEach((v, k) => {
         pair(boxMat[k], v, v, cssNum('--gw-box-op', .7));
-        flows[k].theme(cssColor(v), cssColor('--accent-deep'),
+        flows[k].theme(cssColor(v), cssColor(GW_RMS[k]),
                        cssNum('--gw-flow-op', .55), cssNum('--gw-rms-op', .7), .40);
         setBlend(flows[k].mat, cssNum('--gw-add', 0));
       });
@@ -2329,7 +2391,22 @@ function makeRelease(ctx){
   const SH = pxShared(D, C.half);
   const U = unlock(w, h, D, ctx.rect);
   const path = unpk3(C.path);
-  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam }).add(scene);
+  /* ── 17 颗珠子的等拍脉冲（幅度剖面）─────────────────────────────────────
+     「每一格 = 一次公开发版」原来只画在格上，带子本身是均匀的。改成静态剖面：
+         g(u) = 0.62 + 0.38·min(1, Σ_k exp(−((u−u_k)/σ)²))，σ = 22px，
+         u_k = 17 枚 tick 的流上弧长（C.tickU —— 与节点脉冲同源的那条 u）。
+     语义：**版本一直在出**的等拍珠串；与 P2 的「五处大涌」（σ=70、五处）拉开辨识度。
+     半宽不变（10）—— 只是剖面，⑳clr 的下限 7.5 与 ⑳chip 都不受影响。 */
+  const RL_SIG = 22.0;
+  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam })
+    .gain((u) => {
+      let s = 0;
+      for(let k = 0; k < C.tickU.length; k++){
+        const d = (u - C.tickU[k]) / RL_SIG;
+        s += Math.exp(-d*d);
+      }
+      return 0.62 + 0.38*Math.min(1, s);
+    }).add(scene);
   const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const axis = iLine(path, axisMat); scene.add(axis);
   const tickMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
@@ -2411,6 +2488,10 @@ function makeAgent(ctx){
   const modO = iSegs(denseSegs(modSegs), modMat); scene.add(modO);
   const ribO = iSegs(denseSegs(ribSegs), ribMat); scene.add(ribO);
   const coreO = iSegs(denseSegs(LB[4].front), coreMat); scene.add(coreO);
+  /* 核心盒前框的 aH 填 1 —— iSegs 走的是 fillAH(g,1,0)，aH 默认 0 ⇒ vH 恒 0，
+     (1.0+uGain*vH) 里的 uGain 根本接不上电。填 1 之后这只核才有呼吸通道。 */
+  coreO.geometry.attributes.aH.array.fill(1);
+  coreO.geometry.attributes.aH.needsUpdate = true;
   const coreShell = iSegs(denseSegs(LB[4].shell), ribMat); scene.add(coreShell);
   /* 安全域：**包住全部的一只腔** —— 前框在最前 (+58)、后框在最深 (−120)，
      两圈虚线的 dash/gap 逐字取页上的 stroke-dasharray="6 8"（按 figure 缩放折算）。 */
@@ -2424,7 +2505,18 @@ function makeAgent(ctx){
     scene, camera, intro: 1.1, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
     setIntro(e){ SH.uIntro.value = e; },
-    draw(dt, clock){ SH.uTime.value = clock; flows.forEach(f => f.draw(clock)); },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flows.forEach(f => f.draw(clock));
+      /* 运行时核**会呼吸**：取四条链路**核那一端**（aT 末端弧长 A.tlen[k]）此刻的
+         包络，四条求均值再归一 —— 四件能力的波峰到达核时，核亮一下。
+         「运行时是活的，由四件能力供给」因此是量出来的，不是画上去的。
+         归一写法与 river 的 meet 求和同源（(x−0.35)/0.5 夹到 0..1）。 */
+      let s = 0;
+      for(let k = 0; k < A.tlen.length; k++) s += asEnv(A.tlen[k] - A.spd[k]*clock);
+      const S = Math.max(0, Math.min(1, (s/A.tlen.length - 0.35) / 0.5));
+      coreMat.uniforms.uGain.value = 0.10 + 0.55*S;
+    },
     state(){ return { clr: clrMin(U, A.ink,
       flows.map(f => [f.geo, A.wpx]).concat([
         [modO.geometry,0], [ribO.geometry,0], [coreO.geometry,0],
@@ -2471,9 +2563,17 @@ function makeRiver(ctx){
   const railMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const srcMat  = mkMat(SH, PX_PT_VS, PX_PT_FS);
   const meetMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  /* ── 能量守恒：河**比支流宽** ───────────────────────────────────────────
+     支流半宽沿程 4.0（源头）→ 6.5（河口），透视再把源头收窄一道（1200/1470）——
+     叠加后源头到河口约 2× 生长，正是「越近越宽」。
+     主河道 13.0 且 floor .55（河是稳定的，脉动归支流），河口 80px 内再抬到 15：
+     三条流交出去的那一处要看得见「合」。峰值 ±15 仍在 rx26·高 52 的河道盒内。 */
   const trib = R.trib.map((s, k) =>
-    mkStream(SH, unpk3(s), { w: R.wt, spd: R.spd, lam: AS.lam }).add(scene));
-  const main = mkStream(SH, unpk3(R.main), { w: R.wm, spd: R.spd, lam: AS.lam }).add(scene);
+    mkStream(SH, unpk3(s), { w: (t) => R.wt0 + (R.wt1 - R.wt0)*t,
+                             spd: R.spd, lam: AS.lam }).add(scene));
+  const main = mkStream(SH, unpk3(R.main), {
+    w: (t, acc) => { const q = acc/R.wacc; return R.wm + (R.wmouth - R.wm)*Math.exp(-q*q); },
+    spd: R.spd, lam: AS.lam, floor: R.mfloor }).add(scene);
   /* ONE NET 主河道：页上那只 rx26 的圆角盒 —— 前框锁死、向后拉出河床 */
   const rail = unpk3(R.rail), bed = unpk3(R.bed);
   const railO = iSegs(denseSegs(segsOfLoop(rail)), railMat); scene.add(railO);
@@ -2520,8 +2620,12 @@ function makeRiver(ctx){
            cssNum('--rv-meet-size', 9));
       main.theme(cssColor('--rv-main'), cssColor('--rv-rms'),
                  cssNum('--rv-main-op', .7), cssNum('--rv-rms-op', .78), .38);
+      /* 三条支流的 RMS 实芯**各自本色**（原来三条一律 accent-deep ⇒ 浅底上
+         Agent / Physical AI 两条从源头起就读成粉，「三条」当场丢失）。
+         主河道的实芯不动 —— 粉 = ONE NET，它才是那一条。 */
+      const RV_RMS = ['--rv-e-rms','--rv-a-rms','--rv-p-rms'];
       ['--rv-e','--rv-a','--rv-p'].forEach((v, k) =>
-        trib[k].theme(cssColor(v), cssColor('--accent-deep'),
+        trib[k].theme(cssColor(v), cssColor(RV_RMS[k]),
                       cssNum('--rv-trib-op', .6), cssNum('--rv-trib-rms-op', .7), .38));
       [railMat, bedMat, srcMat, meetMat].forEach(m => {
         m.uniforms.uBack.value = .38; setBlend(m, cssNum('--rv-add', 0)); });
@@ -2661,7 +2765,7 @@ def _gw_build():
         Lp = _xylen([(p[0], p[1]) for p in pts])
         trunk.append(pts)
         spd.append(_SPD_A * cum[-1] / Lp)
-        probe += _probe_stream(pts, r[1:], _GW_W, _GW_D)
+        probe += _probe_stream(pts, r[1:], _GW_WMAX, _GW_D)
     # 底座：**只有前框**（锁死在页上那只 rect 上）+ 身后那片透视基面栅格
     probe += _probe_lock(_probe_rect(0, _GW_BASEY, 1668, 76), r[1:])
     for g in grid:
@@ -2686,17 +2790,20 @@ def _rl_build():
     wp, cum = _cum_world(page, w, h, _RL_D)
     Lp = _xylen([(p[0], p[1]) for p in page])
     spd = _SPD_A * cum[-1] / Lp
-    small, big, probe = [], [], []
+    small, big, probe, tickU = [], [], [], []
     for k, x in enumerate(_RL_TICK):
         z = _rl_z(x)
         hh = _RL_HB if k in _RL_BIG else _RL_HS
         a = _lockpt(x, _RL_AY - hh, z, w, h, _RL_D)
         b = _lockpt(x, _RL_AY + hh, z, w, h, _RL_D)
-        row = ([a[0], a[1], a[2], b[0], b[1], b[2]], _u_at_x(page, cum, x))
+        u = _u_at_x(page, cum, x)
+        row = ([a[0], a[1], a[2], b[0], b[1], b[2]], u)
         (big if k in _RL_BIG else small).append(row)
+        tickU.append(u)          # 17 枚 tick 的**流上弧长** —— 与节点脉冲同源（同一条 u）
         probe += _probe_lock([(x, _RL_AY - hh), (x, _RL_AY), (x, _RL_AY + hh)], r[1:])
     probe += _probe_stream(page, r[1:], _RL_W, _RL_D)
-    return dict(w=w, h=h, page=page, spd=spd, Lp=Lp, small=small, big=big, probe=probe)
+    return dict(w=w, h=h, page=page, spd=spd, Lp=Lp, small=small, big=big,
+                tickU=tickU, probe=probe)
 
 
 # ── ⑤ P5 Agent 骨架 ───────────────────────────────────────────────────────
@@ -2706,13 +2813,14 @@ def _ag_build():
     mod = [(x * _S5, y * _S5, _AG_SATW * _S5, _AG_SATH * _S5) for x, y in _AG_SAT]
     core = tuple(v * _S5 for v in _AG_CORE)
     dom = tuple(v * _S5 for v in _AG_DOM)
-    link, spd, probe = [], [], []
+    link, spd, tlen, probe = [], [], [], []
     for k in range(4):
         pts = _ag_link(k)
         _wp, cum = _cum_world(pts, w, h, _AG_D)
         Lp = _xylen([(p[0], p[1]) for p in pts])
         link.append(pts)
         spd.append(_SPD_A * cum[-1] / Lp)
+        tlen.append(cum[-1])     # 链路的世界弧长 = aT 的末端（核那一端）—— 核呼吸取样点
         probe += _probe_stream(pts, r[1:], _AG_W, _AG_D)
     boxes = [(b, _AG_ZMOD, _AG_DZMOD, _AG_INS_MOD) for b in mod] \
         + [(core, _AG_ZCORE, _AG_DZCORE, _AG_INS_CORE),
@@ -2725,7 +2833,7 @@ def _ag_build():
         probe += _probe_lock(_probe_rect(b[0] + ins, b[1] + ins,
                                          b[2] - 2 * ins, b[3] - 2 * ins), r[1:])
     return dict(w=w, h=h, mod=mod, core=core, dom=dom, link=link, spd=spd,
-                lb=lb, probe=probe)
+                tlen=tlen, lb=lb, probe=probe)
 
 
 # ── ⑥ P8 三条支流一条河 ───────────────────────────────────────────────────
@@ -2749,7 +2857,7 @@ def _rv_build():
     main = _rv_main()
     _mw, mcum = _cum_world(main, w, h, _RV_D)
     spdrow.append(("ONE NET 主河道", _xylen([(p[0], p[1]) for p in main]), _SPD_A))
-    probe += _probe_stream(main, r[1:], _RV_WM, _RV_D)
+    probe += _probe_stream(main, r[1:], _RV_WMAX, _RV_D)
     rail = [(p[0], p[1], 0.0) for p in _rrect(440, 274, 350, 52, 26)]
     probe += _probe_lock([(p[0], p[1]) for p in rail], r[1:])
     probe += _probe_back([(p[0], p[1]) for p in rail], 0.0, _RV_BED, _RV_D, r[1:])
@@ -2824,7 +2932,8 @@ def lab_data(p):
               ("trunkx", ",".join(str(m[0]) for m in _MX_LINES)),
               ("grid", "%d,%d" % (_GW_GN, _GW_GM)), ("zfar", _n3(_GW_ZFAR)),
               ("z", "%s,%s,%s" % (_n3(-_GW_ZFAR), _n3(_GW_AUXZ), _n3(_GW_ZTOP))),
-              ("base", "%d,%d" % (_GW_BASEY, _GW_TOP)), ("w", _n3(_GW_W))]
+              ("base", "%d,%d" % (_GW_BASEY, _GW_TOP)),
+              ("w", "%s-%s" % (_n3(_GW_W0), _n3(_GW_W1)))]
     elif p == 4:
         a += [("ticks", len(_RL_TICK)), ("big", ",".join(str(k) for k in _RL_BIG)),
               ("span", "%d,%d" % (_RL_X0, _RL_X1)),
@@ -2843,7 +2952,9 @@ def lab_data(p):
               ("rvphase", ",".join(_n3(v) for v in _RV["off"])),
               ("zsrc", _n3(_RV_ZSRC)), ("bed", _n3(_RV_BED)),
               ("meet", "%d,%d" % (_P8_CX, _P8_CY)),
-              ("w", "%s,%s" % (_n3(_RV_WT), _n3(_RV_WM)))]
+              # 支流「源头-河口」/ 主河道「基准-河口涌起」——qa 的 ⑳rv 只透传不判
+              ("w", "%s-%s,%s-%s" % (_n3(_RV_WT0), _n3(_RV_WT1),
+                                     _n3(_RV_WM), _n3(_RV_WMOUTH)))]
     if p in _INK:
         a += [("ink", ";".join("%s,%s,%s,%s" % tuple(_n3(v) for v in b) for b in _INK[p])),
               ("clr", _n3(_CLR[p][0])), ("clr-min", _n3(round(_CLR_MIN[p], 2)))]
@@ -2912,8 +3023,8 @@ def info_k():
             ("trunk", "[" + ",".join(PL(q, _GW["w"], _GW["h"], _GW_D)
                                      for q in _GW["trunk"]) + "]"),
             ("spd", "[" + ",".join(_n3(v) for v in _GW["spd"]) + "]"),
-            ("w", _n3(_GW_W)),
-            ("wpx", _n3(max(_wpx(_GW_W, q, _GW_D) for q in _GW["trunk"]))),
+            ("w0", _n3(_GW_W0)), ("w1", _n3(_GW_W1)),
+            ("wpx", _n3(max(_wpx(_GW_WMAX, q, _GW_D) for q in _GW["trunk"]))),
             ("ink", INK(3))])
     rl = O([("D", _n3(_RL_D)), ("half", _n3(_RL_HALF)),
             ("path", PL(_RL["page"], _RL["w"], _RL["h"], _RL_D)),
@@ -2921,6 +3032,7 @@ def info_k():
                                      for r in _RL["small"]) + "]"),
             ("big", "[" + ",".join("[%s,%s]" % (_arr3(r[0]), _n3(r[1]))
                                    for r in _RL["big"]) + "]"),
+            ("tickU", "[" + ",".join(_n3(v) for v in _RL["tickU"]) + "]"),
             ("w", _n3(_RL_W)), ("spd", _n3(_RL["spd"])),
             ("wpx", _n3(_wpx(_RL_W, _RL["page"], _RL_D))),
             ("hh", "[%s,%s]" % (_n3(_RL_HB), _n3(_RL_HS))), ("ink", INK(4))])
@@ -2936,6 +3048,7 @@ def info_k():
             ("link", "[" + ",".join(PL(q, _AG["w"], _AG["h"], _AG_D)
                                     for q in _AG["link"]) + "]"),
             ("spd", "[" + ",".join(_n3(v) for v in _AG["spd"]) + "]"),
+            ("tlen", "[" + ",".join(_n3(v) for v in _AG["tlen"]) + "]"),
             ("w", _n3(_AG_W)),
             ("wpx", _n3(max(_wpx(_AG_W, q, _AG_D) for q in _AG["link"]))),
             ("ink", INK(5))])
@@ -2950,9 +3063,12 @@ def info_k():
             ("meet", PL(_RV["meet"], _RV["w"], _RV["h"], _RV_D)),
             ("off", "[" + ",".join(_n3(v) for v in _RV["off"]) + "]"),
             ("tlen", "[" + ",".join(_n3(v) for v in _RV["tlen"]) + "]"),
-            ("spd", _n3(_SPD_A)), ("wt", _n3(_RV_WT)), ("wm", _n3(_RV_WM)),
+            ("spd", _n3(_SPD_A)),
+            ("wt0", _n3(_RV_WT0)), ("wt1", _n3(_RV_WT1)),
+            ("wm", _n3(_RV_WM)), ("wmouth", _n3(_RV_WMOUTH)),
+            ("wacc", _n3(_RV_WACC)), ("mfloor", _n3(_RV_MFLOOR)),
             ("wtpx", _n3(max(_wpx(_RV_WT, q, _RV_D) for q in _RV["trib"]))),
-            ("wmpx", _n3(_wpx(_RV_WM, _RV["main"], _RV_D))),
+            ("wmpx", _n3(_wpx(_RV_WMAX, _RV["main"], _RV_D))),
             ("ink", INK(8))])
     return "{" + ",".join([
         "W:1920", "H:1080", "FPX:%s" % _n3(_LAB.FPX), 'rev:"%s"' % _LAB.THREE_REV,
