@@ -37,10 +37,9 @@ import { mkdirSync } from 'fs';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 8;
-// v3 波A/波B：P2–P6 各一枚**细节层**（该页 data-step=1）+ P7 的 step1 案例墙
+// v3 三波收官：P2–P7 每页一枚**细节层**（该页 data-step=1）；P1 封面 / P8 合流不带
 const EXP_STEPS = [0, 1, 1, 1, 1, 1, 1, 0];
-// 有细节层的页（细节层 = 该页 data-step=1 的那枚 .detail 面板）· 波C 会把 P7 补上
-const DETAIL_PAGES = [2, 3, 4, 5, 6];
+const DETAIL_PAGES = [2, 3, 4, 5, 6, 7];
 const BOARD = { 1: 'title' };            // 其余一律 content
 // P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
 // （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
@@ -57,10 +56,13 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   3D 坐在标题右侧那条空带上，poster 是构建期离线投影出来的一枚**无字 figbox**。
 //   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
-const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain', 6: 'exit', 8: 'river' };
+const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain',
+                     6: 'exit', 7: 'wall', 8: 'river' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
-// 逐页语义审查判定保持 2D：P7 定稿五层生态图（底图是 .pp 里的 <img>）—— 故意不在表里
-const FLAT_PAGES = [7];
+// v3 波C 起**八页全有场景**（P7 的五层生态图搬进细节层，主图换成 3D 星座墙）⇒
+// 这张表空了。⑲e「非激活页 ⇒ canvas 回车库」因此改成「把 .active 全摘掉」来验
+// （MutationObserver 会照样触发 syncActive —— 判据一格没放松，只是换了个触发法）。
+const FLAT_PAGES = [];
 // P1 声场球 / P2 地球走构建期离线投影出来的**全屏专用** poster（落在舞台里）；
 // 另外四页的 poster 都在 .pp 里：三页是「页上原来那张 SVG」，P6 是加法层自己的
 // 那枚无字 figbox（同样在 .pp 里）
@@ -72,9 +74,9 @@ const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 // ── 两条算路的关系：本 deck 自己写的四枚场景（grow / exit / river …）是「中心线 +
 //   常量保守半宽」⇒ 构建期解析与运行时逐顶点**必然相等**（±0.5px）。
 //   P4 的 ribbon 网格顶点在构建期能逐点复现（`ribbonGeo` 的 Python 同解）⇒ 照旧等式。
-//   P5 的 12000 点体积点云不能 ⇒ 构建期给的是**外包络**（下界），按不等式对表：
-//   运行时 ≥ 解析 − 0.5。注意方向：下界只会让闸更严（floor 取自解析），不是放松。
-const CLR_BOUND = [5];
+//   P5 的 12000 点体积点云、P7 的摆动 / 浮动扫掠不能 ⇒ 构建期给的是**外包络**（下界），
+//   按不等式对表：运行时 ≥ 解析 − 0.5。注意方向：下界只会让闸更严，不是放松。
+const CLR_BOUND = [5, 7];
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -362,8 +364,9 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
   }
 
   // ── e 非激活页 ⇒ canvas 回车库、rAF 停 ─────────────────────────────────
-  await pg.evaluate(k => window.deck.go(k - 1), FLAT_PAGES[0]);
-  await pg.waitForTimeout(700);
+  await pg.evaluate(() => document.querySelectorAll('.slide')
+    .forEach(el => el.classList.remove('active')));
+  await pg.waitForTimeout(900);
   const off = await pg.evaluate(() => {
     const c = document.getElementById('labGl');
     return { run: c.dataset.labRun, mode: c.dataset.labMode, page: c.dataset.labPage,
@@ -372,13 +375,15 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       posterBack: [...document.querySelectorAll('.slide[data-p="8"] .lab-poster')]
         .map(e => +getComputedStyle(e).opacity) };
   });
-  ok(off.run === '0', `⑲e 站在 P${FLAT_PAGES[0]} 上渲染循环还在跑（run=${off.run}）`);
-  ok(off.mode === 'IDLE', `⑲e 站在 P${FLAT_PAGES[0]} 上 mode=${off.mode}（应为 IDLE）`);
+  ok(off.run === '0', `⑲e 无激活页时渲染循环还在跑（run=${off.run}）`);
+  ok(off.mode === 'IDLE', `⑲e 无激活页时 mode=${off.mode}（应为 IDLE）`);
   ok(off.parent === 'lab-garage', `⑲e canvas 没回车库（parent=${off.parent}）`);
   ok(off.page === '0', `⑲e 离场后 data-lab-page 没清（=${off.page}）`);
   ok(off.glup === 0, `⑲e 还有 ${off.glup} 枚舞台挂着 gl-up —— 离场必须把 poster 交还回去`);
   ok(off.posterBack.every(o => o > 0.98),
      `⑲e 离场后 P8 的 poster 没回到常驻态（opacity=${off.posterBack}）`);
+  await pg.evaluate(() => window.deck.go(0));
+  await pg.waitForTimeout(700);
 
   // ── k 翻页热切换（P4 → P5 · 两枚相邻 3D 页）────────────────────────────
   {
@@ -1162,7 +1167,7 @@ if (THEME !== 'dark') {
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P7 各 1 步（P2–P6 = 细节层）`
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P7 各 1 步（六页细节层）`
                            + ` · 深链 P4→#1 / P5→#16 / P6→#19`
                            + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 10 股 / 禁 WebGL 8 页可读`);
 await b.close();
