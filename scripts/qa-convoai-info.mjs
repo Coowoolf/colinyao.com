@@ -37,10 +37,10 @@ import { mkdirSync } from 'fs';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 8;
-// v3 波A：P2 / P3 各多一枚**细节层**（该页的 data-step=1）⇒ 分步页从三页变五页
-const EXP_STEPS = [0, 1, 1, 1, 1, 0, 1, 0];
-// 有细节层的页（细节层 = 该页 data-step=1 的那枚 .detail 面板）
-const DETAIL_PAGES = [2, 3];
+// v3 波A/波B：P2–P6 各一枚**细节层**（该页 data-step=1）+ P7 的 step1 案例墙
+const EXP_STEPS = [0, 1, 1, 1, 1, 1, 1, 0];
+// 有细节层的页（细节层 = 该页 data-step=1 的那枚 .detail 面板）· 波C 会把 P7 补上
+const DETAIL_PAGES = [2, 3, 4, 5, 6];
 const BOARD = { 1: 'title' };            // 其余一律 content
 // P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
 // （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
@@ -57,7 +57,7 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   3D 坐在标题右侧那条空带上，poster 是构建期离线投影出来的一枚**无字 figbox**。
 //   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
-const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'release', 5: 'agent', 6: 'exit', 8: 'river' };
+const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain', 6: 'exit', 8: 'river' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // 逐页语义审查判定保持 2D：P7 定稿五层生态图（底图是 .pp 里的 <img>）—— 故意不在表里
 const FLAT_PAGES = [7];
@@ -69,6 +69,12 @@ const INPAGE = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 // （camSphere），没有 unlock/geoClr 那套机制、也不交 state().clr。
 // 地球的净空由 ⑳globe 单独验（弧外包络圆 vs 页上字形行框）。
 const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
+// ── 两条算路的关系：本 deck 自己写的四枚场景（grow / exit / river …）是「中心线 +
+//   常量保守半宽」⇒ 构建期解析与运行时逐顶点**必然相等**（±0.5px）。
+//   P4 的 ribbon 网格顶点在构建期能逐点复现（`ribbonGeo` 的 Python 同解）⇒ 照旧等式。
+//   P5 的 12000 点体积点云不能 ⇒ 构建期给的是**外包络**（下界），按不等式对表：
+//   运行时 ≥ 解析 − 0.5。注意方向：下界只会让闸更严（floor 取自解析），不是放松。
+const CLR_BOUND = [5];
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -76,6 +82,10 @@ const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ig
 // ⑲b 那条就验不到「起来了」）。自动降级本身在 ⑲i 用**不带** hold 的 URL 单独验。
 const HOLD = '?lab=hold';
 const OUT = process.env.OUT || '/home/claude/eco-review';
+// 导航超时给到 90s：容器里是 SwiftShader 软渲染，独立上下文段会同时开两个浏览器，
+// 七枚场景（含 12000 点的大脑）一起 boot 时首屏 load 会拖过 playwright 的 30s 默认值。
+// 这是**跑得动**的问题，不是闸门阈值 —— 判据一格没放松。
+const NAV_MS = +(process.env.NAV_MS || 90000);
 mkdirSync(OUT, { recursive: true });
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
@@ -87,7 +97,7 @@ pg.on('console', m => {
   if (m.type() === 'error' && !(m.location()?.url || '').includes('favicon')) errs.push(m.text());
 });
 if (THEME === 'dark') await pg.addInitScript(() => { try { localStorage.setItem('colin-theme', 'dark'); } catch (e) {} });
-await pg.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+await pg.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load', timeout: NAV_MS });
 // 动效归零：入场是 transition（.rise 起手 translateY(42px)），不掐掉就会把「还没落位」
 // 读成「卡片冲出 .sh 盒」的假溢出（occlusion-scan.mjs 同一手法）
 await pg.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important;}' });
@@ -384,8 +394,8 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       p5glup: document.querySelector('.slide[data-p="5"] .lab-stage').classList.contains('gl-up'),
       p4poster: [...document.querySelectorAll('.slide[data-p="4"] .lab-poster')]
         .map(e => +getComputedStyle(e).opacity) }));
-    ok(a.scene === 'release' && a.cvsPage === 4, `⑲k P4 当前景不是 release：${a.scene}/${a.cvsPage}`);
-    ok(b2.scene === 'agent' && b2.cvsPage === 5, `⑲k P5 当前景没换成 agent：${b2.scene}/${b2.cvsPage}`);
+    ok(a.scene === 'duplex' && a.cvsPage === 4, `⑲k P4 当前景不是 duplex：${a.scene}/${a.cvsPage}`);
+    ok(b2.scene === 'brain' && b2.cvsPage === 5, `⑲k P5 当前景没换成 brain：${b2.scene}/${b2.cvsPage}`);
     ok(b2.mounts === a.mounts + 1, `⑲k 场景热切换没发生（mounts ${a.mounts}→${b2.mounts}）`);
     ok((b2.leaves[4] || 0) === (a.leaves[4] || 0) + 1,
        `⑲k 前一景没走 leave（P4 leaves ${a.leaves[4] || 0}→${b2.leaves[4] || 0}）`);
@@ -404,6 +414,9 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       await pg.waitForTimeout(2400);
       const D = await pg.evaluate((k) => {
         const d = document.getElementById('labStage' + k).dataset;
+        // 定拍到第 6 秒再量：P5 的大脑绕竖轴 ±12° 摇摆（周期 17s），
+        // 不把钟钉住，同一页两次跑会量到两个数。
+        const T0 = window.__labTour; T0.pace(30); T0.seek(6);
         const u = window.__labTour.unit();
         const rc = (d.labRect || '').split(',').map(Number);
         const s = document.querySelector(`.slide[data-p="${k}"]`);
@@ -425,18 +438,31 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
              && g[1] + g[3] > rc[1] && g[1] < rc[1] + rc[3]) gs.push(g);
           }
         }
-        return { clr: +d.labClr, clrMin: +d.labClrMin, rect: rc, gs,
+        const out = { clr: +d.labClr, clrMin: +d.labClrMin, rect: rc, gs,
           ink: (d.labInk || '').split(';').filter(Boolean).map(r => r.split(',').map(Number)),
           st: u && u.state ? u.state() : null };
+        T0.pace(0);
+        return out;
       }, P);
       ok(D.ink.length >= 4, `⑳clr P${P} 墨迹名册只有 ${D.ink.length} 只盒`);
       ok(D.st && isFinite(D.st.clr), `⑳clr P${P} 场景没有交出 state().clr`);
       ok(D.st.clr >= D.clr,
          `⑳clr P${P} 的 3D 压字：运行时实测 ${D.st.clr.toFixed(2)}px < 下限 ${D.clr}px`);
-      ok(Math.abs(D.st.clr - D.clrMin) <= 0.5,
-         `⑳clr P${P} 两条算路分叉：构建期解析 ${D.clrMin}px vs 运行时逐顶点 ${D.st.clr.toFixed(2)}px`);
+      if (CLR_BOUND.includes(P))
+        ok(D.st.clr >= D.clrMin - 0.5,
+           `⑳clr P${P} 运行时 ${D.st.clr.toFixed(2)}px 掉到构建期外包络 ${D.clrMin}px 之下`
+           + '（借来的场景：解析是运行时的下界，掉下去说明包络算漏了几何）');
+      else
+        ok(Math.abs(D.st.clr - D.clrMin) <= 0.5,
+           `⑳clr P${P} 两条算路分叉：构建期解析 ${D.clrMin}px vs 运行时逐顶点 ${D.st.clr.toFixed(2)}px`);
       // 名册 × 活 DOM：矩形内每一处字形行框都得被名册（或已知穿越名册）盖住
-      const SKIP = { 8: [[168, 597, 189.9, 19]] };   // v3：只剩支流3 那一行被 2D 曲线本来就穿过
+      // 已知穿越名册（与 builder 的 _INK_SKIP 逐条同源，改一处两处一起改）
+      const SKIP = {
+        4: [[1222, 523, 60, 20]],                        // 旗舰 P4 的 3D 声带掠过「收声让位」
+        5: [[971, 723, 18, 20], [881, 659, 18, 20], [721, 489, 18, 20],
+            [911, 523, 18, 20], [1151, 479, 18, 20]],    // 五枚区序号本来就印在脑体之内
+        8: [[168, 597, 189.9, 19]],                      // 支流3 那一行被 2D 曲线本来就穿过
+      };
       const reg = D.ink.concat(SKIP[P] || []);
       const miss = D.gs.filter(g => !reg.some(b2 => covers(b2, g, 3)));
       ok(miss.length === 0,
@@ -530,8 +556,8 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    ok(all.length === 13, `⑳spd A 档股数 ${all.length} != 13`);
-    ok(rows.length === 5, `⑳spd A 档页数 ${rows.length} != 5（P1 声场球 / P2 地球不是介质，不进表）`);
+    ok(all.length === 10, `⑳spd A 档股数 ${all.length} != 10`);
+    ok(rows.length === 4, `⑳spd A 档页数 ${rows.length} != 4（P1 球 / P2 地球 / P5 大脑不是介质，不进表）`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -682,7 +708,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
   const pm = await pg.evaluate(() => [...document.querySelectorAll('.detail')]
     .map(e => getComputedStyle(e).display));
   await pg.emulateMedia({ media: 'screen' });
-  ok(pm.length === 2 && pm.every(d => d === 'none'), `⑰ print 语域面板没藏（${pm}）`);
+  ok(pm.length === DETAIL_PAGES.length && pm.every(d => d === 'none'), `⑰ print 语域面板没藏（${pm}）`);
 }
 
 // ⑪ 引擎详解抽屉：chip → Enter 展开 → Esc 收回 → deck 按键恢复 → 引擎 deck 自身可达
@@ -954,7 +980,7 @@ if (THEME !== 'dark') {
     const pg2 = await ctx.newPage();
     const err2 = [];
     pg2.on('pageerror', e => err2.push('PAGEERROR ' + e.message));
-    await pg2.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
+    await pg2.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load', timeout: NAV_MS });
     await pg2.waitForTimeout(7500);                       // 看门狗 6s
     const fb = await pg2.evaluate((pages) => {
       const one = (p) => {
@@ -1011,7 +1037,7 @@ if (THEME !== 'dark') {
     const ctx = await b3.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1,
       reducedMotion: 'reduce' });
     const pg3 = await ctx.newPage();
-    await pg3.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+    await pg3.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load', timeout: NAV_MS });
     await pg3.waitForTimeout(3500);
     const rm = await pg3.evaluate(() => {
       const c = document.getElementById('labGl');
@@ -1024,7 +1050,7 @@ if (THEME !== 'dark') {
 
     const ctx2 = await b3.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 3 });
     const pg4 = await ctx2.newPage();
-    await pg4.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+    await pg4.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load', timeout: NAV_MS });
     await pg4.waitForTimeout(2500);
     const dpr = await pg4.evaluate(() => ({ dpr: +document.getElementById('labGl').dataset.labDpr,
       dev: window.devicePixelRatio }));
@@ -1060,7 +1086,7 @@ if (THEME !== 'dark') {
     const b4 = await chromium.launch({ executablePath: CHROME, args: GL_ARGS });
     const ctx = await b4.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
     const pg5 = await ctx.newPage();
-    await pg5.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load' });
+    await pg5.goto(BASE + '/decks/convoai-info.html#1', { waitUntil: 'load', timeout: NAV_MS });
     await pg5.waitForTimeout(5000);
     const dg = await pg5.evaluate(() => {
       const c = document.getElementById('labGl');
@@ -1086,7 +1112,7 @@ if (THEME !== 'dark') {
       const ctx = await b5.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
       await ctx.addInitScript((t) => { try { localStorage.setItem('colin-theme', t); } catch (e) {} }, th);
       const pg6 = await ctx.newPage();
-      await pg6.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load' });
+      await pg6.goto(BASE + '/decks/convoai-info.html' + HOLD + '#1', { waitUntil: 'load', timeout: NAV_MS });
       await pg6.waitForTimeout(6500);
       for (const P of LAB_PAGES) {
         await pg6.evaluate(k => window.deck.go(k - 1), P);
@@ -1111,6 +1137,8 @@ if (THEME !== 'dark') {
                  vAdd: cs.getPropertyValue('--v-add').trim(),
                  gOcean: cs.getPropertyValue('--g-ocean').trim(),
                  gHaloAdd: cs.getPropertyValue('--g-halo-add').trim(),
+                 dAdd: cs.getPropertyValue('--d-add').trim(),
+                 bAdd: cs.getPropertyValue('--b-add').trim(),
                  rvAdd: cs.getPropertyValue('--rv-add').trim(),
                  vBack: cs.getPropertyValue('--v-back').trim() };
       });
@@ -1121,6 +1149,8 @@ if (THEME !== 'dark') {
     ok(tok.light.vAdd !== tok.dark.vAdd, '⑲j 混合模式两主题相同（--v-add）');
     ok(tok.light.gOcean !== tok.dark.gOcean, `⑲j 地球海球色两主题相同（--g-ocean=${tok.light.gOcean}）`);
   ok(tok.light.gHaloAdd !== tok.dark.gHaloAdd, '⑲j 地球光晕混合模式两主题相同（--g-halo-add）');
+  ok(tok.light.dAdd !== tok.dark.dAdd, '⑲j 双向声带混合模式两主题相同（--d-add）');
+  ok(tok.light.bAdd !== tok.dark.bAdd, '⑲j 大脑混合模式两主题相同（--b-add）');
     ok(tok.light.rvAdd !== tok.dark.rvAdd, '⑲j 合流页混合模式两主题相同（--rv-add）');
     const rows = LAB_PAGES.map(P => [P, ink[P].light / ink[P].dark]);
     rows.forEach(([P, r]) => ok(r >= 0.90,
@@ -1132,8 +1162,8 @@ if (THEME !== 'dark') {
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2/P3/P4/P5/P7 各 1 步（P2/P3 = 细节层）`
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P7 各 1 步（P2–P6 = 细节层）`
                            + ` · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 13 股 / 禁 WebGL 8 页可读`);
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 10 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);
