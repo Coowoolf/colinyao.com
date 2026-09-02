@@ -213,36 +213,44 @@ for _need, _in in (("function mkStream(SH, pts, opt)", _K_AS),
 
 # ── ⑦ 走出屏幕（P6 · 加法层）· 几何全部是新写的（页上本来没有图）──────────────
 #   语义：标题「让对话，走出屏幕。」的**图解**，不是装饰。
-#     · 一只**锁在版面上**的屏幕框（前框 z=0、后框 −60 且内缩 4 —— lockBox 写法同 P5，
-#       屏上落点因此由这四个数定死，深度只管雾与遮挡）；
-#     · 一条 audioStream 从框**内部**（z=−140）出发，穿过框右缘，一路朝观众爬到 z=+36，
-#       半宽 2.5 → 9 ⇒「越走越近、越走越宽」。介质与全家族同一种（λ=232、110px/s）。
-#     · 框里那一段用 gain 压到 .35（屏幕里的声音是闷的），过了框右缘用 smoothstep
-#       在 60px 弧长里放开到 1.0 —— 「走出屏幕」是**几何上真的走出去**。
+#     · 一只**锁在版面上的屏幕**：外框（bezel）+ 内屏框 + 一块微亮的屏面 ——
+#       三件一起才读成「屏幕」；只画一圈细线框会读成一扇门 / 一枚手机图标（一稿的病）。
+#       前框 z=0、后框 −60 且内缩 4，lockBox 写法同 P5 ⇒ 屏上落点由构建期定死，
+#       深度只管雾与遮挡。
+#     · 一条 audioStream 从**屏面里**（z=−140）出发，横穿整只屏、过框右缘，
+#       一路朝观众爬到 z=+36，半宽 3.6 → 9 ⇒「越走越近、越走越宽」。
+#       介质与全家族同一种（λ=232、屏上 110px/s）。
+#     · 框内那一段用 gain 压到 .50（屏幕里的声音是闷的 —— 但**必须看得见**：
+#       一稿压到 .35 且只有 26px×半宽2.5，帧上等于没有，故事只剩「框边冒出一条流」），
+#       过了框右缘用 smoothstep 在 60px 弧长里放开到 1.0。
 #   坐标账（figure = 舞台像素，vb 与盒同宽 ⇒ ×1；局部坐标 = 舞台 − (740,140)）：
-#     框 局部 (60,14,40,72) = 舞台 (800,154)–(840,226)
-#       距 kicker 字形行底 y115（.sh 盒底 y120）39px · 距 R1 卡顶 y268 42px ·
-#       距主标右缘 x719.7 80.3px —— 加法层的 16px 规则三面都过得很松。
-#     流 局部 (72,50,−140) →(98,50,−40) →(1020,50,+36) = 舞台 x812→838→1760、y190
-#       峰值半宽 9px ⇒ 带边 181–199，仍在矩形 y140–240 之内。
+#     外框 局部 (52,8,56,84) = 舞台 (792,148)–(848,232)
+#       距 kicker 字形行底 y115（.sh 盒底 y120）33px · 距 R1 卡顶 y268 36px ·
+#       距主标右缘 x719.7 72.3px —— 加法层的 16px 规则三面都过。
+#     内屏框 = 外框内缩 5（rx 6）= 舞台 (797,153)–(843,227)；屏面填色同此范围。
+#     流 局部 (60,50,−140) →(108,50,−30) →(1020,50,+36) = 舞台 x800→848→1760、y190
+#       框内可见段 48px（其中 ~40px 在渐隐之后满不透明），峰值半宽 9px ⇒
+#       带边 181–199，仍在矩形 y140–240 之内。
 _EX_RECT = (740, 140, 1060, 100)
 _EX_D, _EX_HALF = 1200.0, 300.0
-_EX_BOX = (60.0, 14.0, 40.0, 72.0)        # 屏幕框（局部坐标）
-_EX_R = 8.0                               # rx（poster 与 3D 同一个数）
+_EX_BOX = (52.0, 8.0, 56.0, 84.0)         # 屏幕外框 / bezel（局部坐标）
+_EX_R = 8.0                               # 外框 rx（poster 与 3D 同一个数）
+_EX_R2 = 6.0                              # 内屏框 rx
 _EX_ZBOX, _EX_DZBOX, _EX_INS = 0.0, 60.0, 4.0
-_EX_P0 = (72.0, 50.0, -140.0)             # 框内的源头（在屏幕里面）
-_EX_P1 = (98.0, 50.0, -40.0)              # 框右缘之内 2px：z 在框里就已经开始爬
+_EX_INS2 = 5.0                            # 内屏框 / 屏面相对外框的内缩
+_EX_P0 = (60.0, 50.0, -140.0)             # 源头：屏面里（舞台 x800，内屏框之内 3px）
+_EX_P1 = (108.0, 50.0, -30.0)             # 外框右缘（舞台 x848）—— uFrame 的取样处
 _EX_P2 = (1020.0, 50.0, 36.0)             # 末端：朝观众来到 +36
 _EX_N0, _EX_N1 = 16, 105                  # 两段折线的取样数（合成后 120 点）
-_EX_W0, _EX_W1 = 2.5, 9.0                 # 半宽：源头 → 末端（探针 / pad 保守取 9.0）
+_EX_W0, _EX_W1 = 3.6, 9.0                 # 半宽：源头 → 末端（探针 / pad 保守取 9.0）
 _EX_FLOOR = _LAB._AS_FLOOR                # .30（媒体流永不掐断 —— 全局档，不分叉）
-# 接头渐隐：.06 在这条流上等于 59px **世界**弧长，而「框内那一段」（页上 x812→840）
-# 的世界弧长只有 67px —— 渐隐正好把框里的流整个吃掉，「从框内穿出」在帧上就没了。
-# 收到 .03（≈30px 世界弧长 ⇒ 页上 x812→824）：框里剩下十几个像素的**闷带**，
-# 出框那一刻才放开。末端同样只收 30px，正好收在页上那枚 ah_r 箭头之前。
+# 接头渐隐：全局档 .055 在这条流上等于 55px **世界**弧长，而「框内那一段」的世界弧长
+# 只有 92px —— 渐隐会把屏里的流吃掉大半。收到 .03（30px 世界弧长 ⇒ 页上 x800→808）：
+# 屏里剩下 40px 满不透明的**闷带**，出框那一刻才放开。
+# 末端同样只收 30px，正好收在页上那枚 ah_r 箭头之前。
 _EX_EDGE = 0.03
-_EX_G0, _EX_GSPAN = 0.35, 60.0            # 框内幅度 / 出框之后放开的弧长
-_EX_XFRAME = _EX_BOX[0] + _EX_BOX[2]      # 框右缘 x=100（局部）⇒ uFrame 的取样处
+_EX_G0, _EX_GSPAN = 0.50, 60.0            # 框内幅度 / 出框之后放开的弧长
+_EX_XFRAME = _EX_BOX[0] + _EX_BOX[2]      # 框右缘 x=108（局部）⇒ uFrame 的取样处
 _EX_DOT = (_EX_XFRAME, 50.0, 0.0)         # 出口那一枚点（meet 写法：aH = 该处包络）
 
 # ── 舞台位表（每个 3D 页的图形区矩形 · 舞台坐标 1920×1080）─────────────────
@@ -393,6 +401,8 @@ LAB_CSS = """<style id="convoai-info-3d">
      紫（--l-phys），RMS 实芯浅底给一档更深的紫（纸面上要有墨，不能是荧光）。
      屏幕框是版面上的一只**锁**（--ink-3）：它不参与流，只被穿过。 */
   --ex-frame:var(--ink-3);      --ex-frame-op:.85;
+  --ex-inner-op:.55;                              /* 内屏框：比外框退一档 */
+  --ex-screen:var(--l-phys);    --ex-screen-op:.07;   /* 屏面：微亮，不是一块色 */
   --ex-flow:var(--l-phys);      --ex-flow-op:.70;
   --ex-rms:#5a41e6;             --ex-rms-op:.74;
   --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
@@ -447,6 +457,8 @@ html[data-theme="dark"]{
   --rv-add:1;
   /* 暗底实芯本来就是白芯 —— 身份由峰值色（--l-phys）承担，与 P3/P8 同一档 */
   --ex-frame:var(--ink-3);      --ex-frame-op:.62;
+  --ex-inner-op:.40;
+  --ex-screen:var(--l-phys);    --ex-screen-op:.10;
   --ex-flow:var(--l-phys);      --ex-flow-op:.54;
   --ex-rms:var(--ink);          --ex-rms-op:.55;
   --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
@@ -1567,15 +1579,18 @@ _ROB = [
 
 def _p6exit():
     """⑦ 加法层的 **poster**（降级链是生命线 · 构建期离线投影 · 一个字都没有）。
-       投影是**恒等**的 —— 屏幕框的前后两枚框都过投影锁，落点就是它们的页坐标；
+       投影是**恒等**的 —— 屏幕的三枚框都过投影锁，落点就是它们的页坐标；
        所以这里画的与 WebGL 那一帧是同一张图，交接时不会跳。
+       件序与 3D 一致：屏面填色 → 后框 + 四条棱 → 内屏框 → 外框 → 中心线。
        字一个都没有；箭头头（方向标注）按家族纪律**留在 poster 组之外**，
        压在 canvas 之上钉住流向（qa 的 ⑲a 正面断言 poster 组里零 polygon）。"""
     x, y, w, h = _EX_BOX
-    ins, r = _EX_INS, _EX_R
-    front = ('<rect class="pop" style="--i:1" x="%g" y="%g" width="%g" height="%g" rx="%g" '
-             'fill="none" stroke="var(--ink-3)" stroke-width="1.5"/>' % (x, y, w, h, r))
-    back = ('<rect class="pop" style="--i:1;opacity:.62" x="%g" y="%g" width="%g" height="%g" '
+    ins, ins2, r, r2 = _EX_INS, _EX_INS2, _EX_R, _EX_R2
+    # 屏面：不透明度走 CSS 变量 ⇒ poster 与 3D 两档主题同源（浅 .07 / 暗 .10）
+    screen = ('<rect class="pop" style="--i:1;opacity:var(--ex-screen-op,.07)" x="%g" y="%g" '
+              'width="%g" height="%g" rx="%g" fill="var(--ex-screen,var(--l-phys))"/>'
+              % (x + ins2, y + ins2, w - 2 * ins2, h - 2 * ins2, r2))
+    back = ('<rect class="pop" style="--i:1;opacity:.5" x="%g" y="%g" width="%g" height="%g" '
             'rx="%g" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/>'
             % (x + ins, y + ins, w - 2 * ins, h - 2 * ins, max(2.0, r - ins / 2.0)))
     edge = "".join("M%g %g L%g %g" % (a[0], a[1], b[0], b[1])
@@ -1583,10 +1598,16 @@ def _p6exit():
                                 ((x + w - r * .3, y + r * .3), (x + w - ins - r * .3, y + ins + r * .3)),
                                 ((x + w - r * .3, y + h - r * .3), (x + w - ins - r * .3, y + h - ins - r * .3)),
                                 ((x + r * .3, y + h - r * .3), (x + ins + r * .3, y + h - ins - r * .3))))
-    edges = ('<path class="pop" style="--i:1;opacity:.5" d="%s" stroke="var(--ink-3)" '
+    edges = ('<path class="pop" style="--i:1;opacity:.4" d="%s" stroke="var(--ink-3)" '
              'stroke-width="1" fill="none"/>' % edge)
+    inner = ('<rect class="pop" style="--i:1;opacity:.62" x="%g" y="%g" width="%g" height="%g" '
+             'rx="%g" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/>'
+             % (x + ins2, y + ins2, w - 2 * ins2, h - 2 * ins2, r2))
+    front = ('<rect class="pop" style="--i:1" x="%g" y="%g" width="%g" height="%g" rx="%g" '
+             'fill="none" stroke="var(--ink-3)" stroke-width="1.5"/>' % (x, y, w, h, r))
     mid = hline(round(x + w), round(_EX_P2[0]), round(_EX_P2[1]), "var(--hair)", 1.5, 0)
-    return lp(front, back, edges, mid) + ah_r(round(_EX_P2[0]) + 12, round(_EX_P2[1]), LP, 9)
+    return (lp(screen, back, edges, inner, front, mid)
+            + ah_r(round(_EX_P2[0]) + 12, round(_EX_P2[1]), LP, 9))
 
 
 page("content", "".join([
@@ -2245,7 +2266,7 @@ if P6_EXIT:
     # 加法层走 **16px 规则**（版面之外的空档，不走「不许比 2D 更近」的平手规则）。
     # 证人 = kicker 行底 y115（.sh 盒底 y120）vs 屏幕框顶 y154 ⇒ 39.0px。
     _CLR[6] = (16.0, "加法层 · 16px 规则 · 证人 = kicker 行底 y115（盒底 y120）"
-                     "vs 屏幕框顶 y154 ⇒ 39.0px")
+                     "vs 屏幕外框顶 y148 ⇒ 33.0px")
 else:
     del _INK[6]
 # P4 的 hot 是抽屉 chip（本页唯一「可以按下去」的东西）：它绝不许被 3D 压。
@@ -2768,14 +2789,17 @@ function makeRiver(ctx){
    另外六枚场景都在**替换**页上的一张 SVG；这一枚不替换任何东西 —— 它是标题的
    **图解**，坐在标题右侧那条本来就空着的带子上（舞台 740,140,1060,100）。
    两件东西，一句话：
-     · 一只**锁在版面上的屏幕框**（前框 z=0、后框 z=−60 内缩 4 —— lockBox 写法同 P5：
-       两枚都过投影锁 ⇒ 屏上落点由构建期定死，深度只管雾与遮挡）。它不参与流，
-       只被穿过：屏幕是**边界**，不是内容。
-     · 一条 audioStream 从框**内部**（z=−140）起，穿过框右缘，一路朝观众爬到 z=+36，
-       半宽 2.5 → 9。介质与全家族同一种（λ=232px、110px/s ⇒ 2.11s 一次呼吸）。
+     · 一只**锁在版面上的屏幕**：外框（bezel · 56×84 rx8）+ 内屏框（内缩 5 · rx6）
+       + 一块微亮的**屏面**（quadGeo 实心面，op 浅 .07 / 暗 .10）。三件一起才读成
+       「屏幕」—— 只画一圈细线框会读成一扇门或一枚手机图标（一稿的病，二稿改掉）。
+       前框 z=0、后框 z=−60 内缩 4（lockBox 写法同 P5：两枚都过投影锁 ⇒ 屏上落点
+       由构建期定死，深度只管雾与遮挡）。它不参与流，只被穿过：屏幕是**边界**。
+     · 一条 audioStream 从**屏面里**（z=−140）起，横穿整只屏、过框右缘，一路朝观众
+       爬到 z=+36，半宽 3.6 → 9。介质与全家族同一种（λ=232px、110px/s ⇒ 2.11s 一次呼吸）。
    「走出屏幕」在这里是**几何上真的走出去**，不是隐喻：
-     幅度剖面 g(u) = .35 → 1.0（在框右缘之后 60px 弧长里 smoothstep 放开）——
-     屏幕里的声音是闷的，出了屏才放开；框右缘那一枚点的 aH = 该处包络 ⇒
+     幅度剖面 g(u) = .50 → 1.0（在框右缘之后 60px 弧长里 smoothstep 放开）——
+     屏幕里的声音是闷的**但看得见**（一稿压到 .35 且只有 26px×半宽2.5，帧上等于没有，
+     故事只剩「框边冒出一条流」）；框右缘那一枚点的 aH = 该处包络 ⇒
      **波峰穿框的那一刻它亮一下**，「穿过去」有了一个看得见的瞬间。
    ⚠ 加法层的净空走 16px 规则（版面之外的空档），不走「不许比 2D 更近」——
      页上这块地本来没有图，没有 2D 可比。⑳clr 的对手是四邻的字形行框。
@@ -2786,11 +2810,19 @@ function makeExit(ctx){
   const camera = camPx(w, h, D);
   const SH = pxShared(D, X.half);
   const U = unlock(w, h, D, ctx.rect);
-  const frameMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const dotMat   = mkMat(SH, PX_PT_VS, PX_PT_FS);
-  /* 屏幕框：前框 + 后框 + 四条棱（denseSegs 加密到 ≤12px —— 净空是逐顶点量的） */
+  const frameMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const innerMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const screenMat = mkMat(SH, PX_LN_VS, PX_LN_FS);   /* 实心面照用 PX_LN 那对着色器 */
+  const dotMat    = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  /* 屏面：一块微亮的实心面（quadGeo 逐字取自 lab-kit ⑤）—— 它坐在最里层，
+     内屏框与外框压在它之上；「屏幕」这三件的层序与 poster 完全一致。 */
+  const screenG = quadGeo(unpk3(X.quad)); fillAH(screenG, 1, 0);
+  const screenO = new THREE.Mesh(screenG, screenMat);
+  screenMat.side = THREE.DoubleSide; screenO.frustumCulled = false; scene.add(screenO);
+  /* 屏幕框：外框前框 + 后框 + 四条棱（denseSegs 加密到 ≤12px —— 净空是逐顶点量的） */
   const LB = lockBox(unpk3(X.lb[0]), unpk3(X.lb[1]));
   const frameO = iSegs(denseSegs(LB.front.concat(LB.shell)), frameMat); scene.add(frameO);
+  const innerO = iSegs(denseSegs(segsOfLoop(unpk3(X.inner))), innerMat); scene.add(innerO);
   const path = unpk3(X.path);
   /* 幅度剖面：出框之前恒 g0（闷），出框之后 smoothstep 在 gspan 弧长里放开到 1。
      fn 只吃 u ⇒ mkStream 认作静态剖面，整段只算一次，不进每帧开销。 */
@@ -2816,13 +2848,21 @@ function makeExit(ctx){
       dA.needsUpdate = true;
     },
     state(){ return { clr: clrMin(U, X.ink, [
-      [flow.geo, X.wpx], [frameO.geometry, 0],
+      [flow.geo, X.wpx], [frameO.geometry, 0], [innerO.geometry, 0], [screenG, 0],
       [dotO.geometry, cssNum('--ex-dot-size', 8)/2] ]) }; },
     applyTheme(){
       frameMat.uniforms.uColor.value.copy(cssColor('--ex-frame'));
       frameMat.uniforms.uHot.value.copy(cssColor('--ex-frame'));
       frameMat.uniforms.uOpacity.value = cssNum('--ex-frame-op', .85);
       frameMat.uniforms.uGain.value = 0;
+      innerMat.uniforms.uColor.value.copy(cssColor('--ex-frame'));
+      innerMat.uniforms.uHot.value.copy(cssColor('--ex-frame'));
+      innerMat.uniforms.uOpacity.value = cssNum('--ex-inner-op', .55);
+      innerMat.uniforms.uGain.value = 0;
+      screenMat.uniforms.uColor.value.copy(cssColor('--ex-screen'));
+      screenMat.uniforms.uHot.value.copy(cssColor('--ex-screen'));
+      screenMat.uniforms.uOpacity.value = cssNum('--ex-screen-op', .07);
+      screenMat.uniforms.uGain.value = 0;
       dotMat.uniforms.uColor.value.copy(cssColor('--ex-dot'));
       dotMat.uniforms.uHot.value.copy(cssColor('--ex-flow'));
       dotMat.uniforms.uOpacity.value = cssNum('--ex-dot-op', .92);
@@ -2830,7 +2870,7 @@ function makeExit(ctx){
       dotMat.uniforms.uGain.value = .9;
       flow.theme(cssColor('--ex-flow'), cssColor('--ex-rms'),
                  cssNum('--ex-flow-op', .70), cssNum('--ex-rms-op', .74), .46);
-      [frameMat, dotMat].forEach(m => {
+      [frameMat, innerMat, screenMat, dotMat].forEach(m => {
         m.uniforms.uBack.value = .46; setBlend(m, cssNum('--ex-add', 0)); });
       setBlend(flow.mat, cssNum('--ex-add', 0));
     },
@@ -3087,17 +3127,26 @@ def _ex_build():
     uframe = _u_at_x(page, cum, _EX_XFRAME)      # 框右缘处的**世界弧长** = 放开的起点
     bx, by, bw2, bh2 = _EX_BOX
     wf, wb, pf, pb = _lockbox(bx, by, bw2, bh2, _EX_ZBOX, _EX_DZBOX, _EX_INS, w, h, _EX_D)
-    # 净空探针：流（中心线锁住 · pad 保守取最大半宽 9.0）+ 前后两枚框 + 四条棱 + 出口点
+    # 内屏框 / 屏面：外框内缩 _EX_INS2，z=0（同样过投影锁 ⇒ 落点 = 页坐标）
+    ix, iy = bx + _EX_INS2, by + _EX_INS2
+    iw, ih = bw2 - 2 * _EX_INS2, bh2 - 2 * _EX_INS2
+    inner = _lock_path([(ix, iy, 0.0), (ix + iw, iy, 0.0), (ix + iw, iy + ih, 0.0),
+                        (ix, iy + ih, 0.0), (ix, iy, 0.0)], w, h, _EX_D)
+    quad = _lock_path([(ix, iy, 0.0), (ix + iw, iy, 0.0),
+                       (ix + iw, iy + ih, 0.0), (ix, iy + ih, 0.0)], w, h, _EX_D)
+    # 净空探针：流（中心线锁住 · pad 保守取最大半宽 9.0）+ 外框前后两枚 + 四条棱
+    #           + 内屏框（屏面与它同范围 ⇒ 同一批点）+ 出口点
     probe = _probe_stream(page, r, _EX_W1, _EX_D)
     probe += _probe_lock(_probe_rect(bx, by, bw2, bh2), r)
     probe += _probe_lock(_probe_rect(bx + _EX_INS, by + _EX_INS,
                                      bw2 - 2 * _EX_INS, bh2 - 2 * _EX_INS), r)
+    probe += _probe_lock(_probe_rect(ix, iy, iw, ih), r)
     for a, b in zip(pf[:4], pb[:4]):
         probe += _probe_lock([(q[0], q[1]) for q in _lerp_line((a[0], a[1], 0),
                                                               (b[0], b[1], 0), 6)], r)
     probe += [(r[0] + _EX_DOT[0], r[1] + _EX_DOT[1], _cssmax("--ex-dot-size") / 2.0)]
     return dict(w=w, h=h, page=page, spd=spd, Lp=Lp, uframe=uframe,
-                lb=(wf, wb), probe=probe)
+                lb=(wf, wb), inner=inner, quad=quad, probe=probe)
 
 
 _TL = _tl_build()
@@ -3182,6 +3231,7 @@ def lab_data(p):
         a += [("lam", _n3(_LAB._AS_LAM)),
               ("z", "%s,%s,%s" % (_n3(_EX_P0[2]), _n3(_EX_P2[2]), _n3(-_EX_DZBOX))),
               ("frame", "%s,%s,%s,%s" % tuple(_n3(v) for v in _EX_BOX)),
+              ("inset", "%s,%s" % (_n3(_EX_INS), _n3(_EX_INS2))),
               ("uframe", _n3(_EX["uframe"])), ("gain", "%s,%s" % (_n3(_EX_G0), _n3(_EX_GSPAN))),
               ("w", "%s-%s" % (_n3(_EX_W0), _n3(_EX_W1)))]
     elif p == 8:
@@ -3313,6 +3363,7 @@ def info_k():
     ex = O([("D", _n3(_EX_D)), ("half", _n3(_EX_HALF)),
             ("path", PL(_EX["page"], _EX["w"], _EX["h"], _EX_D)),
             ("lb", '["%s","%s"]' % (_pk3(_EX["lb"][0]), _pk3(_EX["lb"][1]))),
+            ("inner", '"%s"' % _pk3(_EX["inner"])), ("quad", '"%s"' % _pk3(_EX["quad"])),
             ("dot", PL([_EX_DOT], _EX["w"], _EX["h"], _EX_D)),
             ("spd", _n3(_EX["spd"])), ("uframe", _n3(_EX["uframe"])),
             ("g0", _n3(_EX_G0)), ("gspan", _n3(_EX_GSPAN)),
