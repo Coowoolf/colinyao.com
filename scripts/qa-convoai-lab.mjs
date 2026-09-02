@@ -1793,11 +1793,12 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
-    // 波A 30 股 8 页 → 波B 41 股 10 页 → 三轮 61 股 13 页
-    //   （P5 底场 +7 / P15 六条支线 +6 / P16 通话流 +7，见 _SPD_N）
+    // 波A 30 股 8 页 → 波B 41 股 10 页 → 三轮 61 股 13 页 → 表达力精进 65 股 13 页
+    //   （P5 底场 +7 / P15 六条支线 +6 / P16 通话流 +7；
+    //    P2 的 02「两制对照」+4 = 回合制轨 1 + 并行听/想/说 3，见 _SPD_N）
     //   ⚠ P22 的涟漪**故意不在这张表里**：A 档管的是「介质」，末页的场是余韵 ——
     //     它反过来上一道 ㉒c 闸「必须低于 A 档下限」。
-    ok(all.length === 61, `⑲s A 档股数 ${all.length} != 61`);
+    ok(all.length === 65, `⑲s A 档股数 ${all.length} != 65`);
     ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
     ok(!rows.some(([p]) => p === 22), '⑲s P22 的涟漪进了 A 档表 —— 它不是介质');
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,

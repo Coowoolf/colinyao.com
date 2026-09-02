@@ -1376,6 +1376,13 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --o-wire-op:.56;             --o-dot-size:3;  --o-dot-w:2.6;
   --o-arc:var(--accent-deep);  --o-arc-op:.70;
   --o-arc-rms:var(--accent);   --o-arc-rms-op:.55;
+  /* 02「两制对照」：回合制走灰（note 语域，与旧注脚条同一档色阶），
+     边说边听走 accent（听得见的那一路），事件标走 accent-deep（离散事件） */
+  --o-anti:var(--ink-3);       --o-anti-op:.66;
+  --o-anti-rms:var(--ink-2);   --o-anti-rms-op:.42;
+  --o-live:var(--accent);      --o-live-op:.66;
+  --o-live-rms:var(--accent-deep); --o-live-rms-op:.55;
+  --o-evt:var(--accent-deep);  --o-evt-op:.92;
   --o-add:0;
   --l-on:var(--accent);        --l-on-op:.86;
   --l-off:var(--hair-strong);  --l-off-op:.80;
@@ -1561,6 +1568,11 @@ html[data-theme="dark"]{
   --o-wire-op:.24;             --o-dot-size:3.1; --o-dot-w:2.4;
   --o-arc:var(--accent-deep);  --o-arc-op:.72;
   --o-arc-rms:var(--ink);      --o-arc-rms-op:.50;
+  --o-anti:var(--ink-3);       --o-anti-op:.58;
+  --o-anti-rms:var(--ink-2);   --o-anti-rms-op:.36;
+  --o-live:var(--accent);      --o-live-op:.62;
+  --o-live-rms:var(--ink);     --o-live-rms-op:.50;
+  --o-evt:var(--accent-deep);  --o-evt-op:1;
   --o-add:1;
   --l-on:var(--accent);        --l-on-op:.80;
   --l-off:var(--ink-3);        --l-off-op:.34;
@@ -1747,6 +1759,15 @@ svg .lab-poster,.lab-poster{transition:opacity 1.1s var(--ease-flow,cubic-bezier
 .p2-row{fill:none;stroke:var(--o-wave);stroke-width:1;
   opacity:calc(var(--o-wire-op)*.62);}
 .p2-wire{fill:none;stroke:var(--o-lat);stroke-width:1;opacity:var(--o-wire-op);}
+/* 02「两制对照」的 poster：两排带子的静态包络轮廓（构建期 _p2_env_path 逐点算，
+   与 AS_VS 同式）+「想」的虚线框 + 两枚事件竖标。字一个不裹（全在组外）。 */
+.p2-anti{fill:var(--o-anti);opacity:var(--o-anti-op);}
+.p2-live{fill:var(--o-live);opacity:var(--o-live-op);}
+.p2-dash{fill:none;stroke:var(--o-anti);stroke-width:2.4;stroke-linecap:round;
+  opacity:var(--o-anti-op);}
+.p2-evt{fill:none;stroke:var(--o-evt);stroke-width:3;stroke-linecap:round;
+  opacity:var(--o-evt-op);}
+.p2-evt-d{fill:var(--o-evt);opacity:var(--o-evt-op);}
 /* ── FPS 探针：生产页不挂常显探针，?debug=1 才显出来 ───────────────────── */
 .lab-probe{position:fixed;left:26px;top:22px;z-index:1100;font:500 11px/1 var(--f-mono);
   letter-spacing:.13em;color:var(--ink-3);opacity:.62;display:none;gap:9px;align-items:center;
@@ -1786,7 +1807,10 @@ html[data-lab-debug] .lab-probe{display:flex;}
 LAB_RECTS = {
     # 页  场景名      x     y     w     h      局部坐标原点说明
     1:  ("voice",  1305,  328,  500,  500),   # 球心 (1555,578) 居中 · 呼吸极值 466px 内
-    2:  ("morph",   120,  272, 1680,  470),   # = figbox(120,272,1680, vb1680×470)
+    # 表达力精进 ①：470 → 708 —— 舞台从剧场（272–742）一路长到 02「两制对照」
+    # 的底（980）。相机仍按剧场原高 470 架 + setViewOffset ⇒ 剧场投影一格不动。
+    2:  ("morph",   120,  272, 1680,  708),   # = figbox(120,272,1680,vb1680×470)
+                                              #   ∪ figbox(120,780,1680,vb1680×200)
     3:  ("lanes",   151,  372, 1618,  135),   # 三张卡里那三条 figure 带的并集（实测见下）
     4:  ("duplex",  120,  268, 1680,  352),   # = figbox(120,268,1680, vb1680×352)
     # ── 三轮「静态页升维」的四枚**加法层**（页上没有图，3D 是加在版面之外的一层场）──
@@ -1880,11 +1904,70 @@ _MO_CREST = 0.52                # 波峰亮度增益（与 lab-kit ⑨ 的 uCres
 _MO_ARC = (5.60, 7.00, 0.55)    # 第二道入射波沿 `_P2ARC` 的注入窗：起 / 到达 / 余晖
 _MO_ARCW = 9.0                  # 那条 audioStream 的基准半宽
 _O_HOTCOL = 2                   # 底排四栏里唯一的 hot 栏（= 「判断」，全页的因）
+# ═══ 02 · SAME MOMENT「两制对照」（表达力精进 · 第一波 ① · 2026-09-02）═══════
+#   病名 A「对照块降级成注脚」：论点的另一半被做成灰色小字条（旧 _P2ANTI =
+#   三枚 900×58 的虚线 chip），与上面那座剧场不对等 —— 读者眼里 01 是论证、
+#   02 是脚注。治法不是把字条调大，是**换介质**：02 与 01 用同一枚 lab-kit ⑨
+#   audioStream、同一档波长（232px）、同一档流速（A 档），画成两排真带子。
+#
+#   舞台怎么长出来（**剧场逐像素不动**是硬红线）：LAB_RECTS[2] 高 470 → 708，
+#   相机仍按**原高 470** 架（camPx(w, _MO_H0, D)），再 `setViewOffset(w,470,0,0,w,708)`
+#   —— 视锥只把下缘拉长 238px，投影中心 / 缩放 / 上缘一格不动 ⇒ 剧场那 470 行
+#   与从前逐像素相同（⑲b 对位 + A/B 定拍截帧逐像素自证）。多出来的 238px 里
+#   z=0 仍是「1 世界单位 = 1px」，两排带子直接画在舞台局部 y 508–708 上。
+#
+#   ⚠ `rule(850)` **留着**（任务书原议是去掉）：content 背景板自带一条 accent
+#     细线在 y847–853（x117–761 · 实测），rule(850) 的既定职责就是压住它当收口线
+#     （见文件头「踩过的坑」那一条）。去掉它，02 区里会露出一条 640px 的亮条，
+#     而两排带子是半透明的、盖不住它。所以改成：**两排分居 rule 上下**，
+#     收口线正好成为「两制」的分界 —— 它一格没横穿任何一排。
+_MO_H0 = 470.0                  # 剧场原高：相机按它架，多出来的画布走 setViewOffset
+_P2AY = 508.0                   # 02 区在**舞台局部**坐标里的顶（= 页 780 − 舞台顶 272）
+_P2AH = 200.0                   # 02 区高（= figbox 的 vb 高）
+_P2TX0, _P2TX1 = 200.0, 1680.0  # 两排共用的时间轴（局部 · 页 320–1800）：右端顶到版心
+#   右缘 —— 「同分量」的第一层意思就是占地。左端留 200px 给行标「回合制」：
+#   它必须**贴着上排**、不能挤到 02 小节标（y757.7–775.7）底下去 —— 那两行会读成
+#   「02 · SAME MOMENT / 回合制」一个两行标题，而回合制只管上面那一排。
+#   段标（听完 / 想 / 说）与判词（听完再回答 ✕）在带子上方走一条标注行；
+#   五处字的 DOM 序与旧 _P2ANTI 逐字相同（同源自证只比正文集合与顺序）。
+#   上排 · 回合制 ✕（灰 · 串行）：一条流 + 一条 gain 剖面 —— 听 / 说是实带，
+#   段与段之间落到 ghost 档（= 真细线的空档），「想」不是媒体（见下面的虚线框）。
+_P2LBY = 10.0                   # 段标行基线（局部 y · 墨迹 776–796）
+_P2GY = 50.0                    # 「回合制」基线（局部 y）—— 与上排带子同一条中线
+_P2RY, _P2RW = 46.0, 10.0       # 上排 lane 中线 / 基准半宽（局部 y 36–56 = 页 816–836）
+_P2SEG = ((0.00, 0.34), (0.38, 0.50), (0.55, 1.00))   # 听 / 想 / 说（u 区间）
+_P2SEGE = 0.010                 # 段边界的 smootherstep 半宽（u ⇒ 14.8px）
+_P2EVT = 0.72                   # 事件（用户插话）的 u —— **两排共用同一个时刻**：
+#   上排在这里只多一枚事件标、带子一格不让位（✕ 的几何含义）；
+#   下排在同一根竖线上让位再接回（✓）。不共用同一个 x，这个对照就不成立。
+_P2EVH = 17.0                   # 事件竖标半高（带子上下各露 6px）
+_P2DKX = (_P2TX0 + (_P2TX1 - _P2TX0) * _P2SEG[1][0],   # 「想」虚线框的 x 区间
+          _P2TX0 + (_P2TX1 - _P2TX0) * _P2SEG[1][1])   #   = _P2SEG[1] 换算成 px
+_P2DKH = 10.0                   # 「想」虚线框半高（与上排带子同一档高）
+#   下排 · 边说边听（accent · 并行）：听 / 想 / 说三条连续带全程在跑。
+#   「想」按流质铁律不是媒体 ⇒ 走**低幅带**（gain .6 + 更窄的基准半宽），
+#   不另起一套点阵语汇（同一枚原语的第二语义通道就够了）。
+_P2LY = (108.0, 140.0, 172.0)   # 三条 lane 的中线（局部 y）
+_P2LW = (9.0, 6.0, 9.0)         # 三条带的基准半宽
+_P2LG = (1.0, 0.60, 1.0)        # 三条带的 gain 档
+_P2SPK = 0.22                   # 「说」从 22% 起（前面 22% 只有听与想）
+_P2DUCK = 200.0                 # 让位窗口全宽（px 弧长 · 与 P8「收声」那段 200ms
+#   括号同一档：本 deck 的时间轴一律 1px = 1ms，见 P8 的 _U_DUCK0/_P9CUT 断言）
 # ── P4 双向声带（3D 调参；几何是 _tri_fig 那条时间轴本人）─────────────────
 #   二轮精修 · 波A：这几个数从 lab_k() 的字面量提到模块级 —— `_spd_rows(4)` 要用
 #   同一批数把两条带的**弧长**算出来，周期才谈得上「由流速反推」。
-_D_X0, _D_X1, _D_YC = 160.0, 1636.0, 190.0
-_D_AMP, _D_DEP, _D_TURNS, _D_PHASE, _D_N = 104.0, 62.0, 2.35, 0.62, 320
+#
+#   ── 表达力精进 · 第一波 ②（2026-09-02）：舞台从文字右缘 +16px 起 ─────────
+#   病名 B「3D 件与文字抢地」：旧起点 x0=160（页 x280）在三行说明的**底下**，
+#   两条声带一路压着「增量理解 · 每一瞬间…」「流式 TTS · 随时可收声让位」走。
+#   三行说明的最右墨迹实测在页 x874.0（第一行），所以起点改到页 x900
+#   （局部 780）—— 净空 26px > 加法层规则的 16px，`_P4INK` / `_P4CLRMIN` 逐条断言。
+#   跑道从 1476px 缩到 856px，圈数按「保持两次交叉」反推：交叉解在
+#   θ = π/2 − .31 + kπ ⇒ 恰好两次要求 2π·turns ∈ [4.403, 7.544)，取 1.15
+#   （节距 744px/圈，比旧的 628 更从容）。NOW(页980) / 用户插话(页1204) /
+#   340ms(页1220) 三处标注一格没动，仍全部落在带子上。
+_D_X0, _D_X1, _D_YC = 780.0, 1636.0, 190.0
+_D_AMP, _D_DEP, _D_TURNS, _D_PHASE, _D_N = 104.0, 62.0, 1.15, 0.62, 320
 # ── P3 双工三通道 ─────────────────────────────────────────────────────────
 _L_DEP, _L_SLAB = 42, 16        # A 面 +42 / B 面 −42（通道真的穿越空间）· 说话块的厚度
 _P3BANDS = {                    # [列(0=A/1=B), y, 高, 在说] —— 逐条抄自 _duplex_fig 的 band()
@@ -1939,7 +2022,9 @@ _AS_EDGE, _AS_CREST, _AS_COMP = 0.055, 0.55, 0.55   # 接头渐隐 / 波峰增�
 #   P13 贯通流 +1（10）。⑲s 逐股复算，少一股多一股都当场报。
 # 三轮「静态页升维」再入册 20 股 3 页：P5 底场 +7｜P15 六条支线 +6｜P16 通话流 +7
 # ⇒ 41 → 61 股、10 → 13 页。P22 的涟漪**故意不在这张表里**（它不是介质，见 ㉒-①）。
-_SPD_N = 61
+# 表达力精进 · 第一波 ① 再入册 4 股（页数不变）：P2 的 02「两制对照」——
+#   回合制轨 1 + 并行听 / 想 / 说 3 ⇒ 61 → 65 股、仍 13 页。
+_SPD_N = 65
 _SPD_A = 110.0                  # A 档基准（px/s）
 _SPD_TOL = 0.30                 # ±30%：同一条河里允许的语义差异
 
@@ -2009,6 +2094,8 @@ def _at_of(pts):
 #   每一股的**周期**都由 `路径长 ÷ 这里的目标流速` 反推（见 _dur_at / lab_k）。
 #   P13 总线包（92.9–94.3）本来就在档内，一个数没动 —— 已经对的不去动它。
 _SPD_P2 = (110.0, 109.9)                    # 主环 / 支轨（旧：270 vs 88，同页差三倍）
+#   表达力精进 · 第一波 ①：02「两制对照」四股（回合制轨 + 并行听 / 想 / 说）
+_SPD_P2B = (108.0, 112.0, 106.0, 111.0)
 _SPD_P4 = (110.0, 119.9)                    # 上行声带 / 下行声带（旧：324 / 375）
 _SPD_P6 = (110.0,                           # 主路（旧：296，12 枚球）
            118.0, 112.0, 105.0, 108.0,      # 音频帧 / 增量文本 / token / 音频包
@@ -2721,6 +2808,66 @@ def _add_clr_min(p):
 _ADD_CLRMIN = {p: _add_clr_min(p) for p in _ADD_PAGES}
 
 
+# ═══ 表达力精进 · 第一波：P2 / P4 的净空名册（沿用加法层那把尺子）═══════════
+#   加法层四页的 ≥16px 净空规则本来只管「页上没有图、3D 是加在版面之外那一层」
+#   的四页。本轮把它借到两页**有图**的页上：
+#     P2 —— 02 区是全新长出来的一带，两排带子与五处字必须各走各的；
+#     P4 —— 病名 B 的正身：舞台过去就压在三行说明底下。
+#   墨迹盒一律**实测**（Range.getClientRects 量的字形行框，不是 line-height 盒），
+#   量法与 _ADD_INK 那四页同一条：舞台坐标 1920×1080，(x, y, w, h)。
+#   ⚠ 盒子取**两次实测的并集再各留 _INKPAD**：舞台是 transform:scale 的固定 1920
+#     画布，不同跑次的缩放取整会让同一处字形漂 ±2.5px；名册宁可宽一档，也不许压字。
+_INKPAD = 3.0                    # 名册相对实测墨迹的四周留量（px）
+_P2INK = [                    # 02「两制对照」的五处字（DOM 序 = 阅读序）
+    (114, 815, 58, 24),          # 回合制（上排行标 · mono · 左栏，与带子同中线）
+    (544, 774, 40, 24),          # 听完（段标行 · 居中于上排 听 段）
+    (951, 774, 23, 24),          # 想（段标行 · 居中于「想」虚线框）
+    (1447, 774, 23, 24),         # 说（段标行 · 居中于上排 说 段）
+    (1685, 774, 111, 24),        # 听完再回答 ✕（段标行行尾判词 · 右对齐 1800）
+]
+_P4INK = [                       # 三行说明（病名 B 的对象；其余字不在本轮名册内）
+    (268, 285, 609, 32),         # 连续拾音 · VAD 持续检测 · 流式 ASR——不切段，不等你说完
+    (268, 399, 466, 32),         # 增量理解 · 每一瞬间都在判断：现在要不要出声
+    (268, 513, 272, 32),         # 流式 TTS · 随时可收声让位
+]
+_INK = {2: _P2INK, 4: _P4INK}
+_CLR = {2: _ADD_CLR, 4: _ADD_CLR}   # 下限 16px（与加法层同一档，不许放松）
+
+
+def _box_gap(a, b):
+    """两只矩形的最小间距（相交 ⇒ 0）"""
+    dx = max(b[0] - (a[0] + a[2]), a[0] - (b[0] + b[2]), 0.0)
+    dy = max(b[1] - (a[1] + a[3]), a[1] - (b[1] + b[3]), 0.0)
+    return math.hypot(dx, dy)
+
+
+def _p2_geo_boxes():
+    """02 区几何的**页坐标**包围盒表（净空断言用；带子按基准半宽取最大外缘）。
+       局部 → 页：x + 120 / y + 780（02 figbox 的位）。"""
+    X, Y = 120.0, 780.0
+    out = [(X + _P2TX0, Y + _P2RY - _P2RW, _P2TX1 - _P2TX0, _P2RW * 2)]      # 上排带
+    out.append((X + _P2DKX[0], Y + _P2RY - _P2DKH,                            # 「想」虚线框
+                _P2DKX[1] - _P2DKX[0], _P2DKH * 2))
+    ex = X + _P2TX0 + (_P2TX1 - _P2TX0) * _P2EVT
+    for yc in (_P2RY, _P2LY[2]):                                              # 两枚事件竖标
+        out.append((ex - 2.0, Y + yc - _P2EVH, 4.0, _P2EVH * 2))
+    for k in range(3):                                                        # 下排三条带
+        x0 = _P2TX0 + ((_P2TX1 - _P2TX0) * _P2SPK if k == 2 else 0.0)
+        out.append((X + x0, Y + _P2LY[k] - _P2LW[k], _P2TX1 - x0, _P2LW[k] * 2))
+    return out
+
+
+def _p4_geo_lanes():
+    """P4 两条声带的**页坐标**折线（局部 → 页：x + 120 / y + 268）"""
+    X, Y = LAB_RECTS[4][1], LAB_RECTS[4][2]
+    return [[(X + p[0], Y + p[1]) for p in _d_lane(s, ph)]
+            for s, ph in ((1, 0.0), (-1, _D_PHASE))]
+
+
+_P2CLRMIN = min(_box_gap(g, b) for g in _p2_geo_boxes() for b in _P2INK)
+_P4CLRMIN = min(_poly_clr(q, _P4INK) for q in _p4_geo_lanes()) - 11.0   # 减掉带子半宽
+
+
 def _spd_rows(p):
     """A 档（连续媒体流）**逐股速度表**：[(名字, 页上像素路径长, px/s)]。
        这是本波「速度品味检查」的唯一真相 —— 周期由 `长 ÷ 速` 反推（_dur_at），
@@ -2731,8 +2878,13 @@ def _spd_rows(p):
         # 相速度（A 档）；「长」取波场在页上横跨的像素（入射 X0→X1，出射整体右移
         # _MO_OUTDX 之后越过 vb 右缘 ⇒ 倾泻出画）。
         span = _MO_X1 - _MO_X0
+        # 表达力精进 ①：02「两制对照」四股 —— 与剧场同一条河（同介质就是同流速档）
+        tw = _P2TX1 - _P2TX0
         return [("入射波场", span, _SPD_P2[0]), ("出射波场", span, _SPD_P2[1]),
-                ("入场弧流", _plen_d(_P2ARC, per=18, tol=1.2), _SPD_P2[0])]
+                ("入场弧流", _plen_d(_P2ARC, per=18, tol=1.2), _SPD_P2[0]),
+                ("回合制轨", tw, _SPD_P2B[0]), ("并行听", tw, _SPD_P2B[1]),
+                ("并行想", tw, _SPD_P2B[2]),
+                ("并行说", tw * (1.0 - _P2SPK), _SPD_P2B[3])]
     if p == 4:
         return [("上行声带", _plen(_d_lane(1, 0.0)), _SPD_P4[0]),
                 ("下行声带", _plen(_d_lane(-1, _D_PHASE)), _SPD_P4[1])]
@@ -2838,7 +2990,12 @@ def lab_data(p):
     elif p == 9:
         a += [("rings", "%d,%d" % (_SR1, _SR2)), ("gap", "35,40"), ("streams", 3)]
     elif p == 4:
-        a += [("cut", _XIN), ("now", _XNOW), ("turns", 2.35)]
+        # 表达力精进 ②：起点 / 圈数进名册（turns 不再写死字面量），三行说明的
+        # 墨迹盒与实测净空一并摊上来 —— 舞台再往左挪一格，构建期就当场炸。
+        a += [("cut", _XIN), ("now", _XNOW), ("turns", _n(_D_TURNS)),
+              ("x0", "%d" % int(LAB_RECTS[4][1] + _D_X0)),
+              ("ink", ";".join("%d,%d,%d,%d" % b for b in _P4INK)),
+              ("clr", _n(_CLR[4])), ("clr-min", _f1(_P4CLRMIN))]
     # ── 第二波九页（2026-08-31 · 终波）：闸门静态复算要用的周期 / 相位 / 关键几何 ──
     elif p == 2:
         # 波B · 模态转换剧场：⑲h 用这几张表**复算相位**（不靠截帧）——
@@ -2853,7 +3010,15 @@ def lab_data(p):
               ("lam", _n(_AS_LAM)),          # 波长逐字取 lab-kit ⑨ ⇒ 同一种介质
               ("boxes", len(_P2N)), ("cols", ",".join(str(b[0]) for b in _P2N)),
               ("hotcol", _O_HOTCOL), ("arc", ",".join(_n(x) for x in _MO_ARC)),
-              ("stage", "%d,%d" % (int(_MO_X0), int(_MO_X1 + _MO_OUTDX)))]
+              ("stage", "%d,%d" % (int(_MO_X0), int(_MO_X1 + _MO_OUTDX))),
+              # 表达力精进 ①：02「两制对照」—— 剧场原高（相机按它架）/ 02 区顶 /
+              # 时间轴 / 三段 u / 事件 u / 让位窗口 / 净空实测
+              ("h0", _n(_MO_H0)), ("ay", _n(_P2AY)),
+              ("tx", "%d,%d" % (int(_P2TX0), int(_P2TX1))),
+              ("seg", ";".join("%s,%s" % (_n(s[0]), _n(s[1])) for s in _P2SEG)),
+              ("evt", _n(_P2EVT)), ("duck", _n(_P2DUCK)),
+              ("ink", ";".join("%d,%d,%d,%d" % b for b in _P2INK)),
+              ("clr", _n(_CLR[2])), ("clr-min", _f1(_P2CLRMIN))]
     elif p == 3:
         # 三种模式的通道相位表：与页上 .mo-packet 的实参逐参同源 ——
         # 闸门用 (L+seg)/(seg+ln) 复算占空比、再逐时刻验半双工「任何时刻只有一个方向在途」。
@@ -5356,6 +5521,17 @@ function mkRelock(c0, D0, c1, D1){
    audioStream —— 同一种介质，不是装饰线），到达舞台左缘的那一刻，台上的格架在
    **0.56s** 内整片转过 uYaw 让位，其后 **3.10s** 慢慢回正。让位是「转身让路」，
    不是「消失」—— 所以它读得出是两件事在同一个空间里相互避让。
+
+   ── 02 · SAME MOMENT「两制对照」（表达力精进 · 第一波 ① · 2026-09-02）────────
+   同一枚场景往下长 238px（相机 setViewOffset，剧场投影一格不动），多出来那一带
+   画两排 audioStream —— 与剧场**同介质**（同一枚 lab-kit ⑨ · λ232 · A 档流速）、
+   **同分量**（整幅两排，不是 900×58 的灰注脚条）：
+     上排 回合制 ✕：一条流 + 一条 gain 剖面 ⇒ 听 / 说是实带，之间落 ghost 档
+       （空档 = 真细线，零分支）；「想」不是媒体 ⇒ 一只虚线框；
+       说段中一枚事件标，**带子一格不让位**。
+     下排 边说边听：听 / 想 / 说三条并行连续带（想走低幅 gain .6），说带从 22% 起；
+       在**同一根竖线上**（同一时刻）200px 弧长内落 ghost 让位，随后接回。
+   两排的事件必须共用同一个 x —— 不共用，「同一时刻两种反应」这个对照就不成立。
    ═══════════════════════════════════════════════════════════════════════════ */
 const MO = K.o;
 const _gf = (x) => (+x).toFixed(4);          // GLSL 浮点字面量（几何常量只有 K.o 一份）
@@ -5442,7 +5618,14 @@ const MO_LN_FS = [
 
 function makeMorph(ctx){
   const Q = K.o, w = ctx.rect[2], h = ctx.rect[3], D = 1400;
-  const scene = new THREE.Scene(), camera = camPx(w, h, D);
+  const scene = new THREE.Scene();
+  /* 相机按**剧场原高**（Q.h0 = 470）架，再用 setViewOffset 把视锥的下缘拉长到
+     整块画布高 —— left/top/width 与 fov 一格不动，只有 height 乘 h/h0 ⇒
+     ① 投影中心、横向缩放、上缘全部与从前逐像素相同（剧场不动的机器保证）；
+     ② z=0 平面上仍是「1 世界单位 = 1px」，02 的两排带子直接画在局部 y508–708。
+     ⚠ 相机的 aspect 必须保持 w/h0（不是 w/h）—— 那正是 setViewOffset 的前提。 */
+  const camera = camPx(w, Q.h0, D);
+  if(h > Q.h0) camera.setViewOffset(w, Q.h0, 0, 0, w, h);
   const SH = pxShared(D, 120);                 // 雾半程贴着真实 z 范围（±101）收紧 ——
                                               // 松了就等于没有体积（本轮实拍锤过：210 时整幅是平的）
   const NA = Q.na, NB = Q.nb, NC = Q.nc, N = NA*NB*NC;
@@ -5514,6 +5697,72 @@ function makeMorph(ctx){
     const win = smoother(ARC[0], ARC[1], s) * (1.0 - smoother(ARC[1], ARC[1]+ARC[2], s));
     return win * smoother(0.0, 0.55, u / arc.len);        // 弧头先亮：波是「切进来」的
   });
+  /* ═══ 02 · SAME MOMENT「两制对照」（表达力精进 ①）════════════════════════
+     一切都画在舞台局部 y = Q.ay + …（= 页 780 起那 200px）。z 恒 0 ⇒
+     投影是恒等，poster 的 _p2_env_path 与这里是**同一批坐标**（不是「近似」）。 */
+  const AY = Q.ay, SPAN = Q.tx1 - Q.tx0;
+  // 一条水平流的采样点：4px 一段（aG 是逐顶点属性，点疏了让位窗口就落不到点上）
+  const rowPts = (yc, x0, x1) => {
+    const n = Math.max(2, Math.round((x1 - x0) / 4) + 1), o = [];
+    for(let i = 0; i < n; i++) o.push([x0 + (x1 - x0)*i/(n-1), -(AY + yc), 0]);
+    return o;
+  };
+  const win2 = (t, a, b, e) => smoother(a-e, a+e, t) * (1 - smoother(b-e, b+e, t));
+  /* 上排 · 回合制：一条流 + 一条 gain 剖面（听 / 说实带、其余落 ghost 空档）。
+     「其余」里含「想」那一段 —— 想不是媒体，它由下面那只虚线框来说。 */
+  const anti = mkStream(SH, rowPts(Q.ry, Q.tx0, Q.tx1),
+                        { w: Q.rw, spd: Q.spdb[0], edge: .04 }).add(scene);
+  anti.gain((u) => {
+    const t = u / SPAN;
+    return Math.max(win2(t, Q.seg[0][0], Q.seg[0][1], Q.sege),
+                    win2(t, Q.seg[2][0], Q.seg[2][1], Q.sege));
+  });
+  /* 下排 · 边说边听：听 / 想 / 说三条并行连续带。
+     「想」按流质铁律不是媒体 ⇒ 同一枚原语的低幅档（gain .6 + 更窄的基准半宽），
+     不另起一套点阵语汇。「说」从 22% 起，并在事件那一刻让位 200px 再接回。 */
+  const EVX = Q.tx0 + SPAN*Q.evt;
+  const live = [];
+  for(let k = 0; k < 3; k++){
+    const x0 = Q.tx0 + (k === 2 ? SPAN*Q.spk : 0);
+    const s = mkStream(SH, rowPts(Q.ly[k], x0, Q.tx1),
+                       { w: Q.lhw[k], spd: Q.spdb[1+k], edge: .04 }).add(scene);
+    if(k === 2){
+      const c = EVX - x0, hw = Q.duck*0.5, g0 = Q.lg[k];
+      s.gain((u) => g0 * (1 - win2(u, c-hw, c+hw, hw*0.30)));
+    }else{
+      const g0 = Q.lg[k];
+      s.gain(() => g0);
+    }
+    live.push(s);
+  }
+  /* 「想」的虚线框（不是流）+ 两枚事件竖标（同一根竖线：上排不让位 / 下排让位）。
+     虚线段的坐标是**构建期算好的定长表**（K.o.dash）⇒ poster 与这里破折同相。 */
+  function segMesh(rows, mat){
+    const pos = new Float32Array(rows.length*6), al = new Float32Array(rows.length*2).fill(1);
+    rows.forEach((r, i) => {
+      pos[i*6]   = r[0]; pos[i*6+1] = -(AY + r[1]); pos[i*6+2] = 0;
+      pos[i*6+3] = r[2]; pos[i*6+4] = -(AY + r[3]); pos[i*6+5] = 0;
+    });
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('aA', new THREE.BufferAttribute(al,1));
+    g.setAttribute('aH', new THREE.BufferAttribute(new Float32Array(al.length),1));
+    const o = new THREE.LineSegments(g, mat); o.frustumCulled = false; scene.add(o);
+    return o;
+  }
+  const dashMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  segMesh(Q.dash, dashMat);
+  const evtMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  segMesh([[EVX, Q.ry - Q.evh, EVX, Q.ry + Q.evh],
+           [EVX, Q.ly[2] - Q.evh, EVX, Q.ly[2] + Q.evh]], evtMat);
+  const evtDotMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(
+      new Float32Array([EVX, -(AY + Q.ry - Q.evh), 0]), 3));
+    fillAH(g, 1, 0);
+    const o = new THREE.Points(g, evtDotMat); o.frustumCulled = false; scene.add(o);
+  }
   /* ── 相位：一代在 t 时刻的三态权重 + 生灭窗 + 让位偏航（与构建期 _mo_phase 同式）── */
   function phase(t){
     const s1 = smoother(Q.ph[0], Q.ph[1], t), s2 = smoother(Q.ph[2], Q.ph[3], t);
@@ -5538,6 +5787,8 @@ function makeMorph(ctx){
         u.uYaw.value = ph.yaw;
       }
       arc.draw(clock);
+      anti.draw(clock);                       // 02「两制对照」：四股与剧场同一个钟
+      live.forEach(s => s.draw(clock));
     },
     /* ⑲h 的探针：闸门拿它逐拍复算相位（不截帧、不比像素） */
     state(){
@@ -5550,6 +5801,13 @@ function makeMorph(ctx){
       out.run = [GEN[0].u.uRunA.value, GEN[0].u.uRunB.value];
       out.arc = arc.mesh.geometry.attributes.aG.array[0];
       out.flow = arc.mat.uniforms.uOpacity.value;
+      /* 02「两制对照」的探针：空档真的落到 ghost（不是「小一点的波」）、
+         让位真的到底、其余段真的满幅 —— 三个数就够复算「✕ vs ✓」。 */
+      const aG = anti.mesh.geometry.attributes.aG.array;
+      const dG = live[2].mesh.geometry.attributes.aG.array;
+      out.two = { gapMin: Math.min.apply(null, aG), gapMax: Math.max.apply(null, aG),
+                  duckMin: Math.min.apply(null, dG), duckMax: Math.max.apply(null, dG),
+                  lanes: live.length, evx: EVX };
       return out;
     },
     applyTheme(){
@@ -5572,6 +5830,22 @@ function makeMorph(ctx){
       arc.theme(cssColor('--o-arc'), cssColor('--o-arc-rms'),
                 cssNum('--o-arc-op', .70), cssNum('--o-arc-rms-op', .55), .62);
       setBlend(arc.mat, cssNum('--o-add', 0));
+      // 02「两制对照」：回合制走灰（note 语域）、边说边听走 accent、事件标走 accent-deep
+      const an = cssColor('--o-anti'), lv = cssColor('--o-live'), ev = cssColor('--o-evt');
+      anti.theme(an, cssColor('--o-anti-rms'), cssNum('--o-anti-op', .66),
+                 cssNum('--o-anti-rms-op', .42), 1);
+      live.forEach(s => s.theme(lv, cssColor('--o-live-rms'), cssNum('--o-live-op', .66),
+                                cssNum('--o-live-rms-op', .55), 1));
+      dashMat.uniforms.uColor.value.copy(an); dashMat.uniforms.uHot.value.copy(an);
+      dashMat.uniforms.uOpacity.value = cssNum('--o-anti-op', .66);
+      dashMat.uniforms.uBack.value = 1; dashMat.uniforms.uGain.value = 0;
+      [evtMat, evtDotMat].forEach(m => {
+        m.uniforms.uColor.value.copy(ev); m.uniforms.uHot.value.copy(ev);
+        m.uniforms.uOpacity.value = cssNum('--o-evt-op', .92);
+        m.uniforms.uBack.value = 1; m.uniforms.uGain.value = 0; });
+      evtDotMat.uniforms.uSize.value = 8;
+      [anti.mat, dashMat, evtMat, evtDotMat].concat(live.map(s => s.mat))
+        .forEach(m => setBlend(m, cssNum('--o-add', 0)));
     },
   };
 }
@@ -8046,6 +8320,12 @@ def _sarr(xs):
 
 
 def _obj(d):
+    # 键重名当场炸：JS 对象字面量里后写的那个静默胜出，于是「几何常量」会被
+    # 另一件东西顶掉，屏上只剩 NaN（本轮踩过一次：02 的 lane 半宽把星格宽度
+    # `lw` 顶了，MO_HEAD 整段编译失败）。K 表是全 deck 的几何真相，不许重名。
+    ks = [k for k, _v in d]
+    assert len(ks) == len(set(ks)), \
+        "K 表键重名：%r" % sorted({k for k in ks if ks.count(k) > 1})
     return "{" + ",".join("%s:%s" % (k, v) for k, v in d) + "}"
 
 
@@ -8176,6 +8456,16 @@ def lab_k():
         ("spd", _arr([sp for _nm, _L, sp in _spd_rows(2)])),
         ("arcW", _n(_MO_ARCW)), ("arcWin", _arr(_MO_ARC)),
         ("arcSpd", _n(_SPD_P2[0])),
+        # ── 02「两制对照」（表达力精进 ①）：相机按剧场原高架 + setViewOffset ──
+        ("h0", _n(_MO_H0)), ("ay", _n(_P2AY)),
+        ("tx0", _n(_P2TX0)), ("tx1", _n(_P2TX1)),
+        ("ry", _n(_P2RY)), ("rw", _n(_P2RW)),
+        ("seg", _rows(_P2SEG)), ("sege", _n(_P2SEGE)),
+        ("evt", _n(_P2EVT)), ("evh", _n(_P2EVH)),
+        ("dash", _rows(_P2DASH)),
+        ("ly", _arr(_P2LY)), ("lhw", _arr(_P2LW)), ("lg", _arr(_P2LG)),
+        ("spk", _n(_P2SPK)), ("duck", _n(_P2DUCK)),
+        ("spdb", _arr(_SPD_P2B)),
     ])
     # ⑨ P3 双工三通道（bands / ch 两张表逐条来自页上的 band() 与 pk()）
     _modes = "[" + ",".join(
@@ -8543,6 +8833,112 @@ def _mo_at(u, v, w, t, clock):
     return ([a[k] * wi + b[k] * wl + c[k] * wo for k in range(3)], life)
 
 
+# ── 02「两制对照」的构建期几何（poster 与 3D 同吃这一份）────────────────────
+def _p2_win(t, a, b, e):
+    """一扇 smootherstep 窗（gain 剖面的唯一构件 —— 运行时 win() 逐行同式）"""
+    return _smoother(a - e, a + e, t) * (1.0 - _smoother(b - e, b + e, t))
+
+
+def _p2_anti_gain(a_t):
+    """上排回合制的幅度剖面：听 / 说是实带，其余（含「想」那一段）落 ghost 档。
+       **零分支** —— 空档不是「不画」，是同一条流的幅度落到细线（lab-kit ⑨ 的 aG）。"""
+    t = a_t / (_P2TX1 - _P2TX0)
+    return max(_p2_win(t, _P2SEG[0][0], _P2SEG[0][1], _P2SEGE),
+               _p2_win(t, _P2SEG[2][0], _P2SEG[2][1], _P2SEGE))
+
+
+def _p2_env_path(yc, x0, x1, hw, spd, gainf, n=320):
+    """一条水平 audioStream 在 t* 那一帧的**静态包络轮廓**（与 AS_VS 逐行同式）：
+       en = .5+.5·Σaᵢsin(2π·fᵢ·(aT−run)/λ+φᵢ)；amp = mix(ghost,1,g)；dyn = mix(1,en,g)；
+       半高 = hw·(floor + (1−floor)·dyn)·amp。
+       ⚠ 两端那一档 uEdge 在着色器里是**alpha** 渐隐，填充路径表达不了 alpha，
+         所以 poster 把它折算到高度上（观感更接近；差别只在 WebGL 起不来时看得到）。"""
+    run = spd * _MO_POSTER_T
+    top, bot = [], []
+    for i in range(n + 1):
+        t = i / float(n)
+        x = x0 + (x1 - x0) * t
+        a_t = x - x0                      # 水平流 ⇒ 沿流弧长 = 横向距离
+        en = 0.5 + 0.5 * _mo_S(2.0 * math.pi * (a_t - run) / _AS_LAM)
+        g = max(0.0, min(1.0, gainf(a_t)))
+        amp = _AS_GHOST + (1.0 - _AS_GHOST) * g
+        dyn = 1.0 + (en - 1.0) * g
+        h = hw * (_AS_FLOOR + (1.0 - _AS_FLOOR) * dyn) * amp
+        h *= _smoothstep(0.0, _AS_EDGE, t) * _smoothstep(0.0, _AS_EDGE, 1.0 - t)
+        top.append((x, yc - h))
+        bot.append((x, yc + h))
+    d = "M" + " L".join("%s %s" % (_f1(p[0]), _f1(p[1])) for p in top)
+    d += " L" + " L".join("%s %s" % (_f1(p[0]), _f1(p[1])) for p in reversed(bot)) + "Z"
+    return d
+
+
+def _p2_dash_segs(x0, x1, yc, hh, dash=12.0, gap=9.0):
+    """「想」不是媒体（流质铁律）—— 它是一只**虚线框**（沿用旧 _P2ANTI 那枚虚线
+       chip 的语义）。虚线段在构建期算成定长表，poster 与 3D 用同一批坐标 ⇒
+       破折相位不可能分叉（「构建期算一遍、运行时不再算第二遍」）。"""
+    pts = [(x0, yc - hh), (x1, yc - hh), (x1, yc + hh), (x0, yc + hh), (x0, yc - hh)]
+    segs, s, per = [], 0.0, dash + gap
+    for i in range(len(pts) - 1):
+        ax, ay = pts[i]
+        bx, by = pts[i + 1]
+        L = math.hypot(bx - ax, by - ay) or 1.0
+        while s < L:
+            e = min(L, s + dash)
+            if e - s > 0.8:
+                segs.append((ax + (bx - ax) * s / L, ay + (by - ay) * s / L,
+                             ax + (bx - ax) * e / L, ay + (by - ay) * e / L))
+            s += per
+        s -= L
+    return segs
+
+
+_P11SRCY = 1044                  # 表达力精进 ③：P11 的 SOURCE 自己占一行（详见页上注）
+_P2DASH = _p2_dash_segs(_P2DKX[0], _P2DKX[1], _P2RY, _P2DKH)
+_P2EVX = _P2TX0 + (_P2TX1 - _P2TX0) * _P2EVT     # 两排共用的那一刻（局部 x）
+
+
+def _p2_two_fig():
+    """02 · SAME MOMENT「两制对照」的 **poster 层**（3D 起来时整幅让给 canvas）：
+       两排带子的静态包络轮廓 + 「想」的虚线框 + 两枚事件竖标 —— 字一个不裹。
+       字的 DOM 序与旧 _P2ANTI 逐字相同（回合制 / 听完 / 想 / 说 / 听完再回答 ✕），
+       所以 ⑳ 的「正文逐字同源」照旧放行 —— 本轮**一个字没新增**。"""
+    o = []
+    # ① 上排 · 回合制：一条流（听 / 说实带 + ghost 空档）
+    o.append('<path class="p2-anti" d="%s"/>'
+             % _p2_env_path(_P2RY, _P2TX0, _P2TX1, _P2RW, _SPD_P2B[0], _p2_anti_gain))
+    # ② 「想」的虚线框（不是流）
+    o.append('<path class="p2-dash" d="%s"/>'
+             % "".join("M%s %sL%s %s" % tuple(_f1(v) for v in s) for s in _P2DASH))
+    # ③ 下排 · 边说边听：听 / 想 / 说三条并行连续带（说带在 _P2EVT 处让位再接回）
+    for k in range(3):
+        x0 = _P2TX0 + ((_P2TX1 - _P2TX0) * _P2SPK if k == 2 else 0.0)
+        if k == 2:
+            hw = _P2DUCK * 0.5
+            c = _P2EVX - x0
+            gf = (lambda a_t, c=c, hw=hw:
+                  _P2LG[2] * (1.0 - _p2_win(a_t, c - hw, c + hw, hw * 0.30)))
+        else:
+            gf = (lambda a_t, k=k: _P2LG[k])
+        o.append('<path class="p2-live" d="%s"/>'
+                 % _p2_env_path(_P2LY[k], x0, _P2TX1, _P2LW[k], _SPD_P2B[1 + k], gf))
+    # ④ 两枚事件竖标：同一根竖线上，上排不让位、下排让位（✕ / ✓ 的几何含义）
+    o.append('<path class="p2-evt" d="%s"/>'
+             % "".join("M%s %sV%s" % (_f1(_P2EVX), _f1(yc - _P2EVH), _f1(yc + _P2EVH))
+                       for yc in (_P2RY, _P2LY[2])))
+    o.append('<circle class="p2-evt-d" cx="%s" cy="%s" r="4"/>'
+             % (_f1(_P2EVX), _f1(_P2RY - _P2EVH)))
+    out = [lp(*o)]
+    # ── 字（全在 poster 之外，任何降级路径下都压在 canvas 之上）──────────────
+    #    顺序与旧 _P2ANTI 逐字相同；样式也照抄（note 语域 = 灰、小一号）。
+    _G, _B = "var(--ink-3)", int(_P2LBY)
+    out.append(txt(2, int(_P2GY), "回合制", "sm", size=14, col=_G, mono=True, ls=".16em"))
+    for k, _s in enumerate(["听完", "想", "说"]):
+        _cx = _P2TX0 + (_P2TX1 - _P2TX0) * (_P2SEG[k][0] + _P2SEG[k][1]) / 2.0
+        out.append(txt(int(round(_cx)), _B, _s, "sm", size=17, anchor="middle", col=_G))
+    out.append(txt(1680, _B, "听完再回答 ✕", "sm", size=17, anchor="end", col=_G))
+    return "".join(out)
+
+
 def _mo_poster():
     """P2 的降级层：把 t* 那一帧**逐点算出来**画成 SVG。
        与 WebGL 同参（同一批 _MO_* 常量、同一组公式、同一套行线/纬筋的抽稀规则）
@@ -8646,22 +9042,18 @@ def _theatre_fig():
     # ── 图例（只列本页用到的两种线型）──
     o.append(legend(0, 30, [("solid", "主数据流"), ("dot", "参考 / 反馈")]))
     return "".join(o)
-# 回合制反例条：线性三段，与剧场主图形成对照（note 语域 —— 灰、虚线、小一号）
-_P2ANTI = "".join(
-    [txt(2, 40, "回合制", "sm", size=14, col="var(--ink-3)", mono=True, ls=".16em")]
-    + [x for k, s in enumerate(["听完", "想", "说"]) for x in (
-        box(120 + k * 150, 16, 110, 40, 20, dashed=True, i=k + 1),
-        txt(175 + k * 150, 43, s, "sm", size=17, anchor="middle", col="var(--ink-3)"))]
-    + [dline("M%d 36 H%d" % (240 + k * 150, 256 + k * 150), HS, 2, k + 2, dash="5 5")
-       for k in range(0, 2)]
-    + [ah_r(268 + k * 150, 36, "var(--ink-3)", 7) for k in range(0, 2)]
-    + [txt(620, 43, "听完再回答 ✕", "sm", size=17, col="var(--ink-3)")])
+# 02「两制对照」（表达力精进 · 第一波 ①）：旧版是一条 900×58 的灰色注脚 chip 条
+#   —— 与上面那座剧场不对等，读者眼里 01 是论证、02 是脚注。新版与 01 **同介质**
+#   （同一枚 audioStream · λ232 · A 档流速）、**同分量**（整幅 1680×200 两排带子），
+#   字一个没新增（回合制 / 听完 / 想 / 说 / 听完再回答 ✕ 全是旧条上的原字）。
 page("content", "".join([
     head("REAL-TIME DECISION · 边听边说", "对话，是一个<strong>实时决策</strong>的过程。"),
     lab(120, 236, "01 · FOUR MOVES · 同一时刻发生"),
-    figbox(120, 272, 1680, 1680, 470, _theatre_fig(), i=1),
+    figbox(120, 272, 1680, 1680, int(_MO_H0), _theatre_fig(), i=1),
     lab(120, 756, "02 · SAME MOMENT · 边说边听", i=6),
-    figbox(120, 788, 900, 900, 58, _P2ANTI, i=7),
+    figbox(120, 780, 1680, 1680, int(_P2AH), _p2_two_fig(), i=7),
+    # 收口线留在 850：它同时是「两制」的分界（上排回合制在它之上、下排在它之下），
+    # 也照旧压着背景板自带的那条 y847–853 accent 细线（见 _P2AY 那一段的注）。
     rule(850),
     land("自然对话不是“听完再回答”，而是边说边听、持续判断——这正是引擎要还原的能力。"),
 ]), lab="morph")
@@ -9881,7 +10273,16 @@ page("content", "".join([
     # land 收窄到 1000，右侧让出 SOURCE 行（同一基线两栏，照 convoai-info P8 的做法），
     # 这样 land 仍落在全 deck 统一的 y988 基线上，翻页时那根 accent 竖条不跳。
     land("极端弱网、瞬时断网也不掉线——移动、车载、户外场景，对话依旧顺畅。", w=1000),
-    src(_SRC_TYP, y=1010, x=1010, w=790, align="right"),
+    # 表达力精进 · 第一波 ③：SOURCE 下移一行（1010 → 1044，仍右对齐 1800）。
+    #   旧版实测：落点句墨迹排到 x1103.6（.land 的盒是 1000 宽，但 29px 的句子
+    #   953px 一行排得下 ⇒ 从 x150 一路排到 1103.6），而 SOURCE 的墨迹从
+    #   x1096.5 起 —— 两栏在同一基线上**已经叠了 7px**，「同行两栏」根本没成立。
+    #   只动布局：下移一行（+34 = .src 的行高 23.8 + 10 的行距）之后各占一行。
+    #   与页脚三件的关系（实测）：底轨 y1045（发丝线 · 两端渐隐）在 SOURCE 墨迹
+    #   1046.3–1068.3 之上 1.3px；页码 .sig 在 y44（右上角，另一头）；本页
+    #   data-steps=0（没有 BUILD 指示）；页底 1078 那条板上装饰只到 x1010，
+    #   与右对齐的 SOURCE 不同栏 —— 三处都不冲突。
+    src(_SRC_TYP, y=_P11SRCY, x=1010, w=790, align="right"),
 ]), lab="qos")
 
 # ═══ P12 · 多模态 ·「看得见、认得人的多模态对话」════════════════════════════
@@ -11142,6 +11543,42 @@ def build():
     for _p in _ADD_PAGES:
         assert _p in LAB_RECTS and LAB_RECTS[_p][0] in ("three", "hub", "calls", "quiet")
 
+    # ── 表达力精进 · 第一波：P2 / P4 的净空闸（借加法层那把 ≥16px 的尺子）────────
+    for _p, _m in ((2, _P2CLRMIN), (4, _P4CLRMIN)):
+        assert _m >= _CLR[_p], \
+            "① P%d 的 3D 压字：与字形墨迹盒最小净空 %.1fpx < %.0f" % (_p, _m, _CLR[_p])
+        for _b in _INK[_p]:
+            assert 0 <= _b[0] and 0 <= _b[1] and _b[0] + _b[2] <= 1920 \
+                and _b[1] + _b[3] <= 1080, "① P%d 的墨迹盒出界：%r" % (_p, _b)
+    # ① P2：02 区必须整块落在 lab-rect 里（越界就是被 canvas 裁掉一半），
+    #    且与四栏卡底（y735）≥40px、上排 / 下排各自躲开收口线 y850。
+    _r2 = LAB_RECTS[2]
+    for _g in _p2_geo_boxes():
+        assert _r2[1] <= _g[0] and _g[0] + _g[2] <= _r2[1] + _r2[3] + 0.001, \
+            "① P2 的 02 几何横向越出 lab-rect：%r" % (_g,)
+        assert _r2[2] <= _g[1] and _g[1] + _g[3] <= _r2[2] + _r2[4], \
+            "① P2 的 02 几何纵向越出 lab-rect：%r" % (_g,)
+    _p2top = min(b[1] for b in _P2INK) + _INKPAD          # 名册留量扣回来 = 实测墨迹顶
+    assert _p2top - 735 >= 40, \
+        "① P2 的 02 顶（%.0f）与四栏卡底 y735 净空 %.1f < 40px" % (_p2top, _p2top - 735)
+    assert 780 + _P2RY + _P2RW < 850 < 780 + _P2LY[0] - _P2LW[0], \
+        "① P2 的收口线 y850 横穿了某一排（上排底 %.0f / 下排顶 %.0f）" % (
+            780 + _P2RY + _P2RW, 780 + _P2LY[0] - _P2LW[0])
+    assert _P2SEG[0][1] < _P2SEG[1][0] < _P2SEG[1][1] < _P2SEG[2][0], \
+        "① P2 上排三段没有真空档（串行的全部证据就在这两处空档上）：%r" % (_P2SEG,)
+    assert _P2SEG[2][0] < _P2EVT < _P2SEG[2][1] and _P2SPK < _P2EVT, \
+        "① P2 的事件不在两排的「说」段之内：%s" % _n(_P2EVT)
+    # ② P4：舞台起点必须在三行说明最右墨迹 + 16px 之外（病名 B 的机器面）
+    _p4r = max(b[0] + b[2] for b in _P4INK)
+    assert LAB_RECTS[4][1] + _D_X0 >= _p4r + _CLR[4], \
+        "② P4 舞台起点 %d 没有让开三行说明的最右墨迹 %d + %d" % (
+            LAB_RECTS[4][1] + _D_X0, _p4r, _CLR[4])
+    # 两次交叉：yA = yB ⇔ cos(θ)+cos(θ+phase) = 0 ⇔ θ = π/2 − phase/2 + kπ
+    _cross = [k for k in range(9)
+              if 0 <= math.pi / 2 - _D_PHASE / 2 + k * math.pi <= 2 * math.pi * _D_TURNS]
+    assert len(_cross) == 2, \
+        "② P4 两条声带在新跑道上交叉 %d 次（要两次）：turns=%s" % (len(_cross), _n(_D_TURNS))
+
     # P14 一轮 = 生长 + 全亮停驻 + 收尾，且生长由三段路由 ÷ 同一档注光速度反推
     _rt = [_plen_d(_a[0]) for _a in _P14ARC]
     assert abs(sum(_rt) / _Y_BEAM - _Y_GROW) < 1e-9, "⑨ P14 生长时长不是三段 ÷ 400px/s"
@@ -11265,6 +11702,14 @@ def build():
           " · 两处涟漪源 %s"
           % (len(_E22PTS), _E22LAM, _E22SPD, _E22CYC, _SPD_A * (1 - _SPD_TOL),
              " / ".join("(%.0f,%.0f)" % q for q in _E22SRC)))
+    print("  表达力精进 ①②③：P2 舞台 470→%d（setViewOffset，剧场投影不动）· "
+          "02 两排 %d 股（上排 %s / 下排 %s 三条 · λ%.0f）· 净空 %.1fpx｜"
+          "P4 舞台起点 x%d（三行说明最右墨迹 %d + %d）· %s 圈两次交叉 · 净空 %.1fpx｜"
+          "P11 SOURCE %d（land 独占 y988 一行）"
+          % (LAB_RECTS[2][4], len(_SPD_P2B), _n(_SPD_P2B[0]),
+             "/".join(_n(v) for v in _SPD_P2B[1:]), _AS_LAM, _P2CLRMIN,
+             int(LAB_RECTS[4][1] + _D_X0), _p4r, int(_CLR[4]), _n(_D_TURNS), _P4CLRMIN,
+             _P11SRCY))
     print("  波A 音频流：λ=%.0fpx @ %.0fpx/s ⇒ %.2fs 一次呼吸 · Σa=%.2f · P14 注光 %.0fpx/s "
           "⇒ 一轮 %.2fs（生长 %.2f + 停驻 %.2f + 收 %.2f）"
           % (_AS_LAM, _SPD_A, _AS_LAM / _SPD_A, sum(_AS_A), _Y_BEAM,

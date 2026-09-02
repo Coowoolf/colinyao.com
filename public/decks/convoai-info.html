@@ -1175,6 +1175,15 @@ svg .lab-poster,.lab-poster{transition:opacity 1.1s var(--ease-flow,cubic-bezier
 .p2-row{fill:none;stroke:var(--o-wave);stroke-width:1;
   opacity:calc(var(--o-wire-op)*.62);}
 .p2-wire{fill:none;stroke:var(--o-lat);stroke-width:1;opacity:var(--o-wire-op);}
+/* 02「两制对照」的 poster：两排带子的静态包络轮廓（构建期 _p2_env_path 逐点算，
+   与 AS_VS 同式）+「想」的虚线框 + 两枚事件竖标。字一个不裹（全在组外）。 */
+.p2-anti{fill:var(--o-anti);opacity:var(--o-anti-op);}
+.p2-live{fill:var(--o-live);opacity:var(--o-live-op);}
+.p2-dash{fill:none;stroke:var(--o-anti);stroke-width:2.4;stroke-linecap:round;
+  opacity:var(--o-anti-op);}
+.p2-evt{fill:none;stroke:var(--o-evt);stroke-width:3;stroke-linecap:round;
+  opacity:var(--o-evt-op);}
+.p2-evt-d{fill:var(--o-evt);opacity:var(--o-evt-op);}
 /* ── FPS 探针：生产页不挂常显探针，?debug=1 才显出来 ───────────────────── */
 .lab-probe{position:fixed;left:26px;top:22px;z-index:1100;font:500 11px/1 var(--f-mono);
   letter-spacing:.13em;color:var(--ink-3);opacity:.62;display:none;gap:9px;align-items:center;
