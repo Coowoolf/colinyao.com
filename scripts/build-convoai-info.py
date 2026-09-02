@@ -80,6 +80,16 @@ P1_MODE = os.environ.get("INFO_P1", "orb")
 assert P1_MODE in ("orb", "art"), "INFO_P1 只认 orb / art：%r" % P1_MODE
 HERO_ART = (P1_MODE == "art")
 
+# ── P6「让对话，走出屏幕。」加法层开关（第二波 · 必须可一键关闭）────────────────
+#   本 deck 前六枚场景全是**替换**（3D 坐在页上那张 SVG 原来的位置上）；这一枚是
+#   全 deck 唯一的**加法层**：标题右侧那条空带上本来什么都没有，3D 是标题的插图。
+#   加法层的净空走 lab 的 16px 规则（不走「不许比 2D 更近」的平手规则）。
+#     INFO_P6=exit（默认）上场景 · P6 进 LAB_RECTS · 页上多一枚无字的 poster figbox
+#     INFO_P6=off        不进 LAB_RECTS · P6 与 a053ebc 逐字节相同
+INFO_P6 = os.environ.get("INFO_P6", "exit")
+assert INFO_P6 in ("exit", "off"), "INFO_P6 只认 exit / off：%r" % INFO_P6
+P6_EXIT = (INFO_P6 == "exit")
+
 AC = "var(--accent)"
 AD = "var(--accent-deep)"
 HS = "var(--hair-strong)"
@@ -201,6 +211,40 @@ for _need, _in in (("function mkStream(SH, pts, opt)", _K_AS),
                    ("TOUR.pace = function(fps)", _K_TOUR)):
     assert _need in _in, "lab 地基件缺失：%s" % _need
 
+# ── ⑦ 走出屏幕（P6 · 加法层）· 几何全部是新写的（页上本来没有图）──────────────
+#   语义：标题「让对话，走出屏幕。」的**图解**，不是装饰。
+#     · 一只**锁在版面上**的屏幕框（前框 z=0、后框 −60 且内缩 4 —— lockBox 写法同 P5，
+#       屏上落点因此由这四个数定死，深度只管雾与遮挡）；
+#     · 一条 audioStream 从框**内部**（z=−140）出发，穿过框右缘，一路朝观众爬到 z=+36，
+#       半宽 2.5 → 9 ⇒「越走越近、越走越宽」。介质与全家族同一种（λ=232、110px/s）。
+#     · 框里那一段用 gain 压到 .35（屏幕里的声音是闷的），过了框右缘用 smoothstep
+#       在 60px 弧长里放开到 1.0 —— 「走出屏幕」是**几何上真的走出去**。
+#   坐标账（figure = 舞台像素，vb 与盒同宽 ⇒ ×1；局部坐标 = 舞台 − (740,140)）：
+#     框 局部 (60,14,40,72) = 舞台 (800,154)–(840,226)
+#       距 kicker 字形行底 y115（.sh 盒底 y120）39px · 距 R1 卡顶 y268 42px ·
+#       距主标右缘 x719.7 80.3px —— 加法层的 16px 规则三面都过得很松。
+#     流 局部 (72,50,−140) →(98,50,−40) →(1020,50,+36) = 舞台 x812→838→1760、y190
+#       峰值半宽 9px ⇒ 带边 181–199，仍在矩形 y140–240 之内。
+_EX_RECT = (740, 140, 1060, 100)
+_EX_D, _EX_HALF = 1200.0, 300.0
+_EX_BOX = (60.0, 14.0, 40.0, 72.0)        # 屏幕框（局部坐标）
+_EX_R = 8.0                               # rx（poster 与 3D 同一个数）
+_EX_ZBOX, _EX_DZBOX, _EX_INS = 0.0, 60.0, 4.0
+_EX_P0 = (72.0, 50.0, -140.0)             # 框内的源头（在屏幕里面）
+_EX_P1 = (98.0, 50.0, -40.0)              # 框右缘之内 2px：z 在框里就已经开始爬
+_EX_P2 = (1020.0, 50.0, 36.0)             # 末端：朝观众来到 +36
+_EX_N0, _EX_N1 = 16, 105                  # 两段折线的取样数（合成后 120 点）
+_EX_W0, _EX_W1 = 2.5, 9.0                 # 半宽：源头 → 末端（探针 / pad 保守取 9.0）
+_EX_FLOOR = _LAB._AS_FLOOR                # .30（媒体流永不掐断 —— 全局档，不分叉）
+# 接头渐隐：.06 在这条流上等于 59px **世界**弧长，而「框内那一段」（页上 x812→840）
+# 的世界弧长只有 67px —— 渐隐正好把框里的流整个吃掉，「从框内穿出」在帧上就没了。
+# 收到 .03（≈30px 世界弧长 ⇒ 页上 x812→824）：框里剩下十几个像素的**闷带**，
+# 出框那一刻才放开。末端同样只收 30px，正好收在页上那枚 ah_r 箭头之前。
+_EX_EDGE = 0.03
+_EX_G0, _EX_GSPAN = 0.35, 60.0            # 框内幅度 / 出框之后放开的弧长
+_EX_XFRAME = _EX_BOX[0] + _EX_BOX[2]      # 框右缘 x=100（局部）⇒ uFrame 的取样处
+_EX_DOT = (_EX_XFRAME, 50.0, 0.0)         # 出口那一枚点（meet 写法：aH = 该处包络）
+
 # ── 舞台位表（每个 3D 页的图形区矩形 · 舞台坐标 1920×1080）─────────────────
 #   矩形 = 该页 2D 图形所占的那块地，**不是整屏** ⇒ 3D 形与它替换掉的 SVG 形
 #   逐像素同位，页上其余的字全部压在 canvas 之上（canvas 坐在 .pp 之下）。
@@ -212,14 +256,19 @@ LAB_RECTS = {
     3: ("grow",    120,  272, 1680,  480),   # = figbox(120,272,1680, vb1680×480) ⇒ ×1
     4: ("release", 120,  268, 1440,  120),   # = figbox(120,268,1440, vb1440×120) ⇒ ×1
     5: ("agent",   980,  514,  820,  322),   # = figbox(980,514,820, vb840×330)  ⇒ ×0.97619
+    # ⑦ 加法层（第二波）：标题右侧那条空带 —— 页上本来没有图，vb 与盒同宽 ⇒ ×1
+    6: ("exit",    740,  140, 1060,  100),
     8: ("river",   120,  272,  820,  560),   # = figbox(120,272,820, vb820×560)  ⇒ ×1
 }
 if P1_MODE == "art":                       # 对比版：封面让给位图，P1 不入场景表
     del LAB_RECTS[1]
+if not P6_EXIT:                            # INFO_P6=off：P6 回到 a053ebc 的样子
+    del LAB_RECTS[6]
 LAB_PAGES = sorted(LAB_RECTS)
-# 逐页语义审查判定保持 2D：P6 R1 实拍照片页（照片就是照片，与 lab P19 同一判断）/
-# P7 定稿五层生态图（结构性冲突：底图是 .pp 里的 <img>，舞台在 .pp 之下会被整幅盖住）
-FLAT_PAGES = [6, 7]
+# 逐页语义审查判定保持 2D：P7 定稿五层生态图（结构性冲突：底图是 .pp 里的 <img>，
+# 舞台在 .pp 之下会被整幅盖住）。P6 的实拍照片仍然是照片 —— 加法层不碰它，
+# 3D 落在**标题右侧的空带**上，与两张卡一格不相干。
+FLAT_PAGES = [7] if P6_EXIT else [6, 7]
 
 # ── poster 分件刀：形进 <g class="lab-poster">，字原位留在 DOM ──────────────
 #   `lp` / `_lpsplit` 逐字取自旗舰（判据两条：片段里出现 `<text` ⇒ 带字的；
@@ -339,6 +388,15 @@ LAB_CSS = """<style id="convoai-info-3d">
   --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
   --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
   --rv-add:0;
+  /* ── ⑦ 走出屏幕（P6 · 全 deck 唯一的加法层）· 浅底 ──
+     媒介与全家族同一种（audioStream · λ232 · 110px/s）；峰值色取 Physical AI 页的
+     紫（--l-phys），RMS 实芯浅底给一档更深的紫（纸面上要有墨，不能是荧光）。
+     屏幕框是版面上的一只**锁**（--ink-3）：它不参与流，只被穿过。 */
+  --ex-frame:var(--ink-3);      --ex-frame-op:.85;
+  --ex-flow:var(--l-phys);      --ex-flow-op:.70;
+  --ex-rms:#5a41e6;             --ex-rms-op:.74;
+  --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
+  --ex-add:0;
 }
 html[data-theme="dark"]{
   --v-ink:var(--ink-2);    --v-dot-op:.84;  --v-dot-size:.0120; --v-dot-min:1.1;
@@ -387,6 +445,12 @@ html[data-theme="dark"]{
   --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:9;
   --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:12;
   --rv-add:1;
+  /* 暗底实芯本来就是白芯 —— 身份由峰值色（--l-phys）承担，与 P3/P8 同一档 */
+  --ex-frame:var(--ink-3);      --ex-frame-op:.62;
+  --ex-flow:var(--l-phys);      --ex-flow-op:.54;
+  --ex-rms:var(--ink);          --ex-rms-op:.55;
+  --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
+  --ex-add:1;
 }
 """ + _LAB_TAIL
 
@@ -1499,9 +1563,39 @@ _ROB = [
     ("毫秒级",  "font-family:var(--f-cn);", "端到端往返 · 弱网最后一公里对抗"),
     ("30000+", "",                        "芯片与整机适配 · 你的形态大概率已支持"),
 ]
+
+
+def _p6exit():
+    """⑦ 加法层的 **poster**（降级链是生命线 · 构建期离线投影 · 一个字都没有）。
+       投影是**恒等**的 —— 屏幕框的前后两枚框都过投影锁，落点就是它们的页坐标；
+       所以这里画的与 WebGL 那一帧是同一张图，交接时不会跳。
+       字一个都没有；箭头头（方向标注）按家族纪律**留在 poster 组之外**，
+       压在 canvas 之上钉住流向（qa 的 ⑲a 正面断言 poster 组里零 polygon）。"""
+    x, y, w, h = _EX_BOX
+    ins, r = _EX_INS, _EX_R
+    front = ('<rect class="pop" style="--i:1" x="%g" y="%g" width="%g" height="%g" rx="%g" '
+             'fill="none" stroke="var(--ink-3)" stroke-width="1.5"/>' % (x, y, w, h, r))
+    back = ('<rect class="pop" style="--i:1;opacity:.62" x="%g" y="%g" width="%g" height="%g" '
+            'rx="%g" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/>'
+            % (x + ins, y + ins, w - 2 * ins, h - 2 * ins, max(2.0, r - ins / 2.0)))
+    edge = "".join("M%g %g L%g %g" % (a[0], a[1], b[0], b[1])
+                   for a, b in (((x + r * .3, y + r * .3), (x + ins + r * .3, y + ins + r * .3)),
+                                ((x + w - r * .3, y + r * .3), (x + w - ins - r * .3, y + ins + r * .3)),
+                                ((x + w - r * .3, y + h - r * .3), (x + w - ins - r * .3, y + h - ins - r * .3)),
+                                ((x + r * .3, y + h - r * .3), (x + ins + r * .3, y + h - ins - r * .3))))
+    edges = ('<path class="pop" style="--i:1;opacity:.5" d="%s" stroke="var(--ink-3)" '
+             'stroke-width="1" fill="none"/>' % edge)
+    mid = hline(round(x + w), round(_EX_P2[0]), round(_EX_P2[1]), "var(--hair)", 1.5, 0)
+    return lp(front, back, edges, mid) + ah_r(round(_EX_P2[0]) + 12, round(_EX_P2[1]), LP, 9)
+
+
 page("content", "".join([
     head("PHYSICAL AI · 对话式 AI 开发套件 · GLOBAL FIRST",
          '让对话，<strong class="ph">走出屏幕</strong>。', kk="kk ph"),
+    ] + ([
+    # ⑦ 加法层的降级层：标题右侧那条空带上的 poster（无字 · 见 _p6exit()）
+    figbox(_EX_RECT[0], _EX_RECT[1], _EX_RECT[2], _EX_RECT[2], _EX_RECT[3], _p6exit(), i=1),
+    ] if P6_EXIT else []) + [
     lab(120, 236, "01 · R1 KIT"),
     ] + [
     sh("rise card-c r1-card", "left:%dpx;top:268px;width:820px;height:300px;--i:%d" % (120 + _i * 860, 2 + _i),
@@ -1549,7 +1643,7 @@ page("content", "".join([
     # SOURCE ledger：来源段与引擎 P19（同一套 R1 事实）同源；时间窗取本页两张卡的发布日
     src("SOURCE · 声网官网 / R1 公开发布信息 · 2025.03.20 / 2025.09.26 发布 · 事实截止 2026.08",
         x=820, w=980, align="right"),
-]))
+]), lab=("exit" if P6_EXIT else None))
 
 # ═══ P7 · 案例 ·「对话式 AI，已经上岗」════════════════════════════════════
 #   左 01 ECOSYSTEM 五层实时智能生态（polish-v4 主视觉 + DOM 五层叠标）
@@ -1852,6 +1946,16 @@ _TL_D, _TL_HALF = 1400.0, 170.0
 _TL_Z0, _TL_Z1 = -96.0, 24.0              # 时间的纵深：最早的里程碑在远处，最新的到眼前
 _TL_W = 8.0                               # 带的基准半宽 = 页上节点圆的半径（8）—— 净空同源
 _TL_N = 160
+# ── 五处涌起的定标（第二波终审：第一波把带子整体读薄了，回一档）────────────────
+#   基线 .42 → .52（节点之间那一档本来就不该细成一条线：流是**一直在供给**的）；
+#   σ 70 → 85（涌起的肩要宽一档，五处才连成「一条会起伏的带」而不是五枚珠子）；
+#   末端 hot（Call Agent 全球版）σ 100 —— 它坐在轴的**最末点**上，高斯只剩右半边，
+#   σ 不放宽就只鼓一半。
+_TL_SIG, _TL_SIGH = 85.0, 100.0
+_TL_G0 = 0.52
+# 接头渐隐 .055 → .025：默认档在 1630px 的世界弧长上吃掉两端各 90px，正好把末端
+# hot 那一处涌起整个抹平。末端本来就有页上那枚 ah_r 箭头收口，不靠渐隐收边。
+_TL_EDGE = 0.025
 
 
 def _tl_path():
@@ -2062,6 +2166,12 @@ def _rrect(x, y, w, h, r, per=9):
     return o
 
 
+# ── ⑦ 走出屏幕（P6）· 声流中心线（几何常量表在 LAB_RECTS 之前 · 那里要用）──────
+def _ex_path():
+    """声流的中心线（局部像素 · 含 z）—— 两段折线合成一条序列"""
+    return _lerp_line(_EX_P0, _EX_P1, _EX_N0)[:-1] + _lerp_line(_EX_P1, _EX_P2, _EX_N1)
+
+
 # ── 墨迹名册（每页 3D 矩形之内的**字形行框** · Range.getClientRects 实测）──────
 #   这张表是「不压字」从纪律变成机器判据的地方：qa 的 ⑳clr-a 闸拿活 DOM 逐处对表，
 #   改了文案而没同步这张表 ⇒ 当场报。坐标是舞台坐标（1920×1080）。
@@ -2090,6 +2200,13 @@ _INK = {
         (1325.6, 623.9, 128.8, 24), (1333.7, 654.3, 112.6, 16),
         (993.7, 782.1, 75.9, 17), (1073.7, 782.1, 259.3, 16),
         (1042.5, 818.3, 50.8, 14), (1188.9, 818.3, 100.1, 14)],
+    # ⑦ 加法层的四邻（Range.getClientRects 实测 · 舞台坐标）：kicker 行 /
+    #   主标末字行（页上主标的右缘就在这一行里）/「01 · R1 KIT」小节标 / 页码 6/8。
+    #   与另外五页不同 —— 这四只盒**没有一只落在 3D 矩形之内**（矩形 740,140,1060,100
+    #   本来就是标题右侧那条空带）。登记它们不是为了「盖住矩形内的字」，
+    #   而是为了让 ⑳clr 有四个真实的对手去量 16px。
+    6: [(120.0, 89.0, 760.0, 26.0), (653.1, 149.0, 66.6, 76.0),
+        (120.0, 236.0, 122.6, 20.0), (1759.2, 47.0, 40.8, 17.0)],
     8: [(292.5, 293, 75, 20), (702.5, 293, 75, 20),
         (150, 332, 140.9, 17), (150, 532, 133.4, 17), (150, 732, 167.5, 17),
         (537.5, 519, 45, 20), (570, 617, 77.7, 20), (570, 644, 265.2, 25),
@@ -2124,6 +2241,13 @@ _CLR = {
     5: (2.5,  "能力盒**前框**底 y596 vs 其下两字 mono 标（承载 y598.6）；页上同处 2.6px ⇒ 平手"),
     8: (6.9,  "ONE NET 河道盒顶 y546 vs「合流点」行 y519–539；页上同处 7.0px ⇒ 平手"),
 }
+if P6_EXIT:
+    # 加法层走 **16px 规则**（版面之外的空档，不走「不许比 2D 更近」的平手规则）。
+    # 证人 = kicker 行底 y115（.sh 盒底 y120）vs 屏幕框顶 y154 ⇒ 39.0px。
+    _CLR[6] = (16.0, "加法层 · 16px 规则 · 证人 = kicker 行底 y115（盒底 y120）"
+                     "vs 屏幕框顶 y154 ⇒ 39.0px")
+else:
+    del _INK[6]
 # P4 的 hot 是抽屉 chip（本页唯一「可以按下去」的东西）：它绝不许被 3D 压。
 # chip 实测盒 (1005,900,258.4,42)，而 P4 的 3D 矩形是 (120,268,1440,120) ——
 # 相距 512px，这一条是**正面断言**不是顺带（qa ⑳chip 复算）。
@@ -2225,20 +2349,24 @@ function makeBand(ctx){
   /* ── 五处涌起（幅度剖面 · gain 的唯一入口）──────────────────────────────
      注释里写的是「里程碑是一条**一直在供给**的流上的五处涌起」，而 aG 恒 1 只画得出
      一条均匀带。改成静态剖面：
-         g(u) = 0.42 + 0.58·min(1, Σ_k A_k·exp(−((u−u_k)/σ)²))，σ = 70px，
+         g(u) = g0 + (1−g0)·min(1, Σ_k A_k·exp(−((u−u_k)/σ_k)²))，
          u_k = C.nodeU[k]（节点在流上的弧长 —— 与节点脉冲取样的是同一条 u），
          A_k：hot 节点（Call Agent 全球版）1.0、其余 0.8 ⇒ 本页唯一 hot 在带上也最鼓。
-     节点之间 g = 0.42 ⇒ 幅度 45%、包络权重 42%：细一档，但**仍在动**（不是断带）。
+     ── 第二波终审的回档（第一波把带子整体读薄了）──────────────────────────
+       g0 .42 → .52：节点之间那一档是**一直在供给**的流，不是一条细线；
+       σ 70 → 85：涌起的肩宽一档，五处才连成「一条会起伏的带」而不是五枚珠子；
+       末端 hot 的 σ = 100：它坐在轴的最末点上，高斯只剩右半边，σ 不放宽就只鼓一半。
+       接头渐隐 uEdge 同时从全局档 .055 收到 C.edge（.025）—— 见 mkStream 的 opt。
      fn 只吃 u ⇒ mkStream 认作静态剖面，整段只算一次，不进每帧开销。 */
-  const TL_SIG = 70.0;
-  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam })
+  const TL_SIG = C.sig, TL_SIGH = C.sigh, TL_G0 = C.g0;
+  const flow = mkStream(SH, path, { w: C.w, spd: C.spd, lam: AS.lam, edge: C.edge })
     .gain((u) => {
       let s = 0;
       for(let k = 0; k < C.nodeU.length; k++){
-        const d = (u - C.nodeU[k]) / TL_SIG;
+        const d = (u - C.nodeU[k]) / (k === C.hot ? TL_SIGH : TL_SIG);
         s += (k === C.hot ? 1.0 : 0.8) * Math.exp(-d*d);
       }
-      return 0.42 + 0.58*Math.min(1, s);
+      return TL_G0 + (1 - TL_G0)*Math.min(1, s);
     }).add(scene);
   const axisMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const axis = iLine(path, axisMat); scene.add(axis);
@@ -2633,6 +2761,81 @@ function makeRiver(ctx){
     },
   };
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ⑦ 走出屏幕（P6 PHYSICAL AI ·「让对话，走出屏幕。」）· 全 deck 唯一的加法层
+   ───────────────────────────────────────────────────────────────────────────
+   另外六枚场景都在**替换**页上的一张 SVG；这一枚不替换任何东西 —— 它是标题的
+   **图解**，坐在标题右侧那条本来就空着的带子上（舞台 740,140,1060,100）。
+   两件东西，一句话：
+     · 一只**锁在版面上的屏幕框**（前框 z=0、后框 z=−60 内缩 4 —— lockBox 写法同 P5：
+       两枚都过投影锁 ⇒ 屏上落点由构建期定死，深度只管雾与遮挡）。它不参与流，
+       只被穿过：屏幕是**边界**，不是内容。
+     · 一条 audioStream 从框**内部**（z=−140）起，穿过框右缘，一路朝观众爬到 z=+36，
+       半宽 2.5 → 9。介质与全家族同一种（λ=232px、110px/s ⇒ 2.11s 一次呼吸）。
+   「走出屏幕」在这里是**几何上真的走出去**，不是隐喻：
+     幅度剖面 g(u) = .35 → 1.0（在框右缘之后 60px 弧长里 smoothstep 放开）——
+     屏幕里的声音是闷的，出了屏才放开；框右缘那一枚点的 aH = 该处包络 ⇒
+     **波峰穿框的那一刻它亮一下**，「穿过去」有了一个看得见的瞬间。
+   ⚠ 加法层的净空走 16px 规则（版面之外的空档），不走「不许比 2D 更近」——
+     页上这块地本来没有图，没有 2D 可比。⑳clr 的对手是四邻的字形行框。
+   ═══════════════════════════════════════════════════════════════════════════ */
+function makeExit(ctx){
+  const X = K.ex, w = ctx.rect[2], h = ctx.rect[3], D = X.D;
+  const scene = new THREE.Scene();
+  const camera = camPx(w, h, D);
+  const SH = pxShared(D, X.half);
+  const U = unlock(w, h, D, ctx.rect);
+  const frameMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const dotMat   = mkMat(SH, PX_PT_VS, PX_PT_FS);
+  /* 屏幕框：前框 + 后框 + 四条棱（denseSegs 加密到 ≤12px —— 净空是逐顶点量的） */
+  const LB = lockBox(unpk3(X.lb[0]), unpk3(X.lb[1]));
+  const frameO = iSegs(denseSegs(LB.front.concat(LB.shell)), frameMat); scene.add(frameO);
+  const path = unpk3(X.path);
+  /* 幅度剖面：出框之前恒 g0（闷），出框之后 smoothstep 在 gspan 弧长里放开到 1。
+     fn 只吃 u ⇒ mkStream 认作静态剖面，整段只算一次，不进每帧开销。 */
+  const flow = mkStream(SH, path, { w: (t) => X.w0 + (X.w1 - X.w0)*t,
+                                    spd: X.spd, lam: AS.lam,
+                                    floor: X.floor, edge: X.edge })
+    .gain((u) => {
+      const q = Math.max(0, Math.min(1, (u - X.uframe) / X.gspan));
+      return X.g0 + (1 - X.g0)*q*q*(3 - 2*q);
+    }).add(scene);
+  const dotO = iPts(unpk3(X.dot), dotMat); scene.add(dotO);
+  const dA = dotO.geometry.attributes.aH;
+  return {
+    scene, camera, intro: 1.15, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    setIntro(e){ SH.uIntro.value = e; },
+    draw(dt, clock){
+      SH.uTime.value = clock;
+      flow.draw(clock);
+      /* 出口那一枚点：aH = 框右缘处此刻的包络（与 river 的 meet 同一写法）——
+         波峰穿框时它亮，波谷时它退回一枚安静的点。 */
+      dA.array[0] = asEnv(X.uframe - X.spd*clock);
+      dA.needsUpdate = true;
+    },
+    state(){ return { clr: clrMin(U, X.ink, [
+      [flow.geo, X.wpx], [frameO.geometry, 0],
+      [dotO.geometry, cssNum('--ex-dot-size', 8)/2] ]) }; },
+    applyTheme(){
+      frameMat.uniforms.uColor.value.copy(cssColor('--ex-frame'));
+      frameMat.uniforms.uHot.value.copy(cssColor('--ex-frame'));
+      frameMat.uniforms.uOpacity.value = cssNum('--ex-frame-op', .85);
+      frameMat.uniforms.uGain.value = 0;
+      dotMat.uniforms.uColor.value.copy(cssColor('--ex-dot'));
+      dotMat.uniforms.uHot.value.copy(cssColor('--ex-flow'));
+      dotMat.uniforms.uOpacity.value = cssNum('--ex-dot-op', .92);
+      dotMat.uniforms.uSize.value = cssNum('--ex-dot-size', 8);
+      dotMat.uniforms.uGain.value = .9;
+      flow.theme(cssColor('--ex-flow'), cssColor('--ex-rms'),
+                 cssNum('--ex-flow-op', .70), cssNum('--ex-rms-op', .74), .46);
+      [frameMat, dotMat].forEach(m => {
+        m.uniforms.uBack.value = .46; setBlend(m, cssNum('--ex-add', 0)); });
+      setBlend(flow.mat, cssNum('--ex-add', 0));
+    },
+  };
+}
 """
 
 
@@ -2873,12 +3076,39 @@ def _rv_build():
                 src=src, meet=meet, spd=spdrow, probe=probe)
 
 
+# ── ⑦ P6 走出屏幕（加法层）───────────────────────────────────────────────
+def _ex_build():
+    r = _EX_RECT
+    w, h = r[2], r[3]
+    page = _ex_path()
+    wp, cum = _cum_world(page, w, h, _EX_D)
+    Lp = _xylen([(p[0], p[1]) for p in page])
+    spd = _SPD_A * cum[-1] / Lp
+    uframe = _u_at_x(page, cum, _EX_XFRAME)      # 框右缘处的**世界弧长** = 放开的起点
+    bx, by, bw2, bh2 = _EX_BOX
+    wf, wb, pf, pb = _lockbox(bx, by, bw2, bh2, _EX_ZBOX, _EX_DZBOX, _EX_INS, w, h, _EX_D)
+    # 净空探针：流（中心线锁住 · pad 保守取最大半宽 9.0）+ 前后两枚框 + 四条棱 + 出口点
+    probe = _probe_stream(page, r, _EX_W1, _EX_D)
+    probe += _probe_lock(_probe_rect(bx, by, bw2, bh2), r)
+    probe += _probe_lock(_probe_rect(bx + _EX_INS, by + _EX_INS,
+                                     bw2 - 2 * _EX_INS, bh2 - 2 * _EX_INS), r)
+    for a, b in zip(pf[:4], pb[:4]):
+        probe += _probe_lock([(q[0], q[1]) for q in _lerp_line((a[0], a[1], 0),
+                                                              (b[0], b[1], 0), 6)], r)
+    probe += [(r[0] + _EX_DOT[0], r[1] + _EX_DOT[1], _cssmax("--ex-dot-size") / 2.0)]
+    return dict(w=w, h=h, page=page, spd=spd, Lp=Lp, uframe=uframe,
+                lb=(wf, wb), probe=probe)
+
+
 _TL = _tl_build()
 _GW = _gw_build()
 _RL = _rl_build()
 _AG = _ag_build()
 _RV = _rv_build()
+_EX = _ex_build()
 _PROBE = {2: _TL["probe"], 3: _GW["probe"], 4: _RL["probe"], 5: _AG["probe"], 8: _RV["probe"]}
+if P6_EXIT:
+    _PROBE[6] = _EX["probe"]
 _CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
 
 
@@ -2894,6 +3124,8 @@ def _spd_rows(p):
     if p == 5:
         return [("%s 供给" % _FIVE[[0, 3, 1, 4][k]][1],
                  _xylen([(q[0], q[1]) for q in _AG["link"][k]]), _SPD_A) for k in range(4)]
+    if p == 6:
+        return [("走出屏幕声流", _EX["Lp"], _SPD_A)]
     if p == 8:
         return _RV["spd"]
     return []
@@ -2946,6 +3178,12 @@ def lab_data(p):
               ("z", "%s,%s,%s,%s" % (_n3(_AG_ZMOD), _n3(_AG_ZCORE),
                                      _n3(_AG_ZDOM), _n3(_AG_ZDOM - _AG_DZDOM))),
               ("core", "%s,%s,%s,%s" % tuple(_n3(v) for v in _AG_CORE)), ("w", _n3(_AG_W))]
+    elif p == 6:
+        a += [("lam", _n3(_LAB._AS_LAM)),
+              ("z", "%s,%s,%s" % (_n3(_EX_P0[2]), _n3(_EX_P2[2]), _n3(-_EX_DZBOX))),
+              ("frame", "%s,%s,%s,%s" % tuple(_n3(v) for v in _EX_BOX)),
+              ("uframe", _n3(_EX["uframe"])), ("gain", "%s,%s" % (_n3(_EX_G0), _n3(_EX_GSPAN))),
+              ("w", "%s-%s" % (_n3(_EX_W0), _n3(_EX_W1)))]
     elif p == 8:
         a += [("trib", len(_TRIB)), ("lam", _n3(_RV_LAM)),
               ("tlen", ",".join(_n3(v) for v in _RV["tlen"])),
@@ -3004,6 +3242,8 @@ def info_k():
             ("node", "[" + ",".join(_arr3(q) for q in _TL["node"]) + "]"),
             ("nodeU", "[" + ",".join(_n3(v) for v in _TL["nodeU"]) + "]"),
             ("hot", str(_TL_HOTK)), ("w", _n3(_TL_W)), ("spd", _n3(_TL["spd"])),
+            ("sig", _n3(_TL_SIG)), ("sigh", _n3(_TL_SIGH)), ("g0", _n3(_TL_G0)),
+            ("edge", _n3(_TL_EDGE)),
             ("wpx", _n3(_wpx(_TL_W, _TL["page"], _TL_D))),
             ("ink", INK(2))])
     gw = O([("D", _n3(_GW_D)), ("half", _n3(_GW_HALF)),
@@ -3070,6 +3310,16 @@ def info_k():
             ("wtpx", _n3(max(_wpx(_RV_WT, q, _RV_D) for q in _RV["trib"]))),
             ("wmpx", _n3(_wpx(_RV_WMAX, _RV["main"], _RV_D))),
             ("ink", INK(8))])
+    ex = O([("D", _n3(_EX_D)), ("half", _n3(_EX_HALF)),
+            ("path", PL(_EX["page"], _EX["w"], _EX["h"], _EX_D)),
+            ("lb", '["%s","%s"]' % (_pk3(_EX["lb"][0]), _pk3(_EX["lb"][1]))),
+            ("dot", PL([_EX_DOT], _EX["w"], _EX["h"], _EX_D)),
+            ("spd", _n3(_EX["spd"])), ("uframe", _n3(_EX["uframe"])),
+            ("g0", _n3(_EX_G0)), ("gspan", _n3(_EX_GSPAN)),
+            ("floor", _n3(_EX_FLOOR)), ("edge", _n3(_EX_EDGE)),
+            ("w0", _n3(_EX_W0)), ("w1", _n3(_EX_W1)),
+            ("wpx", _n3(_wpx(_EX_W1, _EX["page"], _EX_D))),
+            ("ink", INK(6) if P6_EXIT else "[]")])
     return "{" + ",".join([
         "W:1920", "H:1080", "FPX:%s" % _n3(_LAB.FPX), 'rev:"%s"' % _LAB.THREE_REV,
         # ① 声场球：与 lab P1 **逐字同参**（球心 / 半径 / 谐波 / 自转 / 入场全部现取）
@@ -3089,13 +3339,14 @@ def info_k():
                    ("grain", _n3(_LAB._AS_GRAIN)), ("grainL", _n3(_LAB._AS_GRAINL)),
                    ("edge", _n3(_LAB._AS_EDGE)), ("crest", _n3(_LAB._AS_CREST)),
                    ("comp", _n3(_LAB._AS_COMP)), ("spd", _n3(_SPD_A))]),
-        "tl:" + tl, "gw:" + gw, "rl:" + rl, "ag:" + ag, "rv:" + rv,
+        "tl:" + tl, "gw:" + gw, "rl:" + rl, "ag:" + ag, "rv:" + rv, "ex:" + ex,
     ]) + "}"
 
 
 # ── 运行时装配：地基（旗舰现取）+ 本 deck 五枚场景 + 单渲染器巡游 ──────────
 _FACTORY_JS = ("const FACTORY = { voice:makeVoice, band:makeBand, grow:makeGrow,\n"
-               "                  release:makeRelease, agent:makeAgent, river:makeRiver };")
+               "                  release:makeRelease, agent:makeAgent, river:makeRiver,\n"
+               "                  exit:makeExit };")
 _TOUR_JS = _re2.sub(r"const FACTORY = \{[\s\S]*?\};", lambda _m: _FACTORY_JS, _K_TOUR, count=1)
 assert "makeBand" in _TOUR_JS and "makeBrain" not in _TOUR_JS, "FACTORY 替换失败"
 INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_LOCK + _K_AS + _K_CLR

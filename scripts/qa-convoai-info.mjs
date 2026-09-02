@@ -50,11 +50,16 @@ const CASES = ['集贤科技', 'Robopoet', 'luwu',
 // 深链契约：页 → 引擎章号
 const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: 'physExpand', hash: 19 }];
 // ── LAB 场景表（qa 与产物两头对表，加错页 / 漏页当场炸）────────────────────
-const LAB_SCENES = { 1: 'voice', 2: 'band', 3: 'grow', 4: 'release', 5: 'agent', 8: 'river' };
+//   P6 'exit' 是第二波加进来的**加法层**（构建开关 INFO_P6=exit｜off）：页上本来没有图，
+//   3D 坐在标题右侧那条空带上，poster 是构建期离线投影出来的一枚**无字 figbox**。
+//   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
+//   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
+const LAB_SCENES = { 1: 'voice', 2: 'band', 3: 'grow', 4: 'release', 5: 'agent', 6: 'exit', 8: 'river' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
-// 逐页语义审查判定保持 2D：P6 R1 实拍照片页 / P7 定稿五层生态图 —— 故意不在表里
-const FLAT_PAGES = [6, 7];
-// P1 走构建期离线投影出来的专用 poster；另外五页的 poster = 页上原来那张 SVG
+// 逐页语义审查判定保持 2D：P7 定稿五层生态图（底图是 .pp 里的 <img>）—— 故意不在表里
+const FLAT_PAGES = [7];
+// P1 走构建期离线投影出来的**全屏专用** poster；另外六页的 poster 都在 .pp 里：
+// 五页是「页上原来那张 SVG」，P6 是加法层自己的那枚无字 figbox（同样在 .pp 里）
 const INPAGE = LAB_PAGES.filter(p => p !== 1);
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
@@ -288,7 +293,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
        `⑲a2 场景 registry 页码表漂移：${one.scenes} != ${LAB_PAGES.join(',')}`);
     ok(one.ready === LAB_PAGES.length, `⑲a2 建起来的场景数 ${one.ready} != ${LAB_PAGES.length}`);
     FLAT_PAGES.forEach(p => ok(!LAB_PAGES.includes(p),
-      `⑲a2 P${p} 不该有 3D 场景（P6 实拍照片 / P7 定稿生态图 —— 既定判断）`));
+      `⑲a2 P${p} 不该有 3D 场景（P7 定稿生态图 —— 既定判断）`));
   }
 
   // ── a' 生产页不挂常显探针 ───────────────────────────────────────────────
@@ -463,8 +468,8 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    ok(all.length === 13, `⑳spd A 档股数 ${all.length} != 13`);
-    ok(rows.length === 5, `⑳spd A 档页数 ${rows.length} != 5（P1 声场球不是介质，不进表）`);
+    ok(all.length === 14, `⑳spd A 档股数 ${all.length} != 14`);
+    ok(rows.length === 6, `⑳spd A 档页数 ${rows.length} != 6（P1 声场球不是介质，不进表）`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -518,7 +523,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
       ok(fl.dMean <= 4.0, `⑳flick P${P} 整幅亮度帧间跳变 ${fl.dMean.toFixed(2)}/255 > 4.0`);
       ok(fl.dBlk <= 26.0, `⑳flick P${P} 8×8 分块亮度帧间跳变 ${fl.dBlk.toFixed(2)}/255 > 26`);
     }
-    console.log('  · ⑳flick 消闪：6 页 × 48 帧逐帧亮度突变全部在档内');
+    console.log(`  · ⑳flick 消闪：${LAB_PAGES.length} 页 × 48 帧逐帧亮度突变全部在档内`);
   }
 }
 
@@ -968,6 +973,6 @@ if (THEME !== 'dark') {
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
                          : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P4/P5/P7 各 1 步 · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB 六景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 / A 档 13 股 / 禁 WebGL 8 页可读`);
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 / A 档 14 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);
