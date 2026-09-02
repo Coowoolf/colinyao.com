@@ -1781,9 +1781,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   {
     // ── 版式分歧名册：六处，一处不多一处不少 ───────────────────────────
     const dv = await pg.evaluate(() => document.getElementById('deckStage').dataset.labDiverge);
-    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster';
+    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster;3:geom';
     ok(dv === want, `⑲ 版式分歧名册漂移：${dv}`);
-    ok(dv.split(';').length === 6, `⑲ 版式分歧 ${dv.split(';').length} 处 != 6`);
+    ok(dv.split(';').length === 7, `⑲ 版式分歧 ${dv.split(';').length} 处 != 7`);
   }
 
   // ── ⑲s 全局流速复算：A 档 30 股全部落在 110 ±30% ───────────────────────
@@ -1794,11 +1794,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
     // 波A 30 股 8 页 → 波B 41 股 10 页 → 三轮 61 股 13 页 → 表达力精进 65 股 13 页
-    //   （P5 底场 +7 / P15 六条支线 +6 / P16 通话流 +7；
+    //   （P15 六条支线 +6；P5 底场 4 股（三支流 + 一集流）/ P16 通话流 8 股；
     //    P2 的 02「两制对照」+4 = 回合制轨 1 + 并行听/想/说 3，见 _SPD_N）
     //   ⚠ P22 的涟漪**故意不在这张表里**：A 档管的是「介质」，末页的场是余韵 ——
     //     它反过来上一道 ㉒c 闸「必须低于 A 档下限」。
-    ok(all.length === 65, `⑲s A 档股数 ${all.length} != 65`);
+    ok(all.length === 63, `⑲s A 档股数 ${all.length} != 63`);
     ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
     ok(!rows.some(([p]) => p === 22), '⑲s P22 的涟漪进了 A 档表 —— 它不是介质');
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
