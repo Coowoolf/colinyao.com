@@ -1492,6 +1492,7 @@ LAB_CSS = """<style id="convoai-lab-3d">
   /* ── P15 中心辐射（核与支线在卡间空档全亮；六簇在卡背后透出三成）── */
   /* ⑦：迷你转子提亮 —— 它得让人一眼认出「那台在 P13 上见过的引擎」 */
   --h-core:var(--accent);      --h-core-op:.78; --h-core-size:2.6;
+  --h-dot:var(--accent-deep);  --h-dot-op:.95;  --h-dot-gain:.55;
   --h-ring:var(--accent-deep); --h-ring-op:.92;
   --h-spoke:var(--accent);     --h-spoke-op:.42;
   --h-rms:var(--accent-deep);  --h-rms-op:.58;
@@ -1673,6 +1674,7 @@ html[data-theme="dark"]{
   --x-shield:var(--ink-2);     --x-shield-op:.55;
   --x-add:1;
   --h-core:var(--accent);      --h-core-op:.76; --h-core-size:2.7;
+  --h-dot:var(--ink);          --h-dot-op:1;    --h-dot-gain:.60;
   --h-ring:var(--ink);         --h-ring-op:.86;
   --h-spoke:var(--accent);     --h-spoke-op:.38;
   --h-rms:var(--accent-deep);  --h-rms-op:.52;
@@ -1832,7 +1834,9 @@ LAB_RECTS = {
     12: ("vision",  120,  292, 1680,  450),   # = figbox(120,292,1680, vb1680×450)
     13: ("slots",   120,  272, 1680,  545),   # = figbox(120,272,1680, vb1680×545)
     14: ("towers",  120,  266, 1680,  578),   # = figbox(120,266,1680, vb1680×578)
-    16: ("calls",   120,  570, 1680,  110),   # 成绩单卡底与对照表之间的空带
+    # ⑥ 三稿：车道整束从「卡底与对照表之间」搬到「对照表与落点句之间」——
+    # 卡底是 72% 不透明的 --card-bg，车道排在它上面会从卡里的字底下透出来。
+    16: ("calls",   120,  852, 1680,   92),   # 收口线之下、落点句之上的空带
     17: ("brain",   120,  282, 1680,  580),   # = figbox(120,282,1680, vb1680×580)
     # 二轮精修 · 波A：1240 → 1680 —— 舞台横跨**两图**（成长曲线 + LOOP 环带）。
     # 扩的是「区域」，页上的字一格没动：右图 figbox 仍钉在 x1420，环带走投影锁。
@@ -2772,28 +2776,45 @@ _H15CR = 26.0                          # 旧核的外半径（保留：簇 / 支
 #   新核 = 与 P13 编排中枢**同血统**的迷你转子：三枚异面椭圆环 + 一条在环之间
 #   迁徙的粒子带，参数直接把 _K_ORB 等比缩小。家族一致性在这里就是语义：
 #   在 P13 上认过一次的那台转子，在 P15 的中心再出现一次 ⇒ 「一套引擎」。
-#   ⚠ 缩放比取 **36/70**，不是任务书写的「r22」：三枚环的横半轴差是 16s / 14s
-#     （s = 缩放比）—— s = 22/70 时只差 5px 与 4.4px，三枚环在屏上压成**一条**
-#     重合的椭圆，「异面」根本看不见，也就认不出是那台转子。s = 36/70 之后
-#     横半轴 110 / 102 / 95，交叉一眼可见；竖向 ±40 与上下两行卡字仍各留
-#     37.7 / 34.7px（下限 16）。取横半轴当 r22 更糟：整台转子只有 44×14。
-_H15ORBS = 36.0 / 70.0                 # 缩放比（外圈竖半轴 70 → 36）
-_H15ORB = tuple(tuple(v * _H15ORBS for v in o) for o in _K_ORB)
+#   ⚠ 二稿把 _K_ORB 整体等比缩小（36/70），三枚环的**倾角**跟着一起缩 ⇒ 它们
+#     几乎共面、边缘朝观众，屏上永远是一枚扁椭圆，认不出转子（终审二波打回）。
+#     三稿改成**显式倾角**：一枚近水平（8°）、两枚各倾 ±38°（绕 x 轴），横半轴
+#     110 / 96 / 84 —— 三枚环在任何一帧都不共面、投影形状各不相同。倾角还各自
+#     慢慢摆动（±_H15ORBAMP），但**不过零** ⇒ 不会有「压成一条线」的那一帧。
+#   （rx = 横半轴 · r2 = 环自身的另一条半轴 · tilt = 绕 x 轴的倾角 °）
+_H15ORB = ((110.0, 38.0,   8.0),       # 近水平：转子的「赤道」
+           ( 96.0, 42.0,  38.0),       # 前倾
+           ( 84.0, 44.0, -38.0))       # 后倾（与上一枚交叉）
+_H15ORBAMP = 8.0                       # 倾角摆幅（°）—— 不过零，三枚环恒不共面
 _H15ORBN = 200                         # 迷你转子的粒子数（P13 是 420，这里是伴奏）
-_H15ORBPAR = 1.03                      # 环翻滚出平面之后的投影放大余量（净空留量）
+_H15CORER = 7.0                        # **可见的核**：一枚 r≈7 的发光点（三稿新增）
 _H15W0, _H15W1 = 2.0, 4.0              # 支线半宽：核端细 → 卡端粗（「流向卡」）
 
 
-def _h15_orb_box():
-    """迷你转子在**页坐标**里的包围盒（净空断言用 · 已含呼吸与翻滚的余量）"""
-    ex = max(o[0] for o in _H15ORB) * (1.0 + _K_ORB_BR) * _H15ORBPAR
-    ey = max(o[1] for o in _H15ORB) * (1.0 + _K_ORB_BR) * _H15ORBPAR
-    return (_H15CORE[0] - ex, _H15CORE[1] - ey, ex * 2.0, ey * 2.0)
+def _h15_orb_box(nth=180, ntl=9):
+    """迷你转子在**页坐标**里的包围盒（净空断言用）。
+       扫遍三枚环 × 倾角摆幅 × 一整圈 θ × 呼吸两档，并把「翻出核平面之后的透视
+       放大」算进去（lockZ 锁在 z = _H15CZ，离面点的放大率 = (D−cz)/(D−z)）。"""
+    cx, cy = _H15CORE
+    bx, by = 0.0, 0.0
+    for rx, r2, tl in _H15ORB:
+        for it in range(ntl):
+            t = math.radians(tl + _H15ORBAMP * (-1.0 + 2.0 * it / (ntl - 1)))
+            for rad in (1.0, 1.0 + _K_ORB_BR):
+                for ib in range(nth):
+                    th = 2 * math.pi * ib / nth
+                    dz = r2 * rad * math.sin(th) * math.sin(t)
+                    k = (_H15D - _H15CZ) / (_H15D - (_H15CZ + dz))
+                    bx = max(bx, abs(rx * rad * math.cos(th)) * k)
+                    by = max(by, abs(r2 * rad * math.sin(th) * math.cos(t)) * k)
+    bx = max(bx, _H15CORER); by = max(by, _H15CORER)
+    return (cx - bx, cy - by, bx * 2.0, by * 2.0)
 #   六簇：[心 x, 心 y, 深度 z, 微动种类]  —— 种类逐条对应页上那六张卡的顺序
 _H15CL = [(392.0, 518.0, -140.0, 0), (800.0, 518.0, -200.0, 1), (1527.0, 518.0, -170.0, 2),
           (392.0, 594.0, -180.0, 3), (1120.0, 594.0, -150.0, 4), (1527.0, 594.0, -320.0, 5)]
 _H15CLW, _H15CLH = 70.0, 17.0          # 簇框半宽 / 半高（净空判据按这只框逐点量）
 _H15D = 1400.0
+_H15CZ = 70.0                          # 核所在的那一层（lockZ 的锁面）
 _H15LAM = 150.0                        # 本页 λ 覆写：最短的支线只有 165px
 _H15W = 3.6
 _SPD_P15 = (110.0, 113.0, 108.0, 112.0, 106.0, 109.0)
@@ -2814,7 +2835,24 @@ def _h15_spoke(k):
 #   这条形也顺手把上面的成绩单与下面的对照表**缝在一起**（原本两块是断的）。
 #   红线：不出价格、不出 staging URL、不出智能体人名；96.5% 的 hot 是页面既有语义，
 #   3D **不新造第二处 hot**（流是均质的一束，不给任何一卡加权）。
-_N16RECT = (120, 570, 1680, 110)
+#   ── 表达力精进 · 第三波 ⑥（2026-09-02 · 三稿）─────────────────────────────
+#   二稿把车道排在 y595–624，判据取的是「卡里的字止于 y577」—— **判错了边界**：
+#   三张成绩单卡的**盒**到 y610（top340 + 高 270），而卡底是 --card-bg（72% 不透明），
+#   车道有一半钻在卡盒底下、从「盲测 32,000…AI」那行字底下透出来，读成卡里的毛刺。
+#   **卡盒边才是边界**（卡盒不是墨迹盒，进不了 _N16INK，所以另立一条断言，见 ⑥ 闸）。
+#
+#   三稿原议是「02 区整体下移 40」把带子腾出来 —— 试了，**不成立**：content 背景板
+#   自带一条 accent 细线在 y847–853（x117–761），rule(850) 的既定职责就是压住它；
+#   02 区一下移，收口线跟着走到 890，那条亮条就从对照表的第三行里露出来（实拍已确认：
+#   一条只到半幅的粉色横杠压在「合规」行的分隔线下面）。而对照表要躲开 847–853，
+#   要么整表止于 847（Δ ≤ 3，等于没移）、要么整表起于 853（Δ ≥ 177，撞落点句）——
+#   都不可能。⇒ **02 区不能动**，收口线必须留在 850。
+#
+#   所以改成把**车道整束搬家**：全页在 ≥16px 净空下唯一还剩的空带，是对照表墨迹底
+#   （y839）与落点句墨迹顶（y959）之间那 120px。八条 @4.6 间距 + 半宽 1.8 = 35.8px
+#   在其中居中 ⇒ 上下各留 42.1px，且整束远在卡盒（610）之外。页面 DOM 一个字节没动
+#   （P16 仍走「摘层即母本逐字节」那条最硬的自证）。
+_N16CARDB = 610.0                      # 三张成绩单卡的**盒底**（top340 + 高270）
 _N16INK = [
     (1735, 44, 61, 22), (120, 89, 539, 26), (120, 149, 1137, 76), (120, 251, 797, 30),
     (120, 307, 153, 18),
@@ -2823,19 +2861,24 @@ _N16INK = [
     (120, 678, 1081, 161),             # 对照表的字（表头 + 三行）
     (150, 959, 450, 32), (120, 1015, 643, 22),
 ]
+_N16TABB = 678 + 161                   # 对照表墨迹底（车道的上界）
+_N16LANDT = 959                        # 落点句墨迹顶（车道的下界）
+_N16RECT = (120, 852, 1680, 92)        # 舞台矩形跟着车道搬到收口线之下
 #   ── 表达力精进 · 第二波 ⑥（2026-09-02）：卡下那把扇子重做 ─────────────────
 #   旧版是七股「先并拢再铺开」的扇形：屏上是一团糊光，读不出任何东西。
 #   新版把语义钉死成成绩单上那一行数字本人 ——「1,000+ 通 / 天 · 多路并发」：
 #   **八条并行细带**横贯卡底与对照表之间向右流，每条带的 gain 剖面是一串
 #   **确定性的通话段**（起停各自不同相）⇒ 屏上永远有几路在通话、几路刚挂断，
 #   而八条一起在跑就是「并发」。零随机源：段长 / 占空 / 相位全是构建期的定数。
-#   ⚠ 间距只有 4.0（任务书给的 5.5 排不下）：上边卡里的字止于 y577、下边
-#     「02 · KEY DIFFERENCE」的字起于 y641，各让 16px 之后可用带只有 32px；
-#     8 条 × 5.5 需要 41.5px。密是这一格的语义，越界压字不是。
+#   三稿把整束搬到对照表与落点句之间那条空带（见上面那一段的账）。
 _N16X0, _N16X1 = 120.0, 1800.0
 _N16N = 8                              # 股数（「多路并发」——不是一条）
-_N16Y0, _N16DY = 595.0, 4.0            # 第一条的 y / 相邻两条的间距
+_N16DY = 4.6                           # 相邻两条的间距（三稿：4.0 → 4.6）
 _N16W = 1.8                            # 细：单路通话是细的，八路一起才是量
+#   整束在 [表底+16, 落点句顶−16] 里居中 —— 上下净空自动相等（构建期实测 42.1px）
+_N16LO = _N16TABB + _ADD_CLR
+_N16HI = _N16LANDT - _ADD_CLR
+_N16Y0 = (_N16LO + _N16HI) / 2.0 - _N16DY * (_N16N - 1) / 2.0
 _N16LAM = 196.0
 _SPD_P16 = (110.0, 107.0, 113.0, 109.0, 112.0, 106.0, 111.0, 108.0)
 #   每条带的通话段：(段周期 px, 占空, 起相位) —— 八条两两不同周期 ⇒ 永不齐步
@@ -3197,6 +3240,7 @@ def lab_data(p):
         a += [("add", 1), ("core", "%s,%s,%s" % (_f1(_H15CORE[0]), _f1(_H15CORE[1]),
                                                  _f1(_H15CR))),
               ("orb", ";".join("%s,%s,%s" % tuple(_f1(v) for v in o) for o in _H15ORB)),
+              ("orbamp", _n(_H15ORBAMP)), ("corer", _n(_H15CORER)),
               ("orbbox", ",".join(_f1(v) for v in _h15_orb_box())),
               ("cl", ";".join("%s,%s,%s,%d" % (_f1(c[0]), _f1(c[1]), _f1(c[2]), c[3])
                               for c in _H15CL)),
@@ -7926,16 +7970,22 @@ function makeHub(ctx){
      lockZ：xy 按**核所在的那一层** Q.cz 预缩放、z 用点自己的 —— 于是 z=cz 的点
      投影落在页坐标上一格不差，而环翻滚出平面的那一档产生真视差（与 P13 的 LZ
      同一手法）。旧核是一团点 + 两枚同心细环：屏上只是一小坨白光，读不出引擎。 */
-  const OB = Q.orb, CN = +Q.orbN;
+  const OB = Q.orb, CN = +Q.orbN, RAD = Math.PI/180;
   const lockZ = (x, y, z) => { const k = (D - Q.cz)/D, hx = w/2, hy = h/2;
     return [hx + (x-R[0]-hx)*k, -(hy + (y-R[1]-hy)*k), z]; };
-  const orbPt = (ax, ay, az, th, rad) =>
-    lockZ(CX + ax*rad*Math.cos(th), CY + ay*rad*Math.sin(th), Q.cz + az*rad*Math.sin(th));
+  /* 三稿：环由 (rx, r2, tilt°) 定义 —— 环平面绕 x 轴倾 tilt，于是
+       y = r2·sinθ·cos(tilt)（投影里的竖半轴）、z = r2·sinθ·sin(tilt)（离面）。
+     倾角显式给、且各自只在 ±Q.orbAmp 里摆动**不过零** ⇒ 三枚环任何一帧都不共面。 */
+  const orbPt = (rx, r2, tl, th, rad) => {
+    const ct = Math.cos(tl*RAD), st = Math.sin(tl*RAD), sn = r2*rad*Math.sin(th);
+    return lockZ(CX + rx*rad*Math.cos(th), CY + sn*ct, Q.cz + sn*st);
+  };
   function orbAt(t){                        // 粒子带：内圈 → 中圈 → 外圈的分段线性插值
     const a2 = t <= 0.5 ? OB[2] : OB[1], b2 = t <= 0.5 ? OB[1] : OB[0];
     const u2 = t <= 0.5 ? t*2 : (t-0.5)*2;
     return [a2[0]+(b2[0]-a2[0])*u2, a2[1]+(b2[1]-a2[1])*u2, a2[2]+(b2[2]-a2[2])*u2];
   }
+  const tiltOf = (k, clock) => OB[k][2] + Q.orbAmp*Math.sin(TAU*clock/Q.orbRoll[k]);
   const cg = new THREE.BufferGeometry(), cp = new Float32Array(CN*3);
   cg.setAttribute('position', new THREE.BufferAttribute(cp,3));
   const cA = fillAH(cg, 1, 0);
@@ -7945,6 +7995,22 @@ function makeHub(ctx){
       cSp[i] = (0.30 + 0.22*((i*7919 % 97)/96)) * (i % 2 ? 1 : -1); } }
   const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value = .03;
   scene.add(Object.assign(new THREE.Points(cg, coreMat), { frustumCulled:false }));
+  /* 三稿②：**可见的核** —— r≈7 的发光点坐在转子心。亮度不是常数，是六条支线
+     在核端的**包络之和**（与 river 的 meet 同一写法：aH 进 uHot / uGain）⇒
+     六路一起涨的那一瞬核最亮，读作「引擎在出力」。带亮度地板 ⇒ 常亮。 */
+  const coreDot = new THREE.BufferGeometry();
+  { const q = lockZ(CX, CY, Q.cz);
+    coreDot.setAttribute('position', new THREE.BufferAttribute(
+      new Float32Array([q[0], q[1], q[2]]), 3)); }
+  const dotA = fillAH(coreDot, 1, 0);
+  const dotMat = mkMat(SH, PX_PT_VS, PX_PT_FS); dotMat.uniforms.uSoft.value = .16;
+  scene.add(Object.assign(new THREE.Points(coreDot, dotMat), { frustumCulled:false }));
+  // 六条支线在核端的解析包络（lab-kit ⑨ 的 envAt · 同一批 K.as 常量）
+  const ASK = K.as, KL = TAU/ASK.lam;
+  const envAt = (u) => 0.5 + 0.5*(ASK.a[0]*Math.sin(KL*ASK.f[0]*u + ASK.ph[0])
+                                + ASK.a[1]*Math.sin(KL*ASK.f[1]*u + ASK.ph[1])
+                                + ASK.a[2]*Math.sin(KL*ASK.f[2]*u + ASK.ph[2])
+                                + ASK.a[3]*Math.sin(KL*ASK.f[3]*u + ASK.ph[3]));
   const RSEG = 72, ringGeo = new THREE.BufferGeometry();
   const rpos = new Float32Array(3*RSEG*2*3);
   ringGeo.setAttribute('position', new THREE.BufferAttribute(rpos,3));
@@ -7982,23 +8048,33 @@ function makeHub(ctx){
          迁徙 + 三枚环各自翻滚、各带一道跑动的光弧 —— 与 P13 逐行同解，只是小一号 */
       const beat = 0.5 - 0.5*Math.cos(TAU*clock/5.4);
       const rad = 1 + Q.orbBr*beat;
-      const azb = Math.cos(TAU*clock/Q.orbRoll[1]);
+      // 粒子带按 ν 在三枚环之间迁徙；倾角随所在的那一档环连续插值（不跳变）
       for(let i = 0; i < CN; i++){
         const nu = 0.5 + 0.5*Math.sin(TAU*(cNu[i] - clock/2.4));
         const o2 = orbAt(nu);
-        const q = orbPt(o2[0], o2[1], o2[2]*azb, cTh[i] + clock*cSp[i], rad);
+        const kf = nu <= 0.5 ? 2 - nu*2 : 1 - (nu-0.5)*2;   // 2 → 1 → 0 的连续档位
+        const k0 = Math.min(2, Math.floor(kf)), k1 = Math.min(2, k0+1), fr = kf - k0;
+        const tl = tiltOf(k0, clock)*(1-fr) + tiltOf(k1, clock)*fr;
+        const q = orbPt(o2[0], o2[1], tl, cTh[i] + clock*cSp[i], rad);
         cp[i*3] = q[0]; cp[i*3+1] = q[1]; cp[i*3+2] = q[2];
         cA.a[i] = .30 + .70*nu;
       }
       cg.attributes.position.needsUpdate = true; cg.attributes.aA.needsUpdate = true;
+      // 核：六条支线在核端的包络之和（归一到 0..1）⇒ aH 进 uHot / uGain
+      let se = 0;
+      for(let i = 0; i < flows.length; i++) se += envAt(-flows[i].spd*clock);
+      dotA.h[0] = Math.max(0, Math.min(1, se/flows.length));
+      dotA.a[0] = 0.62 + 0.38*dotA.h[0];                 // 地板 .62 ⇒ 核常亮
+      coreDot.attributes.aA.needsUpdate = true;
+      coreDot.attributes.aH.needsUpdate = true;
       let n3 = 0;
       for(let k = 0; k < 3; k++){
-        const az = OB[k][2]*Math.cos(TAU*clock/Q.orbRoll[k]);
+        const tl = tiltOf(k, clock);
         const arc = TAU*(clock*Q.orbArc[k]);
         for(let i = 0; i <= RSEG; i++){
-          const th = i/RSEG*TAU, q = orbPt(OB[k][0], OB[k][1], az, th, rad);
-          // 环线的底亮比 P13 高一档（.22 → .44）：迷你尺寸下只靠光弧读不出「三枚环」
-          const lit = .44 + .56*Math.pow(Math.max(0, Math.cos(th - arc)), 6);
+          const th = i/RSEG*TAU, q = orbPt(OB[k][0], OB[k][1], tl, th, rad);
+          // 环线的底亮比 P13 高两档（.22 → .55）：迷你尺寸下只靠光弧读不出「三枚环」
+          const lit = .55 + .45*Math.pow(Math.max(0, Math.cos(th - arc)), 6);
           if(i > 0){ rA.a[n3] = lit;
             rpos[n3*3] = q[0]; rpos[n3*3+1] = q[1]; rpos[n3*3+2] = q[2]; n3++; }
           if(i < RSEG){ rA.a[n3] = lit;
@@ -8061,6 +8137,14 @@ function makeHub(ctx){
       ringMat.uniforms.uHot.value.copy(cssColor('--h-ring'));
       ringMat.uniforms.uOpacity.value = cssNum('--h-ring-op', .66);
       ringMat.uniforms.uGain.value = 0;
+      // 核：底色走 --h-core、热色走 --h-dot（与 P13 呼吸核同色档）· uGain 吃 aH
+      dotMat.uniforms.uColor.value.copy(cssColor('--h-core'));
+      dotMat.uniforms.uHot.value.copy(cssColor('--h-dot'));
+      dotMat.uniforms.uOpacity.value = cssNum('--h-dot-op', .95);
+      dotMat.uniforms.uSize.value = Q.corer*2;
+      dotMat.uniforms.uGain.value = cssNum('--h-dot-gain', .55);
+      dotMat.uniforms.uBack.value = 1;
+      setBlend(dotMat, cssNum('--h-add', 0));
       nodeMat.uniforms.uColor.value.copy(cssColor('--h-node'));
       nodeMat.uniforms.uHot.value.copy(cssColor('--h-node'));
       nodeMat.uniforms.uOpacity.value = cssNum('--h-node-op', 1);
@@ -8084,8 +8168,11 @@ function makeHub(ctx){
       const nsz = nodeMat.uniforms.uSize.value*0.5 + 0.5;
       clr = Math.min(clr, geoClr(kg, U, Q.ink, nsz), geoClr(fg, U, Q.ink, nsz),
                      geoClr(cg, U, Q.ink, coreMat.uniforms.uSize.value*0.5 + 0.5),
-                     geoClr(ringGeo, U, Q.ink, 1.0));
+                     geoClr(ringGeo, U, Q.ink, 1.0),
+                     geoClr(coreDot, U, Q.ink, Q.corer));
       return { clr, spokes: flows.length, nodes: CT, core: CN, orb: OB.length,
+               tilt: [0,1,2].map(k => +tiltOf(k, SH.uTime.value).toFixed(2)),
+               dot: +dotA.a[0].toFixed(3),
                spd: flows.map(f => f.spd), lam: Q.lam,
                z: Q.cl.map(c => c[2]), cz: Q.cz };
     },
@@ -8807,15 +8894,16 @@ def lab_k():
         ("D", _n(1400.0)), ("half", _n(190.0)),
     ])
     h15 = _obj([
-        ("core", _arr([_H15CORE[0], _H15CORE[1], _H15CR])), ("cz", _n(70.0)),
+        ("core", _arr([_H15CORE[0], _H15CORE[1], _H15CR])), ("cz", _n(_H15CZ)),
         ("cl", "[" + ",".join(_arr(c) for c in _H15CL) + "]"),
         ("box", _arr([_H15CLW, _H15CLH])),
         ("s", "[" + ",".join('"%s"' % _pk(_lerp_poly(_h15_spoke(k), 40))
                              for k in range(6)) + "]"),
         ("spd", _arr(_SPD_P15)), ("lam", _n(_H15LAM)), ("w", _n(_H15W)),
-        # ⑦ 迷你转子（_K_ORB 等比缩小）+ 支线半宽剖面（核端 2 → 卡端 4）
+        # ⑦ 迷你转子：三枚**显式倾角**的环 (rx, r2, tilt°) + 摆幅 + 可见的核
         ("orb", _rows(_H15ORB)), ("orbBr", _n(_K_ORB_BR)),
         ("orbRoll", _arr(_K_ORB_ROLL)), ("orbArc", _arr(_K_ORB_ARC)),
+        ("orbAmp", _n(_H15ORBAMP)), ("corer", _n(_H15CORER)),
         ("orbN", str(_H15ORBN)), ("w01", _arr([_H15W0, _H15W1])),
         ("ink", "[" + ",".join(_arr(b) for b in _H15INK) + "]"), ("clr", _n(_ADD_CLR)),
         ("D", _n(_H15D)), ("half", _n(300.0)),
@@ -11713,6 +11801,11 @@ def build():
         22: [[(q[0], q[1]) for q in _E22PTS]],
     }
     for _p, _gs in _addgeo.items():
+        # ⚠ 名册与舞台位表必须是同一份真相：只改一半 ⇒ 几何落在 canvas 之外被裁掉，
+        #   而 ㉒ 的出界闸拿的是名册那一份，什么都验不出来（本轮踩过一次）。
+        assert tuple(_ADD_RECT[_p]) == tuple(LAB_RECTS[_p][1:]), \
+            "㉒ P%d 的 _ADD_RECT 与 LAB_RECTS 分叉：%r vs %r" % (
+                _p, _ADD_RECT[_p], LAB_RECTS[_p][1:])
         _rx, _ry, _rw, _rh = _ADD_RECT[_p]
         for _g in _gs:
             for _q in _g:
@@ -11793,6 +11886,19 @@ def build():
         "④ P3 的 A/B 块高有低于 44 的：%r" % [_b for _bs in _P3BANDS.values()
                                               for _b in _bs if _b[2] < 44]
     assert _P3CHW >= 4.0, "④ P3 方向通道半宽 %.1f < 4" % _P3CHW
+    # ── ⑥ 三稿：八条通话流必须整束落在「卡盒之下、02 小标墨迹之上」──────────
+    #    卡盒不是墨迹盒（_N16INK 只登记字形行框），所以这一条另立断言：
+    #    卡底是 --card-bg 72% 不透明，车道钻到它底下就会被读成「卡里的毛刺」。
+    _n16top = _n16_y(0) - _N16W
+    _n16bot = _n16_y(_N16N - 1) + _N16W
+    assert _n16top - _N16CARDB >= _ADD_CLR, \
+        "⑥ P16 车道钻进卡盒了：束顶 %.1f 距卡盒底 %.0f 只有 %.1fpx（下限 %.0f）" % (
+            _n16top, _N16CARDB, _n16top - _N16CARDB, _ADD_CLR)
+    assert _n16top - _N16TABB >= _ADD_CLR and _N16LANDT - _n16bot >= _ADD_CLR, \
+        "⑥ P16 车道没落在对照表与落点句之间：束 %.1f–%.1f vs [%d, %d]" % (
+            _n16top, _n16bot, _N16TABB, _N16LANDT)
+    assert _N16RECT[1] <= _n16top and _n16bot <= _N16RECT[1] + _N16RECT[3], \
+        "⑥ P16 车道越出 lab-rect：%.1f–%.1f ∉ %r" % (_n16top, _n16bot, _N16RECT)
     # P8 的两根事件 x 与波形表：页上必须真出现（1px = 1ms 的换算靠它们成立）
     assert _P9CUT - _P9IN == 340, "⑳ P8 快路径跨度不是 340px（= 340ms）"
     # 数字红线：弧线不标延迟；示意分布必须挂小注
@@ -11940,12 +12046,13 @@ def build():
           "P3 半双工 2 轮×%d 高 · 通道半宽 %s · 重叠区 %r + 闸 %d 段入册｜"
           "P5 三支流→集流带 %s→%s 半宽 · 收口箭头 x%d｜"
           "P16 %d 条并行通话流（间距 %s · 半宽 %s · 8 组确定性通话段）｜"
-          "P15 迷你转子 %d 粒 · 外圈 %s×%s（_K_ORB × %.4f）· 支线半宽 %s→%s"
+          "P15 迷你转子 %d 粒 · 外圈 %s×%s · 三环倾角 %s° · 支线半宽 %s→%s"
           % (len(_P2WL_DECL), "/".join(_P2WL_DECL),
              _P3BANDS["half"][0][2], _n(_P3CHW), _P3LAP, len(_P3GATESEG),
              _n(_X5CW0), _n(_X5CW1), int(_X5COLX[1]),
              _N16N, _n(_N16DY), _n(_N16W),
-             _H15ORBN, _f1(_H15ORB[0][0]), _f1(_H15ORB[0][1]), _H15ORBS,
+             _H15ORBN, _f1(_H15ORB[0][0]), _f1(_H15ORB[0][1]),
+             "/".join(_f1(o[2]) for o in _H15ORB),
              _n(_H15W0), _n(_H15W1)))
     print("  波A 音频流：λ=%.0fpx @ %.0fpx/s ⇒ %.2fs 一次呼吸 · Σa=%.2f · P14 注光 %.0fpx/s "
           "⇒ 一轮 %.2fs（生长 %.2f + 停驻 %.2f + 收 %.2f）"
