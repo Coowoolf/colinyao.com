@@ -11,7 +11,8 @@ await pg.waitForTimeout(9000);
 const r = await pg.evaluate(()=>{
   const c=document.getElementById('labGl');
   const per={};
-  [1,2,3,4,5,8].forEach(p=>{ const st=document.querySelector(`.slide[data-p="${p}"] .lab-stage`);
+  // 2026-09-02 精进二波：P6 上了「走出屏幕」加法层（poster = 构建期离线投影的屏幕 + 中心线）
+  [1,2,3,4,5,6,8].forEach(p=>{ const st=document.querySelector(`.slide[data-p="${p}"] .lab-stage`);
     const ps=[...document.querySelectorAll(`.slide[data-p="${p}"] .lab-poster`)];
     per[p]={ glup: st.classList.contains('gl-up'),
              op: ps.map(e=>+getComputedStyle(e).opacity),
