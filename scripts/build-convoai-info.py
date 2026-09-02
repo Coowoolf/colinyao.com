@@ -23,7 +23,7 @@
 #   G 投影小字提一档：.sig 与新类 .src 字号 15 → 17、色阶各上一格（与引擎 builder 逐字同源）。
 #
 # 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
-#   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 合流
+#   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 使命与愿景
 #
 # ── 家族语言硬指标（逐条继承自引擎 deck，改本文件之前先读完）───────────────
 #   · 五运动原语（flow-packet / dash-drift / pulse / breathe+halo / cycle）逐字复用，
@@ -159,7 +159,10 @@ html[data-theme="dark"] .conf-bg{filter:saturate(.92);}
 #                    一枚 <img>；3D 舞台按家族层序坐在 .pp **之下**，canvas 会被底图
 #                    整幅盖住 —— 要让流看得见就只能把 canvas 抬进 .pp 压在定稿底图之上，
 #                    那正是历史指令明令禁止的。结构性冲突，不是口味问题。见交付报告。
-#   P8 合流        → 三条空间支流汇入 ONE NET 主河道（本 deck 的标杆页 · 投入最高）
+#   P8 使命与愿景  → 一张实时网上的三种互动（本 deck 的标杆页 · 投入最高）
+#                    ⚠ 2026-09-02 退役：v3 的「三条支流一条河」（river 场景 / _RV_* /
+#                      _p8fig / ⑳rv 闸）整套退场 —— Colin：「结尾页要展望未来，
+#                      服务人与人、人与智能体、智能体与智能体之间的实时互动。」
 # ═══════════════════════════════════════════════════════════════════════════
 import importlib.util as _ilu
 import re as _re2
@@ -231,7 +234,10 @@ _B_KEYS = ("_duplex_lanes", "_brain_fig", "_LANES", "_XIN", "_XNOW",
            "_BRAIN", "_ZONES", "_LEADS", "_ARCS", "_ARC_EXTRA", "_BRAIN_IN",
            "_CEREB", "_STEM", "_SUL1", "_SUL2", "_SUL3", "_EXTREMES",
            "_obj", "_arr", "_n", "_poly", "_polym", "_bbox", "_sec", "legend")
-for _k in _G_KEYS + _B_KEYS:
+# v3.1：P8 的智能体节点 = **P13 编排中枢 / P15 引擎核同血统的迷你转子** ⇒
+# 呼吸幅度 / 三枚环的翻滚周期与光弧角速度 / P15 那三枚显式倾角的环，全部**现取**。
+_O_KEYS = ("_K_ORB_BR", "_K_ORB_ROLL", "_K_ORB_ARC", "_H15ORB", "_H15ORBAMP")
+for _k in _G_KEYS + _B_KEYS + _O_KEYS:
     assert hasattr(_LAB, _k), "lab 常量 / 组装件缺失：%s" % _k
 
 # ── ⑦ 走出屏幕（P6 · 加法层）· 几何全部是新写的（页上本来没有图）──────────────
@@ -295,7 +301,10 @@ LAB_RECTS = {
     6: ("exit",    740,  140, 1060,  100),
     # v3 波C：P7 换成 **14 家 3D 星座墙**（新场景）· figbox(120,272,1680, vb1680×560)
     7: ("wall",    120,  272, 1680,  560),
-    8: ("river",   120,  272, 1680,  420),   # v3 全舞台 = figbox(120,272,1680, vb1680×420)
+    # v3.1（2026-09-02）：P8 换成 **一张实时网上的三种互动**（使命与愿景页）——
+    # 河（river）退役，见「⑥ 三种互动」那一段的退役注。矩形往下挪 78px、高 +20，
+    # 给上方的使命 / 愿景两行让出 y250–341。
+    8: ("net",     120,  350, 1680,  440),
 }
 if P1_MODE == "art":                       # 对比版：封面让给位图，P1 不入场景表
     del LAB_RECTS[1]
@@ -398,7 +407,20 @@ assert _LAB_TAIL.endswith("</style>")
 _LAB_TAIL = _LAB_TAIL.replace(
     "</style>",
     ".w-rim{fill:none;stroke:var(--w-rim);stroke-width:1.2;"
-    "opacity:var(--w-poster-rim,.42);}\n</style>")
+    "opacity:var(--w-poster-rim,.42);}\n"
+    # P8「三种互动」poster 的五件（旗舰没有这枚场景 ⇒ 画法归本 deck 自己）
+    ".nt-grid{fill:none;stroke:var(--nt-grid);stroke-width:1;"
+    "opacity:var(--nt-poster-grid,.36);}\n"
+    ".nt-link{fill:none;stroke:var(--nt-link);stroke-width:2;"
+    "opacity:var(--nt-poster-link,.26);}\n"
+    ".nt-edge{fill:none;stroke:var(--nt-flow);stroke-width:2.6;stroke-linecap:round;"
+    "opacity:var(--nt-poster-edge,.58);}\n"
+    ".nt-ring{fill:none;stroke:var(--nt-node);stroke-width:2.4;"
+    "opacity:var(--nt-poster-ring,.80);}\n"
+    ".nt-orbr{fill:none;stroke:var(--nt-orb);stroke-width:1.6;"
+    "opacity:var(--nt-poster-orb,.66);}\n"
+    ".nt-core{fill:var(--nt-core);opacity:var(--nt-poster-core,.95);}\n"
+    ".nt-hdot{fill:var(--nt-dot);opacity:var(--nt-poster-dot,.95);}\n</style>")
 
 
 def _lab_gvars(a, b, need=()):
@@ -443,26 +465,30 @@ LAB_CSS = """<style id="convoai-info-3d">
   --gw-aux:var(--ink-3);        --gw-aux-op:.50;
   --gw-e:var(--l-eng);          --gw-a:var(--l-agent);  --gw-p:var(--l-phys);
   /* 三股主干的 RMS 实芯**各自本色**（浅底上三条一律 accent-deep = 三条都读成粉，
-     「三条产品线」当场丢失）—— 与 P8 支流同一病同治，见 --rv-*-rms。 */
+     「三条产品线」当场丢失）—— 同一病同治的还有 P8 的双向带，见 --nt-rms。 */
   --gw-e-rms:var(--accent-deep); --gw-a-rms:#3b6ae6;    --gw-p-rms:#5a41e6;
   --gw-flow-op:.70;             --gw-rms-op:.76;
   --gw-add:0;
 """ + _D_LIGHT + _B_LIGHT + """
-  /* ── ⑥ 三条支流一条河（P8 · 标杆）· 浅底 ── */
-  --rv-main:var(--accent);      --rv-main-op:.72;
-  --rv-rms:var(--accent-deep);  --rv-rms-op:.78;
-  --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
-  /* 三条支流的 RMS 实芯**各自本色** —— 原来三条一律 accent-deep，浅底上
-     Agent（蓝）/ Physical AI（紫）两条从源头起就读成粉，「三条」当场丢失。
-     2D 版的 packet 本来就是各自本色（packet(…, col=col)），3D 不许比 2D 退。
-     主河道不动（粉 = ONE NET，它才是那一条）。 */
-  --rv-e-rms:var(--accent-deep); --rv-a-rms:#3b6ae6;    --rv-p-rms:#5a41e6;
-  --rv-trib-op:.78;             --rv-trib-rms-op:.80;
-  --rv-bed:var(--accent);       --rv-bed-op:.34;
-  --rv-rail:var(--accent);      --rv-rail-op:.88;
-  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:14;
-  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:20;
-  --rv-add:0;
+  /* ── ⑥ 一张实时网上的三种互动（P8 · 标杆）· 浅底 ──
+     2026-09-02：河（--rv-*）整套退役，这一段是新场景 `net` 的档。
+     色彩纪律：**形**负责分辨三簇（两枚环 / 一环一转子 / 五台转子成网），
+     色只分两类 —— 结构件走墨（人节点环 / 长流带），流与核走 accent。
+     浅底走正常混合 ⇒ 不透明度整体比暗档高一档（⑳ink 浅/暗比 ≥0.90）。 */
+  --nt-node:var(--ink-2);       --nt-node-op:.84;          /* 人节点：空心圆环 */
+  --nt-dot:var(--accent);       --nt-dot-op:.96;  --nt-dot-size:11;  /* 人节点：内点 */
+  --nt-orb:var(--accent-deep);  --nt-orb-op:.86;           /* 转子：三枚异面环 */
+  --nt-orbp:var(--ink-2);       --nt-orbp-op:.70; --nt-orbp-size:2.6;/* 转子：迁徙粒子 */
+  --nt-core:var(--accent);      --nt-core-op:.98; --nt-core-size:11; /* 转子：常亮核 */
+  --nt-flow:var(--accent);      --nt-flow-op:.74;          /* 双向带：峰值色 */
+  --nt-rms:var(--accent-deep);  --nt-rms-op:.82;           /* 双向带：RMS 实芯 */
+  --nt-link:var(--ink-3);       --nt-link-op:.44;          /* 三簇连接带（极淡） */
+  --nt-link-rms:var(--ink-3);   --nt-link-rms-op:.40;
+  --nt-grid:var(--accent-deep); --nt-grid-op:.38;          /* 同一片透视栅格 */
+  --nt-add:0;
+  --nt-poster-grid:.36;  --nt-poster-edge:.58;  --nt-poster-link:.26;
+  --nt-poster-ring:.80;  --nt-poster-orb:.66;   --nt-poster-core:.95;
+  --nt-poster-dot:.95;
   /* ── ⑦ 走出屏幕（P6 · 全 deck 唯一的加法层）· 浅底 ──
      媒介与全家族同一种（audioStream · λ232 · 110px/s）；峰值色取 Physical AI 页的
      紫（--l-phys），RMS 实芯浅底给一档更深的紫（纸面上要有墨，不能是荧光）。
@@ -500,17 +526,22 @@ html[data-theme="dark"]{
   --gw-flow-op:.50;             --gw-rms-op:.55;
   --gw-add:1;
 """ + _D_DARK + _B_DARK + """
-  --rv-main:var(--accent);      --rv-main-op:.62;
-  --rv-rms:var(--ink);          --rv-rms-op:.58;
-  --rv-e:var(--l-eng);          --rv-a:var(--l-agent);  --rv-p:var(--l-phys);
-  /* 暗底实芯本来就是白芯 —— 身份由**峰值色**承担（uColor = --rv-e/a/p），保持 */
-  --rv-e-rms:var(--ink);        --rv-a-rms:var(--ink);  --rv-p-rms:var(--ink);
-  --rv-trib-op:.56;             --rv-trib-rms-op:.55;
-  --rv-bed:var(--accent);       --rv-bed-op:.22;
-  --rv-rail:var(--accent);      --rv-rail-op:.90;
-  --rv-meet:var(--accent);      --rv-meet-op:1;   --rv-meet-size:14;
-  --rv-src:var(--ink-2);        --rv-src-op:.92;  --rv-src-size:20;
-  --rv-add:1;
+  /* ⑥ 三种互动 · 暗底：走加色混合，同样的墨越叠越亮 ⇒ 不透明度整体收一档；
+     实芯换白芯（身份由峰值色承担），栅格与连接带压到「在，但不抢」。 */
+  --nt-node:var(--ink-2);       --nt-node-op:.72;
+  --nt-dot:var(--accent);       --nt-dot-op:.92;  --nt-dot-size:11;
+  --nt-orb:var(--accent);       --nt-orb-op:.66;
+  --nt-orbp:var(--ink);         --nt-orbp-op:.52; --nt-orbp-size:2.6;
+  --nt-core:var(--accent);      --nt-core-op:.96; --nt-core-size:11;
+  --nt-flow:var(--accent);      --nt-flow-op:.58;
+  --nt-rms:var(--ink);          --nt-rms-op:.56;
+  --nt-link:var(--ink-3);       --nt-link-op:.34;
+  --nt-link-rms:var(--ink-3);   --nt-link-rms-op:.32;
+  --nt-grid:var(--accent);      --nt-grid-op:.30;
+  --nt-add:1;
+  --nt-poster-grid:.26;  --nt-poster-edge:.46;  --nt-poster-link:.20;
+  --nt-poster-ring:.66;  --nt-poster-orb:.52;   --nt-poster-core:.92;
+  --nt-poster-dot:.92;
   /* 暗底实芯本来就是白芯 —— 身份由峰值色（--l-phys）承担，与 P3/P8 同一档 */
   --ex-frame:var(--ink-3);      --ex-frame-op:.62;
   --ex-inner-op:.40;
@@ -526,6 +557,15 @@ html[data-theme="dark"]{
   --w-poster-rim:.30;
 }
 """ + _LAB_TAIL
+
+
+def _cssmax(name):
+    """从 LAB_CSS 里现取某个尺寸变量的**最大值**（浅 / 暗两档取大的那一档）——
+       净空探针的 pad 与 poster 的点径因此与页面上真正画出来的那一档同源，
+       不会两处各写一个数。（v3.1 起提到这里：P8 的 poster 也要用它。）"""
+    v = [float(x) for x in _re2.findall(r"%s\s*:\s*([0-9.]+)" % _re2.escape(name), LAB_CSS)]
+    assert v, "LAB_CSS 里找不到 %s" % name
+    return max(v)
 
 
 # ═══ 本 deck 专属 CSS ═══════════════════════════════════════════════════════
@@ -923,7 +963,9 @@ def rail(txt, y=1010, x=120, w=1680, i=7, align=None):
 
 
 _DETAIL_X, _DETAIL_Y, _DETAIL_W, _DETAIL_HMAX = 1060, 250, 740, 640
-DETAIL_PAGES = [2, 3, 4, 5, 6, 7]  # 有细节层的页（P1 封面 / P8 合流按规格不带）
+# 有细节层的页（P1 封面按规格不带；v3.1 起 P8 也带一枚 —— 三不 / 三步 / OpenAI /
+# DEMO 四件密材料从主版面搬进抽屉，主版面只留使命 · 愿景 · 三种互动）
+DETAIL_PAGES = [2, 3, 4, 5, 6, 7, 8]
 
 
 def detail(title, body, h=640, y=_DETAIL_Y, i=2):
@@ -1114,7 +1156,7 @@ def legend(x, y, items, i=9, gap=48, size=14):
     return "".join(o)
 
 
-# ── 贝塞尔路径长度（P8 合流的相位账必须按真实弧长算，不许目测）──────────────
+# ── 贝塞尔路径长度（曲线的 --len / 相位账必须按真实弧长算，不许目测）────────────
 def _cub(p0, p1, p2, p3, t):
     u = 1 - t
     return (u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3)
@@ -1948,29 +1990,39 @@ page("content", "".join([
         y=1022, x=1120, w=680, align="right"),
 ]), steps=1, lab="wall")
 
-# ═══ P8 · 合流 ·「三条支流，一条河」（v3 · 河放大到全舞台 · 本 deck 标杆动效页）═══
-#   主图：三色支流从左侧三源头以贝塞尔曲线汇入 ONE NET 主河道，铺满 (120,272,1680,420)。
-#   其下：02 三不（三行）与 03 三步（三 chip）并排；再下是两句落点 / DEMO / SOURCE / 署名。
-#   hot 件 = 合流点 + ONE NET 主河道（accent 描边 + 光晕 + 合流点脉冲）。
+# ═══ P8 · 使命与愿景 ·「让实时互动，无处不在。」（v3.1 · 本 deck 标杆动效页）═══
+#   2026-09-02 Colin：「info 的最后一页不足以承载一个结尾总结，对仗的公司介绍我们
+#   应该展望一下未来，服务人与人、人与智能体、智能体与智能体之间的实时互动……
+#   找一下声网的使命愿景，这一页应该写这个才对。三条支流一条河不行不够。」
+#   ⇒ 与 P2 公司页对仗：P2 = 我们站在哪（底座）· P8 = 我们要去哪（愿景）。
 #
-#   ── v3 放大账（1.6× · 只放大「形」，介质与相位规则一格不动）─────────────────
-#     图形区 820×560（vb×1）→ **1680×420**（vb×1）：河从「左半的一张图」变成
-#       「横贯全舞台的一条河」——「一条河」这三个字第一次在版面上是字面意思。
-#     线宽 / 盒 / 半宽全部 ×1.6（宽度是这张图的语义：河比支流宽 = 能量守恒）：
-#       支流 2D packet w13→21（半宽 6.5→10.4）· 主河道 hline w4→6.4 / packet w15→24；
-#       3D 支流半宽 4.0–6.5 → **6.4–10.4**，主河道 13→**20.8**、河口涌起 15→**24**，
-#       涌起作用半径 80→128，河床纵深 90→144。
-#     ONE NET 河道盒 350×52 rx26 → **560×84 rx42**（峰值 ±24 仍在盒内）。
-#     包距同步 ×1.6：主河道 Qm 90→144（Tm .9→1.44s）、支流 Qt 270→432（Tt 2.7→4.32s）；
-#       Qt = 3·Qm 的关系不动 ⇒「三条支流各占一格、轮流接力」照旧。
-#     **λ 不变**（lab-kit ⑨ 的 232px —— 全家族同一种介质，放大的是形不是声）。
-#     接力相位 off_k = −Lw_k + k·λ/3 由 builder 按**新的**世界弧长重算（qa ⑳rv 复算）。
+#   ── 口径（2026-09-02 自 shengwang.cn/aboutus 逐字核实 · Fable 亲核）────────
+#     使命：帮助人们跨越距离实时互动，如聚一堂
+#     愿景：让实时互动像空气和水一样，无处不在
+#     「价值观」官网未列（仅二手旧稿有）⇒ **本轮不上页面**。
+#     「智能体与智能体」是**展望**（Colin 的判断）：措辞用「即将发生」，
+#     不写成公司口径、不写日期；全页唯一的年份是可核实的「2014 年起」。
 #
-#   ── 相位账（「同速同相接力」不是感觉，是算出来的）─────────────────────────
-#   全图统一速度 v = 100 单位/秒。主河道包距 Qm = 144（dur 1.44s）；支流包距 Qt = 432（4.32s）。
-#   支流 i 的负 delay：del_i = ((i×1.44 − L_i/100) mod 4.32) − 4.32，L_i = 该支流贝塞尔的采样弧长。
-#   ⚠ 改任何一条曲线的控制点、或改 Qm / Qt / v，这三条 delay 必须重算（builder 会自动算，
-#     但别把 L_i 写成常量）。
+#   ── 版面账（改任一个数就把这一段一起改）─────────────────────────────────
+#     kicker y92 · 主标 y148–225（.hh 68px/1.16）
+#     01 小节标 y236 · 使命 / 愿景两行 y262 / y306（各 h40 ⇒ 墨止于 y342）
+#     主图矩形 (120,350,1680,440)：三簇心 fig x 280 / 840 / 1400（舞台 400/960/1520）·
+#       中心线 fig y195 · 长流带 fig y344 · 栅格近边 fig y430（舞台 780）
+#     三簇题注 y798（题）/ y832（副）· 三栏 x120 / 680 / 1240 各 560 宽
+#     rule(850) 压住 content 背景板自带的那条 accent 细线（y848–852）
+#     land y872（w1100）· 细节层 chip x1460 y870（面板 740×430 · 底 y680，压不到 land）
+#     页脚三栏：land y988（w460）· SOURCE y1010（右对齐 1140）· 署名 rail y1010（右对齐 1800）
+#
+#   ── 主图语义（新场景 `net`）：**一张实时网上的三种互动** ────────────────────
+#     左→右 = 已经发生 / 正在发生 / 即将发生，三簇脚下是**同一片**透视栅格：
+#       ① 人与人      两枚人节点（空心圆环 + 内点 · 呼吸原语）+ 一对双向 audioStream
+#                     （两条反向、页上错开 13px —— 任务书给 8，实拍并成一条，见 _NT_OFF）；
+#       ② 人与智能体  一枚人节点 ↔ 一枚**迷你转子**（P13 / P15 血统：三枚异面环 + 常亮核）；
+#       ③ 智能体与智能体 五枚转子成 K5 网（5 条五边形边 + 5 条星形对角 = 10 条），
+#          每条边一对双向带，边按确定性相位 k·2π/10 轮流点亮到满、再全网常亮 ——
+#          「即将发生」是**在长的**。
+#     三簇之间一条极淡的长流带左→右横贯（同一条实时线一路延伸，且一路走进纵深）。
+#     canvas **零文字**：节点 / 带子 / 栅格全是形，字全部在 DOM 里。
 _NEU = [
     ("01", "不做 C 端 App",   "不和你的产品竞争用户——你的用户永远是你的。"),
     ("02", "不做自有硬件品牌", "R1 是开发套件，不是消费品——我们停在你需要的那一层。"),
@@ -1983,121 +2035,251 @@ _STEP = [
     ("STEP 3 · 一个季度", "规模化上线",
      "SLA、全球部署、多供应商兜底（典型节奏，视场景与合规而定）"),
 ]
-_TRIB = [
-    # (源头 y, 色, 支流标注 = ONE NET 那一行的原句逐字拆到各自的支流上)
-    ( 68, LE, "Engine 的每一次打断"),
-    (218, LA, "Agent 的每一次交付"),
-    (368, LP, "Physical AI 的每一次唤醒"),
+# 使命 / 愿景两句 —— **逐字**，一字不许改（口径来源见页头）
+_MISSION = "帮助人们跨越距离实时互动，如聚一堂。"
+_VISION = "让实时互动像空气和水一样，无处不在。"
+# 三簇题注（DOM · 主图之下三栏）
+_NT_CAP = [
+    ("人与人",         "已经发生", "实时音视频 · 2014 年起"),
+    ("人与智能体",     "正在发生", "对话式 AI 引擎 · 企业级智能体 · R1"),
+    ("智能体与智能体", "即将发生", "智能体之间的实时对话与协作"),
 ]
-_P8_SX = 48                        # 三个源头的 x
-_P8_CX, _P8_CY = 700, 225          # 合流点
-_P8_MX1 = 1600                     # 主河道末端
-_P8_BOX = (700, 183, 900, 84, 42)  # ONE NET 河道盒（x, y, w, h, rx）· 铺满整条主河道
-_P8_QM, _P8_TM = 144, 1.44         # 主河道包距 / 周期（= v2 的 90 / 0.9 × 1.6）
-_P8_QT, _P8_TT = 432, 4.32         # 支流包距 / 周期（Qt = 3·Qm 不动）
-_P8_SEPX = 640                     # 细虚线域分带的 x（左「三条产品线」／右「一张实时网」）
+
+# ── 主图几何（fig 局部坐标 = 舞台 −(120,350)；vb 与盒同宽 ⇒ ×1）──────────────
+_NT_CX = (280.0, 840.0, 1400.0)      # 三簇心 x
+_NT_CY = 195.0                       # 三簇共用的中心线 y
+_NT_Z = (0.0, -60.0, -130.0)         # 已经发生（贴版面）→ 正在 → 即将（退进纵深）
+_NT_GAP = 130.0                      # ①② 两簇：两枚节点各自离簇心
+_NT_PENR = 138.0                     # ③ 簇：五边形外接圆半径
+_NT_HR = 34.0                        # 人节点：空心圆环半径
+_NT_BR = 0.075                       # 呼吸：圆环只**向外**涨（净空最坏情形恒在 rad=1）
+_NT_BRP = 4.6                        # 呼吸周期（秒）
+_NT_HSTAND = 42.0                    # 带子在人节点处的停手半径（环外 8px）
+_NT_OSTAND = 45.0                    # 带子在智能体节点处的停手半径（转子外半轴 38 + 7）
+# 迷你转子 = P15 那一台**等比缩小**：外半轴 110 → 38（任务书上限 40）。
+# 三枚环的**倾角显式给**（8° / +38° / −38°）⇒ 任何一帧都不共面 —— 这是 P13/P15 三稿
+# 用血写下来的那一条（等比缩倾角 = 三枚环共面 = 一枚扁椭圆，认不出转子）。
+# ⚠ 竖半轴另乘 1.45：P15 那台的长宽比 2.9 在 38px 上会把三枚环压成同一条细缝，
+#   「三枚环」当场丢失（尺寸变了，可读性的账要重算 —— 但**倾角一格不动**，
+#   那才是 P15 三稿用退稿换回来的那一条）。
+_NT_ORB_S = 38.0 / _LAB._H15ORB[0][0]
+_NT_ORB_R2 = 1.45
+_NT_ORB = tuple((rx * _NT_ORB_S, r2 * _NT_ORB_S * _NT_ORB_R2, tl)
+                for rx, r2, tl in _LAB._H15ORB)
+_NT_ORBAMP = _LAB._H15ORBAMP         # 倾角摆幅（°）· 不过零
+_NT_ORBN = 84                        # 每台转子的粒子数（P15 是 200 · 这里六台一起跑）
+_NT_CORER = 4.6                      # 常亮核的半径
+_NT_W = 3.0                          # 带半宽（世界）
+# 双向带的错开：任务书给的是 8px，实拍下来两条 6px 宽的带只剩 2px 缝、并成一条 ——
+# 「双向」当场丢失。收到 13（缝 7px）⇒ 一眼两条、一来一回。③ 簇的边短一档，取 10。
+_NT_OFF = 13.0                       # ①② 双向带上下错开（页上 13px）
+_NT_OFF3 = 10.0                      # ③ 簇的边短一档 ⇒ 错开也收一档
+_NT_N = 40                           # 一条带的取样点数
+_NT_LINKY = 344.0                    # 三簇之间那条极淡长流带的 y
+_NT_LINKX = (40.0, 1640.0)
+_NT_GN, _NT_GM = 8, 17               # 栅格：8 道横 / 17 道竖（P3 基面同参缩配）
+_NT_GY0, _NT_GY1 = 430.0, 322.0      # 近边 y / 消失点 y
+_NT_GX0, _NT_GX1 = 10.0, 1670.0      # 近边左右缘（横贯全宽）
+_NT_GXV = 840.0                      # 消失点 x（画布中线）
+_NT_GD0 = 0.3043                     # 透视常数（与 P3 基面逐字同参）
+_NT_ZFAR = 760.0                     # 栅格最远处的深度（同 P3）
+_NT_LIT0 = 0.55                      # 边的常亮地板（「全网常亮」）
+_NT_CYC = 6.0                        # 光弧绕满十条边一周的秒数
 
 
-def _p8trib_d(k, y):
-    """三条支流的贝塞尔：控制点让曲线在源头端水平出发、在汇合点端水平进入（河口不折角）。"""
-    c1 = 400 if k != 1 else 380
-    return "M%d %d C %d %d, 520 %d, %d %d" % (_P8_SX, y, c1, y, _P8_CY, _P8_CX, _P8_CY)
+def _nt_nodes():
+    """(三枚人节点, 六枚智能体节点) —— 页坐标 + 所在簇的深度。
+       五边形顶点从正上方（−90°）起、每 72° 一枚 ⇒ 摆位是算出来的，不是摆出来的。"""
+    hum = [(_NT_CX[0] - _NT_GAP, _NT_CY, _NT_Z[0]),
+           (_NT_CX[0] + _NT_GAP, _NT_CY, _NT_Z[0]),
+           (_NT_CX[1] - _NT_GAP, _NT_CY, _NT_Z[1])]
+    orb = [(_NT_CX[1] + _NT_GAP, _NT_CY, _NT_Z[1])]
+    for k in range(5):
+        a = math.radians(-90.0 + 72.0 * k)
+        orb.append((_NT_CX[2] + _NT_PENR * math.cos(a),
+                    _NT_CY + _NT_PENR * math.sin(a), _NT_Z[2]))
+    return hum, orb
 
 
-def _p8fig():
+_NT_HUM, _NT_ORBC = _nt_nodes()
+# K5 的十条边：先五条五边形边、再五条星形对角 —— 光弧因此**先绕一圈、再穿一遍**，
+# 「网在长」这四个字在帧上是有次序的，不是一团乱闪。
+_NT_EDGE = [(k, (k + 1) % 5) for k in range(5)] + [(k, (k + 2) % 5) for k in range(5)]
+# 每台转子挂着哪几条边（②簇那一台没有边 ⇒ 空表）—— 核的亮度吃它（网一长节点跟着亮）
+_NT_ORBE = [[]] + [[e for e, (i, j) in enumerate(_NT_EDGE) if k in (i, j)]
+                   for k in range(5)]
+
+
+def _nt_lane(a, b, ra, rb, h):
+    """一条带的两个端点（页坐标）：从 a 的边缘走到 b 的边缘，整条沿法向平移 h。
+       h 取 ±off/2 就是那**一对**反向带的上下两条。"""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    L = math.hypot(dx, dy)
+    ux, uy = dx / L, dy / L
+    nx, ny = -uy, ux
+    return ((a[0] + ux * ra + nx * h, a[1] + uy * ra + ny * h),
+            (b[0] - ux * rb + nx * h, b[1] - uy * rb + ny * h))
+
+
+def _nt_pair(a, b, ra, rb, off):
+    """一对**双向**带：正向 a→b（法向 +off/2）+ 反向 b→a（法向 −off/2）"""
+    p, q = _nt_lane(a, b, ra, rb, off / 2.0)
+    r, s = _nt_lane(a, b, ra, rb, -off / 2.0)
+    return [(p, q, a[2]), (s, r, a[2])]
+
+
+def _nt_lanes():
+    """全页 25 股：①2 + ②2 + ③（10 条边 × 2）+ 三簇连接带 1。
+       返回 [(名, 端点 A, 端点 B, 深度 z, 所属边号 or None)]，顺序**就是**运行时的顺序。"""
     o = []
-    bx, by, bw, bh, br = _P8_BOX
-    # ── 细虚线域分带：左「三条产品线」／右「一张实时网」──
-    o.append(dline("M%d 46 V396" % _P8_SEPX, HS, 1, 0, dash="3 9",
-                   cls="mo-drift", sty="--mo-off:-24;--mo-dur:4.4s"))
-    o.append(txt(330, 34, "三条产品线", "sm", size=16, anchor="middle", col="var(--ink-3)", mono=True))
-    o.append(txt(1000, 34, "一张实时网", "sm", size=16, anchor="middle", col="var(--ink-3)", mono=True))
-    # ── 主河道（hot）：低透明 accent 底 + accent 描边 + 光晕 ──
-    o.append(halo_rect(bx, by, bw, bh, br, sc="1.05", op=".30", dur="3.6s"))
-    o.append('<rect class="pop" style="--i:5;fill:%s;opacity:.12" x="%d" y="%d" width="%d" '
-             'height="%d" rx="%d"/>' % (AC, bx, by, bw, bh, br))
-    o.append(box(bx, by, bw, bh, br, hot=True, i=5))
-    # ── 三条支流：实线三色 + 能量包（相位按弧长算，见页头推导）──
-    for k, (y, col, label) in enumerate(_TRIB):
-        d = _p8trib_d(k, y)
-        ln = path_len(d)
-        delay = ((k * _P8_TM - ln / 100.0) % _P8_TT) - _P8_TT
-        o.append(packet(d, _P8_QT, "%.2fs" % _P8_TT, delay="%.3fs" % delay, col=col,
-                        w=21, seg=38, op=".34", i=2 + k))
-        o.append(curve(d, col, 4, 2 + k))
-        o.append('<circle class="pop" style="--i:%d;fill:%s" cx="%d" cy="%d" r="10"/>'
-                 % (2 + k, col, _P8_SX, y))
-        o.append(txt(_P8_SX, y - 28, label, "sm", size=17, col="var(--ink-2)"))
-    # ── 主河道能量包：包距 144 ⇒ 三条支流各占一格，轮流接力（同速 v=100）──
-    o.append(packet("M%d %d H%d" % (_P8_CX, _P8_CY, _P8_MX1), _P8_QM, "%.2fs" % _P8_TM,
-                    delay="0s", col=AC, w=24, seg=32, op=".38", i=6))
-    o.append(hline(_P8_CX, _P8_MX1, _P8_CY, AC, 6.4, 6))    # 主河道比支流粗一档
-    o.append(ah_r(_P8_MX1 + 20, _P8_CY, AC, 14))
-    # ── 合流点：脉冲事件标（原语 ③）──
-    o.append('<circle class="mo-halo" style="--mo-sc:2.6;--mo-op:.45;--mo-dur:3.0s" cx="%d" cy="%d" '
-             'r="14" fill="none" stroke="%s" stroke-width="2" opacity="0"/>' % (_P8_CX, _P8_CY, AC))
-    o.append('<circle class="pop mo-pulse" style="--i:6;fill:%s;--mo-hi:1;--mo-lo:.45;--mo-dur:2.4s" '
-             'cx="%d" cy="%d" r="14"/>' % (AC, _P8_CX, _P8_CY))
-    o.append(txt(_P8_CX, 162, "合流点", "sm", size=16, anchor="middle", col=AC, mono=True))
-    # ── 主河道题注（河道自己不携带文字）──
-    o.append(txt(bx + 16, 306, "ONE NET", "lbl", size=16, col=AC))
-    o.append(txt(bx + 16, 342, "SD-RTN 软件定义实时网络", "ttl", size=26, col=AC))
-    o.append(txt(bx + 16, 374, "全球 200+ 节点 · 端到端毫秒级", "sm", size=18))
-    # ── 迷你图例（真线样）──
-    o.append(legend(14, 400, [("solid", "Engine", 4, LE), ("solid", "Agent", 4, LA),
-                              ("solid", "Physical AI", 4, LP),
-                              ("fast", "ONE NET 主河道", 6.4, AC)], gap=40, size=14))
-    return _lpsplit(o)
+    for k, (p, q, z) in enumerate(_nt_pair(_NT_HUM[0], _NT_HUM[1],
+                                           _NT_HSTAND, _NT_HSTAND, _NT_OFF)):
+        o.append(("人与人 %s" % "→←"[k], p, q, z, None))
+    for k, (p, q, z) in enumerate(_nt_pair(_NT_HUM[2], _NT_ORBC[0],
+                                           _NT_HSTAND, _NT_OSTAND, _NT_OFF)):
+        o.append(("人与智能体 %s" % "→←"[k], p, q, z, None))
+    for e, (i, j) in enumerate(_NT_EDGE):
+        for k, (p, q, z) in enumerate(_nt_pair(_NT_ORBC[1 + i], _NT_ORBC[1 + j],
+                                               _NT_OSTAND, _NT_OSTAND, _NT_OFF3)):
+            o.append(("智能体网 e%d%s" % (e + 1, "→←"[k]), p, q, z, e))
+    o.append(("三簇连接带", (_NT_LINKX[0], _NT_LINKY), (_NT_LINKX[1], _NT_LINKY),
+              None, None))
+    return o
+
+
+_NT_LANE = _nt_lanes()
+_NT_EPHASE = [k * 2.0 * math.pi / len(_NT_EDGE) for k in range(len(_NT_EDGE))]
+
+
+def _nt_grid_pt(xj, d):
+    """基面上一点（fig 坐标 + 深度）—— 真地平面的解析式，与 P3 逐字同式"""
+    f = _NT_GD0 / (d + _NT_GD0)
+    return (_NT_GXV + (xj - _NT_GXV) * f, _NT_GY1 + (_NT_GY0 - _NT_GY1) * f, -_NT_ZFAR * d)
+
+
+def _nt_grid():
+    """8 道横 + 17 道竖 —— 每一道都是一条独立折线（世界坐标里各自成线）"""
+    rows, cols = [], []
+    for i in range(_NT_GN):
+        d = i / (_NT_GN - 1.0)
+        rows.append([_nt_grid_pt(_NT_GX0 + (_NT_GX1 - _NT_GX0) * j / 40.0, d)
+                     for j in range(41)])
+    for j in range(_NT_GM):
+        xj = _NT_GX0 + (_NT_GX1 - _NT_GX0) * j / (_NT_GM - 1.0)
+        cols.append([_nt_grid_pt(xj, i / 24.0) for i in range(25)])
+    return rows + cols
+
+
+_NT_GRID = _nt_grid()
+
+
+def _nt_linkpts():
+    """三簇连接带的中心线：左→右横贯，同时一路走进纵深（0 → 即将发生那一档）。
+       「同一条实时线一路延伸」——延伸的不只是长度，还有时间。"""
+    n = 64
+    x0, x1 = _NT_LINKX
+    return [(x0 + (x1 - x0) * i / (n - 1.0), _NT_LINKY,
+             _NT_Z[2] * i / (n - 1.0)) for i in range(n)]
+
+
+def _p8net_poster():
+    """P8 主图的 **poster**（构建期离线投影 · 一个字都没有）。
+       场景每一件都过投影锁 ⇒ 投影落点 = 它的页坐标 ⇒ poster 直接按页坐标画，
+       与 WebGL 是同一张图（交接不跳）。五件：透视栅格 / 长流带 / 双向带 /
+       人节点（环 + 内点）/ 智能体节点（三枚异面环的静置投影 + 常亮核）。"""
+    o = []
+    for g in _NT_GRID:
+        o.append('<path class="nt-grid" d="%s"/>'
+                 % ("M" + " L".join("%s %s" % (_n3(q[0]), _n3(q[1])) for q in g)))
+    lk = _nt_linkpts()
+    o.append('<path class="nt-link" d="M%s %s L%s %s"/>'
+             % (_n3(lk[0][0]), _n3(lk[0][1]), _n3(lk[-1][0]), _n3(lk[-1][1])))
+    for _nm, p, q, _z, _e in _NT_LANE[:-1]:
+        o.append('<path class="nt-edge" d="M%s %s L%s %s"/>'
+                 % (_n3(p[0]), _n3(p[1]), _n3(q[0]), _n3(q[1])))
+    for c in _NT_ORBC:
+        for rx, r2, tl in _NT_ORB:
+            o.append('<ellipse class="nt-orbr" cx="%s" cy="%s" rx="%s" ry="%s"/>'
+                     % (_n3(c[0]), _n3(c[1]), _n3(rx),
+                        _n3(r2 * math.cos(math.radians(tl)))))
+        o.append('<circle class="nt-core" cx="%s" cy="%s" r="%s"/>'
+                 % (_n3(c[0]), _n3(c[1]), _n3(_NT_CORER)))
+    for c in _NT_HUM:
+        o.append('<circle class="nt-ring" cx="%s" cy="%s" r="%s"/>'
+                 % (_n3(c[0]), _n3(c[1]), _n3(_NT_HR)))
+        o.append('<circle class="nt-hdot" cx="%s" cy="%s" r="%s"/>'
+                 % (_n3(c[0]), _n3(c[1]), _n3(_cssmax("--nt-dot-size") / 2.0)))
+    return lp(*o)
+
+
+def _p8detail():
+    """细节层：02 NEUTRALITY 三不（三行）+ 03 START 三步（三 chip）+ OpenAI 一句 +
+       DEMO / 文档 rail —— 四件密材料**逐字**从 v3 的主版面搬进来，一个字没改。
+       ⑫ 的三不三步闸门认的就是这里（面板内容仍在该 slide 的 DOM 里）。"""
+    return "".join([
+        '<div class="rows" style="margin-top:2px">' + "".join(
+            '<div class="r" style="padding:6px 0;gap:14px">'
+            '<span class="n" style="width:34px;font-size:18px">%s</span>'
+            '<span class="k" style="width:172px;font-size:18px;line-height:1.3">%s</span>'
+            '<span class="v" style="font-size:14px">%s</span></div>' % (_no, _n, _d)
+            for _no, _n, _d in _NEU) + '</div>',
+        '<div class="d-sec"><span class="seclab">03 · START · 三步</span></div>',
+        '<div style="margin-top:8px">' + "".join(
+            '<div class="chip" style="display:flex;align-items:center;gap:12px;width:100%%;'
+            'margin:0 0 6px 0;padding:7px 18px;box-sizing:border-box">'
+            '<span style="font:500 12px/1 var(--f-mono);letter-spacing:.1em;'
+            'color:var(--accent);width:132px;flex:none">%s</span>'
+            '<span style="font:700 17px/1.2 var(--f-cn);color:var(--ink);width:104px;'
+            'flex:none">%s</span>'
+            '<span style="font:400 13px/1.4 var(--f-cn);color:var(--ink-2);flex:1">%s</span>'
+            '</div>' % (_t, _n, _d) for _t, _n, _d in _STEP) + '</div>',
+        '<div class="d-sec" style="font:500 18px/1.5 var(--f-cn);color:var(--accent)">'
+        '2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。</div>',
+        '<div style="margin-top:8px" class="mono-sm">'
+        'DEMO / 文档 · agora.io › 对话式 AI · 联系团队</div>',
+    ])
 
 
 page("content", "".join([
-    head("合流 · 为什么是声网 · 怎么开始 · ONE NET", "三条支流，<strong>一条河</strong>。"),
-    # 区 01 · ONE NET（全舞台合流大图）
-    lab(120, 236, "01 · ONE NET · 三条支流汇入一条河"),
-    figbox(120, 272, 1680, 1680, 420, _p8fig(), i=1),
-    # 区 02 · NEUTRALITY（左）/ 03 · START（右）—— 并排，收口线 rule(850) 之上
-    lab(120, 708, "02 · NEUTRALITY", w=760),
-    # 行高账：padding 5×2 + 20px/1.3 的键行 26 + 1px 分隔 = 37/行 ⇒ 三行 110px，
-    # 734+110 = 844 —— 收在 content 背景板那条 accent 细线（stage y848–852）之前。
-    sh("", "left:120px;top:734px;width:760px;height:112px",
-       '<div class="rows">' + "".join(
-           '<div class="r flow" style="--i:%d;padding:5px 0;gap:18px">'
-           '<span class="n" style="width:44px;font-size:21px">%s</span>'
-           '<span class="k" style="width:200px;font-size:20px;line-height:1.3">%s</span>'
-           '<span class="v" style="font-size:16px">%s</span></div>' % (2 + _i, _no, _n, _d)
-           for _i, (_no, _n, _d) in enumerate(_NEU)) + '</div>'),
-    lab(960, 708, "03 · START", w=840),
+    head("VISION · 使命与愿景 · 展望", "让实时互动，<strong>无处不在</strong>。"),
+    # 使命 / 愿景两行（mono 小标 + 原句 + 句号 · 逐字）
     ] + [
-    sh("rise", "left:960px;top:%dpx;width:840px;height:38px;--i:%d" % (734 + _i * 38, 2 + _i),
-       '<div class="chip" style="display:flex;align-items:center;gap:14px;width:100%%;'
-       'margin:0 0 4px 0;padding:6px 20px;box-sizing:border-box">'
-       '<span style="font:500 13px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
-       'width:150px;flex:none">%s</span>'
-       '<span style="font:700 19px/1.2 var(--f-cn);color:var(--ink);width:118px;flex:none">%s</span>'
-       '<span style="font:400 14px/1.4 var(--f-cn);color:var(--ink-2);flex:1">%s</span></div>'
-       % (_t, _n, _d))
-    for _i, (_t, _n, _d) in enumerate(_STEP)
+    sh("flow", "left:120px;top:%dpx;width:1560px;height:40px;--i:%d" % (262 + _i * 44, 2 + _i),
+       '<div style="display:flex;align-items:baseline;gap:22px">'
+       '<span style="flex:none;width:74px;font:700 17px/1 var(--f-mono);letter-spacing:.18em;'
+       'color:var(--accent)">%s</span>'
+       '<span style="font:500 30px/1.35 var(--f-cn);color:var(--ink)">%s</span></div>'
+       % (_lb, _tx))
+    for _i, (_lb, _tx) in enumerate((("使命", _MISSION), ("愿景", _VISION)))
+    ] + [
+    # 区 01 · 一张实时网上的三种互动（全舞台主图）
+    lab(120, 236, "01 · MISSION & VISION · 一张实时网上的三种互动", w=980),
+    figbox(120, 350, 1680, 1680, 440, _p8net_poster(), i=1),
+    # 三簇题注（三栏 · 与主图三簇左右对齐）
+    ] + [
+    sh("flow", "left:%dpx;top:798px;width:560px;height:32px;"
+       "font:700 22px/1.3 var(--f-cn);color:var(--ink);--i:%d" % (120 + _i * 560, 3 + _i),
+       "%s · <strong style='color:var(--accent)'>%s</strong>" % (_who, _when))
+    for _i, (_who, _when, _sub) in enumerate(_NT_CAP)
+    ] + [
+    sh("flow mono-sm", "left:%dpx;top:832px;width:560px;height:24px;--i:%d"
+       % (120 + _i * 560, 3 + _i), _sub)
+    for _i, (_who, _when, _sub) in enumerate(_NT_CAP)
     ] + [
     rule(850),
-    # 落点一：合流大图的收口句（逐字）
-    sh("flow", "left:120px;top:876px;width:900px;height:52px;font:400 24px/1.6 var(--f-cn);"
-       "color:var(--ink);--i:6",
-       "都跑在同一张 <strong style='color:var(--accent)'>SD-RTN 软件定义实时网络</strong>上"
-       "——全球 200+ 节点，端到端毫秒级。"),
-    # 2026-08-20 仲裁 P0：「OpenAI 选择我们」是不可核实的因果叙述，改为可核实的事实陈述
-    sh("flow", "left:1000px;top:876px;width:800px;height:32px;font:500 20px/1.5 var(--f-cn);"
-       "color:var(--accent);text-align:right;--i:5",
-       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。"),
-    # CTA（纯 mono 文本，不做假链接样式）
-    sh("flow mono-sm", "left:1000px;top:920px;width:800px;height:24px;text-align:right;--i:6",
-       "DEMO / 文档 · agora.io › 对话式 AI · 联系团队"),
-    # 落点二 + 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）
+    # 落点：主图的收口句（逐字）
+    land("同一张实时网，服务人与人、人与智能体、智能体与智能体。", y=872, w=1100),
+    detail_chip(x=1460, y=870, w=340),
+    detail("02 · NEUTRALITY · 三不", _p8detail(), h=430),
+    # 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）
+    # 「让陪伴自然，让生意成单。」= 与 P1 封面主标的首尾对仗（逐字）
     land("让陪伴自然，让生意<strong>成单</strong>。", w=460),
-    # P8 的数字（200+ 节点 / 毫秒级 / OpenAI 首批）都是 P2 那份口径的回指 ⇒ 来源同 P2；
-    # 本页没有自己的样本或时间窗 ⇒ 该段留空（缺口已记入交付报告）。
-    src("SOURCE · 声网官网 / IR 公开口径 · 事实截止 2026.08", x=560, w=580, align="right"),
+    # ⑯ 的四段制 ledger：段与段之间一律 ` · `（任务书原句在「）」后少一个空格，
+    # 这里按家族格式补上 —— 字一个没改，只是让分隔符与另外五页同一把尺）。
+    src("SOURCE · 声网官网 关于我们（使命 · 愿景） · 事实截止 2026.09",
+        x=520, w=620, align="right"),
     rail("姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM", x=1200, w=600, align="right"),
-]), lab="river")
+]), steps=1, lab="net")
 
 
 
@@ -2266,65 +2448,55 @@ def _lockbox(x, y, w, h, z0, dz, ins, W, H, D):
             f, b)
 
 
-# ── ⑥ 三条支流一条河（P8 · 标杆）· 几何逐条抄 _p8fig() ────────────────────
-#   v3：所有宽度 ×1.6（形放大 1.6×，介质不变 —— λ 仍是 lab-kit ⑨ 的 232px）。
-_RV_D, _RV_HALF = 1200.0, 330.0
-_RV_ZSRC = -270.0                         # 三条支流的源头深度（在纵深里）
-_RV_ZMEET = 0.0                           # 汇合点 = 版面平面（主河道就在眼前）
-# ── 能量守恒：河**比支流宽**（否则「一条河 = 三条之和」在帧上读不出来）──────
-#   支流半宽 = 沿程函数 6.4（源头）→ 10.4（河口）：透视本来就把源头收窄
-#   （D/(D−z) = 1200/1470 = .816），叠加后源头→河口约 2× 生长，正是「越近越宽」。
-#   10.4 = 页上 2D packet 的半宽（stroke 21）⇒「不许比 2D 更近」不破。
-#   主河道半宽 20.8（河道盒 rx42 · 高 84 ⇒ 峰值 ±24 仍在盒内），且 floor 抬到 .55 ——
-#   河是稳定的，脉动归支流。河口 128px 内再抬到 24（三条流交出去的那一处要看得见「合」）。
-#   净空探针与运行时 pad：支流保守取最大 10.4、主河道取最大 24（两条算路同一个数）。
-_RV_WT0, _RV_WT1 = 6.4, 10.4              # 支流半宽：源头 → 河口（= v2 的 4.0 / 6.5 ×1.6）
-_RV_WT = _RV_WT1                          # 探针 / pad 的保守上界
-_RV_WM = 20.8                             # 主河道基准半宽（= 13 ×1.6）
-_RV_WMOUTH = 24.0                         # 河口涌起的峰值半宽（= 15 ×1.6）
-_RV_WACC = 128.0                          # 涌起的作用半径（沿主河道弧长 px · = 80 ×1.6）
-_RV_WMAX = _RV_WMOUTH                     # 探针 / pad 的保守上界
-_RV_MFLOOR = 0.55                         # 主河道幅度地板（全局档 0.30 ⇒ 河更稳）
-_RV_N = 140
-_RV_LAM = _LAB._AS_LAM                    # 波长逐字取 lab-kit ⑨ ⇒ 与全家族同一种介质
+# ── ⑥ 一张实时网上的三种互动（P8 · 标杆）· 几何逐条抄页面区的 _NT_* ─────────
+#   ⚠ 2026-09-02 退役：这里原来是「三条支流一条河」（_RV_* / _rv_trib / _rv_main /
+#     _rrect / makeRiver / ⑳rv 闸）。Colin 拍板换成使命 · 愿景 + 三种互动之后整套
+#     移除 —— 产物里一行死代码都不留；接力相位那一闸由 ⑳net 的**边相位**接手。
+#   本页的形全部在页面区那一段（_NT_*）定死，这里只做三件事：
+#     ① 把页坐标折线过投影锁抬进世界（`PL`）；
+#     ② 逐股算**屏上**流速（A 档 110 ±30%）；
+#     ③ 算净空的**扫掠包络**（转子在翻滚 / 人节点在呼吸 ⇒ 几何逐帧在变，
+#        与 P5 大脑 / P7 星座墙同一条路：构建期给下界，qa 按不等式对表）。
+_NT_D, _NT_HALF = 1400.0, 220.0           # camPx 深度 / 深度雾半程（贴真实 z 范围）
+_NT_WPX = {}                              # 每股的**屏上**最大半宽（pad · 两条算路同一个数）
 
 
-def _rv_trib(k, y):
-    """一条支流的空间中心线：页上那条贝塞尔 + 从源头到汇合点的深度爬升。
-       xy 逐点取自 _p8trib_d(k, y)（同一串控制点），z 按弧长比例线性收到 0。"""
-    d = _p8trib_d(k, y)
-    s = d.replace(",", " ")
-    for c in "MC":
-        s = s.replace(c, " " + c + " ")
-    t2 = s.split()
-    i = t2.index("C")
-    p0 = (float(t2[1]), float(t2[2]))
-    p1 = (float(t2[i + 1]), float(t2[i + 2]))
-    p2 = (float(t2[i + 3]), float(t2[i + 4]))
-    p3 = (float(t2[i + 5]), float(t2[i + 6]))
+def _nt_pts(a, b, z0, z1=None):
+    """一条带的中心线（页坐标 + 深度）：z 恒定，或（连接带）沿程线性走进纵深"""
+    n = _NT_N
+    z1 = z0 if z1 is None else z1
+    return [(a[0] + (b[0] - a[0]) * i / (n - 1.0), a[1] + (b[1] - a[1]) * i / (n - 1.0),
+             z0 + (z1 - z0) * i / (n - 1.0)) for i in range(n)]
+
+
+def _nt_ringpts(c, rad, per=64):
+    """人节点的空心圆环（页坐标 · 闭合折线）—— rad 传 1+_NT_BR 就是呼吸的最坏情形"""
+    r = _NT_HR * rad
+    return [(c[0] + r * math.cos(2 * math.pi * i / per),
+             c[1] + r * math.sin(2 * math.pi * i / per), c[2]) for i in range(per + 1)]
+
+
+def _nt_orb_sweep(c, nth=90, ntl=5):
+    """一台迷你转子在**页坐标**里的扫掠包络（净空探针用）。
+       扫遍三枚环 × 倾角摆幅 × 一整圈 θ × 呼吸两档；离面那一档的透视放大**逐点算**
+       （lockZ 锁在簇的深度 cz，离面点的放大率 m = (D−cz)/(D−cz−dz)），
+       并把「节点不在画布中心 ⇒ 放大同时带一份平移」那一项一起算进去 ——
+       lab 的 `_h15_orb_box` 只算了缩放，这里补上平移（本页最右一台离中线 679px，
+       那一项到 4px 量级，漏了就不是包络）。"""
+    hx, hy = LAB_RECTS[8][3] / 2.0, LAB_RECTS[8][4] / 2.0
+    cz = c[2]
     o = []
-    for j in range(_RV_N):
-        t = j / (_RV_N - 1.0)
-        o.append((_cub(p0[0], p1[0], p2[0], p3[0], t),
-                  _cub(p0[1], p1[1], p2[1], p3[1], t),
-                  _RV_ZSRC + (_RV_ZMEET - _RV_ZSRC) * (t * t * (3 - 2 * t))))
-    return o
-
-
-def _rv_main():
-    return _lerp_line((float(_P8_CX), float(_P8_CY), _RV_ZMEET),
-                      (float(_P8_MX1), float(_P8_CY), _RV_ZMEET), 60)
-
-
-def _rrect(x, y, w, h, r, per=9):
-    """圆角矩形 → 闭合折线（页上那只 rx42 的 ONE NET 河道盒本人）"""
-    o = []
-    for cx, cy, a0 in ((x + w - r, y + r, -90.0), (x + w - r, y + h - r, 0.0),
-                       (x + r, y + h - r, 90.0), (x + r, y + r, 180.0)):
-        for i in range(per + 1):
-            a = (a0 + 90.0 * i / per) * math.pi / 180.0
-            o.append((cx + r * math.cos(a), cy + r * math.sin(a)))
-    o.append(o[0])
+    for rx, r2, tl in _NT_ORB:
+        for it in range(ntl):
+            t = math.radians(tl + _NT_ORBAMP * (-1.0 + 2.0 * it / (ntl - 1)))
+            for rad in (1.0, 1.0 + _LAB._K_ORB_BR):
+                for ib in range(nth):
+                    th = 2 * math.pi * ib / nth
+                    sn = r2 * rad * math.sin(th)
+                    dz = sn * math.sin(t)
+                    m = (_NT_D - cz) / (_NT_D - cz - dz)
+                    o.append((c[0] + rx * rad * math.cos(th) * m + (c[0] - hx) * (m - 1.0),
+                              c[1] + sn * math.cos(t) * m + (c[1] - hy) * (m - 1.0), cz))
     return o
 
 
@@ -2391,18 +2563,26 @@ _INK = {
         (735.9, 149, 66.6, 76), (1702.6, 120, 97.4, 120), (1604, 235.6, 196, 20),
         (120, 237, 367.1, 18), (120, 876, 1421.2, 22), (150, 955, 779.8, 32),
         (1691.6, 949, 89.4, 20), (1175.8, 1022, 624.3, 22)],
-    8: [(410, 290, 80, 21), (1080, 290, 80, 21),
-        (168, 297, 159.7, 19), (168, 447, 151.2, 19), (168, 597, 189.9, 19),
-        (796, 418, 48, 21), (836, 562, 82.9, 21), (836, 590, 313.4, 30),
-        (836, 630, 246.5, 20), (184, 664, 43.6, 16), (353, 664, 36.6, 16),
-        (509, 664, 68.5, 16), (744, 664, 107.9, 16)],
+    # ⑥ 三种互动（P8 · v3.1）：矩形 (120,350,1680,440) 里**没有一处页上的字**
+    #   （愿景行墨止于 y352、三簇题注从 y799 起）⇒ 与 P2 / P7 同例走**加法层 16px
+    #   规则**。登记的是它的全部四邻（Range.getClientRects 实测）——⑳clr 拿它们量 16px。
+    #   最近的一处是**栅格近边 y780 vs 三簇题注 y799 = 19px**（下限 16）。
+    8: [(1759.2, 44, 36.7, 22), (120, 89, 390.4, 26),
+        (120, 149, 399.8, 76), (519.8, 149, 266.6, 76), (786.4, 149, 66.6, 76),
+        (120, 237, 443.8, 18),
+        (216, 265, 540, 33), (120, 275, 40.1, 22),
+        (216, 309, 540, 33), (120, 319, 40.1, 22),
+        (120, 799, 85.6, 25), (205.6, 799, 88, 25),
+        (680, 799, 129.6, 25), (809.6, 799, 88, 25),
+        (1240, 799, 173.6, 25), (1413.6, 799, 88, 25),
+        (120, 832, 195, 20), (680, 832, 300.6, 20), (1240, 832, 210.6, 20),
+        (1691.6, 881, 89.4, 20), (150, 887, 783, 32),
+        (150, 1003, 261, 32), (411, 1003, 58, 32), (469, 1003, 29, 32),
+        (532.1, 1010, 607.9, 22), (1384.2, 1010, 415.8, 20)],
 }
-# ── 已知穿越名册（P8 · 三行支流标注）──────────────────────────────────────
-#   `txt(_P8_SX, y−28, label)` 把标注钉在源头点正上方 28px，而支流曲线从源头就往
-#   右上爬 ⇒ **页上那条 2D 曲线本来就从这三行字底下穿过**（2D 半宽 10.4px）。
-#   3D 的流带在同一处更窄（透视把深处的带子收窄了）⇒ 比 2D 还让出一点。
-#   这不是「3D 压字」，是页面既有的图文叠压关系；把它写成名册**正面登记**，
-#   而不是把它混进净空名册去把下限拖成负数。qa 的 ⑳clr-a 闸认这张表。
+# ── 已知穿越名册（图与字页面既有的叠压关系 · **正面登记**）──────────────────
+#   写成名册，而不是把它混进净空名册去把下限拖成负数。qa 的 ⑳clr-a 闸认这张表。
+#   （P8 的那一条随「三条支流一条河」一起退役：新 P8 的矩形里没有一处页上的字。）
 _INK_SKIP = {
     # ④ P4（借来的旗舰几何）：上行声带在 fig x1104 处**擦到**「收声让位」行的左下角
     #   （ribbon 顶点落在盒内 1.7px）。几何是旗舰 P4 本人（`_D_*` 现取，一个数没改），
@@ -2414,7 +2594,6 @@ _INK_SKIP = {
     #   它们是「这一块是哪个区」的贴标，不是被 3D 压到的字。
     5: [(971, 723, 18, 20), (881, 659, 18, 20), (721, 489, 18, 20),
         (911, 523, 18, 20), (1151, 479, 18, 20)],
-    8: [(168, 597, 189.9, 19)],
 }
 for _p8, _bs in _INK_SKIP.items():
     _INK[_p8] = [b for b in _INK[_p8] if tuple(b) not in {tuple(x) for x in _bs}]
@@ -2444,9 +2623,8 @@ _CLR = {
               " ⇒ 9.24px；页上那条 2D 曲线在同一处更远 ⇒ 3D 没有比 2D 更近"),
     7: (16.0, "加法层 · 16px 规则 · 证人 = 卡片投影包络（摆动 ±6° × 浮动 ±10 扫掠）"
               "vs 右上大数 14 / 名册行 / land / 页码"),
-    8: (13.5, "支流带在源头处（保守 pad = 河口峰值半宽 10.4）vs 其上 28px 的支流标注行"
-              "：24−10.4 = 13.6px；页上 2D packet 的半宽也正是 10.4 ⇒ 逐像素平手。"
-              "真实屏上半宽在源头只有 8.49（透视收窄 1200/1470）⇒ 3D 实际还让出 1.9px"),
+    8: (16.0, "加法层 · 16px 规则 · 证人 = 五边形网最上一台转子的扫掠包络 / 栅格近边 "
+              "vs 愿景行 / 三簇题注 / land / 页码（矩形之内没有一处页上的字）"),
 }
 if P6_EXIT:
     # 加法层走 **16px 规则**（版面之外的空档，不走「不许比 2D 更近」的平手规则）。
@@ -2761,96 +2939,233 @@ function makeWall(ctx){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ⑥ 三条支流，一条河（P8 合流 · 本 deck 的标杆页）
+   ⑥ 一张实时网上的三种互动（P8 使命与愿景 · 本 deck 的标杆页）
    ───────────────────────────────────────────────────────────────────────────
-   这一页天生就是 3D 语义：三条支流在**纵深**里各自成流（源头 z=−270），
-   一路爬升汇入版面平面上的 ONE NET 主河道（z=0）。
-   ── 接力的相位账（「同速同相」不是感觉，是解出来的）──────────────────────
-   四条流**共用同一个世界速度** v（= 主河道的 110px/s；主河道 z 恒 0 ⇒ 世界即屏幕）。
-   支流 k 的世界弧长 Lw_k，相位偏移 off_k = −Lw_k + k·λ/3：
-     u_支流末 = Lw_k − v·t + off_k = −v·t + k·λ/3 = u_主河道首 + k·λ/3
-   ⇒ ① 支流末端与主河道首端的波**严丝合缝**（不瞬移、不叠影）；
-      ② 三条支流的波峰各差 λ/3 到达汇合点 ⇒ 读起来就是**轮流接力进主河道**。
-   支流在纵深里的屏上速度天然比主河道慢（透视，越远越慢）—— 那是对的：
-   它是真的在远处。qa 的 ⑳rv 闸拿 data-lab-rvphase 逐条复算这三个偏移。
+   ⚠ 2026-09-02：这里原来是 `makeRiver`（三条支流一条河）。Colin 拍板把结尾页
+     换成使命 · 愿景 + 展望之后整枚场景退役 —— 河的常量 / 图 / 闸一并移除。
+   这一页天生就是 3D 语义：**一张网**上三种互动，左→右就是时间。
+     ① 人与人（z=0 · 贴着版面 = 已经发生）：两枚人节点（空心圆环 + 内点 · 呼吸原语）
+        之间一对**双向** audioStream（两条反向、页上错开 13px ⇒ 一眼两条）；
+     ② 人与智能体（z=−60 · 正在发生）：一枚人节点 ↔ 一枚**迷你转子**
+        （P13 编排中枢 / P15 引擎核同血统：三枚**异面**椭圆环 + 一条在环之间迁徙的
+        粒子带 + 一枚常亮核。倾角显式给 8° / ±38° 且只在 ±orbAmp 里摆动**不过零**
+        ⇒ 三枚环任何一帧都不共面 —— 这是 P15 三稿用退稿换回来的那一条）；
+     ③ 智能体与智能体（z=−130 · 即将发生）：五台转子成 **K5 网**（5 条五边形边 +
+        5 条星形对角 = 10 条），每条边一对双向带；边按**确定性相位** k·2π/10
+        轮流点亮到满、再全网常亮 ⇒「即将发生」是**在长的**，不是一团乱闪。
+        入场时同一串相位再当一次装配序：十条边挨个亮起来 = 网在长出来。
+   三簇脚下是**同一片**透视栅格（P3 底座基面同参缩配 · 横贯全宽）——「一张实时网」
+   这五个字在版面上因此是字面意思；三簇之间再压一条极淡的长流带，左→右一路走进
+   纵深：同一条实时线，一路延伸。
+   深度雾贴真实 z 范围（half=220 ⇒ 三簇的余亮 .70 / .62 / .52）：远近是**看**出来的。
+   ⚠ canvas 零文字：节点 / 带子 / 栅格全是形，字全部在 DOM 里（⑲a 正面断言）。
+   ⚠ 净空：转子在翻滚、人节点在呼吸 ⇒ 几何逐帧在变，构建期给的是**扫掠包络**
+     （下界），与 P5 大脑 / P7 星座墙同一条路，qa 的 ⑳clr 按不等式对表。
    ═══════════════════════════════════════════════════════════════════════════ */
-function makeRiver(ctx){
-  const R = K.rv, w = ctx.rect[2], h = ctx.rect[3], D = R.D;
+function makeNet(ctx){
+  const Q = K.nt, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
   const scene = new THREE.Scene();
   const camera = camPx(w, h, D);
-  const SH = pxShared(D, R.half);
-  const L = mkLock(w, h, D), U = unlock(w, h, D, ctx.rect);
-  const bedMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const railMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const srcMat  = mkMat(SH, PX_PT_VS, PX_PT_FS);
-  const meetMat = mkMat(SH, PX_PT_VS, PX_PT_FS);
-  /* ── 能量守恒：河**比支流宽** ───────────────────────────────────────────
-     支流半宽沿程 4.0（源头）→ 6.5（河口），透视再把源头收窄一道（1200/1470）——
-     叠加后源头到河口约 2× 生长，正是「越近越宽」。
-     主河道 13.0 且 floor .55（河是稳定的，脉动归支流），河口 80px 内再抬到 15：
-     三条流交出去的那一处要看得见「合」。峰值 ±15 仍在 rx26·高 52 的河道盒内。 */
-  const trib = R.trib.map((s, k) =>
-    mkStream(SH, unpk3(s), { w: (t) => R.wt0 + (R.wt1 - R.wt0)*t,
-                             spd: R.spd, lam: AS.lam }).add(scene));
-  const main = mkStream(SH, unpk3(R.main), {
-    w: (t, acc) => { const q = acc/R.wacc; return R.wm + (R.wmouth - R.wm)*Math.exp(-q*q); },
-    spd: R.spd, lam: AS.lam, floor: R.mfloor }).add(scene);
-  /* ONE NET 主河道：页上那只 rx26 的圆角盒 —— 前框锁死、向后拉出河床 */
-  const rail = unpk3(R.rail), bed = unpk3(R.bed);
-  const railO = iSegs(denseSegs(segsOfLoop(rail)), railMat); scene.add(railO);
-  const bedSegs = segsOfLoop(bed);
-  for(let i = 0; i < rail.length; i += 4)
-    bedSegs.push([rail[i][0],rail[i][1],rail[i][2], bed[i][0],bed[i][1],bed[i][2]]);
-  const bedO = iSegs(denseSegs(bedSegs), bedMat); scene.add(bedO);
-  const srcO = iPts(unpk3(R.src), srcMat); scene.add(srcO);
-  const meetO = iPts(unpk3(R.meet), meetMat); scene.add(meetO);
-  const mA = meetO.geometry.attributes.aH, sA = srcO.geometry.attributes.aH;
+  const SH = pxShared(D, Q.half);
+  const U = unlock(w, h, D, ctx.rect);
+  const TAU2 = 6.2831853, RAD = Math.PI/180;
+  const hx = w/2, hy = h/2, NO = Q.orbc.length, CN = +Q.orbN, RSEG = 60;
+  /* lockZ：xy 按**该点所在那一层**的深度 cz 预缩放、z 用点自己的 —— 于是 z=cz 的点
+     投影落在页坐标上一格不差，而环翻滚出平面的那一档产生真视差（P13/P15 的 LZ）。*/
+  const lockZ = (x, y, cz, z) => { const k = (D - cz)/D;
+    return [hx + (x-hx)*k, -(hy + (y-hy)*k), z]; };
+
+  /* ── 25 股：①2 + ②2 + ③（10 条边 ×2）+ 三簇连接带 1 ──────────────────────
+     中心线是构建期打好的世界折线（投影锁过了），运行时不再算第二遍。
+     全部同一个**世界**速度（A 档 110）⇒ 越退进纵深的簇，屏上越慢 —— 那是对的，
+     它是真的在远处（⑳spd 逐股复算的是屏上速度）。 */
+  const flows = Q.s.map((sp, i) =>
+    mkStream(SH, unpk3(sp), { w: Q.eidx[i] === -2 ? Q.wl : Q.w,
+                              spd: Q.spd, lam: AS.lam }).add(scene));
+  const baseOp = new Float32Array(flows.length);
+
+  /* ── 同一片透视栅格（8 道横 + 17 道竖 · 各自成线）── */
+  const gridMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const gridO = Q.grid.map((sp) => { const o = iLine(unpk3(sp), gridMat);
+                                     scene.add(o); return o; });
+
+  /* ── 人节点：空心圆环 + 内点（呼吸原语 —— 环只**向外**涨，净空最坏情形恒在 rad=1）── */
+  const hringMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const hdotMat  = mkMat(SH, PX_PT_VS, PX_PT_FS); hdotMat.uniforms.uSoft.value = .14;
+  const NH = Q.hum.length, HSEG = 64;
+  const hg = new THREE.BufferGeometry(), hp = new Float32Array(NH*HSEG*2*3);
+  hg.setAttribute('position', new THREE.BufferAttribute(hp,3));
+  const hA = fillAH(hg, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(hg, hringMat), { frustumCulled:false }));
+  const dg = new THREE.BufferGeometry(), dp = new Float32Array(NH*3);
+  for(let n = 0; n < NH; n++){ const c = Q.hum[n], q = lockZ(c[0], c[1], c[2], c[2]);
+    dp[n*3] = q[0]; dp[n*3+1] = q[1]; dp[n*3+2] = q[2]; }
+  dg.setAttribute('position', new THREE.BufferAttribute(dp,3));
+  const dA = fillAH(dg, 1, 0);
+  scene.add(Object.assign(new THREE.Points(dg, hdotMat), { frustumCulled:false }));
+
+  /* ── 智能体节点：六台迷你转子（三枚异面环 + 迁徙粒子带 + 常亮核）── */
+  const OB = Q.orb;
+  const orbPt = (n, rx, r2, tl, th, rad) => {
+    const c = Q.orbc[n], ct = Math.cos(tl*RAD), st = Math.sin(tl*RAD);
+    const sn = r2*rad*Math.sin(th);
+    return lockZ(c[0] + rx*rad*Math.cos(th), c[1] + sn*ct, c[2], c[2] + sn*st);
+  };
+  function orbAt(t){                        // 粒子带：内圈 → 中圈 → 外圈的分段线性插值
+    const a2 = t <= 0.5 ? OB[2] : OB[1], b2 = t <= 0.5 ? OB[1] : OB[0];
+    const u2 = t <= 0.5 ? t*2 : (t-0.5)*2;
+    return [a2[0]+(b2[0]-a2[0])*u2, a2[1]+(b2[1]-a2[1])*u2, a2[2]+(b2[2]-a2[2])*u2];
+  }
+  const tiltOf = (n, k, clock) =>
+    OB[k][2] + Q.orbAmp*Math.sin(TAU2*clock/Q.orbRoll[k] + n*0.9);
+  const ringMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const rg = new THREE.BufferGeometry(), rpos = new Float32Array(NO*3*RSEG*2*3);
+  rg.setAttribute('position', new THREE.BufferAttribute(rpos,3));
+  const rA = fillAH(rg, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(rg, ringMat), { frustumCulled:false }));
+  const partMat = mkMat(SH, PX_PT_VS, PX_PT_FS); partMat.uniforms.uSoft.value = .04;
+  const pg2 = new THREE.BufferGeometry(), ppos = new Float32Array(NO*CN*3);
+  pg2.setAttribute('position', new THREE.BufferAttribute(ppos,3));
+  const pA = fillAH(pg2, 1, 0);
+  scene.add(Object.assign(new THREE.Points(pg2, partMat), { frustumCulled:false }));
+  const coreMat = mkMat(SH, PX_PT_VS, PX_PT_FS); coreMat.uniforms.uSoft.value = .18;
+  const cg = new THREE.BufferGeometry(), cpos = new Float32Array(NO*3);
+  for(let n = 0; n < NO; n++){ const c = Q.orbc[n], q = lockZ(c[0], c[1], c[2], c[2]);
+    cpos[n*3] = q[0]; cpos[n*3+1] = q[1]; cpos[n*3+2] = q[2]; }
+  cg.setAttribute('position', new THREE.BufferAttribute(cpos,3));
+  const cA = fillAH(cg, 1, 0);
+  scene.add(Object.assign(new THREE.Points(cg, coreMat), { frustumCulled:false }));
+  // 粒子的 θ / ν / 自转（零随机源 —— 黄金角 + 一枚素数取模，逐帧可复现）
+  const pTh = new Float32Array(CN), pNu = new Float32Array(CN), pSp = new Float32Array(CN);
+  { const ga = Math.PI*(3-Math.sqrt(5));
+    for(let i = 0; i < CN; i++){ pTh[i] = i*ga; pNu[i] = i/CN*3;
+      pSp[i] = (0.30 + 0.22*((i*7919 % 97)/96)) * (i % 2 ? 1 : -1); } }
+
+  /* ── 网在生长：十条边的**确定性相位** k·2π/10 ─────────────────────────────
+     lit(e) = 地板 + (1−地板)·cos³ 的正相位 ⇒ 一道光弧沿「五边形一圈 → 星形一穿」
+     的次序绕满全网，而地板保证全网常亮。gate(e) 是入场时的装配序：
+     同一串相位当第二遍用，十条边挨个亮到满 —— 「即将发生」是在长的。 */
+  let introE = 0;
+  const litOf = (e, clock) => {
+    const u = 0.5 + 0.5*Math.cos(TAU2*clock/Q.cyc - Q.ephase[e]);
+    return Q.lit0 + (1 - Q.lit0)*u*u*u;
+  };
+  const gateOf = (e) => Math.max(0, Math.min(1, (introE*1.75 - e*0.075)/0.22));
+
+  function place(clock){
+    // 人节点：三枚各错 2π/3 的呼吸（环只向外涨；内点的热度跟着涨）
+    for(let n = 0; n < NH; n++){
+      const c = Q.hum[n];
+      const beat = 0.5 - 0.5*Math.cos(TAU2*clock/Q.brp + n*TAU2/3);
+      const r = Q.hr*(1 + Q.br*beat);
+      for(let i = 0; i <= HSEG; i++){
+        const th = i/HSEG*TAU2;
+        const q = lockZ(c[0] + r*Math.cos(th), c[1] + r*Math.sin(th), c[2], c[2]);
+        const j0 = n*HSEG*2;
+        if(i > 0){ const j = j0 + i*2 - 1;
+          hp[j*3] = q[0]; hp[j*3+1] = q[1]; hp[j*3+2] = q[2]; hA.a[j] = .72 + .28*beat; }
+        if(i < HSEG){ const j = j0 + i*2;
+          hp[j*3] = q[0]; hp[j*3+1] = q[1]; hp[j*3+2] = q[2]; hA.a[j] = .72 + .28*beat; }
+      }
+      dA.h[n] = beat; dA.a[n] = .70 + .30*beat;
+    }
+    hg.attributes.position.needsUpdate = true; hg.attributes.aA.needsUpdate = true;
+    dg.attributes.aA.needsUpdate = true; dg.attributes.aH.needsUpdate = true;
+    // 六台转子：呼吸只向外涨 + 粒子在三枚环之间迁徙 + 三枚环各自翻滚、各带一道光弧
+    const beat = 0.5 - 0.5*Math.cos(TAU2*clock/5.4);
+    const rad = 1 + Q.orbBr*beat;
+    let n3 = 0;
+    for(let n = 0; n < NO; n++){
+      for(let k = 0; k < 3; k++){
+        const tl = tiltOf(n, k, clock), arc = TAU2*(clock*Q.orbArc[k] + n*0.13);
+        for(let i = 0; i <= RSEG; i++){
+          const th = i/RSEG*TAU2, q = orbPt(n, OB[k][0], OB[k][1], tl, th, rad);
+          // 环线的底亮比 P13 高两档（迷你尺寸下只靠光弧读不出「三枚环」）
+          const lit = .55 + .45*Math.pow(Math.max(0, Math.cos(th - arc)), 6);
+          if(i > 0){ rA.a[n3] = lit;
+            rpos[n3*3] = q[0]; rpos[n3*3+1] = q[1]; rpos[n3*3+2] = q[2]; n3++; }
+          if(i < RSEG){ rA.a[n3] = lit;
+            rpos[n3*3] = q[0]; rpos[n3*3+1] = q[1]; rpos[n3*3+2] = q[2]; n3++; }
+        }
+      }
+      for(let i = 0; i < CN; i++){
+        const nu = 0.5 + 0.5*Math.sin(TAU2*(pNu[i] - clock/2.4) + n*0.7);
+        const o2 = orbAt(nu);
+        const kf = nu <= 0.5 ? 2 - nu*2 : 1 - (nu-0.5)*2;
+        const k0 = Math.min(2, Math.floor(kf)), k1 = Math.min(2, k0+1), fr = kf - k0;
+        const tl = tiltOf(n, k0, clock)*(1-fr) + tiltOf(n, k1, clock)*fr;
+        const q = orbPt(n, o2[0], o2[1], tl, pTh[i] + clock*pSp[i], rad);
+        const j = n*CN + i;
+        ppos[j*3] = q[0]; ppos[j*3+1] = q[1]; ppos[j*3+2] = q[2];
+        pA.a[j] = .30 + .70*nu;
+      }
+      // 核：五边形网上的核吃**自己四条边**的亮度（网一长，节点跟着亮）；
+      //     ②簇那一台没有边 ⇒ 吃同一种介质的解析包络。地板 .66 ⇒ 常亮。
+      const ed = Q.orbe[n];
+      let e2;
+      if(ed.length){ let sl = 0;
+        for(let j2 = 0; j2 < ed.length; j2++) sl += litOf(ed[j2], clock)*gateOf(ed[j2]);
+        e2 = (sl/ed.length - Q.lit0)/(1 - Q.lit0);
+      } else e2 = asEnv(-Q.spd*clock);
+      cA.h[n] = Math.max(0, Math.min(1, e2));
+      cA.a[n] = .66 + .34*cA.h[n];
+    }
+    rg.attributes.position.needsUpdate = true; rg.attributes.aA.needsUpdate = true;
+    pg2.attributes.position.needsUpdate = true; pg2.attributes.aA.needsUpdate = true;
+    cg.attributes.aA.needsUpdate = true; cg.attributes.aH.needsUpdate = true;
+  }
+  place(0);
   return {
-    scene, camera, intro: 1.25, grab: false,
+    scene, camera, intro: 1.5, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
-    setIntro(e){ SH.uIntro.value = e; },
+    setIntro(e){ SH.uIntro.value = e; introE = e; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      const run = R.spd * clock;
-      main.draw(clock);
-      trib.forEach((f, k) => { f.draw(clock); f.mat.uniforms.uRun.value = run - R.off[k]; });
-      /* 汇合点：三条支流在此刻交出去的包络之和 —— 「三条流轮流接力」看得见的那一处 */
-      let s = 0;
-      for(let k = 0; k < R.off.length; k++) s += asEnv(-run + R.off[k] + R.tlen[k]);
-      mA.array[0] = Math.max(0, Math.min(1, (s / R.off.length - 0.35) / 0.5));
-      mA.needsUpdate = true;
-      for(let k = 0; k < R.off.length; k++) sA.array[k] = asEnv(R.off[k] - run) * .8;
-      sA.needsUpdate = true;
+      for(let i = 0; i < flows.length; i++){
+        const f = flows[i]; f.draw(clock);
+        const e = Q.eidx[i];
+        f.mat.uniforms.uOpacity.value =
+          baseOp[i] * (e < 0 ? 1 : litOf(e, clock)*gateOf(e));
+      }
+      place(clock);
     },
-    state(){ return { clr: clrMin(U, R.ink,
-      trib.map(f => [f.geo, R.wtpx]).concat([
-        [main.geo, R.wmpx], [railO.geometry, 0], [bedO.geometry, 0],
-        [srcO.geometry, cssNum('--rv-src-size',6)/2],
-        [meetO.geometry, cssNum('--rv-meet-size',9)/2]])) }; },
+    state(){
+      const dr = cssNum('--nt-dot-size', 11)/2, pr = cssNum('--nt-orbp-size', 2.6)/2;
+      const cr = cssNum('--nt-core-size', 11)/2;
+      return { clr: clrMin(U, Q.ink,
+        flows.map((f, i) => [f.geo, Q.wpx[i]]).concat(
+          [[hg, 0], [dg, dr], [rg, 0], [pg2, pr], [cg, cr]],
+          gridO.map(o => [o.geometry, 0]))) };
+    },
     applyTheme(){
       const pair = (m, c, hot, op, gain, sz) => {
         m.uniforms.uColor.value.copy(cssColor(c));
         m.uniforms.uHot.value.copy(cssColor(hot || c));
         m.uniforms.uOpacity.value = op; m.uniforms.uGain.value = gain || 0;
         if(sz !== undefined) m.uniforms.uSize.value = sz; };
-      pair(railMat, '--rv-rail', '--rv-rail', cssNum('--rv-rail-op', .88));
-      pair(bedMat,  '--rv-bed',  '--rv-bed',  cssNum('--rv-bed-op', .3));
-      pair(srcMat,  '--rv-src',  '--rv-main', cssNum('--rv-src-op', .8), .9,
-           cssNum('--rv-src-size', 6.4));
-      pair(meetMat, '--rv-meet', '--rv-meet', cssNum('--rv-meet-op', 1), .8,
-           cssNum('--rv-meet-size', 9));
-      main.theme(cssColor('--rv-main'), cssColor('--rv-rms'),
-                 cssNum('--rv-main-op', .7), cssNum('--rv-rms-op', .78), .38);
-      /* 三条支流的 RMS 实芯**各自本色**（原来三条一律 accent-deep ⇒ 浅底上
-         Agent / Physical AI 两条从源头起就读成粉，「三条」当场丢失）。
-         主河道的实芯不动 —— 粉 = ONE NET，它才是那一条。 */
-      const RV_RMS = ['--rv-e-rms','--rv-a-rms','--rv-p-rms'];
-      ['--rv-e','--rv-a','--rv-p'].forEach((v, k) =>
-        trib[k].theme(cssColor(v), cssColor(RV_RMS[k]),
-                      cssNum('--rv-trib-op', .6), cssNum('--rv-trib-rms-op', .7), .38));
-      [railMat, bedMat, srcMat, meetMat].forEach(m => {
-        m.uniforms.uBack.value = .38; setBlend(m, cssNum('--rv-add', 0)); });
-      [main].concat(trib).forEach(f => setBlend(f.mat, cssNum('--rv-add', 0)));
+      pair(gridMat,  '--nt-grid', '--nt-grid', cssNum('--nt-grid-op', .38));
+      pair(hringMat, '--nt-node', '--nt-dot',  cssNum('--nt-node-op', .84), .35);
+      pair(hdotMat,  '--nt-dot',  '--nt-dot',  cssNum('--nt-dot-op', .96), .45,
+           cssNum('--nt-dot-size', 11));
+      pair(ringMat,  '--nt-orb',  '--nt-orb',  cssNum('--nt-orb-op', .80));
+      pair(partMat,  '--nt-orbp', '--nt-orbp', cssNum('--nt-orbp-op', .70), 0,
+           cssNum('--nt-orbp-size', 2.6));
+      pair(coreMat,  '--nt-core', '--nt-core', cssNum('--nt-core-op', .98), .50,
+           cssNum('--nt-core-size', 11));
+      const fc = cssColor('--nt-flow'), fr = cssColor('--nt-rms');
+      const lc = cssColor('--nt-link'), lr = cssColor('--nt-link-rms');
+      const fo = cssNum('--nt-flow-op', .74), fro = cssNum('--nt-rms-op', .82);
+      const lo = cssNum('--nt-link-op', .44), lro = cssNum('--nt-link-rms-op', .40);
+      const add = cssNum('--nt-add', 0);
+      for(let i = 0; i < flows.length; i++){
+        const link = Q.eidx[i] === -2;
+        flows[i].theme(link ? lc : fc, link ? lr : fr,
+                       link ? lo : fo, link ? lro : fro, .40);
+        baseOp[i] = link ? lo : fo;
+        setBlend(flows[i].mat, add);
+      }
+      [gridMat, hringMat, hdotMat, ringMat, partMat, coreMat].forEach(m => {
+        m.uniforms.uBack.value = .40; setBlend(m, add); });
     },
   };
 }
@@ -2914,7 +3229,7 @@ function makeExit(ctx){
     draw(dt, clock){
       SH.uTime.value = clock;
       flow.draw(clock);
-      /* 出口那一枚点：aH = 框右缘处此刻的包络（与 river 的 meet 同一写法）——
+      /* 出口那一枚点：aH = 框右缘处此刻的包络（与 P15 转子核的写法同源）——
          波峰穿框时它亮，波谷时它退回一枚安静的点。 */
       dA.array[0] = asEnv(X.uframe - X.spd*clock);
       dA.needsUpdate = true;
@@ -2962,14 +3277,7 @@ function makeExit(ctx){
 #        投影回舞台像素，逐顶点量。
 #   两条算路从几何到代码都不共用，对得上才算真的没压字。
 # ═══════════════════════════════════════════════════════════════════════════
-def _cssmax(name):
-    """从 LAB_CSS 里现取某个尺寸变量的**最大值**（浅 / 暗两档取大的那一档）——
-       净空探针的 pad 因此与页面上真正画出来的点径同源，不会两处各写一个数。"""
-    v = [float(x) for x in _re2.findall(r"%s\s*:\s*([0-9.]+)" % _re2.escape(name), LAB_CSS)]
-    assert v, "LAB_CSS 里找不到 %s" % name
-    return max(v)
-
-
+#   （`_cssmax` 提到了 LAB_CSS 那一段的正下方 —— P8 的 poster 在页面区就要用它。）
 def _back_s(z0, dz, D):
     """向后拉伸 dz 之后，后框在屏上相对**画布中心**的缩放"""
     return (D - z0) / (D - z0 + dz)
@@ -3102,7 +3410,7 @@ def _d_build():
     """双向声带的净空探针。**注意：这两条带没有过投影锁**（makeDuplex 的 lane() 直接
        写世界坐标）⇒ 屏上落点不是页坐标本人，得自己做一次透视除法：
          sx = rect.x + cx + (x−cx)·D/(D−z)，pad = hw·D/(D−z)。
-       —— 这是与 grow / river 那一路（锁死中心线）最本质的差别，别照抄那边的
+       —— 这是与 grow / net 那一路（锁死中心线）最本质的差别，别照抄那边的
        `_probe_stream`（本轮实拍锤过：照抄会把净空算小 14px）。
        下行那条带的半宽是 hw×0.86（旗舰 band(B, Q.hw*0.86, true)）。"""
     r = LAB_RECTS[4]
@@ -3214,41 +3522,38 @@ def _w_build():
     return dict(w=w, h=h, probe=probe)
 
 
-# ── ⑥ P8 三条支流一条河 ───────────────────────────────────────────────────
-_RV_BED = 144.0                           # 河床纵深（= 90 ×1.6）
+# ── ⑥ P8 一张实时网上的三种互动 ───────────────────────────────────────────
+_NT_WL = 2.6                              # 三簇连接带的半宽（极淡 · 比双向带细一档）
 
 
-def _rv_build():
+def _nt_build():
+    """25 股的世界折线 / 逐股屏上流速 / 净空探针（三件）。
+       净空探针是**扫掠包络**：带子取中心线 + 屏上最大半宽（与运行时同一个 pad）；
+       人节点圆环取呼吸的最坏情形（只向外涨 ⇒ rad=1+br）；转子取三枚环 × 倾角摆幅
+       × 一整圈 θ × 呼吸两档的整族。运行时量的是族里的**某一帧** ⇒ 解析必然是它的
+       下界，qa 按不等式对表（与 P5 大脑 / P7 星座墙同一条路）。"""
     r = LAB_RECTS[8]
     w, h = r[3], r[4]
-    trib, tlen, off, spdrow, probe = [], [], [], [], []
-    for k, (y, _c, _lb) in enumerate(_TRIB):
-        pts = _rv_trib(k, y)
-        _wp, cum = _cum_world(pts, w, h, _RV_D)
-        Lp = _xylen([(p[0], p[1]) for p in pts])
-        trib.append(pts)
-        tlen.append(cum[-1])
-        # 接力：off_k = −Lw_k + k·λ/3 ⇒ 支流末端与主河道首端严丝合缝，且三条差 λ/3
-        off.append(-cum[-1] + k * _RV_LAM / 3.0)
-        spdrow.append(("支流%d" % (k + 1), Lp, _SPD_A * Lp / cum[-1]))
-        probe += _probe_stream(pts, r[1:], _RV_WT, _RV_D)
-    main = _rv_main()
-    _mw, mcum = _cum_world(main, w, h, _RV_D)
-    spdrow.append(("ONE NET 主河道", _xylen([(p[0], p[1]) for p in main]), _SPD_A))
-    probe += _probe_stream(main, r[1:], _RV_WMAX, _RV_D)
-    rail = [(p[0], p[1], 0.0) for p in _rrect(_P8_BOX[0], _P8_BOX[1], _P8_BOX[2],
-                                              _P8_BOX[3], _P8_BOX[4])]
-    probe += _probe_lock([(p[0], p[1]) for p in rail], r[1:])
-    probe += _probe_back([(p[0], p[1]) for p in rail], 0.0, _RV_BED, _RV_D, r[1:])
-    # ⚠ 页上那条域分带 `M640 46 V396`**不进 3D**：它要说的那件事，3D 里已经由
-    #   **深度**说了 —— 支流在纵深、主河道在版面平面。两枚域标注（三条产品线 /
-    #   一张实时网）是文字件，照常留在 DOM 里。
-    src = [(float(_P8_SX), float(y), _RV_ZSRC) for y, _c, _lb in _TRIB]
-    probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-src-size") / 2.0) for p in src]
-    meet = [(float(_P8_CX), float(_P8_CY), 0.0)]
-    probe += [(r[1] + p[0], r[2] + p[1], _cssmax("--rv-meet-size") / 2.0) for p in meet]
-    return dict(w=w, h=h, trib=trib, tlen=tlen, off=off, main=main, rail=rail,
-                src=src, meet=meet, spd=spdrow, probe=probe)
+    pts, spdrow, wpx, probe = [], [], [], []
+    for nm, a2, b2, z, _e in _NT_LANE:
+        q = _nt_linkpts() if z is None else _nt_pts(a2, b2, z)
+        ww = _NT_WL if z is None else _NT_W
+        Lp, Lw = _lock_len(q, w, h, _NT_D)
+        wp = _wpx(ww, q, _NT_D)           # 屏上最大半宽（两条算路同一个数）
+        pts.append(q)
+        wpx.append(wp)
+        spdrow.append((nm, Lp, _SPD_A * Lp / Lw))
+        probe += [(r[1] + t[0], r[2] + t[1], wp) for t in q]
+    for g in _NT_GRID:                    # 栅格锁住 ⇒ 落点 = 页坐标
+        probe += _probe_lock([(t[0], t[1]) for t in g], r[1:])
+    _dr = _cssmax("--nt-dot-size") / 2.0
+    for c in _NT_HUM:
+        probe += _probe_lock([(t[0], t[1]) for t in _nt_ringpts(c, 1.0 + _NT_BR)], r[1:])
+        probe.append((r[1] + c[0], r[2] + c[1], _dr))
+    _pr = max(_cssmax("--nt-orbp-size"), _cssmax("--nt-core-size")) / 2.0
+    for c in _NT_ORBC:
+        probe += [(r[1] + t[0], r[2] + t[1], _pr) for t in _nt_orb_sweep(c)]
+    return dict(w=w, h=h, pts=pts, spd=spdrow, wpx=wpx, probe=probe)
 
 
 # ── ⑦ P6 走出屏幕（加法层）───────────────────────────────────────────────
@@ -3289,10 +3594,10 @@ _GW = _gw_build()
 _D = _d_build()
 _B = _b_build()
 _W = _w_build()
-_RV = _rv_build()
+_NT = _nt_build()
 _EX = _ex_build()
 _PROBE = {2: _G["probe"], 3: _GW["probe"], 4: _D["probe"], 5: _B["probe"],
-          7: _W["probe"], 8: _RV["probe"]}
+          7: _W["probe"], 8: _NT["probe"]}
 if P6_EXIT:
     _PROBE[6] = _EX["probe"]
 _CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
@@ -3313,7 +3618,7 @@ def _spd_rows(p):
     if p == 6:
         return [("走出屏幕声流", _EX["Lp"], _SPD_A)]
     if p == 8:
-        return _RV["spd"]
+        return _NT["spd"]
     return []
 
 
@@ -3388,14 +3693,18 @@ def lab_data(p):
               ("z", "%s,%s" % (_n3(min(c[4] for c in _W_CARDS)),
                                _n3(max(c[4] for c in _W_CARDS))))]
     elif p == 8:
-        a += [("trib", len(_TRIB)), ("lam", _n3(_RV_LAM)),
-              ("tlen", ",".join(_n3(v) for v in _RV["tlen"])),
-              ("rvphase", ",".join(_n3(v) for v in _RV["off"])),
-              ("zsrc", _n3(_RV_ZSRC)), ("bed", _n3(_RV_BED)),
-              ("meet", "%d,%d" % (_P8_CX, _P8_CY)),
-              # 支流「源头-河口」/ 主河道「基准-河口涌起」——qa 的 ⑳rv 只透传不判
-              ("w", "%s-%s,%s-%s" % (_n3(_RV_WT0), _n3(_RV_WT1),
-                                     _n3(_RV_WM), _n3(_RV_WMOUTH)))]
+        # 三种互动：节点数 / 边数 / 股数 / 十条边的**确定性相位**（⑳net 逐条复算）/
+        # 三簇深度 / 栅格规格 / 迷你转子的外半轴与三枚环的倾角（P13/P15 血统的机器面）
+        a += [("lam", _n3(_LAB._AS_LAM)),
+              ("hum", len(_NT_HUM)), ("orbs", len(_NT_ORBC)),
+              ("edges", len(_NT_EDGE)), ("strands", len(_NT_LANE)),
+              ("ephase", ",".join(_n3(round(v, 6)) for v in _NT_EPHASE)),
+              ("cyc", _n3(_NT_CYC)), ("lit0", _n3(_NT_LIT0)),
+              ("z", ",".join(_n3(v) for v in _NT_Z)),
+              ("grid", "%d,%d" % (_NT_GN, _NT_GM)), ("zfar", _n3(_NT_ZFAR)),
+              ("orbrx", _n3(_NT_ORB[0][0])),
+              ("orbtilt", "/".join(_n3(o[2]) for o in _NT_ORB)),
+              ("w", "%s,%s" % (_n3(_NT_W), _n3(_NT_WL)))]
     if p in _INK:
         a += [("ink", ";".join("%s,%s,%s,%s" % tuple(_n3(v) for v in b) for b in _INK[p])),
               ("clr", _n3(_CLR[p][0])), ("clr-min", _n3(round(_CLR_MIN[p], 2)))]
@@ -3540,23 +3849,31 @@ def info_k():
                 for c in _W_CARDS) + "]"),
             ("url", "[" + ",".join('"%s"' % c[1] for c in _W_CARDS) + "]"),
             ("ink", INK(7))])
-    rv = O([("D", _n3(_RV_D)), ("half", _n3(_RV_HALF)),
-            ("trib", "[" + ",".join(PL(q, _RV["w"], _RV["h"], _RV_D)
-                                    for q in _RV["trib"]) + "]"),
-            ("main", PL(_RV["main"], _RV["w"], _RV["h"], _RV_D)),
-            ("rail", PL(_RV["rail"], _RV["w"], _RV["h"], _RV_D)),
-            ("bed", PL([(q[0], q[1], -_RV_BED) for q in _RV["rail"]],
-                       _RV["w"], _RV["h"], _RV_D)),
-            ("src", PL(_RV["src"], _RV["w"], _RV["h"], _RV_D)),
-            ("meet", PL(_RV["meet"], _RV["w"], _RV["h"], _RV_D)),
-            ("off", "[" + ",".join(_n3(v) for v in _RV["off"]) + "]"),
-            ("tlen", "[" + ",".join(_n3(v) for v in _RV["tlen"]) + "]"),
-            ("spd", _n3(_SPD_A)),
-            ("wt0", _n3(_RV_WT0)), ("wt1", _n3(_RV_WT1)),
-            ("wm", _n3(_RV_WM)), ("wmouth", _n3(_RV_WMOUTH)),
-            ("wacc", _n3(_RV_WACC)), ("mfloor", _n3(_RV_MFLOOR)),
-            ("wtpx", _n3(max(_wpx(_RV_WT, q, _RV_D) for q in _RV["trib"]))),
-            ("wmpx", _n3(_wpx(_RV_WMAX, _RV["main"], _RV_D))),
+    # ── ⑥ 三种互动（P8）：25 股的世界折线 + 逐股 pad + 边号表 + 十条边的相位 +
+    #    栅格 + 三枚人节点 / 六台转子的页坐标 + 转子的三枚异面环（现取自旗舰 P15）
+    nt = O([("D", _n3(_NT_D)), ("half", _n3(_NT_HALF)),
+            ("s", "[" + ",".join(PL(q, _NT["w"], _NT["h"], _NT_D)
+                                 for q in _NT["pts"]) + "]"),
+            ("wpx", "[" + ",".join(_n3(v) for v in _NT["wpx"]) + "]"),
+            # 每股属于哪条边：0..9 = 边号 · −1 = ①② 两簇的带 · −2 = 三簇连接带
+            ("eidx", "[" + ",".join(
+                str(_e if _e is not None else (-2 if _z is None else -1))
+                for _nm, _a, _b, _z, _e in _NT_LANE) + "]"),
+            ("ephase", "[" + ",".join(_n3(round(v, 6)) for v in _NT_EPHASE) + "]"),
+            ("spd", _n3(_SPD_A)), ("w", _n3(_NT_W)), ("wl", _n3(_NT_WL)),
+            ("cyc", _n3(_NT_CYC)), ("lit0", _n3(_NT_LIT0)),
+            ("grid", "[" + ",".join(PL(g, _NT["w"], _NT["h"], _NT_D)
+                                    for g in _NT_GRID) + "]"),
+            ("hum", "[" + ",".join(_arr3(c) for c in _NT_HUM) + "]"),
+            ("orbc", "[" + ",".join(_arr3(c) for c in _NT_ORBC) + "]"),
+            ("orbe", "[" + ",".join("[" + ",".join(str(x) for x in es) + "]"
+                                    for es in _NT_ORBE) + "]"),
+            ("orb", "[" + ",".join(_arr3(o) for o in _NT_ORB) + "]"),
+            ("orbBr", _n3(_LAB._K_ORB_BR)),
+            ("orbRoll", _arr3(_LAB._K_ORB_ROLL)), ("orbArc", _arr3(_LAB._K_ORB_ARC)),
+            ("orbAmp", _n3(_NT_ORBAMP)), ("orbN", str(_NT_ORBN)),
+            ("hr", _n3(_NT_HR)), ("br", _n3(_NT_BR)), ("brp", _n3(_NT_BRP)),
+            ("corer", _n3(_NT_CORER)),
             ("ink", INK(8))])
     ex = O([("D", _n3(_EX_D)), ("half", _n3(_EX_HALF)),
             ("path", PL(_EX["page"], _EX["w"], _EX["h"], _EX_D)),
@@ -3597,7 +3914,7 @@ def info_k():
         'nodeTable:"%s"' % _LAB.NODE_TABLE, 'routeTable:"%s"' % _LAB.ROUTE_TABLE,
         "arcDur:%s" % _LAB.ARC_DUR_S, "arcGap:%s" % _LAB.ARC_GAP_S,
         "arcOff:%s" % _LAB.ARC_OFF_S,
-        "gw:" + gw, "d:" + d, "b:" + b, "w:" + w7, "rv:" + rv, "ex:" + ex,
+        "gw:" + gw, "d:" + d, "b:" + b, "w:" + w7, "nt:" + nt, "ex:" + ex,
     ]) + "}"
 
 
@@ -3605,7 +3922,7 @@ def info_k():
 _FACTORY_JS = ("const FACTORY = { voice:makeVoice, globe:makeGlobe, grow:makeGrow,\n"
                "                  duplex:withClr(makeDuplex, K.d.D, K.d.ink, K.d.pad),\n"
                "                  brain:withClr(makeBrain, K.b.D, K.b.ink, K.b.pad),\n"
-               "                  wall:makeWall, river:makeRiver, exit:makeExit };")
+               "                  wall:makeWall, net:makeNet, exit:makeExit };")
 _TOUR_JS = _re2.sub(r"const FACTORY = \{[\s\S]*?\};", lambda _m: _FACTORY_JS, _K_TOUR, count=1)
 assert "makeGlobe" in _TOUR_JS and "withClr(makeBrain" in _TOUR_JS, "FACTORY 替换失败"
 INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_GLOBE + _K_BRAIN + _K_LOCK + _K_AS + _K_CLR
@@ -3871,8 +4188,8 @@ def build():
     assert {i for i, b in boards.items() if b == "title"} == {1}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y, _h, _l) in enumerate(PAGES, 1) if s}
-    # v3 波A/波B：P2–P7 每页一枚**细节层**（该页的 data-step=1）⇒ 六页分步
-    assert steps_map == {2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1}, "分步页漂移：%r" % steps_map
+    # v3 波A/波B：P2–P7 每页一枚**细节层**（该页的 data-step=1）；v3.1 起 P8 也带一枚 ⇒ 七页分步
+    assert steps_map == {2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1}, "分步页漂移：%r" % steps_map
     # 细节层：每页至多一枚，且必须挂在 data-step="1" 上（P2–P7 六枚）
     assert doc.count('class="sh flow rev detail"') == len(DETAIL_PAGES), \
         "细节层面板数漂移：%d != %d" % (doc.count('class="sh flow rev detail"'), len(DETAIL_PAGES))
@@ -3898,11 +4215,14 @@ def build():
         assert _h in doc, "深链入口缺失：%s" % _h
     # SOURCE ledger（采纳项 C）：六页各一行、四段制、结尾一律「事实截止 2026.08」。
     # P1 封面与 P3 矩阵没有事实声明 ⇒ 不带 SOURCE 行（这是规格，不是遗漏）。
+    #   ⚠ 事实截止日**逐页**取该页来源的核实日：P2/P4–P7 是 2026.08；P8 的使命 · 愿景
+    #     是 2026-09-02 当天从官网逐字核实的 ⇒ 2026.09。名单写死在这里（不许随便新增）。
+    _CUTOFF = (" · 事实截止 2026.08", " · 事实截止 2026.09")
     _srcs = _re.findall(r'<div class="sh flow src"[^>]*>(SOURCE[^<]*)</div>', doc)
     assert len(_srcs) == 6, "SOURCE ledger 行数漂移：%d != 6（%r）" % (len(_srcs), _srcs)
     for _s in _srcs:
         assert _s.startswith("SOURCE · "), "SOURCE 行不以「SOURCE · 」起手：%r" % _s
-        assert _s.endswith(" · 事实截止 2026.08"), "SOURCE 行未以事实截止收尾：%r" % _s
+        assert _s.endswith(_CUTOFF), "SOURCE 行未以事实截止收尾：%r" % _s
         assert _s.count(" · ") >= 2, "SOURCE 行不足两段：%r" % _s
     # 双向主题同步（采纳项 A）：宿主必须挂 storage 监听，且只认 colin-theme 这一个键
     assert 'window.addEventListener("storage"' in doc, "缺 iframe→宿主 的 storage 反向同步"
@@ -3919,8 +4239,13 @@ def build():
     #    v3 三波：P2/P3/P8（波A）· P4/P5/P6（波B）· P7（波C）全部重排 ⇒ 摘要必然分叉。
     #    这一闸因此收成只钉 **P1 封面** —— 全程一格没动，摘要与 v2（cf3fd73 之后的
     #    LAB 版）逐字节相同，改一个字当场炸。data-step 集合仍是八页全钉。
-    _BASE = {1: ("6a266af55cce4643", [])}
-    _STEPS = [[], [1], [1], [1], [1], [1], [1], []]
+    #    v3.1（P8 重做轮）：ⓐ 收窄改成**扩张** —— P1–P7 一页不许动，摘要按远端
+    #    main = 239ddd4 的产物逐页钉死；只有 P8 是本轮的改动面。
+    _BASE = {1: ("6a266af55cce4643", []), 2: ("80026d29106368b6", []),
+             3: ("a73a81258182fcc7", []), 4: ("74796065f13be705", []),
+             5: ("e6fba6f3cd9dcd4b", []), 6: ("1bb2f62760cbe649", []),
+             7: ("0a6f2495cd58acbf", [])}
+    _STEPS = [[], [1], [1], [1], [1], [1], [1], [1]]
     import hashlib as _hl
     _secs = _re.findall(r'<section class="slide.*?</section>', doc, _re.S)
     assert len(_secs) == 8, "section 切分失败：%d" % len(_secs)
@@ -3931,7 +4256,7 @@ def build():
         _st = sorted(set(int(x) for x in _re.findall(r'data-step="(\d+)"', _sec)))
         if _pn in _BASE:
             assert _d == _BASE[_pn][0], ("ⓐ P%d 文本与 v2 分叉（%s != %s）—— "
-                                         "波 A 不许动这四页" % (_pn, _d, _BASE[_pn][0]))
+                                         "本轮只动 P8" % (_pn, _d, _BASE[_pn][0]))
         assert _st == _STEPS[_i], "ⓐ P%d data-step 集合分叉：%r != %r" % (_pn, _st, _STEPS[_i])
     # ⓑ poster 分件：裹进去的**只有形** —— 一个 <text>、一枚 <polygon> 都不许进
     assert _LP_TRACE, "ⓑ 一个 poster 组都没有 —— _lpsplit 没接上"
@@ -3990,10 +4315,29 @@ def build():
               if 0 <= math.pi / 2 - _LAB._D_PHASE / 2 + _k2 * math.pi
               <= 2 * math.pi * _LAB._D_TURNS]
     assert len(_cross) == 2, "ⓗ P4 两条声带交叉 %d 次（要两次）" % len(_cross)
-    # ⓖ P8 接力的相位账：off_k + Lw_k − k·λ/3 必须恰好归零（不瞬移 / 不叠影）
-    for _k2, _o2 in enumerate(_RV["off"]):
-        _res = _o2 + _RV["tlen"][_k2] - _k2 * _RV_LAM / 3.0
-        assert abs(_res) < 1e-6, "ⓖ P8 支流%d 的接力相位没对齐（余 %.6f）" % (_k2 + 1, _res)
+    # ⓖ P8「网在生长」的相位账：十条边的相位必须**恰好**是 k·2π/10（确定性 · 零随机源），
+    #    且 K5 的十条边互不重复、每台转子恰好挂 4 条 —— 五边形网是算出来的，不是画出来的。
+    assert len(_NT_EDGE) == 10 and len(set(tuple(sorted(e)) for e in _NT_EDGE)) == 10, \
+        "ⓖ P8 五边形网的边表不是十条互不重复的边：%r" % (_NT_EDGE,)
+    for _k2, _ph in enumerate(_NT_EPHASE):
+        _res = _ph - _k2 * 2.0 * math.pi / len(_NT_EDGE)
+        assert abs(_res) < 1e-12, "ⓖ P8 边%d 的相位不是 k·2π/10（余 %.12f）" % (_k2 + 1, _res)
+    for _k2 in range(5):
+        assert len(_NT_ORBE[_k2 + 1]) == 4, \
+            "ⓖ P8 五边形网第 %d 台转子挂了 %d 条边（K5 每枚点恰 4 条）" % (
+                _k2 + 1, len(_NT_ORBE[_k2 + 1]))
+    #    转子的血统：外半轴 ≤40，三枚环的倾角**显式**且不共面（等比缩倾角是 P15 二稿的病）
+    assert _NT_ORB[0][0] <= 40.0, "ⓖ P8 迷你转子外半轴 %.1f > 40" % _NT_ORB[0][0]
+    assert len(set(round(o[2], 3) for o in _NT_ORB)) == 3, "ⓖ P8 转子三枚环倾角撞车"
+    #    三枚环的倾角区间 [tl−amp, tl+amp] **两两不相交** ⇒ 任何一帧都没有两枚环共面
+    #    （P15 二稿的病：等比缩倾角 ⇒ 三枚几乎共面，屏上永远是一枚扁椭圆，认不出转子）
+    for _i3 in range(3):
+        for _j3 in range(_i3 + 1, 3):
+            assert abs(_NT_ORB[_i3][2] - _NT_ORB[_j3][2]) > 2 * _NT_ORBAMP + 1e-9, \
+                "ⓖ P8 转子第 %d / %d 枚环的倾角区间相交（%.1f° vs %.1f° · 摆幅 ±%.1f°）" % (
+                    _i3 + 1, _j3 + 1, _NT_ORB[_i3][2], _NT_ORB[_j3][2], _NT_ORBAMP)
+    #    canvas 零文字：poster 组里一个 <text> 都不许有（ⓑ 已管；这里再钉一遍 P8 本页）
+    assert "<text" not in _p8net_poster(), "ⓖ P8 主图 poster 里出现了文字件"
     print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · hero-art=%s"
           % (total, len(doc) // 1024, steps_map, "on" if HERO_ART else "off"))
 

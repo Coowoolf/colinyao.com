@@ -12,7 +12,8 @@
 //       引擎 deck 自身可达 + **主题跟随**（宿主切主题 → iframe 内 data-theme 跟着翻）
 //   ⑬  **深链**：P5 → 引擎 #16（Call Agent 章）· P6 → 引擎 #19（R1）——
 //       断言 iframe 内 .slide.active 的 data-p 落点；P4 → #1
-//   ⑫  口径锁：P2 四大数 + 近一半 + IDC 注 + SOURCE / P5 96.5% + 2,475 / P8 三不三步逐字
+//   ⑫  口径锁：P2 四大数 + 近一半 + IDC 注 + SOURCE / P5 96.5% + 2,475 /
+//       P8 使命 · 愿景两句 + 三簇题注 + 三不三步（细节层）逐字
 //   ⑭  红线反向闸：价格 / staging / 引擎 P16 的「盲测 · 32,000」/ 旧分类学 / 旧措辞
 //   ⑮  P7 案例墙 14 家客户名逐字（名单硬编码在本文件，改名必须两处同改）
 // 2026-09-01 LAB 整体重构轮新增 ⑲/⑳ **WebGL 豁免通道**（照抄 qa-convoai-lab 的闸门体系）：
@@ -28,7 +29,8 @@
 //   ⑳clr **净空**：运行时逐顶点 × 构建期解析，两条算路对表；名册 × 活 DOM 对表
 //   ⑳chip P4 的 hot 是抽屉 chip —— 正面断言它离 3D 至少 16px
 //   ⑳spd A 档流速逐股复算（110 ±30% · 同页极差 ≤1.35×）
-//   ⑳rv  P8 接力相位复算：off_k + Lw_k − k·λ/3 = 0（不瞬移 / 不叠影）
+//   ⑳net P8「网在生长」：十条边的相位复算 φ_k − k·2π/10 = 0 + 场面构成正面钉死
+//        （v3.1 起接替 ⑳rv —— 三条支流一条河退役）
 //   ⑳flick 消闪：定拍逐帧亮度突变上限　⑳ink 浅 / 暗墨量比 ≥ 0.90
 // 用法：node scripts/qa-convoai-info.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8899 node scripts/qa-convoai-info.mjs
@@ -37,9 +39,11 @@ import { mkdirSync } from 'fs';
 const THEME = process.env.THEME || 'light';
 const BASE = process.env.BASE || 'http://localhost:8899';
 const N = 8;
-// v3 三波收官：P2–P7 每页一枚**细节层**（该页 data-step=1）；P1 封面 / P8 合流不带
-const EXP_STEPS = [0, 1, 1, 1, 1, 1, 1, 0];
-const DETAIL_PAGES = [2, 3, 4, 5, 6, 7];
+// v3 三波收官：P2–P7 每页一枚**细节层**（该页 data-step=1）；P1 封面按规格不带。
+// v3.1（P8 重做轮）：P8 也带一枚 —— 三不 / 三步 / OpenAI / DEMO 四件密材料从主版面
+// 搬进抽屉，主版面只留使命 · 愿景 · 三种互动。
+const EXP_STEPS = [0, 1, 1, 1, 1, 1, 1, 1];
+const DETAIL_PAGES = [2, 3, 4, 5, 6, 7, 8];
 const BOARD = { 1: 'title' };            // 其余一律 content
 // P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
 // （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
@@ -56,8 +60,9 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   3D 坐在标题右侧那条空带上，poster 是构建期离线投影出来的一枚**无字 figbox**。
 //   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
+// v3.1：P8 的 `river`（三条支流一条河）退役，换成 `net`（一张实时网上的三种互动）。
 const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain',
-                     6: 'exit', 7: 'wall', 8: 'river' };
+                     6: 'exit', 7: 'wall', 8: 'net' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // v3 波C 起**八页全有场景**（P7 的五层生态图搬进细节层，主图换成 3D 星座墙）⇒
 // 这张表空了。⑲e「非激活页 ⇒ canvas 回车库」因此改成「把 .active 全摘掉」来验
@@ -76,7 +81,10 @@ const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 //   P4 的 ribbon 网格顶点在构建期能逐点复现（`ribbonGeo` 的 Python 同解）⇒ 照旧等式。
 //   P5 的 12000 点体积点云、P7 的摆动 / 浮动扫掠不能 ⇒ 构建期给的是**外包络**（下界），
 //   按不等式对表：运行时 ≥ 解析 − 0.5。注意方向：下界只会让闸更严，不是放松。
-const CLR_BOUND = [5, 7];
+//   P8（v3.1）同理：六台迷你转子在翻滚（三枚环的倾角各自摆动 ±8°）、三枚人节点在
+//   呼吸（圆环只向外涨）⇒ 几何逐帧在变，构建期交的是整族的**扫掠包络**。
+//   下限（16px 加法层规则）与「运行时 ≥ 解析 − 0.5」两条一格没松。
+const CLR_BOUND = [5, 7, 8];
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -466,7 +474,8 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
         4: [[1222, 523, 60, 20]],                        // 旗舰 P4 的 3D 声带掠过「收声让位」
         5: [[971, 723, 18, 20], [881, 659, 18, 20], [721, 489, 18, 20],
             [911, 523, 18, 20], [1151, 479, 18, 20]],    // 五枚区序号本来就印在脑体之内
-        8: [[168, 597, 189.9, 19]],                      // 支流3 那一行被 2D 曲线本来就穿过
+        // P8 那一条（支流3 被 2D 曲线穿过）随「三条支流一条河」一起退役：
+        // 新 P8 的 3D 矩形 (120,350,1680,440) 里没有一处页上的字。
       };
       const reg = D.ink.concat(SKIP[P] || []);
       const miss = D.gs.filter(g => !reg.some(b2 => covers(b2, g, 3)));
@@ -561,8 +570,12 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    ok(all.length === 10, `⑳spd A 档股数 ${all.length} != 10`);
+    // v3.1：P8 的股数从 4（三条支流 + 主河道）变成 **25**——
+    //   ① 人与人 2（一对双向）· ② 人与智能体 2 · ③ 智能体网 10 条边 ×2 = 20 ·
+    //   三簇连接带 1。全 deck 因此是 3(P3) + 2(P4) + 1(P6) + 25(P8) = 31 股。
+    ok(all.length === 31, `⑳spd A 档股数 ${all.length} != 31`);
     ok(rows.length === 4, `⑳spd A 档页数 ${rows.length} != 4（P1 球 / P2 地球 / P5 大脑不是介质，不进表）`);
+    ok(all.filter(r => r.p === 8).length === 25, `⑳spd P8 股数 ${all.filter(r => r.p === 8).length} != 25`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -575,21 +588,44 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     console.log(`  · ⑳spd A 档：${rows.length} 页 ${all.length} 股 · ${lo}–${hi}px/s`);
   }
 
-  // ── ⑳rv P8 三条支流的接力相位（解出来的，不是调出来的）────────────────────
+  /* ── ⑳net P8「网在生长」的相位账（解出来的，不是调出来的）──────────────────
+     ⚠ v3.1：本闸接替 ⑳rv（三条支流的接力相位）—— 河退役，这一页改成
+       **一张实时网上的三种互动**。判据换成五边形网那十条边的确定性相位：
+         φ_k − k·2π/10 = 0（k = 0..9）
+       并正面钉死场面构成：3 枚人节点 / 6 台迷你转子 / 10 条边 / 25 股 /
+       λ 仍是 lab-kit ⑨ 的 232px（全家族同一种介质）/ 迷你转子外半轴 ≤40 且
+       三枚环的倾角互不相同（等比缩倾角 = 三枚环共面，是 P15 二稿的病）。 */
   {
     const d = await pg.evaluate(() => {
       const q = document.getElementById('labStage8').dataset;
-      return { off: q.labRvphase.split(',').map(Number), tlen: q.labTlen.split(',').map(Number),
-               lam: +q.labLam, trib: +q.labTrib, w: q.labW };
+      return { ph: q.labEphase.split(',').map(Number), lam: +q.labLam,
+               hum: +q.labHum, orbs: +q.labOrbs, edges: +q.labEdges,
+               strands: +q.labStrands, cyc: +q.labCyc, lit0: +q.labLit0,
+               grid: q.labGrid, z: q.labZ.split(',').map(Number),
+               orbrx: +q.labOrbrx, tilt: q.labOrbtilt.split('/').map(Number),
+               scene: document.getElementById('labStage8').dataset.labScene };
     });
-    ok(d.trib === 3, `⑳rv 支流数 ${d.trib} != 3`);
-    ok(Math.abs(d.lam - 232) < 1e-6, `⑳rv 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
-    d.off.forEach((o, k) => {
-      const res = o + d.tlen[k] - k * d.lam / 3;
-      ok(Math.abs(res) < 1e-3,
-         `⑳rv 支流${k + 1} 接力相位没对齐（off ${o} + Lw ${d.tlen[k]} − ${k}·λ/3，余 ${res.toFixed(4)}）`);
+    ok(d.scene === 'net', `⑳net P8 场景名 ${d.scene} != net`);
+    ok(d.hum === 3 && d.orbs === 6, `⑳net 节点数漂移：人 ${d.hum}（要 3）/ 智能体 ${d.orbs}（要 6）`);
+    ok(d.edges === 10, `⑳net 五边形网的边数 ${d.edges} != 10（K5 = 5 边 + 5 对角）`);
+    ok(d.strands === 25, `⑳net 股数 ${d.strands} != 25（2+2+10×2+1）`);
+    ok(d.ph.length === 10, `⑳net 相位表长 ${d.ph.length} != 10`);
+    ok(Math.abs(d.lam - 232) < 1e-6, `⑳net 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
+    d.ph.forEach((o, k) => {
+      const res = o - k * 2 * Math.PI / 10;
+      ok(Math.abs(res) < 1e-4,
+         `⑳net 边${k + 1} 的相位不是 k·2π/10（${o}，余 ${res.toFixed(6)}）`);
     });
-    console.log(`  · ⑳rv P8 接力：三条支流相位差 λ/3 = ${(d.lam / 3).toFixed(1)}px，余项全 0`);
+    ok(d.lit0 > 0 && d.lit0 < 1, `⑳net 常亮地板 ${d.lit0} 不在 (0,1)——「全网常亮」没了`);
+    ok(d.grid === '8,17', `⑳net 透视栅格规格 ${d.grid} != 8,17`);
+    ok(d.z.length === 3 && d.z[0] === 0 && d.z[1] < d.z[0] && d.z[2] < d.z[1],
+       `⑳net 三簇深度不是「已经发生贴版面 → 即将发生退进纵深」：[${d.z}]`);
+    ok(d.orbrx <= 40, `⑳net 迷你转子外半轴 ${d.orbrx} > 40`);
+    ok(new Set(d.tilt).size === 3 && d.tilt.length === 3,
+       `⑳net 转子三枚环的倾角撞车：[${d.tilt}]`);
+    console.log(`  · ⑳net P8：${d.hum} 人节点 / ${d.orbs} 台转子（外半轴 ${d.orbrx}·倾角 ${
+      d.tilt.join('/')}°）/ ${d.edges} 条边 · 相位差 2π/10 余项全 0 · ${
+      d.strands} 股 · 地板 ${d.lit0} · 光弧周期 ${d.cyc}s`);
   }
 
   // ── ⑳flick 消闪：定拍逐帧亮度突变上限（波B 的第一条验收红线）──────────────
@@ -918,10 +954,17 @@ ok(t7.includes('L0 连接 · L1 感知 · L2 运行时——三层都有声网')
 CASES.forEach(n => ok(t7.includes(n), `⑮ P7 案例墙客户名缺 / 写错：「${n}」`));
 ok(t7.includes('14') && t7.includes('声网联合案例 · 均已公开'), '⑮ P7 案例墙计数/题注不符');
 
-// P8 · 合流：三不 + 三步 + 收尾 + OpenAI 句，逐字
-[['三条支流，一条河', t8], ['Engine 的每一次打断', t8], ['Agent 的每一次交付', t8],
- ['Physical AI 的每一次唤醒', t8],
- ['都跑在同一张 SD-RTN 软件定义实时网络上——全球 200+ 节点，端到端毫秒级。', t8],
+/* P8 · 使命与愿景（v3.1 重做）：主标 + 使命 / 愿景两句 + 三簇题注 + land，
+   加上搬进细节层的三不 / 三步 / OpenAI / DEMO —— 全部逐字。
+   ⚠ 使命 / 愿景两句是 2026-09-02 自 shengwang.cn/aboutus 逐字核实的公司口径，
+     一个字都不许改；本页除「2014 年起」外不许出现任何年份 / 日期。 */
+[['让实时互动，无处不在。', t8],
+ ['使命', t8], ['帮助人们跨越距离实时互动，如聚一堂。', t8],
+ ['愿景', t8], ['让实时互动像空气和水一样，无处不在。', t8],
+ ['人与人 · 已经发生', t8], ['实时音视频 · 2014 年起', t8],
+ ['人与智能体 · 正在发生', t8], ['对话式 AI 引擎 · 企业级智能体 · R1', t8],
+ ['智能体与智能体 · 即将发生', t8], ['智能体之间的实时对话与协作', t8],
+ ['同一张实时网，服务人与人、人与智能体、智能体与智能体。', t8],
  ['不做 C 端 App', t8], ['不和你的产品竞争用户——你的用户永远是你的。', t8],
  ['不做自有硬件品牌', t8], ['R1 是开发套件，不是消费品——我们停在你需要的那一层。', t8],
  ['不训基座大模型', t8], ['多供应商开放，谁好用接谁——模型进步全部归你享受。', t8],
@@ -933,6 +976,11 @@ ok(t7.includes('14') && t7.includes('声网联合案例 · 均已公开'), '⑮ 
  ['DEMO / 文档 · agora.io › 对话式 AI · 联系团队', t8],
  ['让陪伴自然，让生意成单。', t8]].forEach(([n, txt]) => ok(txt.includes(n), `⑫ P8 缺「${n}」`));
 ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改');
+// ⑭ P8 反向：河退役之后不许有残句回归；「价值观」本轮不上页面（官网未列，二手且旧）
+['三条支流，一条河', '三条支流', '一条河', 'ONE NET · SD-RTN 软件定义实时网络',
+ 'Engine 的每一次打断', 'Agent 的每一次交付', 'Physical AI 的每一次唤醒',
+ '合流点', '价值观', '结果导向', '追求卓越']
+  .forEach(n => ok(!ALL.includes(n), `⑭ P8 河 / 未核实口径回归：「${n}」`));
 
 // ⑯ SOURCE ledger 统一闸（2026-08-23 采纳项 C）：出处行走同一枚 .src 类、同一套四段格式
 //    `SOURCE · 来源 · 样本或时间窗 · 事实截止 2026.08`。
@@ -946,11 +994,17 @@ ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改'
   ok(live.join(',') === SRC_PAGES.join(','),
      `⑯ SOURCE ledger 覆盖漂移：实测 [${live}] != 名册 [${SRC_PAGES}]`);
   ok(led.length === SRC_PAGES.length, `⑯ SOURCE 行数 ${led.length} != ${SRC_PAGES.length}`);
+  // 事实截止日**逐页**取该页来源的核实日：P2/P4–P7 是 2026.08；P8 的使命 · 愿景
+  // 是 2026-09-02 当天从声网官网逐字核实的 ⇒ 2026.09。名单写死（不许随便新增）。
+  const CUTOFF = [' · 事实截止 2026.08', ' · 事实截止 2026.09'];
   led.forEach(({ p, t }) => {
     ok(t.startsWith('SOURCE · '), `⑯ P${p} SOURCE 行不以「SOURCE · 」起手：「${t}」`);
-    ok(t.endsWith(' · 事实截止 2026.08'), `⑯ P${p} SOURCE 行未以「· 事实截止 2026.08」收尾：「${t}」`);
+    ok(CUTOFF.some(c => t.endsWith(c)),
+       `⑯ P${p} SOURCE 行未以「· 事实截止 2026.08/09」收尾：「${t}」`);
     ok(t.split(' · ').length >= 3, `⑯ P${p} SOURCE 行不足三段：「${t}」`);
   });
+  ok(led.filter(x => x.p === 8 && /事实截止 2026\.09$/.test(x.t)).length === 1,
+     '⑯ P8 的 SOURCE 行不是「声网官网 关于我们（使命 · 愿景） · 事实截止 2026.09」');
   const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide .mono-sm')]
     .map(el => (el.textContent || '').trim()).filter(t => t.startsWith('SOURCE')));
   ok(stray.length === 0, `⑯ 仍有 SOURCE 行挂在 .mono-sm 上（未并入 ledger）：${stray.join(' | ')}`);
@@ -1023,7 +1077,9 @@ if (THEME !== 'dark') {
     ok(fb.txt.length === N, `⑲c 无 WebGL · 页数 ${fb.txt.length} != ${N}`);
     fb.txt.forEach((n, i) => ok(n >= 20, `⑲c 无 WebGL · P${i + 1} 正文只剩 ${n} 字 —— 这一页读不了了`));
     // 口径锁在降级态里照样在（poster 只换图，不换字）
-    ['No.1', '100万+', '900亿+', '50+', '96.5%', '2,475', '三条支流，一条河',
+    ['No.1', '100万+', '900亿+', '50+', '96.5%', '2,475',
+     '让实时互动，无处不在。', '帮助人们跨越距离实时互动，如聚一堂。',
+     '让实时互动像空气和水一样，无处不在。',
      'IDC 中国视频云市场报告'].forEach(s2 =>
       ok(fb.all.includes(s2), `⑲c 无 WebGL · 全 deck 缺「${s2}」`));
     CASES.forEach(n => ok(fb.all.includes(n), `⑲c 无 WebGL · 案例墙缺「${n}」`));
@@ -1144,7 +1200,7 @@ if (THEME !== 'dark') {
                  gHaloAdd: cs.getPropertyValue('--g-halo-add').trim(),
                  dAdd: cs.getPropertyValue('--d-add').trim(),
                  bAdd: cs.getPropertyValue('--b-add').trim(),
-                 rvAdd: cs.getPropertyValue('--rv-add').trim(),
+                 ntAdd: cs.getPropertyValue('--nt-add').trim(),
                  vBack: cs.getPropertyValue('--v-back').trim() };
       });
       await ctx.close();
@@ -1156,7 +1212,7 @@ if (THEME !== 'dark') {
   ok(tok.light.gHaloAdd !== tok.dark.gHaloAdd, '⑲j 地球光晕混合模式两主题相同（--g-halo-add）');
   ok(tok.light.dAdd !== tok.dark.dAdd, '⑲j 双向声带混合模式两主题相同（--d-add）');
   ok(tok.light.bAdd !== tok.dark.bAdd, '⑲j 大脑混合模式两主题相同（--b-add）');
-    ok(tok.light.rvAdd !== tok.dark.rvAdd, '⑲j 合流页混合模式两主题相同（--rv-add）');
+    ok(tok.light.ntAdd !== tok.dark.ntAdd, '⑲j 三种互动页混合模式两主题相同（--nt-add）');
     const rows = LAB_PAGES.map(P => [P, ink[P].light / ink[P].dark]);
     rows.forEach(([P, r]) => ok(r >= 0.90,
       `⑳ink P${P} 浅/暗墨量比 ${r.toFixed(3)} < 0.90 —— 浅色中间调塌了`));
@@ -1167,8 +1223,8 @@ if (THEME !== 'dark') {
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P7 各 1 步（六页细节层）`
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P8 各 1 步（七页细节层）`
                            + ` · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 10 股 / 禁 WebGL 8 页可读`);
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 31 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);
