@@ -61,8 +61,10 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   若产物是 INFO_P6=off 出的，把 6 从这张表里删掉、FLAT_PAGES 改回 [6,7]、
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
 // v3.1：P8 的 `river`（三条支流一条河）退役，换成 `net`（一张实时网上的三种互动）。
+// v3.2：`net`（线框示意图 · Colin 判「丑」「不适配」）再退役，换成 `galaxy`
+//       （互动星系 · 12,000 点体积点云 —— 与 P5 五脑区大脑同一语系）。
 const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain',
-                     6: 'exit', 7: 'wall', 8: 'net' };
+                     6: 'exit', 7: 'wall', 8: 'galaxy' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // v3 波C 起**八页全有场景**（P7 的五层生态图搬进细节层，主图换成 3D 星座墙）⇒
 // 这张表空了。⑲e「非激活页 ⇒ canvas 回车库」因此改成「把 .active 全摘掉」来验
@@ -81,8 +83,8 @@ const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 //   P4 的 ribbon 网格顶点在构建期能逐点复现（`ribbonGeo` 的 Python 同解）⇒ 照旧等式。
 //   P5 的 12000 点体积点云、P7 的摆动 / 浮动扫掠不能 ⇒ 构建期给的是**外包络**（下界），
 //   按不等式对表：运行时 ≥ 解析 − 0.5。注意方向：下界只会让闸更严，不是放松。
-//   P8（v3.1）同理：六台迷你转子在翻滚（三枚环的倾角各自摆动 ±8°）、三枚人节点在
-//   呼吸（圆环只向外涨）⇒ 几何逐帧在变，构建期交的是整族的**扫掠包络**。
+//   P8（v3.2）同理：互动星系整体在转（1 圈/90s）+ 在摇（±6°/17s），点云 / 弧 / 流
+//   三件几何逐帧在变 ⇒ 构建期交的是「(r,|w|) 族 × 整圈 φ × 摇摆三档」的**扫掠包络**。
 //   下限（16px 加法层规则）与「运行时 ≥ 解析 − 0.5」两条一格没松。
 const CLR_BOUND = [5, 7, 8];
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
@@ -570,12 +572,13 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    // v3.1：P8 的股数从 4（三条支流 + 主河道）变成 **25**——
-    //   ① 人与人 2（一对双向）· ② 人与智能体 2 · ③ 智能体网 10 条边 ×2 = 20 ·
-    //   三簇连接带 1。全 deck 因此是 3(P3) + 2(P4) + 1(P6) + 25(P8) = 31 股。
-    ok(all.length === 31, `⑳spd A 档股数 ${all.length} != 31`);
+    // v3.2：P8 三稿的股数是 **20** —— 14 条核↔内环互动流（一来一回）+ 6 条内环→外环
+    //   径向流。全 deck 因此是 3(P3) + 2(P4) + 1(P6) + 20(P8) = 26 股。
+    //   ⚠ 星系的 20 股逐股给了**自己的世界速度**（spd_i = 110·Lw/Lp，与 P3 三条主干同法）
+    //     ⇒ 波峰在**屏上**一律 110px/s（参考位姿 spin=0），页内极差 1.00×。
+    ok(all.length === 26, `⑳spd A 档股数 ${all.length} != 26`);
     ok(rows.length === 4, `⑳spd A 档页数 ${rows.length} != 4（P1 球 / P2 地球 / P5 大脑不是介质，不进表）`);
-    ok(all.filter(r => r.p === 8).length === 25, `⑳spd P8 股数 ${all.filter(r => r.p === 8).length} != 25`);
+    ok(all.filter(r => r.p === 8).length === 20, `⑳spd P8 股数 ${all.filter(r => r.p === 8).length} != 20`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));
@@ -588,44 +591,72 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     console.log(`  · ⑳spd A 档：${rows.length} 页 ${all.length} 股 · ${lo}–${hi}px/s`);
   }
 
-  /* ── ⑳net P8「网在生长」的相位账（解出来的，不是调出来的）──────────────────
-     ⚠ v3.1：本闸接替 ⑳rv（三条支流的接力相位）—— 河退役，这一页改成
-       **一张实时网上的三种互动**。判据换成五边形网那十条边的确定性相位：
-         φ_k − k·2π/10 = 0（k = 0..9）
-       并正面钉死场面构成：3 枚人节点 / 6 台迷你转子 / 10 条边 / 25 股 /
-       λ 仍是 lab-kit ⑨ 的 232px（全家族同一种介质）/ 迷你转子外半轴 ≤40 且
-       三枚环的倾角互不相同（等比缩倾角 = 三枚环共面，是 P15 二稿的病）。 */
+  /* ── ⑳galaxy P8「互动星系」的机器面（解出来的，不是调出来的）───────────────
+     ⚠ v3.2：本闸接替 ⑳net —— 二稿那张线框示意图（三簇圆环 + 五角星网）整枚退役。
+       判据换成星系自己的账：三环点数与半径 / 盘面倾角 / 转速与摇摆 / 弧与流的股数 /
+       **生灭窗**（0.4s 内归零再回卷 · 相位表按 (k·塑性数倒数) mod 1 逐条复算 ·
+       life(0)=life(1)=0 ⇒ 回卷处零跳变）/ 深度雾贴真实 z 跨度 /
+       三处引线落点离环带 ≥16px（构建期扫掠包络实测，qa 只做对表）。 */
   {
     const d = await pg.evaluate(() => {
       const q = document.getElementById('labStage8').dataset;
-      return { ph: q.labEphase.split(',').map(Number), lam: +q.labLam,
-               hum: +q.labHum, orbs: +q.labOrbs, edges: +q.labEdges,
-               strands: +q.labStrands, cyc: +q.labCyc, lit0: +q.labLit0,
-               grid: q.labGrid, z: q.labZ.split(',').map(Number),
-               orbrx: +q.labOrbrx, tilt: q.labOrbtilt.split('/').map(Number),
-               scene: document.getElementById('labStage8').dataset.labScene };
+      const n = (k) => q[k].split(',').map(Number);
+      return { scene: q.labScene, lam: +q.labLam, pts: +q.labPts,
+               ring: n('labRing'), r: n('labR'), thick: n('labThick'),
+               tilt: +q.labTilt, spin: +q.labSpin, sway: +q.labSway, swayP: +q.labSwayP,
+               arcs: +q.labArcs, strands: +q.labStrands, flows: n('labFlows'),
+               cyc: +q.labCyc, life: n('labLife'), gs: +q.labGs, floor: +q.labFloor,
+               qph: n('labQphase'), half: +q.labHalf, zmax: +q.labZmax,
+               lead: n('labLead'), leadclr: +q.labLeadclr };
     });
-    ok(d.scene === 'net', `⑳net P8 场景名 ${d.scene} != net`);
-    ok(d.hum === 3 && d.orbs === 6, `⑳net 节点数漂移：人 ${d.hum}（要 3）/ 智能体 ${d.orbs}（要 6）`);
-    ok(d.edges === 10, `⑳net 五边形网的边数 ${d.edges} != 10（K5 = 5 边 + 5 对角）`);
-    ok(d.strands === 25, `⑳net 股数 ${d.strands} != 25（2+2+10×2+1）`);
-    ok(d.ph.length === 10, `⑳net 相位表长 ${d.ph.length} != 10`);
-    ok(Math.abs(d.lam - 232) < 1e-6, `⑳net 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
-    d.ph.forEach((o, k) => {
-      const res = o - k * 2 * Math.PI / 10;
-      ok(Math.abs(res) < 1e-4,
-         `⑳net 边${k + 1} 的相位不是 k·2π/10（${o}，余 ${res.toFixed(6)}）`);
-    });
-    ok(d.lit0 > 0 && d.lit0 < 1, `⑳net 常亮地板 ${d.lit0} 不在 (0,1)——「全网常亮」没了`);
-    ok(d.grid === '8,17', `⑳net 透视栅格规格 ${d.grid} != 8,17`);
-    ok(d.z.length === 3 && d.z[0] === 0 && d.z[1] < d.z[0] && d.z[2] < d.z[1],
-       `⑳net 三簇深度不是「已经发生贴版面 → 即将发生退进纵深」：[${d.z}]`);
-    ok(d.orbrx <= 40, `⑳net 迷你转子外半轴 ${d.orbrx} > 40`);
-    ok(new Set(d.tilt).size === 3 && d.tilt.length === 3,
-       `⑳net 转子三枚环的倾角撞车：[${d.tilt}]`);
-    console.log(`  · ⑳net P8：${d.hum} 人节点 / ${d.orbs} 台转子（外半轴 ${d.orbrx}·倾角 ${
-      d.tilt.join('/')}°）/ ${d.edges} 条边 · 相位差 2π/10 余项全 0 · ${
-      d.strands} 股 · 地板 ${d.lit0} · 光弧周期 ${d.cyc}s`);
+    ok(d.scene === 'galaxy', `⑳galaxy P8 场景名 ${d.scene} != galaxy`);
+    ok(Math.abs(d.lam - 232) < 1e-6, `⑳galaxy 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
+    // ① 点数：三环合计恰 12,000（与 P5 大脑同一量级）· 两条环带偶数（交错各半）
+    ok(d.pts === 12000 && d.ring.reduce((a, b) => a + b, 0) === 12000,
+       `⑳galaxy 三环点数 [${d.ring}] 合计 != 12000（声明 ${d.pts}）`);
+    ok(d.ring.length === 3 && d.ring[1] % 2 === 0 && d.ring[2] % 2 === 0,
+       `⑳galaxy 环带点数不是偶数，人 / 智能体交错分不平：[${d.ring}]`);
+    // ② 三环半径严格递增 + 两道净空缝（不然三环在屏上糊成一团）
+    ok(d.r.length === 5 && d.r.every((v, i) => i === 0 || v > d.r[i - 1]),
+       `⑳galaxy 三环半径不是严格递增：[${d.r}]`);
+    ok(d.r[1] - d.r[0] >= 60 && d.r[3] - d.r[2] >= 50,
+       `⑳galaxy 环与环之间的净空缝太窄：[${d.r}]`);
+    ok(d.thick.length === 2 && d.thick.every(v => v > 0), `⑳galaxy 环带厚度 [${d.thick}] 非正`);
+    // ③ 盘面倾角 / 转速 / 轻摇（P5 大脑同款原语 · 零随机源）
+    ok(d.tilt === 62, `⑳galaxy 盘面倾角 ${d.tilt}° != 62°`);
+    ok(d.spin === 90 && d.sway === 6 && d.swayP === 17,
+       `⑳galaxy 转速 / 摇摆漂移：1 圈/${d.spin}s · ±${d.sway}°/${d.swayP}s`);
+    // ④ 弧与流的股数
+    ok(d.arcs === 24, `⑳galaxy 智能体间弧 ${d.arcs} 条 != 24`);
+    ok(d.strands === 20 && d.flows[0] === 14 && d.flows[1] === 6
+       && d.flows[0] + d.flows[1] === d.strands,
+       `⑳galaxy 流股数 ${d.strands}（${d.flows}）!= 20（14 + 6）`);
+    // ⑤ 生灭窗：0.4s 内归零，相位表逐条复算，且两端恰好为 0（回卷零跳变）
+    ok(d.cyc === 20, `⑳galaxy 生长周期 ${d.cyc}s != 20s`);
+    ok(Math.abs(d.life[0] - 0.4) < 1e-9, `⑳galaxy 灭窗 ${d.life[0]}s != 0.4s`);
+    ok(d.floor > 0 && d.floor < 1 && d.gs > 0 && d.gs < 0.5,
+       `⑳galaxy 生长锋的地板 ${d.floor} / 软边 ${d.gs} 越界`);
+    const PL2 = 0.7548776662;
+    ok(d.qph.length === 10, `⑳galaxy 生灭窗相位表长 ${d.qph.length} != 10`);
+    d.qph.forEach((v, k) => ok(Math.abs(v - (k * PL2) % 1) < 2e-4,
+      `⑳galaxy 生灭窗相位 ${k} 不是 (k·塑性数倒数) mod 1（${v}）`));
+    const W0 = d.life[0] / d.cyc, Wb = d.life[1] / d.cyc;
+    const ss = (a2, b2, x) => { const t = Math.max(0, Math.min(1, (x - a2) / (b2 - a2)));
+                                return t * t * (3 - 2 * t); };
+    const life = (u) => ss(0, Wb, u) * (1 - ss(1 - W0, 1, u));
+    ok(life(0) === 0 && Math.abs(life(1)) < 1e-12,
+       `⑳galaxy 生灭窗的接头不在最暗处（life(0)=${life(0)} life(1)=${life(1)}）`);
+    // ⑥ 深度雾贴真实 z 跨度（松了就等于没有体积 —— px 场景唯一的立体线索）
+    ok(Math.abs(d.half - d.zmax) <= 6,
+       `⑳galaxy 深度雾半程 ${d.half} 没贴住真实 z 跨度 ${d.zmax}`);
+    // ⑦ 三处引线落点离环带 ≥16px（构建期扫掠包络实测）
+    ok(d.lead.length === 3, `⑳galaxy 引线落点净空表长 ${d.lead.length} != 3`);
+    d.lead.forEach((v, k) => ok(v >= d.leadclr,
+      `⑳galaxy 第 ${k + 1} 组标注的引线落点离环带只有 ${v}px（下限 ${d.leadclr}）`));
+    console.log(`  · ⑳galaxy P8：三环 [${d.ring}] = ${d.pts} 点 · 半径 [${d.r}] · 倾角 ${
+      d.tilt}° · 1 圈/${d.spin}s · 摇 ±${d.sway}°/${d.swayP}s · ${d.arcs} 弧 / ${
+      d.strands} 股 · 生灭窗 ${d.life[0]}s 归零 · 生长周期 ${d.cyc}s · 引线净空 [${
+      d.lead}]px`);
   }
 
   // ── ⑳flick 消闪：定拍逐帧亮度突变上限（波B 的第一条验收红线）──────────────
@@ -1200,7 +1231,8 @@ if (THEME !== 'dark') {
                  gHaloAdd: cs.getPropertyValue('--g-halo-add').trim(),
                  dAdd: cs.getPropertyValue('--d-add').trim(),
                  bAdd: cs.getPropertyValue('--b-add').trim(),
-                 ntAdd: cs.getPropertyValue('--nt-add').trim(),
+                 gxAdd: cs.getPropertyValue('--gx-add').trim(),
+                 gxCore: cs.getPropertyValue('--gx-core-op').trim(),
                  vBack: cs.getPropertyValue('--v-back').trim() };
       });
       await ctx.close();
@@ -1212,7 +1244,9 @@ if (THEME !== 'dark') {
   ok(tok.light.gHaloAdd !== tok.dark.gHaloAdd, '⑲j 地球光晕混合模式两主题相同（--g-halo-add）');
   ok(tok.light.dAdd !== tok.dark.dAdd, '⑲j 双向声带混合模式两主题相同（--d-add）');
   ok(tok.light.bAdd !== tok.dark.bAdd, '⑲j 大脑混合模式两主题相同（--b-add）');
-    ok(tok.light.ntAdd !== tok.dark.ntAdd, '⑲j 三种互动页混合模式两主题相同（--nt-add）');
+    ok(tok.light.gxAdd !== tok.dark.gxAdd, '⑲j 互动星系混合模式两主题相同（--gx-add）');
+    ok(tok.light.gxCore !== tok.dark.gxCore,
+       `⑲j 互动星系核墨量两主题相同（--gx-core-op=${tok.light.gxCore}）`);
     const rows = LAB_PAGES.map(P => [P, ink[P].light / ink[P].dark]);
     rows.forEach(([P, r]) => ok(r >= 0.90,
       `⑳ink P${P} 浅/暗墨量比 ${r.toFixed(3)} < 0.90 —— 浅色中间调塌了`));
@@ -1225,6 +1259,6 @@ ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
                          : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P8 各 1 步（七页细节层）`
                            + ` · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 31 股 / 禁 WebGL 8 页可读`);
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 26 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);
