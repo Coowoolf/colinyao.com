@@ -99,14 +99,16 @@ const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ig
 const LAB_SCENES = { 1: 'voice', 2: 'morph', 3: 'lanes', 4: 'duplex', 5: 'three',
                      6: 'chain', 7: 'terrain', 8: 'cutin', 9: 'shell', 10: 'bigmap',
                      11: 'qos', 12: 'vision', 13: 'slots', 14: 'towers', 15: 'hub',
-                     16: 'calls', 17: 'brain', 18: 'spiral', 21: 'globe', 22: 'quiet' };
-// ── 三轮「静态页升维」：四枚**加法层**（2026-09-01 · Colin 点名 P22 + 全 deck 静态页）──
-//   与另外 16 枚的根本差别：那 16 枚在**替换**页上的一张 SVG 图（poster 是它的降级层）；
-//   这四页页上根本没有图，3D 是加在既有版面之外的一层氛围场 ⇒
+                     16: 'calls', 17: 'brain', 18: 'spiral', 21: 'globe', 22: 'galaxy' };
+// ── 三轮「静态页升维」：三枚**加法层**（2026-09-01 · Colin 点名全 deck 静态页）──
+//   与另外 17 枚的根本差别：那 17 枚在**替换**页上的一张 SVG 图（poster 是它的降级层）；
+//   这三页页上根本没有图，3D 是加在既有版面之外的一层氛围场 ⇒
 //     · 一件 DOM 都不动、**一枚 poster 都不挂**（挂一枚空的只是骗闸门）；
 //     · 降级层就是整页本身：WebGL 起不来时这一页与今天逐像素相同。
 //   这条判断在下面的 ⑲a / ⑲c / ㉒ 三处都写成了正面断言，不是「跳过不管」。
-const ADDITIVE = [5, 15, 16, 22];
+//   ⚠ 2026-09-03：P22 退出这张名册 —— 末页从「余韵星野」换成 **互动星系**
+//     （在页 3D 页，右半舞台有自己的 poster），它的机器面在 ⑳galaxy 那一段。
+const ADDITIVE = [5, 15, 16];
 // poster 就是页上那张 SVG 的十四页（P1/P21 走构建期离线投影出来的专用 poster）
 const INPAGE = Object.keys(LAB_SCENES).map(Number)
   .filter(p => p !== 1 && p !== 21 && !ADDITIVE.includes(p));
@@ -122,7 +124,7 @@ const K_AS_LAM = 232;      // lab-kit ⑨ 的波长（P2 的波场必须逐字�
 // 分步页：P6 实时语音链路 / P7 VAD / P14 接入架构 / P20 视频页，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
 [6, 7, 14, 20].forEach(p => { EXP_STEPS[p - 1] = 1; });
-// title 板两页：P1 封面 / P22 OpenAI 合作（末页 · quote 语域 · logo 锁定版）
+// title 板两页：P1 封面 / P22 OpenAI 合作（末页 · quote 语域 · logo 锁定版 + 互动星系）
 const BOARD = { 1: 'title', 22: 'title' };                   // 其余一律 content
 // 纯全屏视频页：没有 kicker、没有标题（robot26 #24 同款「一页只有一支片子」）
 const VIDEO_PAGE = 20;
@@ -395,6 +397,18 @@ const [p9, p12, p19, p13] = await Promise.all(
  ['对话式 AI 引擎底座', p22, 'P22'], ['全球最强的 Voice Agent 团队', p22, 'P22'],
  ['对话式智能体', p22, 'P22'], ['全球首批合作伙伴', p22, 'P22'],
  ['A QUIET ENDORSEMENT', p22, 'P22'],
+ // 2026-09-03 新增：使命 / 愿景两句**逐字**（SOURCE 口径 = 声网官网 关于我们，
+ // 与 convoai-info P8 同源；改一个字两份 deck 一起报）
+ ['使命', p22, 'P22'], ['帮助人们跨越距离实时互动，如聚一堂。', p22, 'P22'],
+ ['愿景', p22, 'P22'], ['让实时互动像空气和水一样，无处不在。', p22, 'P22'],
+ // 互动星系的三区标注六枚字串 + 三行副行 + 角注（角注是硬要求：环径不代表规模）
+ ['人与人 ·', p22, 'P22'], ['已经发生', p22, 'P22'],
+ ['人与智能体 ·', p22, 'P22'], ['正在发生', p22, 'P22'],
+ ['智能体与智能体 ·', p22, 'P22'], ['即将发生', p22, 'P22'],
+ ['实时音视频 · 2014 年起', p22, 'P22'],
+ ['对话式 AI 引擎 · 企业级智能体 · R1', p22, 'P22'],
+ ['智能体之间的实时对话与协作', p22, 'P22'],
+ ['互动星系示意 · 玫红 = 人 · 蓝 = 智能体 · 紫 = 智能体网 · 环径不代表规模', p22, 'P22'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑪ ${tag} 缺「${needle}」`));
 // ⑪ 反向闸：Colin 明确点掉的两处措辞不许回流
 ok(!p22.includes('实时通信底座'), '⑪ P22 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
@@ -788,7 +802,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(one.scenes === LAB_PAGES.join(','),
        `⑲a2 场景 registry 页码表漂移：${one.scenes} != ${LAB_PAGES.join(',')}`);
     ok(LAB_PAGES.length === 20,
-       `⑲a2 场景页应为 20（七 + 九 + 三轮四枚加法层），实为 ${LAB_PAGES.length}`);
+       `⑲a2 场景页应为 20（七 + 九 + 三轮三枚加法层 + ⑥ 互动星系），实为 ${LAB_PAGES.length}`);
     FLAT_PAGES.forEach(p => ok(!LAB_PAGES.includes(p),
       `⑲a2 P${p} 不该有 3D 场景（P19 实拍照片 / P20 视频页 —— 既定判断，一个像素不许改）`));
     ADDITIVE.forEach(p => ok(LAB_PAGES.includes(p), `⑲a2 加法层 P${p} 没进场景表`));
@@ -1604,7 +1618,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     console.log(`  · ⑲p10 轻手术：介质 ${m10.flows} 条 → 流带 / 离散 ${m10.evt} 条 → 保持粒子 · 位移 0`);
   }
   /* ═══════════════════════════════════════════════════════════════════════
-     ㉒ 三轮「静态页升维」· 四枚加法层（P5 / P15 / P16 / P22）的机器自证
+     ㉒ 三轮「静态页升维」· 三枚加法层（P5 / P15 / P16）的机器自证
      ───────────────────────────────────────────────────────────────────────
      这四页的 3D 是**加法**：页上没有图，一件 DOM 都不动，3D 只是加了一层场。
      加法层唯一真正的风险是**压字**，所以这一段的重量全压在净空上，而且是
@@ -1615,10 +1629,6 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
        ㉒b 净空 —— `state().clr` 把**这一帧真的传上 GPU 的顶点**投影回舞台像素，
            逐顶点量到墨迹盒的距离（已扣掉带宽 / 粒半径），必须 ≥16px，
            且与构建期的解析声明同源（P13 转子那一套判据本人）。
-       ㉒c P22 克制三条（Colin：「末页是余韵不是高潮」）——
-           墨量 ≤ P1 声场球的 60%（同一支尺 TOUR.shot().ink 量两页）·
-           循环 ≥18s 且相速度低于 A 档下限（慢是机器判据，不是手感）·
-           逐帧亮度突变沿用 ⑲p7 同一档上限。
        ㉒d P5 底场墨量 ≤ 三张数字卡的 25% —— 光度实测：有 canvas / 无 canvas
            两帧作差得底场墨量，卡片墨量取卡区相对众数底色的平均绝对偏差。
      ═══════════════════════════════════════════════════════════════════════ */
@@ -1674,70 +1684,102 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
         D.ink.length} 只 · 净空 ${D.st.clr.toFixed(1)}px（声明 ${D.clrMin}）`);
     }
 
-    // ── ㉒c · P22 末页的三条克制指标 ─────────────────────────────────────
+    /* ── ⑳galaxy · P22「互动星系」的机器面（从 qa-convoai-info.mjs 的 ⑳galaxy 移植）──
+       同一枚场景、同一份 JS，只是盘心与尺度不同 ⇒ **半径全部按 s 断言**：
+       除以 s 之后必须与 info P8 是同一批数（100 / 200–290 / 360–470 · 厚 22/30）。
+       判据：三环点数与半径 / 盘面倾角 / 转速与摇摆 / 弧与流的股数 / 生灭窗（0.4s 内
+       归零再回卷 · 相位表按 (k·塑性数倒数) mod 1 逐条复算 · life(0)=life(1)=0）/
+       深度雾贴真实 z 跨度 / 三处引线落点离环带 ≥16px（构建期扫掠包络实测）/
+       墨迹名册 × 活 DOM 对表 / 运行时 state().clr 与构建期声明同源。 */
     {
-      const inkOf = async (P) => {
-        await pg.evaluate(k => window.deck.go(k - 1), P);
-        await pg.waitForTimeout(1600);
-        return pg.evaluate(() => { const t = window.__labTour; t.pace(30); t.seek(6);
-          const s = t.shot(8, 8); t.pace(0); return { ink: s.ink, cov: s.cov, mean: s.mean }; });
-      };
-      const i1 = await inkOf(1), i22 = await inkOf(22);
-      ok(i22.ink <= i1.ink * 0.60,
-         `㉒c P22 墨量 ${i22.ink.toFixed(5)} > P1 声场球的 60%（${(i1.ink*0.6).toFixed(5)}）—— 末页是余韵`);
-      ok(i22.ink > i1.ink * 0.005,
-         `㉒c P22 墨量 ${i22.ink.toFixed(5)} 低到看不见了（P1 的 ${(i22.ink/i1.ink*100).toFixed(2)}%）`);
-      /* 「单个循环」= **基频周期** λ/v。四枚谐波两两不整除（lab-kit ⑨ 的纪律，
-         ⑲as 已单独复算过）⇒ 场**永不逐拍重复** —— 这是特性不是缺陷：重复的起伏
-         会被眼睛读成心跳。所以这一闸验的不是「t 与 t+cyc 逐位相同」（那本来就不该
-         成立），而是三件真正该管的事：基频周期 ≥18s · 变化速率有上限（慢是判据）·
-         场确实在传（不是一潭死水）。 */
-      const q = await pg.evaluate(() => {
-        const d = document.getElementById('labStage22').dataset;
-        const t = window.__labTour; t.pace(30);
-        const cyc = +d.labCyc, seq = [];
-        for (let s2 = 0; s2 <= cyc + 1e-9; s2 += 0.25) { t.seek(s2); seq.push(t.unit().state().lift); }
-        t.pace(0);
-        return { cyc, spd: +d.labQspd, stars: +d.labStars, lam: +d.labLam, seq };
+      await pg.evaluate(() => window.deck.go(21));
+      await pg.waitForTimeout(2600);
+      const d = await pg.evaluate(() => {
+        const q = document.getElementById('labStage22').dataset;
+        const n = (k) => q[k].split(',').map(Number);
+        const u = window.__labTour.unit();
+        return { scene: q.labScene, lam: +q.labLam, s: +q.labS, pts: +q.labPts,
+                 ring: n('labRing'), r: n('labR'), thick: n('labThick'),
+                 tilt: +q.labTilt, spin: +q.labSpin, sway: +q.labSway, swayP: +q.labSwayP,
+                 arcs: +q.labArcs, strands: +q.labStrands, flows: n('labFlows'),
+                 cyc: +q.labCyc, life: n('labLife'), gs: +q.labGs, floor: +q.labFloor,
+                 qph: n('labQphase'), half: +q.labHalf, zmax: +q.labZmax,
+                 lead: n('labLead'), leadclr: +q.labLeadclr, clr: +q.labClr,
+                 clrMin: +q.labClrMin,
+                 ink: (q.labInk || '').split(';').filter(Boolean).map(r => r.split(',').map(Number)),
+                 st: u && u.state ? u.state() : null };
       });
-      ok(q.cyc >= 18, `㉒c P22 基频周期 ${q.cyc}s < 18s —— 末页必须比全场任何一页都慢`);
-      ok(Math.abs(q.cyc - q.lam / q.spd) < 1e-6, `㉒c P22 基频周期 ${q.cyc} != λ/v`);
-      ok(q.spd < 77, `㉒c P22 涟漪相速度 ${q.spd}px/s 落进了 A 档（下限 77）—— 余韵不是介质`);
-      let dmax = 0, span = 0;
-      for (let k = 0; k < q.seq[0].length; k++) {
-        const col = q.seq.map(r => r[k]);
-        for (let i = 1; i < col.length; i++) dmax = Math.max(dmax, Math.abs(col[i] - col[i-1]));
-        span = Math.max(span, Math.max(...col) - Math.min(...col));
-      }
-      ok(dmax * 4 <= 0.26,
-         `㉒c P22 亮度变化速率 ${(dmax*4).toFixed(3)}/s > 0.26/s —— 场太急，末页要的是余韵`);
-      ok(span > 0.35,
-         `㉒c P22 一个周期里亮度只摆动了 ${span.toFixed(3)} —— 涟漪根本没在传`);
-      ok(q.stars > 3000, `㉒c P22 只有 ${q.stars} 颗星 —— 场不成其为场`);
-      // 逐帧亮度突变（沿用 ⑲p7 同一档上限：整幅 4.0/255 · 8×8 分块 26/255）
-      const fl = await pg.evaluate(async (n) => {
-        window.deck.go(21); await new Promise(r => setTimeout(r, 1200));
-        const t = window.__labTour; t.pace(30); t.seek(0);
-        let prev = null, dMean = 0, dBlk = 0;
-        for (let i = 0; i < n; i++) {
-          const s2 = t.shot(8, 8);
-          if (prev) {
-            dMean = Math.max(dMean, Math.abs(s2.mean - prev.mean));
-            for (let k = 0; k < s2.blocks.length; k++)
-              dBlk = Math.max(dBlk, Math.abs(s2.blocks[k] - prev.blocks[k]));
-          }
-          prev = s2; t.step(1);
-        }
-        t.pace(0);
-        return { dMean, dBlk };
-      }, 150);
-      ok(fl.dMean <= 4.0, `㉒c P22 整幅亮度帧间跳变 ${fl.dMean.toFixed(3)}/255 > 4.0`);
-      ok(fl.dBlk <= 26.0, `㉒c P22 8×8 分块亮度帧间跳变 ${fl.dBlk.toFixed(3)}/255 > 26`);
-      console.log(`  · ㉒c P22 克制实测：墨量 ${i22.ink.toFixed(5)} = P1 的 ${
-        (i22.ink / i1.ink * 100).toFixed(1)}%（上限 60%）· 循环 ${q.cyc}s @ ${q.spd}px/s`
-        + `（A 档下限 77）· ${q.stars} 颗星 · 亮度速率 ${(dmax*4).toFixed(3)}/s（上限 .26）`
-        + ` · 周期内摆幅 ${span.toFixed(2)} · 逐帧跳变 整幅 ${fl.dMean.toFixed(3)} / 分块 ${
-          fl.dBlk.toFixed(3)}`);
+      ok(d.scene === 'galaxy', `⑳galaxy P22 场景名 ${d.scene} != galaxy`);
+      ok(Math.abs(d.lam - K_AS_LAM) < 1e-6, `⑳galaxy 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
+      ok(Math.abs(d.s - 0.75) < 1e-9, `⑳galaxy 尺度 ${d.s} != 0.75`);
+      // ① 点数：三环合计恰 12,000（与 P17 大脑同一量级）· 两条环带偶数（交错各半）
+      ok(d.pts === 12000 && d.ring.reduce((a, b) => a + b, 0) === 12000,
+         `⑳galaxy 三环点数 [${d.ring}] 合计 != 12000（声明 ${d.pts}）`);
+      ok(d.ring.length === 3 && d.ring[1] % 2 === 0 && d.ring[2] % 2 === 0,
+         `⑳galaxy 环带点数不是偶数，人 / 智能体交错分不平：[${d.ring}]`);
+      // ② 三环半径：**除以 s 之后**与 info P8 逐条同数，且严格递增 + 两道净空缝
+      const R0 = d.r.map(v => v / d.s), T0 = d.thick.map(v => v / d.s);
+      const WANT_R = [100, 200, 290, 360, 470], WANT_T = [22, 30];
+      R0.forEach((v, i) => ok(Math.abs(v - WANT_R[i]) < 0.01,
+        `⑳galaxy 第 ${i} 枚半径 ${v.toFixed(2)}/s != ${WANT_R[i]}（与 info P8 分叉了）`));
+      T0.forEach((v, i) => ok(Math.abs(v - WANT_T[i]) < 0.01,
+        `⑳galaxy 第 ${i} 条环带厚度 ${v.toFixed(2)}/s != ${WANT_T[i]}`));
+      ok(d.r.every((v, i) => i === 0 || v > d.r[i - 1]),
+         `⑳galaxy 三环半径不是严格递增：[${d.r}]`);
+      ok(d.r[1] - d.r[0] >= 60 * d.s && d.r[3] - d.r[2] >= 50 * d.s,
+         `⑳galaxy 环与环之间的净空缝太窄：[${d.r}]`);
+      // ③ 盘面倾角 / 转速 / 轻摇（P17 大脑同款原语 · 零随机源）
+      ok(d.tilt === 62, `⑳galaxy 盘面倾角 ${d.tilt}° != 62°`);
+      ok(d.spin === 90 && d.sway === 6 && d.swayP === 17,
+         `⑳galaxy 转速 / 摇摆漂移：1 圈/${d.spin}s · ±${d.sway}°/${d.swayP}s`);
+      // ④ 弧与流的股数
+      ok(d.arcs === 24, `⑳galaxy 智能体间弧 ${d.arcs} 条 != 24`);
+      ok(d.strands === 20 && d.flows[0] === 14 && d.flows[1] === 6
+         && d.flows[0] + d.flows[1] === d.strands,
+         `⑳galaxy 流股数 ${d.strands}（${d.flows}）!= 20（14 + 6）`);
+      // ⑤ 生灭窗：0.4s 内归零，相位表逐条复算，且两端恰好为 0（回卷零跳变）
+      ok(d.cyc === 20, `⑳galaxy 生长周期 ${d.cyc}s != 20s`);
+      ok(Math.abs(d.life[0] - 0.4) < 1e-9, `⑳galaxy 灭窗 ${d.life[0]}s != 0.4s`);
+      ok(d.floor > 0 && d.floor < 1 && d.gs > 0 && d.gs < 0.5,
+         `⑳galaxy 生长锋的地板 ${d.floor} / 软边 ${d.gs} 越界`);
+      const PL2 = 0.7548776662;
+      ok(d.qph.length === 10, `⑳galaxy 生灭窗相位表长 ${d.qph.length} != 10`);
+      d.qph.forEach((v, k) => ok(Math.abs(v - (k * PL2) % 1) < 2e-4,
+        `⑳galaxy 生灭窗相位 ${k} 不是 (k·塑性数倒数) mod 1（${v}）`));
+      const W0 = d.life[0] / d.cyc, Wb = d.life[1] / d.cyc;
+      const ss = (a2, b2, x) => { const t = Math.max(0, Math.min(1, (x - a2) / (b2 - a2)));
+                                  return t * t * (3 - 2 * t); };
+      const life = (u) => ss(0, Wb, u) * (1 - ss(1 - W0, 1, u));
+      ok(life(0) === 0 && Math.abs(life(1)) < 1e-12,
+         `⑳galaxy 生灭窗的接头不在最暗处（life(0)=${life(0)} life(1)=${life(1)}）`);
+      // ⑥ 深度雾贴真实 z 跨度（松了就等于没有体积 —— px 场景唯一的立体线索）
+      ok(Math.abs(d.half - d.zmax) <= 6,
+         `⑳galaxy 深度雾半程 ${d.half} 没贴住真实 z 跨度 ${d.zmax}`);
+      // ⑦ 三处引线落点离环带 ≥16px（构建期扫掠包络实测，qa 只做对表）
+      ok(d.lead.length === 3, `⑳galaxy 引线落点净空表长 ${d.lead.length} != 3`);
+      d.lead.forEach((v, k) => ok(v >= d.leadclr,
+        `⑳galaxy 第 ${k + 1} 组标注的引线落点离环带只有 ${v}px（下限 ${d.leadclr}）`));
+      // ⑧ 墨迹名册 × 活 DOM：三区标注九行 + 角注 + 左列离舞台 ≤200px 的字形盒
+      //    —— 舞台（x1060）之内 / 之外 200px 之内的每一处字形行框都必须被名册盖住。
+      const gs = await glyphs(22);
+      const near = gs.filter(g => g[0] + g[2] >= 1060 - 200);
+      const miss = near.filter(g => !d.ink.some(b => covers(b, g, 2.5)));
+      ok(miss.length === 0,
+         `⑳galaxy-a P22 有 ${miss.length} 处离舞台 ≤200px 的字形行框不在墨迹名册里（首处 ${
+           miss[0] && miss[0].map(v => Math.round(v))}）—— 改了文案就得同步那张表`);
+      ok(d.ink.length >= 12, `⑳galaxy-a P22 墨迹名册只有 ${d.ink.length} 只盒`);
+      // ⑨ 净空：运行时逐顶点 × 构建期解析，两条独立算路对表
+      ok(d.clr === 16, `⑳galaxy P22 净空下限漂移：${d.clr}`);
+      ok(d.st && isFinite(d.st.clr), '⑳galaxy P22 场景没有交出 state().clr');
+      ok(d.st.clr >= 16,
+         `⑳galaxy P22 的 3D 压字：可见几何距字形墨迹盒仅 ${d.st.clr.toFixed(1)}px（下限 16）`);
+      ok(d.st.clr >= d.clrMin - 0.5,
+         `⑳galaxy P22 构建期声明 ${d.clrMin}px 与运行时实测 ${d.st.clr.toFixed(1)}px 分叉`);
+      console.log(`  · ⑳galaxy P22：三环 [${d.ring}] = ${d.pts} 点 @ s=${d.s} · 半径 [${
+        d.r}] · 倾角 ${d.tilt}° · 1 圈/${d.spin}s · 摇 ±${d.sway}°/${d.swayP}s · ${
+        d.arcs} 弧 / ${d.strands} 股 · 生灭窗 ${d.life[0]}s 归零 · 引线净空 [${
+        d.lead}]px · 墨迹净空 ${d.st.clr.toFixed(1)}px（声明 ${d.clrMin}）· 名册 ${
+        d.ink.length} 只盒 ⊃ ${near.length} 处字形`);
     }
 
     // ── ㉒d · P5 底场墨量 ≤ 三卡的 25%（光度实测 · 有 / 无 canvas 两帧作差）──
@@ -1794,13 +1836,15 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const [nm, v] = r.split(','); all.push({ p, nm, v: +v }); }));
     // 波A 30 股 8 页 → 波B 41 股 10 页 → 三轮 61 股 13 页 → 表达力精进 65 股 13 页
-    //   （P15 六条支线 +6；P5 底场 4 股（三支流 + 一集流）/ P16 通话流 8 股；
-    //    P2 的 02「两制对照」+4 = 回合制轨 1 + 并行听/想/说 3，见 _SPD_N）
-    //   ⚠ P22 的涟漪**故意不在这张表里**：A 档管的是「介质」，末页的场是余韵 ——
-    //     它反过来上一道 ㉒c 闸「必须低于 A 档下限」。
-    ok(all.length === 63, `⑲s A 档股数 ${all.length} != 63`);
-    ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
-    ok(!rows.some(([p]) => p === 22), '⑲s P22 的涟漪进了 A 档表 —— 它不是介质');
+    //   → 第二波改册 63 股 13 页（P5 底场 7→4、P16 通话流 7→8）
+    //   → 2026-09-03 ⑥ 互动星系：P22 从「余韵星野」（涟漪不是介质，**故意不进表**）
+    //     换成互动星系，20 股全部是 A 档介质（14 核↔内环 + 6 内环→外环 · λ232）
+    //     ⇒ 63 + 20 = **83 股**、13 + 1 = **14 页**。「P22 不许进表」那条断言随之反转。
+    ok(all.length === 83, `⑲s A 档股数 ${all.length} != 83（63 + P22 的 20 股）`);
+    ok(rows.length === 14, `⑲s A 档页数 ${rows.length} != 14`);
+    ok(rows.some(([p]) => p === 22), '⑲s P22 的 20 股互动流没进 A 档表 —— 它是介质');
+    ok(all.filter(r => r.p === 22).length === 20,
+       `⑲s P22 股数 ${all.filter(r => r.p === 22).length} != 20`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑲s P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
     const lo = Math.min(...all.map(r => r.v)), hi = Math.max(...all.map(r => r.v));

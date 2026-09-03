@@ -123,6 +123,7 @@
 #     否则卡片高度自适应会溢出 .sh 盒 → occlusion-scan 的 TEXT-x-SPILL
 # ═══════════════════════════════════════════════════════════════════════════
 from pathlib import Path
+import importlib.util as _ilu
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "scripts" / "assets" / "convoai-src"
@@ -131,6 +132,20 @@ SRC = ROOT / "scripts" / "assets" / "convoai-src"
 OUT = ROOT / "public" / "decks" / "convoai.html"
 OUT_ALIAS = ROOT / "public" / "decks" / "convoai-engine.html"
 B = "/decks/assets/conf-boards/"
+
+# ── ⑥ 互动星系（P22 末页）：从 LAB builder **现取**（不改它一个字节）──────────
+#   2026-09-03：末页右半的「互动星系」是 convoai-info P8 的那一枚，本轮搬进
+#   `scripts/build-convoai-lab.py` 当**全家族的单一真相**。母本这边只做三件事：
+#     ① 取 `GX22`（盘心 / 尺度 / 矩形，一个数都不在本文件里重写）；
+#     ② 取 `gx_poster()`（构建期离线投影出来的 2D 正装 —— 母本里它是永久的图，
+#        不是降级层，所以抽稀档比 info 粗一倍：1/4 ≈ 3,000 枚点）；
+#     ③ 取 `GX_CSS`（材质 token 与 poster 画法）与 `p22_body()`（整页 body）。
+#   ⚠ 模块级只跑几何，不碰 build() —— 与 convoai-info 现取旗舰是同一条路。
+#   构建顺序因此是 engine → lab → info（LAB 的同源自证要读本文件的产物）。
+_LAB_SPEC = _ilu.spec_from_file_location("_convoai_lab", ROOT / "scripts" / "build-convoai-lab.py")
+_LAB = _ilu.module_from_spec(_LAB_SPEC)
+_LAB_SPEC.loader.exec_module(_LAB)
+GX_STYLE = '<style id="convoai-galaxy">\n' + _LAB.GX_CSS + "</style>"
 
 def css(name):
     return (SRC / name).read_text(encoding="utf-8")
@@ -352,6 +367,16 @@ html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
    **它是静态文字件**：不挂 data-step、不挂任何 mo-* 类 —— 不进运动件名册，
    也躲开 motion.css「裸容器 step0 → opacity:0」的兜底规则（P20 空页事故的根因）。 */
 .sh.vid-kick{color:rgba(255,255,255,.74);text-shadow:0 1px 10px rgba(0,0,0,.55);}
+/* ── P22 背景板的右半软遮罩（2026-09-03 · 互动星系入页）──────────────────
+   title-02-orbit 的右半是三枚旋转 −25° 的椭圆轨道（中心≈(1470,510)），
+   与星系自己的三枚**正**椭圆轮廓环叠在一起就是两套倾角在打架 —— 屏上读成
+   「六个环」而不是「三个环」。P22 仍是 title 板页（首尾对仗 P1 不变），
+   只把背景板的右半淡掉：左半的 y≈878 hairline 照旧留下当使命 / 愿景块的收口线。
+   收口点取 56%（x1075）而不是 60%（x1152）：板上那枚轨道小行星落在页 x≈1108，
+   60% 那一档它还剩 23% 不透明度，在星系左边读成一粒来路不明的杂点；
+   56% 让板在星系最左缘（外环外缘 x1087.5）**之前**就淡干净。 */
+.slide[data-p="22"] .conf-bg{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 50%,transparent 56%);
+  mask-image:linear-gradient(90deg,#000 0,#000 50%,transparent 56%);}
 /* ── OpenAI × Agora logo 锁定版（P22 末页）───────────────────────────────
    双源同构图，走 convoai-info 的 .hero-art / .eco-art 同一套「CSS 控显隐」机制，
    不用 robot26 的 data-*-src 换源脚本：抽屉 iframe 里宿主切主题只改 html[data-theme]，
@@ -2543,45 +2568,17 @@ page("content", "".join([
     src("SOURCE · 声网官网 / IR 公开口径 · IDC 中国视频云市场报告 · 事实截止 2026.08"),
 ]))
 
-# ═══ P22 · OpenAI 合作 · 末页（logo 锁定版 + CTA · 页号 19→18→21→22）═══════
-#   参照 robot26 #33「A QUIET ENDORSEMENT」，按 Colin 指令泛化两处：
-#     ①「实时通信底座」→「对话式 AI 引擎底座」（本 deck 讲的是引擎，不是 RTC 管道）
-#     ②「你的消费机器人」→「你的对话式智能体」（本 deck 的听众不限于机器人客户）
-#   锚点 mono 行用 convoai-info P8 已核措辞「全球首批合作伙伴」——不写「全球首个」，
-#   那是 OpenAI 的事，不是声网的事（info 二轮仲裁 P0 已钉死这一条）。
-#   2026-08-21 收束轮 20 → 18：原 P20 收尾页删除，本页升为末页，承接两件事 ——
-#     ① OpenAI × Agora logo 锁定版（robot26 双源资产跨引用，lt/dk 双 img CSS 显隐）；
-#     ② 从被删收尾页继承的 CTA 行（Fable 裁定：真实入口不能随收尾页一起消失）。
-#   版面改为居中：logo 锁定版一居中，左对齐的大字就会读成「浮在旁边」——
-#   整页对齐方式必须跟着商标走，这是版面的因果，不是审美偏好。
-page("title", "".join([
-    sh("flow kk", "left:120px;top:128px;width:1680px;height:28px;text-align:center",
-       "2024.10.01 · A QUIET ENDORSEMENT"),
-    # 盒 838×570 = 原片整幅；墨迹（= 视觉上的 logo 锁定版）落在 x670–1250 / y196–562，
-    # 即宽 580 居中。为什么不按墨迹开盒 —— 见 DECK_CSS 里 .lock 那段。
-    sh("spread lock", "left:542px;top:160px;width:838px;height:570px;--i:2",
-       '<img class="lt" src="%(A)sopenai-agora-light.png" alt="OpenAI × 声网 Agora 合作标识">'
-       '<img class="dk" src="%(A)sopenai-agora.webp" alt="OpenAI × 声网 Agora 合作标识">'
-       % {"A": _R26}),
-    # 58px / 1560 宽：排满两行且左右各留 180 呼吸；62px/1680 时首行贴死版心边缘。
-    sh("ink", "left:180px;top:626px;width:1560px;height:170px;text-align:center;"
-       "font:700 58px/1.32 var(--f-cn);letter-spacing:-.02em;color:var(--ink)",
-       # 「寻找」外面这层 nowrap 不是装饰：CJK 允许任意两字之间断行，1560 宽下
-       # 首行正好断在「寻 / 找」中间 —— 一个词被劈成两行，读起来像错字。
-       "全球最强的 Voice Agent 团队，在为他们的 Realtime API "
-       "<span style='white-space:nowrap'>寻找</span>"
-       "<strong style='color:var(--accent)'>对话式 AI 引擎底座</strong>时，给出的选择。"),
-    sh("spread", "left:900px;top:826px;width:120px;height:4px;background:var(--accent);"
-       "border-radius:2px;--i:3", ""),
-    sh("flow", "left:120px;top:868px;width:1680px;height:52px;text-align:center;"
-       "font:400 32px/1.5 var(--f-cn);color:var(--ink-2);--i:4",
-       "同样的工程能力，我们用来支撑你的对话式智能体。"),
-    sh("flow mono-sm", "left:120px;top:966px;width:1680px;height:24px;text-align:center;--i:5",
-       "2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴"),
-    # CTA：纯文本 mono 行，不做假链接样式（没有 <a>，不加下划线/悬停态）
-    sh("flow mono-sm", "left:120px;top:1004px;width:1680px;height:24px;text-align:center;--i:6",
-       "DEMO / 文档 · agora.io › 对话式 AI 引擎 · 联系团队"),
-]))
+# ═══ P22 · OpenAI 合作 · 末页（logo 锁定版 + 使命愿景 + 互动星系 · 19→18→21→22）══
+#   2026-09-03：整页 body **现取自 LAB builder 的 `p22_body()`** —— 两份 deck 用的
+#   是同一个函数，唯一的差别由最后那个参数给：LAB 传 `lp()`（把 poster 裹进
+#   <g class="lab-poster">，3D 起来就淡出），母本这边传恒等函数（poster 在母本里
+#   是永久的 2D 正装，没有 3D 会来接管它）。
+#   ⇒ 两份产物的 P22 除 poster 组的那一对标签之外**逐字节相同**，
+#     LAB 的同源自证不需要为这一页开任何白名单。
+#   页头那一段版面账（居中 → 左右两栏 / OpenAI 段原字不动 / 使命愿景 SOURCE 口径）
+#   写在 `build-convoai-lab.py` 的 P22 段里，不在这里重写一遍。
+#   sh / figbox / txt / dline 传本文件自己那一份同名件（与旗舰逐字同源）。
+page("title", _LAB.p22_body(sh, figbox, txt, dline, lambda *_p: "".join(_p)))
 
 # ═══ 组装 ═══════════════════════════════════════════════════════════════════
 def build():
@@ -2610,7 +2607,7 @@ def build():
         + "<style>" + css("motion.css") + "</style>"
         + "<style>" + css("components.css") + "</style>"
         + "<style>" + css("conf-chrome.css").split("<svg class=\"deck-flow\"")[0] + "</style>"   # 流场退役：只取 CSS
-        + BOARDS_CSS + DECK_CSS
+        + BOARDS_CSS + DECK_CSS + GX_STYLE
         + "\n</head>\n<body>\n"
         '<div class="deck-viewport">\n  <div class="deck-stage" id="deckStage">\n'
         + chrome + "\n" + "\n".join(secs) + "\n  </div>\n</div>\n"

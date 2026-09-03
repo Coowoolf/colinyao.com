@@ -47,7 +47,7 @@ const N = 22;
 // 分步页：P6 实时语音链路 / P7 VAD / P14 接入架构 / P20 视频页，各一步；其余 0
 const EXP_STEPS = new Array(N).fill(0);
 [6, 7, 14, 20].forEach(p => { EXP_STEPS[p - 1] = 1; });
-// title 板两页：P1 封面 / P22 OpenAI 合作（末页 · quote 语域 · logo 锁定版）
+// title 板两页：P1 封面 / P22 OpenAI 合作（末页 · quote 语域 · logo 锁定版 + 互动星系）
 const BOARD = { 1: 'title', 22: 'title' };                   // 其余一律 content
 // 纯全屏视频页：没有 kicker、没有标题（robot26 #24 同款「一页只有一支片子」）
 const VIDEO_PAGE = 20;
@@ -320,6 +320,18 @@ const [p9, p12, p19, p13] = await Promise.all(
  ['对话式 AI 引擎底座', p22, 'P22'], ['全球最强的 Voice Agent 团队', p22, 'P22'],
  ['对话式智能体', p22, 'P22'], ['全球首批合作伙伴', p22, 'P22'],
  ['A QUIET ENDORSEMENT', p22, 'P22'],
+ // 2026-09-03 末页改版：使命 / 愿景两句**逐字**（SOURCE 口径 = 声网官网 关于我们，
+ // 与 convoai-info P8 / convoai-lab P22 三份同源；改一个字三处一起报）
+ ['使命', p22, 'P22'], ['帮助人们跨越距离实时互动，如聚一堂。', p22, 'P22'],
+ ['愿景', p22, 'P22'], ['让实时互动像空气和水一样，无处不在。', p22, 'P22'],
+ // 互动星系的三区标注六枚字串 + 三行副行 + 角注（角注是硬要求：环径不代表规模）
+ ['人与人 ·', p22, 'P22'], ['已经发生', p22, 'P22'],
+ ['人与智能体 ·', p22, 'P22'], ['正在发生', p22, 'P22'],
+ ['智能体与智能体 ·', p22, 'P22'], ['即将发生', p22, 'P22'],
+ ['实时音视频 · 2014 年起', p22, 'P22'],
+ ['对话式 AI 引擎 · 企业级智能体 · R1', p22, 'P22'],
+ ['智能体之间的实时对话与协作', p22, 'P22'],
+ ['互动星系示意 · 玫红 = 人 · 蓝 = 智能体 · 紫 = 智能体网 · 环径不代表规模', p22, 'P22'],
 ].forEach(([needle, txt, tag]) => ok(txt.includes(needle), `⑪ ${tag} 缺「${needle}」`));
 // ⑪ 反向闸：Colin 明确点掉的两处措辞不许回流
 ok(!p22.includes('实时通信底座'), '⑪ P22 出现「实时通信底座」—— Colin 指令写「对话式 AI 引擎底座」');
@@ -356,6 +368,35 @@ media.lk.forEach((im, i) => ok(im.w > 0, `⑫ P22 logo ${i + 1} 未解码（${im
   ok(/openai-agora\.webp$/.test(dk.src || ''), `⑫ P22 深色源不符 ${dk.src}`);
   ok(THEME === 'dark' ? (!lt.shown && dk.shown) : (lt.shown && !dk.shown),
      `⑫ P22 logo 双主题显隐反了（theme=${THEME} lt=${lt.shown} dk=${dk.shown}）`);
+}
+
+// ⑫g P22「互动星系」的 2D 正装（2026-09-03 · 与 convoai-lab P22 逐字节同一段 body）
+//    母本这边它是**永久的图**（没有 3D 会来接管），所以三件都要真的在页上：
+//      ① 件数：核 1 层 + 内 / 外环各两层 + 三枚外缘椭圆 + 24 条弧 + 20 条流中线；
+//      ② 零文字：poster 的每一件都是 <path>/<ellipse>，字（九行标注）另在 <text> 里；
+//      ③ 三枚引线端点小圆：d 的首个点 = 落点（构建期已逐条对表，这里数件数）。
+{
+  const g = await pg.evaluate(() => {
+    const s = document.querySelector('.slide[data-p="22"] .fig svg');
+    const n = (sel) => s.querySelectorAll(sel).length;
+    return { has: !!s, p1: n('.gx-p1'), p2: n('.gx-p2'), p2a: n('.gx-p2a'),
+             p3: n('.gx-p3'), p3b: n('.gx-p3b'), rim: n('.gx-rim'),
+             arc: n('.gx-arc'), flow: n('.gx-flow'),
+             txt: n('text'), dot: n('circle.pop'),
+             inGx: [...s.querySelectorAll('.gx-p1,.gx-p2,.gx-p2a,.gx-p3,.gx-p3b,.gx-rim,.gx-arc,.gx-flow')]
+               .reduce((a, e) => a + e.querySelectorAll('text,tspan').length, 0) };
+  });
+  ok(g.has, '⑫g P22 右半的互动星系不在页上（.fig svg 没找到）');
+  ok(g.p1 === 1 && g.p2 === 1 && g.p2a === 1 && g.p3 === 1 && g.p3b === 1,
+     `⑫g P22 星系点云分层漂移：核 ${g.p1} / 内 ${g.p2a}+${g.p2} / 外 ${g.p3}+${g.p3b}`);
+  ok(g.rim === 3, `⑫g P22 三枚外缘轮廓环 ${g.rim} != 3 —— 轮廓是这张图的身份`);
+  ok(g.arc === 24, `⑫g P22 智能体间弧 ${g.arc} != 24`);
+  ok(g.flow === 20, `⑫g P22 互动流中线 ${g.flow} != 20（14 + 6）`);
+  ok(g.inGx === 0, `⑫g P22 星系的形里裹进了 ${g.inGx} 个文字件`);
+  ok(g.txt === 9, `⑫g P22 三区标注应为九行 <text>，实测 ${g.txt}`);
+  ok(g.dot === 3, `⑫g P22 引线端点小圆 ${g.dot} != 3`);
+  console.log(`  · ⑫g P22 互动星系（2D 正装）：点云 5 层 · 轮廓环 ${g.rim} · 弧 ${
+    g.arc} · 流 ${g.flow} · 标注 ${g.txt} 行 · 引线端点 ${g.dot} 枚 · 形里零文字`);
 }
 
 // ⑬ Call Agent 章（2026-08-21 新增三页）内容闸 + 红线反向闸

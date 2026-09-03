@@ -1042,26 +1042,24 @@ html[data-theme="dark"] .detail{box-shadow:0 26px 64px rgba(0,0,0,.46);}
   --b-flow:var(--accent-deep); --b-flow-op:.80;  --b-flow-size:4.6;
   --b-atmo:var(--accent);      --b-atmo-int:.045;
 
-  /* ── ⑥ 互动星系（P8 · 标杆）· 浅底 ──
-     2026-09-03：二稿的线框网（--nt-*）整套退役，这一段是三稿场景 `galaxy` 的档。
+  /* ── ⑥ 互动星系（P22 末页 · 展望）· 浅底 ──
      色彩纪律：**形**负责分辨三环（实心球核 / 一圈交错点 / 一圈在生长的点），
      色负责分辨三种身份 —— 人 = accent（浅底走 accent-deep 那一档的墨）、
      智能体 = --l-agent 蓝、智能体网 = 蓝紫两色各半。
-     浅底走正常混合（同样的墨越叠越灰）⇒ 不透明度整体比暗档高一档、点径粗一档
-     （⑳ink 浅/暗比目标 0.90–1.40 · P5 是 1.17）。 */
+     浅底走正常混合（同样的墨越叠越灰）⇒ 不透明度整体比暗档高一档、点径粗一档。 */
   --gx-core:var(--accent);      --gx-core-op:.74;  --gx-core-size:2.8;  /* 核 · 人与人 */
   --gx-core-hot:var(--accent-deep);                --gx-core-gain:.60;
   --gx-in-a:var(--accent-deep); --gx-in-a-op:.70;  --gx-in-size:2.8;    /* 内环 · 人 */
-  --gx-in-b:var(--l-agent);     --gx-in-b-op:.74;                       /* 内环 · 智能体 */
+  --gx-in-b:var(--l-agent,#5b8cff); --gx-in-b-op:.74;                   /* 内环 · 智能体 */
   --gx-out-a:#3b6ae6;           --gx-out-a-op:.64; --gx-out-size:2.6;   /* 外环 · 智能体 */
   --gx-out-b:#5a41e6;           --gx-out-b-op:.64;                      /* 外环 · 智能体网 */
   --gx-arc:#4a54e2;             --gx-arc-op:.52;                        /* 智能体间弧 */
   --gx-spark:var(--accent);     --gx-spark-op:.88; --gx-spark-size:4.6; /* 弧上的亮斑 */
   --gx-flow:var(--accent);      --gx-flow-op:.40;                       /* 互动流：峰值色 */
   --gx-rms:var(--accent-deep);  --gx-rms-op:.44;                        /* 互动流：RMS 实芯 */
-  --gx-rad:var(--l-agent);      --gx-rad-op:.36;                        /* 径向流：峰值色 */
+  --gx-rad:var(--l-agent,#5b8cff); --gx-rad-op:.36;                     /* 径向流：峰值色 */
   --gx-rad-rms:#3b6ae6;         --gx-rad-rms-op:.40;
-  /* 三枚外缘轮廓环 —— 图的身份（P5 的母形轮廓环同位） */
+  /* 三枚外缘轮廓环 —— 图的身份（P17 的母形轮廓环同位） */
   --gx-rim:var(--ink-3);        --gx-rim-op:.52;
   --gx-back:.34;                --gx-add:0;
   --gx-poster-dot:2.6;   --gx-poster-p1:.86;  --gx-poster-p2:.74;
@@ -1134,14 +1132,14 @@ html[data-theme="dark"]{
   --gx-core:var(--accent);      --gx-core-op:.66;  --gx-core-size:2.6;
   --gx-core-hot:var(--accent);                     --gx-core-gain:.85;
   --gx-in-a:var(--accent);      --gx-in-a-op:.60;  --gx-in-size:2.6;
-  --gx-in-b:var(--l-agent);     --gx-in-b-op:.64;
-  --gx-out-a:var(--l-agent);    --gx-out-a-op:.54; --gx-out-size:2.5;
-  --gx-out-b:var(--l-phys);     --gx-out-b-op:.54;
-  --gx-arc:var(--l-agent);      --gx-arc-op:.44;
+  --gx-in-b:var(--l-agent,#6e96ff); --gx-in-b-op:.64;
+  --gx-out-a:var(--l-agent,#6e96ff); --gx-out-a-op:.54; --gx-out-size:2.5;
+  --gx-out-b:var(--l-phys,#b78cf0);  --gx-out-b-op:.54;
+  --gx-arc:var(--l-agent,#6e96ff);   --gx-arc-op:.44;
   --gx-spark:var(--accent);     --gx-spark-op:.86; --gx-spark-size:4.4;
   --gx-flow:var(--accent);      --gx-flow-op:.36;
   --gx-rms:var(--ink);          --gx-rms-op:.38;
-  --gx-rad:var(--l-agent);      --gx-rad-op:.32;
+  --gx-rad:var(--l-agent,#6e96ff);   --gx-rad-op:.32;
   --gx-rad-rms:var(--ink);      --gx-rad-rms-op:.34;
   --gx-rim:var(--ink-3);        --gx-rim-op:.42;
   --gx-back:.26;                --gx-add:1;
@@ -1275,15 +1273,21 @@ html[data-lab-debug] .lab-probe{display:flex;}
 @media (prefers-reduced-motion:reduce){
   .lab-poster,.lab-canvas{transition-duration:.2s!important;}
 }
-.w-rim{fill:none;stroke:var(--w-rim);stroke-width:1.2;opacity:var(--w-poster-rim,.42);}
-.gx-p1{fill:none;stroke:var(--gx-core);stroke-width:var(--gx-poster-dot);stroke-linecap:round;opacity:var(--gx-poster-p1,.86);}
-.gx-p2{fill:none;stroke:var(--gx-in-b);stroke-width:var(--gx-poster-dot);stroke-linecap:round;opacity:var(--gx-poster-p2,.74);}
-.gx-p2a{fill:none;stroke:var(--gx-in-a);stroke-width:var(--gx-poster-dot);stroke-linecap:round;opacity:var(--gx-poster-p2,.74);}
-.gx-p3{fill:none;stroke:var(--gx-out-a);stroke-width:var(--gx-poster-dot);stroke-linecap:round;opacity:var(--gx-poster-p3,.60);}
-.gx-p3b{fill:none;stroke:var(--gx-out-b);stroke-width:var(--gx-poster-dot);stroke-linecap:round;opacity:var(--gx-poster-p3,.60);}
+.gx-p1{fill:none;stroke:var(--gx-core);stroke-width:var(--gx-poster-dot);
+  stroke-linecap:round;opacity:var(--gx-poster-p1,.86);}
+.gx-p2{fill:none;stroke:var(--gx-in-b);stroke-width:var(--gx-poster-dot);
+  stroke-linecap:round;opacity:var(--gx-poster-p2,.74);}
+.gx-p2a{fill:none;stroke:var(--gx-in-a);stroke-width:var(--gx-poster-dot);
+  stroke-linecap:round;opacity:var(--gx-poster-p2,.74);}
+.gx-p3{fill:none;stroke:var(--gx-out-a);stroke-width:var(--gx-poster-dot);
+  stroke-linecap:round;opacity:var(--gx-poster-p3,.60);}
+.gx-p3b{fill:none;stroke:var(--gx-out-b);stroke-width:var(--gx-poster-dot);
+  stroke-linecap:round;opacity:var(--gx-poster-p3,.60);}
 .gx-rim{fill:none;stroke:var(--gx-rim);stroke-width:1.4;opacity:var(--gx-poster-rim,.42);}
-.gx-flow{fill:none;stroke:var(--gx-flow);stroke-width:2.1;stroke-linecap:round;opacity:var(--gx-poster-flow,.56);}
+.gx-flow{fill:none;stroke:var(--gx-flow);stroke-width:2.1;stroke-linecap:round;
+  opacity:var(--gx-poster-flow,.56);}
 .gx-arc{fill:none;stroke:var(--gx-arc);stroke-width:1.3;opacity:var(--gx-poster-arc,.40);}
+.w-rim{fill:none;stroke:var(--w-rim);stroke-width:1.2;opacity:var(--w-poster-rim,.42);}
 </style>
 </head>
 <body>
@@ -2991,10 +2995,10 @@ function mkRelock(c0, D0, c1, D1){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ㉒ 加法层四页（P22 / P5 / P15 / P16 · 三轮「静态页升维」）
+   ㉒ 加法层三页（P5 / P15 / P16 · 三轮「静态页升维」）
    ───────────────────────────────────────────────────────────────────────────
-   与前 16 枚场景的**根本差别**：那 16 枚在替换页上的一张 SVG 图（poster 是它的
-   降级层）；这四页页上没有图，3D 是加在既有版面之外的一层**氛围场**，
+   与另外 17 枚场景的**根本差别**：那 17 枚在替换页上的一张 SVG 图（poster 是它的
+   降级层）；这三页页上没有图，3D 是加在既有版面之外的一层**氛围场**，
    降级层就是整页本身。所以它们：
      · 一件 DOM 都不动、一枚 poster 都不挂；
      · 几何一律走**投影锁**（每一点的投影落点 = 它的页坐标）⇒ 深度只影响
@@ -3028,12 +3032,24 @@ function geoClr(geo, U, ink, pad){
     m = Math.min(m, inkClr(U(a[i], a[i+1], a[i+2]), ink) - (pad || 0));
   return m;
 }
+/* 一整枚场景的净空：items = [[geometry, pad], …]；pad 扣掉带宽 / 点半径
+   （那是几何之外的墨）。⑥ 互动星系与 info 的五枚场景都走这一只。 */
+function clrMin(U, ink, items){
+  let m = 1e9;
+  for(let i = 0; i < items.length; i++)
+    m = Math.min(m, geoClr(items[i][0], U, ink, items[i][1] || 0));
+  return m;
+}
 /* 折线复活（与 Python 侧 _pk 同格式："x,y;x,y;…"）—— 加法层四页的几何
    **构建期算一遍，运行时不再算第二遍**，两边不可能是两套解。 */
 function unpk(s, z){
   return s.split(';').map(t => { const q = t.split(','); return [+q[0], +q[1], z || 0]; });
 }
-/* R2 低差异序列（与 Python 侧 _r2 同式）：铺点均匀且不与螺旋共振 */
+/* "x,y,z;…" → 世界折线（构建期算好，运行时不重算） */
+function unpk3(s){
+  return s.split(';').map(t => { const q = t.split(','); return [+q[0], +q[1], +q[2]]; });
+}
+/* R2 低差异序列（塑性数为底 · Roberts 2018）：铺点均匀且不与螺旋共振 */
 const PHI2 = 1.3247179572447460;
 function r2(i){ return [(0.5 + i/PHI2) % 1, (0.5 + i/(PHI2*PHI2)) % 1]; }
 
@@ -3159,15 +3175,14 @@ function makeDuplex(ctx){
 
 
 /* ═══ info 场景共用小件（五行胶水 · 基建一件不重写）════════════════════════ */
+/* ⚠ `unpk3` 与 `clrMin` 2026-09-03 起也退给旗舰（`_K_CLR` 的「净空四小件」），
+   本文件不再写第二份 —— 一处改，两份 deck 一起动。 */
 const AS_K = 6.2831853 / AS.lam;
 function asEnv(u){                      /* lab-kit ⑨ 解析包络的 JS 同解（与 AS_VS 逐行同式） */
   return 0.5 + 0.5*( AS.a[0]*Math.sin(AS_K*AS.f[0]*u+AS.ph[0])
                    + AS.a[1]*Math.sin(AS_K*AS.f[1]*u+AS.ph[1])
                    + AS.a[2]*Math.sin(AS_K*AS.f[2]*u+AS.ph[2])
                    + AS.a[3]*Math.sin(AS_K*AS.f[3]*u+AS.ph[3]) );
-}
-function unpk3(s){                      /* "x,y,z;…" → 世界折线（构建期算好，运行时不重算） */
-  return s.split(';').map(t => { const q = t.split(','); return [+q[0], +q[1], +q[2]]; });
 }
 function iLine(pts, mat){ const g = stripGeo(pts); fillAH(g,1,0);
   const o = new THREE.Line(g, mat); o.frustumCulled = false; return o; }
@@ -3218,14 +3233,6 @@ function lockBox(f, b){
   const e = [];
   for(let i = 0; i < 4; i++) e.push([f[i][0],f[i][1],f[i][2], b[i][0],b[i][1],b[i][2]]);
   return { front: segsOfLoop(f), shell: segsOfLoop(b).concat(e), f: f, b: b, edges: e };
-}
-/* 净空：把这一帧真的传上 GPU 的几何投影回舞台像素，量到页上字形墨迹盒的最小距离。
-   items = [[geometry, pad], …]；pad 扣掉带宽 / 点半径（那是几何之外的墨）。 */
-function clrMin(U, ink, items){
-  let m = 1e9;
-  for(let i = 0; i < items.length; i++)
-    m = Math.min(m, geoClr(items[i][0], U, ink, items[i][1] || 0));
-  return m;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3451,35 +3458,39 @@ function makeWall(ctx){
   };
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ⑥ 互动星系（P8 使命与愿景 · 本 deck 的标杆页）
-   ───────────────────────────────────────────────────────────────────────────
-   ⚠ 2026-09-03：这里原来是 `makeNet`（一张实时网上的三种互动 · 线框版）。Colin 判
-     「丑」「和全 deck 不适配」—— 那一版是三簇细线圆环 + 一枚五角星网，元素小、
-     墨量低、舞台空；全 deck 的语言是**体积点云**。整枚场景退役，换成这一枚。
-   三稿与 P5 五脑区大脑**同一语系**：同一套 K.b 式的点材质（PX_PT / camPx / 深度雾）、
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ⑥ 互动星系（P22 末页 ·「展望」）
+   ────────────────────────────────────────────────────────────────────────────
+   ⚠ 2026-09-03：这里原来是 `makeQuiet`（㉒-① 余韵星野 · 末页的一层涟漪场）。
+     Colin 这一轮的意图是**展望**（使命 / 愿景 / 三种互动）—— 末页不再是「余韵」，
+     整枚场景退役（QT_VS / QT_FS / makeQuiet / --e-* / ㉒c 三条克制闸一并拆掉）。
+   本枚场景发源于 convoai-info P8，现在旗舰是它的**单一真相**：下面这一段
+   JS 只读 `K.gx`，所以它**天然尺度无关** —— lab P22（盘心 (380,400) · s=0.75）
+   与 info P8（盘心 (860,278) · s=1.0）跑的是同一份代码，差别全在 K 表里。
+   三稿与 P17 五脑区大脑**同一语系**：同一套 K.b 式的点材质（PX_PT / camPx / 深度雾）、
    同一套 tmax/dref 密度剖面、12,000 点、一枚占满舞台的发光体，外面挂标注引线。
      ① 核 · 人与人 · 已经发生：实心体积球核 r≈100，向日葵铺点（零随机源），
         厚度剖面 T(d)=tmax·sin(π/2·(d/dref)^0.62) —— 与 makeBrain 逐字同式；
         热度按到球心的距离给 ⇒ **中心最亮**，一切从这里长出来。
      ② 内环 · 人与智能体 · 正在发生：环带 r200–290 厚 ±22，人（accent）与
-        智能体（--l-agent 蓝）**按确定性序交错**，各半。
+        智能体（--gx-in-b 蓝）**按确定性序交错**，各半。
      ③ 外环 · 智能体与智能体 · 即将发生：环带 r360–470 厚 ±30，蓝 / 紫各半。
         **网在长**：每点两枚相位 —— aG 是角度门槛（生长锋按角度扫过去，20s 一周期
         由稀到密再回稀，dens 是余弦 ⇒ C¹ 连续、回卷处零跳变），aQ 是**生灭窗相位**
-        （写法照 lab P2 剧场的 uLife：0.4s 内归零再回卷，接头永远藏在最暗处；
+        （写法照 P2 剧场的 uLife：0.4s 内归零再回卷，接头永远藏在最暗处；
         aQ 走塑性数低差异序列 ⇒ 任一帧只有 2% 的点在灭窗里，整幅亮度不跳）。
-   环上 24 条智能体间弧（写法照 lab P21 地球弧：细弧 + 沿弧跑的一枚亮斑），
-   随 aG 的那道生长锋一起点亮；14 条核↔内环互动流（一来一回）+ 6 条内环→外环
+   环上 24 条智能体间弧（写法照 P21 地球弧：细弧 + 沿弧跑的一枚亮斑），
+   随 aG 那道生长锋一起点亮；14 条核↔内环互动流（一来一回）+ 6 条内环→外环
    径向流，全部 mkStream · A 档 110px/s · λ232 —— 与全家族同一种介质。
-   整体绕盘轴 1 圈 / 90s 慢转，另叠 P5 同款 ±6° / 17s 轻摇；三件几何（点云 / 弧 / 流）
+   整体绕盘轴 1 圈 / 90s 慢转，另叠 P17 同款 ±6° / 17s 轻摇；三件几何（点云 / 弧 / 流）
    **全部跟着转**，所以它是一个在转的体，不是一张贴着动效的图。
    ⚠ 投影锁做在最后一步（xy 按该点自己的 z 预缩放）⇒ 三环在屏上是三枚正椭圆、
-     净空可以纯解析地算；深度只管**雾与点径**——体积感全在那儿（与 P5 同一条路）。
+     净空可以纯解析地算；深度只管**雾与点径**——体积感全在那儿（与 P17 同一条路）。
    ⚠ canvas 零文字：三环 / 弧 / 流全是形，字全部在 DOM 里（⑲a 正面断言）。
    ⚠ 净空：整体在转在摇 ⇒ 几何逐帧在变，构建期交的是整族的**扫掠包络**（下界），
-     qa 的 ⑳clr 按不等式对表（与 P5 大脑 / P7 星座墙同一条路）。
-   ═══════════════════════════════════════════════════════════════════════════ */
+     qa 的 ⑳galaxy 按不等式对表（与 P17 大脑同一条路）。
+   ════════════════════════════════════════════════════════════════════════════ */
 const GX_VS = PX_HEAD + [
   'attribute float aS;',
   'uniform float uSz1;',
@@ -3773,7 +3784,6 @@ function makeGalaxy(ctx){
     },
   };
 }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    ⑦ 走出屏幕（P6 PHYSICAL AI ·「让对话，走出屏幕。」）· 全 deck 唯一的加法层
    ───────────────────────────────────────────────────────────────────────────
