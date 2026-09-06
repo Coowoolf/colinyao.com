@@ -180,6 +180,11 @@ export const deckRoutes: { source: string; file: string }[] = [
   // Colin 定稿前不进 speechDecks 索引；线上 /cowork-conf 仍是 55 页原版。
   // 同源同脚本：CONF_V2=1 python3 scripts/build-conf.py
   { source: "/cowork-confv2", file: "/decks/cowork-confv2.html" },
+  // cowork-confv2 LAB FLOW 版（46 页 · 同一原稿 · PBR 实体 + 介质流层：「名词用实体，动词用介质」）。
+  // 由 GPT/Codex 构建（Cowork-V2-Lab-Flow/source · build.py 自包含内嵌字体/音频/three），
+  // Fable 逐帧对比 v2 后修三页（P1 双缆成环 / P32 雷达留光 / P42 交集实体回归）。
+  // 预览路由，不进 speechDecks 索引；线上 /cowork-confv2 仍是实体版原稿。
+  { source: "/cowork-confv2-lab", file: "/decks/cowork-confv2-lab.html" },
   // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
   // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
