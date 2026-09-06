@@ -1,4 +1,9 @@
 // QA · convoai-info v2（8 页 · CONF 家族 · 双主题 · P4/P5/P7 各 1 步 build）
+// 2026-09-06 v3.4：P8 细节层加一句 Google Gemini 3.5 Transcribe 背书 + SOURCE 行补两条
+//   一手来源 ⇒ ⑫ P8 的 must 名册加两条逐字串、⑯ 的 P8 提示语同步；另新增一条
+//   **Google 措辞反向闸**（凡含 Google / Gemini 的那一件里不许出现「首批 / 首发 / 独家」——
+//   官方博文只说 developer platforms，没有 first / launch partner 字样）。
+//   P2 03 · ENDORSEMENT 本轮**没加**（量下来面板放不下，见 builder 的 _p2detail docstring）。
 // 2026-09-06 v3.3：P3 / P6 细节层退役（五页面板）· P7 主图从「14 家星座墙」反转为
 //   「五层价值地壳」（`stack`），14 家案例卡搬进细节层当缩略图墙。
 // 2026-08-21 家族语言重建轮改写。闸门清单：
@@ -1101,9 +1106,14 @@ ok(t7.includes('声网官方联合案例 · 均已公开——你的场景，多
 }
 
 /* P8 · 使命与愿景（v3.1 重做）：主标 + 使命 / 愿景两句 + 三簇题注 + land，
-   加上搬进细节层的三不 / 三步 / OpenAI / DEMO —— 全部逐字。
+   加上搬进细节层的三不 / 三步 / OpenAI / Google / DEMO —— 全部逐字。
    ⚠ 使命 / 愿景两句是 2026-09-02 自 shengwang.cn/aboutus 逐字核实的公司口径，
-     一个字都不许改；本页除「2014 年起」外不许出现任何年份 / 日期。 */
+     一个字都不许改；本页除「2014 年起」外不许出现任何年份 / 日期。
+   v3.4（2026-09-06）：细节层多一句 Google Gemini 3.5 Transcribe 背书，SOURCE 行
+     补两条一手来源。两条一手来源：Google 官方博客 2026-08-26《Gemini 3.5 Transcribe》
+     原句 "developer platforms such as Agora, Fishjam, LangChain, LiveKit, Pipecat,
+     Vercel, and Vision Agents"（**没有** first / launch partner 字样）· 声网文档
+     docs.agora.io/en/ai/models/asr/gemini（"available as an early access preview"）。 */
 [['让实时互动，无处不在。', t8],
  ['使命', t8], ['帮助人们跨越距离实时互动，如聚一堂。', t8],
  ['愿景', t8], ['让实时互动像空气和水一样，无处不在。', t8],
@@ -1119,9 +1129,29 @@ ok(t7.includes('声网官方联合案例 · 均已公开——你的场景，多
  ['STEP 3 · 一个季度', t8], ['规模化上线', t8],
  ['SLA、全球部署、多供应商兜底', t8], ['（典型节奏，视场景与合规而定）', t8],
  ['2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。', t8],
+ ['2026 Google Gemini 3.5 Transcribe 发布 · 声网为官方博文点名的开发者平台 · '
+  + '引擎已接入 Gemini ASR（早期预览）。', t8],
+ ['SOURCE · 声网官网 关于我们 · Google 官方博客 2026.08.26 · 声网文档 Gemini ASR'
+  + ' · 事实截止 2026.09', t8],
  ['DEMO / 文档 · agora.io › 对话式 AI · 联系团队', t8],
  ['让陪伴自然，让生意成单。', t8]].forEach(([n, txt]) => ok(txt.includes(n), `⑫ P8 缺「${n}」`));
 ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改');
+/* ⑭ Google 措辞红线（v3.4）：官方博文点名的是「developer platforms」，通篇**没有**
+   first / launch partner 字样 ⇒ 凡是提到 Google / Gemini 的句子，一律不许出现
+   「首批 / 首发 / 独家」。反过来，OpenAI 那两处「全球首批」（2024.10.01）是另一件
+   有据可查的事，不在这一闸的射程里 —— 所以这里按**句**切开逐句验，不整页粗筛。 */
+{
+  const GOOGLE_BAD = ['首批', '首发', '独家'];
+  // 取**最内层**含 Google / Gemini 的元素（孩子里没有的那一枚）＝ 一句一件，
+  // 不受 `。` 落点影响，也不会把隔壁 OpenAI 那句连坐进来。
+  const sents = await pg.evaluate(() => [...document.querySelectorAll('#deckStage *')]
+    .filter(el => /Google|Gemini/.test(el.textContent || ''))
+    .filter(el => ![...el.children].some(c => /Google|Gemini/.test(c.textContent || '')))
+    .map(el => (el.textContent || '').replace(/\s+/g, ' ').trim()));
+  ok(sents.length > 0, '⑭ 全 deck 一句 Google / Gemini 都没有 —— v3.4 的背书掉了？');
+  sents.forEach(s => GOOGLE_BAD.forEach(w => ok(!s.includes(w),
+    `⑭ Google 相关句里出现「${w}」（官方博文没有 first / launch partner 字样）：「${s}」`)));
+}
 // ⑭ P8 反向：河退役之后不许有残句回归；「价值观」本轮不上页面（官网未列，二手且旧）
 ['三条支流，一条河', '三条支流', '一条河', 'ONE NET · SD-RTN 软件定义实时网络',
  'Engine 的每一次打断', 'Agent 的每一次交付', 'Physical AI 的每一次唤醒',
@@ -1149,8 +1179,11 @@ ok(!ALL.includes('OpenAI 选择我们'), '⑭ P8「OpenAI 选择我们」未改'
        `⑯ P${p} SOURCE 行未以「· 事实截止 2026.08/09」收尾：「${t}」`);
     ok(t.split(' · ').length >= 3, `⑯ P${p} SOURCE 行不足三段：「${t}」`);
   });
+  // v3.4：P8 的出处行补了 Google 官方博客 / 声网文档两条一手来源，并去掉
+  //   「（使命 · 愿景）」括注腾位 —— 逐字串在上面 ⑫ P8 的 must 名册里钉死。
   ok(led.filter(x => x.p === 8 && /事实截止 2026\.09$/.test(x.t)).length === 1,
-     '⑯ P8 的 SOURCE 行不是「声网官网 关于我们（使命 · 愿景） · 事实截止 2026.09」');
+     '⑯ P8 的 SOURCE 行不是「声网官网 关于我们 · Google 官方博客 2026.08.26 · '
+     + '声网文档 Gemini ASR · 事实截止 2026.09」');
   const stray = await pg.evaluate(() => [...document.querySelectorAll('.slide .mono-sm')]
     .map(el => (el.textContent || '').trim()).filter(t => t.startsWith('SOURCE')));
   ok(stray.length === 0, `⑯ 仍有 SOURCE 行挂在 .mono-sm 上（未并入 ledger）：${stray.join(' | ')}`);

@@ -22,6 +22,13 @@
 #   D P7 浅色生态图对比度再提 ~17%（只调滤镜数值；不加卡片 / 不加 blur / 不加遮罩，深色不动）。
 #   G 投影小字提一档：.sig 与新类 .src 字号 15 → 17、色阶各上一格（与引擎 builder 逐字同源）。
 #
+# v3.4（2026-09-06）：P8 细节层加 Google Gemini 3.5 Transcribe 背书（一手来源：
+#   Google Blog 2026.08.26 · 声网文档 Gemini ASR）；P2 03 · ENDORSEMENT 同步（量下来
+#   放不进面板 ⇒ **本轮不做**，数字与理由写在 _p2detail 的 docstring 里）。
+#   ⚠ 措辞红线：Google 官方博文原句只说 "developer platforms such as Agora, …"，
+#     **没有** first / launch partner 字样 ⇒ Google 相关的任何一句里都不许出现
+#     「首批 / 首发 / 独家」。OpenAI 那两处「全球首批」是另一件事（2024.10.01），一字不动。
+#
 # 结构（8 页 · 一页讲透一章；P4/P5/P7 各 1 步 presenter-controlled build）：
 #   P1 封面 → P2 公司 → P3 矩阵 → P4 Engine → P5 Agent → P6 PhysicalAI → P7 案例 → P8 使命与愿景
 #
@@ -1045,14 +1052,19 @@ def detail_chip(x=1500, y=986, w=300, i=6):
               'data-detail="1" style="margin-right:0">⤢ 细节 · ⏎</span>')
 
 
-def src(txt, y=1010, x=120, w=1680, i=7, align=None):
+def src(txt, y=1010, x=120, w=1680, i=7, align=None, h=24):
     """SOURCE ledger 行（2026-08-23 采纳项 C）。全家族统一四段：
          SOURCE · <来源> · <样本或时间窗> · 事实截止 2026.08
        缺哪段就少哪段（不编），缺口记在交付报告里等 Colin 补。
        与 rail() 分成两枚类：.src 是「出处」，.mono-sm 是页内普通元信息行 ——
-       G 轮只提 .src 与 .sig 这两枚投影小字的字号/色阶，别再把它们混用。"""
+       G 轮只提 .src 与 .sig 这两枚投影小字的字号/色阶，别再把它们混用。
+       ⚠ h（v3.4 新增 · 默认 24 = 单行）：`.flow` 的落位态是
+         `clip-path:inset(-10px -16px)` —— 它按**边框盒**裁，`overflow:visible` 压不过它。
+         所以出处行一旦折行，盒高不跟着放，第二行会被裁掉（只露出 10px）。
+         折两行的那一枚（P8）传 h=48，别再靠 overflow 兜。"""
     a = ";text-align:%s" % align if align else ""
-    return sh("flow src", "left:%dpx;top:%dpx;width:%dpx;height:24px;--i:%d%s" % (x, y, w, i, a), txt)
+    return sh("flow src", "left:%dpx;top:%dpx;width:%dpx;height:%dpx;--i:%d%s"
+              % (x, y, w, h, i, a), txt)
 
 
 # ── SVG 小件（引擎 deck 同源）───────────────────────────────────────────────
@@ -1367,7 +1379,13 @@ def _p2mile():
 
 def _p2detail():
     """细节层内容：03 ENDORSEMENT 两行 + 使用声网/其他 RTC 条 + 04 MILESTONES 竖排。
-       字串**逐字同源**（与 v2 的 03 / 02 两区、_MILE 表一字不差）。"""
+       字串**逐字同源**（与 v2 的 03 / 02 两区、_MILE 表一字不差）。
+       v3.4（2026-09-06）：Google Gemini 背书**没有**加在这里 —— 实测放不下。
+       加上那三行（2026.08.26 / 标题 / 早期预览注）之后面板内容 = 656px：
+         h=600（现行）内高 598 ⇒ 溢出 58px；h=640（_DETAIL_HMAX 上限）内高 638 ⇒
+         仍溢出 18px。且 h 提到 640 时面板底 890 会盖住地球角注（y872 那行
+         「节点分布示意 · 200+ 全球节点 · SD-RTN」）—— 两条都不许。
+       ⇒ 本轮 P2 一格不动，Google 背书只落在 P8 细节层（见 _p8detail）。"""
     return "".join([
         '<div style="font:700 26px/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);'
         'margin-top:6px">2024.10.01</div>',
@@ -2531,8 +2549,16 @@ def _p8galaxy_fig():
 
 def _p8detail():
     """细节层：02 NEUTRALITY 三不（三行）+ 03 START 三步（三 chip）+ OpenAI 一句 +
-       DEMO / 文档 rail —— 四件密材料**逐字**从 v3 的主版面搬进来，一个字没改。
-       ⑫ 的三不三步闸门认的就是这里（面板内容仍在该 slide 的 DOM 里）。"""
+       **Google Gemini 一句**（v3.4）+ DEMO / 文档 rail —— 密材料**逐字**从 v3 的
+       主版面搬进来，一个字没改。
+       ⑫ 的三不三步闸门认的就是这里（面板内容仍在该 slide 的 DOM 里）。
+       v3.4（2026-09-06）：OpenAI 那句之后新增一枚同样式 d-sec —— Google Gemini 3.5
+       Transcribe 背书。一手来源两条：Google 官方博客 2026-08-26《Gemini 3.5
+       Transcribe》原句 "developer platforms such as Agora, Fishjam, LangChain,
+       LiveKit, Pipecat, Vercel, and Vision Agents"（**没有** first / launch partner
+       字样）· 声网文档 docs.agora.io/en/ai/models/asr/gemini（vendor `gemini` ·
+       model `gemini-3.5-transcribe-live` · "available as an early access preview"）。
+       ⇒ 这句里只能写「官方博文点名的开发者平台」，**不许**写「首批 / 首发 / 独家」。"""
     return "".join([
         '<div class="rows" style="margin-top:2px">' + "".join(
             '<div class="r" style="padding:6px 0;gap:14px">'
@@ -2552,6 +2578,13 @@ def _p8detail():
             '</div>' % (_t, _n, _d) for _t, _n, _d in _STEP) + '</div>',
         '<div class="d-sec" style="font:500 18px/1.5 var(--f-cn);color:var(--accent)">'
         '2024 OpenAI Realtime API 发布 · 声网为全球首批合作伙伴。</div>',
+        # v3.4：Google 背书。措辞红线见 docstring —— 官方博文没有 first/launch partner
+        # 字样，所以这里只能是「官方博文点名的开发者平台」。
+        '<div class="d-sec" style="font:500 18px/1.5 var(--f-cn);color:var(--accent)">'
+        '2026 Google Gemini 3.5 Transcribe 发布 · 声网为官方博文点名的开发者平台 · '
+        # 末句整体 nowrap：让折行落在「· 引擎」之前，而不是把「引擎 / 已接入」拆成两行
+        # （textContent 不变，⑫ / 归档闸的逐字串照旧命中）。
+        '<span style="white-space:nowrap">引擎已接入 Gemini ASR（早期预览）。</span></div>',
         '<div style="margin-top:8px" class="mono-sm">'
         'DEMO / 文档 · agora.io › 对话式 AI · 联系团队</div>',
     ])
@@ -2583,13 +2616,29 @@ page("content", "".join([
            i=5),
     land("同一张实时网，服务人与人、人与智能体、智能体与智能体。", y=900, w=1100),
     detail_chip(x=1460, y=898, w=340),
-    detail("02 · NEUTRALITY · 三不", _p8detail(), h=430),
+    # v3.4：细节层多了一枚 Google 背书的 d-sec ⇒ h 430 不够（实测内容 477 > 内高 428）。
+    #   提到 490（内高 488 · 余 11px）；底 740 仍远在 land y900 之上，⑰ 的三不压闸不受影响。
+    detail("02 · NEUTRALITY · 三不", _p8detail(), h=490),
     # 页脚同一基线三栏：land（左） · SOURCE ledger（中） · 署名 rail（右）
     # 「让陪伴自然，让生意成单。」= 与 P1 封面主标的首尾对仗（逐字）
     land("让陪伴自然，让生意<strong>成单</strong>。", w=460),
     # ⑯ 的四段制 ledger：段与段之间一律 ` · `
-    src("SOURCE · 声网官网 关于我们（使命 · 愿景） · 事实截止 2026.09",
-        x=520, w=620, align="right"),
+    # v3.4：细节层新增 Google 背书 ⇒ 出处补两条一手来源（Google 官方博客 2026.08.26 /
+    #   声网文档 Gemini ASR）。为了腾位去掉「（使命 · 愿景）」这个括注 —— 使命 / 愿景
+    #   两句本来就在页上，出处行不必再复述它标的是哪两句。
+    #   几何**横向照旧 x520 / w620，纵向抬 24px（y1010 → 986）**：
+    #   新串单行自然宽 1014.6px（17px JetBrains Mono），而这一带的净空只有 x498
+    #   （左 land 墨的右缘）到 x1384（右 rail 墨的左缘）= 886px，一行怎么摆都放不下
+    #   ⇒ 认它折两行。w 放到 700 / x 放到 440 反而更糟：实测行墨左缘 453.2 < 498，
+    #   会压上左边 land 的字（不许）。折两行之后 y1010 起会把第二行顶出画布底
+    #   （1010+2×24 = 1058，descender 撞 1080 边），所以整枚抬 24px：
+    #   **第二行的基线正好落回 y1010 = 右侧 rail 的基线** ——「页脚同一基线三栏」这条
+    #   纪律仍然成立（末行对齐），第一行往上叠。两行都在 x538.2–1140 / y986–1032：
+    #   左不碰 land（≤498）、右不碰 rail（≥1384.2）、下不出画布。
+    #   盒高 24 → 48：`.flow` 的 clip-path 按边框盒裁，不放高第二行会被切（见 src 的注）。
+    src("SOURCE · 声网官网 关于我们 · Google 官方博客 2026.08.26 · 声网文档 Gemini ASR"
+        " · 事实截止 2026.09",
+        y=986, x=520, w=620, h=48, align="right"),
     rail("姚光华 COLIN · SHENGWANG.CN · COLINYAO.COM", x=1200, w=600, align="right"),
 ]), steps=1, lab="galaxy")
 
@@ -4852,10 +4901,13 @@ def build():
     #    v3.3（2026-09-06 · 本轮的改动面 = P3 / P6 / P7 三页）：P3 / P6 的摘要按
     #    「去掉细节层之后」的产物重钉；P7 主图反转 ⇒ 摘要整枚换新。
     #    P1 / P2 / P4 / P5 / P8 的摘要**一个字节都没动**（红线：除面板闸名册外不许动）。
+    #    v3.4（2026-09-06 · 本轮的改动面 = **P8 一页**：细节层加 Google 背书 + SOURCE 行
+    #    补两条一手来源）：P8 的摘要重钉；P1–P7 一个字节没动（P2 的 Google 背书量下来
+    #    放不进面板 ⇒ 整枚不做，见 _p2detail 的 docstring）。
     _BASE = {1: ("6a266af55cce4643", []), 2: ("80026d29106368b6", []),
              3: ("71de96196bb0414c", []), 4: ("74796065f13be705", []),
              5: ("e6fba6f3cd9dcd4b", []), 6: ("3518f62f28254391", []),
-             7: ("2faaa345d2ae4194", []), 8: ("f3fd04f859367389", [])}
+             7: ("2faaa345d2ae4194", []), 8: ("d622937990c2c21a", [])}
     # v3.3：P3 / P6 细节层退役 ⇒ 两页零分步；P7 换主图但仍是一枚细节层。
     _STEPS = [[], [1], [], [1], [1], [], [1], [1]]
     import hashlib as _hl
