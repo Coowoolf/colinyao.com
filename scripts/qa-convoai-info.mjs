@@ -616,6 +616,7 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
                r: +q.labR, gap: +q.labGap, yc: n('labYc'),
                tilt: +q.labTilt, spin: +q.labSpin,
                pts: +q.labPts, cloud: n('labCloud'), nodes: n('labNodes'),
+               plate: n('labPlate'), fan: n('labFan'),
                arcs: +q.labArcs, net: +q.labNet,
                strands: +q.labStrands, flows: n('labFlows'),
                band: n('labBand'), rip: n('labRip'), ripr1: +q.labRipr1,
@@ -637,10 +638,26 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const top = d.yc[4] - d.r * CT - d.dev[1] * ST2, bot = d.rect[1] + d.yc[0] + d.r * CT;
     ok(top >= 0, `⑳stack L4 设备顶 fig ${top.toFixed(1)} 出了画布上沿`);
     ok(bot <= 874 - 16, `⑳stack L0 盘缘 舞台 ${bot.toFixed(1)} 离图例墨迹 y874 不足 16px`);
-    // ③ 点数预算：两片点云合计 ≤12,000（与 P5 大脑 / P8 星系同一量级）
-    ok(d.pts <= 12000 && d.cloud[0] + d.cloud[1] === d.pts,
-       `⑳stack 点数 ${d.pts}（[${d.cloud}]）越过 12,000 或与分项对不上`);
-    ok(d.cloud[1] === d.core[1], `⑳stack 核点数 ${d.cloud[1]} != ${d.core[1]}`);
+    // ③ 点数预算：全场点云合计 ≤12,000（与 P5 大脑 / P8 星系同一量级）
+    //    v3.3.1「加质量」之后 cloud = [地图, 海面, 四盘点场, 核, 五枚设备剪影]，
+    //    再加三类节点（36+24+8）与 12 枚弧上亮斑 = data-lab-pts。
+    const cl = d.cloud.reduce((a, b) => a + b, 0);
+    const nd = d.nodes.reduce((a, b) => a + b, 0) + d.arcs;
+    ok(d.cloud.length === 5 && d.pts <= 12000 && cl + nd === d.pts,
+       `⑳stack 点数 ${d.pts}（点云 [${d.cloud}] = ${cl} + 节点 ${nd}）越过 12,000 或与分项对不上`);
+    ok(d.cloud[3] === d.core[1], `⑳stack 核点数 ${d.cloud[3]} != ${d.core[1]}`);
+    // ③' 盘面点场：四盘各一层、只铺到盘缘之内（不然最低那一层会顶到图例那一行）
+    ok(d.cloud[2] === 4 * d.plate[0],
+       `⑳stack 盘面点场 ${d.cloud[2]} != 4 × ${d.plate[0]}`);
+    ok(d.plate[1] < d.r && d.plate[2] > 0,
+       `⑳stack 盘面点场半径 ${d.plate[1]} 越出盘缘 ${d.r}（半厚 ${d.plate[2]}）`);
+    // ③'' L4 五枚设备是**填充剪影点云**（线框示意图不上 LAB deck）
+    ok(d.dev[2] > 0 && d.cloud[4] === d.dev[0] * d.dev[2],
+       `⑳stack 设备剪影点数 ${d.cloud[4]} != ${d.dev[0]} × ${d.dev[2]}`);
+    // ③''' L3 扇出流：半宽 7 / 末端 4 / 应用节点 r 5 · L2 核 r 60
+    ok(d.fan[0] === 7 && d.fan[1] === 4 && d.fan[2] === 5,
+       `⑳stack L3 扇出流的半宽 / 末端节点漂移：[${d.fan}]`);
+    ok(d.core[0] === 60, `⑳stack L2 核半径 ${d.core[0]} != 60`);
     // ④ 股数：1 波形带 + 2 竖轴供给（过 L2 换色 ⇒ 只能拆两段）+ 8 扇出 = 11
     ok(d.strands === 11 && d.flows[0] === 1 && d.flows[1] === 2 && d.flows[2] === 8
        && d.flows.reduce((a, b) => a + b, 0) === d.strands,
@@ -668,8 +685,9 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     d.lead.forEach((v, k) => ok(v >= d.leadclr,
       `⑳stack 第 ${k + 1} 处引线落点离几何只有 ${v}px（下限 ${d.leadclr}）`));
     console.log(`  · ⑳stack P7：五盘 R=${d.r} 间距 ${d.gap} 倾角 ${d.tilt}° · 1 圈/${
-      d.spin}s · 点云 [${d.cloud}] = ${d.pts} 点 · ${d.strands} 股（${d.flows}）· ${
-      d.arcs} 弧 / 节点 [${d.nodes}] / 网 ${d.net} 段 · 引线净空 [${d.lead}]px`);
+      d.spin}s · 点云 [${d.cloud}] + 节点 ${nd} = ${d.pts} 点 · 核 r${d.core[0]} · ${
+      d.strands} 股（${d.flows}）· ${d.arcs} 弧 / 网 ${d.net} 段 / 设备剪影 ${
+      d.dev[0]}×${d.dev[2]} · 引线净空 [${d.lead}]px`);
   }
 
   /* ── ⑳galaxy P8「互动星系」的机器面（解出来的，不是调出来的）───────────────
