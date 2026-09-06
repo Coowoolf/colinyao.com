@@ -1,4 +1,6 @@
 // QA · convoai-info v2（8 页 · CONF 家族 · 双主题 · P4/P5/P7 各 1 步 build）
+// 2026-09-06 v3.3：P3 / P6 细节层退役（五页面板）· P7 主图从「14 家星座墙」反转为
+//   「五层价值地壳」（`stack`），14 家案例卡搬进细节层当缩略图墙。
 // 2026-08-21 家族语言重建轮改写。闸门清单：
 //   ①  页数 N=8 / noindex / 页码 sig / 主题态 / console 零错
 //   ②  分步：逐页比对 data-steps 与页内 [data-step] 最大值（两边必须自洽）
@@ -15,7 +17,7 @@
 //   ⑫  口径锁：P2 四大数 + 近一半 + IDC 注 + SOURCE / P5 96.5% + 2,475 /
 //       P8 使命 · 愿景两句 + 三簇题注 + 三不三步（细节层）逐字
 //   ⑭  红线反向闸：价格 / staging / 引擎 P16 的「盲测 · 32,000」/ 旧分类学 / 旧措辞
-//   ⑮  P7 案例墙 14 家客户名逐字（名单硬编码在本文件，改名必须两处同改）
+//   ⑮  P7 案例 14 家客户名逐字（v3.3 起在细节层的缩略图墙里 · 名单硬编码在本文件）
 // 2026-09-01 LAB 整体重构轮新增 ⑲/⑳ **WebGL 豁免通道**（照抄 qa-convoai-lab 的闸门体系）：
 //   ⑲a  逐页舞台结构：场景名 / data-lab-rect / poster 层 / 打印帧位 / 层序 /
 //       poster 组里**一个字也没有**（字必须压在 canvas 之上）
@@ -31,6 +33,8 @@
 //   ⑳spd A 档流速逐股复算（110 ±30% · 同页极差 ≤1.35×）
 //   ⑳net P8「网在生长」：十条边的相位复算 φ_k − k·2π/10 = 0 + 场面构成正面钉死
 //        （v3.1 起接替 ⑳rv —— 三条支流一条河退役）
+//   ⑳stack P7「五层价值地壳」：五盘半径 / 盘心与间距 / 倾角 / 自转 / 点数 / 十一股流 /
+//        涟漪同拍 / 深度雾贴 z / 八处引线落点净空 —— 从 data-lab-* 逐条复算
 //   ⑳flick 消闪：定拍逐帧亮度突变上限　⑳ink 浅 / 暗墨量比 ≥ 0.90
 // 用法：node scripts/qa-convoai-info.mjs        （THEME=dark 二跑）
 //      BASE=http://localhost:8899 node scripts/qa-convoai-info.mjs
@@ -42,14 +46,19 @@ const N = 8;
 // v3 三波收官：P2–P7 每页一枚**细节层**（该页 data-step=1）；P1 封面按规格不带。
 // v3.1（P8 重做轮）：P8 也带一枚 —— 三不 / 三步 / OpenAI / DEMO 四件密材料从主版面
 // 搬进抽屉，主版面只留使命 · 愿景 · 三种互动。
-const EXP_STEPS = [0, 1, 1, 1, 1, 1, 1, 1];
-const DETAIL_PAGES = [2, 3, 4, 5, 6, 7, 8];
+// v3.3（2026-09-06 · Colin：「#3 那个细节和内容重叠了，可以去除。#6 同感」）：
+// P3 / P6 两枚细节层退役 ⇒ **五页**带面板（P2 / P4 / P5 / P7 / P8），P3 / P6 零分步。
+const EXP_STEPS = [0, 1, 0, 1, 1, 0, 1, 1];
+const DETAIL_PAGES = [2, 4, 5, 7, 8];
 const BOARD = { 1: 'title' };            // 其余一律 content
 // P1 封面自 2026-09-01 起走**声场球**（3D），AI-art 位图退场 ⇒ 全 deck 无 hero-art。
 // （对比版 INFO_P1=art 只在终审出图时构建，不进 qa。）
 const HERO = {};
-const ECO = { 7: 'ecosystem-stack-v4' }; // eco-art 只上 P7 生态主视觉（polish-v4）
-// P7 案例墙客户名：逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）
+// v3.3：P7 的 eco 位图（ecosystem-stack-v4 双源）随主图反转一起退场 —— 生态图
+// 改成从结构重建的 3D 场景 `stack`，页上不再有 .eco-art。
+const ECO = {};
+// P7 案例客户名：逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）
+// v3.3 起它们在**细节层**的 7×2 缩略图墙里，每一枚都是文本节点（不是图上的字）。
 const CASES = ['集贤科技', 'Robopoet', 'luwu',
   'Pophie', '商汤', 'MiniMax', '智谱清言', '星野', '灵机一动',
   'LOOKTECH', 'HeyCyan', 'LOOKEE', '莲偶科技', '豆神 AI'];
@@ -63,8 +72,10 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 // v3.1：P8 的 `river`（三条支流一条河）退役，换成 `net`（一张实时网上的三种互动）。
 // v3.2：`net`（线框示意图 · Colin 判「丑」「不适配」）再退役，换成 `galaxy`
 //       （互动星系 · 12,000 点体积点云 —— 与 P5 五脑区大脑同一语系）。
+// v3.3：P7 的 `wall`（14 家星座墙）退役，换成 `stack`（五层价值地壳 —— 五枚圆盘
+//       沿一根竖轴堆叠，与 P5 五脑区大脑 / P8 互动星系同一语系）。
 const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain',
-                     6: 'exit', 7: 'wall', 8: 'galaxy' };
+                     6: 'exit', 7: 'stack', 8: 'galaxy' };
 const LAB_PAGES = Object.keys(LAB_SCENES).map(Number).sort((a, b) => a - b);
 // v3 波C 起**八页全有场景**（P7 的五层生态图搬进细节层，主图换成 3D 星座墙）⇒
 // 这张表空了。⑲e「非激活页 ⇒ canvas 回车库」因此改成「把 .active 全摘掉」来验
@@ -86,7 +97,7 @@ const CLR_PAGES = LAB_PAGES.filter(p => p !== 1 && p !== 2);
 //   P8（v3.2）同理：互动星系整体在转（1 圈/90s）+ 在摇（±6°/17s），点云 / 弧 / 流
 //   三件几何逐帧在变 ⇒ 构建期交的是「(r,|w|) 族 × 整圈 φ × 摇摆三档」的**扫掠包络**。
 //   下限（16px 加法层规则）与「运行时 ≥ 解析 − 0.5」两条一格没松。
-const CLR_BOUND = [5, 7, 8];
+const CLR_BOUND = [5, 7, 8];   // P7 v3.3 起是五层价值地壳的自转扫掠包络
 const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 // 软渲染开关：容器里没有 GPU，不给这三个 flag 连 WebGL 上下文都拿不到
 const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -243,7 +254,7 @@ const sw = await pg.evaluate(() => {
     theme: document.documentElement.getAttribute('data-theme'),
     bg: getComputedStyle(s.querySelector('.conf-bg')).backgroundImage,
     lt: disp(s, '.hero-art.lt'), dk: disp(s, '.hero-art.dk'),
-    elt: disp(p7, '.eco-art.lt'), edk: disp(p7, '.eco-art.dk'),
+    eco: p7.querySelectorAll('.eco-art').length,
   };
 });
 const flipped = THEME === 'dark' ? 'light' : 'dark';
@@ -254,8 +265,7 @@ ok(sw.bg.includes('-' + flipped + '.png'), '⑦ 切换后板源未换');
 if (Object.keys(HERO).length)
   ok(flipped === 'dark' ? (sw.lt === 'none' && sw.dk === 'block') : (sw.dk === 'none' && sw.lt === 'block'),
      `⑦ hero 双源 ${sw.lt}/${sw.dk}`);
-ok(flipped === 'dark' ? (sw.elt === 'none' && sw.edk === 'block') : (sw.edk === 'none' && sw.elt === 'block'),
-   `⑩ 切换后 eco 双源 ${sw.elt}/${sw.edk}`);
+ok(sw.eco === 0, `⑩ P7 仍有 eco-art 位图 ${sw.eco} 枚（v3.3 起主图是 3D 场景 stack）`);
 await pg.click('#deckSwap'); await pg.waitForTimeout(250);
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -572,12 +582,15 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     const all = [];
     rows.forEach(([p, s2]) => s2.split(';').filter(Boolean)
       .forEach(r => { const i = r.lastIndexOf(','); all.push({ p, nm: r.slice(0, i), v: +r.slice(i + 1) }); }));
-    // v3.2：P8 三稿的股数是 **20** —— 14 条核↔内环互动流（一来一回）+ 6 条内环→外环
-    //   径向流。全 deck 因此是 3(P3) + 2(P4) + 1(P6) + 20(P8) = 26 股。
-    //   ⚠ 星系的 20 股逐股给了**自己的世界速度**（spd_i = 110·Lw/Lp，与 P3 三条主干同法）
+    // v3.2：P8 三稿的股数是 **20** —— 14 条核↔内环互动流（一来一回）+ 6 条内环→外环径向流。
+    // v3.3：P7 五层价值地壳带来 **11** 股 —— 1 条 L1 感知波形带 + 2 段竖轴供给流
+    //   （mkStream 的颜色是 uniform，一条带换不了色 ⇒「过 L2 盘心换色」只能拆两段）
+    //   + 8 条 L3 扇出流。全 deck 因此是 3(P3) + 2(P4) + 1(P6) + 11(P7) + 20(P8) = 37 股。
+    //   ⚠ 每一股都逐股给了**自己的世界速度**（spd_i = 110·Lw/Lp，与 P3 三条主干同法）
     //     ⇒ 波峰在**屏上**一律 110px/s（参考位姿 spin=0），页内极差 1.00×。
-    ok(all.length === 26, `⑳spd A 档股数 ${all.length} != 26`);
-    ok(rows.length === 4, `⑳spd A 档页数 ${rows.length} != 4（P1 球 / P2 地球 / P5 大脑不是介质，不进表）`);
+    ok(all.length === 37, `⑳spd A 档股数 ${all.length} != 37`);
+    ok(rows.length === 5, `⑳spd A 档页数 ${rows.length} != 5（P1 球 / P2 地球 / P5 大脑不是介质，不进表）`);
+    ok(all.filter(r => r.p === 7).length === 11, `⑳spd P7 股数 ${all.filter(r => r.p === 7).length} != 11`);
     ok(all.filter(r => r.p === 8).length === 20, `⑳spd P8 股数 ${all.filter(r => r.p === 8).length} != 20`);
     all.forEach(r => ok(r.v >= 77 && r.v <= 143,
       `⑳spd P${r.p}「${r.nm}」${r.v}px/s 越出 110±30%（77–143）`));
@@ -589,6 +602,74 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
          `⑳spd P${p} 页内极差 ${(Math.max(...v) / Math.min(...v)).toFixed(2)}×`);
     });
     console.log(`  · ⑳spd A 档：${rows.length} 页 ${all.length} 股 · ${lo}–${hi}px/s`);
+  }
+
+  /* ── ⑳stack P7「五层价值地壳」的机器面（v3.3 · 移植 ⑳galaxy 的写法）────────
+     判据是这枚场景自己的账：五盘半径 / 盘心与间距 / 倾角 / 自转 / 两片点云的点数 /
+     十一股流（1 + 2 + 8）/ 涟漪与波形带同拍 / 深度雾贴真实 z 跨度 /
+     八处引线落点离几何 ≥16px（构建期扫掠包络实测，qa 只做对表）。 */
+  {
+    const d = await pg.evaluate(() => {
+      const q = document.getElementById('labStage7').dataset;
+      const n = (k) => q[k].split(',').map(Number);
+      return { scene: q.labScene, lam: +q.labLam, layers: +q.labLayers,
+               r: +q.labR, gap: +q.labGap, yc: n('labYc'),
+               tilt: +q.labTilt, spin: +q.labSpin,
+               pts: +q.labPts, cloud: n('labCloud'), nodes: n('labNodes'),
+               arcs: +q.labArcs, net: +q.labNet,
+               strands: +q.labStrands, flows: n('labFlows'),
+               band: n('labBand'), rip: n('labRip'), ripr1: +q.labRipr1,
+               ripp: +q.labRipp, core: n('labCore'), dev: n('labDev'),
+               ax: n('labAx'), half: +q.labHalf, zmax: +q.labZmax,
+               lead: n('labLead'), leadclr: +q.labLeadclr,
+               rect: q.labRect.split(',').map(Number) };
+    });
+    ok(d.scene === 'stack', `⑳stack P7 场景名 ${d.scene} != stack`);
+    ok(Math.abs(d.lam - 232) < 1e-6, `⑳stack 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
+    // ① 五盘：半径 / 间距 / 倾角 / 盘心表（自下而上 L0…L4）
+    ok(d.layers === 5 && d.yc.length === 5, `⑳stack 层数 ${d.layers} / 盘心表 ${d.yc.length} != 5`);
+    ok(d.yc.every((v, i) => i === 0 || Math.abs((d.yc[i - 1] - v) - d.gap) < 1e-6),
+       `⑳stack 五盘间距不齐：[${d.yc}] gap=${d.gap}`);
+    ok(d.r === 420 && d.tilt === 82 && d.spin === 120,
+       `⑳stack 盘半径 / 倾角 / 自转漂移：R=${d.r} 倾角 ${d.tilt}° 1 圈/${d.spin}s`);
+    // ② 竖向装得下：L4 设备顶不出画布上沿、L0 盘缘离图例首行墨迹 ≥16px
+    const CT = Math.cos(d.tilt * Math.PI / 180), ST2 = Math.sin(d.tilt * Math.PI / 180);
+    const top = d.yc[4] - d.r * CT - d.dev[1] * ST2, bot = d.rect[1] + d.yc[0] + d.r * CT;
+    ok(top >= 0, `⑳stack L4 设备顶 fig ${top.toFixed(1)} 出了画布上沿`);
+    ok(bot <= 874 - 16, `⑳stack L0 盘缘 舞台 ${bot.toFixed(1)} 离图例墨迹 y874 不足 16px`);
+    // ③ 点数预算：两片点云合计 ≤12,000（与 P5 大脑 / P8 星系同一量级）
+    ok(d.pts <= 12000 && d.cloud[0] + d.cloud[1] === d.pts,
+       `⑳stack 点数 ${d.pts}（[${d.cloud}]）越过 12,000 或与分项对不上`);
+    ok(d.cloud[1] === d.core[1], `⑳stack 核点数 ${d.cloud[1]} != ${d.core[1]}`);
+    // ④ 股数：1 波形带 + 2 竖轴供给（过 L2 换色 ⇒ 只能拆两段）+ 8 扇出 = 11
+    ok(d.strands === 11 && d.flows[0] === 1 && d.flows[1] === 2 && d.flows[2] === 8
+       && d.flows.reduce((a, b) => a + b, 0) === d.strands,
+       `⑳stack 流股数 ${d.strands}（${d.flows}）!= 11（1 + 2 + 8）`);
+    // ⑤ 逐层语义件都在盘内（地图 / 波形带+涟漪 / 网 / 扇流 / 设备轮廓）
+    ok(d.band[0] + d.ripr1 <= d.r,
+       `⑳stack 涟漪最外 ${d.band[0] + d.ripr1} 越出盘缘 ${d.r}`);
+    ok(d.arcs === 12 && d.nodes[0] === 36 && d.nodes[1] === 24 && d.nodes[2] === 8,
+       `⑳stack L0 弧 ${d.arcs} / 三层节点 [${d.nodes}] 漂移`);
+    ok(d.net >= 24 && d.net <= 60, `⑳stack L2 网 ${d.net} 段越界（24–60）`);
+    ok(d.dev[0] === 5, `⑳stack L4 设备 ${d.dev[0]} 枚 != 5`);
+    // ⑥ 涟漪与波形带同拍：周期 = λ ÷ A 档速度
+    ok(Math.abs(d.ripp - d.lam / 110) < 1e-3,
+       `⑳stack 涟漪周期 ${d.ripp}s 与波形带不同拍（λ/110 = ${(d.lam / 110).toFixed(4)}）`);
+    ok(d.rip.length === 3 && d.rip.every((v, i) => i === 0 || v > d.rip[i - 1]),
+       `⑳stack 三圈涟漪半径不是递增：[${d.rip}]`);
+    // ⑦ 竖轴供给流：盘心涌起到 1.0（半宽 ×1.6）、盘间 .55
+    ok(d.ax[1] > 1 && d.ax[2] > 0 && d.ax[2] < d.ax[3] && d.ax[3] === 1,
+       `⑳stack 竖轴供给流的涌起档越界：[${d.ax}]`);
+    // ⑧ 深度雾贴真实 z 跨度（松了就等于没有体积 —— px 场景唯一的立体线索）
+    ok(Math.abs(d.half - d.zmax) <= 6,
+       `⑳stack 深度雾半程 ${d.half} 没贴住真实 z 跨度 ${d.zmax}`);
+    // ⑨ 八处引线落点（五组左标 + 三枚右标）离几何 ≥16px
+    ok(d.lead.length === 8, `⑳stack 引线落点净空表长 ${d.lead.length} != 8`);
+    d.lead.forEach((v, k) => ok(v >= d.leadclr,
+      `⑳stack 第 ${k + 1} 处引线落点离几何只有 ${v}px（下限 ${d.leadclr}）`));
+    console.log(`  · ⑳stack P7：五盘 R=${d.r} 间距 ${d.gap} 倾角 ${d.tilt}° · 1 圈/${
+      d.spin}s · 点云 [${d.cloud}] = ${d.pts} 点 · ${d.strands} 股（${d.flows}）· ${
+      d.arcs} 弧 / 节点 [${d.nodes}] / 网 ${d.net} 段 · 引线净空 [${d.lead}]px`);
   }
 
   /* ── ⑳galaxy P8「互动星系」的机器面（解出来的，不是调出来的）───────────────
@@ -919,8 +1000,11 @@ const ALL = await pg.evaluate(() => document.getElementById('deckStage').textCon
   .forEach(n => ok(!ALL.includes(n), `⑭ P2 旧口径回归：「${n}」`));
 
 // P3 · 分类学统一（底座 → 三条产品线 → Engine 两种交付形态）
-[['一个实时底座，三条产品线', t3], ['ENGINE DELIVERY FORMS', t3], ['两种交付形态', t3],
+// v3.3：细节层「02 · ENGINE DELIVERY FORMS」退役 ⇒ 那两枚字串不再上页
+// （闭源 / 开源两态仍写在图里的 TEN 卡「Engine 交付形态 · 开源」上，下面照验）。
+[['一个实时底座，三条产品线', t3],
  ['配套能力 · 工具', t3], ['实时底座 · RTE', t3], ['TEN 开源工具库', t3],
+ ['Engine 交付形态 · 开源', t3],
  ['AI 模型评测平台', t3], ['实时转录翻译', t3], ['开发套件', t3]]
   .forEach(([n, txt]) => ok(txt.includes(n), `⑫ P3 缺「${n}」`));
 ['三台引擎', '两大产品引擎', 'THREE ENGINES', 'DUAL FORM'].forEach(n =>
@@ -971,19 +1055,32 @@ ok(t5.includes('生产外呼 · n=2,475 · 未出现明确 AI 识别信号'), '�
  ['面向家居与室内场景——音箱、桌宠、陪伴机器人。', t6],
  ['走出 Wi-Fi 覆盖——户外、随身、车载与出海设备。', t6],
  ['全球率先发布的对话式 AI 硬件开发套件。', t6],
- ['活人感 = 角色立得住 + 临场撑得住。', t6], ['30000+', t6], ['200+', t6], ['毫秒级', t6]]
+ // v3.3：「活人感」三态细节层退役 ⇒ 那一句不再上页（页上其余一个字未动）
+ ['30000+', t6], ['200+', t6], ['毫秒级', t6]]
   .forEach(([n, txt]) => ok(txt.includes(n), `⑫ P6 缺「${n}」`));
 
-// P7 · 案例：脚注去掉内部指针 + 案例墙 14 家逐字
+// P7 · 生态（v3.3 主图反转）：五层价值地壳 + 14 家案例逐字（在细节层里）
 ok(!ALL.includes('/convoai-visit P23'), '⑫ P7 脚注仍带内部指针 /convoai-visit P23');
-ok(t7.includes('从 SD‑RTN 到设备，每一层都由声网托住 · 事实截止 2026.08'), '⑫ P7 脚注不符');
+// ⑭ P7 反向：星座墙退役之后，旧主版面的标题与小节标不许回归
+['01 · CASE WALL', '对话式 AI，已经上岗。'].forEach(n =>
+  ok(!ALL.includes(n), `⑭ P7 星座墙残句回归：「${n}」`));
+ok(t7.includes('01 · ECOSYSTEM · 从 SD-RTN 到设备 · 每一层都由声网托住'), '⑫ P7 小节标不符');
+ok(t7.includes('五层价值地壳，三层都有声网。'), '⑫ P7 主标不符');
+ok(t7.includes('生态分层为编者归纳'), '⑫ P7 SOURCE 缺「生态分层为编者归纳」');
 ok(t7.includes('L0 连接 · L1 感知 · L2 运行时——三层都有声网'), '⑫ P7 callout 不符');
 [['L4', '入口与设备'], ['L3', '应用与结果'], ['L2', 'Agent 运行时'],
  ['L1', '模型与感知'], ['L0', '实时基础设施']].forEach(([c, n]) => {
   ok(t7.includes(c) && t7.includes(n), `⑫ P7 生态层缺「${c} ${n}」`);
 });
-CASES.forEach(n => ok(t7.includes(n), `⑮ P7 案例墙客户名缺 / 写错：「${n}」`));
-ok(t7.includes('14') && t7.includes('声网联合案例 · 均已公开'), '⑮ P7 案例墙计数/题注不符');
+CASES.forEach(n => ok(t7.includes(n), `⑮ P7 案例客户名缺 / 写错：「${n}」`));
+ok(t7.includes('14') && t7.includes('声网联合案例 · 均已公开'), '⑮ P7 案例计数/题注不符');
+ok(t7.includes('声网官方联合案例 · 均已公开——你的场景，多半能对上号。'), '⑮ P7 细节层尾句不符');
+// ⑮ 客户名必须是 DOM 文本节点（不是缩略图上烧录的字）：逐枚在细节层里点名
+{
+  const inPanel = await pg.evaluate(() => [...document.querySelectorAll(
+    '.slide[data-p="7"] .detail div')].map(e => e.textContent.trim()));
+  CASES.forEach(n => ok(inPanel.includes(n), `⑮ P7 细节层缺客户名文本节点「${n}」`));
+}
 
 /* P8 · 使命与愿景（v3.1 重做）：主标 + 使命 / 愿景两句 + 三簇题注 + land，
    加上搬进细节层的三不 / 三步 / OpenAI / DEMO —— 全部逐字。
@@ -1257,8 +1354,8 @@ if (THEME !== 'dark') {
 
 ok(errs.length === 0, '① console: ' + errs.slice(0, 4).join(' | '));
 console.log(fails.length ? '✗ FAIL ' + THEME + '\n' + fails.map(f => '  ' + f).join('\n')
-                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2–P8 各 1 步（七页细节层）`
+                         : `✓ PASS ${THEME} · ${N} 页全绿 · 分步 P2 / P4 / P5 / P7 / P8 各 1 步（五页细节层）`
                            + ` · 深链 P4→#1 / P5→#16 / P6→#19`
-                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 26 股 / 禁 WebGL 8 页可读`);
+                           + ` · LAB ${LAB_PAGES.length} 景 ${LAB_PAGES.join('/')} 起帧对位 / 净空两算路 + ⑳globe / A 档 37 股 / 禁 WebGL 8 页可读`);
 await b.close();
 process.exit(fails.length ? 1 : 0);

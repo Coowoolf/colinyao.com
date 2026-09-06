@@ -17,10 +17,10 @@ await pg.waitForTimeout(9000);
 const r = await pg.evaluate(()=>{
   const c=document.getElementById('labGl');
   const per={};
-  // v3 波C 收官：**八页全有场景** —— P1 声场球 / P2 地球 / P3 空间生长 / P4 双向声带 /
-  // P5 五脑区大脑 / P6 走出屏幕（加法层）/ P7 星座墙 /
-  // P8 一张实时网上的三种互动（v3.1：三条支流一条河退役）。
-  // 其中 P1 / P2 / P7 的 poster 是构建期离线投影出来的专用静帧，其余五页是页上那张图本人。
+  // v3.3：**八页全有场景** —— P1 声场球 / P2 地球 / P3 空间生长 / P4 双向声带 /
+  // P5 五脑区大脑 / P6 走出屏幕（加法层）/ P7 五层价值地壳（星座墙退役）/
+  // P8 一张实时网上的三种互动。
+  // 其中 P1 / P2 / P7 / P8 的 poster 是构建期离线投影出来的专用静帧，其余四页是页上那张图本人。
   [1,2,3,4,5,6,7,8].forEach(p=>{ const st=document.querySelector(`.slide[data-p="${p}"] .lab-stage`);
     const ps=[...document.querySelectorAll(`.slide[data-p="${p}"] .lab-poster`)];
     per[p]={ glup: st.classList.contains('gl-up'),
@@ -40,6 +40,12 @@ const CASES=['集贤科技','Robopoet','luwu','Pophie','商汤','MiniMax','智�
 // P8 的口径锁（v3.2）：主标 + 使命 / 愿景两句 + 三组标注 + 图例五件 + land —— 逐字。
 // 使命 / 愿景是 2026-09-02 自 shengwang.cn/aboutus 逐字核实的公司口径（三稿逐字沿用）。
 const must=['No.1','100万+','900亿+','50+','96.5%','2,475',
+  // P7 v3.3（主图反转 = 五层价值地壳）：主标 / land / 五层的层名 / SOURCE 的编者归纳段
+  '五层价值地壳','三层都有声网',
+  'L0 连接 · L1 感知 · L2 运行时','生态分层为编者归纳',
+  '从 SD-RTN 到设备 · 每一层都由声网托住',
+  'L4','入口与设备','L3','应用与结果','L2','Agent 运行时',
+  'L1','模型与感知','L0','实时基础设施',
   '让实时互动，无处不在。',
   '帮助人们跨越距离实时互动，如聚一堂。',
   '让实时互动像空气和水一样，无处不在。',
@@ -55,7 +61,10 @@ const must=['No.1','100万+','900亿+','50+','96.5%','2,475',
 // 河（v3）与线框网（v3.1）退场之后，不许有残句留在归档产物里
 const gone=['三条支流，一条河','Engine 的每一次打断','Agent 的每一次交付',
   'Physical AI 的每一次唤醒','合流点',
-  '01 · MISSION & VISION'];
+  '01 · MISSION & VISION',
+  // v3.3 退役：P7 星座墙的主版面（标题 / 小节标）与 P3 / P6 的两枚细节层
+  '01 · CASE WALL','对话式 AI，已经上岗。',
+  'ENGINE DELIVERY FORMS','两种交付形态','活人感 = 角色立得住 + 临场撑得住'];
 console.log('mode=%s run=%s parent=%s srcdoc=%s 图未加载=%d', r.mode, r.run, r.parent, r.frame, r.imgs);
 console.log('每页正文字数', r.txt.join('/'));
 console.log('poster:', JSON.stringify(r.per));

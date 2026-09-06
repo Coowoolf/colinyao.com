@@ -231,7 +231,10 @@ for _need, _in in (("function mkStream(SH, pts, opt)", _K_AS),
 # 一个数都不在本文件里重写；poster 也直接用旗舰算好的那一份 `_LAB.GPOSTER`。
 _G_KEYS = ("LAND_BITS", "LAND_N", "NODE_TABLE", "ROUTE_TABLE",
            "ARC_DUR_S", "ARC_GAP_S", "ARC_OFF_S", "GPOSTER", "GCAM",
-           "GGR", "GCX", "GCY", "GTILT", "GY0", "GSPIN", "GINTRO")
+           "GGR", "GCX", "GCY", "GTILT", "GY0", "GSPIN", "GINTRO",
+           # v3.3：P7 五层价值地壳的 L0 世界地图与 L2 核也从旗舰现取
+           # （陆地位掩码 / 示意节点表 / 确定性哈希 —— 一个坐标不新造）
+           "_NODES_LL", "_gx_h1")
 # 波B：双向声带（P4）/ 五脑区大脑（P5）的图形与常量同样**整块现取**——
 # 2D 图（`_duplex_lanes` / `_brain_fig`）、几何常量、K 表构造式全部来自旗舰，
 # 本文件只提供矩形与版式。矩形与 lab 逐字同参 ⇒ K 表连重算都不用。
@@ -306,8 +309,10 @@ LAB_RECTS = {
     5: ("brain",   120,  282, 1680,  580),   # = lab P17 · figbox(120,282,1680, vb1680×580)
     # ⑦ 加法层（第二波）：标题右侧那条空带 —— 页上本来没有图，vb 与盒同宽 ⇒ ×1
     6: ("exit",    740,  140, 1060,  100),
-    # v3 波C：P7 换成 **14 家 3D 星座墙**（新场景）· figbox(120,272,1680, vb1680×560)
-    7: ("wall",    120,  272, 1680,  560),
+    # v3.3 波D：P7 换成 **五层价值地壳**（新场景 `stack`）—— 矩形与 P5 / P8 逐字同参
+    # (120,282,1680,580)：宏大视觉逐项对齐五个大脑那一页（Colin 的原话）。
+    # 二稿的 14 家星座墙（`wall`）随之退役，14 张案例卡图搬进细节层当缩略图墙。
+    7: ("stack",   120,  282, 1680,  580),
     # v3.2（2026-09-03）：P8 三稿换成 **互动星系**（体积点云 · 与 P5 同一语系）——
     # 二稿的线框示意图（net）退役，见「⑥ 互动星系」那一段的退役注。
     # 矩形**与 P5 逐字同参** (120,282,1680,580)：骨架逐项对齐五个大脑那一页。
@@ -410,11 +415,36 @@ LAB_PRELUDE = _LAB.LAB_PRELUDE          # ① classic 前奏 + FPS 探针位 + i
 #   出稿前由 qa 的 ⑳ink 闸逐页实测 `TOUR.shot().ink` 的浅/暗比，目标 ≥0.90。
 _LAB_TAIL = _LAB.LAB_CSS[_LAB.LAB_CSS.index("/* ── 舞台层"):]
 assert _LAB_TAIL.endswith("</style>")
-# 星座墙 poster 的卡框（本 deck 自己的一枚 —— 旗舰没有贴图场景，没有对应的画法）
+# 五层价值地壳 poster 的分件（本 deck 自己的一套 —— 旗舰没有这枚场景）：
+#   点用「零长子路径 + round 线帽」（与 P1 / P2 / P8 的 poster 同法），线各自一档。
 _LAB_TAIL = _LAB_TAIL.replace(
     "</style>",
-    ".w-rim{fill:none;stroke:var(--w-rim);stroke-width:1.2;"
-    "opacity:var(--w-poster-rim,.42);}\n"
+    ".st-map{fill:none;stroke:var(--st-map);stroke-width:var(--st-poster-dot);"
+    "stroke-linecap:round;opacity:var(--st-poster-map,.56);}\n"
+    ".st-core{fill:none;stroke:var(--st-core);stroke-width:var(--st-poster-dot);"
+    "stroke-linecap:round;opacity:var(--st-poster-core,.74);}\n"
+    ".st-node{fill:none;stroke:var(--st-node);stroke-width:4.2;"
+    "stroke-linecap:round;opacity:var(--st-poster-core,.74);}\n"
+    ".st-net-n{fill:none;stroke:var(--st-net-n);stroke-width:3.8;"
+    "stroke-linecap:round;opacity:var(--st-poster-core,.74);}\n"
+    ".st-fan-n{fill:none;stroke:var(--st-fan-n);stroke-width:4.2;"
+    "stroke-linecap:round;opacity:var(--st-poster-core,.74);}\n"
+    ".st-rim{fill:none;stroke:var(--st-rim);stroke-width:1.4;"
+    "opacity:var(--st-poster-rim,.44);}\n"
+    ".st-arc{fill:none;stroke:var(--st-arc);stroke-width:1.2;"
+    "opacity:var(--st-poster-line,.48);}\n"
+    ".st-net{fill:none;stroke:var(--st-net);stroke-width:1.2;"
+    "opacity:var(--st-poster-line,.48);}\n"
+    ".st-rip{fill:none;stroke:var(--st-rip);stroke-width:1.2;"
+    "opacity:var(--st-poster-line,.48);}\n"
+    ".st-dev{fill:none;stroke:var(--st-dev);stroke-width:1.5;stroke-linejoin:round;"
+    "opacity:var(--st-poster-line,.48);}\n"
+    ".st-wave{fill:none;stroke:var(--st-wave);stroke-width:2.4;stroke-linecap:round;"
+    "opacity:var(--st-poster-flow,.50);}\n"
+    ".st-fan{fill:none;stroke:var(--st-fan);stroke-width:2.0;stroke-linecap:round;"
+    "opacity:var(--st-poster-flow,.50);}\n"
+    ".st-axis{fill:none;stroke:var(--st-ax);stroke-width:2.4;stroke-linecap:round;"
+    "opacity:var(--st-poster-flow,.50);}\n"
     # ⚠ P8「互动星系」的 `.gx-*` poster 画法 2026-09-03 起归**旗舰**（`GX_POSTER`
     # 已经拼在 lab 的 LAB_CSS 尾巴里 ⇒ `_LAB_TAIL` 天然带着它），这里不再追加第二份。
     "</style>")
@@ -478,13 +508,35 @@ LAB_CSS = """<style id="convoai-info-3d">
   --ex-rms:#5a41e6;             --ex-rms-op:.74;
   --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
   --ex-add:0;
-  /* ── ⑧ 14 家星座墙（P7）· 浅底 ──
-     卡是**贴图**不是线稿：主色不参与，只有「多亮」与「多远退多少」两档。
-     深度雾走不透明度（clearAlpha=0 ⇒ 退下去就是让纸面透出来），
-     后排最深的一张退到 .97×(1−.26) = .72 —— 看得清是哪一家，又明显在后面。 */
-  --w-card-op:.97;   --w-fog:.26;
-  --w-rim:var(--ink-3);  --w-rim-op:.55;
-  --w-poster-rim:.42;
+  /* ── ⑧ 五层价值地壳（P7）· 浅底 ──
+     色彩纪律：**形**分辨五层（世界地图 / 波形带 / 核+网 / 扇流 / 设备轮廓），
+     **色**只回答一件事 ——「这一层有没有声网」：L0 / L1 / L2 走 accent（声网层），
+     L3 / L4 走 --ink-3（生态层）。竖轴供给流过 L2 盘心换色，是同一条规则的几何面。
+     浅底走正常混合（同样的墨越叠越灰）⇒ 不透明度整体高一档、点径粗一档。 */
+  --st-map:var(--accent);       --st-map-op:.70;   --st-map-size:2.4;  /* L0 世界地图 */
+  --st-map-hot:var(--accent-deep);                 --st-map-gain:.40;
+  --st-node:var(--accent-deep); --st-node-op:.92;  --st-node-size:4.4; /* L0 节点 */
+  --st-arc:var(--accent-deep);  --st-arc-op:.46;                       /* L0 节点间弧 */
+  --st-spark:var(--accent);     --st-spark-op:.88; --st-spark-size:4.6;
+  --st-wave:var(--accent);      --st-wave-op:.42;                      /* L1 波形带峰值 */
+  --st-wave-rms:var(--accent-deep); --st-wave-rms-op:.46;
+  --st-rip:var(--accent-deep);  --st-rip-op:.44;                       /* L1 涟漪环 */
+  --st-core:var(--accent);      --st-core-op:.80;  --st-core-size:2.8; /* L2 核 */
+  --st-core-hot:var(--accent-deep);                --st-core-gain:.60;
+  --st-net:var(--accent-deep);  --st-net-op:.48;                       /* L2 节点网 */
+  --st-net-n:var(--accent);     --st-net-n-op:.86; --st-net-n-size:4.0;
+  --st-fan:var(--ink-3);        --st-fan-op:.52;                       /* L3 扇出流 */
+  --st-fan-rms:#3b6ae6;         --st-fan-rms-op:.46;
+  --st-fan-n:var(--ink-2);      --st-fan-n-op:.80; --st-fan-n-size:4.4;
+  --st-dev:var(--ink-3);        --st-dev-op:.88;                       /* L4 设备轮廓 */
+  --st-ax:var(--accent);        --st-ax-op:.44;                        /* 竖轴供给流 · 下段 */
+  --st-ax-rms:var(--accent-deep);   --st-ax-rms-op:.50;
+  --st-ax2:var(--ink-3);        --st-ax2-op:.40;                       /* 竖轴供给流 · 上段 */
+  --st-ax2-rms:var(--ink-2);    --st-ax2-rms-op:.44;
+  --st-rim:var(--ink-3);        --st-rim-op:.62;                       /* 盘缘轮廓环 */
+  --st-back:.34;                --st-add:0;
+  --st-poster-dot:2.4;  --st-poster-map:.56;  --st-poster-core:.74;
+  --st-poster-rim:.44;  --st-poster-line:.48; --st-poster-flow:.50;
 }
 html[data-theme="dark"]{
   --v-ink:var(--ink-2);    --v-dot-op:.84;  --v-dot-size:.0120; --v-dot-min:1.1;
@@ -512,11 +564,32 @@ html[data-theme="dark"]{
   --ex-rms:var(--ink);          --ex-rms-op:.55;
   --ex-dot:var(--ink-2);        --ex-dot-op:.92;  --ex-dot-size:8;
   --ex-add:1;
-  /* 星座墙 · 暗底：卡再亮一点点会晃眼（原片本来就是深底棚拍），
-     雾反而要重一档 —— 深空里「远」就是「暗」。 */
-  --w-card-op:.94;   --w-fog:.46;
-  --w-rim:var(--ink-3);  --w-rim-op:.40;
-  --w-poster-rim:.30;
+  /* 五层价值地壳 · 暗底：走加色混合，同样的墨越叠越亮 ⇒ 不透明度整体收一档、
+     点径收一档；实芯换白芯（身份由峰值色承担），弧与扇流压到「在，但不抢」。 */
+  --st-map:var(--accent);       --st-map-op:.52;   --st-map-size:2.2;
+  --st-map-hot:var(--accent);                      --st-map-gain:.70;
+  --st-node:var(--accent);      --st-node-op:.88;  --st-node-size:4.2;
+  --st-arc:var(--accent);       --st-arc-op:.38;
+  --st-spark:var(--accent);     --st-spark-op:.86; --st-spark-size:4.4;
+  --st-wave:var(--accent);      --st-wave-op:.38;
+  --st-wave-rms:var(--ink);     --st-wave-rms-op:.40;
+  --st-rip:var(--accent);       --st-rip-op:.36;
+  --st-core:var(--accent);      --st-core-op:.72;  --st-core-size:2.6;
+  --st-core-hot:var(--accent);                     --st-core-gain:.85;
+  --st-net:var(--accent);       --st-net-op:.40;
+  --st-net-n:var(--accent);     --st-net-n-op:.82; --st-net-n-size:3.8;
+  --st-fan:var(--ink-3);        --st-fan-op:.36;
+  --st-fan-rms:var(--ink);      --st-fan-rms-op:.38;
+  --st-fan-n:var(--ink-2);      --st-fan-n-op:.76; --st-fan-n-size:4.2;
+  --st-dev:var(--ink-3);        --st-dev-op:.68;
+  --st-ax:var(--accent);        --st-ax-op:.38;
+  --st-ax-rms:var(--ink);       --st-ax-rms-op:.42;
+  --st-ax2:var(--ink-3);        --st-ax2-op:.34;
+  --st-ax2-rms:var(--ink-2);    --st-ax2-rms-op:.38;
+  --st-rim:var(--ink-3);        --st-rim-op:.50;
+  --st-back:.26;                --st-add:1;
+  --st-poster-dot:2.2;  --st-poster-map:.48;  --st-poster-core:.66;
+  --st-poster-rim:.32;  --st-poster-line:.40; --st-poster-flow:.44;
 }
 """ + _LAB_TAIL
 
@@ -808,7 +881,7 @@ html:not([data-theme="dark"]) .r1-shot img{filter:saturate(.92) contrast(1.03);}
    24/26 + gap 10（**只动白边**），80px 的数字与 20px 的说明一个像素不改。 */
 .lab-kpi .card{padding:24px 26px;gap:10px;}
 
-/* ═══ 细节层 ·「密的东西进抽屉」（v3 新机制 · 每页至多一枚）═══════════════════
+/* ═══ 细节层 ·「密的东西进抽屉」（v3 新机制 · 每页至多一枚 · v3.3 起共五页）═════
    .detail 面板 = 该页的 data-step="1"：默认收起，按 → / 空格 / chip 展开（BUILD
    指示器自然显示 1 步），Esc / ← 收回。展开态是一块从右侧滑入的卡（宽 ≤760 ·
    高 ≤640 · --card-bg 92% 不透明），盖在主图右半之上；3D 照跑 —— canvas 坐在 .pp
@@ -927,7 +1000,10 @@ def rail(txt, y=1010, x=120, w=1680, i=7, align=None):
 _DETAIL_X, _DETAIL_Y, _DETAIL_W, _DETAIL_HMAX = 1060, 250, 740, 640
 # 有细节层的页（P1 封面按规格不带；v3.1 起 P8 也带一枚 —— 三不 / 三步 / OpenAI /
 # DEMO 四件密材料从主版面搬进抽屉，主版面只留使命 · 愿景 · 三种互动）
-DETAIL_PAGES = [2, 3, 4, 5, 6, 7, 8]
+# v3.3（2026-09-06 · Colin：「#3 那个细节和内容重叠了，可以去除。#6 同感」）：
+#   P3 / P6 两枚细节层退役 ⇒ **五页**带面板（P2 / P4 / P5 / P7 / P8），
+#   P3 / P6 的 steps 归 0。qa 的 ⑰ 面板闸名册与 EXP_STEPS 两头同改。
+DETAIL_PAGES = [2, 4, 5, 7, 8]
 
 
 def detail(title, body, h=640, y=_DETAIL_Y, i=2):
@@ -1438,16 +1514,11 @@ page("content", "".join([
     rule(850),
     land(dot("l-eng") + "Engine 提供能力　" + dot("l-agent") + "Agent 交付结果　"
          + dot("l-phys") + "Physical AI 走进物理世界。", y=940, w=1200),
-    detail_chip(x=1400, y=938, w=400),
-    # 细节层：02 · ENGINE DELIVERY FORMS（一句 + 两枚 chip）
-    detail("02 · ENGINE DELIVERY FORMS", "".join([
-        '<div style="margin-top:10px" class="note">Engine 的'
-        '<strong style="color:var(--accent)">两种交付形态</strong>：闭源引擎 · 开源 TEN。</div>',
-        '<div class="d-sec">'
-        '<span class="chip">闭源 · 已上线　对话式 AI 引擎</span>'
-        '<span class="chip">开源　TEN 开源工具库</span></div>',
-    ]), h=260, y=300),
-]), steps=1, lab="grow")
+    # 2026-09-06 v3.3（Colin：「细节那个好像没必要加，和内容重叠了」）：
+    #   细节层「02 · ENGINE DELIVERY FORMS」与它的 chip 一起退役 —— 页上那只
+    #   TEN 卡已经写着「Engine 交付形态 · 开源」，闭源 / 开源两态没有第二次说的必要。
+    #   **只删不补**：页面其余一个字未动，steps 归 0。
+]), steps=0, lab="grow")
 
 # ═══ P4 · Engine ·「超低延迟、可打断、高自然度」（v3 波B · 主图 = 双向声带）══════
 #   主图 = lab P4 的**全双工双向声带**：`_duplex_lanes()`（2D 泳道 / poster）现取 +
@@ -1688,7 +1759,8 @@ page("content", "".join([
 #   01 R1 KIT 两张大图卡（**带实拍图**，跨 deck 引用 robot26 原片，不复制文件）——
 #   版式照 lab P19（两张 820 宽的大卡 + 规格行），卡文案逐字取现版 P6。
 #   「走出屏幕」加法层保留在标题右侧那条空带（exit 场景 + poster 原样）。
-#   02 ROBOTICS 1 三数一行三格；密材料（活人感三态）进**细节层**。
+#   02 ROBOTICS 1 三数一行三格。
+#   ⚠ v3.3（2026-09-06）：「活人感三态」细节层退役（Colin 判与页面内容重叠）⇒ 本页零分步。
 #   hot 件 = 实拍图组（两枚图窗各一圈光晕，同相 —— 一个 hot 概念）。
 #   深链 chip → 抽屉跳引擎 #19（R1 开发套件页）· 常显。
 #   ⚠ 图窗几何账（改卡高必须重算这一条 · 见 DECK_CSS 的 .r1-shot 段）：
@@ -1704,11 +1776,6 @@ _R1KIT = [
      "走出 Wi-Fi 覆盖——户外、随身、车载与出海设备。",
      "· 连接　4G 全移动　　· 场景　户外 / 随身 / 车载　　· 形态　出海设备 · 随身伴侣",
      "r1-4g.webp"),
-]
-_FACES = [
-    ("",      "TOO DRY",    "太木", "正确，但没有关系温度。用户不想再开口。"),
-    (" good", "JUST RIGHT", "恰好", "自然、可持续相处。下次还想跟它说话。"),
-    ("",      "TOO CLINGY", "太腻", "伪装成朋友的销售感。三句之后想拔电源。"),
 ]
 _ROB = [
     ("200+",   "",                        "全球节点 · SD-RTN 软件定义实时网"),
@@ -1790,34 +1857,29 @@ page("content", "".join([
     sh("flow", "left:920px;top:938px;width:500px;height:50px;text-align:right;--i:5",
        '<span class="chip chip-expand ph" id="physExpand" role="button" tabindex="0" '
        'data-eng-hash="19" style="margin-right:0">⤢ R1 开发套件详解 · ⏎</span>'),
-    detail_chip(x=1460, y=938, w=340),
-    # 细节层：02 · LIFELIKE 活人感三态 + 收口一句（字串逐字同源）
-    detail("02 · LIFELIKE ·「活人感」三态", "".join([
-        "".join('<div class="face%s" style="border-top-width:4px;padding:10px 0 8px;'
-                'margin-top:10px">'
-                '<div class="en">%s</div><h3 style="margin:6px 0 4px;font-size:22px">%s</h3>'
-                '<p style="font-size:14px">%s</p></div>' % (_cls, _en, _cn, _d)
-                for _cls, _en, _cn, _d in _FACES),
-        '<div class="d-sec"><div class="note">活人感 = '
-        '<strong style="color:var(--l-phys)">角色立得住 + 临场撑得住</strong>。</div></div>',
-    ]), h=470),
+    # 2026-09-06 v3.3（Colin：「#6 同感」）：细节层「02 · LIFELIKE ·「活人感」三态」
+    #   与它的 chip 一起退役（`_FACES` 三态卡随之退场）。**只删不补**：
+    #   「R1 开发套件详解」chip 与深链 #19 原样，页面其余一个字未动，steps 归 0。
     # SOURCE ledger：来源段与引擎 P19（同一套 R1 事实）同源；时间窗取本页两张卡的发布日
     src("SOURCE · 声网官网 / R1 公开发布信息 · 2025.03.20 / 2025.09.26 发布 · 事实截止 2026.08",
         y=1022, x=820, w=980, align="right"),
-]), steps=1, lab=("exit" if P6_EXIT else None))
+]), steps=0, lab=("exit" if P6_EXIT else None))
 
-# ═══ P7 · 案例 ·「对话式 AI，已经上岗」（v3 波C · 主图 = 14 家 3D 星座墙）═══════
-#   主图 = 新场景 `wall`：14 张公开案例卡图做成**带厚度的贴图卡片**，两排弧形排在
-#   纵深里 —— 前排三家头部（luwu / Robopoet / 集贤科技 · 大一档）、后排 11 家；
-#   整墙绕竖轴极缓摆动 ±6°（周期 20s · 零随机源），各卡按自己的相位轻微前后浮动 ±10。
-#   **零文字进 canvas**：卡上只有图，客户名一律在 DOM 的名册行里（⑮ 闸认那一行）。
-#   细节层 = 01 ECOSYSTEM 五层地壳（现版 eco 图双源 + L4–L0 五行 + 两句逐字）。
-#
-#   ── 2026-08-21 v2 定稿里不许再动的东西（Colin 与 GPT 仲裁）─────────────────
-#     · eco 五层主视觉与层结构原样保留：不加卡片、不加 blur、不加遮罩；
-#       浅色对比滤镜（contrast 1.34 / saturate 1.24 / brightness .97）原样迁移。
-#     · 客户名逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）：
-#       集贤科技 / luwu / 商汤 / 智谱清言 / HeyCyan / 莲偶科技 —— qa 有硬编码名单闸。
+# ═══ P7 · 生态 ·「五层价值地壳，三层都有声网」（v3.3 · 主图 = 五层价值地壳）═════
+#   2026-09-06 Colin：「#7 我觉得反过来了，这一页应该放 ecosystem 的大图，宏大视觉
+#   对齐 brain 那一页，然后弹出的细节可以列一下客户案例的。」
+#   ⇒ **主图反转**：14 家 3D 星座墙（`wall` / `_W_*` / `_p7wall_poster`）整套退役，
+#     主图换成新场景 `stack` —— 五枚圆盘沿一根竖轴堆叠的**五层价值地壳**，
+#     语言与 P5 大脑 / P8 星系同系（体积点云 + 线 + audioStream + 标注引线），
+#     零文字进 canvas。14 张案例卡图搬进细节层当缩略图墙（`_CASES` 保留）。
+#   ⇒ **页的论点跟着主图走**：标题从「对话式 AI，已经上岗。」改成
+#     「五层价值地壳，三层都有声网。」；「已经上岗 · 14 家」整段进细节层。
+#   ⇒ 生态分层是 Colin 自绘（无外部来源）⇒ SOURCE 行补一段「生态分层为编者归纳」。
+#   ⚠ v2 那张 eco 位图（ecosystem-stack-v4 双源）随之退场：本轮是**从结构重建**，
+#     不是把位图放大（位图是 .pp 里的 <img>，3D 舞台坐在 .pp 之下会被它整幅盖住 ——
+#     那条结构性冲突正是这么解掉的）。
+#   ⚠ 客户名逐字对照公开卡片上烧录的品牌（客户当面的 deck 一字不能错）：
+#     集贤科技 / luwu / 商汤 / 智谱清言 / HeyCyan / 莲偶科技 —— qa 有硬编码名单闸。
 _ECO = [
     ("l4", "L4", "入口与设备",   "通用助手 · 工作入口 · 可穿戴 · 机器人"),
     ("l3", "L3", "应用与结果",   "CX · 销售 · 医疗 · 教育 · 陪伴 · 翻译"),
@@ -1840,126 +1902,408 @@ _MINI = [
 _CASES = [(n, "%sinfo-v2/case-feature-%s.webp" % (A, f), 512, 640) for f, n, _k in _FEATURE] \
     + [(n, "%sinfo-v2/case-mini-%s.webp" % (A, f), 176, 176) for f, n in _MINI]
 
-# ── 星座墙的几何账（局部画布 1680×560 · 画布中心 (840,280) = 投影中心）──────────
-#   前排：三家头部，卡 260×325（**与原片 512×640 同比 0.8 ⇒ 零裁切**），y 心 330，
-#         x 420 / 840 / 1260，z = 30 − dx²/12000（极缓弧，中间最近）。
-#         顺序照任务书：luwu / Robopoet / 集贤科技（左→右）。
-#   后排：11 家，卡 136×136（**与原片 176×176 同比 1.0 ⇒ 零裁切**），y 心 115，
-#         x = 40 + 160k（k=0…10），z = −180 − dx²/8000 ⇒ 最深 −260（合规格区间）。
-#         投影后单卡 117–122px、间距 ~140px ⇒ **互不遮挡**（这是「11 张都认得出」
-#         与「200×126」之间唯一能两全的一组数：200 宽在 z≈−250 上投影 173px，
-#         11 张要 1900px，装不进 1680 的舞台 ⇒ 卡宽按舞台反推）。
-#   摆动：绕过 (cx=840, cz=−120) 的竖轴 ±6°，周期 20s（≥18s）· 零随机源。
-#   浮动：z 上叠 ±10 的正弦，周期 11s，相位 k·2π/14 —— 十四张各走各的。
-_W_D = 1600.0                       # camPx 深度
-_W_CX, _W_CY, _W_CZ = 840.0, 280.0, -120.0
-_W_SWAY, _W_CYC = 6.0, 20.0         # 摆动幅度（度）/ 周期（秒）
-_W_FAMP, _W_FPER = 10.0, 11.0       # 浮动幅度 / 周期（秒）
-_W_DZ, _W_INS = 11.0, 3.0           # 卡的体厚 / 后框内缩
-_W_FRONT = (260.0, 325.0, 330.0, 30.0, 12000.0)   # (w, h, y, z0, R)
-_W_BACK = (136.0, 136.0, 115.0, -180.0, 8000.0)
+# ── 五层价值地壳的几何账（fig 局部 1680×580 · 舞台 = fig + (120,282)）──────────
+#   竖轴 x=860；五盘盘心 y **自下而上** L0 515 · L1 417 · L2 319 · L3 221 · L4 123
+#   （间距 98）；盘半径 R=420、倾角 82° ⇒ cosT=.1392、屏上椭圆 **840×117**，
+#   真实 z 跨度 R·sinT=415.9（深度雾半程贴住它）。整体绕竖轴自转 1 圈 / 120s，
+#   **不摇摆**（五枚盘已经在转，再摇就成了晃）。零随机源。
+#   ⚠ 投影锁放在最后一步（照 makeGalaxy 的 place()：盘面局部 → 自转 → 倾角 → 投影锁）
+#     ⇒ 五盘在屏上是五枚**正椭圆**，净空可解析；深度只管雾与点径。
+#
+#   ── 版面账（改任一个数就把这一段一起改）─────────────────────────────────
+#     竖向预算 = 4×98（盘距）+ 2×58.45（椭圆半高）+ 58×sin82°（L4 设备高）= 566.3
+#       顶：L4 设备顶 fig 7.1 = 舞台 289.1 ⇒ 距小节标行底 y256 **33.1px**；
+#       底：L0 盘缘 fig 573.5 = 舞台 855.5 ⇒ 距图例首行墨迹 y874 **18.5px**。
+#     两头都过 16px；所以任务书那组盘心（128…528 · 间距 100 · 设备 60）**装不下**
+#       （竖向要 605.8，比 580 的画布还高 26）—— 本轮取的这组是「贴着两条硬边界
+#       能给出的最接近值」，逐条偏离记在交付报告里。
+_ST_CX = 860.0                        # 竖轴（fig x）
+_ST_R = 420.0                         # 盘半径（世界）
+_ST_TILT = 82.0                       # 盘面倾角
+_ST_CT = math.cos(math.radians(_ST_TILT))
+_ST_ST = math.sin(math.radians(_ST_TILT))
+_ST_GAP = 98.0                        # 盘距（fig y）
+_ST_Y0 = 515.0                        # L0 盘心
+_ST_YC = [_ST_Y0 - k * _ST_GAP for k in range(5)]      # [L0, L1, L2, L3, L4]
+_ST_D = 1400.0                        # camPx 深度
+_ST_HALF = round(_ST_R * _ST_ST, 1)   # 深度雾半程 = 真实 z 跨度 415.9
+_ST_SPINP = 120.0                     # 自转：1 圈 / 120s
+_ST_INTRO = 1.5                       # 入场总时长
+_ST_INTRO_D = 0.15                    # 五盘自下而上的入场差
+_ST_RIMSEG = 96                       # 盘缘轮廓环的取样
+_ST_GA = math.pi * (3.0 - math.sqrt(5.0))              # 黄金角（零随机源）
+_ST_LAM = _LAB._AS_LAM                                 # 232px —— 全家族同一种介质
+
+# ① L0 实时基础设施：世界地图点阵（陆地掩码**现取** lab-globe 的单一真相）
+#    北极方位投影：r = (90°−lat)/180°·R·.92，θ = lon ⇒ 北极在盘心、南极在盘缘。
+#    抽稀 j%18<9（≈7,300 枚 · 确定性），aA 按纬度余弦（= 该点在盘上的投影密度）。
+_ST_MAP_R = _ST_R * 0.92
+_ST_MAP_MOD, _ST_MAP_KEEP = 18, 9
+_ST_NODE_STRIDE, _ST_NODE_N = 6, 36   # 节点：NODE_TABLE 每 6 取 1，取 36 枚
+_ST_ARC_N = 12                        # 节点间弧 12 条（写法照 P2 地球弧：细弧 + 亮斑）
+_ST_ARC_SEG = 28
+_ST_ARC_L0, _ST_ARC_L1 = 8.0, 14.0    # 出面抬升 = L0 + L1·(弦长 / 2R)（≤22 ⇒ 够不着 L1 盘）
+_ST_ARC_DUR = 4.6                     # 一枚亮斑跑完一条弧的秒数
+_ST_ARC_FLOOR = 0.34
+# ② L1 模型与感知：沿**盘长轴**一条 audioStream 波形带 + 两端各三圈涟漪
+#    ⚠ 盘是圆的 ⇒ 它在屏上的长轴恒为水平，不随自转改变；带子因此锁在 spin=0 的
+#      那条直径上（跟着转会在 1/4 周期里被压成 93px 的短桩，波形当场读没）。
+_ST_BAND = 320.0                      # 半长（0.76R）⇒ 带长 640
+_ST_BAND_HW = 22.0                    # 半宽（波形观感）
+_ST_BAND_N = 96
+_ST_RIP = (30.0, 52.0, 74.0)          # 三圈涟漪在 t=0 的半径（相位各错 1/3）
+_ST_RIP_R1 = 96.0                     # 涟漪扩张到这里再淡出（320+96=416 < R=420）
+_ST_RIP_SEG = 40
+_ST_RIP_P = _ST_LAM / 110.0           # 2.109s —— 与带同拍（λ ÷ A 档速度）
+# ③ L2 Agent 运行时：盘心一枚核（1,500 点体积球 r46 · 大脑同一套密度剖面 T(d)）
+#    + 盘面 24 枚节点以最近邻连成网
+_ST_CORE_R, _ST_CORE_N = 46.0, 1500
+_ST_NET_N = 24
+_ST_NET_R0, _ST_NET_R1 = 80.0, 380.0
+_ST_NET_K = 3                         # 每枚节点连最近的 3 枚（去重后 ≈40 段）
+# ④ L3 应用与结果：盘心向盘缘扇出 8 条短流（半宽 5→3 沿程收窄）+ 末端应用节点
+_ST_FAN_N = 8
+_ST_FAN_R0, _ST_FAN_R1 = 40.0, 340.0  # 长 300
+_ST_FAN_W0, _ST_FAN_W1 = 5.0, 3.0
+_ST_FAN_SEG = 40
+_ST_FAN_DOT = 4.0
+# ⑤ L4 入口与设备：五枚设备轮廓立在盘缘（面朝相机 ⇒ 偏移加在**自转之后**的
+#    (u, w) 面上；u 是屏上水平、w 是出面方向 ≈ 屏上垂直）
+_ST_DEV_N = 5
+_ST_DEV_H = 58.0
+_ST_DEV_DU = 34.0                     # 轮廓的最大横向半展（眼镜那一枚）
+_ST_DEV_R = _ST_R - _ST_DEV_DU        # 锚点半径 386 ⇒ 轮廓最外恰好抵住盘缘、不越出
+# ⑥ 竖轴供给流：L0 盘心直上到 L4 盘心（长 392）· 五处盘心涌起
+#    ⚠ mkStream 的颜色是 **uniform**，一条带换不了色 ⇒ 要做到「过 L2 盘心处换色」
+#      只能拆成 L0→L2（accent）与 L2→L4（ink-3）两段。股数因此是 1+2+8 = 11
+#      （任务书 §3 写的是 1+1+8=10 —— 偏离与理由记在交付报告里）。
+_ST_AX_W = 6.0                        # 基准半宽
+_ST_AX_BUMP = 1.6                     # 盘心处的半宽倍率
+_ST_AX_G0, _ST_AX_G1 = 0.55, 1.0      # 盘间 / 盘心的 gain
+_ST_AX_SPAN = 26.0                    # 涌起的半宽（沿流的 fig 像素）
+_ST_AX_N = 120
+_ST_LEAD_GAP = 20.0                   # 引线落点在盘缘之外的距离（16px 规则 + 4）
 
 
-def _w_cards():
-    """14 张卡的静置几何：[(name, url, x, y, z0, cw, ch, 相位)]。
-       前排三家的名册序是 集贤/Robopoet/luwu，**摆位**按任务书 luwu/Robopoet/集贤 左→右。"""
-    o = []
-    fw, fh, fy, fz, fR = _W_FRONT
-    order = [2, 1, 0]                       # luwu · Robopoet · 集贤科技
-    for k, idx in enumerate(order):
-        x = 420.0 + k * 420.0
-        dx = x - _W_CX
-        o.append((_CASES[idx][0], _CASES[idx][1], x, fy, fz - dx * dx / fR, fw, fh, idx))
-    bw, bh, by, bz, bR = _W_BACK
-    for k in range(11):
-        x = 40.0 + k * 160.0
-        dx = x - _W_CX
-        o.append((_CASES[3 + k][0], _CASES[3 + k][1], x, by, bz - dx * dx / bR, bw, bh, 3 + k))
+def _st_place(lx, ly, lw, yc, spin=0.0):
+    """盘面局部 (x, y) + 出面 w + 盘心 y → fig (x, y, z)。
+       ① 自转（绕竖轴）；② 倾角 T：面内 v 压成 v·cosT 并抬进深度 v·sinT，出面的 w
+       反过来；③ 投影锁（在这之后由 `_lockpt` 做）⇒ **投影落点就是这里的 (x, y)**。
+       与运行时 makeStack 的 place() 逐字同式。"""
+    c, s = math.cos(spin), math.sin(spin)
+    u1 = lx * c - ly * s
+    v1 = lx * s + ly * c
+    return (_ST_CX + u1, yc + v1 * _ST_CT - lw * _ST_ST, v1 * _ST_ST + lw * _ST_CT)
+
+
+def _st_map():
+    """L0 的世界地图点阵：[(x, y, aA)]（盘面局部）。陆地掩码 / 黄金角螺旋 / 抖动
+       三件**全部现取自旗舰**（`_LAB.LAND_BITS` / `LAND_N`）—— 一个坐标都不新造。"""
+    import base64 as _b64
+    bits = _b64.b64decode(_LAB.LAND_BITS)
+    o, j = [], 0
+    for i in range(_LAB.LAND_N):
+        if not (bits[i >> 3] & (1 << (i & 7))):
+            continue
+        j += 1
+        if j % _ST_MAP_MOD >= _ST_MAP_KEEP:
+            continue
+        y = 1.0 - (2.0 * (i + 0.5)) / _LAB.LAND_N
+        lat = math.asin(max(-1.0, min(1.0, y)))
+        lon = (i * _ST_GA) % (2.0 * math.pi)
+        rr = (math.pi / 2.0 - lat) / math.pi * _ST_MAP_R
+        o.append((rr * math.cos(lon), rr * math.sin(lon),
+                  0.42 + 0.58 * math.cos(lat) ** 0.6))
     return o
 
 
-_W_CARDS = _w_cards()
-
-
-def _w_proj(x, y, z):
-    """卡上一点 → 屏上（局部画布像素）· camPx 的透视除法。摆动为 0 时的静置投影。"""
-    k = (_W_D - z) / _W_D
-    return (_W_CX + (x - _W_CX) / k, _W_CY + (y - _W_CY) / k)
-
-
-def _p7wall_poster():
-    """星座墙的 **poster**（构建期离线投影 · 一个字都没有）。
-       14 枚 <image> 放在各自的静置投影位（摆动 0 / 浮动取各自的 t=0 相位），
-       每枚配一圈 <rect> 卡框 —— 框既是「带厚度的卡」的前缘，也让降级层里
-       有真几何件（⑲c 数的是 path/rect/circle/… ，<image> 不算）。
-       preserveAspectRatio="xMidYMid slice" 与 3D 的 UV 裁切**同一条规则**（居中 cover）；
-       两种卡的长宽比都与原片一致 ⇒ 实际零裁切，poster 与 WebGL 是同一张图。"""
+def _st_nodes():
+    """L0 的 36 枚节点（NODE_TABLE 每 6 取 1 · 同一枚北极方位投影）"""
     o = []
-    for nm, url, x, y, z0, cw, ch, ph in _W_CARDS:
-        z = z0 + _W_FAMP * math.sin(2 * math.pi * ph / 14.0)
-        a = _w_proj(x - cw / 2.0, y - ch / 2.0, z)
-        b = _w_proj(x + cw / 2.0, y + ch / 2.0, z)
-        o.append('<image href="%s" x="%s" y="%s" width="%s" height="%s" '
-                 'preserveAspectRatio="xMidYMid slice"/>'
-                 % (url, _n3(a[0]), _n3(a[1]), _n3(b[0] - a[0]), _n3(b[1] - a[1])))
-        o.append('<rect class="w-rim" x="%s" y="%s" width="%s" height="%s" rx="3"/>'
-                 % (_n3(a[0]), _n3(a[1]), _n3(b[0] - a[0]), _n3(b[1] - a[1])))
+    for i in range(0, len(_LAB._NODES_LL), _ST_NODE_STRIDE):
+        if len(o) >= _ST_NODE_N:
+            break
+        lat, lon = _LAB._NODES_LL[i]
+        rr = (90.0 - lat) / 180.0 * _ST_MAP_R
+        a = math.radians(lon)
+        o.append((rr * math.cos(a), rr * math.sin(a)))
+    return o
+
+
+def _st_arcs():
+    """12 条节点间弧：[(ia, ib, lift, 相位)]（跨度 7 枚一跳 ⇒ 近邻与远联都有）"""
+    n = len(_ST_NODES)
+    o = []
+    for k in range(_ST_ARC_N):
+        ia, ib = (k * 3) % n, (k * 3 + 7) % n
+        a, b = _ST_NODES[ia], _ST_NODES[ib]
+        ch = math.hypot(b[0] - a[0], b[1] - a[1])
+        o.append((ia, ib, _ST_ARC_L0 + _ST_ARC_L1 * ch / (2.0 * _ST_R), k / float(_ST_ARC_N)))
+    return o
+
+
+def _st_arcpts(arc, seg=None):
+    """一条弧的取样点（盘面局部 (x, y, w)）—— 弦 + sin 抬升（照 P2 地球弧）"""
+    n = seg or _ST_ARC_SEG
+    a, b = _ST_NODES[arc[0]], _ST_NODES[arc[1]]
+    return [(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n,
+             arc[2] * math.sin(math.pi * i / n)) for i in range(n + 1)]
+
+
+def _st_coreT(rho):
+    """核的半厚剖面：与 makeBrain 的 brainT **逐字同式**（边界上 T=0）"""
+    d = max(0.0, _ST_CORE_R - rho)
+    return _ST_CORE_R * math.sin(math.pi / 2 * ((d / _ST_CORE_R) ** 0.62))
+
+
+def _st_core():
+    """L2 的核：1,500 点体积球（向日葵铺点 · 亮度按厚度剖面 ⇒ 中心最亮）"""
+    o = []
+    for i in range(_ST_CORE_N):
+        rho = _ST_CORE_R * ((i + 0.5) / _ST_CORE_N) ** 0.56
+        phi = i * _ST_GA
+        T = _st_coreT(rho)
+        surf = _LAB._gx_h1(i, 571.3) ** 0.40
+        w = (-1.0 if _LAB._gx_h1(i, 853.9) < 0.5 else 1.0) * T * surf
+        r3 = math.hypot(rho, w) / _ST_CORE_R
+        o.append((rho * math.cos(phi), rho * math.sin(phi), w,
+                  (0.26 + 0.74 * surf) * (0.24 + 0.76 * T / _ST_CORE_R),
+                  max(0.0, 1.0 - r3) ** 1.1))
+    return o
+
+
+def _st_net():
+    """L2 的 24 枚节点 + 最近邻网（去重后的段表）"""
+    pts = []
+    for i in range(_ST_NET_N):
+        rr = _ST_NET_R0 + (_ST_NET_R1 - _ST_NET_R0) * math.sqrt((i + 0.5) / _ST_NET_N)
+        a = i * _ST_GA
+        pts.append((rr * math.cos(a), rr * math.sin(a)))
+    seg = set()
+    for i, p in enumerate(pts):
+        d = sorted(range(len(pts)),
+                   key=lambda j: (math.hypot(pts[j][0] - p[0], pts[j][1] - p[1]), j))
+        for j in d[1:1 + _ST_NET_K]:
+            seg.add((min(i, j), max(i, j)))
+    return pts, sorted(seg)
+
+
+def _st_fan(k):
+    """L3 的第 k 条扇出流：盘面局部折线（径向 · r 40→340）"""
+    a = k * 2.0 * math.pi / _ST_FAN_N
+    ca, sa = math.cos(a), math.sin(a)
+    return [((_ST_FAN_R0 + (_ST_FAN_R1 - _ST_FAN_R0) * i / _ST_FAN_SEG) * ca,
+             (_ST_FAN_R0 + (_ST_FAN_R1 - _ST_FAN_R0) * i / _ST_FAN_SEG) * sa, 0.0)
+            for i in range(_ST_FAN_SEG + 1)]
+
+
+def _rrect(w, h, r, y0=0.0, n=4):
+    """圆角矩形的闭合折线（设备轮廓用 · 局部 (du, dw)，dw 向上为正）"""
+    o, hw = [], w / 2.0
+    for cx, cy, a0 in ((hw - r, y0 + h - r, 0.0), (-hw + r, y0 + h - r, math.pi / 2),
+                       (-hw + r, y0 + r, math.pi), (hw - r, y0 + r, 1.5 * math.pi)):
+        for i in range(n + 1):
+            a = a0 + math.pi / 2 * i / n
+            o.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    o.append(o[0])
+    return o
+
+
+def _circ(cx, cy, r, n=18):
+    return [(cx + r * math.cos(2 * math.pi * i / n),
+             cy + r * math.sin(2 * math.pi * i / n)) for i in range(n + 1)]
+
+
+def _st_devices():
+    """五枚设备轮廓（局部 (du, dw) 折线组 · 各 ≈58 高 · 面朝相机 · 沿盘缘均布）：
+       手机 圆角矩形 / 手表 圆+带 / 眼镜 双圆+梁 / 音箱 椭圆柱 / 机械臂 三节折线。"""
+    H = _ST_DEV_H
+    phone = [_rrect(30.0, H, 6.0), [(-8.0, H - 7.0), (8.0, H - 7.0)]]
+    watch = [_circ(0.0, H * 0.62, 15.0), [(-9.0, H * 0.62 + 13.0), (-11.0, H)],
+             [(9.0, H * 0.62 + 13.0), (11.0, H)],
+             [(-9.0, H * 0.62 - 13.0), (-9.0, 0.0)], [(9.0, H * 0.62 - 13.0), (9.0, 0.0)]]
+    glass = [_circ(-16.0, H * 0.72, 12.0), _circ(16.0, H * 0.72, 12.0),
+             [(-4.0, H * 0.72), (4.0, H * 0.72)],
+             [(-28.0, H * 0.72 + 6.0), (-34.0, H * 0.72 + 12.0)],
+             [(28.0, H * 0.72 + 6.0), (34.0, H * 0.72 + 12.0)]]
+    ell = lambda cy, rx, ry: [(rx * math.cos(2 * math.pi * i / 20),
+                               cy + ry * math.sin(2 * math.pi * i / 20)) for i in range(21)]
+    box = [ell(H, 17.0, 6.0), ell(6.0, 17.0, 6.0),
+           [(-17.0, H), (-17.0, 6.0)], [(17.0, H), (17.0, 6.0)]]
+    arm = [[(-14.0, 0.0), (14.0, 0.0)], [(0.0, 0.0), (0.0, H * 0.42)],
+           [(0.0, H * 0.42), (20.0, H * 0.74)], [(20.0, H * 0.74), (8.0, H)],
+           [(8.0, H), (16.0, H - 4.0)]]
+    return [phone, watch, glass, box, arm]
+
+
+_ST_NODES = _st_nodes()
+_ST_ARC = _st_arcs()
+_ST_MAP = _st_map()
+_ST_CORE = _st_core()
+_ST_NETP, _ST_NETL = _st_net()
+_ST_DEV = _st_devices()
+# 竖轴供给流：两段（L0→L2 accent · L2→L4 ink-3），盘心处涌起
+_ST_AX = [[(_ST_CX, _ST_YC[0] + (_ST_YC[2] - _ST_YC[0]) * i / _ST_AX_N, 0.0)
+           for i in range(_ST_AX_N + 1)],
+          [(_ST_CX, _ST_YC[2] + (_ST_YC[4] - _ST_YC[2]) * i / _ST_AX_N, 0.0)
+           for i in range(_ST_AX_N + 1)]]
+
+
+def _st_rim(yc, spin=0.0, seg=None):
+    n = seg or _ST_RIMSEG
+    return [_st_place(_ST_R * math.cos(2 * math.pi * i / n),
+                      _ST_R * math.sin(2 * math.pi * i / n), 0.0, yc, spin)
+            for i in range(n + 1)]
+
+
+def _st_band():
+    """L1 波形带的中心折线（fig · 锁在 spin=0 的长轴上）"""
+    return [_st_place(-_ST_BAND + 2 * _ST_BAND * i / _ST_BAND_N, 0.0, 0.0, _ST_YC[1])
+            for i in range(_ST_BAND_N + 1)]
+
+
+def _st_rip_pts(sgn, r):
+    """L1 一圈涟漪（fig）：带端 (±BAND, 0) 为心、半径 r 的盘面圆"""
+    cx = sgn * _ST_BAND
+    return [_st_place(cx + r * math.cos(2 * math.pi * i / _ST_RIP_SEG),
+                      r * math.sin(2 * math.pi * i / _ST_RIP_SEG), 0.0, _ST_YC[1])
+            for i in range(_ST_RIP_SEG + 1)]
+
+
+def _p7stack_poster():
+    """五层价值地壳的 **poster**（构建期离线投影 · 一个字都没有）。
+       场景每一件都过投影锁 ⇒ 投影落点 = 它的页坐标 ⇒ poster 直接按页坐标画，
+       与 WebGL 是同一张图（交接不跳）。件序与 3D 一致：
+         盘缘环 → L0 地图点(1/8) → 节点 → L1 波形折线 + 涟漪 → L2 网 + 核点(1/8)
+         → L3 扇流中线 → L4 设备轮廓 → 竖轴线。"""
+    o = []
+
+    def path(cls, pts):
+        return ('<path class="%s" d="M%s"/>'
+                % (cls, " L".join("%s %s" % (_n3(q[0]), _n3(q[1])) for q in pts)))
+
+    def dots(cls, pts):
+        return ('<path class="%s" d="%s"/>'
+                % (cls, "".join("M%s %sh0" % (_n3(q[0]), _n3(q[1])) for q in pts)))
+    for k in range(5):
+        o.append('<ellipse class="st-rim" cx="%s" cy="%s" rx="%s" ry="%s"/>'
+                 % (_n3(_ST_CX), _n3(_ST_YC[k]), _n3(_ST_R), _n3(_ST_R * _ST_CT)))
+    o.append(dots("st-map", [_st_place(p[0], p[1], 0.0, _ST_YC[0])
+                             for i, p in enumerate(_ST_MAP) if i % 8 == 0]))
+    o.append(dots("st-node", [_st_place(p[0], p[1], 0.0, _ST_YC[0]) for p in _ST_NODES]))
+    for arc in _ST_ARC:
+        o.append(path("st-arc", [_st_place(q[0], q[1], q[2], _ST_YC[0])
+                                 for q in _st_arcpts(arc, seg=16)]))
+    o.append(path("st-wave", _st_band()))
+    for sgn in (-1.0, 1.0):
+        for r in _ST_RIP:
+            o.append(path("st-rip", _st_rip_pts(sgn, r)))
+    for ia, ib in _ST_NETL:
+        o.append(path("st-net", [_st_place(_ST_NETP[ia][0], _ST_NETP[ia][1], 0.0, _ST_YC[2]),
+                                 _st_place(_ST_NETP[ib][0], _ST_NETP[ib][1], 0.0, _ST_YC[2])]))
+    o.append(dots("st-net-n", [_st_place(p[0], p[1], 0.0, _ST_YC[2]) for p in _ST_NETP]))
+    o.append(dots("st-core", [_st_place(p[0], p[1], p[2], _ST_YC[2])
+                              for i, p in enumerate(_ST_CORE) if i % 8 == 0]))
+    for k in range(_ST_FAN_N):
+        q = [_st_place(p[0], p[1], p[2], _ST_YC[3]) for p in _st_fan(k)]
+        o.append(path("st-fan", q))
+        o.append(dots("st-fan-n", [q[-1]]))
+    for k in range(_ST_DEV_N):
+        a = 2 * math.pi * k / _ST_DEV_N
+        u0, v0 = _ST_DEV_R * math.cos(a), _ST_DEV_R * math.sin(a)
+        for poly in _ST_DEV[k]:
+            o.append(path("st-dev", [_st_place(u0 + du, v0, dw, _ST_YC[4]) for du, dw in poly]))
+    for seg in _ST_AX:
+        o.append(path("st-axis", [(q[0], q[1]) for q in seg]))
     return lp(*o)
 
 
+# ── 五组左标 + 三枚右标（DOM · 与 P5 / P8 同一套 .ttl / 序号 / 引线样式）────────
+#   引线落点 = 该盘的**左 / 右缘之外 20px**（盘关于竖轴对称 ⇒ 自转不动落点，
+#   净空恒定）。L2 / L1 / L0 的层名走 accent（声网在的那三层），L4 / L3 走 ink
+#   —— 着色规则逐字照搬退役的 `_p7detail`。
+_ST_LEAD = [(_c, _n, _d, _ST_YC[4 - _i], _c in ("L2", "L1", "L0"))
+            for _i, (_cls, _c, _n, _d) in enumerate(_ECO)]
+_ST_LEAD_X = _ST_CX - _ST_R - _ST_LEAD_GAP        # 落点 fig x = 420
+_ST_LEAD_X2 = _ST_CX + _ST_R + _ST_LEAD_GAP       # 右侧落点 fig x = 1300
+
+
+def _p7stack_fig():
+    """主图 = poster（形 · 会随 WebGL 起来而淡出）+ 八组标注（字与引线 · 常在）。
+       层序与 P5 / P8 逐字相同：引线（虚线 + 端点小圆）→ 序号 → 层名 → 副行。"""
+    o = [_p7stack_poster()]
+    for code, name, sub, yc, acc in _ST_LEAD:
+        d = "M%s %s H300" % (_n3(_ST_LEAD_X), _n3(yc))
+        o.append(dline(d, "var(--ink-3)", 1.2, 5, dash="2 5"))
+        o.append('<circle class="pop" style="--i:5;fill:%s" cx="%s" cy="%s" r="3.4"/>'
+                 % (AC, _n3(_ST_LEAD_X), _n3(yc)))
+        o.append(txt(0, round(yc) - 26, code, "sm", size=13, anchor="start",
+                     col=(AC if acc else "var(--ink-3)"), mono=True))
+        o.append(txt(0, round(yc), name, "ttl", size=21, anchor="start",
+                     col=(AC if acc else None)))
+        o.append(txt(0, round(yc) + 28, sub, "sm", size=14, anchor="start",
+                     col="var(--ink-2)", mono=True))
+    # 三枚 accent 短标「声网」挂在 L2 / L1 / L0 三盘的**右缘** ——「三层都有声网」
+    # 的字面证据（L4 / L3 右侧留空，读者一眼看得出到哪一层为止）。
+    for yc in (_ST_YC[2], _ST_YC[1], _ST_YC[0]):
+        d = "M%s %s H1600" % (_n3(_ST_LEAD_X2), _n3(yc))
+        o.append(dline(d, "var(--ink-3)", 1.2, 5, dash="2 5"))
+        o.append('<circle class="pop" style="--i:5;fill:%s" cx="%s" cy="%s" r="3.4"/>'
+                 % (AC, _n3(_ST_LEAD_X2), _n3(yc)))
+        o.append(txt(1680, round(yc) + 5, "声网", "sm", size=15, anchor="end",
+                     col=AC, mono=True))
+    return "".join(o)
+
+
 def _p7detail():
-    """细节层：01 ECOSYSTEM 五层地壳（eco 图双源 + L4–L0 五行 + 两句逐字）。
-       ⚠ eco 图是 v2 的定稿资产，双源与 object-fit:cover 一格不动（⑩ 闸认这两条）；
-         **盒按原片长宽比给**（620×349 ≈ 980/552 = 1.775）⇒ cover 实际零裁切，
-         五层地壳一层都不掉（面板里 680 宽的盒配 326 高会把最底两层裁掉，实拍锤过）。
-         v2 里那五枚绝对定位的层标是按 980×552 调的，面板里放不下 ⇒ 图归图、
-         五行归五行（内容逐字未改），不做拉伸变形的叠标。"""
+    """细节层：02 · CASES ·「对话式 AI，已经上岗 · 14 家均已公开」。
+       头部 大数 14 + 题注；正文 = 14 张公开案例卡图排 **7 × 2** 的缩略图墙
+       （每格 92×64 · object-fit:cover 居中裁）；尾句 = 退役主版面那句 land 逐字。
+       ⚠ 客户名是**文本节点**不是图（⑮ 闸认 DOM 文本），顺序逐字照 `_CASES`。"""
+    cell = ("<div>"
+            "<div style=\"height:64px;border-radius:6px;overflow:hidden;"
+            "border:1px solid var(--hair)\">"
+            "<img src=\"%s\" alt=\"声网联合案例 · %s\" "
+            "style=\"width:100%%;height:100%%;object-fit:cover;display:block\"></div>"
+            "<div style=\"margin-top:5px;font:400 12px/1.2 var(--f-cn);color:var(--ink-2);"
+            "text-align:center;white-space:nowrap\">%s</div></div>")
     return "".join([
-        '<div class="eco-visual" style="position:relative;width:620px;height:349px;'
-        'margin:4px auto 0">'
-        '<img class="eco-art lt" src="%(A)sinfo-v2/ecosystem-stack-v4-light.webp" alt="">'
-        '<img class="eco-art dk" src="%(A)sinfo-v2/ecosystem-stack-v4-dark.webp" alt="">'
-        '<div class="eco-kicker">REAL-TIME INTELLIGENCE ECOSYSTEM</div></div>' % {"A": A},
-        '<div style="margin-top:10px">'
-        + "".join('<div style="display:flex;align-items:baseline;gap:14px;margin-top:4px">'
-                  '<span style="flex:none;width:30px;font:700 13px/1 var(--f-mono);'
-                  'letter-spacing:.1em;color:%s">%s</span>'
-                  '<span style="flex:none;width:150px;font:700 16px/1.3 var(--f-cn);color:%s">%s</span>'
-                  '<span style="font:400 14px/1.35 var(--f-cn);color:var(--ink-2)">%s</span></div>'
-                  % (AC if _c in ("L2", "L1", "L0") else "var(--ink-3)", _c,
-                     AC if _c in ("L2", "L1", "L0") else "var(--ink)", _n, _d)
-                  for _cls, _c, _n, _d in _ECO)
-        + '</div>',
-        '<div class="d-sec"><div class="callout-chip">L0 连接 · L1 感知 · L2 运行时——'
-        '<b>三层都有声网</b></div></div>',
-        '<div style="margin-top:6px" class="mono-sm">'
-        '从 SD‑RTN 到设备，每一层都由声网托住 · 事实截止 2026.08</div>',
+        '<div style="display:flex;align-items:baseline;gap:18px;margin-top:6px">'
+        '<span style="font:900 72px/.85 var(--f-en);letter-spacing:-.04em;'
+        'color:var(--accent)">14</span>'
+        '<span style="font:400 18px/1.4 var(--f-cn);color:var(--ink-2)">'
+        '声网联合案例 · 均已公开</span></div>',
+        # 7 × 2 网格（grid 而不是 flex-wrap：680 的内宽下 7 格靠 fr 均分，
+        # 不会因为 1px 的取整把第七格挤到下一行）
+        '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px 6px;'
+        'margin-top:16px">'
+        + "".join(cell % (_u, _nm, _nm) for _nm, _u, _w, _h in _CASES) + '</div>',
+        '<div class="d-sec"><div class="note">'
+        '声网官方联合案例 · 均已公开——你的场景，多半能对上号。</div></div>',
     ])
 
 
 page("content", "".join([
-    head("案例 · 已经上岗的对话式 AI · IN PRODUCTION",
-         "对话式 AI，<strong>已经上岗</strong>。", kk="kk nt"),
-    # 右上大数：14 · 声网联合案例 · 均已公开（沿用现版 .case-wall-head 的字样）
-    sh("settle", "left:1360px;top:140px;width:440px;height:110px;text-align:right;--i:2",
-       '<div style="font:900 96px/.85 var(--f-en);letter-spacing:-.04em;color:var(--accent)">14</div>'
-       '<div style="margin-top:12px;font:400 18px/1.4 var(--f-cn);color:var(--ink-2)">'
-       '声网联合案例 · 均已公开</div>'),
-    lab(120, 236, "01 · CASE WALL · 14 家已公开的联合案例", w=980),
-    figbox(120, 272, 1680, 1680, 560, _p7wall_poster(), i=1),
-    rule(850),
-    # 名册行：14 家客户名逐字、顺序照现版（⑮ 闸认这一行）
-    sh("flow mono-sm", "left:120px;top:876px;width:1680px;height:26px;font-size:17px;--i:5",
-       " · ".join(c[0] for c in _CASES)),
-    land("声网官方联合案例 · 均已公开——你的场景，多半能对上号。", y=940, w=1100),
-    detail_chip(x=1460, y=938, w=340),
-    detail("01 · ECOSYSTEM · 五层价值地壳，我们在哪", _p7detail(), h=620),
-    # SOURCE ledger：案例墙的出处。**五层生态图没有外部来源**（Colin 自绘的价值分层），
-    # 这一条是交付报告里记着的缺口 —— 细节层里那行「从 SD‑RTN 到设备…」是生态图
-    # 自己的脚注，原样保留，不当 SOURCE 用。
-    src("SOURCE · 声网官方联合案例 · 14 例 均已公开 · 事实截止 2026.08",
-        y=1022, x=1120, w=680, align="right"),
-]), steps=1, lab="wall")
+    head("生态 · REAL-TIME INTELLIGENCE ECOSYSTEM · 五层价值地壳",
+         "五层价值地壳，<strong>三层都有声网</strong>。"),
+    lab(120, 236, "01 · ECOSYSTEM · 从 SD-RTN 到设备 · 每一层都由声网托住", w=980),
+    figbox(120, 282, 1680, 1680, 580, _p7stack_fig(), i=1),
+    # 图例（= P5 / P8 逐字同位 y866）：样件与页内真件同形 —— 层是**点**，
+    # 供给流是粗实线，引线是细虚线。色即身份（accent = 声网在的那三层）。
+    figbox(120, 866, 1000, 1000, 30,
+           legend(0, 16, [("pts", "声网层 · L0 / L1 / L2", 3.0, AC),
+                          ("pts", "生态层 · L3 / L4", 3.0, "var(--ink-3)"),
+                          ("fast", "供给流", 6, AC),
+                          ("dot", "标注引线", 1.2, "var(--ink-3)")], gap=40),
+           i=5),
+    land("L0 连接 · L1 感知 · L2 运行时——<strong>三层都有声网</strong>。", y=900, w=1100),
+    detail_chip(x=1460, y=898, w=340),
+    detail("02 · CASES · 对话式 AI，已经上岗 · 14 家均已公开", _p7detail(), h=400),
+    # SOURCE ledger：案例的出处 + **生态分层为编者归纳**（Colin 自绘的价值分层，
+    # 没有外部来源 —— 这一段是把那个缺口写在脸上，而不是留在交付报告里）。
+    src("SOURCE · 声网官方联合案例 · 14 例 均已公开 · 生态分层为编者归纳 · 事实截止 2026.08",
+        y=1022, x=920, w=880, align="right"),
+]), steps=1, lab="stack")
 
 # ═══ P8 · 使命与愿景 ·「让实时互动，无处不在。」（v3.2 · 互动星系 · 本 deck 标杆页）══
 #   2026-09-03 Colin：「info 最后这一页丑到我了……这种构造和全 deck 合适吗？适配吗？
@@ -2390,12 +2734,43 @@ _INK = {
     #   而是为了让 ⑳clr 有四个真实的对手去量 16px。
     6: [(120.0, 89.0, 760.0, 26.0), (653.1, 149.0, 66.6, 76.0),
         (120.0, 236.0, 122.6, 20.0), (1759.2, 47.0, 40.8, 17.0)],
-    # ⑧ 星座墙（P7）：矩形 (120,272,1680,560) 里**没有一处页上的字**（大数在 y140–250、
-    #   名册在 y876、land 在 y940）。登记的是它的四邻 —— ⑳clr 拿它们量 16px。
-    7: [(120, 89, 643.2, 26), (120, 149, 349.4, 76), (469.4, 149, 266.6, 76),
-        (735.9, 149, 66.6, 76), (1702.6, 120, 97.4, 120), (1604, 235.6, 196, 20),
-        (120, 237, 367.1, 18), (120, 876, 1421.2, 22), (150, 955, 779.8, 32),
-        (1691.6, 949, 89.4, 20), (1175.8, 1022, 624.3, 22)],
+    # ⑧ 五层价值地壳（P7 · v3.3）：矩形 (120,282,1680,580) 之内是**八组标注**
+    #   （五组左标的 层号 / 层名 / 副行 + 三枚右侧「声网」短标 —— 与 P5 的五组区名
+    #   同一个身份：图的贴标）。与 P5 / P8 同例，名册里再登记它的四邻
+    #   （kicker / 主标 / 01 小节标 / 图例 / land / 页码 / SOURCE）。
+    #   （构建后由 measure-info-ink.mjs 实测填表 · PAD=200）
+    7: [(120, 89, 873.6, 26),
+        (120, 149, 466.5, 76),
+        (586.5, 149, 399.8, 76),
+        (986.3, 149, 66.6, 76),
+        (120, 237, 520.5, 18),
+        (120, 366, 15.6, 17),
+        (120, 386, 105, 23),
+        (120, 419, 271.6, 18),
+        (120, 464, 15.6, 17),
+        (120, 484, 105, 23),
+        (120, 517, 282.8, 18),
+        (120, 562, 15.6, 17),
+        (120, 582, 128.3, 23),
+        (120, 615, 182, 18),
+        (120, 660, 15.6, 17),
+        (120, 680, 105, 23),
+        (120, 713, 179.2, 18),
+        (120, 758, 15.6, 17),
+        (120, 778, 126, 23),
+        (120, 811, 154, 18),
+        (1770, 591, 30, 20),
+        (1770, 689, 30, 20),
+        (1770, 787, 30, 20),
+        (170, 874, 124.5, 16),
+        (497, 874, 97.3, 16),
+        (758, 874, 42, 16),
+        (887, 874, 56, 16),
+        (150, 915, 438.3, 32),
+        (588.3, 915, 174, 32),
+        (762.3, 915, 29, 32),
+        (1691.6, 909, 89.4, 20),
+        (975.8, 1022, 824.2, 22)],
     # ⑥ 互动星系（P8 · v3.2）：矩形 (120,282,1680,580) 之内只有**三组标注**
     #   （序号 / 名 · 状态 / 副行 —— 与 P5 的五组区名同一个身份：图的贴标）。
     #   与 P5 同例，名册里再登记它的四邻（01 小节标 / 使命愿景行 / 图例 / land /
@@ -2476,8 +2851,11 @@ _CLR = {
     #   最近的一处是输入声流末端 vs「客户语音」行 —— 9.24px。
     5: (9.0,  "输入声流（_BRAIN_IN · 摇摆 ±12° 的最外缘）vs「客户语音」行 (192,760)"
               " ⇒ 9.24px；页上那条 2D 曲线在同一处更远 ⇒ 3D 没有比 2D 更近"),
-    7: (16.0, "加法层 · 16px 规则 · 证人 = 卡片投影包络（摆动 ±6° × 浮动 ±10 扫掠）"
-              "vs 右上大数 14 / 名册行 / land / 页码"),
+    # ⑧ 五层价值地壳：五盘在转（1 圈/120s）⇒ 构建期交的是**扫掠包络**。
+    #   页上这一版是全新构图（二稿的星座墙与它的矩形都退役），没有「同处的 2D」
+    #   可比 ⇒ 走 16px 规则；对手是 _INK[7] 的整张表（含矩形内的八组标注本身）。
+    7: (16.0, "16px 规则 · 证人 = 五盘扫掠包络（自转整圈 × 涟漪最大半径 × 设备轮廓顶"
+              " × 涌起最宽处）vs 01 小节标 / 五组左标 / 三枚右标 / 图例 / land / 页码"),
     # ⑥ 互动星系：整体在转（1 圈/90s）+ 在摇（±6°/17s）⇒ 构建期交的是**扫掠包络**。
     #   页上这一版是全新构图（二稿的矩形与形都退役），没有「同处的 2D」可比 ⇒
     #   走 16px 规则；对手是 _INK[8] 的整张表（含矩形内的三组标注本身）。
@@ -2688,101 +3066,466 @@ function withClr(make, D, ink, pad){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ⑧ 14 家星座墙（P7 案例）· 全 deck 唯一一枚**贴图**场景
+   ⑧ 五层价值地壳（P7 生态 · 主图）· 本 deck 投入最高的一枚
    ───────────────────────────────────────────────────────────────────────────
-   语义：14 个已公开的联合案例不是一张缩略图网格，是**一面站在纵深里的墙**——
-   三家头部站在前排（大一档、几乎贴着版面），另外 11 家沿一道极缓的弧退进景深。
-   墙整体绕竖轴摆动 ±6°（周期 20s · 零随机源）：一动，前后关系就读出来了；
-   各卡再按自己的相位在 z 上浮动 ±10 —— 十四张各走各的，墙才是活的不是一块板。
-   ⚠ **零文字进 canvas**：卡上只有原片，客户名一律在 DOM 的名册行里（⑮ 闸认那一行）。
-   ⚠ 深度雾走**不透明度**：clearAlpha=0 ⇒ 退下去就是让纸面透出来，浅底暗底同一条路。
-   ⚠ 贴图 sRGB + ClampToEdge；两种卡的长宽比都与原片一致 ⇒ UV 不裁切，
-     poster 的 `preserveAspectRatio="xMidYMid slice"` 与它逐像素同解。
+   语义：五枚圆盘沿一根竖轴堆叠 —— 从 L0 实时基础设施到 L4 入口与设备，
+   每一层都是**形**（零文字进 canvas，字全部在 DOM 里）：
+     L0 实时基础设施  盘面上的世界地图点阵（陆地掩码现取 lab-globe 的单一真相 ·
+                      北极方位投影）+ 36 枚节点 + 12 条节点间弧（细弧 + 沿弧亮斑）
+     L1 模型与感知    沿盘长轴一条 audioStream 波形带 + 两端各三圈向外扩张的涟漪
+     L2 Agent 运行时  盘心一枚体积球核（大脑同一套密度剖面 T(d)）+ 24 枚节点连成的网
+     L3 应用与结果    盘心向盘缘扇出的 8 条短流 + 末端应用节点
+     L4 入口与设备    盘缘上立着五枚设备轮廓（手机 / 手表 / 眼镜 / 音箱 / 机械臂）
+     竖轴供给流       从 L0 盘心直上到 L4 盘心，五处盘心涌起；**过 L2 换色** ——
+                      L0–L2 accent（声网层）、L2 以上 ink-3（生态层）⇒
+                      「三层都有声网」不是标签，是几何。
+   ⚠ 投影锁做在最后一步（xy 按该点自己的 z 预缩放）⇒ 五盘在屏上是五枚正椭圆、
+     净空可以纯解析地算；深度只管**雾与点径**——体积感全在那儿（与 P5 / P8 同一条路）。
+   ⚠ 自转 1 圈 / 120s、**不摇摆**（五枚盘已经在转，再摇就成了晃）。零随机源。
+   ⚠ L1 的波形带与涟漪**不随自转**：盘是圆的，它在屏上的长轴恒为水平；跟着转会在
+     1/4 周期里被压成 93px 的短桩，波形当场读没。锁在 spin=0 的那条直径上。
+   ⚠ 净空：几何逐帧在变 ⇒ 构建期交的是整族的**扫掠包络**（下界），
+     qa 的 ⑳stack 按不等式对表（与 P5 大脑 / P8 星系同一条路）。
    ═══════════════════════════════════════════════════════════════════════════ */
-function makeWall(ctx){
-  const W = K.w, w = ctx.rect[2], h = ctx.rect[3], D = W.D;
+const ST_VS = PX_HEAD + [
+  'attribute float aS;',
+  'uniform float uSz1;',
+  'void main(){ vA=aA; vH=aH;',
+  '  vec4 mv=pxCore(position, uSize*(1.0-uSz1+uSz1*aS));',
+  '  gl_Position=projectionMatrix*mv; }'].join('\n');
+
+function makeStack(ctx){
+  const Q = K.st, w = ctx.rect[2], h = ctx.rect[3], D = Q.D;
   const scene = new THREE.Scene();
   const camera = camPx(w, h, D);
-  const grp = new THREE.Group();
-  grp.position.set(W.cx, -W.cy, W.cz);        // 摆动轴 = 墙心的竖轴
-  scene.add(grp);
-  const loader = new THREE.TextureLoader();
-  const SWAY = W.sway*Math.PI/180;
-  const cards = W.card.map(function(c, i){
-    /* c = [x, y, z0, cw, ch, phase] —— 全部是构建期算好的舞台像素 */
-    const tex = loader.load(W.url[i]);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-    const mat = new THREE.MeshBasicMaterial({ map:tex, transparent:true, opacity:1,
-                                              depthWrite:false, side:THREE.DoubleSide });
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(c[3], c[4]), mat);
-    m.position.set(c[0]-W.cx, -(c[1]-W.cy), c[2]-W.cz);
-    grp.add(m);
-    /* 卡的**厚度**：前缘 + 后缘（内缩 ins · 退 dz）+ 四条棱 —— 三件一起才读成
-       「一张有厚度的卡」，只画一圈框会读成一张贴纸。 */
-    const hw = c[3]/2, hh = c[4]/2, ins = W.ins, dz = W.dz;
-    const f = [[-hw,-hh,0],[hw,-hh,0],[hw,hh,0],[-hw,hh,0]];
-    const b = [[-hw+ins,-hh+ins,-dz],[hw-ins,-hh+ins,-dz],[hw-ins,hh-ins,-dz],[-hw+ins,hh-ins,-dz]];
-    const seg = [];
-    for(let k=0;k<4;k++){
-      const a1=f[k], a2=f[(k+1)%4], b1=b[k], b2=b[(k+1)%4];
-      seg.push([a1[0],a1[1],a1[2], a2[0],a2[1],a2[2]]);
-      seg.push([b1[0],b1[1],b1[2], b2[0],b2[1],b2[2]]);
-      seg.push([a1[0],a1[1],a1[2], b1[0],b1[1],b1[2]]);
-    }
-    const rimMat = new THREE.LineBasicMaterial({ transparent:true, depthWrite:false });
-    const rg = new THREE.BufferGeometry();
-    const arr = new Float32Array(seg.length*6);
-    seg.forEach(function(q,j){ arr.set(q, j*6); });
-    rg.setAttribute('position', new THREE.BufferAttribute(arr,3));
-    const rim = new THREE.LineSegments(rg, rimMat);
-    rim.position.copy(m.position); rim.frustumCulled=false; grp.add(rim);
-    return { m:m, rim:rim, mat:mat, rimMat:rimMat, x:c[0], y:c[1], z0:c[2],
-             cw:c[3], ch:c[4], ph:c[5] };
-  });
+  const SH = pxShared(D, Q.half);
   const U = unlock(w, h, D, ctx.rect);
-  let clockRef = 0, intro = 1;
-  function place(clock){
-    for(let i=0;i<cards.length;i++){
-      const c = cards[i];
-      const z = c.z0 + W.famp*Math.sin(6.2831853*clock/W.fper + c.ph);
-      c.m.position.z = z - W.cz; c.rim.position.z = z - W.cz;
-    }
-    grp.rotation.y = SWAY*Math.sin(6.2831853*clock/W.cyc);
+  const TAU2 = 6.2831853, RAD = Math.PI/180;
+  const hx = w/2, hy = h/2, CX = Q.cx;
+  const cT = Math.cos(Q.tilt*RAD), sT = Math.sin(Q.tilt*RAD);
+  const GA = Math.PI*(3-Math.sqrt(5));      // 黄金角（与构建期 _ST_GA 逐字同式）
+  let csp = 1, ssp = 0, introE = 0, clockRef = 0;
+  const WS = [1,1,1,1,1];                   // 五盘各自的入场半径档（自下而上错 0.15s）
+
+  /* 盘面局部 (x, y) + 出面 w + 盘心 y → 世界：自转 → 倾角 → 投影锁。
+     （Python 侧 `_st_place` 同式 ⇒ poster 与 WebGL 是同一张图。） */
+  const _o = [0,0,0];
+  function place(lx, ly, lw, yc, out){
+    const u1 = lx*csp - ly*ssp, v1 = lx*ssp + ly*csp;
+    const y1 = yc + v1*cT - lw*sT, z1 = v1*sT + lw*cT;
+    const k = (D - z1)/D;
+    out[0] = hx + (CX + u1 - hx)*k;
+    out[1] = -(hy + (y1 - hy)*k);
+    out[2] = z1;
+    return out;
   }
-  place(0);
-  return {
-    scene, camera, intro:1.2, grab:false,
-    onDPR(pr){},
-    setIntro(e){ intro = e; grp.scale.setScalar(Math.max(1e-3, 0.94 + 0.06*e));
-                 cards.forEach(function(c){ c.mat.opacity = c.baseOp*e; c.rimMat.opacity = c.baseRim*e; }); },
-    draw(dt, clock){ clockRef = clock; place(clock); },
-    /* 净空：把这一帧真的挂在 scene 上的**卡四角**（含摆动与浮动）投影回舞台像素，
-       量到墨迹名册。卡是贴图面，四角就是它的全部外缘（框在四角之内）。 */
-    state(){
-      const th = grp.rotation.y, ct = Math.cos(th), st = Math.sin(th);
-      let m = 1e9;
-      for(let i=0;i<cards.length;i++){
-        const c = cards[i];
-        const z = c.z0 + W.famp*Math.sin(6.2831853*clockRef/W.fper + c.ph);
-        for(let sx=-1; sx<=1; sx+=2) for(let sy=-1; sy<=1; sy+=2){
-          const lx = (c.x - W.cx) + sx*c.cw/2, ly = (c.y - W.cy) + sy*c.ch/2, lz = (z - W.cz);
-          const X = W.cx + lx*ct + lz*st, Z = W.cz - lx*st + lz*ct;
-          m = Math.min(m, inkClr(U(X, -(W.cy + ly), Z), W.ink));
+  /* 不随自转的那一路（L1 波形带的涟漪）—— 同一条投影锁，只是少了第一步 */
+  function placeFix(lx, ly, lw, yc, out){
+    const y1 = yc + ly*cT - lw*sT, z1 = ly*sT + lw*cT;
+    const k = (D - z1)/D;
+    out[0] = hx + (CX + lx - hx)*k;
+    out[1] = -(hy + (y1 - hy)*k);
+    out[2] = z1;
+    return out;
+  }
+
+  /* ── 点云层：静态参数一次算好，position 每帧重算（GPU 只吃坐标）── */
+  const LAY = [];
+  function layer(n, mat, yi){
+    const cs = new Float32Array(n), sn = new Float32Array(n);
+    const rr = new Float32Array(n), wo = new Float32Array(n);
+    const aA = new Float32Array(n).fill(1), aH = new Float32Array(n);
+    const aS = new Float32Array(n).fill(1);
+    const pos = new Float32Array(n*3);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('aA', new THREE.BufferAttribute(aA,1));
+    g.setAttribute('aH', new THREE.BufferAttribute(aH,1));
+    g.setAttribute('aS', new THREE.BufferAttribute(aS,1));
+    const p = new THREE.Points(g, mat); p.frustumCulled = false; scene.add(p);
+    const L = { g, pos, cs, sn, rr, wo, aA, n, yi };
+    LAY.push(L); return L;
+  }
+
+  /* ── L0 世界地图点阵：位掩码只回答第 i 个候选点「是不是陆地」——
+     数据里没有一个坐标（与 makeGlobe 同一份 K.landBits / K.landN）。 */
+  const mapMat = mkMat(SH, ST_VS, PX_PT_FS, { uSz1:{value:.35} });
+  const bin = atob(K.landBits);
+  const mrr = [], mcs = [], msn = [], maa = [];
+  {
+    let j = 0;
+    for(let i = 0; i < K.landN; i++){
+      if(!(bin.charCodeAt(i>>3)&(1<<(i&7)))) continue;
+      j++;
+      if(j % Q.mapMod >= Q.mapKeep) continue;
+      const y = 1-(2*(i+0.5))/K.landN;
+      const lat = Math.asin(Math.max(-1, Math.min(1, y)));
+      const lon = (i*GA) % TAU2;
+      mrr.push((Math.PI/2 - lat)/Math.PI*Q.mapR);
+      mcs.push(Math.cos(lon)); msn.push(Math.sin(lon));
+      maa.push(0.42 + 0.58*Math.pow(Math.cos(lat), 0.6));
+    }
+  }
+  const mapL = layer(mrr.length, mapMat, 0);
+  for(let i = 0; i < mapL.n; i++){
+    mapL.rr[i] = mrr[i]; mapL.cs[i] = mcs[i]; mapL.sn[i] = msn[i];
+    mapL.aA[i] = maa[i]; mapL.g.attributes.aA.array[i] = maa[i];
+    mapL.g.attributes.aH.array[i] = 0;
+    mapL.g.attributes.aS.array[i] = 0.55 + 0.45*maa[i];
+  }
+  mapL.g.attributes.aA.needsUpdate = true; mapL.g.attributes.aH.needsUpdate = true;
+  mapL.g.attributes.aS.needsUpdate = true;
+
+  /* ── L0 的 36 枚节点（NODE_TABLE 每 Q.nodeStride 取 1）── */
+  const nodeMat = mkMat(SH, PX_PT_VS, PX_PT_FS); nodeMat.uniforms.uSoft.value = .04;
+  const nodeLL = K.nodeTable.split(';').map(s => s.split(',').map(Number));
+  const NPT = [];
+  for(let i = 0; i < nodeLL.length && NPT.length < Q.nodeN; i += Q.nodeStride){
+    const rr = (90 - nodeLL[i][0])/180*Q.mapR, a = nodeLL[i][1]*RAD;
+    NPT.push([rr*Math.cos(a), rr*Math.sin(a)]);
+  }
+  const nodeL = layer(NPT.length, nodeMat, 0);
+  for(let i = 0; i < nodeL.n; i++){
+    nodeL.rr[i] = Math.hypot(NPT[i][0], NPT[i][1]) || 1e-6;
+    nodeL.cs[i] = NPT[i][0]/nodeL.rr[i]; nodeL.sn[i] = NPT[i][1]/nodeL.rr[i];
+    nodeL.g.attributes.aA.array[i] = 1; nodeL.g.attributes.aH.array[i] = 1;
+  }
+  nodeL.g.attributes.aA.needsUpdate = true; nodeL.g.attributes.aH.needsUpdate = true;
+
+  /* ── L0 的 12 条节点间弧（细弧 + 沿弧跑的亮斑 · 写法照 P2 地球弧）── */
+  const NA = Q.arc.length, ASEG = Q.aseg;
+  const arcMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const arcG = new THREE.BufferGeometry();
+  const arcP = new Float32Array(NA*ASEG*2*3);
+  arcG.setAttribute('position', new THREE.BufferAttribute(arcP,3));
+  fillAH(arcG, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(arcG, arcMat), { frustumCulled:false }));
+  const headMat = mkMat(SH, PX_PT_VS, PX_PT_FS); headMat.uniforms.uSoft.value = .04;
+  const headG = new THREE.BufferGeometry();
+  const headP = new Float32Array(NA*3);
+  headG.setAttribute('position', new THREE.BufferAttribute(headP,3));
+  const headA = fillAH(headG, 1, 1);
+  scene.add(Object.assign(new THREE.Points(headG, headMat), { frustumCulled:false }));
+  function arcPt(a, i, out){
+    const p0 = NPT[a[0]], p1 = NPT[a[1]], t = i/ASEG, s = Math.sin(Math.PI*t);
+    const ws = WS[0];
+    return place((p0[0]+(p1[0]-p0[0])*t)*ws, (p0[1]+(p1[1]-p0[1])*t)*ws,
+                 a[2]*s*ws, Q.yc[0], out);
+  }
+
+  /* ── L2 的核（1,500 点体积球）+ 24 枚节点连成的网 ── */
+  const coreMat = mkMat(SH, ST_VS, PX_PT_FS, { uSz1:{value:.55} });
+  const coreL = layer(Q.coreN, coreMat, 2);
+  function coreT(rho){
+    const d = Math.max(0, Q.coreR - rho);
+    return Q.coreR*Math.sin(Math.PI/2*Math.pow(d/Q.coreR, 0.62));
+  }
+  for(let i = 0; i < Q.coreN; i++){
+    const rho = Q.coreR*Math.pow((i+0.5)/Q.coreN, 0.56), phi = i*GA;
+    const T = coreT(rho), surf = Math.pow(h1(i,571.3), 0.40);
+    const wv = (h1(i,853.9) < 0.5 ? -1 : 1)*T*surf;
+    const r3 = Math.hypot(rho, wv)/Q.coreR;
+    coreL.rr[i] = rho; coreL.cs[i] = Math.cos(phi); coreL.sn[i] = Math.sin(phi);
+    coreL.wo[i] = wv;
+    coreL.g.attributes.aA.array[i] = (0.26+0.74*surf)*(0.24+0.76*T/Q.coreR);
+    coreL.g.attributes.aH.array[i] = Math.pow(Math.max(0,1-r3), 1.1);
+    coreL.g.attributes.aS.array[i] = surf;
+  }
+  coreL.g.attributes.aA.needsUpdate = true; coreL.g.attributes.aH.needsUpdate = true;
+  coreL.g.attributes.aS.needsUpdate = true;
+  const netPt = [];
+  for(let i = 0; i < Q.netN; i++){
+    const rr = Q.netR0 + (Q.netR1-Q.netR0)*Math.sqrt((i+0.5)/Q.netN), a = i*GA;
+    netPt.push([rr*Math.cos(a), rr*Math.sin(a)]);
+  }
+  const netNMat = mkMat(SH, PX_PT_VS, PX_PT_FS); netNMat.uniforms.uSoft.value = .05;
+  const netNL = layer(Q.netN, netNMat, 2);
+  for(let i = 0; i < Q.netN; i++){
+    netNL.rr[i] = Math.hypot(netPt[i][0], netPt[i][1]);
+    netNL.cs[i] = netPt[i][0]/netNL.rr[i]; netNL.sn[i] = netPt[i][1]/netNL.rr[i];
+    netNL.g.attributes.aH.array[i] = 1;
+  }
+  netNL.g.attributes.aH.needsUpdate = true;
+  const NET = Q.net.split(';').map(s => s.split(',').map(Number));
+  const netMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const netG = new THREE.BufferGeometry();
+  const netP = new Float32Array(NET.length*2*3);
+  netG.setAttribute('position', new THREE.BufferAttribute(netP,3));
+  fillAH(netG, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(netG, netMat), { frustumCulled:false }));
+
+  /* ── L3 的 8 枚应用节点（扇流末端）── */
+  const fanNMat = mkMat(SH, PX_PT_VS, PX_PT_FS); fanNMat.uniforms.uSoft.value = .05;
+  const fanNL = layer(Q.fanN, fanNMat, 3);
+  for(let i = 0; i < Q.fanN; i++){
+    const a = i*TAU2/Q.fanN;
+    fanNL.rr[i] = Q.fanR1; fanNL.cs[i] = Math.cos(a); fanNL.sn[i] = Math.sin(a);
+    fanNL.g.attributes.aH.array[i] = 1;
+  }
+  fanNL.g.attributes.aH.needsUpdate = true;
+
+  /* ── 五枚盘缘轮廓环（P5 用血写下来的那一条：轮廓是这张图的身份，给它一根真线）── */
+  const rimMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const RSEG = Q.rimseg;
+  const rimG = new THREE.BufferGeometry();
+  const rimP = new Float32Array(5*RSEG*2*3);
+  rimG.setAttribute('position', new THREE.BufferAttribute(rimP,3));
+  fillAH(rimG, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(rimG, rimMat), { frustumCulled:false }));
+
+  /* ── L1 的六圈涟漪（两端各三圈 · 随时钟向外扩张再淡出 · 与带同拍 2.11s）── */
+  const NR2 = Q.rip.length*2, RIPSEG = Q.ripseg;
+  const ripMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const ripG = new THREE.BufferGeometry();
+  const ripP = new Float32Array(NR2*RIPSEG*2*3);
+  ripG.setAttribute('position', new THREE.BufferAttribute(ripP,3));
+  const ripA = fillAH(ripG, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(ripG, ripMat), { frustumCulled:false }));
+
+  /* ── L4 的五枚设备轮廓：偏移加在**自转之后**的 (u, w) 面上 ⇒ 面朝相机 ── */
+  const devMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
+  const DEV = Q.dev.map(g => g.map(s => s.split(';').map(t => t.split(',').map(Number))));
+  let devN = 0;
+  DEV.forEach(g => g.forEach(p => { devN += p.length - 1; }));
+  const devG = new THREE.BufferGeometry();
+  const devP = new Float32Array(devN*2*3);
+  devG.setAttribute('position', new THREE.BufferAttribute(devP,3));
+  fillAH(devG, 1, 0);
+  scene.add(Object.assign(new THREE.LineSegments(devG, devMat), { frustumCulled:false }));
+
+  /* ── 流：L1 波形带（1）+ 竖轴供给流（2 段 · 过 L2 换色）+ L3 扇出（8）= 11 股 ──
+     ⚠ mkStream 的颜色是 uniform ⇒ 一条带换不了色；「过 L2 盘心换色」只能拆两段。 */
+  const band = mkStream(SH, unpk3(Q.bandS), { w: Q.bandHw, spd: Q.bandSpd, lam: AS.lam })
+    .add(scene);
+  function axW(u){ return Q.axW*(1 + (Q.axBump-1)*axBump(u)); }
+  function axBump(u){
+    let m = 0;
+    for(let i = 0; i < Q.axAt.length; i++){
+      const d = (u - Q.axAt[i])/Q.axSpan;
+      m = Math.max(m, Math.exp(-d*d));
+    }
+    return m;
+  }
+  const axes = Q.axS.map((s, i) => mkStream(SH, unpk3(s),
+    { w: axW, spd: Q.axSpd[i], lam: AS.lam, edge: Q.axEdge }).add(scene));
+  axes.forEach(f => f.gain(u => Q.axG0 + (Q.axG1-Q.axG0)*axBump(u)));
+  const fans = Q.fanS.map((s, i) => mkStream(SH, unpk3(s),
+    { w: (t) => Q.fanW0 + (Q.fanW1-Q.fanW0)*t, spd: Q.fanSpd[i], lam: AS.lam }).add(scene));
+  const FLOC = [];
+  for(let k = 0; k < Q.fanN; k++){
+    const a = k*TAU2/Q.fanN, ca = Math.cos(a), sa = Math.sin(a), q = [];
+    for(let i = 0; i <= Q.fanSeg; i++){
+      const rr = Q.fanR0 + (Q.fanR1-Q.fanR0)*i/Q.fanSeg;
+      q.push([rr*ca, rr*sa]);
+    }
+    FLOC.push(q);
+  }
+  const WP = new Float32Array((Q.fanSeg+1)*3);
+  function updFans(){
+    for(let i = 0; i < fans.length; i++){
+      const lp = FLOC[i], n = lp.length, f = fans[i], ws = WS[3];
+      const pos = f.geo.attributes.position.array, nrm = f.geo.attributes.aN.array;
+      for(let j = 0; j < n; j++){
+        place(lp[j][0]*ws, lp[j][1]*ws, 0, Q.yc[3], _o);
+        WP[j*3]=_o[0]; WP[j*3+1]=_o[1]; WP[j*3+2]=_o[2];
+      }
+      for(let j = 0; j < n; j++){
+        const a = Math.max(0,j-1)*3, b = Math.min(n-1,j+1)*3;
+        let tx = WP[b]-WP[a], ty = WP[b+1]-WP[a+1];
+        const tl = Math.hypot(tx, ty, WP[b+2]-WP[a+2]) || 1; tx/=tl; ty/=tl;
+        let nx = ty, ny = -tx;
+        const nl = Math.hypot(nx, ny) || 1; nx/=nl; ny/=nl;
+        for(let k2 = 0; k2 < 2; k2++){
+          const jj = (j*2+k2)*3;
+          pos[jj]=WP[j*3]; pos[jj+1]=WP[j*3+1]; pos[jj+2]=WP[j*3+2];
+          nrm[jj]=nx; nrm[jj+1]=ny; nrm[jj+2]=0;
         }
       }
-      return { clr: m };
+      f.geo.attributes.position.needsUpdate = true;
+      f.geo.attributes.aN.needsUpdate = true;
+    }
+  }
+
+  function placeClouds(){
+    for(let L = 0; L < LAY.length; L++){
+      const q = LAY[L], p = q.pos, ws = WS[q.yi], yc = Q.yc[q.yi];
+      for(let i = 0; i < q.n; i++){
+        place(q.cs[i]*q.rr[i]*ws, q.sn[i]*q.rr[i]*ws, q.wo[i]*ws, yc, _o);
+        p[i*3]=_o[0]; p[i*3+1]=_o[1]; p[i*3+2]=_o[2];
+      }
+      q.g.attributes.position.needsUpdate = true;
+    }
+  }
+  function placeRims(){
+    let n3 = 0;
+    for(let k = 0; k < 5; k++){
+      let px=0, py=0, pz=0;
+      for(let i = 0; i <= RSEG; i++){
+        const th = i/RSEG*TAU2;
+        place(Q.r*Math.cos(th)*WS[k], Q.r*Math.sin(th)*WS[k], 0, Q.yc[k], _o);
+        if(i > 0){
+          rimP[n3*3]=px; rimP[n3*3+1]=py; rimP[n3*3+2]=pz; n3++;
+          rimP[n3*3]=_o[0]; rimP[n3*3+1]=_o[1]; rimP[n3*3+2]=_o[2]; n3++;
+        }
+        px=_o[0]; py=_o[1]; pz=_o[2];
+      }
+    }
+    rimG.attributes.position.needsUpdate = true;
+  }
+  function placeArcs(clock){
+    let n3 = 0;
+    for(let a = 0; a < NA; a++){
+      const A = Q.arc[a];
+      let px=0, py=0, pz=0;
+      for(let i = 0; i <= ASEG; i++){
+        arcPt(A, i, _o);
+        if(i > 0){
+          arcP[n3*3]=px; arcP[n3*3+1]=py; arcP[n3*3+2]=pz; n3++;
+          arcP[n3*3]=_o[0]; arcP[n3*3+1]=_o[1]; arcP[n3*3+2]=_o[2]; n3++;
+        }
+        px=_o[0]; py=_o[1]; pz=_o[2];
+      }
+      let u = (clock/Q.arcdur + A[3]) % 1; if(u < 0) u += 1;
+      arcPt(A, Math.round(u*ASEG), _o);
+      headP[a*3]=_o[0]; headP[a*3+1]=_o[1]; headP[a*3+2]=_o[2];
+      headA.a[a] = Math.min(1, 4*u)*Math.min(1, 4*(1-u));
+    }
+    arcG.attributes.position.needsUpdate = true;
+    headG.attributes.position.needsUpdate = true; headG.attributes.aA.needsUpdate = true;
+  }
+  function placeNet(){
+    for(let i = 0; i < NET.length; i++){
+      const ws = WS[2];
+      place(netPt[NET[i][0]][0]*ws, netPt[NET[i][0]][1]*ws, 0, Q.yc[2], _o);
+      netP[i*6]=_o[0]; netP[i*6+1]=_o[1]; netP[i*6+2]=_o[2];
+      place(netPt[NET[i][1]][0]*ws, netPt[NET[i][1]][1]*ws, 0, Q.yc[2], _o);
+      netP[i*6+3]=_o[0]; netP[i*6+4]=_o[1]; netP[i*6+5]=_o[2];
+    }
+    netG.attributes.position.needsUpdate = true;
+  }
+  function placeDev(){
+    let n3 = 0;
+    for(let k = 0; k < DEV.length; k++){
+      const a = k*TAU2/DEV.length, ws = WS[4];
+      const u0 = Q.devR*Math.cos(a)*ws, v0 = Q.devR*Math.sin(a)*ws;
+      // 锚点先自转，轮廓的偏移再加在 (u, w) 面上 ⇒ 设备永远面朝相机
+      const au = u0*csp - v0*ssp, av = u0*ssp + v0*csp;
+      for(let g = 0; g < DEV[k].length; g++){
+        const poly = DEV[k][g];
+        let px=0, py=0, pz=0;
+        for(let i = 0; i < poly.length; i++){
+          const y1 = Q.yc[4] + av*cT - poly[i][1]*ws*sT;
+          const z1 = av*sT + poly[i][1]*ws*cT;
+          const kk = (D - z1)/D;
+          const X = hx + (CX + au + poly[i][0]*ws - hx)*kk;
+          const Y = -(hy + (y1 - hy)*kk);
+          if(i > 0){
+            devP[n3*3]=px; devP[n3*3+1]=py; devP[n3*3+2]=pz; n3++;
+            devP[n3*3]=X; devP[n3*3+1]=Y; devP[n3*3+2]=z1; n3++;
+          }
+          px=X; py=Y; pz=z1;
+        }
+      }
+    }
+    devG.attributes.position.needsUpdate = true;
+  }
+  function placeRip(clock){
+    let n3 = 0;
+    const ph = (clock/Q.ripP) % 1;
+    for(let e = 0; e < 2; e++){
+      const cx0 = (e ? 1 : -1)*Q.band;
+      for(let r0 = 0; r0 < Q.rip.length; r0++){
+        // 每圈按自己的相位向外扩张：半径在 [rip0, ripMax] 之间循环，越外越淡
+        let u = (ph + r0/Q.rip.length) % 1;
+        const rr = Q.rip[0] + (Q.ripR1 - Q.rip[0])*u;
+        const lit = Math.min(1, 5*u)*(1 - u)*(1 - u);
+        let px=0, py=0, pz=0;
+        for(let i = 0; i <= RIPSEG; i++){
+          const th = i/RIPSEG*TAU2;
+          placeFix(cx0 + rr*Math.cos(th), rr*Math.sin(th), 0, Q.yc[1], _o);
+          if(i > 0){
+            ripP[n3*3]=px; ripP[n3*3+1]=py; ripP[n3*3+2]=pz; ripA.a[n3]=lit; n3++;
+            ripP[n3*3]=_o[0]; ripP[n3*3+1]=_o[1]; ripP[n3*3+2]=_o[2]; ripA.a[n3]=lit; n3++;
+          }
+          px=_o[0]; py=_o[1]; pz=_o[2];
+        }
+      }
+    }
+    ripG.attributes.position.needsUpdate = true; ripG.attributes.aA.needsUpdate = true;
+  }
+
+  function step(clock){
+    const sp = TAU2*clock/Q.spinP;
+    csp = Math.cos(sp); ssp = Math.sin(sp);
+    placeClouds(); placeRims(); placeArcs(clock); placeNet(); placeDev();
+    placeRip(clock); updFans();
+  }
+  step(0);
+  return {
+    scene, camera, intro: Q.intro, grab: false,
+    onDPR(pr){ SH.uPx.value = pr; },
+    /* 入场：五盘**自下而上**各差 0.15s 从竖轴处「长」出来（ws = .15 + .85·e） */
+    setIntro(e){
+      SH.uIntro.value = e; introE = e;
+      for(let k = 0; k < 5; k++){
+        const t = Math.max(0, Math.min(1, (e - k*Q.introD/Q.intro)/(1 - 4*Q.introD/Q.intro)));
+        WS[k] = 0.15 + 0.85*t*t*(3-2*t);
+      }
+      step(clockRef);
+    },
+    draw(dt, clock){
+      SH.uTime.value = clock; clockRef = clock;
+      step(clock);
+      band.draw(clock);
+      for(let i = 0; i < axes.length; i++) axes[i].draw(clock);
+      for(let i = 0; i < fans.length; i++) fans[i].draw(clock);
+    },
+    /* 净空：把这一帧真的传上 GPU 的顶点（点云 / 环 / 弧 / 网 / 设备 / 11 条带）
+       投影回舞台像素，逐顶点量到墨迹名册。pad 与构建期是**同一个数**。 */
+    state(){
+      const items = LAY.map(L => [L.g, Q.ptpad]);
+      items.push([rimG, 0], [arcG, 0], [netG, 0], [devG, 0], [ripG, 0],
+                 [headG, Q.ptpad], [band.geo, Q.wpx[0]]);
+      for(let i = 0; i < axes.length; i++) items.push([axes[i].geo, Q.wpx[1+i]]);
+      for(let i = 0; i < fans.length; i++) items.push([fans[i].geo, Q.wpx[3+i]]);
+      return { clr: clrMin(U, Q.ink, items) };
     },
     applyTheme(){
-      const op = cssNum('--w-card-op', .96), fog = cssNum('--w-fog', .34);
-      const rimC = cssColor('--w-rim'), rimO = cssNum('--w-rim-op', .5);
-      for(let i=0;i<cards.length;i++){
-        const c = cards[i];
-        const t = Math.max(0, Math.min(1, (W.zmax - c.z0)/(W.zmax - W.zmin || 1)));
-        c.baseOp = op*(1 - fog*t); c.baseRim = rimO*(1 - fog*t);
-        c.mat.opacity = c.baseOp*intro; c.rimMat.opacity = c.baseRim*intro;
-        c.rimMat.color.copy(rimC);
-      }
+      const pair = (m, c, hot, op, gain, sz) => {
+        m.uniforms.uColor.value.copy(cssColor(c));
+        m.uniforms.uHot.value.copy(cssColor(hot || c));
+        m.uniforms.uOpacity.value = op; m.uniforms.uGain.value = gain || 0;
+        if(sz !== undefined) m.uniforms.uSize.value = sz; };
+      pair(mapMat,  '--st-map',   '--st-map-hot', cssNum('--st-map-op', .60),
+           cssNum('--st-map-gain', .40), cssNum('--st-map-size', 2.4));
+      pair(nodeMat, '--st-node',  '--st-node',    cssNum('--st-node-op', .90), 0,
+           cssNum('--st-node-size', 4.4));
+      pair(arcMat,  '--st-arc',   '--st-spark',   cssNum('--st-arc-op', .46), .60);
+      pair(headMat, '--st-spark', '--st-spark',   cssNum('--st-spark-op', .88), .60,
+           cssNum('--st-spark-size', 4.6));
+      pair(coreMat, '--st-core',  '--st-core-hot', cssNum('--st-core-op', .80),
+           cssNum('--st-core-gain', .60), cssNum('--st-core-size', 2.8));
+      pair(netMat,  '--st-net',   '--st-net',     cssNum('--st-net-op', .48), 0);
+      pair(netNMat, '--st-net-n', '--st-net-n',   cssNum('--st-net-n-op', .86), 0,
+           cssNum('--st-net-n-size', 4.0));
+      pair(fanNMat, '--st-fan-n', '--st-fan-n',   cssNum('--st-fan-n-op', .80), 0,
+           cssNum('--st-fan-n-size', 4.4));
+      pair(devMat,  '--st-dev',   '--st-dev',     cssNum('--st-dev-op', .78), 0);
+      pair(rimMat,  '--st-rim',   '--st-rim',     cssNum('--st-rim-op', .54), 0);
+      pair(ripMat,  '--st-rip',   '--st-rip',     cssNum('--st-rip-op', .44), 0);
+      const back = cssNum('--st-back', .34), add = cssNum('--st-add', 0);
+      band.theme(cssColor('--st-wave'), cssColor('--st-wave-rms'),
+                 cssNum('--st-wave-op', .42), cssNum('--st-wave-rms-op', .46), back);
+      axes[0].theme(cssColor('--st-ax'), cssColor('--st-ax-rms'),
+                    cssNum('--st-ax-op', .44), cssNum('--st-ax-rms-op', .50), back);
+      axes[1].theme(cssColor('--st-ax2'), cssColor('--st-ax2-rms'),
+                    cssNum('--st-ax2-op', .40), cssNum('--st-ax2-rms-op', .44), back);
+      for(let i = 0; i < fans.length; i++)
+        fans[i].theme(cssColor('--st-fan'), cssColor('--st-fan-rms'),
+                      cssNum('--st-fan-op', .44), cssNum('--st-fan-rms-op', .46), back);
+      [band, axes[0], axes[1]].concat(fans).forEach(f => setBlend(f.mat, add));
+      [mapMat, nodeMat, arcMat, headMat, coreMat, netMat, netNMat, fanNMat,
+       devMat, rimMat, ripMat].forEach(m => { m.uniforms.uBack.value = back; setBlend(m, add); });
     },
   };
 }
@@ -3113,30 +3856,101 @@ def _b_build():
     return dict(w=w, h=h, probe=probe)
 
 
-# ── ⑧ P7 星座墙 ─────────────────────────────────────────────────────────────
-def _w_build():
-    """星座墙的净空探针 = **扫掠包络**：十四张卡的四角 × 摆动区间 {−6°,0,+6°}
-       × 浮动区间 {−famp,0,+famp}，逐点做透视除法投影回舞台像素。
-       卡在摆动 / 浮动里走的就是这个族，运行时 state() 量的是族里的**某一帧** ⇒
-       解析必然是它的下界，qa 按不等式对表（与 P5 大脑同一条路）。"""
+# ── ⑧ P7 五层价值地壳 ────────────────────────────────────────────────────────
+_ST_SPINN = 48                        # 扫掠包络的采样：整圈 48 档
+_ST_LEADCLR = 16.0                    # 引线落点离几何的下限（16px 规则）
+
+
+def _st_ptpad():
+    """点云 / 节点 / 亮斑的**屏上**半径（点径 × 最近处的透视放大 ÷ 2）—— 净空的 pad。
+       构建期与运行时（Q.ptpad）是同一个数，两条算路不会各算各的。"""
+    return max(_cssmax("--st-map-size"), _cssmax("--st-core-size"),
+               _cssmax("--st-node-size"), _cssmax("--st-net-n-size"),
+               _cssmax("--st-fan-n-size"), _cssmax("--st-spark-size")) \
+        * _ST_D / (_ST_D - _ST_HALF) / 2.0
+
+
+def _st_sweep(trips, yc, pad, ns=_ST_SPINN):
+    """(r, |w|) 族 × 整圈 φ → 扫掠包络的净空探针（舞台像素）。
+       自转扫遍整圈 ⇒ φ 本身就是被扫掉的那一维；运行时量的是族里的**某一帧**
+       ⇒ 解析必然是它的下界（入场 ws≤1 只会把形收向盘心，同样是下界）。"""
+    r = LAB_RECTS[7]
+    o = []
+    for rr, ww in trips:
+        for a in range(ns):
+            phi = 2 * math.pi * a / ns
+            for wsg in ((ww, -ww) if ww else (0.0,)):
+                q = _st_place(rr * math.cos(phi), rr * math.sin(phi), wsg, yc)
+                o.append((r[1] + q[0], r[2] + q[1], pad))
+    return o
+
+
+def _st_fix(pts, pad):
+    """不随自转的那一路（L1 波形带 / 涟漪 / 竖轴流）：落点就是它的 fig 坐标"""
+    r = LAB_RECTS[7]
+    return [(r[1] + p[0], r[2] + p[1], pad) for p in pts]
+
+
+def _st_build():
+    """十一股流的世界折线 / 屏上速度 / 逐股 pad + 整枚场景的净空扫掠包络
+       + 八处引线落点的净空。"""
     r = LAB_RECTS[7]
     w, h = r[3], r[4]
-    sw = _W_SWAY * math.pi / 180.0
+    pad = _st_ptpad()
+    # ── 十一股流（1 波形带 + 2 竖轴供给 + 8 扇出）────────────────────────────
+    pts, spdrow, spdv, wpx = [], [], [], []
+
+    def add(nm, q, w0):
+        Lp, Lw = _lock_len(q, w, h, _ST_D)
+        pts.append(q)
+        spdrow.append((nm, Lp, _SPD_A))
+        spdv.append(_SPD_A * Lw / Lp)
+        wpx.append(_wpx(w0, q, _ST_D))
+    add("L1 感知波形带", _st_band(), _ST_BAND_HW)
+    add("L0–L2 供给流", _ST_AX[0], _ST_AX_W * _ST_AX_BUMP)
+    add("L2–L4 供给流", _ST_AX[1], _ST_AX_W * _ST_AX_BUMP)
+    for k in range(_ST_FAN_N):
+        add("L3 扇出流 %d" % (k + 1),
+            [_st_place(p[0], p[1], p[2], _ST_YC[3]) for p in _st_fan(k)], _ST_FAN_W0)
+    # ── 净空探针（逐件取真几何，一个数不新造）──────────────────────────────
     probe = []
-    for nm, url, x, y, z0, cw, ch, ph in _W_CARDS:
-        for dz in (-_W_FAMP, 0.0, _W_FAMP):
-            for sx in (-1, 1):
-                for sy in (-1, 1):
-                    lx = (x - _W_CX) + sx * cw / 2.0
-                    ly = (y - _W_CY) + sy * ch / 2.0
-                    lz = (z0 + dz) - _W_CZ
-                    for th in (-sw, 0.0, sw):
-                        X = _W_CX + lx * math.cos(th) + lz * math.sin(th)
-                        Z = _W_CZ - lx * math.sin(th) + lz * math.cos(th)
-                        k = (_W_D - Z) / _W_D
-                        probe.append((r[1] + _W_CX + (X - _W_CX) / k,
-                                      r[2] + _W_CY + ly / k, 0.0))
-    return dict(w=w, h=h, probe=probe)
+    for k in range(5):                                   # 五枚盘缘轮廓环
+        probe += _st_sweep([(_ST_R, 0.0)], _ST_YC[k], 0.0)
+    probe += _st_sweep([(_ST_MAP_R * i / 12.0, 0.0) for i in range(13)],
+                       _ST_YC[0], pad)                   # L0 地图点阵 + 36 枚节点
+    probe += _st_sweep(sorted({(round(math.hypot(q[0], q[1]), 1), round(abs(q[2]), 1))
+                               for a in _ST_ARC for q in _st_arcpts(a, seg=10)}),
+                       _ST_YC[0], pad)                   # L0 节点间弧 + 亮斑
+    probe += _st_fix([(q[0], q[1]) for q in _st_band()], wpx[0])          # L1 波形带
+    for sgn in (-1.0, 1.0):                                              # L1 涟漪
+        for i in range(9):                                # 扫到最大半径（扩张的包络）
+            rr = _ST_RIP[0] + (_ST_RIP_R1 - _ST_RIP[0]) * i / 8.0
+            probe += _st_fix([(q[0], q[1]) for q in _st_rip_pts(sgn, rr)], 0.0)
+    probe += _st_sweep([(_ST_CORE_R * i / 20.0, _st_coreT(_ST_CORE_R * i / 20.0))
+                        for i in range(21)], _ST_YC[2], pad)              # L2 核
+    probe += _st_sweep([(_ST_NET_R0 + (_ST_NET_R1 - _ST_NET_R0) * i / 8.0, 0.0)
+                        for i in range(9)], _ST_YC[2], pad)               # L2 网 + 节点
+    probe += _st_sweep([(_ST_FAN_R0 + (_ST_FAN_R1 - _ST_FAN_R0) * i / 12.0, 0.0)
+                        for i in range(13)], _ST_YC[3],
+                       max(wpx[3:] + [_cssmax("--st-fan-n-size") / 2.0]))  # L3 扇流 + 末端节点
+    for k in range(_ST_DEV_N):                                            # L4 设备轮廓
+        for poly in _ST_DEV[k]:
+            for du, dw in poly:
+                for a in range(_ST_SPINN):
+                    phi = 2 * math.pi * a / _ST_SPINN
+                    u0 = _ST_DEV_R * math.cos(phi)
+                    v0 = _ST_DEV_R * math.sin(phi)
+                    probe.append((r[1] + _ST_CX + u0 + du,
+                                  r[2] + _ST_YC[4] + v0 * _ST_CT - dw * _ST_ST, 0.0))
+    for i in (1, 2):                                                      # 竖轴供给流
+        probe += _st_fix([(q[0], q[1]) for q in _ST_AX[i - 1]], wpx[i])
+    # ── 八处引线落点到几何的净空（五组左标 + 三枚右标 · 机器判据，不是目测）──
+    ends = [(_ST_LEAD_X, yc) for _c, _n, _d, yc, _a in _ST_LEAD] \
+        + [(_ST_LEAD_X2, _ST_YC[2]), (_ST_LEAD_X2, _ST_YC[1]), (_ST_LEAD_X2, _ST_YC[0])]
+    lead = [min(math.hypot(r[1] + ex - t[0], r[2] + ey - t[1]) - t[2] for t in probe)
+            for ex, ey in ends]
+    return dict(w=w, h=h, pts=pts, spd=spdrow, spdv=spdv, wpx=wpx,
+                pad=pad, probe=probe, lead=lead)
 
 
 # ── ⑥ P8 互动星系 ─────────────────────────────────────────────────────────
@@ -3193,11 +4007,11 @@ _G = _g_build()
 _GW = _gw_build()
 _D = _d_build()
 _B = _b_build()
-_W = _w_build()
+_ST = _st_build()
 _GX = _gx_build()
 _EX = _ex_build()
 _PROBE = {2: _G["probe"], 3: _GW["probe"], 4: _D["probe"], 5: _B["probe"],
-          7: _W["probe"], 8: _GX["probe"]}
+          7: _ST["probe"], 8: _GX["probe"]}
 if P6_EXIT:
     _PROBE[6] = _EX["probe"]
 _CLR_MIN = {p: _clr_of(_PROBE[p], _INK[p]) for p in _PROBE}
@@ -3217,6 +4031,8 @@ def _spd_rows(p):
         return []          # 大脑不是「介质流」：突触火花是离散事件（B 档），不进 A 档表
     if p == 6:
         return [("走出屏幕声流", _EX["Lp"], _SPD_A)]
+    if p == 7:
+        return _ST["spd"]
     if p == 8:
         return _GX["spd"]
     return []
@@ -3285,13 +4101,28 @@ def lab_data(p):
               ("uframe", _n3(_EX["uframe"])), ("gain", "%s,%s" % (_n3(_EX_G0), _n3(_EX_GSPAN))),
               ("w", "%s-%s" % (_n3(_EX_W0), _n3(_EX_W1)))]
     elif p == 7:
-        # 星座墙：卡数 / 摆动周期（⑳flick 用 cyc）/ 浮动 / 体厚 / 深度区间
-        a += [("cards", len(_W_CARDS)), ("front", 3),
-              ("sway", _n3(_W_SWAY)), ("cyc", _n3(_W_CYC)),
-              ("famp", _n3(_W_FAMP)), ("fper", _n3(_W_FPER)),
-              ("dz", _n3(_W_DZ)),
-              ("z", "%s,%s" % (_n3(min(c[4] for c in _W_CARDS)),
-                               _n3(max(c[4] for c in _W_CARDS))))]
+        # 五层价值地壳：五盘半径 / 盘心 / 间距 / 倾角 / 自转 / 点数 / 股数 /
+        # 弧与节点 / 深度雾贴 z / 八处引线落点的净空 —— ⑳stack 逐条复算。
+        a += [("lam", _n3(_ST_LAM)), ("layers", "5"),
+              ("r", _n3(_ST_R)), ("gap", _n3(_ST_GAP)),
+              ("yc", ",".join(_n3(v) for v in _ST_YC)),
+              ("tilt", _n3(_ST_TILT)), ("spin", _n3(_ST_SPINP)),
+              ("pts", str(len(_ST_MAP) + _ST_CORE_N)),
+              ("cloud", "%d,%d" % (len(_ST_MAP), _ST_CORE_N)),
+              ("nodes", "%d,%d,%d" % (len(_ST_NODES), _ST_NET_N, _ST_FAN_N)),
+              ("arcs", str(len(_ST_ARC))), ("net", str(len(_ST_NETL))),
+              ("strands", str(len(_ST["pts"]))),
+              ("flows", "%d,%d,%d" % (1, 2, _ST_FAN_N)),
+              ("band", "%s,%s" % (_n3(_ST_BAND), _n3(_ST_BAND_HW))),
+              ("rip", ",".join(_n3(v) for v in _ST_RIP)), ("ripr1", _n3(_ST_RIP_R1)),
+              ("ripp", _n3(_ST_RIP_P)),
+              ("core", "%s,%d" % (_n3(_ST_CORE_R), _ST_CORE_N)),
+              ("dev", "%s,%s" % (_ST_DEV_N, _n3(_ST_DEV_H))),
+              ("ax", "%s,%s,%s,%s" % (_n3(_ST_AX_W), _n3(_ST_AX_BUMP),
+                                      _n3(_ST_AX_G0), _n3(_ST_AX_G1))),
+              ("half", _n3(_ST_HALF)), ("zmax", _n3(round(_ST_R * _ST_ST, 2))),
+              ("lead", ",".join(_n3(round(v, 2)) for v in _ST["lead"])),
+              ("leadclr", _n3(_ST_LEADCLR))]
     elif p == 8:
         # 互动星系：点数 / 三环半径与厚度 / 倾角 / 转速与摇摆 / 弧与流的股数 /
         # 生灭窗（0.4s 归零）与它的相位表 / 生长锋周期 / 三处引线落点的净空
@@ -3441,20 +4272,52 @@ def info_k():
         # info 专属三项：pad 取暗档火花点径的一半（5.2/2 = 2.6，两档取大）
         ("D", _n3(_B_D)), ("pad", _n3(_cssmax("--b-spark-size") / 2.0)), ("ink", INK(5)),
     ])
-    # ── ⑧ 星座墙（P7）：十四张卡的舞台像素几何 + 贴图地址 + 摆动 / 浮动参数
-    w7 = O([("D", _n3(_W_D)),
-            ("cx", _n3(_W_CX)), ("cy", _n3(_W_CY)), ("cz", _n3(_W_CZ)),
-            ("sway", _n3(_W_SWAY)), ("cyc", _n3(_W_CYC)),
-            ("famp", _n3(_W_FAMP)), ("fper", _n3(_W_FPER)),
-            ("dz", _n3(_W_DZ)), ("ins", _n3(_W_INS)),
-            ("zmin", _n3(min(c[4] for c in _W_CARDS))),
-            ("zmax", _n3(max(c[4] for c in _W_CARDS))),
-            ("card", "[" + ",".join(
-                "[%s,%s,%s,%s,%s,%s]"
-                % (_n3(c[2]), _n3(c[3]), _n3(c[4]), _n3(c[5]), _n3(c[6]),
-                   _n3(2 * math.pi * c[7] / 14.0))
-                for c in _W_CARDS) + "]"),
-            ("url", "[" + ",".join('"%s"' % c[1] for c in _W_CARDS) + "]"),
+    # ── ⑧ 五层价值地壳（P7）：五盘几何 + 逐层语义件的参数 + 十一股流的世界折线。
+    #    点云（L0 世界地图 4k / L2 核 1.5k）**不进 K 表** —— 陆地位掩码与确定性哈希
+    #    在运行时按与构建期逐字同式的公式现生成（数据里没有一个坐标）。
+    st = O([("D", _n3(_ST_D)), ("half", _n3(_ST_HALF)),
+            ("cx", _n3(_ST_CX)), ("r", _n3(_ST_R)), ("tilt", _n3(_ST_TILT)),
+            ("spinP", _n3(_ST_SPINP)), ("intro", _n3(_ST_INTRO)),
+            ("introD", _n3(_ST_INTRO_D)), ("rimseg", str(_ST_RIMSEG)),
+            ("yc", _arr3(_ST_YC)),
+            ("mapR", _n3(_ST_MAP_R)), ("mapMod", str(_ST_MAP_MOD)),
+            ("mapKeep", str(_ST_MAP_KEEP)),
+            ("nodeStride", str(_ST_NODE_STRIDE)), ("nodeN", str(_ST_NODE_N)),
+            ("arc", "[" + ",".join("[%d,%d,%s,%s]" % (a[0], a[1], _n3(a[2]), _n3(a[3]))
+                                   for a in _ST_ARC) + "]"),
+            ("aseg", str(_ST_ARC_SEG)), ("arcdur", _n3(_ST_ARC_DUR)),
+            ("band", _n3(_ST_BAND)), ("bandHw", _n3(_ST_BAND_HW)),
+            ("bandS", '"%s"' % _pk3(_lock_path(_st_band(), _ST["w"], _ST["h"], _ST_D))),
+            ("bandSpd", _n3(_ST["spdv"][0])),
+            ("rip", _arr3(_ST_RIP)), ("ripR1", _n3(_ST_RIP_R1)),
+            ("ripseg", str(_ST_RIP_SEG)),
+            ("ripP", _n3(_ST_RIP_P)),
+            ("coreR", _n3(_ST_CORE_R)), ("coreN", str(_ST_CORE_N)),
+            ("netN", str(_ST_NET_N)), ("netR0", _n3(_ST_NET_R0)),
+            ("netR1", _n3(_ST_NET_R1)),
+            ("net", '"%s"' % ";".join("%d,%d" % q for q in _ST_NETL)),
+            ("fanN", str(_ST_FAN_N)), ("fanR0", _n3(_ST_FAN_R0)),
+            ("fanR1", _n3(_ST_FAN_R1)), ("fanSeg", str(_ST_FAN_SEG)),
+            ("fanW0", _n3(_ST_FAN_W0)), ("fanW1", _n3(_ST_FAN_W1)),
+            ("fanS", "[" + ",".join(
+                '"%s"' % _pk3(_lock_path(q, _ST["w"], _ST["h"], _ST_D))
+                for q in _ST["pts"][3:]) + "]"),
+            ("fanSpd", _arr3(_ST["spdv"][3:])),
+            ("devR", _n3(_ST_DEV_R)), ("devH", _n3(_ST_DEV_H)),
+            ("dev", "[" + ",".join(
+                "[" + ",".join('"%s"' % ";".join("%s,%s" % (_n3(q[0]), _n3(q[1]))
+                                                 for q in poly)
+                               for poly in g) + "]" for g in _ST_DEV) + "]"),
+            ("axS", "[" + ",".join(
+                '"%s"' % _pk3(_lock_path(q, _ST["w"], _ST["h"], _ST_D))
+                for q in _ST["pts"][1:3]) + "]"),
+            ("axSpd", _arr3(_ST["spdv"][1:3])),
+            ("axAt", _arr3([0.0, _ST_GAP, 2 * _ST_GAP])),
+            ("axW", _n3(_ST_AX_W)), ("axBump", _n3(_ST_AX_BUMP)),
+            ("axG0", _n3(_ST_AX_G0)), ("axG1", _n3(_ST_AX_G1)),
+            ("axSpan", _n3(_ST_AX_SPAN)), ("axEdge", "0.02"),
+            ("wpx", "[" + ",".join(_n3(v) for v in _ST["wpx"]) + "]"),
+            ("ptpad", _n3(round(_ST["pad"], 3))),
             ("ink", INK(7))])
     # ── ⑥ 三种互动（P8）：25 股的世界折线 + 逐股 pad + 边号表 + 十条边的相位 +
     #    栅格 + 三枚人节点 / 六台转子的页坐标 + 转子的三枚异面环（现取自旗舰 P15）
@@ -3501,7 +4364,7 @@ def info_k():
         'nodeTable:"%s"' % _LAB.NODE_TABLE, 'routeTable:"%s"' % _LAB.ROUTE_TABLE,
         "arcDur:%s" % _LAB.ARC_DUR_S, "arcGap:%s" % _LAB.ARC_GAP_S,
         "arcOff:%s" % _LAB.ARC_OFF_S,
-        "gw:" + gw, "d:" + d, "b:" + b, "w:" + w7, "gx:" + gx, "ex:" + ex,
+        "gw:" + gw, "d:" + d, "b:" + b, "st:" + st, "gx:" + gx, "ex:" + ex,
     ]) + "}"
 
 
@@ -3509,7 +4372,7 @@ def info_k():
 _FACTORY_JS = ("const FACTORY = { voice:makeVoice, globe:makeGlobe, grow:makeGrow,\n"
                "                  duplex:withClr(makeDuplex, K.d.D, K.d.ink, K.d.pad),\n"
                "                  brain:withClr(makeBrain, K.b.D, K.b.ink, K.b.pad),\n"
-               "                  wall:makeWall, galaxy:makeGalaxy, exit:makeExit };")
+               "                  stack:makeStack, galaxy:makeGalaxy, exit:makeExit };")
 _TOUR_JS = _re2.sub(r"const FACTORY = \{[\s\S]*?\};", lambda _m: _FACTORY_JS, _K_TOUR, count=1)
 assert "makeGlobe" in _TOUR_JS and "withClr(makeBrain" in _TOUR_JS, "FACTORY 替换失败"
 INFO_MODULE_BODY = (_K_BASE + _K_VOICE + _K_GLOBE + _K_BRAIN + _K_LOCK + _K_AS + _K_CLR
@@ -3775,9 +4638,9 @@ def build():
     assert {i for i, b in boards.items() if b == "title"} == {1}, \
         "title 板页漂移：%r" % sorted(i for i, b in boards.items() if b == "title")
     steps_map = {i: s for i, (_b, s, _y, _h, _l) in enumerate(PAGES, 1) if s}
-    # v3 波A/波B：P2–P7 每页一枚**细节层**（该页的 data-step=1）；v3.1 起 P8 也带一枚 ⇒ 七页分步
-    assert steps_map == {2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1}, "分步页漂移：%r" % steps_map
-    # 细节层：每页至多一枚，且必须挂在 data-step="1" 上（P2–P7 六枚）
+    # v3.3：P3 / P6 的细节层退役 ⇒ **五页**分步（P2 / P4 / P5 / P7 / P8 各一枚细节层）
+    assert steps_map == {p: 1 for p in DETAIL_PAGES}, "分步页漂移：%r" % steps_map
+    # 细节层：每页至多一枚，且必须挂在 data-step="1" 上（五枚）
     assert doc.count('class="sh flow rev detail"') == len(DETAIL_PAGES), \
         "细节层面板数漂移：%d != %d" % (doc.count('class="sh flow rev detail"'), len(DETAIL_PAGES))
     assert doc.count('chip chip-expand chip-detail') == len(DETAIL_PAGES), \
@@ -3828,11 +4691,15 @@ def build():
     #    LAB 版）逐字节相同，改一个字当场炸。data-step 集合仍是八页全钉。
     #    v3.1（P8 重做轮）：ⓐ 收窄改成**扩张** —— P1–P7 一页不许动，摘要按远端
     #    main = 239ddd4 的产物逐页钉死；只有 P8 是本轮的改动面。
+    #    v3.3（2026-09-06 · 本轮的改动面 = P3 / P6 / P7 三页）：P3 / P6 的摘要按
+    #    「去掉细节层之后」的产物重钉；P7 主图反转 ⇒ 摘要整枚换新。
+    #    P1 / P2 / P4 / P5 / P8 的摘要**一个字节都没动**（红线：除面板闸名册外不许动）。
     _BASE = {1: ("6a266af55cce4643", []), 2: ("80026d29106368b6", []),
-             3: ("a73a81258182fcc7", []), 4: ("74796065f13be705", []),
-             5: ("e6fba6f3cd9dcd4b", []), 6: ("1bb2f62760cbe649", []),
-             7: ("0a6f2495cd58acbf", [])}
-    _STEPS = [[], [1], [1], [1], [1], [1], [1], [1]]
+             3: ("71de96196bb0414c", []), 4: ("74796065f13be705", []),
+             5: ("e6fba6f3cd9dcd4b", []), 6: ("3518f62f28254391", []),
+             7: ("2faaa345d2ae4194", []), 8: ("f3fd04f859367389", [])}
+    # v3.3：P3 / P6 细节层退役 ⇒ 两页零分步；P7 换主图但仍是一枚细节层。
+    _STEPS = [[], [1], [], [1], [1], [], [1], [1]]
     import hashlib as _hl
     _secs = _re.findall(r'<section class="slide.*?</section>', doc, _re.S)
     assert len(_secs) == 8, "section 切分失败：%d" % len(_secs)
@@ -3842,8 +4709,8 @@ def build():
         _d = _hl.sha1(_t.encode()).hexdigest()[:16]
         _st = sorted(set(int(x) for x in _re.findall(r'data-step="(\d+)"', _sec)))
         if _pn in _BASE:
-            assert _d == _BASE[_pn][0], ("ⓐ P%d 文本与 v2 分叉（%s != %s）—— "
-                                         "本轮只动 P8" % (_pn, _d, _BASE[_pn][0]))
+            assert _d == _BASE[_pn][0], ("ⓐ P%d 文本分叉（%s != %s）—— "
+                                         "v3.3 本轮只动 P3 / P6 / P7" % (_pn, _d, _BASE[_pn][0]))
         assert _st == _STEPS[_i], "ⓐ P%d data-step 集合分叉：%r != %r" % (_pn, _st, _STEPS[_i])
     # ⓑ poster 分件：裹进去的**只有形** —— 一个 <text>、一枚 <polygon> 都不许进
     assert _LP_TRACE, "ⓑ 一个 poster 组都没有 —— _lpsplit 没接上"
@@ -3949,6 +4816,45 @@ def build():
                 _k2 + 1, _dv, _GX_LEADCLR)
     #    ⑨ canvas 零文字：poster 组里一个 <text> 都不许有（ⓑ 已管；这里再钉一遍 P8 本页）
     assert "<text" not in _p8galaxy_poster(), "ⓖ P8 主图 poster 里出现了文字件"
+    # ⓘ P7 五层价值地壳的机器面（v3.3 · 接替退役的星座墙）────────────────────
+    #    ① 五盘：半径 / 间距 / 倾角 / 盘心表 —— 一个数漂了，整页的账全散
+    assert len(_ST_YC) == 5 and all(
+        abs((_ST_YC[_k] - _ST_YC[_k + 1]) - _ST_GAP) < 1e-9 for _k in range(4)), \
+        "ⓘ P7 五盘间距不齐：%r" % (_ST_YC,)
+    assert _ST_TILT == 82.0 and _ST_R == 420.0 and _ST_SPINP == 120.0, \
+        "ⓘ P7 盘半径 / 倾角 / 自转漂移：R=%g 倾角 %g° 1 圈/%gs" % (_ST_R, _ST_TILT, _ST_SPINP)
+    #    ② 竖向装得下：设备顶不出画布上沿，L0 盘缘离图例首行墨迹 ≥16px
+    _st_top = _ST_YC[4] - _ST_R * _ST_CT - _ST_DEV_H * _ST_ST
+    _st_bot = _ST_YC[0] + _ST_R * _ST_CT
+    assert _st_top >= 0.0, "ⓘ P7 L4 设备顶 fig %.2f 出了画布上沿" % _st_top
+    assert LAB_RECTS[7][2] + _st_bot <= 874.0 - 16.0, \
+        "ⓘ P7 L0 盘缘 舞台 %.2f 离图例首行墨迹 y874 不足 16px" % (LAB_RECTS[7][2] + _st_bot)
+    #    ③ 逐层语义件都在盘内：地图点阵 / 涟漪最外 / 网 / 扇流 / 设备轮廓 ≤ R
+    assert _ST_MAP_R <= _ST_R and _ST_BAND + _ST_RIP_R1 <= _ST_R \
+        and _ST_NET_R1 <= _ST_R and _ST_FAN_R1 <= _ST_R \
+        and _ST_DEV_R + _ST_DEV_DU <= _ST_R, "ⓘ P7 有语义件越出盘缘"
+    #    ④ 点数预算：两片点云合计 ≤12,000（与 P5 大脑 / P8 星系同一量级）
+    assert len(_ST_MAP) + _ST_CORE_N <= 12000, \
+        "ⓘ P7 点数 %d > 12,000" % (len(_ST_MAP) + _ST_CORE_N)
+    #    ⑤ 股数：1 波形带 + 2 竖轴供给（过 L2 换色 ⇒ 只能拆两段）+ 8 扇出 = 11
+    assert len(_ST["pts"]) == 1 + 2 + _ST_FAN_N == 11, \
+        "ⓘ P7 流股数 %d != 11（1 + 2 + 8）" % len(_ST["pts"])
+    assert len(_ST_ARC) == _ST_ARC_N and len(_ST_NODES) == _ST_NODE_N, \
+        "ⓘ P7 L0 的弧 %d / 节点 %d 漂移" % (len(_ST_ARC), len(_ST_NODES))
+    #    ⑥ 涟漪与波形带同拍：周期 = λ ÷ A 档速度（2.109s）
+    assert abs(_ST_RIP_P - _ST_LAM / _SPD_A) < 1e-9, "ⓘ P7 涟漪与波形带不同拍"
+    #    ⑦ 深度雾贴真实 z 跨度（松了就等于没有体积 —— px 场景唯一的立体线索）
+    assert abs(_ST_HALF - _ST_R * _ST_ST) <= 6.0, \
+        "ⓘ P7 深度雾半程 %g 没贴住真实 z 跨度 %.1f" % (_ST_HALF, _ST_R * _ST_ST)
+    #    ⑧ 八处引线落点（五组左标 + 三枚右标）全在几何之外 ≥16px（扫掠包络逐点量）
+    for _k2, _dv in enumerate(_ST["lead"]):
+        assert _dv >= _ST_LEADCLR, \
+            "ⓘ P7 第 %d 处引线落点离几何只有 %.1fpx（下限 %.0f）" % (_k2 + 1, _dv, _ST_LEADCLR)
+    #    ⑨ canvas 零文字 + 14 家客户名逐字在细节层里（⑮ 闸的构建期同源）
+    assert "<text" not in _p7stack_poster(), "ⓘ P7 主图 poster 里出现了文字件"
+    _p7txt = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ", _secs[6]))
+    for _nm2, _u2, _w2, _h2 in _CASES:
+        assert _nm2 in _p7txt, "ⓘ P7 细节层缺客户名「%s」" % _nm2
     print("convoai-info.html · %d 页 · %dKB · conf-light 默认 · 分步 %r · hero-art=%s"
           % (total, len(doc) // 1024, steps_map, "on" if HERO_ART else "off"))
 
