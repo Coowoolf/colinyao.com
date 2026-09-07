@@ -959,6 +959,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       l: { seg: +l.labSeg, modes: +l.labModes, dep: +l.labDep,
            simplex: rows(l.labSimplex), half: rows(l.labHalf), full: rows(l.labFull) },
       c: { stations: +c.labStations, steps: +c.labSteps, bands: +c.labBands,
+           rings: +c.labRings, flows: +c.labFlows,
            znear: +c.labZnear, zdeep: +c.labZdeep },
       u: { in: +u.labIn, cut: +u.labCut, fall: +u.labFall, ghost: +u.labGhost },
       m: { layers: +m.labLayers, boxes: +m.labBoxes, zl: nums(m.labZl),
@@ -1052,10 +1053,14 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
        `⑲h P3 单工回向不是静默通道（${S.map(r => r[4])}）`);
     ok(duty(S[0]) >= 0.999, `⑲h P3 单工正向不是恒在途（${duty(S[0]).toFixed(3)}）`);
   }
-  //   P6 链路：四站 · 一步 build · 四条增量流带 · 两端近中间深
+  //   P6 链路：四站 + 两环 · 一步 build · 两端近中间深
+  //   波D（2026-09-07）：链路页也是**架构图** ⇒ 流整枚退回 2D（页上那六枚 .mo-packet
+  //   与底排那条增量流本人）。bands / flows 因此是**正面声明的 0**，不是缺省。
   ok(dta.c.stations === 4, `⑲h P6 站点 ${dta.c.stations} 枚 != 4`);
+  ok(dta.c.rings === 2, `⑲h P6 环 ${dta.c.rings} 枚 != 2`);
   ok(dta.c.steps === EXP_STEPS[5], `⑲h P6 场景声明的步数 ${dta.c.steps} 与页面分步不符`);
-  ok(dta.c.bands === 4, `⑲h P6 增量流带 ${dta.c.bands} 条 != 4`);
+  ok(dta.c.bands === 0 && dta.c.flows === 0,
+     `⑲h P6 画布上还留着介质带（bands=${dta.c.bands} flows=${dta.c.flows}）—— 架构图上不许有`);
   ok(dta.c.znear > dta.c.zdeep, `⑲h P6 深度剖面反了（近 ${dta.c.znear} / 深 ${dta.c.zdeep}）`);
   //   P8 打断：两根事件 x 与页上一致，340px = 340ms；让位段是 ghost 不是消失
   ok(dta.u.in === 700 && dta.u.cut === 1040, `⑲h P8 事件 x 漂移：${dta.u.in}/${dta.u.cut}`);
@@ -1346,27 +1351,27 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(p8 && p8.spd.every(x => Math.abs(x - 110) < 1e-6),
        `⑲(P8) 两条声轨的波峰速度不是 110px/s：${p8 && p8.spd}`);
   }
-  // ── ⑲(P6) 符号行三处接缝：有缝就不是一条流 ─────────────────────────────
+  /* ── ⑲(P6) 波D：链路页的画布上「会动的件」必须恒 0 ────────────────────────
+     波A 那一条（符号行四段三处接缝严丝合缝）随介质带一起退役 —— 那张符号行
+     现在是**页上那张 2D 图本人**（.mo-packet + 四组符号 + 一条 hline），
+     3D 一笔都不重画。接替它的是下面这条更硬的正面断言：
+       画布上只剩四块实心板 + 两枚环 + 一条深度剖面，flows / bands / pulses 全 0。 */
   {
     const c6 = await pg.evaluate(async () => {
-      const el = document.querySelector('.lab-stage[data-lab-page="6"]');
       window.deck.go(5); await new Promise(r => setTimeout(r, 900));
       const u = window.__labTour.unit();
-      return { seg: el.dataset.labSeg, seam: el.dataset.labSeam, span: el.dataset.labSpan,
-               tok: +el.dataset.labToken, st: u && u.state ? u.state() : null };
+      return u && u.state ? u.state() : null;
     });
-    const SEG = c6.seg.split(';').map(r => r.split(',').map(Number));
-    ok(SEG.length === 4, `⑲(P6) 符号行 ${SEG.length} 段 != 4`);
-    for (let i = 0; i < 3; i++)
-      ok(SEG[i][1] === SEG[i + 1][0],
-         `⑲(P6) 第 ${i + 1} 处接缝有缝：${SEG[i][1]} → ${SEG[i + 1][0]} —— 那就不是一条流`);
-    ok(c6.seam === '452,752,1052', `⑲(P6) 接缝 x 漂移：${c6.seam}`);
-    ok(c6.span === '70,1610', `⑲(P6) 主路不是横贯全链（${c6.span}）`);
-    ok(c6.tok === 2, `⑲(P6) token 段下标漂移：${c6.tok}`);
-    ok(c6.st && c6.st.pulses >= 20,
-       `⑲(P6) token 脉冲串只有 ${c6.st && c6.st.pulses} 枚 —— 「高密度」不成立`);
-    ok(c6.st && String(c6.st.seam) === '452,752,1052',
-       `⑲(P6) 运行时的接缝与页上不一致：${c6.st && c6.st.seam}`);
+    ok(c6, '⑲(P6) 链路场景没有交出 state()');
+    ok(c6 && c6.flows === 0 && c6.bands === 0 && c6.pulses === 0,
+       `⑲(P6) 画布上还有介质带 / 脉冲串：${JSON.stringify(c6)} —— 架构图上的流只准是页上的包`);
+    ok(c6 && c6.spd.length === 0,
+       `⑲(P6) 场景还在报流速（${c6 && c6.spd}）—— 本页已退出 A 档表`);
+    ok(c6 && c6.stations === 4 && c6.rings === 2,
+       `⑲(P6) 板 / 环件数漂移：${c6 && c6.stations} / ${c6 && c6.rings}`);
+    // z 表 = 四块板 + 两枚环各自的层深（链路两端近 / 中段最深 ⇒ 极差必须 > 0）
+    ok(c6 && c6.z.length === 6 && Math.min.apply(null, c6.z) < Math.max.apply(null, c6.z),
+       `⑲(P6) 四块板 + 两枚环不在六个深度上：${c6 && c6.z}`);
   }
   // ── ⑲(P14) 光束三段有序与常亮 ─────────────────────────────────────────
   {
@@ -1847,9 +1852,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   {
     // ── 版式分歧名册：六处，一处不多一处不少 ───────────────────────────
     const dv = await pg.evaluate(() => document.getElementById('deckStage').dataset.labDiverge);
-    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster;3:geom;10:poster';
+    // 波D（2026-09-07）：⑨′ 的两条补充落到其余六页，一律只改 poster 分组 ⇒ +7 行
+    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster;3:geom;10:poster'
+      + ';6:poster;3:poster;4:poster;7:poster;11:poster;12:poster;18:poster;3:stage';
     ok(dv === want, `⑲ 版式分歧名册漂移：${dv}`);
-    ok(dv.split(';').length === 8, `⑲ 版式分歧 ${dv.split(';').length} 处 != 8`);
+    ok(dv.split(';').length === 16, `⑲ 版式分歧 ${dv.split(';').length} 处 != 16`);
   }
 
   // ── ⑲s 全局流速复算：A 档 30 股全部落在 110 ±30% ───────────────────────
@@ -1866,10 +1873,14 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     //     ⇒ 63 + 20 = **83 股**、13 + 1 = **14 页**。「P22 不许进表」那条断言随之反转。
     //   → 2026-09-07 波C 退册：P10 整页退出（四车道 + 四介质握手 −8 股、页数 −1）、
     //     P13 的贯通流退出（−1 股；同页八枚总线包留在表里）⇒ **74 股 / 13 页**。
-    ok(all.length === 74, `⑲s A 档股数 ${all.length} != 74（83 − P10 的 8 − P13 贯通流 1）`);
-    ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
-    ok(!rows.some(([p]) => p === 10),
-       '⑲s P10 还挂着 data-lab-spd —— 架构图上没有介质带，它不该在 A 档表里');
+    //   → 2026-09-07 波D 退册：P6 整页退出（主路 + 符号行四段 + 四条增量带 −9 股、
+    //     页数 −1）、P12 的画面平面退出（−1 股、页数 −1）⇒ **64 股 / 11 页**。
+    //     P6 与 P12 都是**架构图**：线上跑的是页上那几枚 .mo-packet 本人。
+    //     P4 的两条声带也退（画布留空 —— 与三车道必然逐行相交）⇒ **62 股 / 10 页**。
+    ok(all.length === 62, `⑲s A 档股数 ${all.length} != 62（74 − P6 的 9 − P12 的 1 − P4 的 2）`);
+    ok(rows.length === 10, `⑲s A 档页数 ${rows.length} != 10`);
+    [10, 6, 12, 4].forEach(p => ok(!rows.some(([q]) => q === p),
+      `⑲s P${p} 还挂着 data-lab-spd —— 架构图上没有介质带，它不该在 A 档表里`));
     ok(all.filter(r => r.p === 13).length === 8,
        `⑲s P13 股数 ${all.filter(r => r.p === 13).length} != 8（贯通流退册，只剩八枚总线包）`);
     ok(rows.some(([p]) => p === 22), '⑲s P22 的 20 股互动流没进 A 档表 —— 它是介质');
@@ -1931,12 +1942,24 @@ mkdirSync(OUT, { recursive: true });
                // 降级层里必须真的有图，不是一个空壳：几何件数 + 路径总长度两头看。
                // （件数比长度稳：P18 的成长曲线是一条长 path，P9 的两枚环各是一条短弧，
                //   只看长度会把「短而多」的页误判成空。）
-               ink: posters.reduce((n, g) =>
+               // poster 组自己不许是空壳（挂一枚空的只是骗闸门）
+               posterInk: posters.reduce((n, g) =>
                  n + g.querySelectorAll('path,rect,circle,line,polygon,ellipse').length, 0),
+               /* 波C / 波D：poster 里现在**只有 3D 真的替代掉的那几件**（_lppick），
+                  页上其余每一笔（线 / 包 / 箭头 / 曲线 / 刻度 / 图例）都留在可见层 ——
+                  它们在无 WebGL 路径上同样在位，而且从来不淡出。所以「这一页降不降
+                  得下去」必须按**整页图形**量，不能只量 poster（只量 poster 会把
+                  「更完整」误判成「更空」）。P1 / P21 的 poster 是构建期离线投影出来的
+                  专用 <svg class="lab-poster">，落在 .lab-stage 里而不是 .pp 里 ——
+                  所以这把尺子按**整张 slide** 的 svg 量，两种形态一起收。 */
+               ink: [...document.querySelectorAll(`.slide[data-p="${p}"] svg`)]
+                 .reduce((n, g) => n + g.querySelectorAll(
+                   'path,rect,circle,line,polygon,ellipse').length, 0),
                // 「墨量」而不是单看 path：第二波九页里 P8 的降级层主体是波形 <rect>、
                // P14 是三只塔与塔内小盒，路径串本来就短 —— 一枚 rect/circle 折算 24 字符。
-               dlen: posters.reduce((n, g) => n + [...g.querySelectorAll('path')]
-                 .reduce((m, e) => m + (e.getAttribute('d') || '').length, 0), 0) };
+               dlen: [...document.querySelectorAll(`.slide[data-p="${p}"] svg`)]
+                 .reduce((n, g) => n + [...g.querySelectorAll('path')]
+                   .reduce((m, e) => m + (e.getAttribute('d') || '').length, 0), 0) };
     };
     const c = document.getElementById('labGl');
     const txt = [...document.querySelectorAll('.slide')].map(s => s.textContent.replace(/\s+/g, '').length);
@@ -1960,6 +1983,8 @@ mkdirSync(OUT, { recursive: true });
     }
     ok(u.posterOp.length >= 1 && u.posterOp.every(o => o === 1),
        `⑲c 无 WebGL · P${P} poster 没常驻（opacity=${u.posterOp}）`);
+    ok(u.posterInk >= 1,
+       `⑲c 无 WebGL · P${P} poster 是个空壳（${u.posterInk} 件）—— 挂空组只是骗闸门`);
     ok(u.ink >= 3, `⑲c 无 WebGL · P${P} 降级层只有 ${u.ink} 个几何件 —— 这一页降不下去`);
     ok(u.dlen + u.ink * 24 > 260,
        `⑲c 无 WebGL · P${P} 降级层墨量不足（path ${u.dlen} 字符 + ${u.ink} 件）`);
