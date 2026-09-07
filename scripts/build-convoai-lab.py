@@ -821,6 +821,32 @@ def swap_mark(x, y, col="var(--ink-3)", i=2, w=34, sty=None):
 #        → `.theme(峰值色, RMS色, op, rmsOp, uBack)` → 把速度写进 `_spd_of()`。
 #        **幅度剖面一律走 gain 回调，不写分支代码** —— P8 的 200ms 让位、
 #        P6 的过站收窄与由稀到密，全部只是一条 `gain` 回调（零 if 分支）。
+#   ⑨′（2026-09-07 波C 补的**前置条件** —— Colin 逐帧对比 convoai#10 与
+#      convoai-lab#10 之后的裁定：「2D 反而更清晰」）：
+#      **⑨ 的「介质 ⇒ 连续流带」只在「场」上成立；架构图上不成立。**
+#      先问这一页是哪一种，再问线上跑的是介质还是事件：
+#      ▸ **架构图**（页上有模块盒 + 连线：P10 产品大图 / P13 开放编排 / P14 接入架构）
+#        —— 线上的流一律是**帧 / 包**，而且就是**页上那几枚 `.mo-packet` 本人**：
+#        宽 stroke（9–13px）· 圆帽 · 低透明（.2–.4）· **每跳一枚** · 只在两盒之间的
+#        空档里跑 · 方向与箭头一致 · 到盒边前 14px 止。3D **一条都不要重画** ——
+#        重画一遍只会与 2D 那张图错开半档、糊成两层。
+#        3D 在这种页上只做一件事：**把盒变成有深度的实心板**（板不透明、永远在流之上）。
+#      ▸ **场**（没有模块盒的页：声场 / 声波 / 点云 / 星系 / 地形 / 缓存堆）
+#        —— 介质带（mkStream）留给它们，⑨ 的三条判据原样成立。
+#      判别只要一句话：**这条线的两端是不是「盒」？** 是 ⇒ 帧 / 包；不是 ⇒ 带。
+#      两处铁证（波C 之前的病灶，留档）：
+#        · P10 —— 四条介质车道 + 四道握手带横穿模块盒、盖过盒上的字；
+#          而 2D 那种「一段一段、有帧的感觉」把「一帧一帧过站」讲得更准。
+#        · P13 —— 贯通流为了不压字，得在「对话引擎 / 实时编排」两行标题上开
+#          ghost 窗口把自己收成细线。**「要靠开窗才不压字」就是这条带子
+#          放错了地方的铁证**，不是一个可以调参解决的手感问题。
+#      ⚑ 板的画法（P10 / P13 共用）：板面 = 不透明的 `--card-bg-2`（页上 .box 那块
+#        72% card-bg 的实心孪生）；描边 = **带**不是 `LineSegments`（WebGL 的线恒 1px，
+#        而页上是 1.4 / 2.5px，一换成板全图线重就轻一档）；圆角 rx、虚线 dasharray
+#        一起搬过来；**不画第二圈轮廓**（背向拉伸的后框比前框小 1.6%，读者看见的是
+#        两圈线而不是一块有厚度的板）。厚度交给「实心 + 分层明暗」，不交给第二条线。
+#        所有板面 / 描边都要 `side:DoubleSide` —— 投影锁把 y 取了负，三角形绕向整体
+#        反了，用默认的正面剔除这些面一枚都渲不出来（波C 初版实测 rgb(0,0,0)）。
 # ═══════════════════════════════════════════════════════════════════════════
 import math
 import re as _re2
@@ -1507,15 +1533,13 @@ LAB_CSS = """<style id="convoai-lab-3d">
   /* 波A：连续媒体流的第二层 —— 峰值淡壳之内那一芯 RMS（Audition 的波形是两层） */
   --u-rms:var(--accent-deep);  --u-rms-b:var(--ink);   --u-rms-op:.62;
   --u-add:0;
-  --m-face:var(--ink-2);       --m-face-op:.86;
-  --m-hot:var(--accent);
-  --m-shell:var(--ink-3);      --m-shell-op:.48;
-  --m-lane:var(--accent);      --m-lane-op:.60;
-  --m-beam:var(--accent-deep); --m-beam-op:.46;
-  --m-pkt:var(--accent);       --m-pkt-op:.92;  --m-pkt-size:6.5;
-  /* 波B 轻手术：车道与握手的连续流带（峰值淡壳 + RMS 实芯） */
-  --m-flow:var(--accent);      --m-flow-op:.34;
-  --m-flow-rms:var(--accent-deep); --m-flow-rms-op:.55;
+  /* 波C：板边就是页上那支笔 —— 色取 --hair / --accent，**alpha 在这里补**
+     （cssColor 只取 RGB）。--m-face-op 就是 --hair 的那一档 alpha 本人。 */
+  --m-face:var(--hair);        --m-face-op:.16;
+  --m-hot:var(--accent);       --m-hot-op:1;
+  /* 板面 = **不透明**的 card-bg-2（页上 .box 那块 72% card-bg 的实心孪生）——
+     板是实体，任何东西都不许从它身后透出来；车道 / 握手 / 流带 / 包全部退回 2D。 */
+  --m-plate:var(--card-bg-2);  --m-plate-op:1;
   --m-add:0;
   --q-heap:var(--accent);      --q-heap-op:.52; --q-heap-size:3.4;
   --q-hot:var(--accent-deep);
@@ -1540,11 +1564,15 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --k-wall:var(--ink-3);       --k-wall-op:.62;
   --k-hub:var(--accent);       --k-hub-op:.95;
   --k-bus:var(--accent);       --k-bus-op:.58;
-  --k-plate:var(--accent);     --k-plate-op:.80;
-  --k-pkt:var(--accent);       --k-pkt-op:.92;  --k-pkt-size:6.5;
-  --k-pill-op:.42;
+  --k-plate:var(--accent);     --k-plate-op:.90;
+  /* 波C·终审：发布槽 / 集体括号用**页上那支笔本人**（alpha 在这里补 —— cssColor 只取 RGB） */
+  --k-edge:var(--hair-strong); --k-edge-op:.30;
+  --k-brk:var(--accent);       --k-brk-op:1;
+  /* 波C：模块板的**板面** —— 页上那块 fill:var(--card-bg-2) 的实心板本人。
+     不填实，poster 一淡出板就变成一只空框，小巧思也就没有「坐在板上」这回事了。 */
+  --k-plate-fill:var(--card-bg-2); --k-plate-fill-op:1;
   /* 波B · 编排中枢机：内肋 / 呼吸核 / 异面环 / 发布脉冲 / 往返闭环 /
-     模块小巧思 / 候选机体 / 贯通流（不透明度是常数，与 swap 相位零耦合） */
+     模块小巧思 / 候选机体（波C：贯通流已退役，不透明度那条零耦合自证随之退役） */
   --k-rib:var(--ink-3);        --k-rib-op:.74;
   --k-core:var(--accent);      --k-core-op:.80; --k-core-size:3.4;
   --k-ring:var(--accent-deep); --k-ring-op:.58;
@@ -1552,8 +1580,6 @@ LAB_CSS = """<style id="convoai-lab-3d">
   --k-loop:var(--accent);      --k-loop-op:.52;
   --k-giz:var(--accent-deep);  --k-giz-op:.82; --k-giz-size:3.2;
   --k-cand:var(--ink-3);
-  --k-flow:var(--accent);      --k-flow-op:.26;
-  --k-flow-rms:var(--accent-deep); --k-flow-rms-op:.55;
   --k-add:0;
   --y-face:var(--ink-2);       --y-face-op:.86;
   --y-hot:var(--accent);       --y-hot-op:.95;
@@ -1697,14 +1723,11 @@ html[data-theme="dark"]{
   --u-pkt-op:1;                --u-pkt-size:8.2;
   --u-rms:var(--ink);          --u-rms-b:var(--ink);   --u-rms-op:.55;
   --u-add:1;
-  --m-face:var(--ink-2);       --m-face-op:.50;
-  --m-hot:var(--accent);
-  --m-shell:var(--ink-3);      --m-shell-op:.18;
-  --m-lane:var(--accent);      --m-lane-op:.52;
-  --m-beam:var(--accent-deep); --m-beam-op:.52;
-  --m-pkt:var(--ink);          --m-pkt-op:1;    --m-pkt-size:6.6;
-  --m-flow:var(--accent);      --m-flow-op:.32;
-  --m-flow-rms:var(--ink);     --m-flow-rms-op:.50;
+  --m-face:var(--hair);        --m-face-op:.14;   /* = 暗底 --hair 的 alpha */
+  --m-hot:var(--accent);       --m-hot-op:1;
+  /* 板面走**不透明**的 card-bg-2（暗底 #131320），与浅底同一条纪律。
+     ⚠ 板面是实心块，`--m-add` 那档加色混合只给描边用 —— 见 applyTheme 里的分道。 */
+  --m-plate:var(--card-bg-2);  --m-plate-op:1;
   --m-add:1;
   --q-heap:var(--accent);      --q-heap-op:.44; --q-heap-size:3.3;
   --q-hot:var(--ink);
@@ -1730,8 +1753,9 @@ html[data-theme="dark"]{
   --k-hub:var(--accent);       --k-hub-op:1;
   --k-bus:var(--accent);       --k-bus-op:.50;
   --k-plate:var(--ink);        --k-plate-op:.90;
-  --k-pkt:var(--ink);          --k-pkt-op:1;    --k-pkt-size:6.6;
-  --k-pill-op:.36;
+  --k-edge:var(--hair-strong); --k-edge-op:.28;
+  --k-brk:var(--accent);       --k-brk-op:1;
+  --k-plate-fill:var(--card-bg-2); --k-plate-fill-op:1;
   --k-rib:var(--ink-3);        --k-rib-op:.24;
   --k-core:var(--accent);      --k-core-op:.82; --k-core-size:3.4;
   --k-ring:var(--ink);         --k-ring-op:.52;
@@ -1739,8 +1763,6 @@ html[data-theme="dark"]{
   --k-loop:var(--accent);      --k-loop-op:.50;
   --k-giz:var(--ink);          --k-giz-op:.80; --k-giz-size:3.3;
   --k-cand:var(--ink-3);
-  --k-flow:var(--accent);      --k-flow-op:.24;
-  --k-flow-rms:var(--ink);     --k-flow-rms-op:.50;
   --k-add:1;
   --y-face:var(--ink-2);       --y-face-op:.50;
   --y-hot:var(--accent);       --y-hot-op:1;
@@ -2214,7 +2236,14 @@ _AS_EDGE, _AS_CREST, _AS_COMP = 0.055, 0.55, 0.55   # 接头渐隐 / 波峰增�
 # 2026-09-03 ⑥ 互动星系：P22 从「余韵星野」（**故意不进这张表** —— 涟漪不是介质）
 #   换成互动星系，20 股全部是 A 档介质（14 核↔内环 + 6 内环→外环 · λ232 · 110px/s）
 #   ⇒ 63 + 20 = **83 股**、13 + 1 = **14 页**。⑲s 那条「P22 不许进表」的断言随之反转。
-_SPD_N = 83
+# 2026-09-07 波C 退册（架构图上的流 = 帧 / 包，介质带只给「场」）：
+#   · P10 整页退出 —— 四条车道（上行 / 下行 / 底座去 / 底座回）+ 四道介质握手
+#     （实时编排⇄LLM / AEC 参考环 / 底座↔终端 / 底座↔中枢）共 **−8 股**，
+#     P10 从此不挂 data-lab-spd ⇒ **页数 14 → 13**；
+#   · P13 退一股 —— 贯通流（那条从 ASR 横穿到发布槽的 audioStream）**−1 股**；
+#     同页那八枚总线包**留在表里**（它们是页上 .mo-packet 本人的速度，一个数没动）。
+#   ⇒ 83 − 8 − 1 = **74 股**、14 − 1 = **13 页**。
+_SPD_N = 74
 _SPD_A = 110.0                  # A 档基准（px/s）
 _SPD_TOL = 0.30                 # ±30%：同一条河里允许的语义差异
 
@@ -2293,10 +2322,11 @@ _SPD_P6 = (110.0,                           # 主路（旧：296，12 枚球）
 _SPD_P8 = (110.0, 110.0)                    # 智能体轨 / 用户轨（= 波峰行进速度）
 _SPD_P9 = (110.0, 97.7, 118.0, 124.6)       # 三路噪声 / 目标人声（旧：50–69 vs 155–217）
 _SPD_P12 = (110.1,)                         # 画面平面（旧：77.5）
-_SPD_P13 = 108.0                            # 波B：P13 贯通流（一条走完全程）
 _SPD_P7 = 110.0                             # 波B：P7 地形整幅左移（A 档基准本人）
-_SPD_P10 = (110.0, 109.0, 112.0, 111.0,     # 波B：P10 四条车道
-            108.0, 113.0, 107.0, 114.0)     #       + 四道握手（介质 → 流带）
+# ── 波C 退册（2026-09-07）：P10 的四车道 + 四握手、P13 的贯通流一并退出 A 档表 ──
+#   退的不是速度，是**介质**本身：这两页是架构图（模块盒 + 连线），
+#   连线上跑的东西按「帧 / 包」画（页上的 .mo-packet），mkStream 只留给「场」。
+#   ⇒ _SPD_P10 / _SPD_P13 整枚删除（留着就是一张对不上实现的表）。
 _SPD_P18 = (110.0, 110.1)                   # 复利螺旋 / loop 环流
 _Y_BEAM = 400.0                             # B 档：P14 注光速度（离散事件，不进 A 档表）
 
@@ -2335,41 +2365,34 @@ _U_DUCK0 = 840                  # = _barge_fig() 里「侦测 | 收声」那道�
 #   0 上行带 / 1 中枢 / 2 下行带 / 3 SD-RTN 底座 / 4 客户控制面
 _M_ZL = [-30, -80, 30, -170, 80]
 _M_LOP = [1.0, 0.94, 1.0, 0.72, 0.82]
-_P10BOX = [                      # [x, y, w, h, 层, hot]
-    (260, 4, 1390, 62, 4, 0),      (150, 132, 190, 88, 0, 0),
-    (382, 132, 210, 88, 0, 0),     (634, 116, 430, 128, 0, 1),
-    (1106, 132, 180, 88, 0, 0),    (1328, 116, 340, 132, 1, 1),
-    (1328, 324, 340, 88, 1, 0),    (1106, 324, 180, 88, 2, 0),
-    (620, 324, 210, 88, 2, 0),     (850, 446, 300, 62, 2, 0),
-    (0, 566, 1668, 70, 3, 0),
+#   ── 波C 定案（2026-09-07 · Colin：「2D 反而更清晰」）────────────────────────
+#   新增的第 7 / 第 8 列（dash / rx）是**版式属性**，不是装饰：板要替代掉页上
+#   那一只盒，线型（虚线的两只：客户控制面 / 数字人）与圆角半径就得一起替代 ——
+#   否则 poster 一淡出，读者会看见「本来是虚线的盒变实了 / 圆角变方了」。
+#   rx 逐条抄自 _bigmap() 里那一行 box(...) 的 r 参数（6 / 8），SD-RTN 那只裸 rect 是 8。
+_P10BOX = [                      # [x, y, w, h, 层, hot, dash, rx]
+    (260, 4, 1390, 62, 4, 0, 1, 8),   (150, 132, 190, 88, 0, 0, 0, 6),
+    (382, 132, 210, 88, 0, 0, 0, 6),  (634, 116, 430, 128, 0, 1, 0, 8),
+    (1106, 132, 180, 88, 0, 0, 0, 6), (1328, 116, 340, 132, 1, 1, 0, 8),
+    (1328, 324, 340, 88, 1, 0, 0, 6), (1106, 324, 180, 88, 2, 0, 0, 6),
+    (620, 324, 210, 88, 2, 0, 0, 6),  (850, 446, 300, 62, 2, 0, 1, 6),
+    (0, 566, 1668, 70, 3, 0, 0, 8),
 ]
 _P10RING = [(70, 176, 38, 0), (70, 368, 38, 2)]
-#   ── 波B 轻手术（Colin：「P10 表意已满意」⇒ 只把流动感带进底版，不重构）──
-#   末位 med 是**逐条判**出来的，不是一刀切（接入指南 ⑨ 的判据）：
-#     med=1 介质 ——「这条线上跑的东西一直在来」⇒ 必须是流带（有厚度、会起伏、
-#            波峰自己往前走）：上行 / 下行 / 底座两条车道，
-#            实时编排⇄LLM / AEC 参考环 / 底座两道握手。
-#     med=0 离散事件 ——「有起点有终点、发生一次就结束」⇒ **保持粒子**：
-#            SOS·EOS 事件线、打断快路径、客户控制面。
-#   分层 / 投影锁 / **零位移**纪律一格不动（data-lab-drift 仍是 0，⑲h 复算）。
-_P10LANE = [                     # [x0, x1, y, 层, 周期, 包数, med]（周期照抄 _P8TU / _P8TD）
-    (110, 1328, 176, 0, 2.2, 8, 1), (1328, 108, 368, 2, 2.6, 7, 1),
-    (432, 1148, 601, 3, 3.4, 5, 1), (1148, 432, 601, 3, 3.8, 5, 1),
-    (70, 1498, 528, 0, 9.9, 0, 0),                  # 端到端 650ms 跨度线（无包，只是尺）
-]
-_P10BEAM = [                     # [x0,y0,层0, x1,y1,层1, 周期, 包数, med] —— 真的在深度里走
-    (1498, 248, 1, 1498, 324, 1, 1.2, 2, 1),        # 实时编排 ⇄ LLM        · 介质
-    (1030, 250, 0, 1420, 250, 1, 3.0, 3, 0),        # SOS / EOS · 打断事件  · 离散
-    (700, 248, 0, 700, 324, 2, 1.0, 3, 0),          # 打断快路径            · 离散
-    (560, 362, 2, 300, 222, 0, 2.2, 3, 1),          # AEC 参考环            · 介质
-    (70, 566, 3, 70, 214, 0, 2.8, 2, 1),            # 底座 ↔ 终端           · 介质
-    (1498, 566, 3, 1498, 412, 1, 3.0, 2, 1),        # 底座 ↔ 中枢           · 介质
-    (1498, 66, 4, 1498, 116, 1, 2.0, 2, 0),         # 客户控制面 → 编排     · 离散
-]
-_M_MEDL = [i for i, r in enumerate(_P10LANE) if r[6]]     # 介质车道
-_M_MEDB = [i for i, r in enumerate(_P10BEAM) if r[8]]     # 介质握手
-_M_FLOWW = 5.0                                            # 流带基准半宽
-_M_DZ, _M_BEAT = 26, 3.4
+#   ── 波C 手术：**流整枚退回 2D**（架构图上的流 = 帧 / 包，见文件头「接入指南 ⑨」）──
+#   诊断（Colin 逐帧对比 convoai#10 与 convoai-lab#10）：2D 反而更清晰。
+#   病根是**介质带用错了地方** —— 连续流带（mkStream）横穿模块盒、盖过标注，
+#   而 2D 那种「一段一段、有帧的感觉」的 .mo-packet 恰恰讲得更准。
+#   定案：架构图（模块 + 连线）上的流一律是页上的 .mo-packet；介质带只留给
+#   「场」（声场 / 声波 / 点云 / 星系这类没有模块盒的页）。
+#   ⇒ _P10LANE / _P10BEAM / _M_MEDL / _M_MEDB / _M_FLOWW / _SPD_P10 整批删除：
+#     车道、层间束、四条流带、三道离散事件粒子，画布一条都不画了。
+#     P10 的画布从此只有 **实心板 + 环 + 分层深度**；线 / 包 / 箭头 / 图标 /
+#     虚线全部是页上那张 2D 原图本人（见 _bigmap() 的 _lppick 分组）。
+# 波C·终审：`_M_BEAT` 退役 —— hot 描边不再呼吸（alpha 恒 1 = accent 本色）。
+#   「AI-VAD 在呼吸」由页上那枚 `.mo-halo` 承担（它留在可见层，一格没丢）。
+_M_DASH = (7.0, 6.0)             # 虚线板的 dasharray（= 页上 box(dashed=True) 的 "7 6"）
+_M_SW = (1.4, 2.5)               # 描边宽（= 页上 box() 的 stroke-width：普通 / hot）
 # ── P11 弱网 AI QoS ───────────────────────────────────────────────────────
 _P11HEAPTOP = "M114 182 L526 182 L690 224 L764 182 L1020 182"   # = 页上蓄水折线的上沿
 _P11BIN = (110, 176, 914, 56)
@@ -2443,17 +2466,29 @@ _K_SWA, _K_SWB = (0.0, 0.58), (0.42, 1.0)   # 一进一出**错峰**（退场 / 
 _K_LOOP_OFF = 8.0                       # 两条往返闭环分居总线 ±8px（去一条、回一条）
 _K_ZSLOT, _K_ZHUB, _K_ZBUS = -20, -80, 0
 _P13PILL = (620, 400, 440, 60)          # 实时调试 → 一键发布
+_K_PILLR = 30                           # 发布槽的圆角（= 页上那枚 rect 的 rx —— 一枚药丸）
+_K_HUBR, _K_HUBSW = 16, 2.5             # 中枢盒的圆角 / 描边宽（= 页上 box(...,16,hot=True) 本人）
+_K_PILLSW, _K_BRKSW = 1.4, 2.0          # 发布槽 / 集体括号的描边宽（= 页上那两支笔本人）
 _P13BRK = [(60, 472, 440, 472), (60, 460, 60, 472), (440, 460, 440, 472)]   # 四槽集体括号
-_P13BUS = [(440, _y + 34, 540, _y + 34) for _y in (60, 168, 276, 384)] \
-        + [(540, 94, 540, 418), (540, 260, 618, 260)] \
-        + [(1240, _y + 34, 1140, _y + 34) for _y in (168, 296)] \
-        + [(1140, 202, 1140, 330), (1140, 260, 1074, 260),
-           (840, 348, 840, 398)]
+#   ── 波C（2026-09-07）：总线与包**整枚退回 2D** ────────────────────────────
+#   左四联 / 右两联 / 引擎→实时调试那几条线，页上本来就有（hline / vline / dline
+#   + 八枚 .mo-packet + 箭头）。3D 再画一遍，只会与 2D 那张图错开半档、糊成一片。
+#   ⇒ _P13BUS 整枚删除（画布不画总线），_P13RUN 留下来**只当页上八枚包的速度名册**
+#     （A 档表要逐股复算它们的 px/s —— 名册与页上的 packet() 调用逐条同源）。
 _P13RUN = [(440, _y + 34, 540, _y + 34, 1.06, 1) for _y in (60, 168, 276, 384)] \
         + [(540, 260, 618, 260, 0.84, 1),
            (1240, 202, 1140, 202, 1.06, 1), (1240, 330, 1140, 330, 1.06, 1),
            (1140, 260, 1074, 260, 0.70, 1)]
-# ── 贯通流（波B）：语音 → ASR → 左总线 → 中枢 → 发布槽 ────────────────────
+# ── 贯通流（波B）→ **波C 整枚删除**（2026-09-07）────────────────────────────
+#   删的理由与 P10 同一条：本页也是**架构图**（六只模块盒 + 中枢 + 连线）。
+#   一条 mkStream 从 ASR 横穿到发布槽，必然要穿过模块板、穿过「对话引擎 /
+#   实时编排」两行标题（所以才要 _P13GHOST 那四扇让位窗口去把它收细）——
+#   「要靠开窗才不压字」本身就是这条带子放错了地方的证据。
+#   页上八枚 .mo-packet 讲的是同一件事，而且逐帧、逐段、有方向、不压字。
+#   ⇒ _P13FLOW / _K_FLOW* / _K_GZF / _SPD_P13 / _k_flow_lam / _k_flow_edge 全删；
+#     _P13INK（转子净空的墨迹盒）改为**直接声明**，不再借 ghost 窗口的壳。
+#   下面这段是删除前的原始判断，留档不删 —— 它记的是「为什么当初要这条流」：
+#
 #   一条 audioStream 走完全程（lab-kit ⑨）。它是**介质**（语音一直在来），
 #   所以是一条有厚度、会起伏、波峰自己往前走的带子，不是一串包。
 #
@@ -2472,20 +2507,12 @@ _P13RUN = [(440, _y + 34, 540, _y + 34, 1.06, 1) for _y in (60, 168, 276, 384)] 
 #      **每一段里都装得下一个半波峰**，否则静帧上只剩一坨鼓包。
 #      让位档（ghost）反过来抬一档 .055 → .075：宽 8 × .075 = 宽 11 × .055，
 #      细线的**绝对**粗细一格没变（「流不断」是纪律，不是这一页的手感）。
-_P13FLOW = [(-40, 94), (540, 94), (540, 260), (840, 260), (840, 430), (1060, 430)]
-_K_FLOWW, _K_FLOWFLOOR = 8.0, 0.12     # 本页覆写：基准半宽 / 幅度地板
-_K_FLOWGHOST = 0.075                   # 本页覆写：让位档（带子瘦了，细线不能跟着瘦没）
-_K_FLOWN = 12                          # 全长上的呼吸次数 ⇒ λ = 全长 ÷ 12
-_K_FLOWFADE = 22.0                     # 两端渐隐收口的弧长（px）
-#   穿模块、穿字段的那几段走 **aG ghost**（剖面收成细线）⇒ 流不断，字读得清。
-#   这几只框逐条对着页上的墨迹取：ASR 模块板 / 中枢两行字 / 发布槽那行字。
-_P13GHOST = [(74, 72, 352, 44),        # ASR 模块板（不透明，流从它「背后」过）
-             (795, 274, 90, 28),       # 中枢「实时编排」
-             (760, 226, 160, 40),      # 中枢「对话引擎」
-             (716, 414, 248, 30)]      # 发布槽「实时调试 → 一键发布」
-#   转子净空断言用的墨迹盒 = ghost 窗口那两只中枢字盒**本人**（同一份真相，不另立一套）
-_P13INK = [_P13GHOST[2], _P13GHOST[1]]
-_K_GZF = 26.0                          # ghost 窗口的渐隐半宽（px 弧长 · smootherstep）
+#   ── 以上留档到此。波C 之后本页画布**没有任何一条 mkStream** ──────────────
+#   转子净空断言用的两只墨迹盒：中枢「对话引擎」/「实时编排」两行字本人。
+#   （波B 里它们是从 ghost 窗口表里借的第 3 / 第 2 只；ghost 窗口随贯通流一起
+#     删掉了，这里改成直接声明 —— 数字一格没动，来源仍是页上那两行字的墨迹。）
+_P13INK = [(760, 226, 160, 40),        # 中枢「对话引擎」（txt 840,250 · size36 · middle）
+           (795, 274, 90, 28)]         # 中枢「实时编排」（txt 840,296 · size21 · middle）
 #   两条往返闭环：中枢 ⇄ LLM（行 y202）/ 中枢 ⇄ TTS（行 y310）。
 #   去一条走总线**左** 8px、回一条走总线**右** 8px ⇒ 「往返」在图上分得开。
 _K_BUSX = 540
@@ -2497,20 +2524,6 @@ _P13LOOP = [[(620, 255), (_K_BUSX - 8, 255), (_K_BUSX - 8, _y - 5), (444, _y - 5
 #   整条注光路径竖着劈过两行字（终审硬伤一的第二处）。改到 y336：投影后落在 y331，
 #   在「实时编排」墨迹盒下缘（302）之外 29px，且正好贴着转子外圈的下缘出发。
 _P13PUB = [(840, 336), (840, 348), (840, 398)]
-
-
-def _k_flow_lam():
-    """贯通流的波长：**全长 ÷ _K_FLOWN 次呼吸**（本页覆写 —— lab-kit ⑨ 的
-       _AS_LAM 一个字没动，别的七页照旧吃 232px 那一档）"""
-    return _plen(_P13FLOW) / _K_FLOWN
-
-
-def _k_flow_edge():
-    """两端渐隐收口占全长的比例（_K_FLOWFADE px ÷ 全长）。
-       左端的几何还在画外 40px 处 ⇒ 淡入在**版心左缘之外**就收满：
-       版心边上是一条满幅的带子被画框切住（画外还在继续），不是一个淡出的头。
-       右端反过来 —— 落在发布槽右缘上的是一记真正的收口。"""
-    return _K_FLOWFADE / _plen(_P13FLOW)
 
 
 # ── 转子净空的**构建期**断言（终审硬伤一的硬指标）────────────────────────────
@@ -3506,26 +3519,18 @@ def _spd_rows(p):
     if p == 7:
         # 波B：地形整幅左移（A 档基准本人）—— 一趟 980 ÷ 110 = 8.91s
         return [("地形整幅", _T_X1 - _T_X0, _SPD_P7)]
-    if p == 10:
-        # 波B：四条车道 + 四道握手（介质 → 流带）。长度取**页上**的像素路径长。
-        rows, k = [], 0
-        for i in _M_MEDL:
-            r = _P10LANE[i]
-            rows.append(("车道%d" % (k + 1), abs(r[1] - r[0]), _SPD_P10[k])); k += 1
-        for i in _M_MEDB:
-            r = _P10BEAM[i]
-            rows.append(("握手%d" % (k - 3), math.hypot(r[3] - r[0], r[4] - r[1]),
-                         _SPD_P10[k])); k += 1
-        return rows
+    # p == 10：**波C 退册** —— 大图上一条 mkStream 都没有了（架构图的流走 .mo-packet），
+    #   所以 P10 整页退出 A 档表：`_spd_attr(10)` 因此不挂 data-lab-spd，
+    #   ⑲s 的页数从 14 掉到 13、股数从 83 掉到 74（P10 −8、P13 −1）。
     if p == 12:
         m, hub = _W_MOUTH, _P12BOX[0]
         L = math.hypot((hub[0] + hub[2] / 2.0) - (m[0] + m[2] / 2.0),
                        (hub[1] + hub[3] / 2.0) - (m[1] + m[3] / 2.0))
         return [("画面平面", L, _SPD_P12[0])]
     if p == 13:
-        # 波B：新增**贯通流**（一条 audioStream 走完全程）—— 它是本页唯一的介质，
-        # 必须进 A 档表。九股总线包本来就在档内（92.9–94.3），一个数没动。
-        out = [("贯通流", _plen(_P13FLOW), _SPD_P13)]
+        # 波C：**贯通流退册**（它是介质带，而本页是架构图 ⇒ 流走页上的 .mo-packet）。
+        # 剩下的八股是页上八枚包本人的速度（92.9–94.3，本来就在档内，一个数没动）。
+        out = []
         for k, r in enumerate(_P13RUN):
             L = math.hypot(r[2] - r[0], r[3] - r[1])
             out.append(("总线包%d" % (k + 1), L, L / r[4]))
@@ -3649,10 +3654,13 @@ def lab_data(p):
               ("hs", ",".join(str(v) for v in _P9HS)), ("bar", "170,17")]
     elif p == 10:
         a += [("layers", len(_M_ZL)), ("boxes", len(_P10BOX)), ("zl", ",".join(str(z) for z in _M_ZL)),
-              ("lanes", len(_P10LANE)), ("beams", len(_P10BEAM)),
-              # 波B 轻手术：介质（→ 流带）与离散事件（保持粒子）各几条 —— 逐条判的结果
-              ("med", "%d,%d" % (len(_M_MEDL), len(_M_MEDB))),
-              ("evt", len([r for r in _P10BEAM if not r[8]])),
+              # 波C：车道 / 层间束 / 流带 / 粒子全部退回 2D ⇒ 画布上「会动的件」= 0。
+              #   这三个 0 是**正面声明**，不是缺省：⑲h / ⑲p10 拿它们反过来断言
+              #   「大图的画布只剩板 + 环 + 分层深度」。
+              ("lanes", 0), ("beams", 0), ("med", "0,0"), ("evt", 0),
+              # 实心板 / 虚线板各几只（页上 box(dashed=True) 的那两只必须也是虚线板）
+              ("plates", len([r for r in _P10BOX if not r[5]])),
+              ("dashed", len([r for r in _P10BOX if r[6]])),
               ("drift", 0)]      # 相机不动、层不做视差位移（可读性红线：0 就是 0）
     elif p == 11:
         a += [("dark", "%d,%d" % _WN_DARK), ("loss", "%d,%d" % _WN_LOSS),
@@ -3673,15 +3681,9 @@ def lab_data(p):
               ("ink", ";".join("%d,%d,%d,%d" % b for b in _P13INK)),
               ("orb", ";".join("%s,%s,%s" % tuple(_n(v) for v in o) for o in _K_ORB)),
               ("clr", _n(_K_CLR)), ("clr-min", _f1(_K_CLR_MIN)),
-              # 终审硬伤二：贯通流的落点（页坐标）与发布槽右缘 —— ⑲p13 逐条复算
-              ("flow-end", "%d,%d" % (LAB_RECTS[13][1] + _P13FLOW[-1][0],
-                                      LAB_RECTS[13][2] + _P13FLOW[-1][1])),
-              ("flow-sink", "%d" % (LAB_RECTS[13][1] + _P13PILL[0] + _P13PILL[2])),
-              ("flow-amp", "%s,%s,%s,%s" % (_n(_K_FLOWW), _n(_K_FLOWFLOOR),
-                                            _n(_K_FLOWGHOST), _f1(_k_flow_lam()))),
-              ("flow-len", _n(_plen(_P13FLOW))),
-              ("gz", ";".join("%s,%s" % (_f1(g[0]), _f1(g[1]))
-                              for g in (_box_u(_P13FLOW, b) for b in _P13GHOST) if g)),
+              # 波C：贯通流与总线整枚退回 2D ⇒ 画布上的流带 / 总线 / 包都是 0。
+              #   同 P10，这三个 0 是正面声明（⑲h / ⑲p13 反过来断言画布只剩机器本身）。
+              ("flows", 0), ("bus", 0), ("pkts", 0),
               ("loops", len(_P13LOOP)), ("loop-off", _n(_K_LOOP_OFF)),
               ("busx", _K_BUSX),
               ("swz", _n(_K_SWZ)),
@@ -3847,6 +3849,39 @@ def _lpsplit(items, keep=()):
     return "".join(out)
 
 
+def _lppick(items, want):
+    """poster 层的**点名式**分组（波C 新增 · P10 / P13 两张架构图专用）。
+
+       `_lpsplit` 的判据是「没有字就收进 poster」—— 对**场**页是对的（整张图都由
+       canvas 接管），但对**架构图**是错的：线 / 包 / 箭头 / 图标 / 虚线一起被收进去
+       淡出，然后由 3D 用连续流带重画一遍，于是 2D 那种「一段一段、有帧」的读法
+       全没了，还多出一条横穿模块盒的带子。波C 的裁定（见文件头「接入指南 ⑨」）：
+       **架构图上的流一律是页上的 .mo-packet，介质带只给「场」用。**
+
+       所以这一把刀反过来切：只有 `want` 点到的片段（= 3D 真的用板 / 环替代掉的
+       那几只盒）进 `<g class="lab-poster">`；其余**一律不裹**。不裹 = 不在任何
+       poster 组里 = `.lab-stage.gl-up ~ .pp .lab-poster{opacity:0}` 选不到它，
+       3D 起来它照常在位 —— 不需要为「留下来的那一半」另立一个 .lab-keep 类。
+       want 用**片段字符串本人**点名（每一枚的坐标都不同，天然唯一）。
+
+       顺序一个不换 ⇒ DOM 文本序列与几何 token 序列与引擎母本仍逐条相同
+       （build() 末尾的 _txt / _geom 两条自证照跑）。"""
+    for it in want:                       # 点名册按字符串认件 ⇒ 必须真的一一对应
+        assert items.count(it) == 1, \
+            "_lppick 点名册歧义：这一枚片段在页上出现了 %d 次（%s…）" % (items.count(it), it[:60])
+    out, buf = [], []
+    for it in items:
+        if it in want:
+            buf.append(it)
+        else:
+            if buf:
+                out.append(lp(*buf)); buf = []
+            out.append(it)
+    if buf:
+        out.append(lp(*buf))
+    return "".join(out)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # 版式分歧名册（波B 新增 · **一处不多一处不少**）
 # ───────────────────────────────────────────────────────────────────────────
@@ -3862,11 +3897,15 @@ _DIVERGE = [
     (18, "geom",   "波A：双轴坐标**左移 80px**（终审「两张图偏挤」）+ 补回「真人销冠」基准虚线"),
     (18, "stage",  "波A：lab-stage 从 1240 扩到 1680 —— 舞台横跨两图（扩的是「区域」，字一格没动）"),
     (2,  "geom",   "波B：四卡四角 → 底排四栏（决策环 → 模态转换剧场；文案零改动、发射顺序对齐母本）"),
-    (13, "poster", "波B：_slot() 改分件方式 ⇒ 模块板从 canvas 之上收进 lab-poster 组"
-                   "（DOM 坐标一格没动，只是分组）"),
+    (13, "poster", "波B：_slot() 改分件方式 ⇒ 模块板从 canvas 之上收进 lab-poster 组；"
+                   "波C：改点名式分组（_lppick）—— 只有六只槽框 / 六块模块板 / 中枢盒 / "
+                   "发布槽 / 集体括号进 poster，总线 · 包 · ⇄ · 光晕全部留在可见层"),
     (3,  "geom",   "表达力精进 ④：三张时序小图提亮加粗 —— 半双工三轮×24 → 两轮×44、"
                    "方向通道 2.5px 线 → 半宽 4.5 的带、重叠区与闸跟着入册"
                    "（图窗 135 / 卡高 386 / 其后所有 y 一格没动）"),
+    (10, "poster", "波C：大图改点名式分组（_lppick）—— 只有十一只盒 + 两枚环进 poster"
+                   "（它们被 3D 的实心板 / 环替代），线 · 包 · 箭头 · 图标 · 虚线 · 图例"
+                   "留在可见层 ⇒ 与 convoai#10 那张 2D 原图逐像素同读法"),
 ]
 
 
@@ -5848,6 +5887,55 @@ function ptsGeo(pts){                         // 一批点 → Points
 function rectPts(x, y, w, h, z, L){           // 页上一只矩形的四角（闭合 · 投影锁）
   return [L(x,y,z), L(x+w,y,z), L(x+w,y+h,z), L(x,y+h,z), L(x,y,z)];
 }
+/* 圆角矩形 → **页坐标**闭合折线（波C 新增 · 与 <rect rx> 同源）。
+   起手 (x+r, y)、顺时针 —— 与 SVG 画 <rect rx> 的起点 / 走向一致，
+   所以圆角的落点、虚线 dasharray 的相位都与页上那只盒逐段对得上。
+   返回的是页坐标（还没过投影锁）：描边要在页坐标里沿法线挤出带宽，
+   虚线也要在页坐标里按弧长切 —— 两件事都必须发生在锁之前。 */
+/* 一条**页坐标**闭合折线 → 宽 2·hw 的三角带（波C·终审新增 · P10 / P13 共用）。
+   为什么不用 `LineSegments`：**WebGL 的线恒 1px**，而页上的描边是 1.4 / 2.5px ——
+   板一顶上来，全图的线重就轻一档，并排一眼读成「LAB 版更灰」
+   （Colin 终审：「这轮要的就是清晰，描边亮度不能让」）。
+   挤出在**投影锁之前**发生 ⇒ 屏上的宽度就是页上的 stroke-width；
+   dash 也在页坐标里按弧长切，虚线的节奏因此与页上那只盒逐段对得上。
+   返回 [[p0,p1,p2,p3], …]（每枚四点，已过锁）。 */
+function ribQuads(P, z, hw, L, dash){
+  const out = [];
+  let ph = 0;
+  for(let i = 0; i < P.length - 1; i++){
+    const a = P[i], b = P[i+1];
+    const seg = Math.hypot(b[0]-a[0], b[1]-a[1]);
+    if(seg < 1e-9) continue;
+    const nx = -(b[1]-a[1])/seg*hw, ny = (b[0]-a[0])/seg*hw;
+    let u = 0;
+    while(u < seg - 1e-9){
+      let v = seg, on = true;
+      if(dash){
+        const cyc = dash[0] + dash[1], rr = ph % cyc;
+        on = rr < dash[0];
+        v = Math.min(seg, u + (on ? dash[0] - rr : cyc - rr));
+      }
+      if(on && v > u){
+        const q = (t) => [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t];
+        const p0 = q(u/seg), p1 = q(v/seg);
+        out.push([L(p0[0]-nx, p0[1]-ny, z), L(p1[0]-nx, p1[1]-ny, z),
+                  L(p1[0]+nx, p1[1]+ny, z), L(p0[0]+nx, p0[1]+ny, z)]);
+      }
+      ph += v - u; u = v;
+    }
+  }
+  return out;
+}
+function rrLoop(x, y, w, h, r){
+  const R = Math.max(0, Math.min(r, w/2, h/2)), P = [[x+R, y]];
+  const cs = [[x+w-R, y+R, -Math.PI/2], [x+w-R, y+h-R, 0],
+              [x+R, y+h-R, Math.PI/2], [x+R, y+R, Math.PI]];
+  const n = Math.max(2, Math.ceil(R/1.6));
+  cs.forEach((c) => { for(let i = 0; i <= n; i++){
+    const a = c[2] + i/n*(Math.PI/2);
+    P.push([c[0] + Math.cos(a)*R, c[1] + Math.sin(a)*R]); } });
+  return P;
+}
 /* 实心面：页上有些「形」是**填实**的（P3 那三张小图里「谁在说」就是一块实心带）——
    只画线框会把语义讲弱一档。两枚三角 + PX_LN 那对着色器（它只输出平色，网格照用）。 */
 function quadGeo(p){
@@ -6970,143 +7058,174 @@ function makeCutin(ctx){
    所以这一枚场景的第一条纪律不是「立体」，是「**一格不许挪**」：
      · 每一只盒的**前面**走投影锁 ⇒ 与它替换掉的那只 SVG 盒逐像素重合，
        盒上的名字、盒边的角标、车道上的注，全部照旧对得上；
-     · 立体感只从三处来 —— ① 五个带各在自己的深度（上行 / 中枢 / 下行 / 底座 /
-       客户控制面），深度雾把它们分开；② 盒沿 −z 背向拉伸，看得见侧壁；
-       ③ 层与层之间的连线**真的在深度里走**（编排↔LLM、SOS/EOS、打断快路径、
-       底座 ↔ 车道），包沿线穿行时近大远小。
      · **相机不动、层不做视差位移** —— 微视差每移一个像素，就有一处标注开始指空。
        可读性第一：这一页的 3D 是「同一张图有了厚度」，不是「同一张图动起来了」。
-   大图几何一格未动：盒表 / 车道 y / 包相位全部读页上那几张常量表。
+
+   ── 波C 手术（2026-09-07 · Colin 逐帧对比 convoai#10 vs convoai-lab#10）───────
+   诊断一句话：**2D 反而更清晰**。病根不是渲染质量，是「流的语法用错了地方」——
+   波B 把上行 / 下行 / 底座 / 握手换成了连续介质带（mkStream），于是：
+     ① 带子有厚度、会起伏，横穿模块盒、盖过盒上的字；
+     ② 一条连续的带子讲的是「一直在流」，而这张图要讲的是「一帧一帧地过站」——
+        2D 那种一段一段、有帧的 .mo-packet 恰恰讲得更准；
+     ③ 三条离散事件（SOS·EOS / 打断快路径 / 客户控制面）在 3D 里是粒子 / 光束，
+        与页上的虚线 / 紫色快路径重叠成双影。
+   裁定（写进文件头「接入指南 ⑨」）：**架构图（模块 + 连线）上的流一律用「帧 / 包」
+   —— 就是页上那 11 枚 .mo-packet 本人；介质带（mkStream）只留给「场」**
+   （声场 / 声波 / 点云 / 星系这类没有模块盒的页）。
+
+   所以这一枚场景现在只剩三样东西，**一条会动的流都没有**：
+     · **实心板** —— 十一只盒各在自己的层深上。板面是不透明的 card-bg-2
+       （页上 .box 那块 72% card-bg 的实心孪生）：板是实体，任何东西都不许从
+       它身后透出来。hot 的两只（AI-VAD / 实时编排）在页上是 fill:none ⇒ 不填。
+     · **两枚环**（MIC / SPK）—— 只替代那两个**圆**；圆里的麦克风 / 喇叭**图标字形
+       留在 SVG 里不淡出**（波B 时它跟着圆一起被裹进 poster，于是 LAB 上两只圆是空的）。
+     · **分层深度** —— 五个带各在自己的 z 上（上行 / 中枢 / 下行 / 底座 / 客户控制面），
+       深度雾 + 逐层 lop 把它们分开。这是本页 3D 唯一剩下的表达，也够了。
+
+   ⚑ 板边为什么不是 `LineSegments`：WebGL 的线**恒 1px**，而页上那只盒的描边是
+     1.4px（普通）/ 2.5px（hot）。一换成板，全图的线重就轻了一档 —— 这正是
+     「2D 反而更清晰」的一个分量。所以描边走**带**：在页坐标里把圆角矩形离散成
+     闭合折线，沿法线 ±半宽挤出三角带，再逐点过投影锁 ⇒ 屏上的宽度就是页上的
+     stroke-width，圆角半径 rx、虚线 dasharray「7 6」也一起搬过来（起手点与走向
+     都对着 SVG <rect rx> 的顺时针取，所以虚线的相位与页上那只盒对得上）。
+   ⚑ 板边**不画第二圈线**：波B 的 boxBody 连「后框」也画（比前框小 1.6%），
+     读者看见的是两圈线而不是一块有厚度的板 —— 波C 一并去掉。厚度交给
+     「实心 + 分层明暗」，不交给第二条轮廓。
+   ⚑ 所有板面 / 描边都是**双面**（side:DoubleSide）：投影锁把 y 取了负
+     （mkLock 的 `-(cy + …)`），三角形的绕向因此整体反了 —— 用默认的正面剔除，
+     这些面一枚都渲不出来（波C 初版踩过：板面全黑，实测 rgb(0,0,0)）。
    ═══════════════════════════════════════════════════════════════════════════ */
 function makeBigmap(ctx){
   const Q = K.m, w = ctx.rect[2], h = ctx.rect[3], D = 1600;
   const scene = new THREE.Scene(), camera = camPx(w, h, D);
   const SH = pxShared(D, 230), L = mkLock(w, h, D);
-  const faceM = [], shellM = [];
-  const face = [[], [], [], [], []], shell = [[], [], [], [], []];
-  Q.box.forEach((b) => {                       // b = [x,y,w,h,层,hot]
-    const z = Q.zl[b[4]];
-    const bb = boxBody(b[0], b[1], b[2], b[3], z, Q.dz, L);
-    face[b[4]].push.apply(face[b[4]], bb.front);
-    shell[b[4]].push.apply(shell[b[4]], bb.shell);
-  });
-  Q.ring.forEach((c) => {                      // MIC / SPK 两枚环
-    const z = Q.zl[c[3]], acc = [];
-    for(let i = 0; i < 36; i++){
-      const a0 = i / 36 * TAU, a1 = (i + 1) / 36 * TAU;
-      const p0 = L(c[0] + Math.cos(a0)*c[2], c[1] + Math.sin(a0)*c[2], z);
-      const p1 = L(c[0] + Math.cos(a1)*c[2], c[1] + Math.sin(a1)*c[2], z);
-      acc.push([p0[0],p0[1],p0[2], p1[0],p1[1],p1[2]]);
+  /* 五层按**真实深度**排一次名次 ⇒ renderOrder = 名次×3 + 层内档位（板面 → 描边）。
+     板面是实心块，画序一旦乱，远处那块板就会盖住近处那块（depthWrite:false，
+     透明件靠画序定前后）。名次由 z 决定，不由层号决定 —— 层号是语义编号。 */
+  const RANK = (() => {
+    const ix = Q.zl.map((z, i) => [z, i]).sort((a, b) => a[0] - b[0]);
+    const r = []; ix.forEach((p, k) => { r[p[1]] = k; }); return r;
+  })();
+  // 每层三组三角：板面 / 普通描边 / hot 描边（hot 只出现在层 0 与层 1）
+  const G3 = [[], [], []];                        // G3[kind][layer] = {pos, idx}
+  for(let k = 0; k < 3; k++) for(let l = 0; l < 5; l++) G3[k].push({ p:[], i:[] });
+  function addQuad(k, l, p){
+    const g = G3[k][l], b0 = g.p.length;
+    for(let i = 0; i < 4; i++) g.p.push(p[i]);
+    g.i.push(b0, b0+1, b0+2, b0, b0+2, b0+3);
+  }
+  let NFILL = 0;                                  // 填实了几件（九只非 hot 盒 + 两枚圆）
+  function addFan(k, l, c, ring){
+    const g = G3[k][l], b0 = g.p.length;
+    g.p.push(c); ring.forEach(q => g.p.push(q));
+    for(let i = 0; i < ring.length - 1; i++) g.i.push(b0, b0+1+i, b0+2+i);
+    NFILL++;
+  }
+  function circPts(cx, cy, r){
+    const P = [], n = 96;
+    for(let i = 0; i <= n; i++){ const a = i/n*TAU;
+      P.push([cx + Math.cos(a)*r, cy + Math.sin(a)*r]); }
+    return P;
+  }
+  const stroke = (k, l, P, z, hw, dash) =>
+    ribQuads(P, z, hw, L, dash).forEach(q => addQuad(k, l, q));
+  Q.box.forEach((b) => {                       // b = [x,y,w,h,层,hot,dash,rx]
+    const l = b[4], z = Q.zl[l], P = rrLoop(b[0], b[1], b[2], b[3], b[7]);
+    if(!b[5]){                                 // hot 的两只在页上是 fill:none
+      addFan(0, l, L(b[0] + b[2]/2, b[1] + b[3]/2, z), P.map(q => L(q[0], q[1], z)));
     }
-    face[c[3]].push.apply(face[c[3]], acc);
+    stroke(b[5] ? 2 : 1, l, P, z, Q.sw[b[5] ? 1 : 0] / 2, b[6] ? Q.dash : null);
   });
-  for(let l = 0; l < 5; l++){
-    [[face[l], faceM], [shell[l], shellM]].forEach(([segs, bag]) => {
-      if(!segs.length) { bag.push(null); return; }
-      const g = segGeo(segs); fillAH(g, 1, 0);
-      const m = mkMat(SH, PX_LN_VS, PX_LN_FS);
-      bag.push(m);
-      scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
+  Q.ring.forEach((c) => {                      // MIC / SPK 两枚圆（图标字形留在 SVG 里）
+    const l = c[3], z = Q.zl[l], P = circPts(c[0], c[1], c[2]);
+    addFan(0, l, L(c[0], c[1], z), P.map(q => L(q[0], q[1], z)));
+    stroke(1, l, P, z, Q.sw[0] / 2, null);
+  });
+  /* ── 波C·终审（Colin：「这轮要的就是清晰，描边亮度不能让」）────────────────
+     病灶：描边把「雾 × 逐层 lop」整档吃了下去 —— 实测暗底 hot 边 (176,152,207)，
+     只有 2D 那支笔 (212,183,249) 的 **79%**，并排一眼读成「LAB 版更灰」。
+     3D 在这一页的意义是「同一张图有了厚度」，不是「同一张图暗了一档」。
+     修法 = **顶层豁免**（不是取消明暗）：
+       · 逐层衰减在 CPU 上先算一次（与着色器里那条 `mix(uBack,1,vFade)·lop` 逐字同式），
+         按**最亮的那一层**归一，再压进 [DECAY_FLOOR, 1] 这一档 ⇒
+         最亮的一层与 2D 同亮，其余各层保留相对次序（明暗还在，差在 10% 以内）；
+       · 算完把描边材质的 uBack 设成 **1** —— 着色器里的雾因此恒 1，
+         衰减只发生一次，不会被再乘一遍；
+       · **hot 描边整枚豁免**：AI-VAD / 实时编排是全图的两处重点，
+         它们的边就是 accent **本色**（alpha 1），一格不减。
+     板面填充与分层明暗**不动**（板面本来就 uBack=1、不吃雾）。 */
+  const DECAY_FLOOR = 0.90;
+  const LDK = (() => {
+    const nz = SH.uNear.value, fz = SH.uFar.value;
+    const raw = Q.zl.map((z, l) => {
+      const vf = Math.min(1, Math.max(0, (fz - (D - z)) / (fz - nz)));
+      return (0.70 + 0.30 * vf) * Q.lop[l];        // = 旧的 mix(uBack .70, 1, vFade) × lop
     });
+    const hi = Math.max.apply(null, raw), lo = Math.min.apply(null, raw) / hi;
+    return raw.map(v => DECAY_FLOOR + (1 - DECAY_FLOOR) * ((v / hi) - lo) / (1 - lo));
+  })();
+  const plateMat = mkMat(SH, PX_LN_VS, PX_LN_FS);   // 板面（实心 · 不吃深度雾）
+  const faceM = [], hotM = [];
+  plateMat.side = THREE.DoubleSide;
+  for(let k = 0; k < 3; k++) for(let l = 0; l < 5; l++){
+    const g0 = G3[k][l];
+    if(!g0.p.length){ if(k === 1) faceM.push(null); if(k === 2) hotM.push(null); continue; }
+    const g = new THREE.BufferGeometry();
+    const arr = new Float32Array(g0.p.length * 3);
+    g0.p.forEach((q, i) => { arr[i*3] = q[0]; arr[i*3+1] = q[1]; arr[i*3+2] = q[2]; });
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    g.setIndex(g0.i); fillAH(g, 1, 0);
+    let m = plateMat;
+    if(k > 0){ m = mkMat(SH, PX_LN_VS, PX_LN_FS); m.side = THREE.DoubleSide;
+               (k === 1 ? faceM : hotM).push(m); }
+    scene.add(Object.assign(new THREE.Mesh(g, m),
+                            { frustumCulled:false, renderOrder: RANK[l]*3 + k }));
   }
-  // ── 车道 / 层间连线：全部是真的在深度里走的线 ──
-  const laneMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const beamMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const lanes = [], beams = [];
-  Q.lane.forEach((s) => {                      // s = [x0,x1,y,层]
-    const a = L(s[0], s[2], Q.zl[s[3]]), b = L(s[1], s[2], Q.zl[s[3]]);
-    lanes.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
-  });
-  Q.beam.forEach((s) => {                      // s = [x0,y0,层0, x1,y1,层1]
-    const a = L(s[0], s[1], Q.zl[s[2]]), b = L(s[3], s[4], Q.zl[s[5]]);
-    beams.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
-  });
-  [[lanes, laneMat], [beams, beamMat]].forEach(([segs, m]) => {
-    const g = segGeo(segs); fillAH(g, 1, 0);
-    scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
-  });
-  /* ── 波B 轻手术：介质 → **流带**（lab-kit ⑨），离散事件 → **保持粒子** ──────
-     判据逐条写在 _P10LANE / _P10BEAM 的 med 列上（接入指南 ⑨）：
-       · 一直在来的（上行 / 下行 / 底座两条车道，实时编排⇄LLM / AEC 参考环 /
-         底座两道握手）是介质 ⇒ 一条有厚度、会起伏、波峰自己往前走的带子；
-       · 有起点有终点、发生一次就结束的（SOS·EOS 事件线、打断快路径、
-         客户控制面）是事件 ⇒ 粒子留着，这三条**不动**。
-     带子的中心线**逐点走投影锁**、与它替换掉的那条车道逐像素同位 ⇒ **零位移**。 */
-  const flows = [];
-  function addFlow(a, b, spd){
-    const n = 48, pts = [];
-    for(let i = 0; i < n; i++){
-      const t = i/(n-1);
-      pts.push(L(a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t));
-    }
-    const st = mkStream(SH, pts, { w: Q.floww, spd, edge: .06 }).add(scene);
-    flows.push(st);
-  }
-  { let k = 0;
-    Q.medL.forEach((i) => { const s = Q.lane[i], z = Q.zl[s[3]];
-      addFlow([s[0], s[2], z], [s[1], s[2], z], Q.spd[k++]); });
-    Q.medB.forEach((i) => { const s = Q.beam[i];
-      addFlow([s[0], s[1], Q.zl[s[2]]], [s[3], s[4], Q.zl[s[5]]], Q.spd[k++]); }); }
-  // ── 包：只剩**离散事件**那三条（车道与握手已经换成流带）──
-  const RUN = Q.lane.filter(s => !s[6])
-    .map(s => ({ a:[s[0], s[2], Q.zl[s[3]]], b:[s[1], s[2], Q.zl[s[3]]], T:s[4], n:s[5] }))
-    .concat(Q.beam.filter(s => !s[8])
-      .map(s => ({ a:[s[0], s[1], Q.zl[s[2]]], b:[s[3], s[4], Q.zl[s[5]]], T:s[6], n:s[7] })));
-  const NP = RUN.reduce((n, r) => n + r.n, 0);
-  const pg = new THREE.BufferGeometry();
-  const ppos = new Float32Array(NP * 3);
-  pg.setAttribute('position', new THREE.BufferAttribute(ppos, 3));
-  const pA = fillAH(pg, 1, 0);
-  const pktMat = mkMat(SH, PX_PT_VS, PX_PT_FS); pktMat.uniforms.uSoft.value = .035;
-  scene.add(Object.assign(new THREE.Points(pg, pktMat), { frustumCulled:false }));
   return {
     scene, camera, intro: 1.4, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
     setIntro(e){ SH.uIntro.value = e; },
-    // evt 只数**真的有包**的那几条；n=0 的那一条是「端到端 650ms」的尺，不是事件
-    state(){ return { flows: flows.length, evt: RUN.filter(r => r.n > 0).length,
-                      ruler: RUN.filter(r => r.n === 0).length, drift: 0,
-                      spd: flows.map(f => f.spd) }; },
+    /* 闸门探针：**画布上会动的件件数**。波C 之后这三个必须恒 0 ——
+       流 / 包 / 尺全部回到了页上那张 2D 图里（⑲p10 正面断言）。 */
+    state(){ return { flows: 0, evt: 0, ruler: 0, drift: 0, spd: [],
+                      fills: NFILL,                          // 填实的件数（语义数）
+                      tris: G3[0].reduce((n, g) => n + g.i.length/3, 0),
+                      layers: Q.zl.length, boxes: Q.box.length,
+                      // 顶层豁免之后的**逐层描边系数**：最亮一层 = 1、最暗一层 = 地板
+                      dk: LDK.slice(), dkFloor: DECAY_FLOOR,
+                      hotOp: hotM.reduce((v, m) => m ? Math.max(v, m.uniforms.uOpacity.value) : v, 0) }; },
     draw(dt, clock){
       SH.uTime.value = clock;
-      let k = 0;
-      RUN.forEach((r) => {
-        for(let i = 0; i < r.n; i++){
-          const u = ((clock / r.T) + i / r.n) % 1;
-          const q = L(r.a[0] + (r.b[0]-r.a[0])*u, r.a[1] + (r.b[1]-r.a[1])*u,
-                      r.a[2] + (r.b[2]-r.a[2])*u);
-          ppos[k*3] = q[0]; ppos[k*3+1] = q[1]; ppos[k*3+2] = q[2];
-          pA.a[k] = Math.min(1, Math.min(u, 1-u) * 10); k++;
-        }
-      });
-      pg.attributes.position.needsUpdate = true; pg.attributes.aA.needsUpdate = true;
-      flows.forEach(st => st.draw(clock));
-      if(faceM[0]) faceM[0].uniforms.uGain.value = .35 + .35 * Math.sin(clock * TAU / Q.beat);
+      /* 波C·终审：hot 描边的呼吸取消了 —— 它的 alpha 现在恒 1（accent 本色），
+         再乘 uGain 只会被 clamp 吃掉，留着就是一处假动作。
+         「AI-VAD 在呼吸」这件事由页上那枚 `.mo-halo` 承担：它**留在可见层**
+         （不在 poster 点名册里），3D 起来照旧一圈圈扩散 —— 一格没丢。 */
     },
     applyTheme(){
-      const fc = cssColor('--m-face'), hc = cssColor('--m-hot'), sc = cssColor('--m-shell');
+      const fc = cssColor('--m-face'), hc = cssColor('--m-hot');
+      /* 描边的不透明度**就是页上那支笔的 alpha**（--hair 的 .16 / .14 —— cssColor
+         只取 RGB，alpha 得在这里补回来），再乘逐层 lop 与深度雾 ⇒ 五个带的明暗
+         差就是这一页仅剩的立体线索。 */
       faceM.forEach((m, l) => { if(!m) return;
-        m.uniforms.uColor.value.copy(fc); m.uniforms.uHot.value.copy(hc);
-        m.uniforms.uOpacity.value = cssNum('--m-face-op', .85) * Q.lop[l];
+        m.uniforms.uColor.value.copy(fc); m.uniforms.uHot.value.copy(fc);
+        // 顶层豁免：逐层系数已压进 [.90, 1] ⇒ 最暗的一层也有 2D 那支笔的九成
+        m.uniforms.uOpacity.value = cssNum('--m-face-op', .15) * LDK[l];
         m.uniforms.uGain.value = 0; });
-      shellM.forEach((m, l) => { if(!m) return;
-        m.uniforms.uColor.value.copy(sc); m.uniforms.uHot.value.copy(sc);
-        m.uniforms.uOpacity.value = cssNum('--m-shell-op', .26) * Q.lop[l];
+      hotM.forEach((m) => { if(!m) return;
+        m.uniforms.uColor.value.copy(hc); m.uniforms.uHot.value.copy(hc);
+        // hot 边整枚豁免：AI-VAD / 实时编排的边 = accent **本色**，一格不减
+        m.uniforms.uOpacity.value = cssNum('--m-hot-op', 1);
         m.uniforms.uGain.value = 0; });
-      laneMat.uniforms.uColor.value.copy(cssColor('--m-lane'));
-      laneMat.uniforms.uOpacity.value = cssNum('--m-lane-op', .8);
-      beamMat.uniforms.uColor.value.copy(cssColor('--m-beam'));
-      beamMat.uniforms.uOpacity.value = cssNum('--m-beam-op', .6);
-      pktMat.uniforms.uColor.value.copy(cssColor('--m-pkt'));
-      pktMat.uniforms.uOpacity.value = cssNum('--m-pkt-op', .95);
-      pktMat.uniforms.uSize.value = cssNum('--m-pkt-size', 6.5);
-      [laneMat, beamMat, pktMat].forEach(m => {
-        m.uniforms.uHot.value.copy(m.uniforms.uColor.value); m.uniforms.uGain.value = 0; });
-      faceM.concat(shellM, [laneMat, beamMat, pktMat]).forEach(m => {
-        if(m){ m.uniforms.uBack.value = .62; setBlend(m, cssNum('--m-add', 0)); } });
-      flows.forEach(st => { st.theme(cssColor('--m-flow'), cssColor('--m-flow-rms'),
-        cssNum('--m-flow-op', .34), cssNum('--m-flow-rms-op', .55), .62);
-        setBlend(st.mat, cssNum('--m-add', 0)); });
+      /* uBack = 1 ⇒ 着色器里的雾恒 1：衰减只在 CPU 上发生一次，不再乘第二遍。 */
+      faceM.concat(hotM).forEach(m => {
+        if(m){ m.uniforms.uBack.value = 1; setBlend(m, cssNum('--m-add', 0)); } });
+      /* 板面是**实体**：不进深度雾（uBack=1）、不进加色混合。
+         「盒是不透明实体，永远在流之上」这条纪律，在代码上就是这三行。 */
+      plateMat.uniforms.uColor.value.copy(cssColor('--m-plate'));
+      plateMat.uniforms.uHot.value.copy(cssColor('--m-plate'));
+      plateMat.uniforms.uOpacity.value = cssNum('--m-plate-op', 1);
+      plateMat.uniforms.uGain.value = 0; plateMat.uniforms.uBack.value = 1;
+      setBlend(plateMat, 0);
     },
   };
 }
@@ -7473,10 +7592,22 @@ function makeVision(ctx){
    同时在场，读得出「先接上再断开」而不是「闪一下换人」。
    候选的**末程**把色与不透明度收敛成在位机体 ⇒ 轮次交界无缝。
 
-   ⚑ **贯通流不透明度与 swap 相位代码上零耦合**：uOpacity 只在 applyTheme() 里
-     被赋值一次（读 --k-flow-op），draw() 一个字都不碰它。这是「模型会换代，
-     接口不换人」的机制级证明 —— qa 的 ⑲p13 在整个切换窗口**逐帧**断言
-     data-lab-flow 恒 .26(light)/.24(dark)、data-lab-run 恒真。
+   ── 波C 手术（2026-09-07 · 与 P10 同一条裁定）──────────────────────────────
+   上面「贯通流」那一整段是**留档**：那条流已经删了。
+   理由一句话：本页也是**架构图**（六只模块盒 + 中枢 + 连线）—— 而架构图上的流
+   一律用「帧 / 包」（页上那八枚 .mo-packet 本人），介质带（mkStream）只给「场」用。
+   波B 那条流为了不压字，得在「对话引擎 / 实时编排」两行标题上开两扇 ghost 窗口
+   把自己收成细线 ——「要靠开窗才不压字」就是这条带子放错了地方的铁证。
+   一起退回 2D 的还有总线（左四联 / 右两联 / 引擎→实时调试）与八枚总线包：
+   页上本来就有这些线、这些包、这些箭头，3D 再画一遍只会糊成两层。
+   留在画布上的是**机器本身**：六只插槽单元（腔 + 板 + 板上的小巧思）、
+   中枢机腔与三道内肋、呼吸转子、发布脉冲、两条往返闭环。
+   板面这一轮补上了（`--k-plate-fill` = card-bg-2 实心）—— 波B 只画了轮廓，
+   poster 一淡出，浅底上的白板就变成了幕底，小巧思读起来是「浮在半空」。
+
+   ⚑ 「模型会换代，接口不换人」的机器证明因此换了一条更强的：不再证「贯通流的
+     不透明度与 swap 相位零耦合」，而是证**整个热切换窗口里这一页一条流都没有**
+     （data-lab-flow 恒 '0'、data-lab-run 恒真 —— qa 的 ⑲p13 逐帧断言）。
    ═══════════════════════════════════════════════════════════════════════════ */
 function makeSlots(ctx){
   const Q = K.k, w = ctx.rect[2], h = ctx.rect[3], D = 1500;
@@ -7492,39 +7623,85 @@ function makeSlots(ctx){
   const wallMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const hubMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
   const ribMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const busMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  const sock = [], wall = [], hub = [], bus = [], rib = [];
+  /* 波C：busMat / bus 退役 —— 左四联 / 右两联 / 引擎→实时调试那几条线，
+     页上本来就有（hline / vline / dline + 八枚 .mo-packet + 箭头）。
+     3D 再画一遍只会与 2D 那张图错开半档、糊成一片。 */
+  const sock = [], wall = [], rib = [];        // 波C：hub 前框改走「带」，不再进线组
   Q.slot.forEach((s) => {                          // s = [x,y,w,h]
     const bb = boxBody(s[0], s[1], s[2], s[3], Q.zSlot, Q.cav, L);
     sock.push.apply(sock, bb.front);
     wall.push.apply(wall, bb.shell);
   });
   /* ── 机腔：前面锁死在页上那只中枢盒，后面沿 −z 退 150 ── */
+  /* 波C·终审：中枢盒的**前框**改走「带」—— 页上它是 rx16 / 2.5px 的 accent 描边，
+     而 WebGL 的线恒 1px ⇒ 波B 实测只有 2D 的 **34.5%(暗) / 32.3%(浅)**，
+     全页唯一的 hot 件读成了一圈灰。带 + accent 本色之后它回到页上那支笔本人。
+     腔壁（shell）与三道内肋照旧 —— 那是「机腔」，不是「板边」。 */
+  const hubRib = [];
   { const bb = boxBody(Q.hub[0], Q.hub[1], Q.hub[2], Q.hub[3], Q.zHub, Q.hubCav, L);
-    hub.push.apply(hub, bb.front); wall.push.apply(wall, bb.shell);
+    wall.push.apply(wall, bb.shell);
+    ribQuads(rrLoop(Q.hub[0], Q.hub[1], Q.hub[2], Q.hub[3], Q.hubR),
+             Q.zHub, Q.hubSw / 2, L, null).forEach(q => hubRib.push(q));
     /* ── 三道逐层内缩的内肋：腔壁有结构 ── */
     for(let r = 1; r <= Q.rib; r++){
       const f = r / (Q.rib + 1), ix = 26*r, iy = 11*r;
       rib.push.apply(rib, segsOfLoop(rectPts(Q.hub[0]+ix, Q.hub[1]+iy,
         Q.hub[2]-ix*2, Q.hub[3]-iy*2, Q.zHub - Q.hubCav*f, L)));
     } }
-  Q.bus.forEach((s) => {                           // s = [x0,y0,x1,y1]
-    const a = L(s[0], s[1], Q.zBus), b = L(s[2], s[3], Q.zBus);
-    bus.push([a[0],a[1],a[2], b[0],b[1],b[2]]);
-  });
-  const pillMat = mkMat(SH, PX_LN_VS, PX_LN_FS);
-  { const pl = segsOfLoop(rectPts(Q.pill[0], Q.pill[1], Q.pill[2], Q.pill[3], Q.zBus, L));
+  const pillMat = mkMat(SH, PX_LN_VS, PX_LN_FS);   // 发布槽的边（= 页上那支 hair-strong）
+  const brkMat  = mkMat(SH, PX_LN_VS, PX_LN_FS);   // 集体括号（= 页上那支 2px accent）
+  const pillFillMat = mkMat(SH, PX_LN_VS, PX_LN_FS); pillFillMat.side = THREE.DoubleSide;
+  /* 发布槽在页上是一枚 **rx30 的药丸**（fill:card-bg-2 + hair-strong 1.4px）——
+     波B 用 rectPts + 1px 线画成了直角空框，实测只有 2D 的 34.9%(浅) / 85.7%(暗)。
+     波C：圆角（rrLoop）+ 实心 + **带**（ribQuads，页上那支笔的宽度与色）一起搬过来。
+     集体括号同理：页上是 2px accent，1px 线画出来只剩五分之一。 */
+  const mkRib = (quads, m, ro) => {
+    const p2 = [], i2 = [];
+    quads.forEach((q) => { const b0 = p2.length;
+      q.forEach(v => p2.push(v)); i2.push(b0, b0+1, b0+2, b0, b0+2, b0+3); });
+    const g = new THREE.BufferGeometry();
+    const arr = new Float32Array(p2.length*3);
+    p2.forEach((v, i) => { arr[i*3]=v[0]; arr[i*3+1]=v[1]; arr[i*3+2]=v[2]; });
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    g.setIndex(i2); fillAH(g, 1, 0);
+    m.side = THREE.DoubleSide;
+    scene.add(Object.assign(new THREE.Mesh(g, m),
+                            { frustumCulled:false, renderOrder: ro === undefined ? 0 : ro }));
+  };
+  { const pr = rrLoop(Q.pill[0], Q.pill[1], Q.pill[2], Q.pill[3], Q.pillR);
+    const pp = pr.map(q => L(q[0], q[1], Q.zBus));
+    mkRib(ribQuads(pr, Q.zBus, Q.pillSw/2, L, null), pillMat);
+    const bq = [];
     Q.brk.forEach((e) => {                        // 四槽的集体括号（可替换 · 可兜底 · 可热切换）
-      const a2 = L(e[0], e[1], Q.zBus), b2 = L(e[2], e[3], Q.zBus);
-      pl.push([a2[0],a2[1],a2[2], b2[0],b2[1],b2[2]]);
+      ribQuads([[e[0], e[1]], [e[2], e[3]]], Q.zBus, Q.brkSw/2, L, null)
+        .forEach(q => bq.push(q));
     });
-    const g = segGeo(pl); fillAH(g, 1, 0);
-    scene.add(Object.assign(new THREE.LineSegments(g, pillMat), { frustumCulled:false })); }
-  [[sock, sockMat], [wall, wallMat], [hub, hubMat], [bus, busMat], [rib, ribMat]]
+    mkRib(bq, brkMat);
+    const fc = L(Q.pill[0] + Q.pill[2]/2, Q.pill[1] + Q.pill[3]/2, Q.zBus);
+    const fp = [fc].concat(pp, [pp[0]]), fi = [];
+    for(let i = 1; i < fp.length - 1; i++) fi.push(0, i, i+1);
+    const fg = new THREE.BufferGeometry();
+    const fa = new Float32Array(fp.length*3);
+    fp.forEach((q, i) => { fa[i*3]=q[0]; fa[i*3+1]=q[1]; fa[i*3+2]=q[2]; });
+    fg.setAttribute('position', new THREE.BufferAttribute(fa, 3));
+    fg.setIndex(fi); fillAH(fg, 1, 0);
+    scene.add(Object.assign(new THREE.Mesh(fg, pillFillMat),
+                            { frustumCulled:false, renderOrder:-2 })); }
+  [[sock, sockMat], [wall, wallMat], [rib, ribMat]]
     .forEach(([segs, m]) => {
       const g = segGeo(segs); fillAH(g, 1, 0);
       scene.add(Object.assign(new THREE.LineSegments(g, m), { frustumCulled:false }));
     });
+  hubMat.side = THREE.DoubleSide;
+  { const hp = [], hi = [];
+    hubRib.forEach((q) => { const b0 = hp.length;
+      q.forEach(v => hp.push(v)); hi.push(b0, b0+1, b0+2, b0, b0+2, b0+3); });
+    const g = new THREE.BufferGeometry();
+    const arr = new Float32Array(hp.length*3);
+    hp.forEach((v, i) => { arr[i*3]=v[0]; arr[i*3+1]=v[1]; arr[i*3+2]=v[2]; });
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    g.setIndex(hi); fillAH(g, 1, 0);
+    scene.add(Object.assign(new THREE.Mesh(g, hubMat), { frustumCulled:false })); }
 
   /* ═══ 呼吸转子：三枚异面轨道环 + 420 点脉动（终审硬伤一的修法）═══════════
      核原来是「腔心的一团」—— 而腔心正是「对话引擎 / 实时编排」两行字的位置：
@@ -7680,8 +7857,18 @@ function makeSlots(ctx){
       }
     });
     const lg = segGeo(segs); fillAH(lg, 1, 0);
-    const mkPair = (lnMat, ptMat) => {
+    /* 波C：模块板的**板面** —— 页上那块 fill:var(--card-bg-2) 的实心板本人。
+       波B 只画了板的轮廓：poster 一淡出，板就变成一只空框（浅底下尤其明显，
+       页上是白板、LAB 上是幕底），小巧思也就没有「坐在板上」这回事了。
+       填实之后板才是实体 ——「盒是不透明实体」这条纪律两页同一条。 */
+    const fq = quadGeo(rectPts(s[0]+Q.pad, s[1]+Q.pad2, s[2]-Q.pad*2, s[3]-Q.pad2*2,
+                               Q.zPlate, L).slice(0, 4));
+    fillAH(fq, 1, 0);
+    const mkPair = (lnMat, ptMat, fiMat) => {
       const gp = new THREE.Group();
+      // 板面排在最前（renderOrder −1）⇒ 轮廓与小巧思都压在它之上，不会被填掉
+      gp.add(Object.assign(new THREE.Mesh(fq, fiMat),
+                           { frustumCulled:false, renderOrder:-1 }));
       gp.add(Object.assign(new THREE.LineSegments(lg, lnMat), { frustumCulled:false }));
       gp.add(Object.assign(new THREE.Points(pg, ptMat), { frustumCulled:false }));
       scene.add(gp); return gp;
@@ -7690,9 +7877,13 @@ function makeSlots(ctx){
     const ptIn = mkMat(SH, PX_PT_VS, PX_PT_FS); ptIn.uniforms.uSoft.value = .03;
     const lnCd = mkMat(SH, PX_LN_VS, PX_LN_FS);
     const ptCd = mkMat(SH, PX_PT_VS, PX_PT_FS); ptCd.uniforms.uSoft.value = .03;
-    const gIn = mkPair(lnIn, ptIn), gCd = mkPair(lnCd, ptCd);
+    // 板面逐机体一枚材质：热切换时它必须与轮廓**同进同出**（共用一枚就会
+    // 出现「板还在、框已经退走了」的鬼影）
+    const fiIn = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const fiCd = mkMat(SH, PX_LN_VS, PX_LN_FS);
+    const gIn = mkPair(lnIn, ptIn, fiIn), gCd = mkPair(lnCd, ptCd, fiCd);
     gCd.visible = false;
-    return { G, pg, ppos, pA, gIn, gCd, lnIn, ptIn, lnCd, ptCd, np };
+    return { G, pg, ppos, pA, gIn, gCd, lnIn, ptIn, lnCd, ptCd, fiIn, fiCd, np };
   });
   function drawGiz(b, clock){
     const { G, ppos, pA, np } = b;
@@ -7736,40 +7927,18 @@ function makeSlots(ctx){
     b.pg.attributes.aA.needsUpdate = true;
   }
 
-  /* ═══ 贯通流：一条 audioStream 走完全程（穿模块穿字段走 aG ghost）═══════ */
-  // 等弧长重采样：aG 是逐顶点属性，点疏了 ghost 窗口就落不到点上（本页 1436px ÷ 299 ≈ 4.8px 一段）
-  const FLOWN = 300;
-  const flowPts = resamplePoly(Q.flow, FLOWN).map(q => L(q[0], q[1], Q.zBus + 12));
-  /* 幅度 / 波长 / 让位档 / 收口**全部在这只 opt 里覆写** —— lab-kit ⑨ 的 AS.* 全局档
-     一个字没动（别的七页照旧吃全局值）。为什么要覆写：这条流的路径尺度比别的页短，
-     全局那一档（半宽 11 · 地板 .30 · λ232）在这里读成一朵云而不是一条波。 */
-  const flow = mkStream(SH, flowPts, {
-    w: Q.flowW, spd: Q.flowSpd, lam: Q.flowLam,
-    floor: Q.flowFloor, ghost: Q.flowGhost, edge: Q.flowEdge }).add(scene);
-  /* 幅度剖面 = ghost 窗口的**连乘**（每只窗口一记 smootherstep 凹槽）—— 零分支。
-     窗口本身是构建期从页上的墨迹框算出来的弧长区间：流在哪里收细，由页面决定。 */
-  flow.gain((u) => {
-    let g = 1;
-    for(let i = 0; i < Q.gz.length; i++){
-      const a = Q.gz[i][0], b = Q.gz[i][1], f = Q.gzF;
-      g *= 1 - smoother(a - f, a, u)*(1 - smoother(b, b + f, u));
-    }
-    return g;
-  });
-
-  /* ── 总线包（离散：一次「插入」= 一枚包，接入指南 ⑨ 的事件档）── */
-  const RUN = Q.run.map(s => ({ a:[s[0], s[1]], b:[s[2], s[3]], T:s[4], n:s[5] }));
-  const NP = RUN.reduce((n, r) => n + r.n, 0);
-  const pg2 = new THREE.BufferGeometry();
-  const ppos2 = new Float32Array(NP * 3);
-  pg2.setAttribute('position', new THREE.BufferAttribute(ppos2, 3));
-  const pA2 = fillAH(pg2, 1, 0);
-  const pktMat = mkMat(SH, PX_PT_VS, PX_PT_FS); pktMat.uniforms.uSoft.value = .03;
-  scene.add(Object.assign(new THREE.Points(pg2, pktMat), { frustumCulled:false }));
+  /* ═══ 波C：贯通流 / 总线 / 总线包**整批退回 2D** ═══════════════════════════
+     裁定与 P10 同一条（接入指南 ⑨）：本页也是架构图 —— 六只模块盒 + 中枢 + 连线。
+     一条 mkStream 从 ASR 横穿到发布槽，必然要穿过模块板、穿过「对话引擎 /
+     实时编排」两行标题，所以波B 才要开四扇 ghost 窗口把它收细 ——
+     「要靠开窗才不压字」本身就是这条带子放错了地方的证据。
+     页上八枚 .mo-packet 讲的是同一件事：逐帧、逐段、有方向、不压字。
+     ⇒ flow / bus / RUN / pktMat 一并删除。这一枚场景从此只画**机器本身**：
+       六只插槽单元（腔 + 板 + 板上的小巧思）、中枢机腔与内肋、呼吸转子、
+       发布脉冲、两条往返闭环。会动的流一条都没有。 */
 
   const plateCol = new THREE.Color(), gizCol = new THREE.Color(), candCol = new THREE.Color();
-  let plateOp = .8, gizOp = .9;
-  let flowOp = .26;                                // ← 只在 applyTheme 里被写；draw 不碰
+  let plateOp = .8, gizOp = .9, fillOp = 1;
   return {
     scene, camera, intro: 1.25, grab: false,
     onDPR(pr){ SH.uPx.value = pr; },
@@ -7835,11 +8004,15 @@ function makeSlots(ctx){
           b.gCd.visible = false; b.gCd.position.z = Q.swz;
           b.lnIn.uniforms.uOpacity.value = plateOp;
           b.ptIn.uniforms.uOpacity.value = gizOp;
+          b.fiIn.uniforms.uOpacity.value = fillOp;
+          b.fiCd.uniforms.uOpacity.value = 0;
           return;
         }
         b.gIn.position.z = Q.swz*eOut;
         b.lnIn.uniforms.uOpacity.value = plateOp*(1 - xf);
         b.ptIn.uniforms.uOpacity.value = gizOp*(1 - xf);
+        b.fiIn.uniforms.uOpacity.value = fillOp*(1 - xf);   // 板面与轮廓同进同出
+        b.fiCd.uniforms.uOpacity.value = fillOp*xf;
         b.gIn.visible = xf < 0.999;
         b.gCd.visible = xf > 0.001;
         b.gCd.position.z = Q.swz*(1 - eIn);
@@ -7850,21 +8023,13 @@ function makeSlots(ctx){
         b.lnCd.uniforms.uColor.value.copy(candCol).lerp(plateCol, cv);
         b.ptCd.uniforms.uColor.value.copy(candCol).lerp(gizCol, cv);
       });
-      let kk = 0;
-      RUN.forEach((r) => {
-        for(let i = 0; i < r.n; i++){
-          const u = ((clock / r.T) + i / r.n) % 1;
-          const q = L(r.a[0] + (r.b[0]-r.a[0])*u, r.a[1] + (r.b[1]-r.a[1])*u, Q.zBus);
-          ppos2[kk*3] = q[0]; ppos2[kk*3+1] = q[1]; ppos2[kk*3+2] = q[2];
-          pA2.a[kk] = Math.min(1, Math.min(u, 1-u) * 10); kk++;
-        }
-      });
-      pg2.attributes.position.needsUpdate = true; pg2.attributes.aA.needsUpdate = true;
-      flow.draw(clock);
-      hubMat.uniforms.uGain.value = .4 + .4*beat;
-      /* ⚑ 把**运行时**的贯通流不透明度摊到舞台上：⑲p13 逐帧读它，
-         整个切换窗口必须是同一个数（与 swap 相位零耦合的机器证明）。 */
-      ST.dataset.labFlow = flow.mat.uniforms.uOpacity.value.toFixed(2);
+      /* 波C·终审：中枢盒的前框现在是 accent **本色**（alpha 恒 1），
+         再乘 uGain 只会被 clamp 吃掉。「中枢在呼吸」由页上那枚 `.mo-halo`
+         承担 —— 它留在可见层（不在 poster 点名册里），一格没丢。 */
+      /* ⚑ 波C：贯通流退役 ⇒ data-lab-flow 改摊**画布上还有几条流带**（恒 0）。
+         「模型会换代，接口不换人」那条自证换了证法：不再证「流的不透明度与
+         swap 相位零耦合」，而是证**热切换期间这一页一条流都没有**（更强的一条）。 */
+      ST.dataset.labFlow = '0';
       ST.dataset.labSwapph = (who + ':' + ph.toFixed(3));   // ⚠ 别叫 labSwap：
       //   那个名字是构建期摊上去的换装时长（data-lab-swap），运行时覆盖它闸门会读到 NaN
     },
@@ -7889,32 +8054,18 @@ function makeSlots(ctx){
           }
         return m;
       };
-      const fe = toPx(flowPts[flowPts.length-1][0], flowPts[flowPts.length-1][1],
-                      flowPts[flowPts.length-1][2]);
-      return { flowOp: flow.mat.uniforms.uOpacity.value,
-               gz: Q.gz.length, flowLen: flow.len, spd: flow.spd,
+      /* 波C：flows / bus / pkts 三个 0 是**正面声明** —— 这一页的画布上
+         一条介质带、一条总线、一枚包都没有（⑲p13 逐帧断言，热切换窗口里也一样）。 */
+      return { flows: 0, bus: 0, pkts: 0,
                clr: clrOf(), orb: OB.length,
-               flowEnd: [ctx.rect[0] + fe[0], ctx.rect[1] + fe[1]],
-               flowAmp: [flow.mat.uniforms.uW.value*Q.flowW,
-                         flow.mat.uniforms.uFloor.value,
-                         flow.mat.uniforms.uGhost.value,
-                         flow.mat.uniforms.uLam.value],
                core: CN, ribs: Q.rib, hubCav: Q.hubCav, pub: Q.pub,
                swz: Q.swz, zIn: bodies.map(b => b.gIn.position.z),
                zCd: bodies.map(b => b.gCd.position.z),
                vis: bodies.map(b => (b.gIn.visible?1:0) + (b.gCd.visible?2:0)),
-               loops: loops.length,
-               // 三处探针：流的开头（畅通）/ 第一只 ghost 窗口的正中（细线）/ 窗口之后（畅通）
-               gain: (() => {
-                 const aT = flow.mesh.geometry.attributes.aT.array;
-                 const aG = flow.mesh.geometry.attributes.aG.array;
-                 const at = (u) => { let bi = 0, bd = 1e9;
-                   for(let i = 0; i < aT.length; i += 2){
-                     const d = Math.abs(aT[i]-u); if(d < bd){ bd = d; bi = i; } }
-                   return aG[bi]; };
-                 const z0 = Q.gz[0];
-                 return [at(30), at((z0[0]+z0[1])/2), at(z0[1] + Q.gzF*2.4)];
-               })() };
+               loops: loops.length, plates: bodies.length,
+               // 终审：中枢盒的 hot 边 = accent **本色**（alpha 恒 1，不吃雾不吃 gain）
+               hubOp: hubMat.uniforms.uOpacity.value,
+               hubBack: hubMat.uniforms.uBack.value };
     },
     applyTheme(){
       sockMat.uniforms.uColor.value.copy(cssColor('--k-sock'));
@@ -7925,21 +8076,33 @@ function makeSlots(ctx){
       ribMat.uniforms.uOpacity.value = cssNum('--k-rib-op', .30);
       hubMat.uniforms.uColor.value.copy(cssColor('--k-hub'));
       hubMat.uniforms.uHot.value.copy(cssColor('--k-hub'));
-      hubMat.uniforms.uOpacity.value = cssNum('--k-hub-op', 1);
-      busMat.uniforms.uColor.value.copy(cssColor('--k-bus'));
-      busMat.uniforms.uOpacity.value = cssNum('--k-bus-op', .7);
+      // 波C·终审：hot 边 = accent **本色**（不吃雾、不吃 gain、不打折）
+      hubMat.uniforms.uOpacity.value = 1;
+      hubMat.uniforms.uGain.value = 0; hubMat.uniforms.uBack.value = 1;
       plateCol.copy(cssColor('--k-plate')); gizCol.copy(cssColor('--k-giz'));
       candCol.copy(cssColor('--k-cand'));
       plateOp = cssNum('--k-plate-op', .8); gizOp = cssNum('--k-giz-op', .9);
+      fillOp = cssNum('--k-plate-fill-op', 1);
+      const fillCol = cssColor('--k-plate-fill');
       bodies.forEach((b) => {
         b.lnIn.uniforms.uColor.value.copy(plateCol);
         b.ptIn.uniforms.uColor.value.copy(gizCol);
         b.ptIn.uniforms.uSize.value = cssNum('--k-giz-size', 3.4);
         b.ptCd.uniforms.uSize.value = cssNum('--k-giz-size', 3.4);
-        [b.lnIn, b.ptIn, b.lnCd, b.ptCd].forEach(m => {
+        [b.lnIn, b.lnCd].forEach(m => {         // 模块板的边 = 板边 ⇒ 雾豁免
+          m.uniforms.uHot.value.copy(m.uniforms.uColor.value);
+          m.uniforms.uGain.value = 0; m.uniforms.uBack.value = 1;
+          setBlend(m, cssNum('--k-add', 0)); });
+        [b.ptIn, b.ptCd].forEach(m => {         // 小巧思是「腔里的东西」⇒ 照旧吃雾
           m.uniforms.uHot.value.copy(m.uniforms.uColor.value);
           m.uniforms.uGain.value = 0; m.uniforms.uBack.value = .40;
           setBlend(m, cssNum('--k-add', 0)); });
+        /* 板面是**实体**：不进深度雾（uBack=1）、不进加色混合 —— 与 P10 的板同一条纪律 */
+        [b.fiIn, b.fiCd].forEach(m => {
+          m.side = THREE.DoubleSide;    // ⚑ 投影锁把 y 取了负 ⇒ 绕向反了，正面剔除会把板面整块剔掉
+          m.uniforms.uColor.value.copy(fillCol); m.uniforms.uHot.value.copy(fillCol);
+          m.uniforms.uOpacity.value = fillOp; m.uniforms.uGain.value = 0;
+          m.uniforms.uBack.value = 1; setBlend(m, 0); });
       });
       coreMat.uniforms.uColor.value.copy(cssColor('--k-core'));
       coreMat.uniforms.uHot.value.copy(cssColor('--k-core'));
@@ -7956,21 +8119,34 @@ function makeSlots(ctx){
         lp2.m.uniforms.uHot.value.copy(cssColor('--k-pub'));
         lp2.m.uniforms.uOpacity.value = cssNum('--k-loop-op', .55);
         lp2.m.uniforms.uGain.value = .7; });
-      pktMat.uniforms.uColor.value.copy(cssColor('--k-pkt'));
-      pktMat.uniforms.uOpacity.value = cssNum('--k-pkt-op', .95);
-      pktMat.uniforms.uSize.value = cssNum('--k-pkt-size', 6.5);
-      pillMat.uniforms.uColor.value.copy(cssColor('--k-bus'));
-      pillMat.uniforms.uOpacity.value = cssNum('--k-pill-op', .5);
-      /* ⚑ 贯通流的不透明度**只在这里**被赋值一次 —— draw() 一个字都不碰它。
-         这就是「模型会换代，接口不换人」在代码上的样子。 */
-      flowOp = cssNum('--k-flow-op', .26);
-      flow.theme(cssColor('--k-flow'), cssColor('--k-flow-rms'),
-                 flowOp, cssNum('--k-flow-rms-op', .55), .55);
-      [sockMat, wallMat, busMat, pktMat, pillMat, ribMat, coreMat, ringMat].forEach(m => {
+      /* 波C·终审：发布槽与集体括号改用**页上那支笔本人** ——
+         药丸走 hair-strong（--k-edge）、括号走 2px accent（--k-brk），
+         两样都不吃雾（uBack=1）：它们是「板边」，不是「深度」。 */
+      pillMat.uniforms.uColor.value.copy(cssColor('--k-edge'));
+      pillMat.uniforms.uHot.value.copy(cssColor('--k-edge'));
+      pillMat.uniforms.uOpacity.value = cssNum('--k-edge-op', .3);
+      pillMat.uniforms.uGain.value = 0; pillMat.uniforms.uBack.value = 1;
+      brkMat.uniforms.uColor.value.copy(cssColor('--k-brk'));
+      brkMat.uniforms.uHot.value.copy(cssColor('--k-brk'));
+      brkMat.uniforms.uOpacity.value = cssNum('--k-brk-op', 1);
+      brkMat.uniforms.uGain.value = 0; brkMat.uniforms.uBack.value = 1;
+      setBlend(brkMat, cssNum('--k-add', 0));
+      pillFillMat.uniforms.uColor.value.copy(cssColor('--k-plate-fill'));
+      pillFillMat.uniforms.uHot.value.copy(cssColor('--k-plate-fill'));
+      pillFillMat.uniforms.uOpacity.value = cssNum('--k-plate-fill-op', 1);
+      pillFillMat.uniforms.uGain.value = 0; pillFillMat.uniforms.uBack.value = 1;
+      setBlend(pillFillMat, 0);
+      [sockMat, wallMat, ribMat, coreMat, ringMat].forEach(m => {
         m.uniforms.uHot.value.copy(m.uniforms.uColor.value); m.uniforms.uGain.value = 0; });
-      [sockMat, wallMat, hubMat, busMat, pktMat, pillMat, ribMat,
-       pubMat, flow.mat].concat(loops.map(l => l.m))
+      [wallMat, ribMat, pubMat].concat(loops.map(l => l.m))
         .forEach(m => { m.uniforms.uBack.value = .55; setBlend(m, cssNum('--k-add', 0)); });
+      /* 波C·终审 · **板描边的雾豁免**：槽框 / 发布槽 / 模块板这三样是「板边」，
+         页上都是实打实的一支笔；让深度雾去啃它们，并排就读成「LAB 版更灰」。
+         uBack = 1 ⇒ 它们不再随深度掉档（腔壁 / 内肋 / 注光那几样照旧吃雾 ——
+         那才是「深度」该表现的地方）。 */
+      [sockMat, pillMat].forEach(m => {
+        m.uniforms.uBack.value = 1; setBlend(m, cssNum('--k-add', 0)); });
+      setBlend(hubMat, cssNum('--k-add', 0));
       /* 核与环坐在腔底（−203）—— 那已经越过深度雾的远端了。深度线索这里交给
          **几何**（LZ 的真透视缩小）承担，雾底放到 .88，否则核直接被雾吃掉。 */
       [coreMat, ringMat].forEach(m => { m.uniforms.uBack.value = .88;
@@ -9501,12 +9677,11 @@ def lab_k():
     # ⑫ P10 产品大图（分层深度化 · 相机不动）
     m = _obj([
         ("box", _rows(_P10BOX)), ("ring", _rows(_P10RING)),
-        ("lane", _rows(_P10LANE)), ("beam", _rows(_P10BEAM)),
         ("zl", _arr(_M_ZL)), ("lop", _arr(_M_LOP)),
-        ("dz", _n(float(_M_DZ))), ("beat", _n(_M_BEAT)),
-        # 波B 轻手术：介质名册（下标）+ 流带半宽 + 逐股波峰速度
-        ("medL", _arr(_M_MEDL)), ("medB", _arr(_M_MEDB)),
-        ("floww", _n(_M_FLOWW)), ("spd", _arr(_SPD_P10)),
+        # 波C：车道 / 层间束 / 介质名册 / 流带半宽 / 逐股速度、以及背向拉伸的 dz
+        #   全部退册（画布不再画流，也不再画第二圈轮廓）。
+        #   新增 dash / sw —— 页上那支笔的 dasharray 与 stroke-width 本人。
+        ("dash", _arr(_M_DASH)), ("sw", _arr(_M_SW)),
     ])
     # ⑬ P11 弱网 AI QoS（囤着播）
     q = _obj([
@@ -9534,17 +9709,17 @@ def lab_k():
         ("dz", "30"), ("beat", "3.4"),
         ("pdur", _n(_dur_at(_spd_rows(12)[0][1], _spd_rows(12)[0][2]))),
     ])
-    # ⑮ P13 编排中枢机（波B · 王冠二）
-    _fl = _plen(_P13FLOW)
-    _gz = [g for g in (_box_u(_P13FLOW, b) for b in _P13GHOST) if g]
+    # ⑮ P13 编排中枢机（波B · 王冠二 · 波C 去流）
     k = _obj([
         ("slot", _rows(_P13SLOT)), ("hub", _arr(_P13HUB)),
-        ("bus", _rows(_P13BUS)), ("run", _rows(_P13RUN)),
+        ("hubR", _n(float(_K_HUBR))), ("hubSw", _n(_K_HUBSW)),
+        # 波C：bus / run 退册 —— 总线与包都是页上那张 2D 图本人，画布不再画第二遍。
         ("zSlot", _n(float(_K_ZSLOT))), ("zPlate", _n(float(_K_ZSLOT))),
         ("zHub", _n(float(_K_ZHUB))), ("zBus", _n(float(_K_ZBUS))),
         ("cav", _n(float(_K_CAV))), ("dz", "34"), ("pad", "14"), ("pad2", "12"),
         ("cyc", _n(_K_CYC)), ("sw", _n(_K_SW)), ("beat", "3.6"),
-        ("pill", _arr(_P13PILL)), ("brk", _rows(_P13BRK)),
+        ("pill", _arr(_P13PILL)), ("pillR", _n(float(_K_PILLR))), ("brk", _rows(_P13BRK)),
+        ("pillSw", _n(_K_PILLSW)), ("brkSw", _n(_K_BRKSW)),
         # 机腔 / 内肋 / 呼吸转子 / 发布脉冲
         ("hubCav", _n(_K_HUBCAV)), ("rib", str(_K_RIB)),
         ("coreN", str(_K_CORE_N)), ("pub", _n(_K_PUB)),
@@ -9553,13 +9728,8 @@ def lab_k():
         ("orb", _rows(_K_ORB)), ("orbBr", _n(_K_ORB_BR)),
         ("orbRoll", _arr(_K_ORB_ROLL)), ("orbArc", _arr(_K_ORB_ARC)),
         ("ink", _rows(_P13INK)), ("clr", _n(_K_CLR)),
-        # 贯通流：折线 + ghost 窗口（弧长区间，px）+ 渐隐半宽 + 波峰速度
-        ("flow", _rows(_P13FLOW)), ("flowLen", _n(_fl)),
-        ("gz", _rows(_gz)), ("gzF", _n(_K_GZF)), ("flowSpd", _n(_SPD_P13)),
-        # 本页覆写的幅度档（lab-kit ⑨ 的 _AS_* 全局常量一个没动）
-        ("flowW", _n(_K_FLOWW)), ("flowFloor", _n(_K_FLOWFLOOR)),
-        ("flowGhost", _n(_K_FLOWGHOST)), ("flowLam", _f1(_k_flow_lam())),
-        ("flowEdge", "%.5f" % _k_flow_edge()),
+        # 波C：贯通流（折线 / ghost 窗口 / 幅度档 / 波峰速度）整批退册 ——
+        #   本页画布上一条 mkStream 都没有了，留着这十个数就是留一张对不上实现的表。
         # 两条往返闭环（分居总线 ±8px）
         ("loop", "[" + ",".join(_rows(lp2) for lp2 in _P13LOOP) + "]"),
         ("busx", str(_K_BUSX)), ("loopOff", _n(_K_LOOP_OFF)),
@@ -10963,6 +11133,19 @@ def _anchor_chip(x, y, n, label, i=9, h=32):
 
 def _bigmap():
     o = []
+    # ── 波C：poster 点名册 —— **只有会被 3D 实心板 / 环替代掉的那几只件**进 poster ──
+    #   十一只盒（_P10BOX）+ 两枚 MIC / SPK 圆（_P10RING）。除此之外这张图上的
+    #   每一笔（车道线 / 包 / 箭头 / 虚线 / AEC 参考环 / 快路径 / 图标字形 / 计时标 /
+    #   图例 / 锚点 chip / 全部文字）都**留在可见层**：它在 convoai#10 上长什么样，
+    #   LAB 上就长什么样。_bx / _cir 只做一件事 —— 生成片段的同时把它记进名册。
+    _pb = []
+
+    def _bx(*a, **kw):
+        s = box(*a, **kw); _pb.append(s); return s
+
+    def _cir(s):
+        _pb.append(s); return s
+
     # ── 域分隔（两条竖直 hairline；三域底标见 ⑥ 之上一行）──
     #   走细虚线而不是实线：舞台底纹 .slide::before 每 240px 有一条实心竖 hairline，
     #   实线域分隔会和它撞成同一种东西，读者分不清哪条是「域」。
@@ -10970,7 +11153,7 @@ def _bigmap():
           dline("M1307 96 V562", HS, 1, 0, dash="3 9")]
 
     # ── ① 顶部控制面（客户服务器域 · 虚线横条）──
-    o.append(box(260, 4, 1390, 62, 8, dashed=True, i=1))
+    o.append(_bx(260, 4, 1390, 62, 8, dashed=True, i=1))
     o.append(txt(284, 42, "客户服务器", "sm", size=14, col="var(--ink-3)", mono=True))
     o.append(txt(955, 32, "客户业务服务器 · REST 控制面", "ttl", size=22, anchor="middle"))
     o.append(txt(955, 58, "Token 签名 · 创建/控制 Agent · Function Call 回调",
@@ -10982,26 +11165,26 @@ def _bigmap():
 
     # ── ② 上行车道（左 → 右 · 实线音频流）──
     o.append(txt(150, 108, "上行 · 边听 &#8594;", "sm", size=15, col=AC, mono=True))
-    o.append('<circle class="pop box" style="--i:1" cx="70" cy="176" r="38" stroke-width="1.4"/>')
+    o.append(_cir('<circle class="pop box" style="--i:1" cx="70" cy="176" r="38" stroke-width="1.4"/>'))
     o.append('<path class="pop" style="--i:1" d="M70 158a9 9 0 0 1 9 9v9a9 9 0 0 1-18 0v-9a9 9 0 0 1 9-9z '
              'M57 174a13 13 0 0 0 26 0 M70 187v8" fill="none" stroke="%s" stroke-width="2.2" '
              'stroke-linecap="round"/>' % AC)
     o.append(txt(70, 236, "MIC", "lbl", size=14, anchor="middle"))
-    o.append(box(150, 132, 190, 88, 6, i=2))
+    o.append(_bx(150, 132, 190, 88, 6, i=2))
     o.append(txt(245, 172, "AEC 回声消除", "ttl", size=21, anchor="middle"))
     o.append(txt(245, 198, "减掉自己的声音", "sm", size=15, anchor="middle"))
-    o.append(box(382, 132, 210, 88, 6, i=3))
+    o.append(_bx(382, 132, 210, 88, 6, i=3))
     o.append(txt(487, 172, "SAL 声纹锁定", "ttl", size=21, anchor="middle"))
     o.append(txt(487, 198, "降噪 · 只留目标人声", "sm", size=15, anchor="middle"))
     # 全图核心件：AI-VAD 大号 hot 盒
     o.append(halo_rect(634, 116, 430, 128, 8, sc="1.05", op=".28", dur="3.4s"))
-    o.append(box(634, 116, 430, 128, 8, hot=True, i=4, cls="mo-breathe", sty="--mo-dur:3.4s"))
+    o.append(_bx(634, 116, 430, 128, 8, hot=True, i=4, cls="mo-breathe", sty="--mo-dur:3.4s"))
     o.append(txt(849, 158, "AI-VAD 进阶判停", "ttl", size=30, anchor="middle", col=AC))
     o.append(txt(849, 192, "TEN VAD 声学内核 · 帧级 10/16ms · 开源", "sm", size=16, anchor="middle"))
     o.append(txt(849, 220, "+ 语义判停 · CAN 三路融合 · 商业进阶", "sm", size=16, anchor="middle", col=AC))
     # 角标压在盒的左上角（而不是右上角）：右上角紧邻「→ ASR」那支箭头，读者会把它当箭头的注解
     o.append(txt(640, 106, "帧级 10/16ms", "sm", size=14, col=AC, mono=True))
-    o.append(box(1106, 132, 180, 88, 6, i=5))
+    o.append(_bx(1106, 132, 180, 88, 6, i=5))
     o.append(txt(1196, 172, "流式 ASR", "ttl", size=21, anchor="middle"))
     o.append(txt(1196, 198, "增量文本", "sm", size=15, anchor="middle"))
     # 运动原语 ①（2026-08-21 动效轮新增的纯装饰件 · 几何与文字零改动）：
@@ -11016,14 +11199,14 @@ def _bigmap():
         o.append(ah_r(x2, 176, AC))
 
     # ── ③ 右侧中枢（想）：实时编排 ⇄ LLM ──
-    o.append(box(1328, 116, 340, 132, 8, hot=True, i=4))
+    o.append(_bx(1328, 116, 340, 132, 8, hot=True, i=4))
     o.append(txt(1498, 158, "实时编排 · 轮次决策", "ttl", size=25, anchor="middle", col=AC))
     o.append(txt(1498, 194, "此刻要不要出声", "sm", size=16, anchor="middle"))
     o.append(txt(1498, 220, "要不要让位", "sm", size=16, anchor="middle"))
     o.append(ah_u(1498, 252, AC, 6))
     o.append(vline(1498, 262, 312, AC, 2, 5))
     o.append(ah_d(1498, 322, AC, 6))
-    o.append(box(1328, 324, 340, 88, 6, i=5))
+    o.append(_bx(1328, 324, 340, 88, 6, i=5))
     o.append(txt(1498, 362, "LLM", "ttl", size=26, anchor="middle"))
     o.append(txt(1498, 392, "MCP · Function Call · 知识库 RAG", "sm", size=14, anchor="middle"))
     # AI-VAD → 编排 的第二类输出：虚线事件（SOS / EOS · 打断），绕开 ASR 从下方走
@@ -11034,12 +11217,12 @@ def _bigmap():
 
     # ── ④ 下行车道（右 → 左 · 实线音频流）──
     o.append(txt(150, 310, "&#8592; 下行 · 边说", "sm", size=15, col=AC, mono=True))
-    o.append(box(1106, 324, 180, 88, 6, i=4))
+    o.append(_bx(1106, 324, 180, 88, 6, i=4))
     o.append(txt(1196, 364, "流式 TTS", "ttl", size=21, anchor="middle"))
     o.append(txt(1196, 390, "增量合成 · 随时可截断", "sm", size=14, anchor="middle"))
-    o.append(box(620, 324, 210, 88, 6, i=5))
+    o.append(_bx(620, 324, 210, 88, 6, i=5))
     o.append(txt(725, 376, "语音输出", "ttl", size=22, anchor="middle"))
-    o.append('<circle class="pop box" style="--i:6" cx="70" cy="368" r="38" stroke-width="1.4"/>')
+    o.append(_cir('<circle class="pop box" style="--i:6" cx="70" cy="368" r="38" stroke-width="1.4"/>'))
     o.append('<path class="pop" style="--i:6" d="M62 358h-9v21h9l14 11V347z M83 361a9 9 0 0 1 0 15 '
              'M89 355a16 16 0 0 1 0 27" fill="none" stroke="%s" stroke-width="2.2" '
              'stroke-linecap="round" stroke-linejoin="round"/>' % AC)
@@ -11053,7 +11236,7 @@ def _bigmap():
     o.append('<circle class="pop" style="--i:6;fill:%s" cx="1000" cy="368" r="6"/>' % AC)
     o.append(dline("M1000 374 V434", HS, 2, 6, dash="6 6"))
     o.append(ah_d(1000, 446, "var(--ink-3)", 7))
-    o.append(box(850, 446, 300, 62, 6, dashed=True, i=7))
+    o.append(_bx(850, 446, 300, 62, 6, dashed=True, i=7))
     o.append(txt(1000, 476, "数字人", "ttl", size=21, anchor="middle"))
     o.append(txt(1000, 499, "口型 / 表情 · 可选", "sm", size=14, anchor="middle"))
     o.append(txt(1170, 484, "不在 650ms 主路上", "sm", size=14, col="var(--ink-3)"))
@@ -11089,8 +11272,8 @@ def _bigmap():
     #   这一条必须走不透明的 --card-bg-2（不是 72% 透明的 --card-bg）：
     #   content 背景板自带的 accent 细线正好在 y566–570，半透明条会让它从条里透出来，
     #   看着像条子长了半截粉色上边框。
-    o.append('<rect class="pop" style="--i:8;fill:var(--card-bg-2)" x="0" y="566" '
-             'width="1668" height="70" rx="8" stroke="var(--hair)" stroke-width="1.4"/>')
+    o.append(_cir('<rect class="pop" style="--i:8;fill:var(--card-bg-2)" x="0" y="566" '
+                  'width="1668" height="70" rx="8" stroke="var(--hair)" stroke-width="1.4"/>'))
     o.append(txt(34, 608, "SD-RTN · 软件定义实时网", "ttl", size=24))
     o.append(ah_l(420, 601, "var(--ink-3)"))
     o.append(hline(432, 1148, 601, HS, 2, 8))
@@ -11128,7 +11311,11 @@ def _bigmap():
     #        左边 21px 外是 x361 那条域分隔虚线，不相碰。
     for _ax, _ay, _an, _al in [(392, 446, 1, "650MS"), (578, 258, 2, "340MS"), (382, 92, 3, "95%")]:
         o.append(_anchor_chip(_ax, _ay, _an, _al))
-    return _lpsplit(o, keep=_leg)
+    # 波C：图例走 keep 的老理由（图例不是图）仍然成立，只是现在**整张图**都留在
+    # 可见层了 —— keep 名单被 _lppick 的点名册整体取代，_leg 因此不再需要特判。
+    assert len(_pb) == len(_P10BOX) + len(_P10RING), \
+        "波C P10 poster 点名册 %d 件 != 十一只盒 + 两枚环" % len(_pb)
+    return _lppick(o, set(_pb))
 
 page("content", "".join([
     # 2026-08-23 采纳项 F · kicker 消歧：本页（引擎内部数据流 · 今 P10）与 P14（客户接入架构）
@@ -11366,33 +11553,42 @@ def _slot(x, y, w, h, name, i=1, dashed=False):
             swap_mark(x + w - 46, y - 14, i=i,
                       sty="--mo-lo:.5;--mo-dur:5.4s;--mo-del:-%.1fs" % (0.9 * i))]
 def _orch_fig():
+    # ── 波C：poster 点名册（同 P10 的做法）—— 只有会被 3D 替代掉的「盒」进 poster：
+    #   六只槽框 + 六块模块板 + 中枢盒 + 发布槽 + 集体括号三段。
+    #   总线线段 / 八枚 .mo-packet / 箭头 / 虚线 / ⇄ 换装件 / 中枢光晕 / 图例
+    #   **全部留在可见层** —— 它们在 convoai#13 上长什么样，LAB 上就长什么样。
+    _pb = []
     o = [txt(250, 26, "可自由替换 · 模型层", "lbl", size=16, anchor="middle", col=AC),
          txt(1430, 26, "按需叠加 · 高阶能力", "lbl", size=16, anchor="middle", col=AC)]
     # ── 左列：四个模型槽 → 支线汇到 x540 总线 → 一条主干进引擎（唯一一枚箭头落在引擎口）──
     _LY = [60, 168, 276, 384]
     for i, n in enumerate(_MODELS):
         y = _LY[i]
-        o += _slot(60, y, 380, 68, n, i=i + 1)
+        _sl = _slot(60, y, 380, 68, n, i=i + 1)
+        _pb += _sl[:2]; o += _sl          # [槽框, 模块板] 进 poster；[槽名, ⇄] 留在外面
         o.append(packet("M440 %d H528" % (y + 34), 88, seg=18, w=10, op=".32", dur="1.06s", i=i + 2))
         o.append(hline(440, 528, y + 34, AC, 2, i + 2)); o.append(ah_r(540, y + 34, AC, 7))
     o.append(vline(540, _LY[0] + 34, _LY[3] + 34, AC, 2, 5))
     o.append(packet("M540 260 H606", 66, seg=18, w=11, op=".32", dur="0.84s", i=5))
     o.append(hline(540, 606, 260, AC, 2.5, 5)); o.append(ah_r(618, 260, AC))
     # 集体括号：四个槽共享的一条产品承诺
-    o.append(hline(60, 440, 472, AC, 2, 6))
-    o.append(vline(60, 460, 472, AC, 2, 6)); o.append(vline(440, 460, 472, AC, 2, 6))
+    for _e in (hline(60, 440, 472, AC, 2, 6),
+               vline(60, 460, 472, AC, 2, 6), vline(440, 460, 472, AC, 2, 6)):
+        _pb.append(_e); o.append(_e)      # 集体括号 = pillMat 那一组，进 poster
     o.append(txt(250, 502, "可替换 · 可兜底 · 可热切换", "sm", size=18, anchor="middle", col=AC,
                  weight=700))
     # 中枢（唯一 hot 件）
     o.append(halo_rect(620, 180, 440, 160, 16, sc="1.05", op=".3", dur="3.6s"))
-    o.append(box(620, 180, 440, 160, 16, hot=True, i=0, cls="mo-breathe", sty="--mo-dur:3.6s"))
+    _hb = box(620, 180, 440, 160, 16, hot=True, i=0, cls="mo-breathe", sty="--mo-dur:3.6s")
+    _pb.append(_hb); o.append(_hb)
     o.append(txt(840, 250, "对话引擎", "ttl", size=36, anchor="middle", col=AC))
     o.append(txt(840, 296, "实时编排", "txt", size=21, anchor="middle"))
     # ── 右列：两个高阶槽（虚线 = 按需）→ 支线汇到 x1140 总线 → 主干「向左」进引擎 ──
     _RY = [168, 296]
     for i, n in enumerate(_ADDONS):
         y = _RY[i]
-        o += _slot(1240, y, 380, 68, n, i=i + 3, dashed=True)
+        _sl = _slot(1240, y, 380, 68, n, i=i + 3, dashed=True)
+        _pb += _sl[:2]; o += _sl
         o.append(packet("M1240 %d H1152" % (y + 34), 88, seg=18, w=10, op=".32", dur="1.06s", i=i + 3))
         o.append(dline("M1240 %d H1152" % (y + 34), AC, 2, i + 3, dash="7 6"))
         o.append(ah_l(1140, y + 34, AC, 7))
@@ -11401,14 +11597,17 @@ def _orch_fig():
     o.append(dline("M1140 260 H1086", AC, 2.5, 5, dash="7 6")); o.append(ah_l(1074, 260, AC))
     # 底部小流程带：无箭头细连线（附属说明，不是第三种流向）
     o.append(vline(840, 348, 398, HS, 1.4, 6))
-    o.append('<rect class="pop" style="--i:7;fill:var(--card-bg-2)" x="620" y="400" width="440" '
+    _pill = ('<rect class="pop" style="--i:7;fill:var(--card-bg-2)" x="620" y="400" width="440" '
              'height="60" rx="30" stroke="%s" stroke-width="1.4"/>' % HS)
+    _pb.append(_pill); o.append(_pill)
     o.append(txt(840, 438, "实时调试 &#8594; 一键发布", "ttl", size=22, anchor="middle"))
     # 图例第 2 条必须显式给 accent：右列的按需插入线是 accent 虚线，
     # 而 lg_dash 默认取 hair-strong 灰 —— 不给色，图例样线会和页内真线不同色。
     o.append(legend(0, 530, [("solid", "插入 · 指向引擎"), ("dash", "按需插入 · 高阶能力", 2, AC),
                              ("swap", "可替换 · 换装")]))
-    return _lpsplit(o)
+    assert len(_pb) == 2 * len(_P13SLOT) + 1 + 1 + len(_P13BRK), \
+        "波C P13 poster 点名册 %d 件 != 六槽×2 + 中枢 + 发布槽 + 括号三段" % len(_pb)
+    return _lppick(o, set(_pb))
 page("content", "".join([
     head("OPEN & FLEXIBLE · 灵活扩展", "你的模型自由组合，<strong>引擎负责编排</strong>。"),
     lab(120, 236, "01 · ORCHESTRATION"),
@@ -12559,19 +12758,23 @@ def build():
                 assert math.hypot(_dx, _dy) >= _K_CLR, \
                     "⑮ P13 发布脉冲注光路径压字：(%.0f,%.0f) 距墨迹盒 %.1fpx" % (
                         _px, _py, math.hypot(_dx, _dy))
-    # ── 终审硬伤二：P13 贯通流必须有落点，且不许溢出版心 ─────────────────────
-    _fend = (LAB_RECTS[13][1] + _P13FLOW[-1][0], LAB_RECTS[13][2] + _P13FLOW[-1][1])
-    _sink = LAB_RECTS[13][1] + _P13PILL[0] + _P13PILL[2]     # 发布槽右缘（页坐标）
-    assert _fend[0] <= 1800, "⑨ P13 贯通流溢出版心：终点 x=%d > 1800" % _fend[0]
-    assert abs(_fend[0] - _sink) <= 40, \
-        "⑨ P13 贯通流没有落点：终点 x=%d 不在发布槽右缘 %d ±40 内" % (_fend[0], _sink)
-    assert _P13PILL[1] <= _P13FLOW[-1][1] <= _P13PILL[1] + _P13PILL[3], \
-        "⑨ P13 贯通流的终点没落在发布槽的高度区间里（y=%d）" % _P13FLOW[-1][1]
-    assert 0 < _K_FLOWGHOST < _K_FLOWFLOOR < _AS_FLOOR and _K_FLOWW < 11.0, \
-        "⑨ P13 幅度覆写不成立（ghost %.3f / floor %.3f / w %.1f）" % (
-            _K_FLOWGHOST, _K_FLOWFLOOR, _K_FLOWW)
+    # ── 波C ⑨：**架构图上不许有介质带** —— 两页的正面自证 ─────────────────────
+    #   终审硬伤二那三条（贯通流的落点 / 不溢出版心 / 幅度覆写）随贯通流一起退役：
+    #   它们证的是「这条带子画得好不好」，而波C 的裁定是**这条带子不该在这一页**。
+    #   接替它们的是下面这条更硬的：两页的介质带常量**一枚都不许再存在**
+    #   —— 名册没了，实现就不可能偷偷长回来（这比「值对不对」更根本）。
+    for _bad in ("_P10LANE", "_P10BEAM", "_M_MEDL", "_M_MEDB", "_M_FLOWW", "_SPD_P10",
+                 "_P13FLOW", "_P13BUS", "_P13GHOST", "_SPD_P13",
+                 "_K_FLOWW", "_K_FLOWFLOOR", "_K_FLOWGHOST", "_K_GZF"):
+        assert _bad not in globals(), \
+            ("⑨ 架构图两页（P10 / P13）还留着介质带常量 %s —— 模块 + 连线上的流"
+             "只准是页上的 .mo-packet，mkStream 只给「场」用" % _bad)
+    #   反面的另一半：运行时 `K.m` / `K.k` 里也不许再出现流带参数（表与实现同步退役）
+    _kdoc = doc.split("const K=", 1)[1].split(";", 1)[0] if "const K=" in doc else ""
+    for _bad in ('"lane"', '"beam"', '"medL"', '"medB"', '"floww"', '"flowLam"', '"gzF"'):
+        assert _bad not in _kdoc, "⑨ 运行时 K 表里还留着 %s" % _bad
     assert (_AS_LAM, _AS_FLOOR, _AS_GHOST) == (232.0, 0.30, 0.055), \
-        "⑨ lab-kit ⑨ 的全局幅度档被动了 —— P13 只准在本页 opt 里覆写"
+        "⑨ lab-kit ⑨ 的全局幅度档被动了"
     # ── ㉒ 三轮「静态页升维」· 加法层三页的构建期硬闸 ─────────────────────────
     #    ① 净空：每一页的 3D 几何与该页**字形墨迹盒**的最小距离 ≥ 16px
     #       （已扣掉带宽 / 粒半径 —— 量的是「屏上真的画出来的边缘」，不是中心线）；
@@ -12841,7 +13044,8 @@ def build():
         _declared = {p for p, k, _w in _DIVERGE if k == "geom"}
         assert _geomdiff == _declared, \
             "版式分歧名册对不上：产物实际分叉 %r，名册声明 %r" % (sorted(_geomdiff), sorted(_declared))
-        assert len(_DIVERGE) == 7, "版式分歧应为 7 处，名册里有 %d 处" % len(_DIVERGE)
+        # 波C：+1（P10 也改成点名式 poster 分组）⇒ 7 → 8 处
+        assert len(_DIVERGE) == 8, "版式分歧应为 8 处，名册里有 %d 处" % len(_DIVERGE)
         # stage 行：P18 的舞台真的横跨了两图（母本那只 figbox 只有 1240 宽）
         assert LAB_RECTS[18][3] > 1240, \
             "版式分歧 stage 行不成立：P18 舞台宽 %d 没有横跨两图" % LAB_RECTS[18][3]
@@ -12873,11 +13077,13 @@ def build():
     print("  版式分歧名册：%s" % " / ".join("P%d·%s" % (p, k) for p, k, _w in _DIVERGE))
     print("  波A 速度表：A 档 %d 股 · %.1f–%.1f px/s · 极差 %.2f×（基准 %.0f ±%d%%）"
           % (len(_SPD_ALL), _spdlo, _spdhi, _spdhi / _spdlo, _SPD_A, int(_SPD_TOL * 100)))
-    print("  P13 定点修复：转子净空 %.1fpx（下限 %.0f）· 包围盒 %r ⊂ 机腔 %r · "
-          "贯通流 %.0fpx → 落点 x%d（发布槽右缘 %d）· 幅度 w%.0f/floor%.2f/ghost%.3f/λ%.0f"
-          % (_K_CLR_MIN, _K_CLR, [round(v) for v in _K_ORB_BOX], list(_P13HUB),
-             _plen(_P13FLOW), _fend[0], _sink,
-             _K_FLOWW, _K_FLOWFLOOR, _K_FLOWGHOST, _k_flow_lam()))
+    print("  P13 定点修复：转子净空 %.1fpx（下限 %.0f）· 包围盒 %r ⊂ 机腔 %r"
+          % (_K_CLR_MIN, _K_CLR, [round(v) for v in _K_ORB_BOX], list(_P13HUB)))
+    print("  波C 去介质带（架构图 = 帧/包）：P10 画布 %d 只实心板（虚线板 %d）+ %d 枚环 + "
+          "%d 层深度，流 / 线 / 包 / 箭头 / 图标全部是页上那张 2D 原图｜"
+          "P13 画布 = 插槽机本体（%d 只单元 + 机腔 + 转子 %d 点），贯通流 / 总线 / 包退回 2D"
+          % (len(_P10BOX), len([r for r in _P10BOX if r[6]]), len(_P10RING), len(_M_ZL),
+             len(_P13SLOT), _K_CORE_N))
     print("  三轮加法层：P5 底场 / P15 中心辐射 / P16 通话流 · "
           "净空 %s（下限 %.0f）· 摘层即母本（逐字节）"
           % (" / ".join("P%d %.1f" % (p, _ADD_CLRMIN[p]) for p in _ADD_PAGES), _ADD_CLR))

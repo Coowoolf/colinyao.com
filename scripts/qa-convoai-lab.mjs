@@ -963,21 +963,23 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       u: { in: +u.labIn, cut: +u.labCut, fall: +u.labFall, ghost: +u.labGhost },
       m: { layers: +m.labLayers, boxes: +m.labBoxes, zl: nums(m.labZl),
            lanes: +m.labLanes, beams: +m.labBeams, drift: +m.labDrift,
-           med: nums(m.labMed), evt: +m.labEvt },
+           med: nums(m.labMed), evt: +m.labEvt,
+           // 波C：实心板 / 虚线板各几只（虚线的那两只在 3D 里也必须是虚线板）
+           plates: +m.labPlates, dashed: +m.labDashed },
       qs: { dark: nums(qs.labDark), loss: nums(qs.labLoss), heap: nums(qs.labHeap),
             rain: +qs.labRain, rainDark: +qs.labRainDark, out: +qs.labOut },
       w: { apex: nums(w.labApex), mouth: nums(w.labMouth), weak: +w.labWeak,
            zweak: +w.labZweak },
       k: { slots: +k.labSlots, cyc: +k.labCyc, swap: +k.labSwap, cav: +k.labCav,
            hubcav: +k.labHubcav, ribs: +k.labRibs, core: +k.labCore, pub: +k.labPub,
-           pubpath: rows(k.labPubpath), flowLen: +k.labFlowLen, gz: rows(k.labGz),
+           pubpath: rows(k.labPubpath),
            loops: +k.labLoops, loopOff: +k.labLoopOff, busx: +k.labBusx,
            swz: +k.labSwz, swA: nums(k.labSwA), swB: nums(k.labSwB),
-           // 定点修复：转子净空 / 三枚轨道 / 贯通流落点与幅度覆写
+           // 定点修复：转子净空 / 三枚轨道
            ink: rows(k.labInk), orb: rows(k.labOrb),
            clr: +k.labClr, clrMin: +k.labClrMin,
-           flowEnd: nums(k.labFlowEnd), flowSink: +k.labFlowSink,
-           flowAmp: nums(k.labFlowAmp) },
+           // 波C：贯通流 / 总线 / 包退回 2D ⇒ 画布上这三样恒 0
+           flows: +k.labFlows, bus: +k.labBus, pkts: +k.labPkts },
       y: { towers: +y.labTowers, arcs: +y.labArcs, steps: +y.labSteps,
            z: nums(y.labZ), cyc: +y.labCyc },
       v: { spin: +v.labSpin, amp: +v.labAmp, w0: +v.labW0, pts: +v.labPts,
@@ -1064,7 +1066,13 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   ok(dta.m.layers === 5 && dta.m.zl.length === 5, `⑲h P10 分层数 ${dta.m.layers} != 5`);
   ok(new Set(dta.m.zl).size === 5, `⑲h P10 五层深度有重复（${dta.m.zl}）—— 那就没分层`);
   ok(dta.m.boxes >= 10, `⑲h P10 盒表只有 ${dta.m.boxes} 只 —— 大图的盒没进 3D`);
-  ok(dta.m.lanes >= 4 && dta.m.beams >= 5, `⑲h P10 车道/层间束 ${dta.m.lanes}/${dta.m.beams} 太少`);
+  /* ── 波C（2026-09-07）：架构图上的流回到「帧 / 包」⇒ 画布上不许再有车道 / 层间束 ──
+     反过来断言：这两个数必须是 **0**。大图的流 / 线 / 包 / 箭头 / 图标全部是页上
+     那张 2D 原图本人（poster 点名式分组，只有十一只盒 + 两枚环被板替代）。 */
+  ok(dta.m.lanes === 0 && dta.m.beams === 0,
+     `⑲h P10 画布上还有车道 ${dta.m.lanes} / 层间束 ${dta.m.beams} —— 架构图上的流只准是页上的 .mo-packet`);
+  ok(dta.m.plates === 9 && dta.m.dashed === 2,
+     `⑲h P10 实心板 ${dta.m.plates} / 虚线板 ${dta.m.dashed}（要 9 + 2：hot 的两只在页上是 fill:none）`);
   ok(dta.m.drift === 0,
      `⑲h P10 声明了 ${dta.m.drift} 的视差位移 —— 大图页的红线是「一格不许挪」，必须是 0`);
   //   P11 QoS：断网段上游**一枚包都不许有**；缓存堆覆盖整条时间轴；下游包流不断
@@ -1145,11 +1153,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
      `⑲h P7 一趟 ${dta.t.lap}s != 周期 ${dta.t.per} ÷ 110px/s`);
   ok(Math.abs(dta.t.lap - 8.909091) < 1e-4, `⑲h P7 一趟不是 8.91s（${dta.t.lap}）`);
   ok(dta.t.nt === 197, `⑲h P7 预计算表长 ${dta.t.nt} != 197`);
-  //   P10 轻手术：介质与离散事件的名册（逐条判，不是一刀切）+ 零位移仍是 0
-  ok(String(dta.m.med) === '4,4',
-     `⑲h P10 介质名册 ${dta.m.med} != 4 条车道 + 4 道握手`);
-  ok(dta.m.evt === 3,
-     `⑲h P10 保持粒子的离散事件 ${dta.m.evt} != 3（SOS·EOS / 打断快路径 / 客户控制面）`);
+  //   P10 波C：介质名册与离散事件粒子**一并退回 2D** —— 两个 0（零位移仍是 0）
+  ok(String(dta.m.med) === '0,0',
+     `⑲h P10 画布上还挂着介质名册 ${dta.m.med} —— 波C 之后大图一条流带都没有`);
+  ok(dta.m.evt === 0,
+     `⑲h P10 画布上还有 ${dta.m.evt} 条离散事件粒子 —— SOS·EOS / 打断快路径 / 客户控制面都回 2D 了`);
   //   P13 编排中枢机：机腔 2.9 倍 · 三道内肋 · 420 点核 · 4.4s 发布脉冲 ·
   //   贯通流的 ghost 窗口 · 两条闭环分居总线 ±8px · 热切换错峰
   {
@@ -1161,11 +1169,13 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     ok(Math.abs(K2.pub - 4.4) < 1e-9, `⑲h P13 发布脉冲周期 ${K2.pub}s != 4.4s`);
     ok(String(K2.pubpath.map(q => q.join(','))) === '840,336,840,348,840,398',
        `⑲h P13 发布脉冲没有走页上那条 vline(840,348,398)：${K2.pubpath}`);
-    ok(K2.gz.length === 4 && K2.gz.every(z => z[1] > z[0]),
-       `⑲h P13 贯通流的 ghost 窗口不合法：${K2.gz}`);
-    ok(K2.flowLen > 1200, `⑲h P13 贯通流只有 ${K2.flowLen}px —— 那不叫「走完全程」`);
+    /* ── 波C：贯通流 / 总线 / 总线包退回 2D ⇒ 画布上这三样恒 0 ──────────────
+       本页也是架构图（六只模块盒 + 中枢 + 连线）：连线上的流只准是页上那八枚
+       .mo-packet。ghost 窗口那一套（「靠开窗才不压字」）随流一起退役。 */
+    ok(K2.flows === 0 && K2.bus === 0 && K2.pkts === 0,
+       `⑲h P13 画布上还有流带 ${K2.flows} / 总线 ${K2.bus} / 包 ${K2.pkts} —— 都该回 2D`);
     /* ── 终审硬伤一：转子净空（构建期实测摊在 data-lab-clr-min 上）───────────
-       墨迹盒必须**就是** ghost 窗口那两只中枢字盒（同一份真相，不许另立一套）*/
+       墨迹盒 = 页上「对话引擎 / 实时编排」两行字的墨迹（波C 之后直接声明）*/
     ok(K2.ink.length === 2 && String(K2.ink[0]) === '760,226,160,40'
        && String(K2.ink[1]) === '795,274,90,28',
        `⑲h P13 净空用的墨迹盒不是页上那两行字：${K2.ink.map(b => b.join(','))}`);
@@ -1193,18 +1203,6 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
            `⑲h P13 轨道 ${o} 越出机腔（半轴 ${A.toFixed(0)}×${B.toFixed(0)}）`);
       });
     }
-    /* ── 终审硬伤二：贯通流必须有落点，且不许溢出版心 ─────────────────────── */
-    ok(K2.flowEnd[0] <= 1800,
-       `⑲h P13 贯通流溢出版心：终点 x=${K2.flowEnd[0]} > 1800`);
-    ok(Math.abs(K2.flowEnd[0] - K2.flowSink) <= 40,
-       `⑲h P13 贯通流没有落点：终点 x=${K2.flowEnd[0]} 不在发布槽右缘 ${K2.flowSink} ±40 内`);
-    ok(K2.flowAmp[0] < 11 && K2.flowAmp[1] < 0.30 && K2.flowAmp[3] < 232,
-       `⑲h P13 幅度档没有收紧（w/floor/ghost/λ = ${K2.flowAmp}）`);
-    ok(K2.flowAmp[2] < K2.flowAmp[1],
-       `⑲h P13 让位档不比幅度地板低（${K2.flowAmp[2]} / ${K2.flowAmp[1]}）`);
-    ok(Math.abs(K2.flowAmp[2] * K2.flowAmp[0] - 0.055 * 11) < 0.05,
-       `⑲h P13 让位细线的绝对粗细变了：${(K2.flowAmp[2]*K2.flowAmp[0]).toFixed(3)}px`
-       + ` != ${(0.055*11).toFixed(3)}px`);
     ok(K2.loops === 2 && K2.loopOff === 8,
        `⑲h P13 往返闭环 ${K2.loops} 条 / 偏 ${K2.loopOff}px（要 2 条 · 分居总线 ±8px）`);
     ok(K2.swz === -320, `⑲h P13 退场深度 ${K2.swz} != −320`);
@@ -1500,7 +1498,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     console.log(`  · ⑲p2 morph：14s 一代 / 7s 一台 · 三态权重恒和 1 · 让位 ${O.yaw[1]}s + 回正 ${O.yaw[2]}s`);
   }
   {
-    // ── ⑲p13 · 贯通流不断流（与 swap 相位零耦合的机器证明）────────────────
+    /* ── ⑲p13 · 波C：**热切换窗口里这一页一条流都没有** ─────────────────────
+       波B 证的是「贯通流的不透明度与 swap 相位零耦合」；波C 把那条流整枚删了
+       （架构图上的流 = 页上的 .mo-packet），于是这里改证一条更强的：
+       整个热切换窗口逐帧 data-lab-flow 恒 '0'、state().flows/bus/pkts 恒 0，
+       而热切换本身照样真的发生（机体 z 从 0 走到 −320 再回来）。 */
     const w13 = await pg.evaluate(async () => {
       window.deck.go(12); await new Promise(r => setTimeout(r, 1000));
       const t = window.__labTour; t.pace(24);
@@ -1517,15 +1519,16 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       return out;
     });
     const flows = [...new Set(w13.map(r => r.flow))];
-    ok(flows.length === 1, `⑲p13 贯通流不透明度在切换窗口里变了：${flows.join(' / ')}`);
-    ok(flows[0] === (THEME === 'dark' ? '0.24' : '0.26'),
-       `⑲p13 贯通流不透明度 ${flows[0]} != ${THEME === 'dark' ? '0.24' : '0.26'}`);
+    ok(flows.length === 1 && flows[0] === '0',
+       `⑲p13 切换窗口里 data-lab-flow 不恒 0：${flows.join(' / ')}`);
+    ok(w13.every(r => r.st.flows === 0 && r.st.bus === 0 && r.st.pkts === 0),
+       '⑲p13 切换窗口里画布上出现了流带 / 总线 / 包 —— 它们都该在页上的 SVG 里');
     ok(w13.every(r => r.run === '1'), '⑲p13 切换窗口里渲染循环停过');
-    // ghost 剖面也不许被 swap 带着走（穿字段那一段恒是细线）
-    ok(w13.every(r => r.st.gain[1] < 0.02),
-       '⑲p13 穿字段那一段的 ghost 剖面漂了（流会盖住字）');
-    ok(w13.every(r => r.st.gain[0] > 0.98 && r.st.gain[2] > 0.98),
-       '⑲p13 非 ghost 段没有满幅 —— 流被无端收细了');
+    /* 终审：**描边亮度不能让** —— 中枢盒是本页唯一的 hot 件，它的边必须是
+       accent 本色（alpha 恒 1、uBack 恒 1 ⇒ 不吃雾、不吃 gain）。
+       波B 走 1px 线 + 雾，实测只有 2D 那支 2.5px 笔的 34.5%(暗) / 32.3%(浅)。 */
+    ok(w13.every(r => r.st.hubOp === 1 && r.st.hubBack === 1),
+       `⑲p13 中枢盒的 hot 边不是 accent 本色（op ${w13[0].st.hubOp} / back ${w13[0].st.hubBack}）`);
     // 热切换本身**确实发生了**（否则「不耦合」是空的）：z 从 0 走到 −320 再回来
     const zIn = w13.map(r => r.st.zIn[1]), zCd = w13.map(r => r.st.zCd[1]);
     ok(Math.min(...zIn) <= -319 && Math.max(...zIn) >= -1,
@@ -1534,8 +1537,8 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
        `⑲p13 候选机体没有从景深进坞：${Math.min(...zCd).toFixed(0)}…${Math.max(...zCd).toFixed(0)}`);
     ok(w13.some(r => r.st.vis[1] === 3),
        '⑲p13 一进一出没有错峰重叠（交接的那一段应当两具机体同时在场）');
-    console.log(`  · ⑲p13 不断流：切换窗口 ${w13.length} 帧 · data-lab-flow 恒 ${flows[0]} · data-lab-run 恒 1`
-      + ` · 机体 z ${Math.min(...zIn).toFixed(0)} → 0`);
+    console.log(`  · ⑲p13 无流：切换窗口 ${w13.length} 帧 · data-lab-flow 恒 0（流带/总线/包 0/0/0）`
+      + ` · data-lab-run 恒 1 · 机体 z ${Math.min(...zIn).toFixed(0)} → 0`);
 
     /* ── ⑲p13c · 转子净空闸（终审硬伤一的机器证明）─────────────────────────
        量的不是参数，是**这一帧真的传上 GPU 的那批顶点**：state().clr 把环 /
@@ -1548,7 +1551,7 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       for (let s2 = 0; s2 <= 24.0001; s2 += 0.25) {
         t.seek(s2);
         const u = t.unit().state();
-        out.push({ t: +s2.toFixed(2), clr: u.clr, end: u.flowEnd, amp: u.flowAmp });
+        out.push({ t: +s2.toFixed(2), clr: u.clr, flows: u.flows });
       }
       t.pace(0);
       return out;
@@ -1560,17 +1563,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     // 构建期声明与运行时实测必须对得上（差一档就说明两边的解不同源）
     ok(Math.abs(worst.clr - dta.k.clrMin) < 2.5,
        `⑲p13c 构建期声明 ${dta.k.clrMin}px 与运行时实测 ${worst.clr.toFixed(1)}px 分叉`);
-    // 落点：整个窗口里终点恒定，落在发布槽右缘 ±40 内、且不越版心
-    const ends = [...new Set(c13.map(r => r.end.map(v => Math.round(v)).join(',')))];
-    ok(ends.length === 1, `⑲p13c 贯通流的落点在飘：${ends.join(' / ')}`);
-    ok(c13[0].end[0] <= 1800 && Math.abs(c13[0].end[0] - dta.k.flowSink) <= 40,
-       `⑲p13c 贯通流落点 x=${c13[0].end[0]} 不在发布槽右缘 ${dta.k.flowSink} ±40 内`);
-    // 运行时的幅度档 = 构建期覆写的那一档（opt 真的进了 uniform，不是写了没生效）
-    ok(String(c13[0].amp.map(v => +v.toFixed(3))) === String(dta.k.flowAmp.map(v => +v.toFixed(3))),
-       `⑲p13c 幅度覆写没生效：运行时 ${c13[0].amp} vs 声明 ${dta.k.flowAmp}`);
+    // 波C：整整 24s 里画布上一条流带都不许长回来（不是「起手是 0」，是逐帧是 0）
+    ok(c13.every(r => r.flows === 0),
+       '⑲p13c 24s 里画布上出现过流带 —— 架构图上的流只准是页上的 .mo-packet');
     console.log(`  · ⑲p13c 转子净空：24s × 97 帧最小 ${worst.clr.toFixed(1)}px（下限 ${dta.k.clr}）`
-      + ` · 贯通流落点 x${c13[0].end[0]}（发布槽右缘 ${dta.k.flowSink}）`
-      + ` · 幅度 w${c13[0].amp[0]}/floor${c13[0].amp[1]}/ghost${c13[0].amp[2]}/λ${c13[0].amp[3]}`);
+      + ` · 逐帧流带 0 条`);
   }
   {
     // ── ⑲p7 · 逐帧亮度突变（定拍 + 同 tick gl.readPixels）────────────────
@@ -1604,18 +1601,43 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       + `整幅 ${fl.dMean.toFixed(2)}/255（上限 4.0）· 8×8 分块 ${fl.dBlk.toFixed(2)}/255（上限 26）`);
   }
   {
-    // ── ⑲p10 · 介质逐条判据（不是一刀切）──────────────────────────────────
+    /* ── ⑲p10 · 波C：**大图的画布上一件会动的流都没有** ────────────────────
+       裁定（接入指南 ⑨）：架构图（模块 + 连线）上的流一律是页上的 .mo-packet，
+       介质带（mkStream）只给「场」用。所以这里逐帧反过来断言三个 0，
+       并正面点名画布上**只剩**十一只板 + 两枚环 + 五层深度。 */
     const m10 = await pg.evaluate(async () => {
+      const t = window.__labTour;
       window.deck.go(9); await new Promise(r => setTimeout(r, 900));
-      return window.__labTour.unit().state();
+      t.pace(24);
+      const out = [];
+      for (let s2 = 0; s2 <= 12.0001; s2 += 0.5) { t.seek(s2); out.push(t.unit().state()); }
+      t.pace(0);
+      return out;
     });
-    ok(m10.flows === 8, `⑲p10 流带 ${m10.flows} 条 != 8（四车道 + 四握手）`);
-    ok(m10.evt === 3, `⑲p10 保持粒子的离散事件 ${m10.evt} 条 != 3`);
-    ok(m10.ruler === 1, `⑲p10 「端到端 650ms」那把尺不见了（${m10.ruler}）`);
-    ok(m10.spd.every(v => v >= 77 && v <= 143),
-       `⑲p10 流带波峰速度越出 A 档：${m10.spd}`);
-    ok(m10.drift === 0, `⑲p10 大图起了视差位移（${m10.drift}）—— 零位移是红线`);
-    console.log(`  · ⑲p10 轻手术：介质 ${m10.flows} 条 → 流带 / 离散 ${m10.evt} 条 → 保持粒子 · 位移 0`);
+    ok(m10.every(u => u.flows === 0 && u.evt === 0 && u.ruler === 0 && u.spd.length === 0),
+       `⑲p10 画布上还有流带 / 粒子（${m10[0].flows}/${m10[0].evt}/${m10[0].ruler}）—— 它们都该在页上的 SVG 里`);
+    ok(m10[0].boxes === 11 && m10[0].layers === 5,
+       `⑲p10 板 ${m10[0].boxes} 只 / 层 ${m10[0].layers} 层（要 11 + 5）`);
+    // 板面是**实心**的：九只非 hot 盒（AI-VAD / 实时编排在页上是 fill:none）+ 两枚圆
+    ok(m10[0].fills === 11 && m10[0].tris > 300,
+       `⑲p10 填实了 ${m10[0].fills} 件 / ${m10[0].tris} 三角 —— 要 11 件（9 只板 + 2 枚圆）`);
+    /* ── 终审：**描边亮度不能让** ────────────────────────────────────────────
+       并排一眼能看出「LAB 版更灰」是这一页最要命的退步（3D 的意义是有厚度，
+       不是暗一档）。两条正面断言：
+         · hot 描边（AI-VAD / 实时编排）= accent **本色**，alpha 恒 1，一格不减；
+         · 普通描边的逐层衰减压在 [.90, 1] —— 最暗的一层也有 2D 那支笔的九成，
+           而且各层仍有先后（明暗还在，只是差在 10% 以内）。 */
+    ok(m10[0].hotOp === 1,
+       `⑲p10 hot 描边 alpha ${m10[0].hotOp} != 1 —— AI-VAD / 实时编排的边必须是 accent 本色`);
+    ok(m10[0].dkFloor >= 0.90 && Math.min(...m10[0].dk) >= 0.90 - 1e-9,
+       `⑲p10 描边逐层系数跌破九成：${m10[0].dk.map(v => v.toFixed(3))}（地板 ${m10[0].dkFloor}）`);
+    ok(Math.abs(Math.max(...m10[0].dk) - 1) < 1e-9 && new Set(m10[0].dk).size >= 4,
+       `⑲p10 顶层没有豁免 / 分层明暗塌成一档：${m10[0].dk.map(v => v.toFixed(3))}`);
+    ok(m10.every(u => u.drift === 0), `⑲p10 大图起了视差位移 —— 零位移是红线`);
+    console.log(`  · ⑲p10 波C：画布 = ${m10[0].boxes} 只板（实心 ${m10[0].fills} 件 / ${m10[0].tris} 三角）`
+      + ` + 2 枚环 + ${m10[0].layers} 层深度 · 流带/粒子/尺 0/0/0 · 位移 0`
+      + ` · 描边 hot ${m10[0].hotOp}（accent 本色）/ 逐层 [${m10[0].dk.map(v => v.toFixed(3)).join(',')}]`
+      + `（地板 ${m10[0].dkFloor}）`);
   }
   /* ═══════════════════════════════════════════════════════════════════════
      ㉒ 三轮「静态页升维」· 三枚加法层（P5 / P15 / P16）的机器自证
@@ -1825,9 +1847,9 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
   {
     // ── 版式分歧名册：六处，一处不多一处不少 ───────────────────────────
     const dv = await pg.evaluate(() => document.getElementById('deckStage').dataset.labDiverge);
-    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster;3:geom';
+    const want = '1:geom;21:geom;18:geom;18:stage;2:geom;13:poster;3:geom;10:poster';
     ok(dv === want, `⑲ 版式分歧名册漂移：${dv}`);
-    ok(dv.split(';').length === 7, `⑲ 版式分歧 ${dv.split(';').length} 处 != 7`);
+    ok(dv.split(';').length === 8, `⑲ 版式分歧 ${dv.split(';').length} 处 != 8`);
   }
 
   // ── ⑲s 全局流速复算：A 档 30 股全部落在 110 ±30% ───────────────────────
@@ -1842,8 +1864,14 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
     //   → 2026-09-03 ⑥ 互动星系：P22 从「余韵星野」（涟漪不是介质，**故意不进表**）
     //     换成互动星系，20 股全部是 A 档介质（14 核↔内环 + 6 内环→外环 · λ232）
     //     ⇒ 63 + 20 = **83 股**、13 + 1 = **14 页**。「P22 不许进表」那条断言随之反转。
-    ok(all.length === 83, `⑲s A 档股数 ${all.length} != 83（63 + P22 的 20 股）`);
-    ok(rows.length === 14, `⑲s A 档页数 ${rows.length} != 14`);
+    //   → 2026-09-07 波C 退册：P10 整页退出（四车道 + 四介质握手 −8 股、页数 −1）、
+    //     P13 的贯通流退出（−1 股；同页八枚总线包留在表里）⇒ **74 股 / 13 页**。
+    ok(all.length === 74, `⑲s A 档股数 ${all.length} != 74（83 − P10 的 8 − P13 贯通流 1）`);
+    ok(rows.length === 13, `⑲s A 档页数 ${rows.length} != 13`);
+    ok(!rows.some(([p]) => p === 10),
+       '⑲s P10 还挂着 data-lab-spd —— 架构图上没有介质带，它不该在 A 档表里');
+    ok(all.filter(r => r.p === 13).length === 8,
+       `⑲s P13 股数 ${all.filter(r => r.p === 13).length} != 8（贯通流退册，只剩八枚总线包）`);
     ok(rows.some(([p]) => p === 22), '⑲s P22 的 20 股互动流没进 A 档表 —— 它是介质');
     ok(all.filter(r => r.p === 22).length === 20,
        `⑲s P22 股数 ${all.filter(r => r.p === 22).length} != 20`);
