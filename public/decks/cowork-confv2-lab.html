@@ -4573,9 +4573,32 @@ function createGameArt(THREE, ctx) {
   const A=theme.accent.clone(), B=theme.secondary.clone();
   const C=new THREE.Color;
   const colors={shell:theme.dark?'#c8cbd5':'#edf0f3',graphite:theme.dark?'#333341':'#39394b',black:'#090b13',steel:theme.dark?'#777d90':'#969daf',edge:theme.dark?'#e7eaf0':'#a5aec0'};
-  const std=(color,rough=.32,metal=.65,extra={})=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal,...extra});
-  const M={white:std(colors.shell,.28,.32),graphite:std(colors.graphite,.30,.74),black:std(colors.black,.23,.68),steel:std(colors.steel,.23,.92),edge:std(colors.edge,.20,.83),rubber:std('#161921',.72,.12),pink:std(A,.26,.55,{emissive:A,emissiveIntensity:.85}),blue:std(B,.26,.55,{emissive:B,emissiveIntensity:.7})};
-  const emissive=(color,power=1.3)=>std(color,.24,.25,{emissive:color,emissiveIntensity:power});
+  const std=(color,rough=.32,metal=.65,extra={})=>new THREE.MeshPhysicalMaterial({color,roughness:rough,metalness:metal,envMapIntensity:1.25,...extra});
+  // A faint fired-glaze tooth. Deterministic value noise, differenced into a tangent
+  // normal map: at this scale you never see the grain, only a softer specular.
+  function glazeNormal(){
+    const S=256,cv=document.createElement('canvas');cv.width=cv.height=S;const cx=cv.getContext('2d'),img=cx.createImageData(S,S);
+    const rnd=(i,j,seed)=>{let h=Math.imul(i,374761393)+Math.imul(j,668265263)+Math.imul(seed,2246822519)|0;h=Math.imul(h^h>>>13,1274126177);return ((h^h>>>16)>>>0)/4294967295;};
+    const ease=u=>u*u*(3-2*u);
+    const octave=(x,y,n,seed)=>{const fx=x*n,fy=y*n,ix=Math.floor(fx),iy=Math.floor(fy),tx=ease(fx-ix),ty=ease(fy-iy),g=(i,j)=>rnd(((i%n)+n)%n,((j%n)+n)%n,seed);
+      return (g(ix,iy)*(1-tx)+g(ix+1,iy)*tx)*(1-ty)+(g(ix,iy+1)*(1-tx)+g(ix+1,iy+1)*tx)*ty;};
+    const height=new Float32Array(S*S);
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++)height[y*S+x]=octave(x/S,y/S,16,1)*.62+octave(x/S,y/S,48,7)*.38;
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){
+      const i=y*S+x,dx=height[y*S+(x+1)%S]-height[y*S+(x+S-1)%S],dy=height[((y+1)%S)*S+x]-height[((y+S-1)%S)*S+x];
+      const nx=-dx*2,ny=-dy*2,len=Math.hypot(nx,ny,1);
+      img.data[i*4]=(nx/len*.5+.5)*255;img.data[i*4+1]=(ny/len*.5+.5)*255;img.data[i*4+2]=(1/len*.5+.5)*255;img.data[i*4+3]=255;
+    }
+    cx.putImageData(img,0,0);
+    const tex=new THREE.CanvasTexture(cv);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(1/26,1/26);return tex;
+  }
+  const glaze=glazeNormal(),grain={normalMap:glaze,normalScale:new THREE.Vector2(.05,.05)};
+  const coat={clearcoat:.5,clearcoatRoughness:.16};
+  const M={white:std(colors.shell,.28,.32,{...coat,...grain}),graphite:std(colors.graphite,.30,.74,{clearcoat:.25,clearcoatRoughness:.16,...grain}),black:std(colors.black,.23,.68,{clearcoat:.25,clearcoatRoughness:.16}),steel:std(colors.steel,.22,.92,{clearcoat:0}),edge:std(colors.edge,.22,.92,{clearcoat:0}),rubber:std('#161921',.72,.12),pink:std(A,.26,.55,{emissive:new THREE.Color(A).offsetHSL(0,.10,0),emissiveIntensity:.85,...coat}),blue:std(B,.26,.55,{emissive:new THREE.Color(B).offsetHSL(0,.10,0),emissiveIntensity:.7,...coat})};
+  // AgX rolls saturation off the emissive accents (-23% measured on the cover LED); bias the
+  // emissive channel back toward the brand hue instead of raising intensity (which only whitens).
+  const vivid=c=>new THREE.Color(c).offsetHSL(0,.10,0);
+  const emissive=(color,power=1.3)=>std(color,.24,.25,{emissive:vivid(color),emissiveIntensity:power});
   function mesh(g,m,parent=root){const o=new THREE.Mesh(g,m);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
   function roundedShape(w,h,r){const s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);s.lineTo(w/2,h/2-r);s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);s.lineTo(-w/2+r,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);s.lineTo(-w/2,-h/2+r);s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);return s;}
   function solid(w,h,d,r=12,m=M.graphite,parent=root){const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:Math.min(6,r*.25),bevelThickness:Math.min(5,d*.16),curveSegments:14});g.translate(0,0,-d/2);return mesh(g,m,parent);}
@@ -4630,6 +4653,17 @@ function createGameArt(THREE, ctx) {
     const specimen=solid(30,20,15,4,emissive(A,1.4),bridge);specimen.position.set(28,2,38);
     const support=groupAt(1500,826,-145);support.rotation.x=1.21;const plinth=solid(580,202,22,48,M.graphite,support);plinth.rotation.z=-.09;
     const inset=solid(554,182,2,42,M.black,support);inset.position.z=15;inset.rotation.z=-.09;
+    // Two soft ellipses on the plinth's bearing face put the devices down on it
+    // instead of leaving them afloat. The support is tilted back past the camera's
+    // own elevation, so the face the audience reads as the top is the inset's side.
+    const patchCanvas=document.createElement('canvas');patchCanvas.width=patchCanvas.height=128;
+    const pc=patchCanvas.getContext('2d'),fade=pc.createRadialGradient(64,64,5,64,64,64);
+    fade.addColorStop(0,'rgba(0,0,0,.9)');fade.addColorStop(.42,'rgba(0,0,0,.46)');fade.addColorStop(1,'rgba(0,0,0,0)');
+    pc.fillStyle=fade;pc.fillRect(0,0,128,128);
+    const patchTexture=new THREE.CanvasTexture(patchCanvas);
+    const patchMaterial=new THREE.MeshBasicMaterial({map:patchTexture,color:'#05060a',transparent:true,opacity:theme.dark?.55:.35,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
+    const roll=-.09;
+    for(const px of [-160,165]){const patch=new THREE.Mesh(new THREE.PlaneGeometry(260,120),patchMaterial);patch.position.set(px*Math.cos(roll),px*Math.sin(roll),16.5);patch.rotation.z=roll;patch.renderOrder=-1;support.add(patch);}
     lamp(A,1410,570,160,185000);lamp(B,1700,690,100,135000);
 
     // The medium travels along the cables themselves, lifted a little towards the
@@ -4845,8 +4879,8 @@ function createHeroScenes(THREE,ctx){
   const size=x=>x*F.k;
   function material(type='ceramic',color){
     const c=color||({ceramic:theme.dark?0xc5d0e2:0xfafcff,metal:theme.dark?0x8999b4:0x66758c,graphite:theme.dark?0x222d42:0x50607a,glass:theme.secondary,signal:theme.accent}[type]);
-    const settings={ceramic:{metalness:.22,roughness:.23,clearcoat:.7,clearcoatRoughness:.24},metal:{metalness:.83,roughness:.25},graphite:{metalness:.63,roughness:.32},glass:{metalness:.15,roughness:.12,transparent:true,opacity:.29,depthWrite:false},signal:{metalness:.48,roughness:.2,emissive:c,emissiveIntensity:theme.dark?.65:.18}}[type];
-    return new THREE.MeshPhysicalMaterial({color:c,...settings});
+    const settings={ceramic:{metalness:.22,roughness:.23,clearcoat:.55,clearcoatRoughness:.16},metal:{metalness:.83,roughness:.22},graphite:{metalness:.63,roughness:.32},glass:{metalness:.15,roughness:.12,transparent:true,opacity:.29,depthWrite:false},signal:{metalness:.48,roughness:.2,emissive:new THREE.Color(c).offsetHSL(0,.10,0),emissiveIntensity:theme.dark?.65:.18}}[type];
+    return new THREE.MeshPhysicalMaterial({color:c,envMapIntensity:1.25,...settings});
   }
   const M={ceramic:material(),metal:material('metal'),graphite:material('graphite'),glass:material('glass'),pink:material('signal'),blue:material('signal',theme.secondary)};
   function rounded(w,h,d,r=6){
@@ -5240,7 +5274,7 @@ function installGameLab(THREE, options={}) {
   const css=document.createElement('style');css.textContent=`.game-lab-canvas{position:absolute!important;inset:0!important;z-index:0!important;width:1920px!important;height:1080px!important;max-width:none!important;max-height:none!important;pointer-events:none!important}.game-lab-on>[class]:not(.game-lab-canvas){z-index:1}.game-lab-on [data-game-replaced]{visibility:hidden!important}.game-lab-measure *{animation:none!important;transition:none!important;filter:none!important;clip-path:none!important}.game-lab-measure :is(.flow,.rise,.pop,.spread,.settle):not([transform]){transform:none!important}.game-lab-debug{position:fixed;left:16px;bottom:78px;z-index:20000;display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #ffffff35;border-radius:7px;background:#10131cee;color:#f2f4fc;font:12px/1.4 monospace;box-shadow:0 3px 16px #0003}.game-lab-debug button{font:inherit;color:inherit;background:#ffffff16;border:1px solid #ffffff35;border-radius:4px;padding:4px 7px;cursor:pointer}.game-lab-debug [data-slow=true]{color:#f3ba65}@media print{.game-lab-canvas,.game-lab-debug{display:none!important}[data-game-replaced]{visibility:visible!important}}`;document.head.append(css);
   try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});}catch(e){stats.errors.push(String(e));return window.__gameLab={state:()=>({mode:'original',errors:stats.errors}),fallback(){},pause(){}};}
   renderer.domElement.className='game-lab-canvas';renderer.domElement.setAttribute('aria-hidden','true');renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.20;renderer.shadowMap.enabled=query.get('shadows')!=='off';renderer.shadowMap.type=THREE.PCFShadowMap;
+  renderer.toneMapping=THREE.AgXToneMapping;renderer.toneMappingExposure=1.00;renderer.shadowMap.enabled=query.get('shadows')!=='off';renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const presentationScene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(2*Math.atan(H/2/D)*180/Math.PI,W/H,10,8000);camera.position.set(960,-540,D);camera.lookAt(960,-540,0);
   const toWorld=(x,y,z=0)=>{const k=(D-z)/D;return new THREE.Vector3(960+(x-960)*k,-540+(-y+540)*k,z)};
@@ -5282,14 +5316,19 @@ function installGameLab(THREE, options={}) {
     if(environment&&environmentTheme===(t.dark?'dark':'light'))return environment.texture;
     environment?.dispose();const s=new THREE.Scene();s.background=new THREE.Color(t.dark?'#2b3140':'#b5bfce');
     const box=new THREE.Mesh(new THREE.BoxGeometry(800,800,800),new THREE.MeshBasicMaterial({color:t.dark?'#272d3b':'#bcc6d6',side:THREE.BackSide}));s.add(box);
-    const panels=[[-190,110,150,160,320,5.5],[240,100,60,110,320,3.2],[-10,330,-20,480,110,3.8],[20,-220,160,380,50,.55]];
-    for(const [x,y,z,w,h,intensity]of panels){const col=new THREE.Color().setRGB(intensity,intensity*.97,intensity*.94);const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));p.position.set(x,y,z);p.lookAt(0,0,0);s.add(p)}
+    // Four neutral studio panels, plus two coloured ones so chrome, titanium and
+    // black glaze carry the deck's own magenta and blue in their reflections.
+    const tint=t.dark?1:.7;
+    const panels=[[-190,110,150,160,320,5.5],[240,100,60,110,320,3.2],[-10,330,-20,480,110,3.8],[20,-220,160,380,50,.55],
+      [300,-60,-220,160,220,2.2*tint,'#f887c2'],[260,240,-160,220,160,2.6*tint,'#6f9bff']];
+    for(const [x,y,z,w,h,intensity,hue]of panels){const col=hue?new THREE.Color(hue).multiplyScalar(intensity):new THREE.Color().setRGB(intensity,intensity*.97,intensity*.94);const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));p.position.set(x,y,z);p.lookAt(0,0,0);s.add(p)}
     const pmrem=new THREE.PMREMGenerator(renderer);environment=pmrem.fromScene(s,0,.1,1000);environmentTheme=t.dark?'dark':'light';pmrem.dispose();s.traverse(o=>{o.geometry?.dispose();o.material?.dispose()});return environment.texture;
   }
   function lights(scene,t){
-    scene.environment=makeEnvironment(t);scene.environmentIntensity=t.dark?1.05:.9;
-    scene.add(new THREE.HemisphereLight(t.dark?0xc8d9ff:0xffffff,t.dark?0x161c32:0x606b86,t.dark?1.7:2.0));
-    const key=new THREE.DirectionalLight(0xfff0e8,t.dark?3.0:2.5);key.position.set(180,420,1150);key.target.position.set(960,-540,-100);key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-1100,right:1100,top:750,bottom:-750,near:10,far:3600});key.shadow.bias=-.0005;key.shadow.normalBias=1;key.shadow.radius=4;scene.add(key,key.target);
+    // AgX is flatter than ACES, so the same look needs a little more light in.
+    scene.environment=makeEnvironment(t);scene.environmentIntensity=t.dark?1.2:1.0;
+    scene.add(new THREE.HemisphereLight(t.dark?0xc8d9ff:0xffffff,t.dark?0x161c32:0x606b86,t.dark?2.0:2.3));
+    const key=new THREE.DirectionalLight(0xfff0e8,t.dark?3.5:2.9);key.position.set(180,420,1150);key.target.position.set(960,-540,-100);key.castShadow=true;key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-1100,right:1100,top:750,bottom:-750,near:10,far:3600});key.shadow.bias=-.0005;key.shadow.normalBias=1;key.shadow.radius=4;scene.add(key,key.target);
     const rim=new THREE.DirectionalLight(t.secondary,2.3);rim.position.set(1750,-200,400);rim.target.position.set(900,-550,0);scene.add(rim,rim.target);
     const fill=new THREE.DirectionalLight(t.accent,.85);fill.position.set(1050,-1400,850);fill.target.position.set(900,-550,0);scene.add(fill,fill.target);
   }
