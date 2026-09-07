@@ -1322,6 +1322,9 @@ GX_LIGHT = """  /* ── ⑥ 互动星系（P22 末页 · 展望）· 浅底 �
      浅底走正常混合（同样的墨越叠越灰）⇒ 不透明度整体比暗档高一档、点径粗一档。 */
   --gx-core:var(--accent);      --gx-core-op:.74;  --gx-core-size:2.8;  /* 核 · 人与人 */
   --gx-core-hot:var(--accent-deep);                --gx-core-gain:.60;
+  /* 核体光晕（核几何再画一遍 · 只给核不给环）：浅底走正常混合 ⇒ 越叠越灰，
+     alpha 收到 .04；点径 ×3。**不进 gx_ptpad** —— 它是次感知的柔光，不是墨。 */
+  --gx-halo-op:.04;             --gx-halo-size:3.0;
   --gx-in-a:var(--accent-deep); --gx-in-a-op:.70;  --gx-in-size:2.8;    /* 内环 · 人 */
   --gx-in-b:var(--l-agent,#5b8cff); --gx-in-b-op:.74;                   /* 内环 · 智能体 */
   --gx-out-a:#3b6ae6;           --gx-out-a-op:.64; --gx-out-size:2.6;   /* 外环 · 智能体 */
@@ -1343,6 +1346,8 @@ GX_DARK = """  /* ⑥ 互动星系 · 暗底：走加色混合，同样的墨越
      点径收一档；实芯换白芯（身份由峰值色承担），弧与径向流压到「在，但不抢」。 */
   --gx-core:var(--accent);      --gx-core-op:.66;  --gx-core-size:2.6;
   --gx-core-hot:var(--accent);                     --gx-core-gain:.85;
+  /* 核体光晕 · 暗底走加色混合（越叠越亮）⇒ alpha .06；点径同样 ×3 */
+  --gx-halo-op:.06;             --gx-halo-size:3.0;
   --gx-in-a:var(--accent);      --gx-in-a-op:.60;  --gx-in-size:2.6;
   --gx-in-b:var(--l-agent,#6e96ff); --gx-in-b-op:.64;
   --gx-out-a:var(--l-agent,#6e96ff); --gx-out-a-op:.54; --gx-out-size:2.5;
@@ -2699,7 +2704,7 @@ def _lerp_poly(pts, n):
 #     makeQuiet / ㉒c 三条克制闸）。Colin 这一轮的意图是**展望**（使命 / 愿景 /
 #     三种互动），末页不再是「余韵」—— 整枚场景退役，产物里一行死代码不留。
 #
-#   这枚场景的发源地是 convoai-info P8（2026-09-03 三稿 · 12,000 点体积点云）。
+#   这枚场景的发源地是 convoai-info P8（2026-09-03 三稿 · 24,800 点体积点云）。
 #   本轮把它整块搬进旗舰当单一真相，三个消费方各取所需：
 #     · lab    P22：figbox(1060,130,760, vb760×800) · 盘心局部 (380,400) · 尺度 0.75
 #     · engine P22：同一段 page() 代码、同一张 poster（**裸放**，不裹 lp）
@@ -2707,7 +2712,7 @@ def _lerp_poly(pts, n):
 #   所以下面每一件都带 (cx, cy, s) 三个参数：形是同一枚，只是落在哪儿、多大。
 #   ⚠ s 只缩放**几何**（半径 / 厚度 / 抬升 / 深度雾半程）；带宽 sw、点径 pad、
 #     流速 110px/s、波长 λ232 **不缩放** —— 那是全家族同一种介质的常数，
-#     不是这枚图形的尺寸。12,000 点**原样**：同一枚星系只是缩小，不是变稀。
+#     不是这枚图形的尺寸。24,800 点**原样**：同一枚星系只是缩小，不是变稀。
 #
 #   ── 语义（三环由内向外 = 三种互动，一张实时网上）────────────────────────
 #     ① 核 · 人与人 · 已经发生      实心体积球核 r≈100，密度剖面与 P17 大脑逐字同式
@@ -2723,10 +2728,13 @@ _GX_SWAY, _GX_SWAYP = 6.0, 17.0      # 轻摇 ±6° / 17s（P17 大脑同款原�
 _GX_D = 1400.0                       # camPx 深度
 # 深度雾半程**贴真实 z 跨度**：盘面倾斜后 z 跨 ±(470·sin62° + 30·cos62°) = ±429
 _GX_HALF = 430.0
-# 三环（点数合计 12,000 —— 与 P17 大脑的 12000 点同一量级、同一套点材质）
-_GX_CORE_R, _GX_CORE_N = 100.0, 3800
-_GX_IN_R0, _GX_IN_R1, _GX_IN_T, _GX_IN_N = 200.0, 290.0, 22.0, 4200
-_GX_OUT_R0, _GX_OUT_R1, _GX_OUT_T, _GX_OUT_N = 360.0, 470.0, 30.0, 4000
+# 三环（点数合计 24,800 —— 2026-09-07「密度 2×」轮：Blender 试制版比线上好看的
+#   头一件事就是**点更多**（3800/4200/4000 → 6600/8600/9600，对齐那一版的三环点数）。
+#   半径 / 厚度 / 倾角 / 转速 / λ / 弧 24 条 / 流 20 股一个都没动 —— 只是**变密**，
+#   形一格没变。两条环带仍是偶数（人 / 智能体交错各半）。
+_GX_CORE_R, _GX_CORE_N = 100.0, 6600
+_GX_IN_R0, _GX_IN_R1, _GX_IN_T, _GX_IN_N = 200.0, 290.0, 22.0, 8600
+_GX_OUT_R0, _GX_OUT_R1, _GX_OUT_T, _GX_OUT_N = 360.0, 470.0, 30.0, 9600
 _GX_N = _GX_CORE_N + _GX_IN_N + _GX_OUT_N
 _GX_DREF = _GX_CORE_R                # 核的厚度剖面参考距（与大脑的 dref 同位）
 # ── 外环的「网在生长」（生灭窗写法照 P2 剧场：uLife 归零才回卷 ⇒ 形上零跳变）──
@@ -2803,7 +2811,7 @@ def _gx_page(r, phi, wo, cx, cy, s, spin=0.0, sway=0.0):
 
 
 def _gx_cloud():
-    """三环 12,000 点的**盘面局部**参数（构建期与运行时逐字同式 ⇒ poster = 那一帧）。
+    """三环 24,800 点的**盘面局部**参数（构建期与运行时逐字同式 ⇒ poster = 那一帧）。
        返回 [(名, [(r, φ, w, aA, aH, aS, aQ, aG), …]), …]
          aA 基础不透明度权重 · aH 热度 · aS 点径权重
          aQ 生灭窗相位（外环用）· aG 角度门槛（外环用 · 生长锋按角度扫）"""
@@ -2821,9 +2829,14 @@ def _gx_cloud():
         surf = _gx_h1(i, 571.3) ** 0.40
         w = (-1.0 if _gx_h1(i, 853.9) < 0.5 else 1.0) * T * surf
         r3 = math.hypot(rho, w) / _GX_CORE_R
+        # 「核体成太阳」（2026-09-07）：点数到 6600 之后再把亮度层次拉开一档 ——
+        #   表面项 .26+.74·surf → .30+.70·surf（表面不再那么一刀切）
+        #   厚度项 .24+.76·T/R → .20+.80·T/R（中心更亮、边缘更化 ⇒ 是球不是圆饼）
+        #   点径权重 surf → 0.6+0.7·surf（Blender 试制版的 `sizes`：核的点本身更大）
+        # **不加呼吸**：LAB 定拍器只认 1 圈/90s 与 ±6°/17s 两枚钟，不另立 3s 的脉冲。
         core.append((rho, phi, w,
-                     (0.26 + 0.74 * surf) * (0.24 + 0.76 * T / _GX_CORE_R),
-                     max(0.0, 1.0 - r3) ** 1.1, surf, 0.0, 0.0))
+                     (0.30 + 0.70 * surf) * (0.20 + 0.80 * T / _GX_CORE_R),
+                     max(0.0, 1.0 - r3) ** 1.1, 0.6 + 0.7 * surf, 0.0, 0.0))
     out.append(("core", core))
     # ②③ 两条环带：φ 走黄金角（角向恒均匀）、r 与 w 各走一对解耦的哈希 ⇒
     #     r 三角分布（带心密、带缘疏）、w 三角分布（贴盘面密）——「带」而不是「圈」。
@@ -8208,7 +8221,7 @@ function r2(i){ return [(0.5 + i/PHI2) % 1, (0.5 + i/(PHI2*PHI2)) % 1]; }
    JS 只读 `K.gx`，所以它**天然尺度无关** —— lab P22（盘心 (380,400) · s=0.75）
    与 info P8（盘心 (860,278) · s=1.0）跑的是同一份代码，差别全在 K 表里。
    三稿与 P17 五脑区大脑**同一语系**：同一套 K.b 式的点材质（PX_PT / camPx / 深度雾）、
-   同一套 tmax/dref 密度剖面、12,000 点、一枚占满舞台的发光体，外面挂标注引线。
+   同一套 tmax/dref 密度剖面、24,800 点、一枚占满舞台的发光体，外面挂标注引线。
      ① 核 · 人与人 · 已经发生：实心体积球核 r≈100，向日葵铺点（零随机源），
         厚度剖面 T(d)=tmax·sin(π/2·(d/dref)^0.62) —— 与 makeBrain 逐字同式；
         热度按到球心的距离给 ⇒ **中心最亮**，一切从这里长出来。
@@ -8263,7 +8276,7 @@ function makeGalaxy(ctx){
   let csp = 1, ssp = 0, csw = 1, ssw = 0, introE = 0, densE = 0;
 
   /* 盘面局部 (cosφ, sinφ, r, w) → 世界：自转 → 倾角 → 轻摇 → 投影锁。
-     cos/sin(φ) 预存 ⇒ 每帧零三角函数，12,000 点只有加乘（Python 侧 _gx_page 同式）。*/
+     cos/sin(φ) 预存 ⇒ 每帧零三角函数，24,800 点只有加乘（Python 侧 _gx_page 同式）。*/
   const _o = [0,0,0];
   function place(cp, sp, r, wo, out){
     const c2 = cp*csp - sp*ssp, s2 = sp*csp + cp*ssp;
@@ -8277,7 +8290,7 @@ function makeGalaxy(ctx){
     return out;
   }
 
-  /* ── 三环 12,000 点：静态参数一次算好，position 每帧重算（GPU 只吃坐标）── */
+  /* ── 三环 24,800 点：静态参数一次算好，position 每帧重算（GPU 只吃坐标）── */
   function coreT(rho){
     const d = Math.max(0, Q.coreR - rho);
     return Q.coreR*Math.sin(Math.PI/2*Math.pow(d/Q.dref, 0.62));
@@ -8288,8 +8301,10 @@ function makeGalaxy(ctx){
     const wv = (h1(i,853.9) < 0.5 ? -1 : 1)*T*surf;
     const r3 = Math.hypot(rho, wv)/Q.coreR;
     o[0]=rho; o[1]=phi; o[2]=wv;
-    o[3]=(0.26+0.74*surf)*(0.24+0.76*T/Q.coreR);
-    o[4]=Math.pow(Math.max(0,1-r3), 1.1); o[5]=surf; o[6]=0; o[7]=0;
+    // 「核体成太阳」：亮度两项 .30+.70·surf × .20+.80·T/R（中心更亮、边缘更化），
+    // 点径权重 0.6+0.7·surf —— 与构建期 `_gx_cloud()` 的 core 分支**逐字同式**。
+    o[3]=(0.30+0.70*surf)*(0.20+0.80*T/Q.coreR);
+    o[4]=Math.pow(Math.max(0,1-r3), 1.1); o[5]=0.6+0.7*surf; o[6]=0; o[7]=0;
   }
   function bandGen(r0, r1, tk, s0){
     return function(i, o){
@@ -8333,7 +8348,28 @@ function makeGalaxy(ctx){
   const outAMat = mkMat(SH, GXO_VS, PX_PT_FS, outU());
   const outBMat = mkMat(SH, GXO_VS, PX_PT_FS, outU());
   [coreMat, inAMat, inBMat, outAMat, outBMat].forEach(m => { m.uniforms.uSoft.value = .10; });
-  layer(Q.n0, genCore, 1, 0, coreMat);
+  const coreL = layer(Q.n0, genCore, 1, 0, coreMat);
+  /* ── 核体光晕（便宜的 bloom · 2026-09-07）────────────────────────────────
+     不上 EffectComposer / UnrealBloomPass：那要多带一串 addon，离线归档件也得
+     跟着带。做法是**把核体几何再画一遍** —— 同一份 BufferGeometry（位置每帧
+     只算一次，光晕天然跟着转跟着摇）、同一个点云着色器，只有 uniform 不同：
+       uSize ×3（--gx-halo-size）· alpha ×.06 暗底加色 / ×.04 浅底正常混合
+       （--gx-halo-op，颜色仍取 --gx-core 的墨）
+     ⚠ uSoft 是**反向** smoothstep(0.25, uSoft, d)：uSoft 越小，falloff 越宽 =
+       边越软（主点云 .10 = 中间一块实、边上化开）。光晕要整枚 sprite 都是
+       渐变 ⇒ uSoft 收到 .02（几乎从中心一路化到边）。一稿把它写成 .30 —— 那样
+       edge0 < edge1，d 恒 ≤0.25 ⇒ alpha 恒 0，光晕**一个像素都没画**（实测锤过）。
+     depthWrite:false（mkMat 已给）· renderOrder −1 ⇒ 排在主点云**之前**画。
+     **只给核体，不给环带** —— 环带一晕就糊字。
+     降级：最低档不画 —— 禁 WebGL / 低 fps 两条直接退 poster（整枚场景都不在），
+     reduced-motion 那一档场景还在（渲一帧停帧），所以在这里显式关掉。 */
+  const HALO_ON = !(window.matchMedia
+                    && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const haloMat = mkMat(SH, GX_VS, PX_PT_FS, { uSz1:{value:.55} });
+  haloMat.uniforms.uSoft.value = .02;
+  const haloPts = new THREE.Points(coreL.g, haloMat);
+  haloPts.frustumCulled = false; haloPts.renderOrder = -1; haloPts.visible = HALO_ON;
+  scene.add(haloPts);
   const genIn = bandGen(Q.r[1], Q.r[2], Q.t[0], 0.0);
   const genOut = bandGen(Q.r[3], Q.r[4], Q.t[1], 7.0);
   layer(Q.n1>>1, genIn, 2, 0, inAMat);       // 人（accent）
@@ -8500,6 +8536,10 @@ function makeGalaxy(ctx){
       const oz = cssNum('--gx-out-size', 2.7);
       pair(coreMat, '--gx-core',  '--gx-core-hot', cssNum('--gx-core-op', .90),
            cssNum('--gx-core-gain', .55), cz);
+      // 光晕：核的色与热度照抄，只把 alpha 乘 --gx-halo-op、点径乘 --gx-halo-size
+      pair(haloMat, '--gx-core',  '--gx-core-hot',
+           cssNum('--gx-core-op', .90) * cssNum('--gx-halo-op', .06),
+           cssNum('--gx-core-gain', .55), cz * cssNum('--gx-halo-size', 3));
       pair(inAMat,  '--gx-in-a',  '--gx-core',  cssNum('--gx-in-a-op', .80), .30, iz);
       pair(inBMat,  '--gx-in-b',  '--gx-in-b',  cssNum('--gx-in-b-op', .84), 0,   iz);
       pair(outAMat, '--gx-out-a', '--gx-spark', cssNum('--gx-out-a-op', .76), .45, oz);
@@ -8518,8 +8558,8 @@ function makeGalaxy(ctx){
         flows[i].theme(rad ? rc : fc, rad ? rr : fr, rad ? ro : fo, rad ? rro : fro, back);
         setBlend(flows[i].mat, add);
       }
-      [coreMat, inAMat, inBMat, outAMat, outBMat, arcMat, rimMat, headMat].forEach(m => {
-        m.uniforms.uBack.value = back; setBlend(m, add); });
+      [coreMat, haloMat, inAMat, inBMat, outAMat, outBMat, arcMat, rimMat, headMat]
+        .forEach(m => { m.uniforms.uBack.value = back; setBlend(m, add); });
     },
   };
 }
@@ -12572,8 +12612,8 @@ def build():
     # ── ⑳galaxy P22「互动星系」的构建期硬闸（解出来的，不是调出来的）────────────
     #    与 convoai-info P8 的 ⓖ / ⑳galaxy 同一批判据，只是半径全部乘了 s。
     _gs = GX22["s"]
-    assert _GX_CORE_N + _GX_IN_N + _GX_OUT_N == _GX_N == 12000, \
-        "⑳galaxy 三环点数合计 %d != 12000" % _GX_N
+    assert _GX_CORE_N + _GX_IN_N + _GX_OUT_N == _GX_N == 24800, \
+        "⑳galaxy 三环点数合计 %d != 24800" % _GX_N
     assert _GX_IN_N % 2 == 0 and _GX_OUT_N % 2 == 0, "⑳galaxy 环带点数不是偶数（交错分不平）"
     _gr = [v * _gs for v in (_GX_CORE_R, _GX_IN_R0, _GX_IN_R1, _GX_OUT_R0, _GX_OUT_R1)]
     assert all(_gr[i] > _gr[i - 1] for i in range(1, 5)), \

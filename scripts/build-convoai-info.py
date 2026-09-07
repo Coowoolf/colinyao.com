@@ -4980,9 +4980,9 @@ def build():
               <= 2 * math.pi * _LAB._D_TURNS]
     assert len(_cross) == 2, "ⓗ P4 两条声带交叉 %d 次（要两次）" % len(_cross)
     # ⓖ P8 互动星系的机器面（三稿 · 接替二稿的「网在生长」十条边相位账）─────────
-    #    ① 点数：三环合计恰 12,000（与 P5 大脑同一量级 · 交错各半 ⇒ 两条环带都是偶数）
-    assert _GX_CORE_N + _GX_IN_N + _GX_OUT_N == _GX_N == 12000, \
-        "ⓖ P8 三环点数合计 %d != 12000" % (_GX_CORE_N + _GX_IN_N + _GX_OUT_N)
+    #    ① 点数：三环合计恰 24,800（2026-09-07「密度 2×」轮 · 交错各半 ⇒ 两条环带都是偶数）
+    assert _GX_CORE_N + _GX_IN_N + _GX_OUT_N == _GX_N == 24800, \
+        "ⓖ P8 三环点数合计 %d != 24800" % (_GX_CORE_N + _GX_IN_N + _GX_OUT_N)
     assert _GX_IN_N % 2 == 0 and _GX_OUT_N % 2 == 0, "ⓖ P8 环带点数不是偶数，交错分不平"
     #    ② 三环半径严格递增、且**互不相交**（核外缘 → 内环 → 外环，两道净空缝在）
     _rr = (_GX_CORE_R, _GX_IN_R0, _GX_IN_R1, _GX_OUT_R0, _GX_OUT_R1)

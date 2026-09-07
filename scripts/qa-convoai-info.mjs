@@ -76,7 +76,7 @@ const DEEPLINK = [{ page: 5, chip: 'agentExpand', hash: 16 }, { page: 6, chip: '
 //   ⑳spd 的 14 股 / 6 页改回 13 / 5 —— 这三处是这一枚场景在 qa 里的全部落点。
 // v3.1：P8 的 `river`（三条支流一条河）退役，换成 `net`（一张实时网上的三种互动）。
 // v3.2：`net`（线框示意图 · Colin 判「丑」「不适配」）再退役，换成 `galaxy`
-//       （互动星系 · 12,000 点体积点云 —— 与 P5 五脑区大脑同一语系）。
+//       （互动星系 · 24,800 点体积点云 —— 与 P5 五脑区大脑同一语系）。
 // v3.3：P7 的 `wall`（14 家星座墙）退役，换成 `stack`（五层价值地壳 —— 五枚圆盘
 //       沿一根竖轴堆叠，与 P5 五脑区大脑 / P8 互动星系同一语系）。
 const LAB_SCENES = { 1: 'voice', 2: 'globe', 3: 'grow', 4: 'duplex', 5: 'brain',
@@ -111,7 +111,7 @@ const GL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ig
 const HOLD = '?lab=hold';
 const OUT = process.env.OUT || '/home/claude/eco-review';
 // 导航超时给到 90s：容器里是 SwiftShader 软渲染，独立上下文段会同时开两个浏览器，
-// 七枚场景（含 12000 点的大脑）一起 boot 时首屏 load 会拖过 playwright 的 30s 默认值。
+// 七枚场景（含 12000 点的大脑与 24,800 点的星系）一起 boot 时首屏 load 会拖过 playwright 的 30s 默认值。
 // 这是**跑得动**的问题，不是闸门阈值 —— 判据一格没放松。
 const NAV_MS = +(process.env.NAV_MS || 90000);
 mkdirSync(OUT, { recursive: true });
@@ -715,9 +715,11 @@ await pg.click('#deckSwap'); await pg.waitForTimeout(250);
     });
     ok(d.scene === 'galaxy', `⑳galaxy P8 场景名 ${d.scene} != galaxy`);
     ok(Math.abs(d.lam - 232) < 1e-6, `⑳galaxy 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
-    // ① 点数：三环合计恰 12,000（与 P5 大脑同一量级）· 两条环带偶数（交错各半）
-    ok(d.pts === 12000 && d.ring.reduce((a, b) => a + b, 0) === 12000,
-       `⑳galaxy 三环点数 [${d.ring}] 合计 != 12000（声明 ${d.pts}）`);
+    // ① 点数：三环合计恰 24,800（2026-09-07「密度 2×」轮）· 两条环带偶数（交错各半）
+    ok(d.pts === 24800 && d.ring.reduce((a, b) => a + b, 0) === 24800,
+       `⑳galaxy 三环点数 [${d.ring}] 合计 != 24800（声明 ${d.pts}）`);
+    ok(String(d.ring) === '6600,8600,9600',
+       `⑳galaxy 三环点数 [${d.ring}] != 6600,8600,9600（与 lab P22 分叉了）`);
     ok(d.ring.length === 3 && d.ring[1] % 2 === 0 && d.ring[2] % 2 === 0,
        `⑳galaxy 环带点数不是偶数，人 / 智能体交错分不平：[${d.ring}]`);
     // ② 三环半径严格递增 + 两道净空缝（不然三环在屏上糊成一团）

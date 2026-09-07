@@ -1712,9 +1712,11 @@ ok(cur === '2', `⑨ 方向键翻页失灵，当前 P${cur}`);
       ok(d.scene === 'galaxy', `⑳galaxy P22 场景名 ${d.scene} != galaxy`);
       ok(Math.abs(d.lam - K_AS_LAM) < 1e-6, `⑳galaxy 波长 ${d.lam} 不是 lab-kit ⑨ 的 232px`);
       ok(Math.abs(d.s - 0.75) < 1e-9, `⑳galaxy 尺度 ${d.s} != 0.75`);
-      // ① 点数：三环合计恰 12,000（与 P17 大脑同一量级）· 两条环带偶数（交错各半）
-      ok(d.pts === 12000 && d.ring.reduce((a, b) => a + b, 0) === 12000,
-         `⑳galaxy 三环点数 [${d.ring}] 合计 != 12000（声明 ${d.pts}）`);
+      // ① 点数：三环合计恰 24,800（2026-09-07「密度 2×」轮）· 两条环带偶数（交错各半）
+      ok(d.pts === 24800 && d.ring.reduce((a, b) => a + b, 0) === 24800,
+         `⑳galaxy 三环点数 [${d.ring}] 合计 != 24800（声明 ${d.pts}）`);
+      ok(String(d.ring) === '6600,8600,9600',
+         `⑳galaxy 三环点数 [${d.ring}] != 6600,8600,9600（与 info P8 分叉了）`);
       ok(d.ring.length === 3 && d.ring[1] % 2 === 0 && d.ring[2] % 2 === 0,
          `⑳galaxy 环带点数不是偶数，人 / 智能体交错分不平：[${d.ring}]`);
       // ② 三环半径：**除以 s 之后**与 info P8 逐条同数，且严格递增 + 两道净空缝
