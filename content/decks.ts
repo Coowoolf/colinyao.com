@@ -185,6 +185,12 @@ export const deckRoutes: { source: string; file: string }[] = [
   // Fable 逐帧对比 v2 后修三页（P1 双缆成环 / P32 雷达留光 / P42 交集实体回归）。
   // 预览路由，不进 speechDecks 索引；线上 /cowork-confv2 仍是实体版原稿。
   { source: "/cowork-confv2-lab", file: "/decks/cowork-confv2-lab.html" },
+  // iRTE 2026 实时智能大会 · 产品专场版（46 页 = 母稿 45 页 + Q&A 尾卡）。deck 家族第四支「irte」：
+  // 模板 iRTE2026_PPT模板_产品.pptx 为视觉真源（#080C14 底 · 绿 #96FF9D 主强调 · 青 / 薰衣草 / 深紫 · 思源黑体
+  // · 像素章节号 · 星空阶梯章节底），CONF 家族给字号尺度与运动原语，不上 LAB 3D。
+  // 与母稿的差异只有五处（P1 封面套模板 / P2 主场开场 / 四页案例留白 / 删 P44 单向门 / P44 一页带走换对象）。
+  // 重建：python3 scripts/build-irte2026.py · 自检：node scripts/qa-irte2026.mjs（BASE=http://127.0.0.1:8899）
+  { source: "/irte2026", file: "/decks/irte2026.html" },
   // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
   // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
