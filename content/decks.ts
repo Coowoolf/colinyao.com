@@ -191,6 +191,13 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 与母稿的差异只有五处（P1 封面套模板 / P2 主场开场 / 四页案例留白 / 删 P44 单向门 / P44 一页带走换对象）。
   // 重建：python3 scripts/build-irte2026.py · 自检：node scripts/qa-irte2026.mjs（BASE=http://127.0.0.1:8899）
   { source: "/irte2026", file: "/decks/irte2026.html" },
+  // Bema × Agora 品牌设计系列 V2.1「纸墨 × 砖印」（16 页 · LAB 家族 · 单文件双主题：宣纸 = light 默认 / 墨 = dark）。
+  // Bema = 声网自研全双工语音模型（会主动开口）的名字与视觉系统：物件只有一个——陶土的地 + 青砖的台阶（砖印），
+  // 青砖永远青砖色、永远站在陶土色块上，纸分宣纸 / 墨两张，蓝只属于声网 Logo。封面 / 末页为 R2-02 实拍陶土块，P10 一枚 three 场景「一次轮替」走站内
+  // /decks/assets/three/（r185）；字体 Urbanist / Inter Tight / JetBrains Mono / Montserrat 内嵌，无外部字体请求。
+  // 2026-09-11 Colin：推送上线但隐藏链接 —— 只走 /bema 直达，不进任何索引数组、不进 sitemap、X-Robots noindex。
+  // 母本与构建：Vault 01-对话式AI/Bema-品牌设计系列/_source/build_bema.py（三闸 + 降级链全绿后再复制到此）。
+  { source: "/bema", file: "/decks/bema.html" },
   // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
   // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
