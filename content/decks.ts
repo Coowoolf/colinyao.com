@@ -199,6 +199,11 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 2026-09-11 Colin：推送上线但隐藏链接 —— 只走 /bema 直达，不进任何索引数组、不进 sitemap、X-Robots noindex。
   // 母本与构建：Vault 01-对话式AI/Bema-品牌设计系列/_source/build_bema.py（三闸 + 降级链全绿后再复制到此）。
   { source: "/bema", file: "/decks/bema.html" },
+  // Bema 模型发布 deck · iRTE 2026（28 页 · 25 分钟 · Bema 墨版默认深底，左下可切宣纸 · P10 一枚 three 场景「一次轮替」走站内 three）。
+  // v2（2026-09-14）：P11–P14 预留四条效果视频位（研发对齐后把 .vid 换成 <video>），【待填】槽位明标在页上，不造数。
+  // 发布前内容——只走 /bema-irte 直达，不进任何索引数组、不进 sitemap、X-Robots noindex；发布日（2026-10-24）之前不外发链接。
+  // 母本与构建：Vault 07-个人品牌与成长/演讲档案/2026-iRTE/_source-bema-launch/（python3 _assemble.py && python3 build_launch.py）。
+  { source: "/bema-irte", file: "/decks/bema-irte.html" },
   // aiot26 正讲版（37 页 · 大会 conf 视觉 · 8.9 正讲版）= V3 内容层 + 大会黑紫金视觉层（单主题）
   // ACT04 为「问题驱动 · 逐题作答」五问结构；页数无独立字段，仅此注释登记
   { source: "/aiot26-conf", file: "/decks/aiot26-conf.html" },
