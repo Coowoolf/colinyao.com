@@ -191,7 +191,8 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 与母稿的差异只有五处（P1 封面套模板 / P2 主场开场 / 四页案例留白 / 删 P44 单向门 / P44 一页带走换对象）。
   // 重建：python3 scripts/build-irte2026.py · 自检：node scripts/qa-irte2026.mjs（BASE=http://127.0.0.1:8899）
   { source: "/irte2026", file: "/decks/irte2026.html" },
-  // Bema × Agora 品牌设计系列 V2.1「纸墨 × 砖印」（16 页 · LAB 家族 · 单文件双主题：宣纸 = light 默认 / 墨 = dark）。
+  // Bema × Agora 品牌设计系列 V2.2「纸墨 × 砖印」（16 页 · LAB 家族 · 单文件双主题：宣纸 = light 默认 / 墨 = dark）。
+  // V2.2（2026-09-14 评审反馈）：划界文案只在各自的家页说一次，其余页去重；P3 改「命名层级」（厂商 / 家族 - 代 - 能力后缀）；P14 两格「蓝」换成两格「形」。
   // Bema = 声网自研全双工语音模型（会主动开口）的名字与视觉系统：物件只有一个——陶土的地 + 青砖的台阶（砖印），
   // 青砖永远青砖色、永远站在陶土色块上，纸分宣纸 / 墨两张，蓝只属于声网 Logo。封面 / 末页为 R2-02 实拍陶土块，P10 一枚 three 场景「一次轮替」走站内
   // /decks/assets/three/（r185）；字体 Urbanist / Inter Tight / JetBrains Mono / Montserrat 内嵌，无外部字体请求。
