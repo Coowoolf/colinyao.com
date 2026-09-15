@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
     return [
       ...deckRoutes.map((r) => ({ source: r.source, headers: noindex })),
+      { source: "/gate", headers: [...noindex, { key: "Cache-Control", value: "no-store" }] },
       { source: "/decks", headers: noindex },
       { source: "/decks/:path*", headers: noindex },
       { source: "/media/:path*", headers: noindex },
