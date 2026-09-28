@@ -210,6 +210,10 @@ export const deckRoutes: { source: string; file: string }[] = [
   // 私人页（非 deck）：卧推 100kg 训练计划（2026.8.31–11.11 · 11 周周期化）。
   // 只走私享链接 /bench100，不进任何索引/导航/sitemap；noindex 走 meta + /decks/* 头双重。
   { source: "/bench100", file: "/decks/bench100.html" },
+  // 私人页（非 deck）：上海新房四轴象限（2026-09-28 · 看房清单 · 数据内联 391 盘 + 410 排除 · 自带双主题与 localStorage 覆写）。
+  // 母本：Vault System/Exports/2026-09-28-上海新房看房清单/fable51-quadrant/上海新房四轴象限.html（md5 cb367eab），站内版只补了 <meta robots> 并把 <title> 挪回 head。
+  // 只走私享链接 /sh-quadrant，不进任何索引/导航/sitemap，不加口令门；页内指向 fang.com / anjuke 的 <a> 是证据链接，保留。全是个人看房数据，链接不外发。
+  { source: "/sh-quadrant", file: "/decks/sh-quadrant.html" },
   // 2026-08-30 Colin：贷后催收方案 deck · 私享不进索引。
   //《AI 驱动的智能贷后催收解决方案》15 页 —— 面向银行 / 消费金融 / 互金平台的贷后、
   // 风控、合规、技术负责人，销售方案汇报场景。内容蓝本是 Vault 的
