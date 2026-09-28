@@ -443,7 +443,7 @@
 
   <section id="weeks" aria-label="逐周课表">
     <h2 class="ink">逐周课表 <span class="en">Week by Week</span></h2>
-    <p class="sub" style="font-size:14px">训练日自选星期：2 练如周一 + 周四，3 练如一三五（隔天恢复）。点任意一天进入训练模式：逐组打勾、自动休息计时、记 RPE。两版共用同一条重日（Day A）进度线，随时可切换、互不丢进度。所有重量为工作组重量，热身台阶见「上铁」区。RPE 8 = 力竭前还剩 2 次；RPE 9 = 还剩 1 次。</p>
+    <p class="sub" style="font-size:14px">你的四练排法：周一 Day A 重推 → 周二腿 → 周四 Day B 技术推 → 周五背；重推日前一天留空。划船、引体等背部动作归你的背日，推日辅助只留推类、三头和肩（面拉留着，护肩袖）。点任意一天进入训练模式：逐组打勾、自动休息计时、记 RPE。两版共用同一条重日（Day A）进度线，随时可切换、互不丢进度。所有重量为工作组重量，热身台阶见「上铁」区。RPE 8 = 力竭前还剩 2 次；RPE 9 = 还剩 1 次。</p>
     <div id="weeksList"></div>
   </section>
 
@@ -494,6 +494,8 @@
       <div class="panel fx fx-rise" style="--i:1"><h3>缺课怎么办</h3><p style="font-size:14px">一周只能练一次时，优先保 Day A，并把 Day B 的暂停卧推挪进来做 2 组；辅助全砍。缺掉的课不补量，直接按日历走下一周。</p></div>
       <div class="panel fx fx-rise" style="--i:2"><h3>连续两周爆表</h3><p style="font-size:14px">顶组连续两周超上限、或睡眠崩了 → 插入一个减载周（70 kg 3×3），后续顺延；此时测试日目标改为 97.5，12 月再拿 100。97.5 也是 +7.5 kg 的大 PR。</p></div>
       <div class="panel fx fx-rise" style="--i:3"><h3>疼痛红线</h3><p style="font-size:14px">肩/肘的尖锐痛不是酸痛。出现 → 当天立即停大重量，降 20% 找无痛的握距和轨迹；连续一周仍痛就先解决问题再回计划。</p></div>
+      <div class="panel fx fx-rise" style="--i:4"><h3>四练怎么排（胸 2 · 腿 1 · 背 1）</h3><p style="font-size:14px">重推日前一天留空；腿日紧跟重推日；背日放技术推之后，距下次重推 ≥ 48h（做了大重量硬拉 ≥ 72h）。背日多做引体、划船、面拉——上背越厚，卧推越稳。W5 减载周腿背同减；W10 腿背改轻（RPE ≤ 7、不做大重量硬拉）；W11 周一激活后腿背停到测试完成。</p></div>
+      <div class="panel fx fx-rise" style="--i:5"><h3>RPE 怎么感知</h3><p style="font-size:14px">RPE = 10 − 还能做的次数，看杆速不看感受：最后一次只是变慢、轨迹不变 = ≤ 8；中途出现明显减速点、咬着推过去 = 9；不确定还能不能再来一次 = 9.5；臀离凳、杆走歪一律 9.5+。组末问自己「现在必须再做 2 次能不能完成」——秒答能是 ≤ 8，犹豫就是 8.5–9。新手误差 ±1 正常，分清顺利 / 到顶 / 过线三档就够计划用。</p></div>
     </div>
   </section>
 
@@ -548,9 +550,9 @@
 'use strict';
 /* ============ 计划数据 ============ */
 // block: {n:名称, w:重量kg(0=空杆), s:组数, r:次数, rx:'次数区间', cap:RPE上限, rest:秒, opt:末尾可选组数, note, main:1, lad:[[w,r]...], goal:1}
-var accA=[['上斜哑铃卧推','8–10'],['双杠臂屈伸','8–12'],['绳索三头下压','10–12'],['杠铃/坐姿划船','8–10']];
-var accB=[['站姿肩推','8–10'],['引体/高位下拉','8–10'],['侧平举','12–15'],['面拉','15–20']];
-var accC=[['双杠臂屈伸','8–12'],['引体/高位下拉','8–10'],['面拉','15–20']];
+var accA=[['上斜哑铃卧推','8–10'],['双杠臂屈伸','8–12'],['绳索三头下压','10–12']];
+var accB=[['站姿肩推','8–10'],['侧平举','12–15'],['面拉','15–20']];
+var accC=[['双杠臂屈伸','8–12'],['面拉','15–20']];
 function acc(list,sets){return list.map(function(a){return {n:a[0],rx:a[1],s:sets||3,rest:90};});}
 function M(n,w,s,r,cap,rest,o){var b={n:n,w:w,s:s,r:r,cap:cap,rest:rest,main:1};if(o)for(var k in o)b[k]=o[k];return b;}
 
@@ -575,7 +577,7 @@ var PLAN={test:'2026-11-11',weeks:[
    B:{t:'技术日',blocks:[M('暂停卧推',67.5,4,5,null,150),M('窄距卧推',60,3,8,null,120)].concat(acc(accB))},
    L:{t:'技术·速度日',blocks:[M('暂停卧推',65,4,4,7,150)].concat(acc(accB))},
    C:{t:'容量日',blocks:[M('卧推',67.5,4,6,8,150),M('窄距卧推',60,3,8,null,120)].concat(acc(accC))}}},
- {n:5,s:'2026-09-28',e:'2026-10-04',ph:'dl',top:70,tag:'国庆周',wnote:'这周就是留给国庆的；出行错开训练日即可，别在假期后补量。若影响到 W6 前半周，把 W6 的 Day A 挪到 10.8 之后，间隔 ≥ 48h。',days:{
+ {n:5,s:'2026-09-28',e:'2026-10-04',ph:'dl',top:70,tag:'国庆周',wnote:'这周就是留给国庆的；出行错开训练日即可，别在假期后补量。腿日背日同样减载。若影响到 W6 前半周，把 W6 的 Day A 挪到 10.8 之后，间隔 ≥ 48h。',days:{
    A:{t:'轻 · 只求杆速',blocks:[M('卧推',70,3,3,6,120,{note:'每一次都推得又快又干脆；辅助减半'})].concat(acc(accA,2))},
    B:{t:'可省',blocks:[M('卧推',60,3,5,null,120,{note:'出行就放心休——这周的任务是恢复，不是训练量'})].concat(acc(accB,2))},
    L:{t:'可省',blocks:[M('卧推',60,3,3,null,120,{note:'或完全休息'})].concat(acc(accB,2))},
@@ -600,12 +602,12 @@ var PLAN={test:'2026-11-11',weeks:[
    B:{t:'速度日',blocks:[M('速度组',75,4,2,null,150,{note:'全部追求杆速，绝不磨'}),M('暂停卧推',67.5,2,2,null,150)].concat(acc(accB,2))},
    L:{t:'速度日',blocks:[M('速度组',75,4,2,null,150,{note:'全部追求杆速，绝不磨'}),M('暂停卧推',67.5,2,2,null,150)].concat(acc(accB,2))},
    C:{t:'轻容量日',blocks:[M('卧推',70,3,3,null,120,{note:'只求快，20 分钟内结束'})]}}},
- {n:10,s:'2026-11-02',e:'2026-11-08',ph:'peak',top:95,cp:'✦ 检查点 3',days:{
+ {n:10,s:'2026-11-02',e:'2026-11-08',ph:'peak',top:95,cp:'✦ 检查点 3',wnote:'峰值周腿日背日改轻：RPE ≤ 7、组数减半，不做大重量硬拉——系统疲劳会直接吃掉测试日的杆速。',days:{
    A:{t:'周一/周二 · 冲 95',blocks:[M('单次冲击',95,1,1,9,300,{note:'新 PR！干脆完成 → 测试日冲 100；很磨或失败 → 测试日目标 97.5。这是测试前最后一次大重量'}),M('退让组',82.5,2,2,null,210)]},
    B:{t:'周四/周五 · 收',blocks:[M('卧推',77.5,3,2,null,150,{note:'只求快；辅助只留面拉、侧平举各 2 组轻重量；开始刻意睡够'})]},
    L:{t:'周四/周五 · 收',blocks:[M('卧推',77.5,3,2,null,150,{note:'只求快；辅助只留面拉、侧平举各 2 组轻重量'})]},
    C:{t:'休息',off:'并入减量——测试周前最后 5 天只留上面两练，睡满 7–9 小时。'}}},
- {n:11,s:'2026-11-09',e:'2026-11-15',ph:'test',top:100,tag:'测试周',days:{
+ {n:11,s:'2026-11-09',e:'2026-11-15',ph:'test',top:100,tag:'测试周',wnote:'周一激活之后，腿、背停练到测试完成；周二完全休息，周四以后再恢复腿背。',days:{
    A:{t:'周一 11.9 · 激活',blocks:[{n:'激活台阶',lad:[[0,10],[40,5],[60,3],[70,2],[80,1]],rest:120,main:1,note:'每一下都快而干脆，20 分钟内结束，不做任何辅助'}]},
    B:{t:'周三 11.11 · 测试日',blocks:[{n:'热身台阶',lad:[[0,10],[40,8],[60,5],[70,3],[80,1],[87.5,1],[92.5,1]],rest:180,main:1,note:'决策点在 92.5：干脆 → 上 100；磨 → 改 97.5'},M('冲击 100 kg',100,1,1,null,300,{goal:1,note:'搭档协助出杆 · 保护杠到位 · 全握。你为它准备了 75 天'})]}}}
 ]};
@@ -784,7 +786,7 @@ function renderToday(){var d=now(),wk=weekOf(d);
     if(d<w1){var days=Math.ceil((w1-d)/864e5);
       html='<div class="today-shell"><div class="t-head">'+dateLine+'<span class="t-phase">备战期</span></div>'+
         '<div class="t-title">距开练还有 '+days+' 天 · 周一 8.31 从 72.5 kg 开始</div>'+
-        '<p style="font-size:13.5px;color:var(--ink2);margin-top:8px">这几天把睡眠调到 7–9 小时、蛋白吃到位；想先热热身，可以点下面 W1 预览整个训练流程。</p>'+
+        '<p style="font-size:13.5px;color:var(--ink2);margin-top:8px">8.28 的 60 kg 8×8 已经给旧周期收了尾——之后到周一推类动作完全休息（背、腿随意），睡满 7–9 小时、蛋白吃够，以饱满状态开第一周。想先熟悉流程，可以点下面 W1 预览。</p>'+
         '<div class="day-tiles'+(dayKeys(PLAN.weeks[0]).length===3?' c3':'')+'">'+dayKeys(PLAN.weeks[0]).map(function(k){return tile(PLAN.weeks[0],k,1);}).join('')+'</div></div>';}
     else{var g=S.sess['w11B'];var got=g&&g.sets&&(g.sets[1]||[])[0];
       html='<div class="today-shell"><div class="t-head">'+dateLine+'<span class="t-phase">周期完成</span></div>'+
